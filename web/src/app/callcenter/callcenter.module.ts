@@ -43,10 +43,14 @@ import { FormClienteMasterComponent } from './components/cliente-master/form-cli
 import { ClienteMasterTelefonoComponent } from './components/cliente-master/cliente-master-telefono/cliente-master-telefono.component';
 import { SeleccionaTelefonoComponent } from './components/cliente-master/selecciona-telefono/selecciona-telefono.component';
 import { ClienteMasterDireccionComponent } from './components/cliente-master/cliente-master-direccion/cliente-master-direccion.component';
+import {AgregaDireccionComponent} from './components/cliente-master/agrega-direccion/agrega-direccion.component';
 
-
+/**
+ * New Components must be added in declarations,
+ * Modules from libraries for example Angular.Material must be added on imports
+ */
 @NgModule({
-  declarations: [PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterDireccionComponent],
+  declarations: [AgregaDireccionComponent,PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterDireccionComponent],
   imports: [
     CommonModule,
     CallcenterRoutingModule,

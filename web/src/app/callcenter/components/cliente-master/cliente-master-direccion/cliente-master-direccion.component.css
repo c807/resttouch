@@ -1,0 +1,9 @@
+.direccion-head {
+  display: flex;
+  flex-direction: row;
+  margin-left: 30px;
+}
+
+.button-st{
+  margin-left: 30px !important;
+}

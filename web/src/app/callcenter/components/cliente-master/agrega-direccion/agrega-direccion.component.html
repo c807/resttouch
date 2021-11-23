@@ -1,0 +1,93 @@
+<h2 class="mat-title">Agregar una direccion a David</h2>
+<mat-divider></mat-divider>
+<div class="example-container">
+
+  <form #frmFormasPago="ngForm" novalidate>
+
+
+    <table class="example-full-width" cellspacing="0">
+      <tr>
+        <td>
+
+          <mat-form-field appearance="fill" class="input-ml">
+            <mat-label>Tipo Direccion</mat-label>
+            <mat-select>
+              <mat-option value="option">Casa</mat-option>
+            </mat-select>
+            <mat-hint align="end">Seleccione uno.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="input-ml">
+            <mat-label>Zona</mat-label>
+            <input matInput type="number" placeholder="Ej. 2" min="0">
+            <mat-error *ngIf="false">Min size: 10px</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="input-ml">
+            <mat-label>Codigo Postal</mat-label>
+            <input matInput type="number" placeholder="Ej. 01057" min="0">
+            <mat-error *ngIf="false">Min size: 10px</mat-error>
+          </mat-form-field>
+
+          <mat-form-field hintLabel="Municipio" appearance="fill" class="input-ml">
+            <mat-label>Ingrese Municipio</mat-label>
+            <input matInput #input maxlength="50" placeholder="Ex. Mixco">
+            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field hintLabel="Pais" appearance="fill" class="input-ml">
+            <mat-label>Ingrese Pais</mat-label>
+            <input matInput #input maxlength="50" placeholder="Ex. Mexico">
+            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="input-ml">
+            <mat-label>De Baja</mat-label>
+            <mat-select>
+              <mat-option value="true">Si</mat-option>
+              <mat-option value="false">No</mat-option>
+            </mat-select>
+            <mat-hint align="end">Dar de baja esta direccion</mat-hint>
+          </mat-form-field>
+
+        </td>
+      </tr>
+
+      <tr>
+        <td >
+
+          <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
+            <mat-label>Ingrese Direccion 1</mat-label>
+            <input matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
+            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
+            <mat-label>Ingrese Direccion 2</mat-label>
+            <input matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
+            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field hintLabel="Notas" appearance="fill" class="notes-st">
+            <mat-label>Alguna nota</mat-label>
+            <input matInput #input maxlength="50" placeholder="Ex. Sobre la Roosvelt">
+            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+          </mat-form-field>
+
+
+        </td>
+      </tr>
+    </table>
+
+    <div mat-dialog-actions align="end">
+      <button mat-raised-button (click)="cancelar()" color="warn">Cancelar</button>
+      <button mat-raised-button (click)="guardar()" color="primary">Guardar</button>
+    </div>
+
+  </form>
+
+</div>
+
+
+
+

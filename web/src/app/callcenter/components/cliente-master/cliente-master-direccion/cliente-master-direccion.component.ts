@@ -9,15 +9,16 @@ import { ClienteMasterService } from '../../../services/cliente-master.service';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { Subscription } from 'rxjs';
+import {AgregaDireccionComponent} from '../agrega-direccion/agrega-direccion.component';
 
 @Component({
   selector: 'app-cliente-master-direccion',
   templateUrl: './cliente-master-direccion.component.html',
   styleUrls: ['./cliente-master-direccion.component.css']
 })
-export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {  
+export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
 
-  @Input() clienteMaster: ClienteMaster; 
+  @Input() clienteMaster: ClienteMaster;
   public cmDireccion: ClienteMasterDireccion;
   public lstDirecciones: ClienteMasterDireccionResponse[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -54,6 +55,13 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     );
   }
 
+  agregarDireccion = () => {
+    const cmdRef = this.dialog.open(AgregaDireccionComponent, {
+      maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
+      disableClose: true,
+    });
+  }
+
   editarDireccion = (direccion: ClienteMasterDireccionResponse) => {
     this.cargando = true;
     this.cmDireccion = {
@@ -83,14 +91,14 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
           direccion.debaja = 1;
           this.editarDireccion(direccion);
         }
       })
-    );    
+    );
   }
 
 }
