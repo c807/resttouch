@@ -59,6 +59,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(AgregaDireccionComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
+      data:{clienteMaster:this.clienteMaster}
     });
   }
 

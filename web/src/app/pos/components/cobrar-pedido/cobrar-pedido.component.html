@@ -47,7 +47,9 @@
                  [(ngModel)]="formaPago.propina">
           <!-- Warning Icon ,Tip Quantity Exceed -->
 
-          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip"  matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage"  style="color:orange;" matSuffix>warning</mat-icon>
+          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
+                    [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning
+          </mat-icon>
         </mat-form-field>
         <!--Fin de input de propina por forma de pago-->
         <!-- Inicia input de documento -->
@@ -72,7 +74,9 @@
           <th class="text-left">FP</th>
           <th class="text-right">Mon</th>
           <th class="text-right">Prop
-            <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip"  matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage"  style="color:orange;" matSuffix>warning</mat-icon>
+            <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
+                      [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning
+            </mat-icon>
 
           </th>
         </tr>

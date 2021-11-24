@@ -103,7 +103,24 @@ class Cliente_master extends CI_Controller
     {
         $this->output->set_output(json_encode($this->srch_telefono($_GET)));
     }
-
+    public function guardar_direccion2()
+    {
+        $cltDir = new Cliente_master_direccion_model();
+        $req = json_decode(file_get_contents('php://input'), true);
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            $datos['exito'] = $cltDir->guardar($req);
+            if ($datos['exito']) {
+                $datos['mensaje'] = 'Datos actualizados con éxito.';
+                $datos['cliente_master_direccion'] = $cltDir;
+            } else {
+                $datos['mensaje'] = $cltDir->getMensaje();
+            }
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
     public function guardar_telefono()
     {
         $req = json_decode(file_get_contents('php://input'), true);
@@ -156,13 +173,13 @@ class Cliente_master extends CI_Controller
 
     public function buscar_telefono_cliente_master()
     {
-        $this->output->set_output(json_encode($this->Cliente_master_telefono_model->get_lista_telefonos($_GET)));        
+        $this->output->set_output(json_encode($this->Cliente_master_telefono_model->get_lista_telefonos($_GET)));
     }
 
     public function desasociar_telefono_cliente_master($id)
     {
         $datos = ['exito' => false];
-        $cmt = new Cliente_master_telefono_model($id);        
+        $cmt = new Cliente_master_telefono_model($id);
         $datos['exito'] = $cmt->guardar(['desasociado' => 1]);
         if ($datos['exito']) {
             $datos['mensaje'] = 'Telefono desasociado del cliente con éxito.';
@@ -174,10 +191,10 @@ class Cliente_master extends CI_Controller
 
     private function get_direccion_completa($dir)
     {
-        $dc = trim($dir->direccion1);        
+        $dc = trim($dir->direccion1);
         if(!empty(trim($dir->direccion2))) { $dc .= ', '.trim($dir->direccion2); }
         if((int)$dir->zona > 0) { $dc .= ", zona {$dir->zona}"; }
-        if(!empty(trim($dir->codigo_postal))) { $dc .= ', código postal '.trim($dir->codigo_postal); }        
+        if(!empty(trim($dir->codigo_postal))) { $dc .= ', código postal '.trim($dir->codigo_postal); }
         if(!empty(trim($dir->municipio))) { $dc .= ', '.trim($dir->municipio); }
         if(!empty(trim($dir->departamento))) { $dc .= ', '.trim($dir->departamento); }
         if(!empty(trim($dir->pais))) { $dc .= ', '.trim($dir->pais); }
@@ -220,7 +237,7 @@ class Cliente_master extends CI_Controller
             $datos['mensaje'] = "Parámetros inválidos.";
         }
         $this->output->set_output(json_encode($datos));
-    }    
+    }
 
     private function srch_datos_facturacion($args = []) {
         if (isset($args['nit']) && !empty(trim($args['nit']))) {
@@ -235,7 +252,7 @@ class Cliente_master extends CI_Controller
                 $args['_like']['nit'] = $nit;
             }
             if (isset($args['nombre']) && !empty(trim($args['nombre']))) {
-                $nombre = trim(str_replace(' ', '%', trim($args['nombre'])));                
+                $nombre = trim(str_replace(' ', '%', trim($args['nombre'])));
                 unset($args['nombre']);
                 $args['_like']['nombre'] = $nombre;
             }
@@ -249,7 +266,7 @@ class Cliente_master extends CI_Controller
     }
 
     public function buscar_datos_facturacion()
-    {        
+    {
         $this->output->set_output(json_encode($this->srch_datos_facturacion($_GET)));
     }
 

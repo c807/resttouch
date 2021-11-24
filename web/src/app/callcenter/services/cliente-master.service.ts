@@ -38,26 +38,34 @@ export class ClienteMasterService {
   buscarTelefono(fltr: any = {}): Observable<Telefono[]> {
     return this.http.get<Telefono[]>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/buscar_telefono?${qs.stringify(fltr)}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getTelefonosClienteMaster(fltr: any = {}): Observable<ClienteMasterTelefono[]> {
     return this.http.get<ClienteMasterTelefono[]>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/buscar_telefono_cliente_master?${qs.stringify(fltr)}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+
+  saveDireccionClienteMaster(entidad: any): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_direccion2`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   saveTelefonosClienteMaster(entidad: any): Observable<any> {
     return this.http.post<any>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_telefono`,
       entidad
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));        
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   desasociarTelefonoClienteMaster(idClienteMasterTelefono: number): Observable<any> {
     return this.http.get<any>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/desasociar_telefono_cliente_master/${idClienteMasterTelefono}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));        
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   buscarDireccion(fltr: any = {}): Observable<ClienteMasterDireccionResponse[]> {
@@ -70,7 +78,7 @@ export class ClienteMasterService {
     return this.http.post<any>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_direccion${!!entidad.cliente_master_direccion ? ('/' + entidad.cliente_master_direccion) : ''}`,
       entidad
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
 }
