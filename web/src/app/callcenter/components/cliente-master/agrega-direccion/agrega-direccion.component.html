@@ -1,4 +1,4 @@
-<h2 class="mat-title">Agregar una direccion a David</h2>
+<h2 class="mat-title">Agregar una direccion a {{nombre}}</h2>
 <mat-divider></mat-divider>
 <div class="example-container">
 
@@ -12,7 +12,7 @@
           <mat-form-field appearance="fill" class="input-ml">
             <mat-label>Tipo Direccion</mat-label>
 
-            <mat-select [(ngModel)]="direccion.tipo"  name="tipo" required >
+            <mat-select  [(value)]="direccion.tipo_direccion" [(ngModel)]="direccion.tipo_direccion"  name="tipo_direccion" required >
               <mat-option *ngFor="let td of tipoDireccion" [value]="td.tipo_direccion">{{td.descripcion}}</mat-option>
             </mat-select>
             <mat-hint align="end">Seleccione uno.</mat-hint>
@@ -21,13 +21,11 @@
           <mat-form-field appearance="fill" class="input-ml">
             <mat-label>Zona</mat-label>
             <input [(ngModel)]="direccion.zona" name="zona"   matInput type="number" placeholder="Ej. 2" min="0">
-            <mat-error *ngIf="direccion.zona">Error</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="fill" class="input-ml">
             <mat-label>Codigo Postal</mat-label>
             <input [(ngModel)]="direccion.codigo_postal"  name="codigo_postal" matInput type="number" placeholder="Ej. 01057" min="0">
-            <mat-error *ngIf="false">Min size: 10px</mat-error>
           </mat-form-field>
 
           <mat-form-field hintLabel="Municipio" appearance="fill" class="input-ml">
@@ -43,19 +41,19 @@
           </mat-form-field>
 
           <mat-form-field hintLabel="Departamento" appearance="fill" class="input-ml">
-            <mat-label>Ingrese Pais</mat-label>
-            <input [(ngModel)]="direccion.departamento"  name="departamento" matInput #input maxlength="50" placeholder="Ex. Mexico">
+            <mat-label>Ingrese Departament</mat-label>
+            <input [(ngModel)]="direccion.departamento"  name="departamento" matInput #input maxlength="50" placeholder="Ex. Mixco">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
-          <mat-form-field appearance="fill" class="input-ml">
-            <mat-label>De Baja</mat-label>
-            <mat-select [(ngModel)]="direccion.debaja" required name="debaja">
-              <mat-option value="true">Si</mat-option>
-              <mat-option value="false">No</mat-option>
-            </mat-select>
-            <mat-hint align="end">Dar de baja esta direccion</mat-hint>
-          </mat-form-field>
+<!--          <mat-form-field *ngIf="isEditing" appearance="fill" class="input-ml">-->
+<!--            <mat-label>De Baja</mat-label>-->
+<!--            <mat-select [(ngModel)]="direccion.debaja" required name="debaja">-->
+<!--              <mat-option value="true">Si</mat-option>-->
+<!--              <mat-option value="false">No</mat-option>-->
+<!--            </mat-select>-->
+<!--            <mat-hint align="end">Dar de baja esta direccion</mat-hint>-->
+<!--          </mat-form-field>-->
 
         </td>
       </tr>
@@ -65,19 +63,19 @@
 
           <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
             <mat-label>Ingrese Direccion 1</mat-label>
-            <input  [(ngModel)]="direccion.dir_one" required name="dir_one" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
+            <input  [(ngModel)]="direccion.direccion1" required name="direccion1" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
           <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
             <mat-label>Ingrese Direccion 2</mat-label>
-            <input  [(ngModel)]="direccion.dir_two"  name="dir_two" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
+            <input  [(ngModel)]="direccion.direccion2"  name="direccion2" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
           <mat-form-field hintLabel="Notas" appearance="fill" class="notes-st">
             <mat-label>Alguna nota</mat-label>
-            <input [(ngModel)]="direccion.notes" name="notes"  matInput #input maxlength="50" placeholder="Ex. Sobre la Roosvelt">
+            <input [(ngModel)]="direccion.notas" name="notes"  matInput #input maxlength="50" placeholder="Ex. Sobre la Roosvelt">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 

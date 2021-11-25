@@ -39,6 +39,6 @@ export interface ClienteMasterDireccionResponse {
     departamento?: string;
     pais?: string;
     notas?: string;
-    debaja?: number;
-    direccion_completa?: string;    
+    debaja?: any;
+    direccion_completa?: string;
 }

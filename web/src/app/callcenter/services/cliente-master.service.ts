@@ -74,11 +74,6 @@ export class ClienteMasterService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  guardarDireccion(entidad: ClienteMasterDireccion): Observable<any> {
-    return this.http.post<any>(
-      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_direccion${!!entidad.cliente_master_direccion ? ('/' + entidad.cliente_master_direccion) : ''}`,
-      entidad
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
-  }
+
 
 }

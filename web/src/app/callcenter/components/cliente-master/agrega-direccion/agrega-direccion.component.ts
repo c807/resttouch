@@ -23,8 +23,11 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  public nombre: any = {};
   public direccion: any = {};
   public tipoDireccion: any = {};
+
+  public isEditing = false;
 
   private endSubs = new Subscription();
 
@@ -43,6 +46,12 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.tipoDireccion = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA);
+    this.isEditing = this.data.isEditing;
+    if (this.data.defData) {
+      this.direccion = this.data.defData;
+    }
+
+    this.nombre = this.data.clienteMaster.nombre;
 
     // Carga tipos de direccion
     this.tipoDireccionSrvc.get().subscribe(lst => {
@@ -59,24 +68,27 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   onDireccionSubmit = () => {
     const obj = {
       cliente_master: this.data.clienteMaster.cliente_master,
-      tipo_direccion: 1,
-      direccion1: this.direccion.dir_one,
-      direccion2: this.direccion.dir_two,
+      tipo_direccion: this.direccion.tipo_direccion,
+      direccion1: this.direccion.direccion1,
+      direccion2: this.direccion.direccion2,
       zona: this.direccion.zona,
       codigo_postal: this.direccion.codigo_postal,
       municipio: this.direccion.municipio,
       departamento: this.direccion.departamento,
       pais: this.direccion.pais,
       notas: this.direccion.notas,
-      debaja: 1
+      debaja: 0,
+      cliente_master_direccion: this.direccion.cliente_master_direccion
     }
 
     this.endSubs.add(
       this.clienteMasterSrvc.saveDireccionClienteMaster(obj).subscribe(res => {
         if (res.exito) {
+          this.dialogRef.close();
           this.snackBar.open(res.mensaje, 'Direccion asociada', {duration: 3000});
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Direccion asociada', {duration: 7000});
+          console.log(`ERROR: ${res.mensaje}`, 'Error al agregar direccion)');
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar direccion', {duration: 7000});
         }
       })
     );

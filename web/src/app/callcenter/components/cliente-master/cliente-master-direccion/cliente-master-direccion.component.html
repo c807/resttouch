@@ -30,12 +30,12 @@
     <td>{{dir.tipo_direccion.descripcion}}</td>
     <td><p>{{dir.direccion_completa}}</p></td>
     <td style="width: 10%;">
-      <button mat-raised-button type="button" color="accent" (click)="editarDireccion(dir)" [disabled]="cargando">
+      <button mat-raised-button type="button" color="accent" (click)="editarDireccion(dir)" >
         Editar
       </button>
     </td>
     <td style="width: 10%;">
-      <button mat-raised-button type="button" color="warn" (click)="eliminarDireccion(dir)" [disabled]="cargando">
+      <button mat-raised-button type="button" color="warn" (click)="eliminarDireccion(dir)" >
         Eliminar
       </button>
     </td>

@@ -1,14 +1,21 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatDialog} from '@angular/material/dialog';
+import {GLOBAL} from '../../../../shared/global';
+import {LocalstorageService} from '../../../../admin/services/localstorage.service';
 
-import { ClienteMaster, ClienteMasterDireccion, ClienteMasterDireccionResponse } from '../../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import {
+  ClienteMaster,
+  ClienteMasterDireccion,
+  ClienteMasterDireccionResponse
+} from '../../../interfaces/cliente-master';
+import {ClienteMasterService} from '../../../services/cliente-master.service';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogModel
+} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
-import { Subscription } from 'rxjs';
+import {Subscription} from 'rxjs';
 import {AgregaDireccionComponent} from '../agrega-direccion/agrega-direccion.component';
 
 @Component({
@@ -32,11 +39,12 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    if(+this.clienteMaster.cliente_master > 0) {
+    if (+this.clienteMaster.cliente_master > 0) {
       this.loadDirecciones();
     }
   }
@@ -48,7 +56,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
   loadDirecciones = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.clienteMasterSrvc.buscarDireccion({ cliente_master: this.clienteMaster.cliente_master }).subscribe(res => {
+      this.clienteMasterSrvc.buscarDireccion({cliente_master: this.clienteMaster.cliente_master}).subscribe(res => {
         this.lstDirecciones = res;
         this.cargando = false;
       })
@@ -59,7 +67,11 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(AgregaDireccionComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
-      data:{clienteMaster:this.clienteMaster}
+      data: {clienteMaster: this.clienteMaster, isEditing: false}
+    });
+    cmdRef.afterClosed().subscribe(() => {
+      // Do stuff after the dialog has closed
+      this.loadDirecciones();
     });
   }
 
@@ -76,10 +88,59 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       municipio: direccion.municipio,
       departamento: direccion.departamento,
       pais: direccion.pais,
-      notas: direccion.notas
+      notas: direccion.notas,
+      debaja: direccion.debaja
     }
-    this.cargando = false;
+
+    const cmdRef = this.dialog.open(AgregaDireccionComponent, {
+      maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
+      disableClose: true,
+
+      data: {clienteMaster: this.clienteMaster, isEditing: true, defData: this.cmDireccion}
+    });
+
+    cmdRef.afterClosed().subscribe(() => {
+      // Do stuff after the dialog has closed
+      this.loadDirecciones();
+    });
+
   }
+
+  darDeBaja = (direccion: ClienteMasterDireccionResponse) => {
+
+
+    // const obj = {
+    //   cliente_master: this.clienteMaster.cliente_master,
+    //   tipo_direccion: direccion.tipo_direccion,
+    //   direccion1: direccion.direccion1,
+    //   direccion2: direccion.direccion2,
+    //   zona: direccion.zona,
+    //   codigo_postal: direccion.codigo_postal,
+    //   municipio: direccion.municipio,
+    //   departamento: direccion.departamento,
+    //   pais: direccion.pais,
+    //   notas: direccion.notas,
+    //   debaja: 1,
+    //   cliente_master_direccion: direccion.cliente_master_direccion
+    // }
+
+
+    this.endSubs.add(
+      this.clienteMasterSrvc.saveDireccionClienteMaster(direccion).subscribe(res => {
+        if (res.exito) {
+          this.snackBar.open(res.mensaje, 'Direccion asociada', {duration: 3000});
+        } else {
+          console.log(`ERROR: ${res.mensaje}`, 'Error al agregar direccion)');
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar direccion', {duration: 7000});
+        }
+      })
+    );
+  }
+
+  /**
+   * This unsubscribed addresses
+   */
+
 
   eliminarDireccion = (direccion: ClienteMasterDireccionResponse) => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
@@ -96,7 +157,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
           direccion.debaja = 1;
-          this.editarDireccion(direccion);
+          this.darDeBaja(direccion);
         }
       })
     );
