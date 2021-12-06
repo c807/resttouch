@@ -50,7 +50,7 @@ export class ClienteMasterService {
 
   saveDireccionClienteMaster(entidad: any): Observable<any> {
     return this.http.post<any>(
-      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_direccion2`,
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_direccion`,
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
@@ -65,6 +65,12 @@ export class ClienteMasterService {
   desasociarTelefonoClienteMaster(idClienteMasterTelefono: number): Observable<any> {
     return this.http.get<any>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/desasociar_telefono_cliente_master/${idClienteMasterTelefono}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  desasociarClienteMasterDireccion(idClienteMaster: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/desasociar_cliente_master_direccion/${idClienteMaster}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 

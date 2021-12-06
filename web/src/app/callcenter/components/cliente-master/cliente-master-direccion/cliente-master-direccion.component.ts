@@ -90,7 +90,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       pais: direccion.pais,
       notas: direccion.notas,
       debaja: direccion.debaja
-    }
+    };
 
     const cmdRef = this.dialog.open(AgregaDireccionComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
@@ -109,29 +109,14 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
   darDeBaja = (direccion: ClienteMasterDireccionResponse) => {
 
 
-    // const obj = {
-    //   cliente_master: this.clienteMaster.cliente_master,
-    //   tipo_direccion: direccion.tipo_direccion,
-    //   direccion1: direccion.direccion1,
-    //   direccion2: direccion.direccion2,
-    //   zona: direccion.zona,
-    //   codigo_postal: direccion.codigo_postal,
-    //   municipio: direccion.municipio,
-    //   departamento: direccion.departamento,
-    //   pais: direccion.pais,
-    //   notas: direccion.notas,
-    //   debaja: 1,
-    //   cliente_master_direccion: direccion.cliente_master_direccion
-    // }
-
-
     this.endSubs.add(
-      this.clienteMasterSrvc.saveDireccionClienteMaster(direccion).subscribe(res => {
+      this.clienteMasterSrvc.desasociarClienteMasterDireccion(direccion.cliente_master_direccion).subscribe(res => {
         if (res.exito) {
-          this.snackBar.open(res.mensaje, 'Direccion asociada', {duration: 3000});
+          this.snackBar.open(res.mensaje, 'Direccion desasociada', {duration: 3000});
+          this.loadDirecciones();
         } else {
-          console.log(`ERROR: ${res.mensaje}`, 'Error al agregar direccion)');
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar direccion', {duration: 7000});
+          console.log(`ERROR: ${res.mensaje}`, 'Error al dar debaja la direccion)');
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al dar debaja la direccion', {duration: 7000});
         }
       })
     );
@@ -156,7 +141,6 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
-          direccion.debaja = 1;
           this.darDeBaja(direccion);
         }
       })

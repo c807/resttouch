@@ -104,11 +104,24 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($this->srch_telefono($_GET)));
     }
 
+    public function desasociar_cliente_master_direccion($id)
+    {
+        $datos = ['exito' => false];
+        $cmt = new Cliente_master_direccion_model($id);
+        $datos['exito'] = $cmt->guardar(['debaja' => 1]);
+        if ($datos['exito']) {
+            $datos['mensaje'] = 'Direccion dada debaja con éxito.';
+        } else {
+            $datos['mensaje'] = $cmt->getMensaje();
+        }
+        $this->output->set_output(json_encode($datos));
+
+    }
 
     /**
      * This method updates or create an address
      */
-    public function guardar_direccion2()
+    public function guardar_direccion()
     {
 
         $cltDir = new Cliente_master_direccion_model();
@@ -259,24 +272,6 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
-    public function guardar_direccion($id = '')
-    {
-        $cltDir = new Cliente_master_direccion_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
-        $datos = ['exito' => false];
-        if ($this->input->method() == 'post') {
-            $datos['exito'] = $cltDir->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['cliente_master_direccion'] = $cltDir;
-            } else {
-                $datos['mensaje'] = $cltDir->getMensaje();
-            }
-        } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
-        }
-        $this->output->set_output(json_encode($datos));
-    }
 
     private function srch_datos_facturacion($args = [])
     {
