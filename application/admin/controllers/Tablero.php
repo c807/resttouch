@@ -64,6 +64,8 @@ class Tablero extends CI_Controller {
 				$dias[$row->format('Y-m-d')] = 0;
 			}
 
+			$dias[$_GET["fal"]] = 0;
+
 			foreach ($datos as $key => $value) {
 				if (!isset($semana[$value->dia])) {
 					$semana[$value->dia] = 0;
