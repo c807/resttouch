@@ -733,12 +733,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   getDetalle = (dcs: DetalleCuentaSimplified[], comoArray = true): (string[] | string) => {
     let nombres = "";
     for (const det of dcs) {
-      if (det.multiple === 0 && +det.cantidad > 1) {
+      if (+det.multiple === 0 && +det.cantidad > 1) {
         nombres += `${det.cantidad.toString()} `
       }
       nombres += `${det.descripcion}|`;
-      if (+det.esreceta === 0) {
+      if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
         nombres += this.getDetalle(det.detalle, false);
+      } else if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+        det.detalle_extras.forEach(de => nombres += `${de.descripcion};`);
       }
     }
     // console.log(nombres);
@@ -752,9 +754,13 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     let detImpCombo: ArticuloImpresion[] = [];
     for (const det of dcs) {
       if (+det.multiple === 0 && +det.impresora > 0) {
+        let strExtras = '';
+        if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+          det.detalle_extras.forEach(de => strExtras += `${de.descripcion};`);
+        }
         detImpCombo.push({
           Id: det.articulo,
-          Nombre: `${path}${det.descripcion}`,
+          Nombre: `${path}${det.descripcion}${strExtras !== '' ? `;${strExtras}` : ''}`,
           Cantidad: +det.cantidad,
           Total: 0,
           Notas: det.notas,
@@ -775,10 +781,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         path += det.descripcion;
       }
 
-      if (+det.esreceta === 0) {
+      if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
         detImpCombo = [...detImpCombo, ...this.getDetalleImpresionCombo(det.detalle, path)];
         path = '';
-      }
+      } 
     }
     return detImpCombo;
   }
@@ -843,7 +849,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
               const productosAImprimir: ProductoSelected[] = [];
               listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
               const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
-              // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);            
+              console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
               await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();              
               let AImpresoraNormal: ProductoSelected[] = [];
               let AImpresoraBT: ProductoSelected[] = [];

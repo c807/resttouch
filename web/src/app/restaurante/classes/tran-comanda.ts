@@ -738,7 +738,7 @@ export class TranComanda {
     getDetalle = (dcs: DetalleCuentaSimplified[], comoArray = true): (string[] | string) => {
         let nombres = "";
         for (const det of dcs) {
-            if (det.multiple === 0 && +det.cantidad > 1) {
+            if (+det.multiple === 0 && +det.cantidad > 1) {
                 nombres += `${det.cantidad.toString()} `
             }
             nombres += `${det.descripcion}|`;
