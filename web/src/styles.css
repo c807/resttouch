@@ -6,7 +6,6 @@
 @import '../node_modules/@syncfusion/ej2-inputs/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-lists/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-navigations/styles/material.css';
-@import '../node_modules/@syncfusion/ej2-popups/styles/material.css';
 @import '../node_modules/@syncfusion/ej2-angular-pivotview/styles/material.css';
 @import "m-modified.css";
 
@@ -19,7 +18,7 @@ html, body {
 body {
     height: 90vh;
     margin: 0;
-    font-family: Roboto, "Helvetica Neue", sans-serif;    
+    font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .fontFamily {
@@ -64,7 +63,7 @@ body {
 
 button {
     min-width: 48px !important;
-    min-height: 48px !important;    
+    min-height: 48px !important;
 }
 
 button .mat-icon {
@@ -101,7 +100,7 @@ button .mat-icon {
     border-bottom: solid 1px black;
 }
 
-.brdBSingle { 
+.brdBSingle {
     border-bottom: solid 1px black;
 }
 
@@ -115,7 +114,7 @@ button .mat-icon {
 
 .tbl {
     width: 100%;
-    border-collapse: collapse;    
+    border-collapse: collapse;
 }
 
 .btnAccion {

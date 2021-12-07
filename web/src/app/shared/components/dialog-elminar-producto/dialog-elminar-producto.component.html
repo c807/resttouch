@@ -2,14 +2,17 @@
     Eliminar Articulos
   </h1>
   <div mat-dialog-content>
-    <p>Seleccione la cantidad que desea eliminar</p>
+    <ng-container *ngIf="+prod.combo === 0">
+      <p>Seleccione la cantidad que desea eliminar</p>
+      <form>
+          <mat-form-field class="fullWidth">
+              <input type="number" matInput placeholder="Cantidad" min="1" max="{{prod.cantidad}}" step="1" [(ngModel)] ="cantidad" [ngModelOptions]="{standalone: true}">
+          </mat-form-field>
+      </form>
+    </ng-container>    
   </div>
-  <form>
-      <mat-form-field class="fullWidth">
-          <input type="number" matInput placeholder="Cantidad" min="1" max="{{prod.cantidad}}" step="1" [(ngModel)] ="cantidad" [ngModelOptions]="{standalone: true}">
-      </mat-form-field>
-  </form>
   <div mat-dialog-actions align="center">
-    <button mat-raised-button class="btnConfig" (click)="onDismiss()">Cancelar</button>
-    <button mat-raised-button class="btnConfig" color="accent" (click)="onConfirm()">Aceptar</button>
+    <button mat-raised-button class="btnConfig" color="warn" (click)="onDismiss()">Cancelar</button>
+    <button mat-raised-button class="btnConfig" [color]="color" (click)="onConfirm(false)">{{usaWMS ? 'Solo eliminar' : 'Eliminar'}}</button>
+    <button mat-raised-button class="btnConfig" color="accent" (click)="onConfirm()" *ngIf="usaWMS">Eliminar y retornar a inventario</button>
   </div>

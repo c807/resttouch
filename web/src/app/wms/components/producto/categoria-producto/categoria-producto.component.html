@@ -14,9 +14,9 @@
                     [disabled]="!frmCategoria.form.valid || +categoria.debaja === 1 || cargando">
                     Guardar
                 </button>
-                <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBajaChkPass()" *ngIf="+categoria.categoria > 0" [disabled]="+categoria.debaja === 1 || cargando">
+                <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBajaChkPass()" *ngIf="+categoria.categoria > 0" [disabled]="+categoria.debaja === 1 || cargando">
                     Dar de baja
-                </button>
+                </button> -->
                 <button mat-raised-button type="button" color="warn" (click)="resetCategoria()" [disabled]="cargando">
                     Cancelar
                 </button>

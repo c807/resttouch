@@ -29,28 +29,17 @@ class Registro
 
     public function guardarEgreso()
     {
-    	/*$bodega = $this->cat->getBodega([
-			"sede" => $this->sede->sede,
-			"_uno" => true
-		]);*/
+		$bodega = $this->cat->getBodega(['bodega' => $this->egr->bodega, '_uno' => true]);
 
-		$bodega = $this->cat->getBodega([
-			"bodega" => $this->egr->bodega,
-			"_uno" => true
-		]);
-
-		$mov = $this->cat->getTipoMovimiento([
-			"egreso" => 1,
-			"_uno" => true
-		]);
+		$mov = $this->cat->getTipoMovimiento(['egreso' => 1, '_uno' => true]);
 
 		$enca = [
-			"tipo_movimiento" => $mov->tipo_movimiento,
-			"bodega" => $bodega->bodega,
-			"usuario" => 1,
-			"estatus_movimiento" => 2,
-			"fecha" => Hoy(3),
-			"idcomandafox" => isset($this->egr->idcomandafox) ? trim((string)$this->egr->idcomandafox) : null
+			'tipo_movimiento' => $mov->tipo_movimiento,
+			'bodega' => $bodega->bodega,
+			'usuario' => 1,
+			'estatus_movimiento' => 2,
+			'fecha' => isset($this->egr->fecha) ? trim((string)$this->egr->fecha) : Hoy(),
+			'idcomandafox' => isset($this->egr->idcomandafox) ? trim((string)$this->egr->idcomandafox) : null
 		];
 
 		return $this->egr->guardar($enca);
@@ -64,12 +53,12 @@ class Registro
     public function setDB($key)
     {
     	$ci =& get_instance();
-    	$tmp = explode("-", $key);
+    	$tmp = explode('-', $key);
     	$llave = substr($key, 0, 36);
-    	$datoEmpresa = explode("-", substr($key, 37));
+    	$datoEmpresa = explode('-', substr($key, 37));
 
 		$datosDb = $this->cat->getCredenciales([
-			"llave" => $llave
+			'llave' => $llave
 		]);
 
 
@@ -84,8 +73,8 @@ class Registro
 			$ci->db = $ci->load->database($db, true);
 
 			$this->sede = $this->cat->getSede([
-				"sede" => $datoEmpresa[1],
-				"_uno" => true
+				'sede' => $datoEmpresa[1],
+				'_uno' => true
 			]);	
 
 			if ($this->sede) {

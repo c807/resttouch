@@ -7,7 +7,7 @@
     <mat-card-content>
         <form #frmTurno="ngForm" (ngSubmit)="frmTurno.form.valid && onSubmit()" novalidate>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="turno.descripcion" required>
+                <input matInput type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="turno.descripcion" minlength="1" maxlength="45" required>
             </mat-form-field>
             <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+turno.activo">Activo</mat-checkbox>
             <div align="end">

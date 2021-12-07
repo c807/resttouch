@@ -40,7 +40,8 @@ export class ProductoComponent implements OnInit, OnDestroy {
   ) {
     this.articulo = {
       articulo: null, categoria_grupo: null, presentacion: null, descripcion: null, precio: null, bien_servicio: 'B',
-      produccion: 0, presentacion_reporte: null, mostrar_pos: 0, impuesto_especial: null, rendimiento: 1, mostrar_inventario: 0, debaja: 0, usuariobaja: null, fechabaja: null
+      produccion: 0, presentacion_reporte: null, mostrar_pos: 0, impuesto_especial: null, rendimiento: 1, mostrar_inventario: 0, debaja: 0, usuariobaja: null, fechabaja: null,
+      cobro_mas_caro: 0
     };
   }
   ngOnInit() {
@@ -86,7 +87,9 @@ export class ProductoComponent implements OnInit, OnDestroy {
             esreceta: obj.esreceta,
             debaja: obj.debaja,
             cantidad_gravable: obj.cantidad_gravable,
-            precio_sugerido: obj.precio_sugerido
+            precio_sugerido: obj.precio_sugerido,
+            cobro_mas_caro: obj.cobro_mas_caro,
+            esextra: obj.esextra,
           };
   
           this.categoria = this.categorias.find(c => +c.categoria === +obj.categoria_grupo.categoria);

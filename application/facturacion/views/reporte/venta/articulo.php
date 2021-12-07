@@ -15,7 +15,7 @@
 			<?php if (isset($turno)) : ?>
 				<h4>Turno: <?php echo $turno->descripcion ?> </h4>
 			<?php endif ?>
-			<span>Por Articulo</span>
+			<span>Por Artículo</span>
 		</div>
 	</div>
 
@@ -33,9 +33,9 @@
 						<th colspan="3" style="padding: 5px;" class="text-center"><?php echo $sede->nombre ?></th>
 					</tr>
 					<tr>
-						<th style="padding: 5px;" class="text-center">Descripcion</th>
+						<th style="padding: 5px;" class="text-center">Descripción</th>
 						<th style="padding: 5px;" class="text-right">Cantidad</th>
-						<th style="padding: 5px;" class="text-right">Total</th>
+						<th style="padding: 5px;" class="text-right">Total (sin desct., sin propina)</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -58,10 +58,43 @@
 				<tfoot>
 					<tr>
 						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
-							<b>Total:</b>
+							<b>Sub-total (sin descuentos):</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">
 							<?php echo number_format($totalSede, 2) ?>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+							<b>Descuentos:</b>
+						</td>
+						<td style="padding: 5px;" class="text-right">
+							<?php echo number_format($sede->suma_descuentos, 2) ?>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+							<b>Sub-total (con descuentos):</b>
+						</td>
+						<td style="padding: 5px;" class="text-right">
+							<?php echo number_format($totalSede - $sede->suma_descuentos, 2) ?>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+							<b>Propinas:</b>
+						</td>
+						<td style="padding: 5px;" class="text-right">
+							<?php echo number_format($sede->suma_propinas, 2) ?>
+						</td>
+					</tr>
+					<tr>
+						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+							<b>Total (Ingresos):</b>
+						</td>
+						<td style="padding: 5px;" class="text-right">
+							<?php echo number_format($totalSede - $sede->suma_descuentos + $sede->suma_propinas, 2) ?>
 						</td>
 					</tr>
 				</tfoot>

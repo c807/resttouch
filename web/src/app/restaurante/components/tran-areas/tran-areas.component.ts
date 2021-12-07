@@ -78,7 +78,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.endSubs.unsubscribe();
+    // this.endSubs.unsubscribe();
   }
 
   actualizar = () => {
@@ -286,6 +286,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
           // console.log(`TOGGLE SIDE NAV ${moment().format(GLOBAL.dateTimeFormatMilli)}`);
           this.cargando = false;
         }
+        this.snTrancomanda.lstProductosCuentaAlt = [];
       } else if (res === 'open') {
         // console.log('MESA SELECTED: ', this.mesaSeleccionada);
         if (this.mesaSeleccionada.cuentas.length === 1) {
@@ -370,7 +371,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cargando = true;
     this.endSubs.add(      
-      this.comandaSrvc.getComandaDeMesa(obj.mesa).subscribe((res: ComandaGetResponse) => {
+      this.comandaSrvc.getComandaDeMesa(obj.mesa, false).subscribe((res: ComandaGetResponse) => {
         // console.log('RESPUESTA DE GET COMANDA = ', res);
         // this.cargando = false;
         if (res.exito) {

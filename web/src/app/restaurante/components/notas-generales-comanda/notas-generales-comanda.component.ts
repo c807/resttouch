@@ -3,6 +3,11 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { GLOBAL } from '../../../shared/global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 
+interface IDatosNotas {
+  titulo: string;
+  notasGenerales: string;
+}
+
 @Component({
   selector: 'app-notas-generales-comanda',
   templateUrl: './notas-generales-comanda.component.html',
@@ -15,7 +20,7 @@ export class NotasGeneralesComandaComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<NotasGeneralesComandaComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(MAT_DIALOG_DATA) public data: IDatosNotas,
     private ls: LocalstorageService
   ) { }
 

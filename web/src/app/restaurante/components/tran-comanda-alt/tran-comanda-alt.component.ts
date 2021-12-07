@@ -10,18 +10,12 @@ import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 
-// import { Cuenta } from '../../interfaces/cuenta';
 import { ComandaGetResponse } from '../../interfaces/comanda';
-// import { DetalleComanda } from '../../interfaces/detalle-comanda';
-// import { Impresora } from '../../../admin/interfaces/impresora';
-// import { Categoria } from '../../../wms/interfaces/categoria';
-// import { CategoriaGrupoImpresora } from '../../../wms/interfaces/categoria-grupo';
 import { Articulo, NodoProducto } from '../../../wms/interfaces/articulo';
 
 import { ComandaService } from '../../services/comanda.service';
 import { ArticuloService } from '../../../wms/services/articulo.service';
 import { ReportePdfService } from '../../services/reporte-pdf.service';
-// import { Cliente } from '../../../admin/interfaces/cliente';
 import { UsuarioService } from '../../../admin/services/usuario.service';
 
 interface IDatosTranComanda {
@@ -35,10 +29,6 @@ interface IDatosTranComanda {
 })
 export class TranComandaAltComponent extends TranComanda implements OnInit, OnDestroy {
 
-  // @Input() mesaEnUso: ComandaGetResponse;
-  // @Input() clientePedido: Cliente = null;
-  // @Output() closeSideNavEv = new EventEmitter();
-  // @Output() mesaSavedEv: EventEmitter<any> = new EventEmitter();
   @ViewChild('txtCodigoBarras') txtCodigoBarras: MatInput;
 
   public categorias: any[] = [];
@@ -71,7 +61,7 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
   }
 
   ngOnDestroy() {
-    this.endSubs.unsubscribe();
+    // this.endSubs.unsubscribe();
   }
 
   setDatos = () => {
@@ -79,7 +69,10 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
       if (this.data.mesa) {
         this.mesaEnUso = this.data.mesa;
         this.alIniciar();
-        this.setSelectedCuenta(this.mesaEnUso.cuentas[0].numero);
+        const ctaAbierta = this.mesaEnUso.cuentas.find(c => +c.cerrada === 0);
+        if(ctaAbierta) {
+          this.setSelectedCuenta(ctaAbierta.numero);
+        }
         // console.log('CTA = ', this.cuentaActiva);
         // console.log(this.mesaEnUso);
       }

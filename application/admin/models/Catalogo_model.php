@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Catalogo_model extends CI_Model {
+class Catalogo_model extends CI_Model
+{
 
 	private function getCatalogo($datos, $args)
 	{
@@ -12,7 +13,7 @@ class Catalogo_model extends CI_Model {
 		//return false;
 	}
 
-	public function getFormaPago($args=[])
+	public function getFormaPago($args = [])
 	{
 		if (isset($args["forma_pago"])) {
 			$this->db->where("forma_pago", $args["forma_pago"]);
@@ -25,13 +26,13 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("descripcion")
-		->get("forma_pago");
+			->order_by("descripcion")
+			->get("forma_pago");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getSerieFactura($args=[])
+	public function getSerieFactura($args = [])
 	{
 		if (isset($args["factura_serie"])) {
 			$this->db->where("factura_serie", $args["factura_serie"]);
@@ -40,13 +41,13 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("serie")
-		->get("factura_serie");
+			->order_by("serie")
+			->get("factura_serie");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getTipoMovimiento($args=[])
+	public function getTipoMovimiento($args = [])
 	{
 		if (isset($args["tipo_movimiento"])) {
 			$this->db->where("tipo_movimiento", $args["tipo_movimiento"]);
@@ -61,27 +62,28 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("descripcion")
-		->get("tipo_movimiento");
+			->order_by("descripcion")
+			->get("tipo_movimiento");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getDocumentoTipo($args=[])
+	public function getDocumentoTipo($args = [])
 	{
 		if (isset($args["documento_tipo"])) {
 			$this->db->where("documento_tipo", $args["documento_tipo"]);
 		}
 
 		$qry = $this->db
-		//->order_by()
-		->get("documento_tipo");
+			//->order_by()
+			->get("documento_tipo");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getBodega($args = []){
-		if(count($args) > 0) {
+	public function getBodega($args = [])
+	{
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					if (is_array($row)) {
@@ -94,8 +96,8 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("descripcion")
-		->get("bodega");
+			->order_by("descripcion")
+			->get("bodega");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -107,8 +109,8 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("razon_social")
-		->get("proveedor");
+			->order_by("razon_social")
+			->get("proveedor");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -118,15 +120,15 @@ class Catalogo_model extends CI_Model {
 		$this->load->model('Articulo_model');
 		$datos = [];
 		$tmp = $this->db
-					->where("receta", $articulo)
-					->where("anulado", 0)
-					->get('articulo_detalle')
-					->result();
+			->where("receta", $articulo)
+			->where("anulado", 0)
+			->get('articulo_detalle')
+			->result();
 
 		foreach ($tmp as $row) {
 			$art = new Articulo_model($row->articulo);
 			$art->receta = [];
-			if($art->multiple == 1) {
+			if ($art->multiple == 1) {
 				$art->receta = $this->obtenerReceta($art->getPK());
 			}
 
@@ -155,7 +157,7 @@ class Catalogo_model extends CI_Model {
 		$datos = [];
 
 		$tmp = $this->db
-					->get("articulo");
+			->get("articulo");
 
 		if ($uno) {
 			$art = $tmp->row();
@@ -170,7 +172,6 @@ class Catalogo_model extends CI_Model {
 		}
 
 		return $datos;
-
 	}
 
 	public function getArticulo($args = [])
@@ -181,7 +182,7 @@ class Catalogo_model extends CI_Model {
 		unset($args['ingreso']);
 		unset($args['sede']);
 		unset($args['_activos']);
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					$this->db->where("a.{$key}", $row);
@@ -205,18 +206,18 @@ class Catalogo_model extends CI_Model {
 			$this->db->where("a.debaja", 0);
 		}
 
-		if(isset($args['produccion']) && (int)$args['produccion'] === 1) {
+		if (isset($args['produccion']) && (int)$args['produccion'] === 1) {
 			$this->db->join('articulo_detalle d', 'a.articulo = d.receta');
 			$this->db->where('d.anulado', 0);
 			$this->db->group_by('a.articulo');
 		}
 
 		$qry = $this->db
-		->select("a.*, c.sede")
-		->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
-		->join("categoria c", "c.categoria = b.categoria")
-		->order_by("a.articulo")
-		->get("articulo a");
+			->select("a.*, c.sede")
+			->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
+			->join("categoria c", "c.categoria = b.categoria")
+			->order_by("a.articulo")
+			->get("articulo a");
 
 		$tmp = $this->getCatalogo($qry, $args);
 
@@ -234,11 +235,11 @@ class Catalogo_model extends CI_Model {
 					->where("presentacion", $row->presentacion)
 					->get("presentacion")
 					->row();
-					
+
 				$datos[] = $row;
 			}
 			$tmp = $datos;
-		} else if($tmp) {
+		} else if ($tmp) {
 			$tmp->impresora = $this->db
 				->select("b.*")
 				->join("impresora b", "b.impresora = a.impresora")
@@ -257,7 +258,7 @@ class Catalogo_model extends CI_Model {
 
 	public function getUsuario($args = [])
 	{
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					$this->db->where($key, $row);
@@ -266,8 +267,8 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("nombres")
-		->get("usuario");
+			->order_by("nombres")
+			->get("usuario");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -280,7 +281,7 @@ class Catalogo_model extends CI_Model {
 		unset($args['raiz']);
 		unset($args['sede']);
 		unset($args['_todo']);
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					$this->db->where("a.{$key}", $row);
@@ -295,13 +296,13 @@ class Catalogo_model extends CI_Model {
 		if (!$todo) {
 			$buscarArt["mostrar_pos"] = "1";
 		}
-		
+
 		$qry = $this->db
-		->select("a.*")
-		->join("categoria b", "b.categoria = a.categoria")
-		->order_by("categoria_grupo")
-		->group_by("a.categoria_grupo")
-		->get("categoria_grupo a");
+			->select("a.*")
+			->join("categoria b", "b.categoria = a.categoria")
+			->order_by("categoria_grupo")
+			->group_by("a.categoria_grupo")
+			->get("categoria_grupo a");
 
 		$grupo = $this->getCatalogo($qry, $args);
 
@@ -327,7 +328,7 @@ class Catalogo_model extends CI_Model {
 						$data['_todo'] = true;
 					}
 					$row->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
-				}				
+				}
 				$buscarArt['categoria_grupo'] = $row->categoria_grupo;
 
 				$row->articulo = $this->Catalogo_model->getArticulo($buscarArt);
@@ -337,7 +338,7 @@ class Catalogo_model extends CI_Model {
 				]);
 				$datos[] = $row;
 			}
-		} else if(is_object($grupo)) {
+		} else if (is_object($grupo)) {
 			$data = [];
 			if ($todo) {
 				$data['_todo'] = true;
@@ -354,7 +355,7 @@ class Catalogo_model extends CI_Model {
 			}
 
 			$buscarArt["categoria_grupo"] = $grupo->categoria_grupo;
-				
+
 			$grupo->articulo = $this->Catalogo_model->getArticulo([
 				'categoria_grupo' => $grupo->categoria_grupo
 			]);
@@ -375,13 +376,13 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("a.nombre")
-		->get("empresa a");
+			->order_by("a.nombre")
+			->get("empresa a");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getSede($args=[])
+	public function getSede($args = [])
 	{
 
 		if (isset($args['sede'])) {
@@ -392,24 +393,50 @@ class Catalogo_model extends CI_Model {
 			$this->db->where('empresa', $args['empresa']);
 		}
 
-		if(isset($args['admin_llave'])) {
+		if (isset($args['admin_llave'])) {
 			$this->db
-				 ->join("empresa b", "a.empresa = b.empresa")
-				 ->join("corporacion c", "b.corporacion = c.corporacion")
-				 ->where("c.admin_llave", $args['admin_llave']);
+				->join("empresa b", "a.empresa = b.empresa")
+				->join("corporacion c", "b.corporacion = c.corporacion")
+				->where("c.admin_llave", $args['admin_llave']);
 		}
 
 		$qry = $this->db
-		->select("a.*")
-		->order_by("a.nombre")
-		->get("sede a");
+			->select("a.*")
+			->order_by("a.nombre")
+			->get("sede a");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getTipoUsuario($args=[])
+	public function getSedeForAPI($args = [])
 	{
-		if(count($args) > 0) {
+
+		if (isset($args['sede'])) {
+			$this->db->where('sede', $args['sede']);
+		}
+
+		if (isset($args['empresa'])) {
+			$this->db->where('empresa', $args['empresa']);
+		}
+
+		if (isset($args['admin_llave'])) {
+			$this->db
+				->join("empresa b", "a.empresa = b.empresa")
+				->join("corporacion c", "b.corporacion = c.corporacion")
+				->where("c.admin_llave", $args['admin_llave']);
+		}
+
+		$qry = $this->db
+			->select("a.*")
+			->order_by("a.sede")
+			->get("sede a");
+
+		return $this->getCatalogo($qry, $args);
+	}	
+
+	public function getTipoUsuario($args = [])
+	{
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					$this->db->where($key, $row);
@@ -418,8 +445,8 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("descripcion")
-		->get("usuario_tipo");
+			->order_by("descripcion")
+			->get("usuario_tipo");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -431,8 +458,8 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("descripcion")
-		->get("modulo");
+			->order_by("descripcion")
+			->get("modulo");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -444,12 +471,12 @@ class Catalogo_model extends CI_Model {
 		}
 
 		if (isset($args['codigo'])) {
-			$this->db->where('codigo', $args['codigo']);	
+			$this->db->where('codigo', $args['codigo']);
 		}
 
 		$qry = $this->db
-		->order_by("moneda")
-		->get("moneda");
+			->order_by("moneda")
+			->get("moneda");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -461,31 +488,33 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->select("
+			->select("
 			factura_serie,
 			serie,
 			correlativo,
 			tipo")
-		->where("activo", 1)
-		->order_by("factura_serie")
-		->get("factura_serie");
+			->where("activo", 1)
+			->order_by("factura_serie")
+			->get("factura_serie");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getCertificadorFel($args = []) {
+	public function getCertificadorFel($args = [])
+	{
 		if (isset($args['certificador_fel'])) {
 			$this->db->where('certificador_fel', $args['certificador_fel']);
 		}
 
 		$qry = $this->db
-		->order_by("certificador_fel")
-		->get("certificador_fel");
+			->order_by("certificador_fel")
+			->get("certificador_fel");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getComandaOrigen($args = []) {
+	public function getComandaOrigen($args = [])
+	{
 		if (isset($args['comanda_origen'])) {
 			$this->db->where('comanda_origen', $args['comanda_origen']);
 		}
@@ -495,13 +524,14 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("comanda_origen")
-		->get("comanda_origen");
+			->order_by("comanda_origen")
+			->get("comanda_origen");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getComandaOrigenEndpoint($args = []) {
+	public function getComandaOrigenEndpoint($args = [])
+	{
 		if (isset($args['comanda_origen'])) {
 			$this->db->where('comanda_origen', $args['comanda_origen']);
 		}
@@ -511,31 +541,15 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("comanda_origen_endpoint")
-		->get("comanda_origen_endpoint");
+			->order_by("comanda_origen_endpoint")
+			->get("comanda_origen_endpoint");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getDetalleConfigComandaOrigen($args = []) {
-		if(count($args) > 0) {
-			foreach ($args as $key => $row) {
-				if ($key != '_uno') {
-					$this->db->where($key, $row);
-				}
-			}
-		}
-
-		$qry = $this->db
-		->order_by("comanda_origen, configuracion_comanda_origen")
-		->get("detalle_configuracion_comanda_origen");
-
-		return $this->getCatalogo($qry, $args);
-	}
-
-	public function getCorporacion($args=[])
+	public function getDetalleConfigComandaOrigen($args = [])
 	{
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
 					$this->db->where($key, $row);
@@ -544,8 +558,25 @@ class Catalogo_model extends CI_Model {
 		}
 
 		$qry = $this->db
-		->order_by("corporacion")
-		->get("corporacion");
+			->order_by("comanda_origen, configuracion_comanda_origen")
+			->get("detalle_configuracion_comanda_origen");
+
+		return $this->getCatalogo($qry, $args);
+	}
+
+	public function getCorporacion($args = [])
+	{
+		if (count($args) > 0) {
+			foreach ($args as $key => $row) {
+				if ($key != '_uno') {
+					$this->db->where($key, $row);
+				}
+			}
+		}
+
+		$qry = $this->db
+			->order_by("corporacion")
+			->get("corporacion");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -557,51 +588,50 @@ class Catalogo_model extends CI_Model {
 		}
 
 		if (isset($args['llave'])) {
-			$this->db->where("llave", $args['llave']);	
+			$this->db->where("llave", $args['llave']);
 		}
 
 		$tmp = $this->db
-					->select("
+			->select("
 						db_hostname,
 						db_username,
 						db_password,
 						db_database")
-					->from('cliente_corporacion')
-					->get();
-//return $this->getCatalogo($tmp, $args);
-		if($tmp && $tmp->num_rows() > 0) {
+			->from('cliente_corporacion')
+			->get();
+		//return $this->getCatalogo($tmp, $args);
+		if ($tmp && $tmp->num_rows() > 0) {
 			return $tmp->row();
-		} 
+		}
 
 		return false;
 	}
 
-	public function getJerarquia($args=[])
+	public function getJerarquia($args = [])
 	{
 		$qry = $this->db
-		->get("jerarquia");
+			->get("jerarquia");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getCajaCorteTipo($args=[])
+	public function getCajaCorteTipo($args = [])
 	{
-		if (isset($args['caja_corte_tipo']))
-		{
+		if (isset($args['caja_corte_tipo'])) {
 			$this->db->where('caja_corte_tipo', $args['caja_corte_tipo']);
 		}
 
 		$qry = $this->db
-		->get("caja_corte_tipo");
+			->get("caja_corte_tipo");
 
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getCajaCorteNominacion($args=[])
+	public function getCajaCorteNominacion($args = [])
 	{
 		$qry = $this->db
-		->order_by('orden')
-		->get("caja_corte_nominacion");
+			->order_by('orden')
+			->get("caja_corte_nominacion");
 
 		return $this->getCatalogo($qry, $args);
 	}
@@ -609,12 +639,24 @@ class Catalogo_model extends CI_Model {
 	public function notificacionesCliente()
 	{
 		$qry = $this->db
-            ->where("DATE(NOW()) >= a.mostrar_del")
-            ->where("DATE(NOW()) <= a.mostrar_al")
+			->where("DATE(NOW()) >= a.mostrar_del")
+			->where("DATE(NOW()) <= a.mostrar_al")
 			->order_by("prioridad DESC, mostrar_del ASC")
 			->get("administracion.notificacion_cliente a");
 
 		return $this->getCatalogo($qry, []);
+	}
+
+	public function get_fields_from_table($tabla, $cs = true)
+	{
+		$query = $this->db
+			->select($cs ? 'GROUP_CONCAT(column_name ORDER BY ordinal_position SEPARATOR ",") AS campo' : 'column_name AS campo')
+			->where('table_schema', $this->db->database)
+			->where('table_name', $tabla)
+			->order_by('ordinal_position')
+			->get('information_schema.columns');
+
+		return $this->getCatalogo($query, []);
 	}
 }
 

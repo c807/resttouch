@@ -108,6 +108,10 @@ $config['menu'] = [
 					3 => [
 						'nombre' => 'Caja',
 						'link' => '/restaurante/rptcaja'
+					],
+					4 => [
+						'nombre' => 'Bitácora',
+						'link' => '/admin/rptbitacora'
 					]
 				]
 			],
@@ -158,7 +162,7 @@ $config['menu'] = [
 				'nombre' => 'Reportes',
 				'opciones' => [
 					1 => [
-						'nombre' => 'Ventas por categoría',
+						'nombre' => 'Ventas',
 						'link' => '/restaurante/rptvtascat'
 					],
 					2 => [
@@ -180,6 +184,10 @@ $config['menu'] = [
 					6 => [
 						'nombre' => 'Autoconsulta',
 						'link' => '/restaurante/autoconsulta'
+					],
+					7 => [
+						'nombre' => 'Comandas',
+						'link' => '/restaurante/rptcomanda'
 					]
 				]
 			],
@@ -293,8 +301,21 @@ $config['menu'] = [
 				'nombre' => 'Transacción',
 				'opciones' => [
 					1 => [
-						'nombre' => 'N/A',
+						'nombre' => 'Seguimiento',
 						'link' => '/admin/dashboard'
+					]
+				]
+					],
+			2 => [
+				'nombre' => 'Mantenimiento',
+				'opciones' => [
+					1 => [
+						'nombre' => 'Tipos de dirección',
+						'link' => '/callcenter/tipo_direccion'
+					],
+					2 => [
+						'nombre' => 'Clientes',
+						'link' => '/callcenter/cliente_master'
 					]
 				]
 			]

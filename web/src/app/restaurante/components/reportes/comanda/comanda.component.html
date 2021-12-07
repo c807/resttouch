@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="col m12 s12">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Reporte de comandas</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmRptFactura="ngForm" novalidate>
+                    <div class="row">
+                        <div class="col">
+                            <mat-form-field class="fullWidth">
+                                <mat-label>Fecha de</mat-label>
+                                <mat-select name="tipo_fecha" [(ngModel)]="params.tipo_fecha" required>
+                                    <mat-option *ngFor="let tr of tiposDeFecha" [value]="tr.tipo_fecha">
+                                        {{tr.descripcion}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col">                            
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="date" placeholder="Del" name="fdel" [(ngModel)]="params.fdel" (change)="chkDates()" required>
+                            </mat-form-field>
+                        </div>
+                        <div class="col">                            
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="date" placeholder="Al" name="fal" [(ngModel)]="params.fal" (change)="chkDates()" required>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row fullWidth">
+                        <div class="col fullWidth">                            
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="text" placeholder="Comandas (separadas por coma si es más de una)" name="comandas" [(ngModel)]="params.comandas" (keypress)="validateKey($event)">
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <mat-checkbox name="ver_detalle_comanda" class="fullWidth" [(ngModel)]="+params.ver_detalle_comanda">Mostrar detalle de comanda</mat-checkbox>
+                        </div>
+                        <div class="col">
+                            <mat-checkbox name="activos" class="fullWidth" [(ngModel)]="+params.activos">Ocultar productos eliminados de comanda</mat-checkbox>
+                        </div>                                                
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <mat-checkbox name="ver_forma_pago" class="fullWidth" [(ngModel)]="+params.ver_forma_pago">Mostrar formas de pago de comanda</mat-checkbox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <mat-checkbox name="ver_facturas" class="fullWidth" [(ngModel)]="+params.ver_facturas">Mostrar facturas de comanda</mat-checkbox>
+                        </div>
+                        <div class="col">
+                            <mat-checkbox name="ver_detalle_facturas" class="fullWidth" [(ngModel)]="+params.ver_detalle_facturas">Mostrar detalle de facturas de comanda</mat-checkbox>
+                        </div>
+                    </div>
+                    <app-rpt-botones [configuracion]="configBotones" (excelClick)="excelClick()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+                </form>
+                <app-cargando *ngIf="cargando"></app-cargando>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

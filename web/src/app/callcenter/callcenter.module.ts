@@ -30,13 +30,23 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { CallcenterRoutingModule } from './callcenter-routing.module';
 import { PideTelefonoDialogComponent } from './components/pide-telefono-dialog/pide-telefono-dialog.component';
+import { TipoDireccionComponent } from './components/tipo-direccion/tipo-direccion/tipo-direccion.component';
+import { ListaTipoDireccionComponent } from './components/tipo-direccion/lista-tipo-direccion/lista-tipo-direccion.component';
+import { FormTipoDireccionComponent } from './components/tipo-direccion/form-tipo-direccion/form-tipo-direccion.component';
+import { ClienteMasterComponent } from './components/cliente-master/cliente-master/cliente-master.component';
+import { ClienteMasterDialogComponent } from './components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
+import { FormClienteMasterComponent } from './components/cliente-master/form-cliente-master/form-cliente-master.component';
+import { ClienteMasterTelefonoComponent } from './components/cliente-master/cliente-master-telefono/cliente-master-telefono.component';
+import { SeleccionaTelefonoComponent } from './components/cliente-master/selecciona-telefono/selecciona-telefono.component';
+import { ClienteMasterDireccionComponent } from './components/cliente-master/cliente-master-direccion/cliente-master-direccion.component';
 
 
 @NgModule({
-  declarations: [PideTelefonoDialogComponent],
+  declarations: [PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterDireccionComponent],
   imports: [
     CommonModule,
     CallcenterRoutingModule,
@@ -67,7 +77,8 @@ import { PideTelefonoDialogComponent } from './components/pide-telefono-dialog/p
     MatDatepickerModule,
     MatNativeDateModule,
     DragDropModule,
-    MatBadgeModule
+    MatBadgeModule,
+    ScrollingModule
   ],
   exports: [PideTelefonoDialogComponent]
 })

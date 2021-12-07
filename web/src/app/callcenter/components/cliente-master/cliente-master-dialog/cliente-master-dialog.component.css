@@ -1,0 +1,7 @@
+.contenido {
+    max-height: 65vh !important;
+    height: 100%;
+    overflow-y: auto;
+    padding: 0 5px;
+    /* border: solid 1px black; */
+}

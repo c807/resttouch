@@ -108,6 +108,68 @@ class Reporte_model extends CI_Model {
 			->result();
 	}
 
+	public function get_ingresos_sin_comanda($args = [])
+	{
+		if(isset($args['fdel'])) {
+			$this->db->where('a.fecha_factura >=', $args['fdel']);
+		}
+		
+		if(isset($args['fal'])) {
+			$this->db->where('a.fecha_factura <=', $args['fal']);
+		}
+
+		if(isset($args['factura'])) {
+			$this->db->where('a.factura', $args['factura']);
+		}
+
+		if(!isset($args['propina'])) {
+			$this->db->where("c.descripcion NOT LIKE '%propina%'");
+		} else {
+			$this->db->where("c.descripcion LIKE '%propina%'");
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in("a.sede", $args['sede']);
+			} else {
+				$this->db->where("a.sede", $args['sede']);
+			}
+		}
+
+		$query = $this->db
+			->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('articulo c', 'c.articulo = b.articulo')
+			->join('detalle_factura_detalle_cuenta d', 'b.detalle_factura = d.detalle_factura', 'left')
+			->where('a.fel_uuid IS NOT NULL')
+			->where('a.fel_uuid_anulacion IS NULL')
+			->where('d.detalle_factura_detalle_cuenta IS NULL')
+			->get('factura a');
+
+		$facturas = [];
+		if(!isset($args['propina'])) {
+			$resultado = $query->result();
+			foreach ($resultado as $fact) {
+				if ((int)$fact->factura > 0) {
+					$fact->propina = $this->get_ingresos_sin_comanda([
+						'fdel' => $args['fdel'],
+						'fal' => $args['fal'],
+						'factura' => $fact->factura,
+						'propina' => TRUE
+					]);
+					$facturas[] = $fact;
+				}
+			}
+		} else {
+			$propina = $query->row();
+			if ($propina) {
+				return (float)$propina->monto;
+			}
+			return 0;
+		}
+		return $facturas;
+	}
+
 	public function getRangoComandas($args)
 	{
 		if (isset($args['turno_tipo'])) {
@@ -219,6 +281,151 @@ class Reporte_model extends CI_Model {
 		}
 
 		return [];
+	}
+
+	public function get_lista_comandas($args = [])
+	{
+		if (isset($args['sede'])) {
+			$this->db->where('a.sede', $args['sede']);
+		}
+		
+		if (isset($args['turno_tipo']) && (int)$args['turno_tipo'] > 0) {
+			$this->db->where('f.turno_tipo', $args['turno_tipo']);
+		}
+
+		if (isset($args['comandas']) && trim($args['comandas']) !== '') {
+			$this->db->where("a.comanda IN({$args['comandas']})");
+		}
+
+		$tipoFecha = 'DATE(a.fhcreacion)'; // Fecha de la comanda
+		if (isset($args['tipo_fecha'])) {
+			switch((int)$args['tipo_fecha']) {
+				case 2: $tipoFecha = 'DATE(e.fecha)'; break; // Fecha de turno
+				case 3: $tipoFecha = 'DATE(e.inicio)'; break; // Fecha de inicio de turno
+				case 4: $tipoFecha = 'DATE(e.fin)'; break; // Fecha de fin de turno
+			}
+		}
+
+		if (isset($args['fdel'])) {
+			$this->db->where("{$tipoFecha} >=", $args['fdel']);
+		}
+
+		if (isset($args['fal'])) {
+			$this->db->where("{$tipoFecha} <=", $args['fal']);
+		}
+
+		$select = "a.comanda, TRIM(CONCAT(IFNULL(b.nombres, ''), ' ', IFNULL(b.apellidos, ''))) AS usuario, TRIM(d.nombre) AS sede, a.turno, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i:%s') AS fecha_turno, ";
+		$select.= "TRIM(f.descripcion) AS turno_tipo, DATE_FORMAT(e.inicio, '%d/%m/%Y %H:%i:%s') AS inicio_turno, DATE_FORMAT(e.fin, '%d/%m/%Y %H:%i:%s') AS fin_turno, ";
+		$select.= "TRIM(CONCAT(IFNULL(c.nombres, ''), ' ', IFNULL(c.apellidos, ''))) AS mesero, DATE_FORMAT(a.fhcreacion, '%d/%m/%Y %H:%i:%s') AS fecha_comanda, TRIM(a.notas_generales) AS notas_generales, ";
+		$select.= "a.orden_gk, TRIM(g.descripcion) AS razon_anulacion";
+
+		return $this->db
+					->select($select)
+					->join('usuario b', 'b.usuario = a.usuario')
+					->join('usuario c', 'c.usuario = a.mesero')
+					->join('sede d', 'd.sede = a.sede')
+					->join('turno e', 'e.turno = a.turno')
+					->join('turno_tipo f', 'f.turno_tipo = e.turno_tipo')
+					->join('razon_anulacion g', 'g.razon_anulacion = a.razon_anulacion', 'left')
+					->get('comanda a')
+					->result();
+	}
+
+	public function get_detalle_comanda($args = [])
+	{
+		if (isset($args['comanda'])) {
+			$this->db->where('a.comanda', $args['comanda']);
+		}
+
+		if (isset($args['activos']) && (int)$args['activos'] === 1) {
+			$this->db->where('a.cantidad >', 0);
+		}
+
+		$select = 'a.detalle_comanda, a.comanda, TRIM(b.descripcion) AS articulo, a.cantidad, a.precio, a.total, TRIM(a.notas) AS notas, TRIM(c.descripcion) AS presentacion, ';
+		$select.= 'TRIM(d.descripcion) AS bodega, IFNULL(a.cantidad_inventario, a.cantidad) AS cantidad_inventario, a.detalle_comanda_id, b.multiple';
+		
+		if(isset($args['suma'])) {
+			$select = 'SUM(a.total) AS total';
+		}
+
+		$query = $this->db
+					->select($select)
+					->join('articulo b', 'b.articulo = a.articulo')
+					->join('presentacion c', 'c.presentacion = a.presentacion')
+					->join('bodega d', 'd.bodega = a.bodega')
+					->get('detalle_comanda a');
+
+		if(isset($args['suma'])) {
+			$total = $query->row();
+			return $total ? $total->total : 0;
+		}
+		return $query->result();
+	}
+
+	public function get_formas_pago_comanda($args = [])
+	{
+		if (isset($args['comanda'])) {
+			$this->db->where('c.comanda', $args['comanda']);
+		}
+
+		$select = 'a.cuenta_forma_pago, a.cuenta, TRIM(c.nombre) AS nombre_cuenta, c.numero AS numero_cuenta, TRIM(b.descripcion) AS forma_pago, a.monto, a.propina';
+		if(isset($args['suma'])) {
+			$select = 'SUM(a.monto) AS monto, SUM(a.propina) AS propina';
+		}
+
+		$query = $this->db
+					->select($select)
+					->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+					->join('cuenta c', 'c.cuenta = a.cuenta')
+					->order_by('c.numero, b.descripcion')
+					->get('cuenta_forma_pago a');
+
+		if(isset($args['suma'])) {
+			$totales = $query->row();
+			return $totales ? $totales : (object)['monto' => 0, 'propina' => 0];
+		}
+		return $query->result();
+	}
+
+	public function get_facturas_comanda($args = [])
+	{
+		if (isset($args['comanda'])) {
+			$this->db->where('a.comanda', $args['comanda']);
+		}
+
+		$select = "f.factura, TRIM(g.nombre) AS cliente, TRIM(g.nit) AS nit, DATE_FORMAT(f.fecha_factura, '%d/%m/%Y') AS fecha_factura, TRIM(f.serie_factura) AS serie_factura, TRIM(f.numero_factura) AS numero_factura, ";
+		$select.= "(SELECT SUM(total) FROM detalle_factura WHERE factura = f.factura) AS total_factura, IF(f.fel_uuid_anulacion IS NULL, 'VIGENTE', 'ANULADA') AS estatus_factura, TRIM(h.descripcion) AS razon_anulacion";
+
+		$facturas = $this->db
+					->select($select, FALSE)
+					->join('detalle_comanda b', 'a.comanda = b.comanda')
+					->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+					->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+					->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura')
+					->join('factura f', 'f.factura = e.factura')
+					->join('cliente g', 'g.cliente = f.cliente')
+					->join('razon_anulacion h', 'h.razon_anulacion = f.razon_anulacion', 'left')
+					->group_by('f.factura')
+					->get('comanda a')
+					->result();
+
+		foreach($facturas as $factura) {
+			$factura->detalle_factura = [];
+			if (isset($args['ver_detalle_facturas']) && (int)$args['ver_detalle_facturas'] === 1) {
+				$select = 'a.detalle_factura, TRIM(b.descripcion) AS articulo, a.cantidad, a.precio_unitario, a.total, a.monto_base, a.monto_iva, a.bien_servicio, a.descuento, TRIM(c.descripcion) AS impuesto_especial, ';
+				$select.= 'a.porcentaje_impuesto_especial, a.valor_impuesto_especial, TRIM(d.descripcion) AS bodega, a.cantidad_gravable, a.precio_sugerido';
+				$factura->detalle_factura = $this->db
+											->select($select)
+											->join('articulo b', 'b.articulo = a.articulo')
+											->join('impuesto_especial c', 'c.impuesto_especial = a.impuesto_especial', 'left')
+											->join('bodega d', 'd.bodega = a.bodega', 'left')
+											->where('a.factura', $factura->factura)
+											->get('detalle_factura a')
+											->result();
+			}
+
+		}
+		return $facturas;
 	}
 
 }

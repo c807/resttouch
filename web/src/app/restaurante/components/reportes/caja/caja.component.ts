@@ -10,7 +10,7 @@ import { GLOBAL } from '../../../../shared/global';
 import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 import { FpagoService } from '../../../../admin/services/fpago.service';
 import { FormaPago } from '../../../../admin/interfaces/forma-pago';
-
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-caja',
@@ -18,9 +18,21 @@ import { FormaPago } from '../../../../admin/interfaces/forma-pago';
   styleUrls: ['./caja.component.css']
 })
 export class CajaComponent implements OnInit {
+
+  get configBotones() {
+    const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
+    return {
+      showPdf: true, showHtml: false, showExcel: true,
+      isPdfDisabled: deshabilitar,
+      isExcelDisabled: deshabilitar
+    }
+  };
+
   public params: any = {
     _validar: false,
-    sede: []
+    sede: [],
+    fdel: moment().format(GLOBAL.dbDateFormat),
+    fal: moment().format(GLOBAL.dbDateFormat),
   };
   public titulo = 'Resumen de caja';
   public tiposTurno: TipoTurno[] = [];
@@ -29,9 +41,6 @@ export class CajaComponent implements OnInit {
   public sedes: UsuarioSede[] = [];
   public grupos = GLOBAL.grupos;
 
-  public configBotones: ConfiguracionBotones = {
-    showPdf: true, showHtml: false, showExcel: true
-  };
 
   constructor(
     private snackBar: MatSnackBar,
@@ -56,7 +65,7 @@ export class CajaComponent implements OnInit {
   }
 
   loadSedes = () => {
-    this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+    this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
       if (res) {
         this.sedes = res
       }
@@ -72,7 +81,10 @@ export class CajaComponent implements OnInit {
   }
 
   resetParams = () => {
-    this.params = {};
+    this.params = {
+      fdel: moment().format(GLOBAL.dbDateFormat),
+      fal: moment().format(GLOBAL.dbDateFormat)
+    };
     this.cargando = false;
   }
 
@@ -98,7 +110,7 @@ export class CajaComponent implements OnInit {
     this.params._excel = 0;
 
     // console.log(this.params); return;
-    
+
     this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
       this.cargando = false;
       if (res) {

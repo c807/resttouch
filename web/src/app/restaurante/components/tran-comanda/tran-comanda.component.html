@@ -1,12 +1,13 @@
 <div fxLayout="row" fxLayout.xs="column">
     <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="center start">
         <span class="bld" style="font-size: 16pt; margin-left: 10px;" *ngIf="mesaEnUso">
-            {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda}}
+            {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda
+            {{mesaEnUso.comanda}}
         </span>
     </div>
     <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">
-        <button mat-raised-button type="button" color="accent" style="margin-left: 8px;"
-            (click)="closeSideNavEv.emit()" [disabled]="bloqueoBotones">
+        <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="closeSideNavEv.emit()"
+            [disabled]="bloqueoBotones">
             Cerrar Panel
         </button>
     </div>
@@ -23,11 +24,14 @@
 <div class="divFullSize">
     <div class="row">
         <div class="col m12 s12" align="center" style="padding: 0 !important;" *ngIf="mesaEnUso">
-            <button mat-raised-button type="button" color="accent" class="btnAccion" *ngFor="let cta of mesaEnUso.cuentas" [disabled]="+cta.cerrada == 1"
+            <button mat-raised-button type="button" color="accent" class="btnAccion"
+                *ngFor="let cta of mesaEnUso.cuentas" [disabled]="+cta.cerrada == 1 || bloqueoBotones"
                 (click)="setSelectedCuenta(cta.numero)">
                 {{cta.nombre}}
             </button>
-            <button mat-raised-button type="button" class="btnAccion" (click)="nuevaCuenta()" *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0">
+            <button mat-raised-button type="button" class="btnAccion" (click)="nuevaCuenta()"
+                *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0"
+                [disabled]="bloqueoBotones">
                 Nueva
             </button>
         </div>
@@ -36,8 +40,10 @@
         <div class="col m6 s12" align="center" style="padding: 0 !important;">
             <span class="bld">Productos</span><br />
             <mat-form-field class="fullWidth" style="margin-left: 10px; margin-right: 10px;" *ngIf="usaCodigoBarras">
-                <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text" placeholder="Código" name="codigoBarras" [(ngModel)]="codigoBarras" [ngModelOptions]="{standalone: true}" (onDetected)="buscarArticulo()">
-            </mat-form-field><br *ngIf="usaCodigoBarras"/>
+                <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text"
+                    placeholder="Código" name="codigoBarras" [(ngModel)]="codigoBarras"
+                    [ngModelOptions]="{standalone: true}" (onDetected)="buscarArticulo()">
+            </mat-form-field><br *ngIf="usaCodigoBarras" />
             <ng-container *ngFor="let c of categorias">
                 <button mat-raised-button class="btnAccion" color="accent" (click)="clickOnCategoria(c)"
                     [disabled]="!cuentaActiva || bloqueoBotones || !cuentaActiva.cuenta" *ngIf="c.mostrarEnPos">
@@ -59,32 +65,35 @@
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="getNotasGenerales()" [disabled]="bloqueoBotones">
                             Notas
-                        </button>
+                        </button>                        
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="validarImpresion()" [disabled]="!cuentaActiva.nombre || bloqueoBotones" *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
+                            (click)="validarImpresion()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
+                            *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
                             Comanda
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="printCuenta()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                             *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                             Cuenta
-                        </button>                        
+                        </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="distribuirProductos()" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                             Distribuir
-                        </button>                        
+                        </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="unirCuentas()" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                             Unir cuentas
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="cobrarCuenta()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones" *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
+                            (click)="cobrarCuenta()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
+                            *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
                             Cobrar cuenta
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="enviarPedido()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones" *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
+                            (click)="enviarPedido()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
+                            *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
                             Enviar pedido
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
@@ -93,8 +102,9 @@
                             Trasladar
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccionComanda" (click)="cerrarMesa()"
-                            *ngIf="mesaEnUso && lstProductosSeleccionados.length <= 0">
-                            Cerrar {{+mesaEnUso.mesa.esmostrador === 0 ? 'Mesa' : (+mesaEnUso.mesa.escallcenter === 0 ? 'Mostrador' : 'Pedido')}}
+                            *ngIf="mesaEnUso && lstProductosSeleccionados.length <= 0" [disabled]="bloqueoBotones">
+                            Cerrar {{+mesaEnUso.mesa.esmostrador === 0 ? 'Mesa' : (+mesaEnUso.mesa.escallcenter === 0 ?
+                            'Mostrador' : 'Pedido')}}
                         </button>
                     </eco-fab-speed-dial-actions>
                 </eco-fab-speed-dial>
@@ -109,9 +119,11 @@
             </app-lista-producto-alt>
         </div>
         <div class="col m6 s12 mat-elevation-z3 colProductos">
-            <app-lista-productos-comanda *ngIf="mesaEnUso && cuentaActiva" [listaProductos]="lstProductosDeCuenta" [noCuenta]="cuentaActiva && +cuentaActiva.numero ? +cuentaActiva.numero : 1"
+            <!-- <app-lista-productos-comanda *ngIf="mesaEnUso && cuentaActiva" [listaProductos]="lstProductosDeCuenta"
+                [noCuenta]="cuentaActiva && +cuentaActiva.numero ? +cuentaActiva.numero : 1"
                 [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
-                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda>
+                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
+            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
         </div>
-    </div>    
+    </div>
 </div>

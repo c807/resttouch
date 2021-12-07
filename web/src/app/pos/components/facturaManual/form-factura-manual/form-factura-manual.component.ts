@@ -157,7 +157,7 @@ export class FormFacturaManualComponent implements OnInit {
     this.factura = {
       factura: null, factura_serie: null, cliente: null,
       fecha_factura: moment().format(GLOBAL.dbDateFormat), moneda: null, exenta: 0, notas: null,
-      fel_uuid: null, fel_uuid_anulacion: null
+      fel_uuid: null, fel_uuid_anulacion: null, enviar_descripcion_unica: 0, descripcion_unica: null
     };
     this.clienteSelected = undefined;
     this.resetDetalleFactura();
@@ -188,7 +188,9 @@ export class FormFacturaManualComponent implements OnInit {
             moneda: res.factura.moneda,
             exenta: +res.factura.exenta,
             notas: res.factura.notas,
-            fel_uuid: res.factura.fel_uuid
+            fel_uuid: res.factura.fel_uuid,
+            enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
+            descripcion_unica: res.factura.descripcion_unica
           };
           this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
         }
@@ -206,7 +208,9 @@ export class FormFacturaManualComponent implements OnInit {
             moneda: res.factura.moneda,
             exenta: +res.factura.exenta,
             notas: res.factura.notas,
-            fel_uuid: res.factura.fel_uuid
+            fel_uuid: res.factura.fel_uuid,
+            enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
+            descripcion_unica: res.factura.descripcion_unica
           }
           this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
         }
@@ -243,14 +247,29 @@ export class FormFacturaManualComponent implements OnInit {
     });
   }
 
-  procesaDetalleFactura = (detalle: any[]) => {
+  procesaDetalleFactura = (detalle: any[], edu = 0, descripcionUnica: string = null) => {
     const detFact: any[] = [];
-    detalle.forEach(d => detFact.push({
-      Cantidad: parseInt(d.cantidad),
-      Descripcion: d.articulo.descripcion,
-      Total: +d.total,
-      PrecioUnitario: +d.precio_unitario
-    }));
+
+    if (edu === 1 && descripcionUnica) {
+      let total = 0;
+      for(const det of detalle) {
+        total += +det.total;
+      }
+      detFact.push({
+        Cantidad: 1,
+        Descripcion: descripcionUnica,
+        Total: total,
+        PrecioUnitario: total
+      });
+    } else {
+      detalle.forEach(d => detFact.push({
+        Cantidad: parseInt(d.cantidad),
+        Descripcion: d.articulo.descripcion,
+        Total: +d.total,
+        PrecioUnitario: +d.precio_unitario
+      }));
+    }
+
     return detFact;
   }
 
@@ -290,12 +309,12 @@ export class FormFacturaManualComponent implements OnInit {
           FechaDeAutorizacion: res.factura.fecha_autorizacion,
           NoOrdenEnLinea: '',
           FormaDePago: '',
-          DetalleFactura: this.procesaDetalleFactura(res.factura.detalle),
+          DetalleFactura: this.procesaDetalleFactura(res.factura.detalle, +res.factura.enviar_descripcion_unica, res.factura.descripcion_unica),
           ImpuestosAdicionales: (res.factura.impuestos_adicionales || []),
           Impresora: this.impresoraPorDefecto
         };
 
-        console.log(`${JSON.stringify(datosAImprimir)}`);
+        // console.log(`${JSON.stringify(datosAImprimir)}`);
 
         if (this.impresoraPorDefecto) {
           if (+this.impresoraPorDefecto.bluetooth === 0) {
@@ -489,6 +508,14 @@ export class FormFacturaManualComponent implements OnInit {
         '"></iframe>');
     } catch(e) {
       this.snackBar.open('No se pudo abrir la ventana emergente para ver la representación gráfica. Revise la configuración de su explorador, por favor.', 'PDF', { duration: 7000 });
+    }
+  }
+
+  vaciaDescripcionUnica = () => {
+    if (+this.factura.enviar_descripcion_unica === 0) {
+      this.factura.descripcion_unica = null;
+    } else {
+      this.factura.descripcion_unica = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) || 'Por consumo.';
     }
   }
 }

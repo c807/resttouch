@@ -3,6 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Bodega_model extends General_model {
 
+	public $bodega;
 	public $descripcion;
 	public $sede;
 	public $merma = 0;

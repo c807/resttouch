@@ -1,0 +1,52 @@
+<div class="fullWidth" [style.height]="listHeight">
+    <div *ngIf="detalleCuenta.length > 0">
+        <span class="lineaDeTotal">
+            {{cantidadDeProductos}} artículo{{cantidadDeProductos > 1 ? 's' : ''}} por {{totalDeProductos() | number:
+            '1.2-2'}}
+        </span>
+    </div>
+    <mat-divider></mat-divider>
+    <ng-container *ngFor="let p of detalleCuenta; let i = index;">
+        <!-- <div>{{p | json}}</div> -->
+        <div class="wrapper" [ngClass]="{'noImpreso': +p.impreso === 0}">
+            <div class="first product-margin" *ngIf="+p.cantidad > 0">
+                <span>{{p.cantidad | number: '1.0-0'}} {{p.descripcion}}</span>                
+                <br *ngIf="p.detalle.length > 0" />
+                <app-producto-comanda-alt *ngIf="p.detalle.length > 0" [detalle]="p.detalle"></app-producto-comanda-alt>
+            </div>
+            <div class="second product-margin" align="right">
+                <span class="span-monto-producto">
+                    {{((+p.cantidad * +p.precio) + totalDeProductos(p.detalle)) | number: '1.2-2'}}
+                </span>
+                <eco-fab-speed-dial direction="left">
+                    <eco-fab-speed-dial-trigger>
+                        <button mat-fab>
+                            <mat-icon style="font-size: 18pt !important;">keyboard_arrow_left</mat-icon>
+                        </button>
+                    </eco-fab-speed-dial-trigger>
+                    <eco-fab-speed-dial-actions>
+                        <!-- Acciones antes de mandarse a comandar -->
+                        <button mat-mini-fab (click)="deleteProductoFromList(p, i)" color="warn"
+                            [disabled]="bloqueoBotones" *ngIf="+p.impreso === 0">
+                            <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+                        </button>
+                        <button mat-mini-fab (click)="removeProducto(p, i)" color="warn" [disabled]="bloqueoBotones"
+                            *ngIf="p.detalle.length <= 1 && +p.impreso === 0 && +p.combo === 0">
+                            <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
+                        </button>
+                        <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="accent"
+                            [disabled]="bloqueoBotones" *ngIf="+p.impreso === 0">
+                            <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
+                        </button>
+                        <!-- Acciones después de mandarse a comandar -->
+                        <button mat-mini-fab (click)="deleteProductoFromListAfterPrinted(p, i)" color="warn"
+                            [disabled]="bloqueoBotones || !esGerente" *ngIf="+p.impreso === 1">
+                            <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+                        </button>
+                    </eco-fab-speed-dial-actions>
+                </eco-fab-speed-dial>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+    </ng-container>
+</div>

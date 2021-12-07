@@ -118,6 +118,7 @@ import { ListaVendorTerceroComponent } from './components/vendor-tercero/lista-v
 import { FormVendorTerceroComponent } from './components/vendor-tercero/form-vendor-tercero/form-vendor-tercero.component';
 import { FormSedeVendorTerceroComponent } from './components/vendor-tercero/form-sede-vendor-tercero/form-sede-vendor-tercero.component';
 import { FormSedeVendorTerceroDialogComponent } from './components/vendor-tercero/form-sede-vendor-tercero-dialog/form-sede-vendor-tercero-dialog.component';
+import { ReporteBitacoraComponent } from './components/bitacora/reporte-bitacora/reporte-bitacora.component';
 
 @NgModule({
   declarations: [
@@ -138,7 +139,8 @@ import { FormSedeVendorTerceroDialogComponent } from './components/vendor-tercer
     FormRazonAnulacionComponent, ListaRazonAnulacionComponent, GraficaLineaComponent, TipoCompraVentaComponent,
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
-    FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent
+    FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

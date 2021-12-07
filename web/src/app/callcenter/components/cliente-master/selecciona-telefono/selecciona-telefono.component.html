@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Asociar teléfono existente a {{data.clienteMaster.nombre}}</h1>
+<div mat-dialog-content>
+    <p>¿Cuál desea asociar?</p>
+    <table>
+        <tbody>
+            <tr *ngFor="let tel of data.telefonos">
+                <td>{{tel.numero}}</td>
+                <td>
+                    <button mat-raised-button (click)="seleccionar(tel)" color="accent">
+                        Asociar
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cancelar()" color="warn">
+        Cancelar
+    </button>
+</div>

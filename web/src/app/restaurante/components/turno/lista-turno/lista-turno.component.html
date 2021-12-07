@@ -12,7 +12,7 @@
                 </p>
             </mat-list-item>            
         </mat-nav-list>
-        <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>
+        <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>
         </mat-paginator>
     </mat-card-content>
 </mat-card>

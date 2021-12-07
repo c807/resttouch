@@ -13,6 +13,7 @@ export interface Comanda {
     numero_pedido?: string;
     notas_generales?: string;
     replaceUnica?: boolean;
+    _no_get_comanda?: boolean;
 }
 
 export interface ComandaGetResponse {

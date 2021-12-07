@@ -19,10 +19,10 @@ class Mesa_model extends General_Model {
 	public $etiqueta = null;
 	public $escallcenter = 0;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("mesa");
+		$this->setTabla('mesa');
 
 		if(!empty($id)) {
 			$this->cargar($id);
@@ -32,35 +32,35 @@ class Mesa_model extends General_Model {
 	public function get_comanda($args = []){
 
 		if(isset($args['estatus'])) {
-			$this->db->where("b.estatus", 1);
+			$this->db->where('b.estatus', 1);
 		}
 
 		if(isset($args['sede'])) {
-			$this->db->where("b.sede", $args['sede']);
+			$this->db->where('b.sede', $args['sede']);
 		}
 
 		return $this->db
-		->select("
+		->select('
 			b.comanda,
 			b.usuario,
 			b.sede,
-			b.estatus")
-		->join("comanda b", "a.comanda = b.comanda")
-		->where("a.mesa", $this->mesa)		
-		->get("comanda_has_mesa a")
+			b.estatus')
+		->join('comanda b', 'a.comanda = b.comanda')
+		->where('a.mesa', $this->mesa)		
+		->get('comanda_has_mesa a')
 		->row();
 	}
 
 	public function getDisponibles($sede) {
 		return $this->db
-		->select("a.*")
-		->join("area b", "b.area = a.area")
-		->where("a.estatus", 1)
-		->where("a.esmostrador", 0)
-		->where("a.escallcenter", 0)
-		->where("b.sede", $sede)
-		->order_by("b.nombre, a.numero")
-		->get("mesa a")
+		->select('a.*')
+		->join('area b', 'b.area = a.area')
+		// ->where('a.estatus', 1)
+		->where('a.esmostrador', 0)
+		->where('a.escallcenter', 0)
+		->where('b.sede', $sede)
+		->order_by('b.nombre, a.numero')
+		->get('mesa a')
 		->result();
 	}
 }

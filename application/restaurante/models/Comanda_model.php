@@ -35,7 +35,7 @@ class Comanda_model extends General_Model
 	public function getMesas()
 	{
 		return $this->db
-			->select("
+			->select('
 			b.mesa,
 			b.area,
 			b.numero,
@@ -44,11 +44,11 @@ class Comanda_model extends General_Model
 			b.tamanio,
 			b.estatus, b.esmostrador, b.etiqueta, b.escallcenter,
 			b.impresora,
-			c.nombre as narea")
-			->join("mesa b", "a.mesa = b.mesa")
-			->join("area c", "b.area = c.area")
-			->where("a.comanda", $this->comanda)
-			->get("comanda_has_mesa a")
+			c.nombre as narea')
+			->join('mesa b', 'b.mesa = a.mesa')
+			->join('area c', 'c.area = b.area')
+			->where('a.comanda', $this->comanda)
+			->get('comanda_has_mesa a')
 			->row();
 	}
 
@@ -62,7 +62,7 @@ class Comanda_model extends General_Model
 		return $this->db->affected_rows() > 0;
 	}
 
-	public function setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1)
+	public function setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
 	{
 		$cuenta = new Cuenta_model($idcta);
 		$combo = new Articulo_model($articulo);
@@ -74,7 +74,7 @@ class Comanda_model extends General_Model
 			"cantidad" => $cantidad,
 			"notas" => "",
 			"precio" => $precio,
-			"total" => (float)$precio * $cantidad,
+			"total" => is_null($cantidadPadre) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
 			"detalle_comanda_id" => $padre,
 			"bodega" => $bodega ? $bodega->bodega : null
 		];
@@ -91,68 +91,107 @@ class Comanda_model extends General_Model
 		return false;
 	}
 
+	private function get_highest_price($opciones = [])
+	{
+		$precio = null;
+		foreach ($opciones as $seleccion) {
+			$recetaSelec = new Articulo_model($seleccion['articulo']);
+			if ((int)$recetaSelec->multiple === 0){
+				if ((float)$recetaSelec->precio > (float)$precio) {
+					$precio = (float)$recetaSelec->precio;
+				}
+			} else {
+				$precio = $this->get_highest_price($seleccion['receta']);
+			}
+		}
+		return $precio;
+	}
+
 	public function guardarDetalleCombo($args = [], $cuenta)
 	{
+		// set_time_limit(600);
 		$art = new Articulo_model($args['articulo']);
 		if (!isset($args['cantidad'])) {
 			$args['cantidad'] = 1;
 		}
-		$combo = $this->setDetalle($args['articulo'], $cuenta, null, null, (float)$args['cantidad']);
+		
+		$precioMasAlto = null;
+		if((int)$art->combo === 1 && (int)$art->cobro_mas_caro === 1 && isset($args['receta']) && count($args['receta']) > 0) {
+			$precioMasAlto = $this->get_highest_price($args['receta']);
+		}
+
+		$combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);
 		// $args['cantidad'] = 1;
 
 		if ($combo) {
 			foreach ($args['receta'] as $rec) {
-				$receta = $art->getReceta([
-					"articulo" => $rec['articulo'],
-					"_uno" => true
-				]);
+				$receta = $art->getReceta(["articulo" => $rec['articulo'], "_uno" => true]);
 
 				$artMulti = new Articulo_model($rec['articulo']);
 				$multi = $this->setDetalle($rec['articulo'], $cuenta, $combo->detalle_comanda, $receta[0]->precio, (float)$args['cantidad'] * (float)$receta[0]->cantidad);
 
 				$rec['receta'] = get_unicos($rec['receta']);
 				foreach ($rec['receta'] as $seleccion) {
-					$recetaSelec = $artMulti->getReceta([
-						"articulo" => $seleccion['articulo'],
-						"_uno" => true
-					]);
+					$recetaSelec = $artMulti->getReceta(["articulo" => $seleccion['articulo'], "_uno" => true]);
 
 					// $precio = $recetaSelec[0]->precio * (float)$seleccion['cantidad'];
 					$precio = $recetaSelec[0]->precio;
 
-					$selec = $this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad);
+					// setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
+					$opcSelect = $this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad, $multi->cantidad);
+
+					// Para agregar los extras de cada seleccion
+					if (isset($seleccion['extras']) && count($seleccion['extras']) > 0) {
+						foreach ($seleccion['extras'] as $extra) {
+							// $this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad * (float)$recetaSelec[0]->cantidad, $opcSelect->cantidad);
+							$this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad, $opcSelect->cantidad);
+						}
+					}
 				}
 			}
+			return $combo;
 		}
+		return false;
 	}
 
 	public function guardarDetalle(array $args)
 	{
 		$config = $this->Configuracion_model->buscar();
-		$vnegativo = get_configuracion($config, "RT_VENDE_NEGATIVO", 3);
+		$vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
 		$id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
 		$det = new Dcomanda_model($id);
 		$args['comanda'] = $this->comanda;
-		$menu = $this->Catalogo_model->getModulo(["modulo" => 4, "_uno" => true]);
+		$menu = $this->Catalogo_model->getModulo(['modulo' => 4, '_uno' => true]);
 		$validar = true;
 		$cantidad = 0;
-		$articulo = $det->articulo;
+		$articulo = $det->articulo;		
 		if (empty($id)) {
 			$articulo = $args['articulo'];
 			$cantidad = $args['cantidad'];
 			$args['fecha'] = Hoy(3);
+			if(isset($args['cantidad'])) {
+				$args['cantidad_inventario'] = $args['cantidad'];
+			}
 		} else {
 			$args['fecha'] = $det->fecha;
 			if (isset($args['articulo'])) {
 				if ($det->articulo == $args['articulo'] && $det->cantidad < $args['cantidad']) {
 					$articulo = $det->articulo;
-					$cantidad = $args['cantidad'] - $det->cantidad;
+					$cantidad = $args['cantidad'] - $det->cantidad;					
+					if(isset($args['cantidad'])) {
+						$args['cantidad_inventario'] = $args['cantidad'];						
+					}
 				} else if ($det->articulo != $args['articulo']) {
 					$articulo = $args['articulo'];
-					$cantidad = $args['cantidad'];
+					$cantidad = $args['cantidad'];					
+					$args['cantidad_inventario'] = $cantidad;
 				} else {
 					$articulo = $args['articulo'];
 					$validar = false;
+					if(isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+						$cantResta = (float)$det->cantidad - (float)$args['cantidad'];
+						$args['cantidad_inventario'] = (float)$det->cantidad_inventario - $cantResta;
+					}
 				}
 			}
 		}
@@ -162,30 +201,40 @@ class Comanda_model extends General_Model
 		$bodega = $art->getBodega();
 		$args['bodega'] = $bodega ? $bodega->bodega : null;
 		$cantPres = ($pres) ? $pres->cantidad : 0;
+		
 		$oldart = new Articulo_model($det->articulo);
-		$art->actualizarExistencia([
-			"bodega" => $args['bodega']
-		]);
-		if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
+
+		if (!empty($menu) && !$vnegativo) {
+			$art->actualizarExistencia(['bodega' => $args['bodega']]);
+			// $art->existencias = $art->get_existencia_bodega(['bodega' => $args['bodega']]);
+		}	
+
+		if ($vnegativo || empty($menu) || (!$validar || (float)$art->existencias >= ((float)$cantidad * (float)$cantPres))) {
 			$nuevo = ($det->getPK() == null);
 			$result = $det->guardar($args);
 			$idx = $det->getPK();
 			$receta = $art->getReceta();
 
-			if (count($receta) > 0 && $art->combo == 0 && $art->multiple == 0 && $nuevo && !$art->produccion) {
+			// if(!empty($menu) && (int)$art->mostrar_inventario === 1) {
+			// 	$art->existencias = (float)$art->existencias - ((float)$cantidad * (float)$cantPres);
+			// 	$art->guardar();
+			// 	$art->actualiza_existencia_bodega_articulo_costo($args['bodega']);
+			// }
+
+			if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
 				foreach ($receta as $rec) {
 					$presR = $this->Presentacion_model->buscar([
-						"medida" => $rec->medida->medida,
-						"cantidad" => 1,
-						"_uno" => true
+						'medida' => $rec->medida->medida,
+						'cantidad' => 1,
+						'_uno' => true
 					]);
 
 					if (!$presR) {
 						$presR = new Presentacion_model();
 						$presR->guardar([
-							"medida" => $rec->medida->medida,
-							"descripcion" => $rec->medida->descripcion,
-							"cantidad" => 1
+							'medida' => $rec->medida->medida,
+							'descripcion' => $rec->medida->descripcion,
+							'cantidad' => 1
 						]);
 
 						$presR->presentacion = $presR->getPK();
@@ -196,27 +245,32 @@ class Comanda_model extends General_Model
 
 					$detr = new Dcomanda_model();
 					$dato = [
-						"comanda" => $this->getPK(),
-						"articulo" => $rec->articulo->articulo,
-						"cantidad" => $rec->cantidad,
-						"precio" => 0,
-						"total" => 0,
-						"impreso" => 0,
-						"presentacion" => $presR->presentacion,
-						"detalle_comanda_id" => $idx,
-						"bodega" => $bodegaR ? $bodegaR->bodega : null
+						'comanda' => $this->getPK(),
+						'articulo' => $rec->articulo->articulo,
+						'cantidad' => $rec->cantidad,
+						'precio' => 0,
+						'total' => 0,
+						'impreso' => 0,
+						'presentacion' => $presR->presentacion,
+						'detalle_comanda_id' => $idx,
+						'bodega' => $bodegaR ? $bodegaR->bodega : null,
+						'cantidad_inventario' => $rec->cantidad
 					];
 					$detr->guardar($dato);
 				}
 			}
-			if ($det->getPK() && $art->combo == 0 && $art->multiple == 0) {
-				$det->actualizarCantidadHijos();
+			if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
+				$det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
 			}
 			if ($result) {
-				$art->actualizarExistencia();
+				if (!empty($menu) && !$vnegativo) {
+					$art->actualizarExistencia(['bodega' => $args['bodega']]);					
+				}
 				if (isset($args['articulo'])) {
 					if ($oldart->articulo) {
-						$oldart->actualizarExistencia();
+						if (!empty($menu) && !$vnegativo) {
+							$oldart->actualizarExistencia(['bodega' => $args['bodega']]);							
+						}
 					}
 				}
 				return $det;
@@ -225,14 +279,135 @@ class Comanda_model extends General_Model
 
 			return $result;
 		} else {
-			$this->setMensaje("No hay existencias suficientes para este articulo, existencia {$art->existencias}");
+			$this->setMensaje('No hay existencias suficientes para este articulo');
+		}
+	}
+
+	public function guardarDetalleMejorado(array $args)
+	{
+		// $inicia = time();
+		$config = $this->Configuracion_model->buscar();
+		$vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
+		$id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
+		$det = new Dcomanda_model($id);
+		$args['comanda'] = $this->comanda;
+		$menu = $this->Catalogo_model->getModulo(['modulo' => 4, '_uno' => true]);
+		$validar = true;
+		$cantidad = 0;
+		$articulo = $det->articulo;		
+		$oldart = null;
+		if (empty($id)) {
+			$articulo = $args['articulo'];
+			$cantidad = $args['cantidad'];
+			$args['fecha'] = Hoy(3);
+			if(isset($args['cantidad'])) {
+				$args['cantidad_inventario'] = $args['cantidad'];
+			}
+		} else {
+			$args['fecha'] = $det->fecha;
+			if (isset($args['articulo'])) {
+				if ((int)$det->articulo === (int)$args['articulo'] && (float)$det->cantidad < (float)$args['cantidad']) {
+					$articulo = $det->articulo;
+					$cantidad = $args['cantidad'] - $det->cantidad;					
+					if(isset($args['cantidad'])) {
+						$args['cantidad_inventario'] = $args['cantidad'];						
+					}
+				} else if ($det->articulo != $args['articulo']) {
+					$oldart = new Articulo_model($det->articulo);
+					$articulo = $args['articulo'];
+					$cantidad = $args['cantidad'];					
+					$args['cantidad_inventario'] = $cantidad;
+				} else {
+					$articulo = $args['articulo'];
+					$validar = false;
+					if(isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+						$cantResta = (float)$det->cantidad - (float)$args['cantidad'];
+						$args['cantidad_inventario'] = (float)$det->cantidad_inventario - $cantResta;
+					}
+				}
+			}
+		}
+		$art = new Articulo_model($articulo);
+		// $pres = $art->getPresentacion();
+		$dataForDC = $art->getDataForDetalleComanda();
+		$args['presentacion'] = $art->presentacion;
+		// $bodega = $art->getBodega();
+		$args['bodega'] = $dataForDC ? $dataForDC->bodega : null;
+		$cantPres = ($dataForDC) ? $dataForDC->cant_pres_reporte : 0;
+		
+		if (!empty($menu) && !$vnegativo) {
+			$art->actualizarExistencia(['bodega' => $args['bodega']]);
+		}
+
+		if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
+			$nuevo = ($det->getPK() == null);
+			$result = $det->guardar($args);
+			$idx = $det->getPK();
+			$receta = $art->getReceta();
+
+			if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
+				foreach ($receta as $rec) {
+					$presR = $this->Presentacion_model->buscar([
+						'medida' => $rec->medida->medida,
+						'cantidad' => 1,
+						'_uno' => true
+					]);
+
+					if (!$presR) {
+						$presR = new Presentacion_model();
+						$presR->guardar([
+							'medida' => $rec->medida->medida,
+							'descripcion' => $rec->medida->descripcion,
+							'cantidad' => 1
+						]);
+
+						$presR->presentacion = $presR->getPK();
+					}
+
+					$artR = new Articulo_model($rec->articulo->articulo);
+					$bodegaR = $artR->getBodega();
+
+					$detr = new Dcomanda_model();
+					$dato = [
+						'comanda' => $this->getPK(),
+						'articulo' => $rec->articulo->articulo,
+						'cantidad' => $rec->cantidad,
+						'precio' => 0,
+						'total' => 0,
+						'impreso' => 0,
+						'presentacion' => $presR->presentacion,
+						'detalle_comanda_id' => $idx,
+						'bodega' => $bodegaR ? $bodegaR->bodega : null,
+						'cantidad_inventario' => $rec->cantidad
+					];
+					$detr->guardar($dato);
+				}
+			}
+			if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
+				$det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
+			}
+			if ($result) {
+				if (!empty($menu) && !$vnegativo) {
+					$art->actualizarExistencia(['bodega' => $args['bodega']]);					
+				}
+
+				if ($oldart && isset($oldart->articulo) && !empty($menu) && !$vnegativo) {
+					$oldart->actualizarExistencia(['bodega' => $args['bodega']]);					
+				}
+				return $det;
+			}
+			$this->mensaje = $det->getMensaje();			
+			return $result;
+		} else {
+			$this->setMensaje('No hay existencias suficientes para este articulo');
 		}
 	}
 
 	public function getDetalle($args = [])
 	{
 		$args['comanda'] = $this->comanda;
-		$det = $this->Dcomanda_model->buscar($args);
+		// $det = $this->Dcomanda_model->buscar($args);
+		$det = $this->Dcomanda_model->get_detalle_comanda($args);
 		$datos = [];
 		if (is_array($det)) {
 			foreach ($det as $row) {
@@ -256,6 +431,33 @@ class Comanda_model extends General_Model
 		return $datos;
 	}
 
+	public function getDetalleComandaSimplified($args = []) {
+		$args['comanda'] = $this->comanda;
+		// $det = $this->Dcomanda_model->buscar($args);
+		$det = $this->Dcomanda_model->get_detalle($args);
+		// $datos = [];
+		// if (is_array($det)) {
+		// 	foreach ($det as $row) {
+		// 		$detalle = new Dcomanda_model($row->detalle_comanda);
+		// 		$row->articulo = $detalle->getArticulo();
+		// 		if (isset($args['_categoria_grupo'])) {
+
+		// 			if (in_array($row->articulo->categoria_grupo, $args['_categoria_grupo'])) {
+		// 				$datos[] = $row;
+		// 			}
+		// 		} else {
+		// 			$datos[] = $row;
+		// 		}
+		// 	}
+		// } else if ($det) {
+		// 	$detalle = new Dcomanda_model($det->detalle_comanda);
+		// 	$det->articulo = $detalle->getArticulo();
+		// 	$datos[] = $det;
+		// }
+
+		return $det;		
+	}
+
 	public function getCuentas($args = [])
 	{
 		if (isset($args['_cuenta'])) {
@@ -274,11 +476,16 @@ class Comanda_model extends General_Model
 				$buscar['numero'] = $args['_numero'];
 			}
 
-			if (isset($args["_categoria_grupo"])) {
-				$buscar['_categoria_grupo'] = $args['_categoria_grupo'];
+			if (isset($args['_categoria_grupo'])) {
+				if (is_array($args['_categoria_grupo'])) {
+					$buscar['_categoria_grupo'] = implode(',', $args['_categoria_grupo']);
+				} else if (is_string($args['_categoria_grupo'])) {
+					$buscar['_categoria_grupo'] = $args['_categoria_grupo'];
+				}
 			}
 
-			$row->productos = $cta->getDetalle($buscar);
+			// $row->productos = $cta->getDetalle($buscar);			
+			$row->productos = isset($args['_sin_detalle']) ? [] : $cta->getDetalleSimplified($buscar);
 			$cuentas[] = $row;
 		}
 
@@ -322,9 +529,14 @@ class Comanda_model extends General_Model
 		}
 
 		if (isset($args['_categoria_grupo'])) {
-			$buscar['_categoria_grupo'] = $args['_categoria_grupo'];
+			if (is_array($args['_categoria_grupo'])) {
+				$buscar['_categoria_grupo'] = implode(',', $args['_categoria_grupo']);
+			} else if (is_string($args['_categoria_grupo'])) {
+				$buscar['_categoria_grupo'] = $args['_categoria_grupo'];
+			}
 		}
-		$det = $this->getDetalle($buscar);
+		// $det = $this->getDetalle($buscar); 
+		$det = $this->getDetalleComandaSimplified($buscar);		
 
 		if (count($det) > 0) {
 			$tmp->tiempo_preparacion = $det[0]->tiempo_preparacion;
@@ -374,12 +586,16 @@ class Comanda_model extends General_Model
 				->where('t.fin <= ', $args['fal']);
 		}
 
-		if(isset($args['turno'])) {
+		if (isset($args['turno'])) {
 			$this->db->where('t.turno', $args['turno']);
 		}
 
-		if(isset($args['estatus'])) {
+		if (isset($args['estatus'])) {
 			$this->db->where('a.estatus', $args['estatus']);
+		}
+
+		if (isset($args['comanda'])) {
+			$this->db->where('a.comanda', $args['comanda']);
 		}
 
 		$this->db
@@ -672,6 +888,110 @@ class Comanda_model extends General_Model
 			->get("comanda a")
 			->result();
 	}
+
+	public function get_articulos_pendientes()
+	{
+		return $this->db
+			->select('a.*')
+			->join('detalle_cuenta b', 'a.detalle_comanda = b.detalle_comanda', 'left')
+			->join('cuenta c', 'c.cuenta = b.cuenta_cuenta', 'left')
+			->where('a.comanda', $this->getPK())
+			->where('a.cantidad >', 0)
+			->where('a.detalle_comanda_id IS NULL', null, false)
+			->where('(c.cerrada = 0 OR c.cerrada IS NULL)', null, false)
+			->get('detalle_comanda a')
+			->result();
+	}
+
+	public function trasladar_cuentas_a_comanda($cmdDestino)
+	{
+		$ctasDeOrigen = $this->db
+			->select('cuenta')
+			->where('comanda', $this->getPK())
+			->where('cerrada', 0)
+			->get('cuenta')
+			->result();
+		
+		if($ctasDeOrigen) {
+
+			$unicasDestino = $this->db
+				->select('COUNT(cuenta) + 1 AS contunicas')
+				->where('comanda', $cmdDestino)
+				->like('nombre', 'única', 'after')
+				->get('cuenta')
+				->row();
+
+			$numCtasDestino = $this->db
+				->select('IFNULL(MAX(numero) + 1, 1) AS nocuenta')
+				->where('comanda', $cmdDestino)
+				->get('cuenta')
+				->row();
+
+			$this->load->model(['Cuenta_model', 'Dcomanda_model']);
+			$errores = [];
+			$cntUnicas = $unicasDestino ? (int)$unicasDestino->contunicas : 1;
+			$noCta = $numCtasDestino ? (int)$numCtasDestino->nocuenta : 1;
+			foreach($ctasDeOrigen as $ctaOrigen) {
+				$cta = new Cuenta_model($ctaOrigen->cuenta);
+				$campos = ['comanda' => $cmdDestino, 'numero' => $noCta];
+				if (strcasecmp(strtolower(trim($cta->nombre)), 'Única') === 0) {
+					$campos['nombre'] = "{$cta->nombre} ({$cntUnicas})";
+					$cntUnicas++;
+				}
+				$exito = $cta->guardar($campos);
+				if (!$exito) {
+					$errores[] = implode(';', $cta->getMensaje());
+				} else {
+					$detsComanda = $this->db
+						->select('b.detalle_comanda')
+						->join('detalle_comanda b', 'b.detalle_comanda = a.detalle_comanda')
+						->where('a.cuenta_cuenta', $ctaOrigen->cuenta)
+						->get('detalle_cuenta a')
+						->result();
+					if ($detsComanda) {
+						foreach($detsComanda as $detc) {
+							$det = new Dcomanda_model($detc->detalle_comanda);
+							$exito = $det->guardar(['comanda' => $cmdDestino]);
+							if(!$exito) {
+								$errores[] = implode(';', $cta->getMensaje());								
+							}
+						}
+					}
+				}
+				$noCta++;
+			}
+			if(empty($errores)) {
+				return true;
+			} else {
+				$this->mensaje[] = implode(';', $errores);
+			}
+		} else {
+			$this->mensaje[] = 'No hay cuentas abiertas para trasladar.';
+		}
+
+		return false;
+	}
+
+	public function get_total_descuento($comanda = 0) 
+	{
+		if ((int)$comanda === 0) {
+			$comanda = $this->getPK();
+		}
+
+		$descuentos = 0;
+        $mnt = $this->db->select_sum('a.monto')
+            ->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+            ->where('b.descuento', 1)
+            ->where("cuenta IN(SELECT cuenta FROM cuenta WHERE comanda = {$comanda})", NULL, FALSE)
+            ->get('cuenta_forma_pago a')
+            ->row();
+        
+        if ($mnt) {
+            $descuentos = (float)$mnt->monto;
+        }
+        return $descuentos;		
+	}
+
 }
 
 /* End of file Comanda_model.php */

@@ -70,7 +70,7 @@ class Reporte extends CI_Controller
 			$art = new Articulo_model($row->articulo);
 			$art->actualizarExistencia($_POST);
 			$rec = $art->getReceta();
-			if (count($rec) == 0 || $art->produccion) {
+			if (count($rec) == 0 || $art->produccion || (count($rec) > 0 && (int)$art->mostrar_inventario === 1)) {
 				$args["reg"][$row->sede][] = $art->getExistencias($_POST);
 			}
 		}
@@ -424,7 +424,8 @@ class Reporte extends CI_Controller
 				$articulo = new Articulo_model($art->articulo);				
 				$infoArticulo->codigo = $articulo->codigo;
 				$infoArticulo->descripcion = $articulo->descripcion;
-				if(count($articulo->getReceta()) === 0 || $articulo->produccion)
+				$cntReceta = count($articulo->getReceta());
+				if($cntReceta === 0 || $articulo->produccion || ($cntReceta > 0 && (int)$articulo->mostrar_inventario === 1))
 				{					
 					$presentacionReporte = $articulo->getPresentacionReporte();
 					$sede = new Sede_model($s);				
@@ -611,7 +612,7 @@ class Reporte extends CI_Controller
 		} else {
 			$vista = $this->load->view('reporte/kardex/imprimir', $args, true);
 			$pdf   = new \Mpdf\Mpdf([
-				'tempDir' => sys_get_temp_dir(), //produccion
+				// 'tempDir' => sys_get_temp_dir(), //produccion
 				"format" => "letter",
 				"lands"
 			]);
@@ -659,7 +660,7 @@ class Reporte extends CI_Controller
 						{
 							$pathSubcat = $art->get_path_subcategorias();
 							$receta = $art->getReceta();
-							if (count($receta) === 0 || (int)$art->produccion === 1) {
+							if (count($receta) === 0 || (int)$art->produccion === 1 || (count($receta) > 0 && (int)$art->mostrar_inventario === 1)) {
 								$art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode]);
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
@@ -790,7 +791,7 @@ class Reporte extends CI_Controller
 			$vista = $this->load->view('reporte/valorizado/imprimir', $datos, true);
 
 			$mpdf = new \Mpdf\Mpdf([
-				// 'tempDir' => sys_get_temp_dir(), //Produccion
+				'tempDir' => sys_get_temp_dir(), //Produccion
 				'format' => 'Legal'
 			]);
 

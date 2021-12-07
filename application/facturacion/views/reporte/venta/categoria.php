@@ -26,7 +26,7 @@
 			<?php if (isset($turno)): ?>
 				<h4>Turno: <?php echo $turno->descripcion ?> </h4>
 			<?php endif ?>
-			<span>Por Categoria</span>
+			<span>Por Categoría</span>
 		</div>
 	</div>
 	
@@ -45,7 +45,7 @@
 					<table class="table table-bordered" style="padding: 5px">
 						<thead>
 							<tr>
-								<th style="padding: 5px;" class="text-center">Descripcion</th>
+								<th style="padding: 5px;" class="text-center">Descripción</th>
 								<th style="padding: 5px;" class="text-center">Cantidad</th>
 								<th style="padding: 5px;" class="text-center">Porcentaje</th>
 								<th style="padding: 5px;" class="text-center">Precio Unitario</th>
@@ -88,7 +88,7 @@
 											?>	
 										<?php endforeach ?>
 										<tr>
-											<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4"><b>Total subcategoria</b></td>
+											<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4"><b>Total subcategoría</b></td>
 											<td style="padding: 5px;" class="text-right">
 												<?php echo number_format($total, 2) ?>
 											</td>
@@ -100,10 +100,26 @@
 						<tfoot>
 							<tr>
 								<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4">
-									<h4>TOTAL</h4>
+									<h4>Total (con desct., sin propina):</h4>
 								</td>
 								<td style="padding: 5px;" class="text-right">
-									<?php echo number_format($granTotal, 2) ?>
+									<?php echo number_format($granTotal - $monto_descuento, 2) ?>
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4">
+									<h4>Propinas:</h4>
+								</td>
+								<td style="padding: 5px;" class="text-right">
+									<?php echo number_format($monto_propinas, 2) ?>
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4">
+									<h4>Total (Ingresos):</h4>
+								</td>
+								<td style="padding: 5px;" class="text-right">
+									<?php echo number_format($granTotal - $monto_descuento + $monto_propinas, 2) ?>
 								</td>
 							</tr>
 						</tfoot>
@@ -112,7 +128,7 @@
 					<table class="table table-bordered" style="padding: 5px">
 						<thead>
 							<tr>
-								<th style="padding: 5px;" class="text-center">Descripcion</th>
+								<th style="padding: 5px;" class="text-center">Descripción</th>
 								<th style="padding: 5px;" class="text-center">Cantidad</th>
 								<th style="padding: 5px;" class="text-center">Porcentaje</th>
 								<th style="padding: 5px;" class="text-center">Precio Unitario</th>
@@ -163,7 +179,7 @@
 											<?php endforeach ?>
 											<?php $totalSede += $total; ?>
 											<tr>
-												<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4"><b>Total subcategoria</b></td>
+												<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4"><b>Total subcategoría</b></td>
 												<td style="padding: 5px;" class="text-right">
 													<?php echo number_format($total, 2) ?>
 												</td>
@@ -185,12 +201,28 @@
 						<tfoot>
 							<tr>
 								<td style="padding: 5px; margin-left: 5px;font-weight: bold;" class="text-right" colspan="4">
-									<h4>TOTAL</h4>
+									<h4>Total (con desct., sin propina):</h4>
 								</td>
 								<td style="padding: 5px;" class="text-right">
-									<?php echo number_format($granTotal, 2) ?>
+									<?php echo number_format($granTotal - $monto_descuento, 2) ?>
 								</td>
 							</tr>
+							<tr>
+								<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4">
+									<h4>Propinas:</h4>
+								</td>
+								<td style="padding: 5px;" class="text-right">
+									<?php echo number_format($monto_propinas, 2) ?>
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 5px; margin-left: 5px;" class="text-right" colspan="4">
+									<h4>Total (Ingresos):</h4>
+								</td>
+								<td style="padding: 5px;" class="text-right">
+									<?php echo number_format($granTotal - $monto_descuento + $monto_propinas, 2) ?>
+								</td>
+							</tr>							
 						</tfoot>
 					</table>
 				<?php endif ?>

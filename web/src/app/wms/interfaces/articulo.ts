@@ -30,6 +30,8 @@ export interface Articulo {
     usuariobaja?: number;
     cantidad_gravable?: number;
     precio_sugerido?: number;
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface ArticuloResponse {
@@ -56,6 +58,8 @@ export interface ArticuloResponse {
     usuariobaja?: number;
     cantidad_gravable?: number;
     precio_sugerido?: number;
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface ArbolCategoriaGrupo {
@@ -69,6 +73,8 @@ export interface ArbolCategoriaGrupo {
     debaja?: number;
     fechabaja?: string;
     usuariobaja?: number;
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface ArbolArticulos {
@@ -80,6 +86,8 @@ export interface ArbolArticulos {
     debaja?: number;
     fechabaja?: string;
     usuariobaja?: number;
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface NodoProducto {
@@ -95,6 +103,8 @@ export interface NodoProducto {
     debaja?: number;
     fechabaja?: string;
     usuariobaja?: number;
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface ProductoSelected {
@@ -112,13 +122,17 @@ export interface ProductoSelected {
     detalle_comanda?: number;
     detalle_cuenta?: number;
     impresora?: Impresora;
-    detalle?: [];
+    detalle?: string[];
     monto_extra?: number;
     multiple?: number;
     combo?: number;
     esreceta?: number;
     cantidad_gravable?: number;
     precio_sugerido?: number;
+    impresoras_combo?: Impresora[];
+    detalle_impresion?: ArticuloImpresion[];
+    cobro_mas_caro?: number;
+    esextra?: number;
 }
 
 export interface ArticuloCodigo {
@@ -133,4 +147,14 @@ export interface ArticuloFastEdit {
     descripcion: string;
     mostrar_pos: number;
     precio: number;
+}
+
+export interface ArticuloImpresion {
+    Id: number;
+    Nombre: string;
+    Cantidad: number;    
+    Total: number;
+    Notas: string;
+    Detalle: string[];
+    Impresora: Impresora;
 }

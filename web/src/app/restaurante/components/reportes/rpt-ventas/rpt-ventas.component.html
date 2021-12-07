@@ -14,20 +14,28 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <mat-form-field class="fullWidth">
+                    <mat-form-field class="fullWidth separacionPorHint">
                         <mat-label>Tipo de turno</mat-label>
                         <mat-select name="turno_tipo" [(ngModel)]="params.turno_tipo">
                             <mat-option *ngFor="let tt of tiposTurno" [value]="tt.turno_tipo">
                                 {{tt.descripcion}}
                             </mat-option>
                         </mat-select>
+                        <mat-hint align="start" *ngIf="params.turno_tipo && +params.tipo_reporte > 1">
+                            <strong>
+                                No incluirá facturas manuales porque las facturas manuales no pertenecen a ningún turno.
+                            </strong>
+                        </mat-hint>
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth">
                         <input type="date" matInput placeholder="Del" name="fdel" [(ngModel)]="params.fdel" required>
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth">
                         <input type="date" matInput placeholder="Al" name="fal" [(ngModel)]="params.fal" required>
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth">
                         <mat-label>Sede</mat-label>
                         <mat-select name="sede" multiple [(ngModel)]="params.sede">
@@ -35,15 +43,7 @@
                                 {{sede.sede.nombre}}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>
-                    <!-- <mat-form-field class="fullWidth" *ngIf="params.sede && params.sede.length > 1">
-                        <mat-label>Agrupar por</mat-label>
-                        <mat-select name="grupo"  [(ngModel)]="params._grupo">
-                            <mat-option *ngFor="let grp of grupos" [value]="grp.id">
-                                {{grp.descripcion}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field> -->
+                    </mat-form-field>                    
                     <app-rpt-botones [configuracion]="configBotones" (excelClick) = "getReporte(3)" (pdfClick)="getReporte(2)" (resetParamsClick)="resetParams()"></app-rpt-botones>
                 </form>
                 <app-cargando *ngIf="cargando"></app-cargando>
@@ -51,13 +51,3 @@
         </mat-card>
     </div>
 </div>
-<!-- <div class="row" *ngIf="params.tipo_reporte === 1 && porCategoria.length > 0">
-    <div class="col m12 s12">
-        <app-por-categoria [params]="params" [data]="porCategoria"></app-por-categoria>
-    </div>
-</div>
-<div class="row" *ngIf="params.tipo_reporte === 2 ">
-    <div class="col m12 s12">
-        <app-por-articulo [params]="params" [data]="porArticulo"></app-por-articulo>
-    </div>
-</div> -->

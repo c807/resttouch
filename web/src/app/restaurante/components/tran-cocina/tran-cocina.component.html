@@ -4,40 +4,42 @@
             <div fxFlex="100%" fxLayoutAlign="center start">
                 <h4>Pendientes</h4>
             </div>
-            <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%" *ngFor="let cmd of lstComandasCocina">
-                <mat-card class="mat-elevation-z4">
-                    <mat-card-header>
-                        <mat-card-title>Comanda #{{cmd.comanda}} - {{cmd.numero}}</mat-card-title>
-                        <mat-card-subtitle>
-                            Area {{cmd.mesa.area.nombre}} - Mesa #{{cmd.mesa.etiqueta || cmd.mesa.numero}}<br />
-                            Atiende: {{cmd.mesero.nombres}} {{cmd.mesero.apellidos}}
-                        </mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <ng-container *ngFor="let cta of cmd.cuentas">
-                            <table *ngIf="cta.productos.length > 0">
-                                <tr *ngFor="let prod of cta.productos">
-                                    <td>
-                                        {{prod.cantidad}} {{prod.articulo.descripcion}}
-                                        <br *ngIf="prod.detalle.length > 0" />
-                                        <ng-container *ngFor="let specs of prod.detalle">                                            
-                                            <span>{{specs.trim()}}</span><br/>
-                                        </ng-container>
-                                        <br *ngIf="!!prod.notas && prod.notas.length > 0 && !prod.detalle" />
-                                        <span *ngIf="!!prod.notas && prod.notas.length > 0">
-                                            <strong>Notas:</strong> {{prod.notas}}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </ng-container>
-                    </mat-card-content>
-                    <mat-card-actions align="end">
-                        <button mat-raised-button color="accent" type="button"
-                            (click)="setCocinado(cmd, 1)">Vista</button>
-                    </mat-card-actions>
-                </mat-card>
-            </div>
+            <ng-container *ngFor="let cmd of lstComandasCocina; index as i">                
+                <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%" *ngIf="sumaCantidadProductos(cmd) > 0">
+                    <mat-card class="mat-elevation-z4">
+                        <mat-card-header>
+                            <mat-card-title>Comanda #{{cmd.comanda}} - {{cmd.numero}}</mat-card-title>
+                            <mat-card-subtitle>
+                                Area {{cmd.mesa.area.nombre}} - Mesa #{{cmd.mesa.etiqueta || cmd.mesa.numero}}<br />
+                                Atiende: {{cmd.mesero.nombres}} {{cmd.mesero.apellidos}}
+                            </mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <ng-container *ngFor="let cta of cmd.cuentas">
+                                <table *ngIf="cta.productos.length > 0">
+                                    <tr *ngFor="let prod of cta.productos">
+                                        <td>
+                                            {{prod.cantidad}} {{prod.articulo.descripcion}}
+                                            <br *ngIf="prod.detalle.length > 0" />
+                                            <ng-container *ngFor="let specs of prod.detalle">                                            
+                                                <span>{{specs.trim()}}</span><br/>
+                                            </ng-container>
+                                            <br *ngIf="!!prod.notas && prod.notas.length > 0 && !prod.detalle" />
+                                            <span *ngIf="!!prod.notas && prod.notas.length > 0">
+                                                <strong>Notas:</strong> {{prod.notas}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </ng-container>
+                        </mat-card-content>
+                        <mat-card-actions align="end">
+                            <button mat-raised-button color="accent" type="button"
+                                (click)="setCocinado(cmd, 1, i)">Vista</button>
+                        </mat-card-actions>
+                    </mat-card>
+                </div>
+            </ng-container>
         </div>
     </div>
     <div fxFlex="50%" fxFlex.xs="100%" class="bordeLft">
@@ -45,46 +47,45 @@
             <div fxFlex="100%" fxLayoutAlign="center start">
                 <h4>En Proceso</h4>
             </div>
-            <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%"
-                *ngFor="let cmdEnProceso of lstComandasCocinaEnProceso">
-                <mat-card class="mat-elevation-z4">
-                    <mat-card-header>
-                        <mat-card-title>Comanda #{{cmdEnProceso.comanda}} - {{cmdEnProceso.numero}}</mat-card-title>
-                        <mat-card-subtitle>
-                            Area {{cmdEnProceso.mesa.area.nombre}} - Mesa #{{cmdEnProceso.mesa.etiqueta || cmdEnProceso.mesa.numero}}<br />
-                            Atiende: {{cmdEnProceso.mesero.nombres}} {{cmdEnProceso.mesero.apellidos}}
-                        </mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content>
-                        <div align="center">
-                            <h6 [ngClass]="{'text-danger': comparaFecha(cmdEnProceso)}">
-                                {{cmdEnProceso.tiempo_transcurrido | date: 'HH:mm:ss'}}
-                            </h6>
-                        </div>
-                        <ng-container *ngFor="let cta of cmdEnProceso.cuentas">
-                            <table *ngIf="cta.productos.length > 0">
-                                <tr *ngFor="let prod of cta.productos">
-                                    <td>
-                                        {{prod.cantidad}} {{prod.articulo.descripcion}}
-                                        <br *ngIf="prod.detalle.length > 0" />
-                                        <ng-container *ngFor="let specs of prod.detalle">                                            
-                                            <span>{{specs.trim()}}</span><br/>
-                                        </ng-container>
-                                        <br *ngIf="!!prod.notas && prod.notas.length > 0 && !prod.detalle" />
-                                        <span *ngIf="!!prod.notas && prod.notas.length > 0">
-                                            <strong>Notas:</strong> {{prod.notas}}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </ng-container>
-                    </mat-card-content>
-                    <mat-card-actions align="end">
-                        <button mat-raised-button color="accent" type="button"
-                            (click)="setCocinado(cmdEnProceso)">Cocinado</button>
-                    </mat-card-actions>
-                </mat-card>
-            </div>
+            <ng-container *ngFor="let cmdEnProceso of lstComandasCocinaEnProceso; index as j">
+                <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%" *ngIf="sumaCantidadProductos(cmdEnProceso) > 0">
+                    <mat-card class="mat-elevation-z4">
+                        <mat-card-header>
+                            <mat-card-title>Comanda #{{cmdEnProceso.comanda}} - {{cmdEnProceso.numero}}</mat-card-title>
+                            <mat-card-subtitle>
+                                Area {{cmdEnProceso.mesa.area.nombre}} - Mesa #{{cmdEnProceso.mesa.etiqueta || cmdEnProceso.mesa.numero}}<br />
+                                Atiende: {{cmdEnProceso.mesero.nombres}} {{cmdEnProceso.mesero.apellidos}}
+                            </mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <div align="center">
+                                <h6>{{cmdEnProceso.tiempo_transcurrido | date: 'HH:mm:ss'}}</h6>
+                            </div>
+                            <ng-container *ngFor="let cta of cmdEnProceso.cuentas">
+                                <table *ngIf="cta.productos.length > 0">
+                                    <tr *ngFor="let prod of cta.productos">
+                                        <td>
+                                            {{prod.cantidad}} {{prod.articulo.descripcion}}
+                                            <br *ngIf="prod.detalle.length > 0" />
+                                            <ng-container *ngFor="let specs of prod.detalle">                                            
+                                                <span>{{specs.trim()}}</span><br/>
+                                            </ng-container>
+                                            <br *ngIf="!!prod.notas && prod.notas.length > 0 && !prod.detalle" />
+                                            <span *ngIf="!!prod.notas && prod.notas.length > 0">
+                                                <strong>Notas:</strong> {{prod.notas}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </ng-container>
+                        </mat-card-content>
+                        <mat-card-actions align="end">
+                            <button mat-raised-button color="accent" type="button"
+                                (click)="setCocinado(cmdEnProceso, 2, j)">Cocinado</button>
+                        </mat-card-actions>
+                    </mat-card>
+                </div>
+            </ng-container>
         </div>
     </div>
 </div>

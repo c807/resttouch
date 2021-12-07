@@ -1,9 +1,9 @@
-<h1 mat-dialog-title>Notas generales de comanda</h1>
+<h1 mat-dialog-title>Notas de {{data.titulo}}</h1>
 <mat-dialog-content>
     <form #frmNotasGenCom="ngForm" novalidate>
         <mat-form-field class="fullWidth">
-            <textarea matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas generales" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
-            <textarea matInput *ngIf="esMovil" placeholder="Notas generales" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
+            <textarea matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
+            <textarea matInput *ngIf="esMovil" placeholder="Notas" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
         </mat-form-field>
     </form>
 </mat-dialog-content>

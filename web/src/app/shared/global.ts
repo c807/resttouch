@@ -2,8 +2,10 @@ const LOCALHOST = ['localhost', '127.0.0.1'];
 export const PROTOCOLO = window.location.protocol;
 export const ANFITRION = window.location.hostname;
 const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ? 'api' : 'resttouch'}`;
+import * as moment from 'moment';
 
 export const GLOBAL = {
+    rtVersion: '2021.11.24.02',
     dbDateFormat: 'YYYY-MM-DD',
     dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
     dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -21,6 +23,7 @@ export const GLOBAL = {
     urlWms: `${urlBase}/wms.php`,
     urlFacturacion: `${urlBase}/facturacion.php`,
     urlGhostKitchen: `${urlBase}/ghost_kitchen.php`,
+    urlCallCenter: `${urlBase}/call_center.php`,
     usrTokenVar: 'rttoken',
     usrUnlockVar: 'rtunlock',
     rtClientePedido: 'rt_cliente_pedido',
@@ -52,7 +55,10 @@ export const GLOBAL = {
         RT_IMPRIME_PROPINA_SUGERIDA: 'RT_IMPRIME_PROPINA_SUGERIDA',
         RT_USA_CODIGO_BARRAS: 'RT_USA_CODIGO_BARRAS',
         RT_ENVIA_COMO_BASE64: 'RT_ENVIA_COMO_BASE64',
-        RT_IMPRIME_RECETA_EN_COMANDA: 'RT_IMPRIME_RECETA_EN_COMANDA'
+        RT_IMPRIME_RECETA_EN_COMANDA: 'RT_IMPRIME_RECETA_EN_COMANDA',
+        RT_COMBOS_CICLICOS: 'RT_COMBOS_CICLICOS',
+        RT_DETALLE_FACTURA_PERSONALIZADO: 'RT_DETALLE_FACTURA_PERSONALIZADO',
+        RT_PORCENTAJE_MAXIMO_PROPINA: 'RT_PORCENTAJE_MAXIMO_PROPINA'
     },
     grupos: [
         {
@@ -120,6 +126,18 @@ export const MultiFiltro = (array: any[], filtro: any) => {
 export const OrdenarArrayObjetos = (objs: any[], campo: string, tipo = 2) => {
     if (tipo === 2) {
         return objs.sort((a, b) => a[campo].localeCompare(b[campo]));
+    } else if (tipo === 3) {
+        return objs.sort((a, b) => {
+            const f1 = moment(a[campo]);
+            const f2 = moment(b[campo]);
+            if (f1.isAfter(f2)) {
+                return 1;
+            } else if (f2.isAfter(f1)) {
+                return -1;
+            } else {
+                return 0
+            }
+        });
     } else {
         return objs.sort((a, b) => (a[campo] > b[campo]) ? 1 : ((b[campo] > a[campo]) ? -1 : 0));
     }

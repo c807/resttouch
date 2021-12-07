@@ -19,7 +19,7 @@ export class FacturaManualComponent implements OnInit {
   constructor( ) {
     this.factura = {
       factura: null, factura_serie: null, cliente: null, fecha_factura: moment().format(GLOBAL.dbDateFormat), moneda: null, exenta: 0,
-      notas: null
+      notas: null, enviar_descripcion_unica: 0, descripcion_unica: null
     };
   }
 
@@ -40,7 +40,9 @@ export class FacturaManualComponent implements OnInit {
       serie_factura: fact.serie_factura,
       fel_uuid: fact.fel_uuid,
       fel_uuid_anulacion: fact.fel_uuid_anulacion,
-      certificador_fel: fact.certificador_fel
+      certificador_fel: fact.certificador_fel,
+      enviar_descripcion_unica: fact.enviar_descripcion_unica,
+      descripcion_unica: fact.descripcion_unica
     };
     this.frmFactura.clienteSelected = fact.cliente;
     this.frmFactura.loadDetalleFactura(+this.factura.factura);

@@ -60,6 +60,10 @@ class Api extends CI_Controller {
 					$egr->bodega = isset($req->encabezado->bodega) ? $req->encabezado->bodega : 1;
 					$egr->idcomandafox = isset($req->encabezado->idcomandafox) ? $req->encabezado->idcomandafox : null;
 					$egr->raw_egreso = $egreso;
+
+					if(isset($req->encabezado->fecha) && !empty(trim((string)$req->encabezado->fecha))) {
+						$egr->fecha = trim((string)$req->encabezado->fecha);
+					}
 					
 					if (empty($id) || $egr->estatus_movimiento == 1) {
 	

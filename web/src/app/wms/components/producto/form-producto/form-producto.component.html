@@ -97,25 +97,33 @@
 
             <div class="row">
                 <div class="col m3 s3">
-                    <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion" (change)="setEsRecetaOn()">Producción</mat-checkbox>
+                    <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion" (change)="setEsRecetaOn()" [disabled]="articuloEsOpcionMultiple || articuloEsCombo">Producción</mat-checkbox>
                 </div>
                 <div class="col m3 s3">
-                    <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos">Mostrar en POS</mat-checkbox>
+                    <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos" (change)="setMultipleOff()" [disabled]="articuloEsOpcionMultiple">De POS</mat-checkbox>
                 </div>
                 <div class="col m3 s3">
-                    <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo" (change)="setOpcMultOff()" [disabled]="articuloEsReceta">Combo</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple" (change)="setComboOff()" [disabled]="articuloEsReceta">Opción múltiple</mat-checkbox>
-                </div>
+                    <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo" (change)="setOpcMultOff()" [disabled]="articuloEsReceta || articuloMostrarInventario || articuloEsOpcionMultiple">Combo</mat-checkbox>
+                </div>                
             </div>
             <div class="row">
                 <div class="col m3 s3">
-                    <mat-checkbox name="mostrar_inventario" class="example-margin" [(ngModel)]="+articulo.mostrar_inventario">Mostrar en Inventario</mat-checkbox>
+                    <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple" (change)="setComboOff()" [disabled]="articuloEsReceta || articuloMostrarPOS || articuloMostrarInventario || articuloEsCombo">Opción múltiple</mat-checkbox>
+                </div>
+                <div class="col m3 s3">
+                    <mat-checkbox name="mostrar_inventario" class="example-margin" [(ngModel)]="+articulo.mostrar_inventario" [disabled]="articuloEsCombo || articuloEsOpcionMultiple" (change)="apagaCombo()">De inventario</mat-checkbox>
                 </div>
                 <div class="col m3 s3">
                     <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta" (change)="setOpcComboOff()" [disabled]="disableEsReceta">Es receta</mat-checkbox>
                 </div>
+            </div>
+            <div class="row">
+                <div class="col m3 s3">
+                    <mat-checkbox name="cobro_mas_caro" class="example-margin" [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">Cobrar el más caro</mat-checkbox>
+                </div>
+                <div class="col m3 s3">
+                    <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra" [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">Usar como extra</mat-checkbox>
+                </div>                
             </div>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
@@ -124,9 +132,9 @@
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
                     Replicar a sedes
                 </button>
-                <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
+                <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
                     Dar de baja
-                </button>
+                </button> -->
                 <button mat-raised-button type="button" color="accent" (click)="resetArticulo()" *ngIf="articulo.articulo">
                     Nuevo
                 </button>

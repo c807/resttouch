@@ -12,6 +12,8 @@ export interface Factura {
     certificador_fel?: number;
     exenta: number;
     notas: string;
+    enviar_descripcion_unica?: number;
+    descripcion_unica?: string;
 }
 
 interface ctaFactReq {
@@ -24,4 +26,6 @@ export interface FacturaRequest {
     cliente?: number;
     fecha_factura?: string;
     moneda?: number;
+    enviar_descripcion_unica?: number;
+    descripcion_unica?: string;
 }

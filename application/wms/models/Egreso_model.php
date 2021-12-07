@@ -126,7 +126,7 @@ class Egreso_model extends General_Model
 							$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
 						}
 
-						$row->cantidad = ((float)$presR->cantidad == 0) ? 0 : (($row->cantidad * $item->cantidad) / $presR->cantidad);
+						$row->cantidad = ((float)$presR->cantidad == 0) ? 0 : ((($row->cantidad * $item->cantidad) / $presR->cantidad)) / (int)$particion;
 						$costo = ($bac && $bac->bodega_articulo_costo) ? $bac->get_costo($this->bodega, $rec->getPK(), $presR->presentacion) : 0;
 						$total = ($costo * $row->cantidad);						
 						$this->setDetalle([
@@ -139,10 +139,10 @@ class Egreso_model extends General_Model
 					}
 				} else {
 					$datos = [
-						"cantidad" => $item->cantidad / $particion,
+						"cantidad" => $item->cantidad / (int)$particion,
 						"articulo" => $art->getPK(),
 						"precio_unitario" => $item->precio_unitario * 1,
-						"precio_total" => $item->cantidad * $item->precio_unitario / $particion,
+						"precio_total" => $item->cantidad * $item->precio_unitario / (int)$particion,
 						"presentacion" => $art->presentacion
 					];
 					$this->setDetalle($datos);

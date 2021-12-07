@@ -2,6 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Sede_model extends General_model {
+
+	public $sede;
 	public $empresa;
     public $sede_padre;
     public $nombre;

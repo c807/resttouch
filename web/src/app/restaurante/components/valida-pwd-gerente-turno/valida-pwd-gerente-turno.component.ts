@@ -32,7 +32,7 @@ export class ValidaPwdGerenteTurnoComponent implements OnInit {
     this.comandaSrvc.validaPwdGerenteTurno(this.data.pwd).subscribe(res => {
       // console.log(res);
       if (res.exito) {
-        this.dialogRef.close(res.esgerente);
+        this.dialogRef.close({esgerente: res.esgerente, gerente_turno: res.gerente_turno});
       } else {
         this.dialogRef.close(false);
       }

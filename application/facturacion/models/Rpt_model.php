@@ -17,8 +17,12 @@ class Rpt_model extends General_model
             $this->db->where('DATE(g.fecha) >=', $args['fdel']);
             $this->db->where('DATE(g.fecha) <=', $args['fal']);
         } else {
+            // $this->db->where('DATE(a.fhcreacion) >=', $args['fdel']);
+            // $this->db->where('DATE(a.fhcreacion) <=', $args['fal']);
             $this->db->where('f.fecha_factura >=', $args['fdel']);
             $this->db->where('f.fecha_factura <=', $args['fal']);
+            // $where = "((f.fecha_factura >= {$args['fdel']} AND f.fecha_factura <= {$args['fal']}) OR f.fecha_factura > {$args['fal']})";
+            // $this->db->where($where);
         }
 
         if (isset($args['turno_tipo'])) {
@@ -26,7 +30,7 @@ class Rpt_model extends General_model
         }
 
         $facturadas = $this->db
-            ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ', ') AS comandas")
+            ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ',') AS comandas, GROUP_CONCAT(DISTINCT f.factura ORDER BY f.factura SEPARATOR ',') AS facturas")
             ->join('detalle_comanda b', 'a.comanda = b.comanda')
             ->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
             ->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
@@ -36,14 +40,15 @@ class Rpt_model extends General_model
             ->where('f.numero_factura IS NOT NULL')
             ->where('f.fel_uuid_anulacion IS NULL')
             ->where('f.sede', $args['idsede'])
-            ->where('a.sede', $args['idsede'])
-            // ->get_compiled_select('comanda a');
+            ->where('a.sede', $args['idsede'])                        
             ->get('comanda a')
             ->row();
 
         if ($facturadas && $facturadas->comandas) {
             $comandas = $facturadas->comandas;
         }
+
+        $data['facturas'] = $facturadas && $facturadas->facturas ? $facturadas->facturas : '';
 
         if (isset($args['_rango_turno']) && $args['_rango_turno']) {
             $this->db->where('DATE(e.fecha) >=', $args['fdel']);
@@ -58,13 +63,13 @@ class Rpt_model extends General_model
         }
 
         $sinfactura = $this->db
-            ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ', ') AS comandas")
-            ->join('cuenta b', 'a.comanda = b.cuenta')
+            ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ',') AS comandas")
+            ->join('cuenta b', 'a.comanda = b.comanda')
             ->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
             ->join('forma_pago d', 'd.forma_pago = c.forma_pago')
-            ->join('turno e', 'e.turno = a.turno')
+            ->join('turno e', 'e.turno = a.turno')            
             ->where('a.sede', $args['idsede'])
-            ->where('d.sinfactura', 1)
+            ->where('d.sinfactura', 1)            
             ->get('comanda a')
             ->row();
 
@@ -75,49 +80,210 @@ class Rpt_model extends General_model
             $comandas .= $sinfactura->comandas;
         }
 
-        return $comandas;
+        $data['comandas'] = $comandas;
+
+        return (object)$data;
     }
 
 
-    public function get_ventas_articulos($comandas)
+    public function get_ventas_articulos($comandas = '', $facturas = '', $args = [])
     {
-        $combos = $this->db
-            ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
-            ->join('articulo b', 'b.articulo = a.articulo')
-            ->where("a.comanda IN({$comandas})")
-            ->where('b.multiple', 0)
-            ->where('b.combo', 1)
-            ->where('a.cantidad >', 0)
-            ->group_by('a.articulo, b.descripcion')
-            ->get('detalle_comanda a')
-            ->result();
+        $combos = [];
+        $multiples = [];
+        $directos = [];
 
-        $multiples = $this->db
-            ->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, 0.00 AS total', false)
-            ->join('articulo b', 'b.articulo = a.articulo')
-            ->where("a.comanda IN({$comandas})")
-            ->where('b.multiple', 0)
-            ->where('b.combo', 0)
-            ->where('a.total', 0)
-            ->group_by('a.articulo, b.descripcion')
-            ->get('detalle_comanda a')
-            ->result();
+        if (!empty($comandas)) {
+            $combos = $this->db
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('comanda c', 'c.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('b.multiple', 0)
+                ->where('b.combo', 1)
+                ->where('a.cantidad >', 0)
+                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
+                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->group_by('a.articulo, b.descripcion')                
+                ->get('detalle_comanda a')
+                ->result();
+    
+            $multiples = $this->db
+                ->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, COUNT(a.articulo) * a.precio AS total', false)
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('comanda c', 'c.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('a.detalle_comanda_id IS NOT NULL')
+                ->where('b.multiple', 0)
+                ->where('b.combo', 0)                
+                ->where('a.cantidad >', 0)
+                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
+                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->group_by('a.articulo, b.descripcion')                
+                ->get('detalle_comanda a')
+                ->result();
+    
+            $directos = $this->db
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('comanda c', 'c.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('a.detalle_comanda_id IS NULL')
+                ->where('b.multiple', 0)
+                ->where('b.combo', 0)
+                ->where('a.total >', 0)
+                ->where('a.cantidad >', 0)
+                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
+                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->group_by('a.articulo, b.descripcion')                
+                ->get('detalle_comanda a')
+                ->result();
+        }
 
-        $directos = $this->db
-            ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
-            ->join('articulo b', 'b.articulo = a.articulo')
-            ->where("a.comanda IN({$comandas})")
-            ->where('b.multiple', 0)
-            ->where('b.combo', 0)
-            ->where('a.total >', 0)
-            ->where('a.cantidad >', 0)
-            ->group_by('a.articulo, b.descripcion')
-            ->get('detalle_comanda a')
-            ->result();
+        $facturas_manuales = [];
 
-        $articulos = array_merge($combos, $multiples, $directos);
-        $articulos = ordenar_array_objetos($articulos, 'descripcion');
+        if(!isset($args['turno_tipo'])) {
+            // if(!empty($facturas)) {            
+            //     $this->db->where("b.factura NOT IN({$facturas})");
+            // }
+    
+            // $facturas_manuales = $this->db
+            //     ->select('a.articulo, c.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
+            //     ->join('factura b', 'b.factura = a.factura')
+            //     ->join('articulo c', 'c.articulo = a.articulo')            
+            //     ->where('b.sede', $args['idsede'])
+            //     ->where('b.numero_factura IS NOT NULL')
+            //     ->where('b.fel_uuid_anulacion IS NULL')
+            //     ->where('b.fecha_factura >=', $args['fdel'])
+            //     ->where('b.fecha_factura <=', $args['fal'])
+            //     ->group_by('a.articulo, c.descripcion')
+            //     // ->get_compiled_select('detalle_factura a');
+            //     ->get('detalle_factura a')
+            //     ->result();
+
+            $facturas_manuales = $this->db
+                ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total) AS total')
+                ->join('detalle_factura b', 'a.factura = b.factura')
+                ->join('articulo c', 'c.articulo = b.articulo')                
+                ->join('detalle_factura_detalle_cuenta f', 'b.detalle_factura = f.detalle_factura', 'left')
+                ->where('a.sede', $args['idsede'])
+                ->where('a.fel_uuid IS NOT NULL')
+                ->where('a.fel_uuid_anulacion IS NULL')
+                ->where('a.fecha_factura >=', $args['fdel'])
+                ->where('a.fecha_factura <=', $args['fal'])
+                ->not_like('c.descripcion', 'prop')
+                ->where('f.detalle_factura_detalle_cuenta IS NULL')                
+                ->group_by('b.articulo, c.descripcion')
+                ->get('factura a')
+                ->result();
+        }
+
+        $articulos = array_merge($combos, $multiples, $directos, $facturas_manuales);
+        if (!empty($articulos)) {
+            $articulos = ordenar_array_objetos($articulos, 'descripcion');
+        }
 
         return $articulos;
+    }
+
+    public function get_ventas_categorias($comandas = '', $facturas = '', $args = [])
+    {
+        $combos = [];        
+        $directos = [];
+
+        if (!empty($comandas)) {
+            $combos = $this->db
+                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, a.total, a.precio, b.combo')
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+                ->join('categoria d', 'd.categoria = c.categoria')
+                ->join('comanda e', 'e.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('b.multiple', 0)
+                ->where('b.combo', 1)
+                ->where('a.cantidad >', 0)
+                // ->where('DATE(e.fhcreacion) >=', $args['fdel'])
+                // ->where('DATE(e.fhcreacion) <=', $args['fal'])
+                ->order_by('d.descripcion, c.descripcion, b.descripcion')
+                ->get('detalle_comanda a')
+                ->result();
+
+            $directos = $this->db
+                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, a.total, a.precio, b.combo')
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+                ->join('categoria d', 'd.categoria = c.categoria')
+                ->join('comanda e', 'e.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('a.detalle_comanda_id IS NULL')
+                ->where('b.multiple', 0)
+                ->where('b.combo', 0)
+                ->where('a.total >', 0)
+                ->where('a.cantidad >', 0)
+                // ->where('DATE(e.fhcreacion) >=', $args['fdel'])
+                // ->where('DATE(e.fhcreacion) <=', $args['fal'])
+                ->order_by('d.descripcion, c.descripcion, b.descripcion')
+                ->get('detalle_comanda a')
+                ->result();
+        }
+
+        $facturas_manuales = [];
+
+        if(!isset($args['turno_tipo'])) {
+            // if(!empty($facturas)) {            
+            //     $this->db->where("b.factura NOT IN({$facturas})");
+            // }    
+            $facturas_manuales = $this->db
+                ->select('0 AS detalle_comanda, e.categoria AS idcat, e.descripcion AS categoria, d.categoria_grupo AS idsubcat, d.descripcion AS subcategoria, c.articulo AS idarticulo, c.descripcion AS articulo, b.cantidad, b.total, b.precio_unitario AS precio', false)
+                ->join('detalle_factura b', 'a.factura = b.factura')
+                ->join('articulo c', 'c.articulo = b.articulo')
+                ->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
+                ->join('categoria e', 'e.categoria = d.categoria')
+                ->join('detalle_factura_detalle_cuenta f', 'b.detalle_factura = f.detalle_factura', 'left')
+                ->where('a.sede', $args['idsede'])
+                ->where('a.fel_uuid IS NOT NULL')
+                ->where('a.fel_uuid_anulacion IS NULL')
+                ->where('a.fecha_factura >=', $args['fdel'])
+                ->where('a.fecha_factura <=', $args['fal'])
+                ->not_like('c.descripcion', 'prop')
+                ->where('f.detalle_factura_detalle_cuenta IS NULL')
+                ->order_by('e.descripcion, d.descripcion, c.descripcion')
+                ->get('factura a')
+                ->result();
+        }
+
+        $articulos = array_merge($combos, $directos, $facturas_manuales);
+
+        return $articulos;
+    }
+
+    public function get_suma_descuentos($comandas) 
+    {
+        $descuentos = 0;
+        $mnt = $this->db->select_sum('a.monto')
+            ->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+            ->where('b.descuento', 1)
+            ->where("cuenta IN(SELECT cuenta FROM cuenta WHERE comanda IN({$comandas}))", NULL, FALSE)
+            ->get('cuenta_forma_pago a')
+            ->row();
+        
+        if ($mnt) {
+            $descuentos = (float)$mnt->monto;
+        }
+        return $descuentos;
+    }
+
+    public function get_suma_propinas($comandas)
+    {
+        $propina = 0;
+        $mnt = $this->db->select_sum('propina')
+            ->where("cuenta IN(SELECT cuenta FROM cuenta WHERE comanda IN({$comandas}))", NULL, FALSE)
+            ->get('cuenta_forma_pago')
+            ->row();
+        
+        if ($mnt) {
+            $propina = (float)$mnt->propina;
+        }
+        return $propina;        
+
     }
 }

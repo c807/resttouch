@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { PageEvent } from '@angular/material/paginator';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
@@ -16,6 +16,7 @@ export class ListaTurnoComponent implements OnInit {
   public lstTurnos: Turno[];
   public lstTurnosPaged: Turno[];
   @Output() getTurnoEv = new EventEmitter();
+  @ViewChild('paginador') paginador: MatPaginator;
 
   public length = 0;
   public pageSize = 5;
@@ -33,7 +34,7 @@ export class ListaTurnoComponent implements OnInit {
     this.loadTurnos();
   }
 
-  applyFilter() {
+  applyFilter(cambioPagina = false) {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstTurnos, this.txtFiltro);
       this.length = tmpList.length;
@@ -42,6 +43,9 @@ export class ListaTurnoComponent implements OnInit {
       this.length = this.lstTurnos.length;
       this.lstTurnosPaged = PaginarArray(this.lstTurnos, this.pageSize, this.pageIndex + 1);
     }
+    if (!cambioPagina) {
+			this.paginador.firstPage();
+		}
   }
 
   loadTurnos = () => {
@@ -69,7 +73,7 @@ export class ListaTurnoComponent implements OnInit {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter();
+    this.applyFilter(true);
   }
 
 }

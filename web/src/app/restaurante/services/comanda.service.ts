@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { GLOBAL } from '../../shared/global';
 import { ServiceErrorHandler } from '../../shared/error-handler';
 import { Comanda, ComandaGetResponse } from '../interfaces/comanda';
+import { Cuenta } from '../interfaces/cuenta';
 import { DetalleComanda } from '../interfaces/detalle-comanda';
+import { DetalleCuentaResponse, DetalleCuentaSimplified } from '../interfaces/cuenta';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -15,6 +17,7 @@ export class ComandaService {
 
   private srvcErrHndl: ServiceErrorHandler;
   private moduleUrl = 'comanda';
+  private ctaModuleUrl = 'cuenta';
 
   constructor(
     private http: HttpClient,
@@ -28,9 +31,9 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getComandaDeMesa(idmesa: number): Observable<ComandaGetResponse> {
+  getComandaDeMesa(idmesa: number, conDetalle = true): Observable<ComandaGetResponse> {
     return this.http.get<ComandaGetResponse>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda/${idmesa}`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda/${idmesa}${conDetalle ? '' : '?_sin_detalle=1'}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -78,7 +81,7 @@ export class ComandaService {
 
   setProductoImpreso(idcuenta: number = 0) {
     return this.http.get<any>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/imprimir/${idcuenta}`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/imprimir/${idcuenta}/0/1`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -108,9 +111,16 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getCuenta(idcuenta: number): Observable<any> {
+  getCuenta(idcuenta: number, fltr: any = {}): Observable<any> {
     return this.http.get<any>(
-      `${GLOBAL.urlAppRestaurante}/cuenta/get_cuenta/${idcuenta}`
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/get_cuenta/${idcuenta}?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  nueva_cuenta(cta: Cuenta): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/crear_nueva`,
+      cta
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -126,9 +136,9 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getComandasCocina(): Observable<any> {
+  getComandasCocina(fltr: any = {}): Observable<any> {
     return this.http.get<any>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda_cocina`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda_cocina?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -166,196 +176,23 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  /*getComandasOnLine_Test(): any[] {
-    const comandasOnLine: any[] = [
-      {
-        comanda: 37,
-        total: 8,
-        usuario: 6,
-        sede: 1,
-        estatus: 1,
-        turno: 2,
-        mesa: {
-          mesa: 1,
-          area: {
-            area: 1,
-            sede: 1,
-            area_padre: null,
-            nombre: 'Bar'
-          },
-          numero: 1,
-          posx: 23.8667,
-          posy: 18.8333,
-          tamanio: 72.0000,
-          estatus: 2
-        },
-        cuentas: [
-          {
-            cuenta: 31,
-            comanda: 37,
-            nombre: 'Única',
-            numero: 1,
-            propina_monto: 0.80,
-            propina_porcentaje: 10.00,
-            cerrada: 1,
-            productos: [
-              {
-                detalle_cuenta: 75,
-                cuenta_cuenta: 31,
-                detalle_comanda: 79,
-                comanda: 37,
-                articulo: {
-                  articulo: 1,
-                  categoria_grupo: 21,
-                  presentacion: null,
-                  descripcion: 'Original',
-                  precio: 8.00,
-                  bien_servicio: 'B',
-                  existencias: 969.00,
-                  impresora: {
-                    impresora: 1,
-                    sede: 1,
-                    nombre: 'EPSON L120 Series',
-                    direccion_ip: null,
-                    ubicacion: null,
-                    bluetooth: 0
-                  }
-                },
-                cantidad: 1,
-                precio: 8.00,
-                impreso: 1,
-                total: 8.00,
-                notas: '',
-                numero_cuenta: 1
-              }
-            ]
-          }
-        ]
-      },
-      {
-        comanda: 45,
-        total: 76,
-        usuario: 2,
-        sede: 1,
-        estatus: 1,
-        turno: 2,
-        mesa: {
-          mesa: 3,
-          area: {
-            area: 1,
-            sede: 1,
-            area_padre: null,
-            nombre: 'Bar'
-          },
-          numero: 3,
-          posx: 11.0667,
-          posy: 41.5000,
-          tamanio: 72.0000,
-          estatus: 2
-        },
-        cuentas: [
-          {
-            cuenta: 39,
-            comanda: 45,
-            nombre: 'uno',
-            numero: 1,
-            propina_monto: 0.80,
-            propina_porcentaje: 10.00,
-            cerrada: 1,
-            productos: [
-              {
-                detalle_cuenta: 84,
-                cuenta_cuenta: 39,
-                detalle_comanda: 88,
-                comanda: 45,
-                articulo: {
-                  articulo: 1,
-                  categoria_grupo: 21,
-                  presentacion: null,
-                  descripcion: 'Original',
-                  precio: 8.00,
-                  bien_servicio: 'B',
-                  existencias: 969.00,
-                  impresora: {
-                    impresora: 1,
-                    sede: 1,
-                    nombre: 'EPSON L120 Series',
-                    direccion_ip: null,
-                    ubicacion: null,
-                    bluetooth: 0
-                  }
-                },
-                cantidad: 1,
-                precio: 8.00,
-                impreso: 1,
-                total: 8.00,
-                notas: '',
-                numero_cuenta: 1
-              },
-              {
-                detalle_cuenta: 85,
-                cuenta_cuenta: 40,
-                detalle_comanda: 89,
-                comanda: 45,
-                articulo: {
-                  articulo: 2,
-                  categoria_grupo: 21,
-                  presentacion: null,
-                  descripcion: 'Zero',
-                  precio: 8.00,
-                  bien_servicio: 'B',
-                  existencias: 984.00,
-                  impresora: {
-                    impresora: 1,
-                    sede: 1,
-                    nombre: 'EPSON L120 Series',
-                    direccion_ip: null,
-                    ubicacion: null,
-                    bluetooth: 0
-                  }
-                },
-                cantidad: 1,
-                precio: 8.00,
-                impreso: 1,
-                total: 8.00,
-                notas: '',
-                numero_cuenta: 1
-              },
-              {
-                detalle_cuenta: 86,
-                cuenta_cuenta: 40,
-                detalle_comanda: 90,
-                comanda: 45,
-                articulo: {
-                  articulo: 6,
-                  categoria_grupo: 23,
-                  presentacion: null,
-                  descripcion: 'Fettuccine',
-                  precio: 60.00,
-                  bien_servicio: 'B',
-                  existencias: 995.00,
-                  impresora: {
-                    impresora: 2,
-                    sede: 1,
-                    nombre: 'EPSON L120 Series',
-                    direccion_ip: null,
-                    ubicacion: null,
-                    bluetooth: 0
-                  }
-                },
-                cantidad: 1,
-                precio: 60.00,
-                impreso: 1,
-                total: 60.00,
-                notas: '',
-                numero_cuenta: 1
-              }
-            ]
-          }
-        ]
-      }
-    ];
-    return comandasOnLine;
-  }*/
+  getDetalleCuenta(idcuenta: number, fltr = {}): Observable<DetalleCuentaResponse[]> {
+    return this.http.get<DetalleCuentaResponse[]>(
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/get_detalle_cuenta/${idcuenta}?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
+  obtenerDetalleCuenta(fltr: any = {}): Observable<DetalleCuentaSimplified[]> {
+    return this.http.get<DetalleCuentaSimplified[]>(
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/obtener_detalle_cuenta?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
+  eliminarDetalleComanda(params: any) {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/eliminar_detalle`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));        
+  }
 
 }

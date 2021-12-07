@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Articulo_model extends General_model {
+class Articulo_model extends General_model
+{
 
 	public $articulo;
 	public $categoria_grupo;
@@ -15,7 +16,7 @@ class Articulo_model extends General_model {
 	public $produccion = 0;
 	public $presentacion_reporte;
 	public $mostrar_pos = 1;
-	public $impuesto_especial;	
+	public $impuesto_especial;
 	public $combo = 0;
 	public $multiple = 0;
 	public $cantidad_minima = 1;
@@ -29,13 +30,15 @@ class Articulo_model extends General_model {
 	public $usuariobaja = null;
 	public $cantidad_gravable = 0.00;
 	public $precio_sugerido = 0.00;
+	public $cobro_mas_caro = 0;
+	public $esextra = 0;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("articulo");
+		$this->setTabla('articulo');
 
-		if(!empty($id)) {
+		if (!empty($id)) {
 			$this->cargar($id);
 		}
 	}
@@ -43,27 +46,27 @@ class Articulo_model extends General_model {
 	public function getCategoriaGrupo()
 	{
 		return $this->db
-					->select("a.*, b.descripcion as ncategoria, b.sede")
-					->where("categoria_grupo", $this->categoria_grupo)
-					->join("categoria b", "a.categoria = b.categoria")
-					->get("categoria_grupo a")
-					->row();
+			->select('a.*, b.descripcion as ncategoria, b.sede')
+			->where('categoria_grupo', $this->categoria_grupo)
+			->join('categoria b', 'a.categoria = b.categoria')
+			->get('categoria_grupo a')
+			->row();
 	}
 
 	public function getPresentacion()
 	{
 		return $this->db
-					->where("presentacion", $this->presentacion)
-					->get("presentacion")
-					->row();
+			->where('presentacion', $this->presentacion)
+			->get('presentacion')
+			->row();
 	}
 
 	public function getPresentacionReporte()
 	{
 		return $this->db
-					->where("presentacion", $this->presentacion_reporte)
-					->get("presentacion")
-					->row();
+			->where('presentacion', $this->presentacion_reporte)
+			->get('presentacion')
+			->row();
 	}
 
 	public function getBodega()
@@ -75,13 +78,22 @@ class Articulo_model extends General_model {
 			->get()->row();
 	}
 
-	public function guardarReceta(Array $args, $id = '')
+	public function getDataForDetalleComanda()
+	{
+		return $this->db->select('b.cantidad as cant_pres_reporte, c.bodega')
+			->join('presentacion b', 'b.presentacion = a.presentacion_reporte')
+			->join('categoria_grupo c', 'c.categoria_grupo = a.categoria_grupo')
+			->where('a.articulo', $this->articulo)
+			->get('articulo a')->row();
+	}
+
+	public function guardarReceta(array $args, $id = '')
 	{
 		$rec = new Receta_model($id);
 		$args['receta'] = $this->articulo;
 		$result = $rec->guardar($args);
 
-		if($result) {
+		if ($result) {
 			return $rec;
 		}
 
@@ -98,21 +110,23 @@ class Articulo_model extends General_model {
 			$args['receta'] = $this->articulo;
 		}
 		$args['anulado'] = 0;
-		$rec = new Receta_model();
-		$det = $rec->buscar($args);
-		$datos = [] ;
-		if(is_array($det)) {
-			foreach ($det as $row) {
-				$detalle = new Receta_model($row->articulo_detalle);
-				$row->articulo = $detalle->getArticulo();
-				$row->medida = $detalle->getMedida();
-				$datos[] = $row;
+		// $rec = new Receta_model();
+		$det = $this->Receta_model->buscar($args);
+		$datos = [];
+		if ($det) {
+			if (is_array($det)) {
+				foreach ($det as $row) {
+					$detalle = new Receta_model($row->articulo_detalle);
+					$row->articulo = $detalle->getArticulo();
+					$row->medida = $detalle->getMedida();
+					$datos[] = $row;
+				}
+			} else {
+				$detalle = new Receta_model($det->articulo_detalle);
+				$det->articulo = $detalle->getArticulo();
+				$det->medida = $detalle->getMedida();
+				$datos[] = $det;
 			}
-		} else if($det) {
-			$detalle = new Receta_model($det->articulo_detalle);
-			$det->articulo = $detalle->getArticulo();
-			$det->medida = $detalle->getMedida();
-			$datos[] = $det;
 		}
 
 		return $datos;
@@ -146,16 +160,16 @@ class Articulo_model extends General_model {
 		}
 
 		$comandas = $this->db
-						 ->select("sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-						 ->join("articulo b", "a.articulo = b.articulo")
-						 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						 ->join("categoria d", "d.categoria = c.categoria")
-						 ->join("comanda e", "e.comanda = a.comanda")
-						 ->join("turno f", "e.turno = f.turno and f.sede = d.sede")
-						 ->join("presentacion p", "a.presentacion = p.presentacion")
-						 ->where("a.articulo", $articulo)
-						 ->get("detalle_comanda a")
-						 ->row();//total ventas comanda
+			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
+			->join('articulo b', 'a.articulo = b.articulo')
+			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+			->join('categoria d', 'd.categoria = c.categoria')
+			->join('comanda e', 'e.comanda = a.comanda')
+			->join('turno f', 'e.turno = f.turno and f.sede = d.sede')
+			->join('presentacion p', 'a.presentacion = p.presentacion')
+			->where('a.articulo', $articulo)
+			->get('detalle_comanda a')
+			->row(); //total ventas comanda
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
@@ -178,24 +192,24 @@ class Articulo_model extends General_model {
 		}
 
 		$facturas = $this->db
-						 ->select("sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-						 ->join("articulo b", "a.articulo = b.articulo")
-						 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						 ->join("categoria d", "d.categoria = c.categoria")
-						 ->join("detalle_factura_detalle_cuenta e", "a.detalle_factura = e.detalle_factura", "left")
-						 ->join("factura f", "a.factura = f.factura and f.sede = d.sede")
-						 ->join("presentacion p", "a.presentacion = p.presentacion")
-						 ->where("a.articulo", $articulo)
-						 ->where("e.detalle_factura_detalle_cuenta is null")
-						 ->get("detalle_factura a")
-						 ->row();//total ventas factura manual
+			->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+			->join('articulo b', 'a.articulo = b.articulo')
+			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+			->join('categoria d', 'd.categoria = c.categoria')
+			->join('detalle_factura_detalle_cuenta e', 'a.detalle_factura = e.detalle_factura', 'left')
+			->join('factura f', 'a.factura = f.factura and f.sede = d.sede')
+			->join('presentacion p', 'a.presentacion = p.presentacion')
+			->where('a.articulo', $articulo)
+			->where('e.detalle_factura_detalle_cuenta is null')
+			->get('detalle_factura a')
+			->row(); //total ventas factura manual
 		return $comandas->total + $facturas->total;
 	}
 
 	function getVentaRecetas($art, $args = [])
 	{
 		$rec = new Articulo_model($art);
-		$principal = $rec->getReceta(["_principal" => true]);
+		$principal = $rec->getReceta(['_principal' => true]);
 		$exist = 0;
 
 		foreach ($principal as $row) {
@@ -211,13 +225,13 @@ class Articulo_model extends General_model {
 	{
 		if ($this->getPK()) {
 			$receta = $this->getReceta();
-			$principal = $this->getReceta(["_principal" => true]);
+			$principal = $this->getReceta(['_principal' => true]);
 			if (count($receta) > 0 && $this->produccion == 0) {
 				$grupos = [];
 				//$venta = $this->getVentaReceta();
-				foreach ($receta as $row) {		
+				foreach ($receta as $row) {
 					$art = new Articulo_model($row->articulo->articulo);
-					$art->actualizarExistencia($args);		
+					$art->actualizarExistencia($args);
 					$existR = $art->existencias;
 
 					$grupos[] = (int)($art->existencias / $row->cantidad);
@@ -250,7 +264,7 @@ class Articulo_model extends General_model {
 				$this->db->where('f.bodega', $args['bodega']);
 			}
 		} else {
-			$this->db->where("f.merma", 0);
+			$this->db->where('f.merma', 0);
 		}
 
 		if (verDato($args, 'fecha')) {
@@ -258,20 +272,19 @@ class Articulo_model extends General_model {
 		}
 
 		$ingresos = $this->db
-						 ->select("
-						 	round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total")
-						 ->join("articulo b", "a.articulo = b.articulo")
-						 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						 ->join("categoria d", "d.categoria = c.categoria")
-						 ->join("ingreso e", "e.ingreso = a.ingreso")
-						 ->join("bodega f", "f.bodega = e.bodega and f.sede = d.sede")
-						 ->join("presentacion p", "a.presentacion = p.presentacion")
-						 ->join("presentacion pr", "b.presentacion_reporte = pr.presentacion")
-						 ->where("a.articulo", $articulo)
-						 ->get("ingreso_detalle a")
-						 ->row(); //total ingresos
-		
-		$qi = $this->db->last_query();
+			->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+			->join('articulo b', 'a.articulo = b.articulo')
+			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+			->join('categoria d', 'd.categoria = c.categoria')
+			->join('ingreso e', 'e.ingreso = a.ingreso')
+			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+			->join('presentacion p', 'a.presentacion = p.presentacion')
+			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
+			->where('a.articulo', $articulo)
+			->get('ingreso_detalle a')
+			->row(); //total ingresos
+
+		// $qi = $this->db->last_query();
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
@@ -294,32 +307,32 @@ class Articulo_model extends General_model {
 		}
 
 		$egresos = $this->db
-						->select("round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total")
-						->join("articulo b", "a.articulo = b.articulo")
-						->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						->join("categoria d", "d.categoria = c.categoria")
-						->join("egreso e", "e.egreso = a.egreso")
-						->join("bodega f", "f.bodega = e.bodega and f.sede = d.sede")
-						->join("presentacion p", "a.presentacion = p.presentacion")
-						->join("presentacion pr", "b.presentacion_reporte = pr.presentacion")
-						->where("a.articulo", $articulo)
-						->get("egreso_detalle a")
-						->row();//total egresos wms
-		
-		$qe = $this->db->last_query();
+			->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+			->join('articulo b', 'a.articulo = b.articulo')
+			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+			->join('categoria d', 'd.categoria = c.categoria')
+			->join('egreso e', 'e.egreso = a.egreso')
+			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+			->join('presentacion p', 'a.presentacion = p.presentacion')
+			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
+			->where('a.articulo', $articulo)
+			->get('egreso_detalle a')
+			->row(); //total egresos wms
+
+		// $qe = $this->db->last_query();
 
 		//if (!$receta) {
 		$venta = $this->getVentaReceta(null, $args);
 
 		//} else {
-			//$venta = 0;
+		//$venta = 0;
 		//}
 
 
 		return ($pres && isset($pres->cantidad) && (float)$pres->cantidad > 0) ? ((float)$ingresos->total - ((float)$egresos->total + (float)$venta / (float)$pres->cantidad)) * (float)$pres->cantidad : 0;
 	}
 
-	function getIngresoEgreso($articulo, $args=[])
+	function getIngresoEgreso($articulo, $args = [])
 	{
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
@@ -339,33 +352,33 @@ class Articulo_model extends General_model {
 
 		if ($args['tipo'] == 1) {
 			$ingresos = $this->db
-						 ->select("
-						 	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-						 ->join("articulo b", "a.articulo = b.articulo")
-						 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						 ->join("categoria d", "d.categoria = c.categoria")
-						 ->join("ingreso e", "e.ingreso = a.ingreso")
-						 ->join("bodega f", "f.bodega = e.bodega and f.sede = d.sede")
-						 ->join("presentacion p", "a.presentacion = p.presentacion")
-						 ->where("a.articulo", $articulo)
-						 ->where("date(e.fecha) <= ", $args['fecha'])
-						 ->get("ingreso_detalle a")
-						 ->row(); //total ingresos
+				->select('
+						 	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('ingreso e', 'e.ingreso = a.ingreso')
+				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->where('a.articulo', $articulo)
+				->where('date(e.fecha) <= ', $args['fecha'])
+				->get('ingreso_detalle a')
+				->row(); //total ingresos
 
 			return $ingresos->total;
 		} else {
 			$egresos = $this->db
-						->select("sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-						->join("articulo b", "a.articulo = b.articulo")
-						->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						->join("categoria d", "d.categoria = c.categoria")
-						->join("egreso e", "e.egreso = a.egreso")
-						->join("bodega f", "f.bodega = e.bodega and f.sede = d.sede")
-						->join("presentacion p", "a.presentacion = p.presentacion")
-						->where("a.articulo", $articulo)
-						->where("date(e.fecha) <= ", $args['fecha'])
-						->get("egreso_detalle a")
-						->row();//total egresos wms
+				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('egreso e', 'e.egreso = a.egreso')
+				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->where('a.articulo', $articulo)
+				->where('date(e.fecha) <= ', $args['fecha'])
+				->get('egreso_detalle a')
+				->row(); //total egresos wms
 
 			return $egresos->total;
 		}
@@ -395,16 +408,16 @@ class Articulo_model extends General_model {
 			}
 
 			$comandas = $this->db
-						 ->select("sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-						 ->join("articulo b", "a.articulo = b.articulo")
-						 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-						 ->join("categoria d", "d.categoria = c.categoria")
-						 ->join("comanda e", "e.comanda = a.comanda")
-						 ->join("turno f", "e.turno = f.turno and f.sede = d.sede")
-						 ->join("presentacion p", "a.presentacion = p.presentacion")
-						 ->where("a.articulo", $articulo)
-						 ->get("detalle_comanda a")
-						 ->row();//total ventas comanda	
+				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('comanda e', 'e.comanda = a.comanda')
+				->join('turno f', 'e.turno = f.turno and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->where('a.articulo', $articulo)
+				->get('detalle_comanda a')
+				->row(); //total ventas comanda	
 
 			return $comandas->total;
 		} else {
@@ -413,17 +426,17 @@ class Articulo_model extends General_model {
 			}
 
 			$facturas = $this->db
-							 ->select("sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total")
-							 ->join("articulo b", "a.articulo = b.articulo")
-							 ->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
-							 ->join("categoria d", "d.categoria = c.categoria")
-							 ->join("detalle_factura_detalle_cuenta e", "a.detalle_factura = e.detalle_factura", "left")
-							 ->join("factura f", "a.factura = f.factura and f.sede = d.sede")
-							 ->join("presentacion p", "a.presentacion = p.presentacion")
-							 ->where("a.articulo", $articulo)
-							 ->where("e.detalle_factura_detalle_cuenta is null")
-							 ->get("detalle_factura a")
-							 ->row();//total ventas factura manual
+				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('detalle_factura_detalle_cuenta e', 'a.detalle_factura = e.detalle_factura', 'left')
+				->join('factura f', 'a.factura = f.factura and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->where('a.articulo', $articulo)
+				->where('e.detalle_factura_detalle_cuenta is null')
+				->get('detalle_factura a')
+				->row(); //total ventas factura manual
 
 			return $facturas->total;
 		}
@@ -433,7 +446,7 @@ class Articulo_model extends General_model {
 	{
 		$this->load->model('Presentacion_model');
 		$receta = $this->getReceta();
-		$principal = $this->getReceta(["_principal" => true]);
+		$principal = $this->getReceta(['_principal' => true]);
 		$ingresos = 0;
 		$egresos = 0;
 		$comandas = 0;
@@ -445,16 +458,16 @@ class Articulo_model extends General_model {
 			$comandas = $this->getComandaFactura($this->getPK(), $args);
 			$args['tipo'] = 2;
 			$facturas = $this->getComandaFactura($this->getPK(), $args);
-				foreach ($receta as $row) {				
-					$args['tipo'] = 1;
-					$ingr = $this->getIngresoEgreso($row->articulo->articulo, $args);
-					$args['tipo'] = 2;
-					$egr = $this->getIngresoEgreso($row->articulo->articulo, $args);
+			foreach ($receta as $row) {
+				$args['tipo'] = 1;
+				$ingr = $this->getIngresoEgreso($row->articulo->articulo, $args);
+				$args['tipo'] = 2;
+				$egr = $this->getIngresoEgreso($row->articulo->articulo, $args);
 
-					$grupos[] = (int)($ingr / $row->cantidad);
-				}
+				$grupos[] = (int)($ingr / $row->cantidad);
+			}
 
-				$ingresos = 0;
+			$ingresos = 0;
 		} else {
 			$args['tipo'] = 1;
 			$ingresos = $this->getIngresoEgreso($this->getPK(), $args);
@@ -465,46 +478,65 @@ class Articulo_model extends General_model {
 		}
 
 		return (object)[
-			"articulo" => $this,
-			"presentacion" => new Presentacion_model($this->presentacion_reporte),
-			"ingresos" => $ingresos,
-			"egresos" => $egresos,
-			"comandas" => $comandas,
-			"facturas" => $facturas,
-			"total_egresos" => $comandas + $facturas + $egresos,
-			"existencia" => $this->existencias 
+			'articulo' => $this,
+			'presentacion' => new Presentacion_model($this->presentacion_reporte),
+			'ingresos' => $ingresos,
+			'egresos' => $egresos,
+			'comandas' => $comandas,
+			'facturas' => $facturas,
+			'total_egresos' => $comandas + $facturas + $egresos,
+			'existencia' => $this->existencias
 		];
 	}
 
 	public function buscarArticulo($args = [])
 	{
 		if (isset($args['codigo'])) {
-			$this->db->where('a.codigo', $args['codigo']);
+			$this->db->where('TRIM(a.codigo)', $args['codigo']);
 		}
 
-		if(isset($args['sede'])){
+		if (isset($args['sede'])) {
 			$this->db->where('c.sede', $args['sede']);
 		}
 
-		if(isset($args['debaja'])){
+		if (isset($args['debaja'])) {
 			$this->db->where('a.debaja', $args['debaja']);
 		}
 
+		if (isset($args['categoria'])) {
+			$this->db->where('c.categoria', $args['categoria']);
+		}
+
+		if (isset($args['categoria_grupo'])) {
+			$this->db->where('b.categoria_grupo', $args['categoria_grupo']);
+		}
+
+		if (isset($args['articulo'])) {
+			$this->db->where('a.articulo', $args['articulo']);
+		}
+
+		if (isset($args['descripcion'])) {
+			$this->db->where('TRIM(a.descripcion)', trim($args['descripcion']));
+		}
+
 		$tmp = $this->db
-					->select("a.*")
-					->from("articulo a")
-					->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
-					->join("categoria c","b.categoria = c.categoria")
-					->get();
+			->select('a.*')
+			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
+			->join('categoria c', 'b.categoria = c.categoria')
+			->get('articulo a');
 
 		if ($tmp && $tmp->num_rows() > 0) {
+			if (isset($args['_todos']) && $args['_todos']) {
+				return $tmp->result();
+			}
 			return $tmp->row();
 		}
 
 		return false;
 	}
 
-	public function getImpuestoEspecial() {
+	public function getImpuestoEspecial()
+	{
 		$impesp = null;
 		if ((int)$this->impuesto_especial > 0) {
 			$this->load->model('ImpuestoEspecial_model');
@@ -516,12 +548,12 @@ class Articulo_model extends General_model {
 	public function getCosto($args = [])
 	{
 		$sede = $this->db
-					 ->select("c.sede")
-					 ->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
-					 ->join("categoria c", "c.categoria = b.categoria")
-					 ->where("a.articulo", $this->getPK())
-					 ->get("articulo a")
-					 ->row();
+			->select('c.sede')
+			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->where('a.articulo', $this->getPK())
+			->get('articulo a')
+			->row();
 
 		$sede = new Sede_model($sede->sede);
 		$emp = $sede->getEmpresa();
@@ -530,66 +562,65 @@ class Articulo_model extends General_model {
 			$this->db->where('b.bodega', $args['bodega']);
 		}
 
-		if(isset($args['metodo_costeo'])) {
+		if (isset($args['metodo_costeo'])) {
 			$emp->metodo_costeo = $args['metodo_costeo'];
 		}
 
 		if ($emp->metodo_costeo == 1) {
 			$det = $this->db
-						->select("max(c.ingreso_detalle) as id")
-						->join("bodega b", "a.bodega = b.bodega")
-						->join("ingreso_detalle c", "a.ingreso = c.ingreso")
-						->where("c.articulo", $this->getPK())
-						->where("b.sede", $sede->getPK())
-						->where("a.ajuste", 0)
-						->group_by("c.articulo")
-						->get("ingreso a")
-						->row();
+				->select('max(c.ingreso_detalle) as id')
+				->join('bodega b', 'a.bodega = b.bodega')
+				->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
+				->where('c.articulo', $this->getPK())
+				->where('b.sede', $sede->getPK())
+				->where('a.ajuste', 0)
+				->group_by('c.articulo')
+				->get('ingreso a')
+				->row();
 
 			if ($det) {
 				$tmp = $this->db
-							->select("c.ingreso_detalle, 
+					->select('c.ingreso_detalle, 
 								c.articulo, 
 								(c.precio_total/c.cantidad) / d.cantidad as precio_unitario, 
 								a.fecha,
-								c.presentacion", false)
-							->join("bodega b", "a.bodega = b.bodega")
-							->join("ingreso_detalle c", "a.ingreso = c.ingreso")
-							->join("presentacion d", "c.presentacion = d.presentacion")
-							->where("c.articulo", $this->getPK())
-							->where("b.sede", $sede->getPK())
-							->where("c.ingreso_detalle", $det->id)
-							->group_by("c.articulo")
-							->get("ingreso a")
-							->row();
+								c.presentacion', false)
+					->join('bodega b', 'a.bodega = b.bodega')
+					->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
+					->join('presentacion d', 'c.presentacion = d.presentacion')
+					->where('c.articulo', $this->getPK())
+					->where('b.sede', $sede->getPK())
+					->where('c.ingreso_detalle', $det->id)
+					->group_by('c.articulo')
+					->get('ingreso a')
+					->row();
 			} else {
 				$tmp = false;
 			}
 		} else if ($emp->metodo_costeo == 2) {
 			$tmp = $this->db
-						->select("
+				->select('
 							sum(c.precio_total) / sum(c.cantidad*d.cantidad) as precio_unitario,
 							c.articulo, 
 							a.fecha,
-							c.presentacion")
-						->join("bodega b", "a.bodega = b.bodega")
-						->join("ingreso_detalle c", "a.ingreso = c.ingreso")
-						->join("presentacion d", "c.presentacion = d.presentacion")
-						->where("c.articulo", $this->getPK())	
-						->where("a.ajuste", 0)					
-						->group_by("c.articulo")
-						->get("ingreso a")
-						->row();
-
+							c.presentacion')
+				->join('bodega b', 'a.bodega = b.bodega')
+				->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
+				->join('presentacion d', 'c.presentacion = d.presentacion')
+				->where('c.articulo', $this->getPK())
+				->where('a.ajuste', 0)
+				->group_by('c.articulo')
+				->get('ingreso a')
+				->row();
 		} else {
 			$tmp = false;
 		}
 
 		if ($tmp) {
-			if (verDato($args, "_presentacion")) {
+			if (verDato($args, '_presentacion')) {
 				return (object) [
-					"costo" => $tmp->precio_unitario, 
-					"presentacion" => $tmp->presentacion
+					'costo' => $tmp->precio_unitario,
+					'presentacion' => $tmp->presentacion
 				];
 			}
 			return $tmp->precio_unitario;
@@ -599,31 +630,29 @@ class Articulo_model extends General_model {
 	}
 
 	public function getCostoReceta($args = [])
-	{		
+	{
 		$this->actualizarExistencia();
 		$receta = $this->getReceta();
 		$costo = 0;
 		if (count($receta) > 0) {
 
-			foreach ($receta as $row) {				
-				$art = new Articulo_model($row->articulo->articulo);				
+			foreach ($receta as $row) {
+				$art = new Articulo_model($row->articulo->articulo);
 				$tmp = $art->getCostoReceta($args);
 				$costo += $tmp * ($row->cantidad);
 			}
-
 		} else {
 			if (isset($args['bodega']) && isset($args['presentacion'])) {
 				$bac = $this->BodegaArticuloCosto_model->buscar([
-					"articulo" => $this->getPK(),
-					"bodega" => $args['bodega'],
-					"_uno" => true
+					'articulo' => $this->getPK(),
+					'bodega' => $args['bodega'],
+					'_uno' => true
 				]);
 				$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
 				$costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
 			} else {
 				$costo = $this->getCosto($args);
 			}
-			
 		}
 
 		return $costo;
@@ -633,8 +662,8 @@ class Articulo_model extends General_model {
 	{
 		$art = new Articulo_model();
 		$tmp = $this->buscarArticulo([
-			"sede" => $sede,
-			"codigo" => $this->codigo,
+			'sede' => $sede,
+			'codigo' => $this->codigo,
 			'debaja' => 0
 		]);
 		if ($tmp) {
@@ -644,40 +673,39 @@ class Articulo_model extends General_model {
 		$grupo = $this->getCategoriaGrupo();
 
 		$cgrupo = $this->db
-					   ->select("a.*")
-					   ->join("categoria b", "a.categoria = b.categoria")
-					   ->where("a.descripcion", $grupo->descripcion)
-					   ->where("b.sede", $sede)
-					   ->get("categoria_grupo a");
+			->select('a.*')
+			->join('categoria b', 'a.categoria = b.categoria')
+			->where('a.descripcion', $grupo->descripcion)
+			->where('b.sede', $sede)
+			->get('categoria_grupo a');
 		if ($cgrupo->num_rows() > 0) {
 			$cgrupo = $cgrupo->row();
 			$categoria_grupo = $cgrupo->categoria_grupo;
-
 		} else {
 			$cat = $this->db
-							  ->where("descripcion", $grupo->ncategoria)
-							  ->where("sede", $sede)
-							  ->get("categoria");
+				->where('descripcion', $grupo->ncategoria)
+				->where('sede', $sede)
+				->get('categoria');
 			if ($cat->num_rows() > 0) {
 				$cat = $cat->row();
 				$categoria = $cat->categoria;
 			} else {
 				$cat = new Categoria_model();
 				$cat->guardar([
-					"descripcion" => $grupo->ncategoria,
-					"sede" => $sede
+					'descripcion' => $grupo->ncategoria,
+					'sede' => $sede
 				]);
 				$categoria = $cat->getPK();
 			}
 
 			$cgrupo = new Cgrupo_model();
 			$cgrupo->guardar([
-				"descripcion" => $grupo->descripcion,
-				"categoria" => $categoria,
-				"categoria_grupo_grupo" => $grupo->categoria_grupo_grupo,
-				"receta" => $grupo->receta,
-				"impresora" => null,
-				"descuento" => $grupo->descuento
+				'descripcion' => $grupo->descripcion,
+				'categoria' => $categoria,
+				'categoria_grupo_grupo' => $grupo->categoria_grupo_grupo,
+				'receta' => $grupo->receta,
+				'impresora' => null,
+				'descuento' => $grupo->descuento
 			]);
 
 			$categoria_grupo = $cgrupo->getPK();
@@ -685,28 +713,28 @@ class Articulo_model extends General_model {
 
 
 		$datos = [
-			"categoria_grupo" => $categoria_grupo,
-			"presentacion" => $this->presentacion,
-			"descripcion" => $this->descripcion,
-			"precio" => $this->precio,
-			"bien_servicio" => $this->bien_servicio,
-			"existencias" => 0.00,
-			"shopify_id" => $this->shopify_id,
-			"codigo" => $this->codigo,
-			"produccion" => $this->produccion,
-			"presentacion_reporte" => $this->presentacion_reporte,
-			"mostrar_pos" => $this->mostrar_pos,
-			"impuesto_especial" => $this->impuesto_especial,
-			"combo" => $this->combo,
-			"multiple" => $this->multiple,
-			"cantidad_minima" => $this->cantidad_minima,
-			"cantidad_maxima" => $this->cantidad_maxima,
-			"rendimiento" => $this->rendimiento,
-			"costo" => 0,
-			"mostrar_inventario" => $this->mostrar_inventario,
-			"esreceta" => $this->esreceta,
-			"cantidad_gravable" => $this->cantidad_gravable,
-			"precio_sugerido" => $this->precio_sugerido
+			'categoria_grupo' => $categoria_grupo,
+			'presentacion' => $this->presentacion,
+			'descripcion' => $this->descripcion,
+			'precio' => $this->precio,
+			'bien_servicio' => $this->bien_servicio,
+			'existencias' => 0.00,
+			'shopify_id' => $this->shopify_id,
+			'codigo' => $this->codigo,
+			'produccion' => $this->produccion,
+			'presentacion_reporte' => $this->presentacion_reporte,
+			'mostrar_pos' => $this->mostrar_pos,
+			'impuesto_especial' => $this->impuesto_especial,
+			'combo' => $this->combo,
+			'multiple' => $this->multiple,
+			'cantidad_minima' => $this->cantidad_minima,
+			'cantidad_maxima' => $this->cantidad_maxima,
+			'rendimiento' => $this->rendimiento,
+			'costo' => 0,
+			'mostrar_inventario' => $this->mostrar_inventario,
+			'esreceta' => $this->esreceta,
+			'cantidad_gravable' => $this->cantidad_gravable,
+			'precio_sugerido' => $this->precio_sugerido
 		];
 
 		$art->guardar($datos);
@@ -716,8 +744,8 @@ class Articulo_model extends General_model {
 	{
 		$receta = $this->getReceta();
 		$articulo = $this->buscarArticulo([
-			"sede" => $sede,
-			"codigo" => $this->codigo,
+			'sede' => $sede,
+			'codigo' => $this->codigo,
 			'debaja' => 0
 		]);
 
@@ -727,28 +755,28 @@ class Articulo_model extends General_model {
 
 			foreach ($receta as $row) {
 				$detalle = $this->buscarArticulo([
-					"sede" => $sede,
-					"codigo" => $row->articulo->codigo,
+					'sede' => $sede,
+					'codigo' => $row->articulo->codigo,
 					'debaja' => 0
 				]);
 				if (!$detalle) {
 					$rec = new Articulo_model($row->articulo->articulo);
 					$rec->copiar($sede);
 					$detalle = $this->buscarArticulo([
-						"sede" => $sede,
-						"codigo" => $rec->codigo,
+						'sede' => $sede,
+						'codigo' => $rec->codigo,
 						'debaja' => 0
 					]);
 				}
 
 				$art->guardarReceta([
-					"racionable" => $row->racionable,
-					"articulo" => $detalle->articulo,
-					"cantidad" => $row->cantidad,
-					"medida" => $row->medida->medida,
-					"anulado" => $row->anulado,
-					"precio_extra" => $row->precio_extra,
-					"precio" => $row->precio,
+					'racionable' => $row->racionable,
+					'articulo' => $detalle->articulo,
+					'cantidad' => $row->cantidad,
+					'medida' => $row->medida->medida,
+					'anulado' => $row->anulado,
+					'precio_extra' => $row->precio_extra,
+					'precio' => $row->precio,
 				]);
 			}
 		}
@@ -757,36 +785,37 @@ class Articulo_model extends General_model {
 	public function eliminarDetalle()
 	{
 		$this->db
-			 ->where("receta", $this->getPK())
-			 ->delete("articulo_detalle");
-	}	
+			->where('receta', $this->getPK())
+			->delete('articulo_detalle');
+	}
 
 	private function getSubcatgorias($sede = null, $padre = null)
 	{
-		if($sede) {
-			$this->db->where("a.sede", $sede);
+		if ($sede) {
+			$this->db->where('a.sede', $sede);
 		}
 
-		if($padre) {
-			$this->db->where("b.categoria_grupo_grupo", $padre);			
+		if ($padre) {
+			$this->db->where('b.categoria_grupo_grupo', $padre);
 		} else {
-			$this->db->where("b.categoria_grupo_grupo IS NULL");			
+			$this->db->where('b.categoria_grupo_grupo IS NULL');
 		}
 
 		$subcategorias = $this->db
-			->select("b.categoria, b.categoria_grupo, b.descripcion, b.categoria_grupo_grupo")
-			->join("categoria a", "a.categoria = b.categoria")
-			->join("articulo c", "b.categoria_grupo = c.categoria_grupo")			
-			->where("c.mostrar_pos", 1)	
-			->where("a.debaja", 0)
-			->where("b.debaja", 0)
-			->where("c.debaja", 0)		
-			->group_by("b.categoria, b.categoria_grupo, b.descripcion")
-			->order_by("b.descripcion")
-			->get("categoria_grupo b")
+			->select('b.categoria, b.categoria_grupo, b.descripcion, b.categoria_grupo_grupo')
+			->join('categoria a', 'a.categoria = b.categoria')
+			->join('articulo c', 'b.categoria_grupo = c.categoria_grupo')
+			->where('c.mostrar_pos', 1)
+			->where('c.precio >', 0)
+			->where('a.debaja', 0)
+			->where('b.debaja', 0)
+			->where('c.debaja', 0)
+			->group_by('b.categoria, b.categoria_grupo, b.descripcion')
+			->order_by('b.descripcion')
+			->get('categoria_grupo b')
 			->result();
 
-		foreach($subcategorias as $sc) {
+		foreach ($subcategorias as $sc) {
 			$sc->subcategorias = $this->getSubcatgorias($sede, $sc->categoria_grupo);
 		}
 
@@ -795,47 +824,77 @@ class Articulo_model extends General_model {
 
 	public function articulosParaPOS($args = [])
 	{
-		$this->load->model('Catalogo_model');
+		$this->load->model(['Catalogo_model', 'Impresora_model', 'Presentacion_model']);
 
-		if(isset($args['sede'])) {
-			$this->db->where("a.sede", $args['sede']);
+		$camposArticulo = $this->Catalogo_model->get_fields_from_table('articulo', false);
+		$camposImpresora = $this->Catalogo_model->get_fields_from_table('impresora', false);
+		$camposPresentacion = $this->Catalogo_model->get_fields_from_table('presentacion', false);
+
+		if (isset($args['sede'])) {
+			$this->db->where('a.sede', $args['sede']);
 		}
 
 		$categorias = $this->db
-			->select("a.categoria, a.descripcion")
-			->join("categoria_grupo b", "a.categoria = b.categoria")
-			->join("articulo c", "b.categoria_grupo = c.categoria_grupo")
-			->where("c.mostrar_pos", 1)
-			->where("a.debaja", 0)
-			->where("b.debaja", 0)
-			->where("c.debaja", 0)
-			->group_by("a.categoria, a.descripcion")
-			->order_by("a.descripcion")
-			->get("categoria a")
+			->select('a.categoria, a.descripcion')
+			->join('categoria_grupo b', 'a.categoria = b.categoria')
+			->join('articulo c', 'b.categoria_grupo = c.categoria_grupo')
+			->where('c.mostrar_pos', 1)
+			->where('c.precio >', 0)
+			->where('a.debaja', 0)
+			->where('b.debaja', 0)
+			->where('c.debaja', 0)
+			->group_by('a.categoria, a.descripcion')
+			->order_by('a.descripcion')
+			->get('categoria a')
 			->result();
-	
-		$subcategorias = $this->getSubcatgorias((isset($args['sede']) ? $args['sede'] : null));	
-		
-		if(isset($args['sede'])) {
-			$this->db->where("a.sede", $args['sede']);
+
+		$subcategorias = $this->getSubcatgorias((isset($args['sede']) ? $args['sede'] : null));
+
+		if (isset($args['sede'])) {
+			$this->db->where('a.sede', $args['sede']);
+		}
+
+		foreach ($camposArticulo as $ca) {
+			$this->db->select("c.{$ca->campo}");
+		}
+
+		foreach ($camposImpresora as $ci) {
+			$this->db->select("d.{$ci->campo}");
+		}
+
+		foreach ($camposPresentacion as $cp) {
+			$this->db->select("e.{$cp->campo}");
 		}
 
 		$articulos = $this->db
-			->select("c.articulo")
-			->join("categoria_grupo b", "b.categoria_grupo = c.categoria_grupo")
-			->join("categoria a", "a.categoria = b.categoria")
-			->where("c.mostrar_pos", 1)
-			->where("a.debaja", 0)
-			->where("b.debaja", 0)
-			->where("c.debaja", 0)
-			->order_by("c.descripcion")
-			->get("articulo c")
+			->select('c.descripcion AS descripcionArticulo')
+			->join('categoria_grupo b', 'b.categoria_grupo = c.categoria_grupo')
+			->join('categoria a', 'a.categoria = b.categoria')
+			->join('impresora d', 'd.impresora = b.impresora')
+			->join('presentacion e', 'e.presentacion = c.presentacion')
+			->where('c.mostrar_pos', 1)
+			->where('c.precio >', 0)
+			->where('a.debaja', 0)
+			->where('b.debaja', 0)
+			->where('c.debaja', 0)
+			->order_by('c.descripcion')
+			->get('articulo c')
 			->result();
 
 		$arts = [];
-		foreach($articulos as $art) 
-		{
-			$arts[] = $this->Catalogo_model->getArticulo(['articulo' => $art->articulo, '_uno' => true]);
+		foreach ($articulos as $art) {
+			$presentacion = [];
+			foreach ($camposPresentacion as $cp) {
+				$presentacion[$cp->campo] = $art->{$cp->campo};
+			}
+			$art->presentacion = (object)$presentacion;
+			$impresora = [];
+			foreach ($camposImpresora as $ci) {
+				$impresora[$ci->campo] = $art->{$ci->campo};
+			}
+			$art->impresora = (object)$impresora;
+			$art->descripcion = $art->descripcionArticulo;
+			$arts[] = $art;
 		}
 
 		return [
@@ -843,7 +902,6 @@ class Articulo_model extends General_model {
 			'subcategorias' => $subcategorias,
 			'articulos' => $arts
 		];
-
 	}
 
 	public function tiene_movimientos()
@@ -858,8 +916,8 @@ class Articulo_model extends General_model {
 			->where('b.fel_uuid_anulacion IS NULL')
 			->where('a.articulo', $this->_pk)
 			->get()->row();
-			
-		if((int)$ingresos->conteo > 0 || (int)$egresos->conteo > 0 || (int)$comandas->conteo > 0 || (int)$facturas->conteo > 0) {
+
+		if ((int)$ingresos->conteo > 0 || (int)$egresos->conteo > 0 || (int)$comandas->conteo > 0 || (int)$facturas->conteo > 0) {
 			return true;
 		}
 		return false;
@@ -867,16 +925,16 @@ class Articulo_model extends General_model {
 
 	public function get_sede_articulo($args = [])
 	{
-		if(!isset($args['_uno'])) {
-			$args['_uno'] = true;			
+		if (!isset($args['_uno'])) {
+			$args['_uno'] = true;
 		}
 		$art = $this->buscar($args);
-		if($art) {
+		if ($art) {
 			return $this->db
 				->select('a.sede')
 				->from('categoria a')
 				->join('categoria_grupo b', 'a.categoria = b.categoria')
-				->join('articulo c', 'b.categoria_grupo = c.categoria_grupo')				
+				->join('articulo c', 'b.categoria_grupo = c.categoria_grupo')
 				->where('c.articulo', $art->articulo)
 				->get()->row();
 		}
@@ -888,37 +946,34 @@ class Articulo_model extends General_model {
 	public function get_categoria()
 	{
 		return $this->db
-					->select("a.*")
-					->join("categoria_grupo b", "a.categoria = b.categoria")
-					->where("b.categoria_grupo", $this->categoria_grupo)
-					->get("categoria a")
-					->row();
+			->select('a.*')
+			->join('categoria_grupo b', 'a.categoria = b.categoria')
+			->where('b.categoria_grupo', $this->categoria_grupo)
+			->get('categoria a')
+			->row();
 	}
 
 	public function get_path_subcategorias($idCategoriaGrupo = null, $antecesores = [])
 	{
 		$idCategoriaGrupo = !$idCategoriaGrupo ? (int)$this->categoria_grupo : (int)$idCategoriaGrupo;
-		$cg = $this->db->where("categoria_grupo", $idCategoriaGrupo)->get("categoria_grupo")->row();
-		if ($cg)
-		{
+		$cg = $this->db->where('categoria_grupo', $idCategoriaGrupo)->get('categoria_grupo')->row();
+		if ($cg) {
 			$antecesores[] = trim($cg->descripcion);
-			if ((int)$cg->categoria_grupo_grupo > 0)
-			{
+			if ((int)$cg->categoria_grupo_grupo > 0) {
 				$this->get_path_subcategorias($cg->categoria_grupo_grupo, $antecesores);
 			}
-		}		
+		}
 		return implode('-', array_reverse($antecesores));
 	}
 
 	public function get_lista_articulos_sede_codigo($sedes = [])
 	{
-		if(count($sedes) > 0)
-		{
+		if (count($sedes) > 0) {
 			$this->db->where_in('c.sede', $sedes);
 		}
 
 		return $this->db
-			->select('TRIM(a.codigo) AS codigo, TRIM(a.descripcion) AS descripcion', false)			
+			->select('TRIM(a.codigo) AS codigo, TRIM(a.descripcion) AS descripcion', false)
 			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
 			->join('categoria c', 'c.categoria = b.categoria')
 			->join('sede d', 'd.sede = c.sede')
@@ -934,28 +989,28 @@ class Articulo_model extends General_model {
 		$this->load->model('Receta_model');
 		$id = $this->getPK();
 		$datos = new stdClass();
-		$datos->exito = false;	
+		$datos->exito = false;
 
 		// Dar de baja a los combos que lo tengan como detalle único o anularlo de los que tienen más cosas en el combo.
 		$detalles = $this->Receta_model->buscar(['articulo' => $id, 'anulado' => 0]);
 		foreach ($detalles as $det) {
 			$cmb = new Articulo_model($det->receta);
-			$esCombo = (int)$cmb->combo === 1;			
+			$esCombo = (int)$cmb->combo === 1;
 			$opciones = $this->Receta_model->buscar(['receta' => $cmb->getPK(), 'anulado' => 0]);
-			if($opciones) {
+			if ($opciones) {
 				$esUnicoDetalle = count($opciones) === 1;
 				if ($esUnicoDetalle && $esCombo) {
 					$cmb->mostrar_pos = 0;
 					$cmb->guardar();
 				}
-				foreach($opciones as $opc) {
-					if((int)$opc->articulo === (int)$this->getPK()){
+				foreach ($opciones as $opc) {
+					if ((int)$opc->articulo === (int)$this->getPK()) {
 						$tmpOpc = new Receta_model($opc->articulo_detalle);
 						$tmpOpc->anulado = 1;
 						$tmpOpc->guardar();
 					}
 				}
-			}			
+			}
 		}
 
 		$this->debaja = 1;
@@ -970,7 +1025,43 @@ class Articulo_model extends General_model {
 		return $datos;
 	}
 
+	public function actualiza_existencia_bodega_articulo_costo($idbodega)
+	{
+		$bac = $this->db->where('articulo', $this->_pk)->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
+		if ($bac) {
+			$this->db
+				->where('bodega_articulo_costo', $bac->bodega_articulo_costo)
+				->update('bodega_articulo_costo', ['existencia' => $this->existencias]);
+		} else {
+			$this->db->insert('bodega_articulo_costo', [
+				'bodega' => $idbodega,
+				'articulo' => $this->_pk,
+				'existencia' => $this->existencias
+			]);
+		}
+		return $this->db->affected_rows() > 0;
+	}
 
+	public function get_existencia_bodega($args = [])
+	{
+		if (isset($args['bodega']) && (int)$args['bodega'] > 0) {
+			$this->db->where('bodega', $args['bodega']);
+		}
+
+		$idArticulo = $this->getPK();
+		if (isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$idArticulo = $args['articulo'];
+		}
+
+		if ((int)$idArticulo > 0) {
+			return $this->db
+				->select_sum('existencia', 'existencia')
+				->where('articulo', $idArticulo)
+				->get('bodega_articulo_costo')
+				->row();
+		}
+		return (object)['existencia' => '0'];
+	}
 }
 
 /* End of file Articulo_model.php */

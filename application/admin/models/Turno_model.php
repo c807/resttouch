@@ -137,6 +137,43 @@ class Turno_model extends General_model {
 		return $this->db->affected_rows() > 0;
 	}
 
+	public function traslada_mesas_abiertas_nuevo_turno($args = [])
+	{
+		$comandas = '';
+
+		$listaComandas = $this->db
+			->select('a.comanda')
+			->join('comanda_has_mesa b', 'a.comanda = b.comanda')
+			->join('mesa c', 'c.mesa = b.mesa')
+			->join('area d', 'd.area = c.area')
+			->where('a.estatus', 1)
+			->where('a.sede', $args['sede'])
+			->where('d.sede', $args['sede'])
+			->where('c.estatus', 2)
+			->group_by('a.comanda')
+			->get('comanda a')
+			->result();
+					
+		foreach ($listaComandas as $row) {
+			if((int)$row->comanda > 0) {
+				if ($comandas !== '') {
+					$comandas .= ',';
+				}
+				$comandas .= $row->comanda;
+			}
+		}
+
+		if (trim($comandas) !== '') {
+			$this->db
+				->where("comanda IN ({$comandas})")
+				->where('estatus', 1);
+			$this->db->update('comanda', [
+				'turno' => $args['turno']
+			]);
+			return $this->db->affected_rows() > 0;
+		}
+		return 0;
+	}
 }
 
 /* End of file Turno_model.php */

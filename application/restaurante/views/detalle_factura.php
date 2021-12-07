@@ -129,7 +129,8 @@
 										echo number_format($desc, 2);
 										if (empty($row->fel_uuid_anulacion)) {
 											$totalDescuento += $desc;
-											$totalFactura += ($total - $desc);
+											// $totalFactura += ($total - $desc);
+											$totalFactura += $total;
 										}
 									 ?>
 								</td>
@@ -206,10 +207,24 @@
 							}
 						 ?>
 						<tr>
-							<td colspan="<?php echo $col ?>" style="padding: 5px;" class="text-right">Total:</td>
+							<td colspan="<?php echo $col ?>" style="padding: 5px;" class="text-right">Total (con desct., con propina):</td>
 							<td style="padding: 5px;" class="text-right"><?php echo number_format($totalFactura,2) ?></td>
 							<td style="padding: 5px;" class="text-right"><?php echo number_format($totalPropina,2) ?></td>
 							<td style="padding: 5px;" class="text-right"><?php echo number_format($totalDescuento, 2) ?></td>
+							<td style="padding: 5px;" class="text-center">&nbsp;</td>
+						</tr>						
+						<tr>
+							<td colspan="<?php echo $col ?>" style="padding: 5px;" class="text-right">Ventas sin factura:</td>
+							<td style="padding: 5px;" class="text-right"><?php echo number_format($ventas_sin_factura, 2) ?></td>
+							<td style="padding: 5px;" class="text-right">&nbsp;</td>
+							<td style="padding: 5px;" class="text-right">&nbsp;</td>
+							<td style="padding: 5px;" class="text-center">&nbsp;</td>
+						</tr>
+						<tr>
+							<td colspan="<?php echo $col ?>" style="padding: 5px;" class="text-right">Total ingresos (con desct.):</td>
+							<td style="padding: 5px;" class="text-right"><?php echo number_format($totalFactura + $ventas_sin_factura, 2) ?></td>
+							<td style="padding: 5px;" class="text-right">&nbsp;</td>
+							<td style="padding: 5px;" class="text-right">&nbsp;</td>
 							<td style="padding: 5px;" class="text-center">&nbsp;</td>
 						</tr>
 					</tfoot>

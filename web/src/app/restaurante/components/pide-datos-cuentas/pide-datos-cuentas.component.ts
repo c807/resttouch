@@ -35,6 +35,7 @@ export class PideDatosCuentasComponent implements OnInit {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
     this.setTableDataSource();
+    this.data.cuentas[0].nombre = 'Cuenta #01';
     for (let i = 0; i < (+this.data.comensales - 1); i++) {
       this.agregarFila();
     }
@@ -66,7 +67,7 @@ export class PideDatosCuentasComponent implements OnInit {
       {
         cuenta: 0,
         numero: this.data.cuentas.length + 1,
-        nombre: null,
+        nombre: `Cuenta #${(this.data.cuentas.length + 1) >= 10 ? '' : '0'}${(this.data.cuentas.length + 1)}`,
         productos: []
       }
     );

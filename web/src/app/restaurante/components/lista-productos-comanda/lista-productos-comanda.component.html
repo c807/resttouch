@@ -2,64 +2,66 @@
     <mat-list-item *ngIf="listaProductos.length > 0">
         <div matLine>
             <span class="lineaDeTotal">
-                {{cantidadDeProductos}} {{cantidadDeProductos > 1 ? 'artículos' : 'artículo'}} por {{totalDeProductos | number: '1.2-2'}}
+                {{cantidadDeProductos}} artículo{{cantidadDeProductos > 1 ? 's' : ''}} por {{totalDeProductos | number: '1.2-2'}}
             </span>            
         </div>
     </mat-list-item>
-    <mat-list-item *ngFor="let p of listaProductos; let i = index;" [ngClass]="{'noImpreso': +p.impreso === 0}" >
-        <div matLine class="fullWidth" *ngIf="+p.cantidad > 0">
-            <div class="row">
-                <div class="col m6 s12">
-                    <span matLine>
-                        <span *ngIf="+p.multiple === 0">{{p.cantidad}}</span>&nbsp;{{p.nombre}}
-                    </span>
-                    <ng-container *ngIf="+p.combo === 1">
-                        <div matLine *ngFor="let det of p.detalle">
-                            <span class="tabulador">{{det}}</span>
-                        </div>
-                    </ng-container>
-                </div>
-                <div class="col m6 s12" align="end">
-                    <!--<span>{{p.detalle | json}}</span>-->
-                    <span>{{ ((p.cantidad * p.precio) + p.monto_extra) | number: '1.2-2' }}</span>&nbsp;
-                    <eco-fab-speed-dial direction="left" *ngIf="+p.impreso === 0">
-                        <eco-fab-speed-dial-trigger>
-                            <button mat-fab>
-                                <mat-icon style="font-size: 18pt !important;">keyboard_arrow_left</mat-icon>
-                            </button>
-                        </eco-fab-speed-dial-trigger>
-                        <eco-fab-speed-dial-actions>
-                            <button mat-mini-fab (click)="deleteProductoFromList(p, i)" color="warn" [disabled]="bloqueoBotones">
-                                <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
-                            </button>
-                            <button mat-mini-fab (click)="removeProducto(p, i)" color="warn" [disabled]="bloqueoBotones" *ngIf="p.detalle.length <= 1">
-                                <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
-                            </button>
-                            <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="accent" [disabled]="bloqueoBotones">
-                                <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
-                            </button>
-                        </eco-fab-speed-dial-actions>
-                    </eco-fab-speed-dial>
-                    <eco-fab-speed-dial direction="left" *ngIf="+p.impreso === 1">
-                        <eco-fab-speed-dial-trigger>
-                            <button mat-fab>
-                                <mat-icon style="font-size: 18pt !important;">keyboard_arrow_left</mat-icon>
-                            </button>
-                        </eco-fab-speed-dial-trigger>
-                        <eco-fab-speed-dial-actions>
-                            <button mat-mini-fab (click)="deleteProductoFromListAfterPrinted(p, i)" color="warn" [disabled]="bloqueoBotones">
-                                <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
-                            </button>
-                        </eco-fab-speed-dial-actions>
-                    </eco-fab-speed-dial>
+    <ng-container *ngFor="let p of listaProductos; let i = index;">
+        <mat-list-item [ngClass]="{'noImpreso': +p.impreso === 0}" *ngIf="+p.cantidad > 0">
+            <div matLine class="fullWidth" *ngIf="+p.cantidad > 0">
+                <div class="row">
+                    <div class="col m6 s12">
+                        <span matLine>
+                            <span *ngIf="+p.multiple === 0">{{p.cantidad}}</span>&nbsp;{{p.nombre}}
+                        </span>
+                        <ng-container *ngIf="+p.combo === 1">
+                            <div matLine *ngFor="let det of p.detalle">
+                                <span class="tabulador">{{det}}</span>
+                            </div>
+                        </ng-container>
+                    </div>
+                    <div class="col m6 s12" align="end">
+                        <!--<span>{{p.detalle | json}}</span>-->
+                        <span>{{ ((p.cantidad * p.precio) + p.monto_extra) | number: '1.2-2' }}</span>&nbsp;
+                        <eco-fab-speed-dial direction="left" *ngIf="+p.impreso === 0">
+                            <eco-fab-speed-dial-trigger>
+                                <button mat-fab>
+                                    <mat-icon style="font-size: 18pt !important;">keyboard_arrow_left</mat-icon>
+                                </button>
+                            </eco-fab-speed-dial-trigger>
+                            <eco-fab-speed-dial-actions>
+                                <button mat-mini-fab (click)="deleteProductoFromList(p, i)" color="warn" [disabled]="bloqueoBotones">
+                                    <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+                                </button>
+                                <button mat-mini-fab (click)="removeProducto(p, i)" color="warn" [disabled]="bloqueoBotones" *ngIf="p.detalle.length <= 1">
+                                    <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
+                                </button>
+                                <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="accent" [disabled]="bloqueoBotones">
+                                    <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
+                                </button>
+                            </eco-fab-speed-dial-actions>
+                        </eco-fab-speed-dial>
+                        <eco-fab-speed-dial direction="left" *ngIf="+p.impreso === 1">
+                            <eco-fab-speed-dial-trigger>
+                                <button mat-fab>
+                                    <mat-icon style="font-size: 18pt !important;">keyboard_arrow_left</mat-icon>
+                                </button>
+                            </eco-fab-speed-dial-trigger>
+                            <eco-fab-speed-dial-actions>
+                                <button mat-mini-fab (click)="deleteProductoFromListAfterPrinted(p, i)" color="warn" [disabled]="bloqueoBotones">
+                                    <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+                                </button>
+                            </eco-fab-speed-dial-actions>
+                        </eco-fab-speed-dial>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div matLine class="fullWidth" *ngIf="+p.cantidad > 0">
-            <mat-form-field class="fullWidth" *ngIf="p.showInputNotas">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas de producto" [(ngModel)]="p.notas" (keyup.enter)="toggleShowInputNotas(p)" (blur)="saveNotasProducto(p)" maxlength="1000">
-                <input matInput *ngIf="esMovil" placeholder="Notas de producto" [(ngModel)]="p.notas" (keyup.enter)="toggleShowInputNotas(p)" (blur)="saveNotasProducto(p)" maxlength="1000">
-            </mat-form-field>
-        </div>
-    </mat-list-item>
+            <div matLine class="fullWidth" *ngIf="+p.cantidad > 0">
+                <mat-form-field class="fullWidth" *ngIf="p.showInputNotas">
+                    <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas de producto" [(ngModel)]="p.notas" (keyup.enter)="toggleShowInputNotas(p)" (blur)="saveNotasProducto(p)" maxlength="1000">
+                    <input matInput *ngIf="esMovil" placeholder="Notas de producto" [(ngModel)]="p.notas" (keyup.enter)="toggleShowInputNotas(p)" (blur)="saveNotasProducto(p)" maxlength="1000">
+                </mat-form-field>
+            </div>
+        </mat-list-item>
+    </ng-container>
 </mat-list>

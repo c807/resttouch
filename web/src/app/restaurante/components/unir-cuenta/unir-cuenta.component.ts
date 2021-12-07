@@ -69,24 +69,6 @@ export class UnirCuentaComponent implements OnInit {
       } else {
         this.snackBar.open(`ERROR:${res.mensaje}`, 'Cuentas', { duration: 7000 });
       }
-    });
-    /*
-    if (+deCuenta.numero !== +aCuenta.numero) {
-      this.data.lstProductosSeleccionados.map((p) => {
-        if (+p.cuenta === +deCuenta.cuenta) {
-          p.cuenta = aCuenta.cuenta;
-        }
-      });
-      console.log('Productos seleccionados (Después) = ', this.data.lstProductosSeleccionados);
-    } else {
-      this.data.lstProductosSeleccionados.map(p => p.cuenta = +deCuenta.cuenta);
-    }
-    this.dialogRef.close(this.data.lstProductosSeleccionados);
-    */
+    });    
   }
-
-  unirTodas() {
-    // this.unirCuentas();
-  }
-
 }

@@ -3,18 +3,18 @@
 if (!function_exists('guardar_comanda')) {
 	function guardar_comanda($req=[])
 	{
-		$datos = ["exito" => false, "mensaje" => "Error"];
+		$datos = ['exito' => false, 'mensaje' => 'Error'];
 		$ci =& get_instance();
 		$usu = $ci->Usuario_model->find([
 			'usuario' => $req['mesero'], 
-			"_uno" => true
+			'_uno' => true
 		]);
 
 		if ($usu) {
 			$turno = $ci->Turno_model->getTurno([
-				"sede" => $req['data']->sede,
+				'sede' => $req['data']->sede,
 				'abierto' => true, 
-				"_uno" => true
+				'_uno' => true
 			]);
 			$comanda = new Comanda_model($req['comanda']);
 			$mesa = new Mesa_model($req['mesa']);
@@ -33,7 +33,7 @@ if (!function_exists('guardar_comanda')) {
 
 					if (empty($req['comanda'])) {
 						$comanda->setMesa($req['mesa']);
-						$mesa->guardar(["estatus" => 2]);
+						$mesa->guardar(['estatus' => 2]);
 					}
 
 					if (count($req['cuentas']) > 0) {
@@ -45,9 +45,9 @@ if (!function_exists('guardar_comanda')) {
 								$cuenta->cargar($row['cuenta']);
 							} else {
 								$tmpCuenta = $ci->Cuenta_model->buscar([
-									"nombre" => trim($row["nombre"]),
-									"comanda" => $comanda->comanda,
-									"_uno" => true
+									'nombre' => trim($row['nombre']),
+									'comanda' => $comanda->comanda,
+									'_uno' => true
 								]);
 
 								if ($tmpCuenta) {
@@ -55,9 +55,9 @@ if (!function_exists('guardar_comanda')) {
 								} else if(count($comanda->getCuentas()) == 1){
 
 									$tmpCuenta = $ci->Cuenta_model->buscar([
-										"nombre" => $req['replaceUnica'] ? "Unica" : trim($row["nombre"]),
-										"comanda" => $comanda->comanda,
-										"_uno" => true
+										'nombre' => $req['replaceUnica'] ? 'Unica' : trim($row['nombre']),
+										'comanda' => $comanda->comanda,
+										'_uno' => true
 									]);
 
 									if ($tmpCuenta) {
@@ -77,7 +77,7 @@ if (!function_exists('guardar_comanda')) {
 										if (isset($prod['detalle_comanda']) && !empty($prod['detalle_comanda'])) {
 											$det = new Dcomanda_model($prod['detalle_comanda']);
 											$det->guardar([
-												"notas" => $prod['notas']
+												'notas' => $prod['notas']
 											]);
 										}
 										
@@ -89,19 +89,19 @@ if (!function_exists('guardar_comanda')) {
 					}	
 
 					if($datos['exito']) {
-						$datos['mensaje'] = "Datos Actualizados con Exito";
-						$datos['comanda'] = $comanda->getComanda();	
+						$datos['mensaje'] = 'Datos Actualizados con Exito';
+						$datos['comanda'] = !isset($req['_no_get_comanda']) ? $comanda->getComanda() : (object)[];
 					} else {
-						$datos['mensaje'] = implode("<br>", $comanda->getMensaje());
+						$datos['mensaje'] = implode('<br>', $comanda->getMensaje());
 					}	
 				} else {
-					$datos['mensaje'] = "La mesa ya fue abierta en otra estación, por favor actualice la pantalla.";
+					$datos['mensaje'] = 'La mesa ya fue abierta en otra estación, por favor actualice la pantalla.';
 				}
 			} else {
-				$datos['mensaje'] = "No existe ningun turno abierto";
+				$datos['mensaje'] = 'No existe ningun turno abierto';
 			}
 		} else {
-			$datos['mensaje'] = "Mesero Invalido";
+			$datos['mensaje'] = 'Mesero Invalido';
 		}
 
 		return $datos;
@@ -140,8 +140,10 @@ if( ! function_exists('suma_field')){
 
 if( ! function_exists('url_base')){
 	function url_base($url) {
-		if (in_array($_SERVER["HTTP_HOST"], ["localhost", "127.0.0.1"])) {
+		if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
 			return base_url("resttouch/{$url}");
+		} else if (in_array($_SERVER['HTTP_HOST'], ['192.168.18.241'])) {
+			return ("http://192.168.18.241/api/{$url}");
 		}
 		
 		// return base_url($url);
@@ -393,6 +395,8 @@ if ( ! function_exists('Hoy')) {
 				return date('Y-m-d H:i:s');
 			case 4:
 				return date('H:i:s');
+			case 5:
+				return date('d/m/Y H:i:s');
 			default:
 				return date('Y-m-d');
 		}
@@ -569,5 +573,18 @@ if ( ! function_exists("graficaDatasets")) {
 		}
 
 		return $dataset;
+	}
+}
+
+if( ! function_exists('get_url_websocket')){
+	function get_url_websocket() {		
+		$url_ws = "{$_SERVER['REQUEST_SCHEME']}://";
+		if (in_array($_SERVER["HTTP_HOST"], ["localhost", "127.0.0.1", "192.168.18.241"])) {
+			$url_ws .= $_SERVER["HTTP_HOST"];
+		} else {			
+			$url_ws .= 'resttouch.c807.com' ;
+		}
+		$url_ws .= ':8988';
+		return $url_ws;
 	}
 }

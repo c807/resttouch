@@ -57,9 +57,9 @@
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="onSubmitSubCategoria()" [disabled]="!frmCategoriaGrupo.form.valid || +categoriaGrupo.debaja === 1 || cargando">
                     Guardar
                 </button>
-                <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBajaChkPass()" *ngIf="+categoriaGrupo.categoria_grupo > 0" [disabled]="+categoriaGrupo.debaja === 1 || cargando">
+                <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBajaChkPass()" *ngIf="+categoriaGrupo.categoria_grupo > 0" [disabled]="+categoriaGrupo.debaja === 1 || cargando">
                     Dar de baja
-                </button>
+                </button> -->
                 <button mat-raised-button type="button" color="warn" (click)="resetCategoriaGrupo()" [disabled]="cargando">
                     Cancelar
                 </button>

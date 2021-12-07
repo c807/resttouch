@@ -38,6 +38,10 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     return +this.articulo.esreceta === 1;
   }
 
+  get articuloMostrarPOS() {
+    return +this.articulo.mostrar_pos === 1;
+  }
+
   get disableArticuloReceta() {
     return (artSel: Articulo) => {
       let dar = false;
@@ -45,13 +49,26 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         +artSel.articulo === +this.articulo.articulo || 
         (+artSel.multiple === 1 && +this.articulo.multiple === 1) || 
         (+artSel.combo === 1 && +this.articulo.combo === 1) ||
-        (+artSel.combo === 1 && +this.articulo.multiple === 1)
+        (+artSel.combo === 1 && +this.articulo.multiple === 1) ||
+        (+this.articulo.cobro_mas_caro === 1 && +artSel.multiple === 1 && (+artSel.cantidad_minima !== 2 || +artSel.cantidad_maxima !== 2))
         )
       {
         dar = true;
       }
       return dar;
     }
+  }
+
+  get articuloEsOpcionMultiple() {
+    return +this.articulo.multiple === 1;
+  }
+
+  get articuloEsCombo() {
+    return +this.articulo.combo === 1;
+  }
+
+  get articuloMostrarInventario() {
+    return +this.articulo.mostrar_inventario === 1;
   }
 
   @Input() articulo: Articulo;
@@ -125,7 +142,8 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       mostrar_inventario: 0,
       debaja: 0,
       usuariobaja: null,
-      fechabaja: null
+      fechabaja: null,
+      cobro_mas_caro: 0
     };
     // this.categoria = null;
     // this.subcategoria = null;
@@ -354,6 +372,9 @@ export class FormProductoComponent implements OnInit, OnDestroy {
           if (res.exito) {
             this.loadRecetas();
             this.resetReceta();
+            if (res.precio && +res.precio > 0) {
+              this.articulo.precio = +res.precio;
+            }
           } else {
             this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 3000 });
           }
@@ -404,6 +425,10 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     if (+this.articulo.combo === 1) {
       this.articulo.multiple = 0;
       this.articulo.esreceta = 0;
+      this.articulo.mostrar_inventario = 0;
+      this.articulo.produccion = 0;
+    } else {
+      this.articulo.cobro_mas_caro = 0;
     }
   }
 
@@ -411,13 +436,21 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     if (+this.articulo.multiple === 1) {
       this.articulo.combo = 0;
       this.articulo.esreceta = 0;
+      this.articulo.mostrar_pos = 0;
+    }
+  }
+
+  apagaCombo = () => {
+    if (+this.articulo.mostrar_inventario === 1) {
+      this.articulo.combo = 0;
+      this.articulo.multiple = 0;      
     }
   }
 
   setOpcComboOff = () => {
     if (+this.articulo.esreceta === 1) {
       this.articulo.combo = 0;
-      this.articulo.multiple = 0;
+      this.articulo.multiple = 0;      
     }
   }
 
@@ -427,6 +460,12 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       this.setOpcComboOff();
     }
   };
+
+  setMultipleOff = () => {
+    if (+this.articulo.mostrar_pos === 1) {      
+      this.articulo.multiple = 0;
+    }
+  }
 
   darDeBaja = () => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
@@ -455,5 +494,4 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       })
     );    
   }
-
 }

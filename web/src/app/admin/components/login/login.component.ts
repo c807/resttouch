@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
         this.ls.set(GLOBAL.usrTokenVar, {
           token: res.token, usuario: res.usrname, nombres: res.nombres, apellidos: res.apellidos, sede: +res.sede,
           idusr: +res.idusr, enmovil: this.esMovil(+res.usatecladovirtual), acceso: res.acceso, sede_uuid: res.sede_uuid,
-          empresa: res.empresa, restaurante: res.restaurante, configuracion: [], usatecladovirtual: res.usatecladovirtual
+          empresa: res.empresa, restaurante: res.restaurante, configuracion: [], usatecladovirtual: res.usatecladovirtual, dominio: res.dominio
         });
         this.router.navigate(['/admin/dashboard']);
       } else {

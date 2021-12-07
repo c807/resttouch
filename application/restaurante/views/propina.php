@@ -48,6 +48,7 @@
 				</tr>
 				$row->usuario
 				<?php if (isset($row['usuario'])): ?>
+					<?php $cntUsuarios = count($row['usuario']); ?>
 					<?php foreach ($row['usuario'] as $key => $usu): ?>
 						<?php $rows = count($usu['facturas'])+1 ?>
 						<tr>
@@ -63,7 +64,7 @@
 								<td><?php echo $fac->numero_factura ?></td>
 								<td class="text-right">
 									<?php 
-										echo number_format($fac->propina * $row['porcentaje']/100,2) ?>
+										echo number_format(($fac->propina * $row['porcentaje'] / 100) / $cntUsuarios, 2) ?>
 								</td>
 							</tr>
 						<?php endforeach ?>

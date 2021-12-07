@@ -1,15 +1,19 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ArticuloService } from '../../../wms/services/articulo.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '../../global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { ExtraProductoComponent } from '../extra-producto/extra-producto.component';
+
+import { Subscription } from 'rxjs';
 
 export class ConfirmDialogComboModel {
   constructor(
     public producto: any,
     public lblBtnConfirm: string,
-    public lblBtnDeny: string
+    public lblBtnDeny: string,
+    public sinInputCantidad?: boolean
   ) { }
 }
 
@@ -18,7 +22,7 @@ export class ConfirmDialogComboModel {
   templateUrl: './dialog-combo.component.html',
   styleUrls: ['./dialog-combo.component.css']
 })
-export class DialogComboComponent implements OnInit {
+export class DialogComboComponent implements OnInit, OnDestroy {
 
   public title: string;
   public message: string;
@@ -31,12 +35,15 @@ export class DialogComboComponent implements OnInit {
   public esMovil = false;
   public keyboardLayout: string;
 
+  private endSubs = new Subscription();
+
   constructor(
     public dialogRef: MatDialogRef<DialogComboComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmDialogComboModel,
     private articuloSvr: ArticuloService,
     private snackBar: MatSnackBar,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    public dialog: MatDialog
   ) {
     this.datos = {
       respuesta: false,
@@ -58,6 +65,10 @@ export class DialogComboComponent implements OnInit {
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
     this.combo = [];
     this.getArticulos();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   getArticulos = () => {
@@ -127,20 +138,7 @@ export class DialogComboComponent implements OnInit {
           const prod = inp.seleccion;
           this.seleccion.receta[idx].receta.push(prod);
         }
-      }
-      /*for (let i = 0; i < multi.length; i++) {
-        const element = multi[i];
-        this.seleccion.receta.push({
-          articulo: element.articulo,
-          descripcion: element.descripcion,
-          receta: []
-        });
-        const idx = this.seleccion.receta.findIndex(p => +p.articulo === +element.articulo);
-        for (let j = 0; j < element.input.length; j++) {
-          const prod = element.input[j].seleccion;
-          this.seleccion.receta[idx].receta.push(prod);
-        }
-      }*/
+      }      
       this.datos.respuesta = true;
       this.datos.seleccion = this.seleccion;
       this.dialogRef.close(this.datos);
@@ -168,6 +166,25 @@ export class DialogComboComponent implements OnInit {
   onDismiss(): void {
     this.datos.respuesta = false;
     this.dialogRef.close(this.datos);
+  }
+
+  seleccionarExtra = (sc: any) => {
+    // console.log('Before = ', sc);
+    const extrasRef = this.dialog.open(ExtraProductoComponent, {
+      maxWidth: '40vw', width: '40vw',
+      data: { extras: sc.seleccion.extras || [] }
+    });
+
+    this.endSubs.add(
+      extrasRef.afterClosed().subscribe(resExt => {
+        if (resExt && resExt.length > 0) {
+          // this.seleccion.receta.push(resExt);
+          // console.log(resExt);
+          sc.seleccion.extras = resExt;
+        }
+        // console.log('After = ', sc);
+      })
+    );
   }
 
 }

@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tipo-direccion #lstTipoDireccion (getTipoDireccionEv)="setTipoDireccion($event)"></app-lista-tipo-direccion>        
+    </div>
+    <div class="col m7 s12">
+        <app-form-tipo-direccion #frmTipoDireccion [tipoDireccion]="tipoDireccion" (tipoDireccionSavedEv)="refreshTipoDireccion()"></app-form-tipo-direccion>        
+    </div>
+</div>

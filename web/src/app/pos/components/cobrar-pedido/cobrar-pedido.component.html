@@ -4,7 +4,8 @@
     - Factura a nombre de {{clienteSelected.nombre}}
   </small>
 </h1>
-<div mat-dialog-content style="height: 650px;">
+<!-- <div mat-dialog-content style="height: 650px;"> -->
+<div mat-dialog-content class="contenido">
   <div class="row">
     <div class="col m5 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
       <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true">
@@ -13,10 +14,10 @@
     <div class="col m3 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
       <table class="table table-sm table-borderless table-striped">
         <tbody>
-          <tr *ngFor="let p of inputData.productosACobrar; let i = index;">
-            <td>{{p.cantidad}}&nbsp;{{p.nombre || p.articulo.descripcion}}</td>
-            <td class="text-right">{{((p.cantidad * p.precio) + (p.monto_extra)) | number: '1.2-2'}}</td>
-          </tr>
+        <tr *ngFor="let p of inputData.productosACobrar; let i = index;">
+          <td>{{p.cantidad}}&nbsp;{{p.nombre || p.articulo.descripcion}}</td>
+          <td class="text-right">{{((p.cantidad * p.precio) + (p.monto_extra)) | number: '1.2-2'}}</td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -25,7 +26,7 @@
         <mat-form-field class="fullWidth">
           <mat-label>Forma de pago</mat-label>
           <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial
-            (selectionChange)="onSelectionChangeFP($event)" required>
+                      (selectionChange)="onSelectionChangeFP($event)" required>
             <mat-option *ngFor="let fp of lstFormasPago" [value]="fp.forma_pago">
               {{fp.descripcion}}
             </mat-option>
@@ -33,62 +34,93 @@
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" required>
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto"
+                 [(ngModel)]="formaPago.monto" required>
           <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" required>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina">
-          <input matInput *ngIf="esMovil" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina">
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina"
+                 [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
+          <input matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina"
+                 [(ngModel)]="formaPago.propina">
+          <!-- Warning Icon ,Tip Quantity Exceed -->
+
+          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip"  matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage"  style="color:orange;" matSuffix>warning</mat-icon>
         </mat-form-field>
         <!--Fin de input de propina por forma de pago-->
         <!-- Inicia input de documento -->
         <mat-form-field class="fullWidth" *ngIf="pideDocumento">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento">
-          <input matInput *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento">
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento"
+                 [(ngModel)]="formaPago.documento" [required]="pideDocumento">
+          <input matInput *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento"
+                 [required]="pideDocumento">
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">
           <button mat-raised-button type="button" color="accent" (click)="addFormaPago()"
-            [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0">
+                  [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0">
             Agregar
           </button>
         </div>
       </form>
-      <hr />
+      <hr/>
       <table class="table table-sm">
         <thead>
-          <tr>
-            <th class="text-left">FP</th>
-            <th class="text-right">Mon</th>
-            <th class="text-right">Prop</th>
-          </tr>
+        <tr>
+          <th class="text-left">FP</th>
+          <th class="text-right">Mon</th>
+          <th class="text-right">Prop
+            <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip"  matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage"  style="color:orange;" matSuffix>warning</mat-icon>
+
+          </th>
+        </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let fpCta of formasPagoDeCuenta; let i = index">
-            <td>{{fpCta.forma_pago.descripcion}}</td>
-            <td class="text-right">{{fpCta.monto | number:'1.2-2'}}</td>
-            <td class="text-right">{{fpCta.propina | number:'1.2-2'}}</td>
-            <td class="text-center">
-              <button mat-icon-button type="button" color="warn" (click)="delFormaPago(i)">
-                <mat-icon>delete_forever</mat-icon>
-              </button>
-            </td>
-          </tr>
+        <tr *ngFor="let fpCta of formasPagoDeCuenta; let i = index">
+          <td>{{fpCta.forma_pago.descripcion}}</td>
+          <td class="text-right">{{fpCta.monto | number:'1.2-2'}}</td>
+          <td class="text-right">{{fpCta.propina | number:'1.2-2'}}</td>
+          <td class="text-center">
+            <button mat-icon-button type="button" color="warn" (click)="delFormaPago(i)">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
   </div>
   <div class="row">
     <div class="col m8 s8">
-      <table class="table table-sm table-borderless" *ngIf="+data.mesaenuso.mesa.escallcenter === 1">
-        <caption>
-          <strong>Datos de envío</strong>
-        </caption>
+      <table class="table table-sm table-borderless">
         <tbody>
+        <!-- Inicia fila para descripción única -->
+        <tr>
+          <td>
+            <mat-checkbox name="enviar_descripcion_unica" [(ngModel)]="+descripcionUnica.enviar_descripcion_unica"
+                          [ngModelOptions]="{standalone: true}" (change)="vaciaDescripcionUnica()">
+              Personalizar descripción
+            </mat-checkbox>
+          </td>
+          <td>
+            <mat-form-field class="fullWidth">
+              <input matInput placeholder="Descripción" [(ngModel)]="descripcionUnica.descripcion_unica"
+                     [ngModelOptions]="{standalone: true}" minlength="1" maxlength="5000"
+                     [disabled]="+descripcionUnica.enviar_descripcion_unica === 0"
+                     [required]="+descripcionUnica.enviar_descripcion_unica === 1"/>
+            </mat-form-field>
+          </td>
+        </tr>
+        <!-- Finaliza fila para descripción única -->
+        <ng-container *ngIf="+data.mesaenuso.mesa.escallcenter === 1">
           <tr>
-            <!--<td class="text-right font-weight-bold">Atiende:</td>-->
+            <td colspan="2" align="center">
+              <strong>Datos de envío</strong>
+            </td>
+          </tr>
+          <tr>
             <td>
               <mat-form-field class="fullWidth">
                 <mat-label>Atiende:</mat-label>
@@ -99,47 +131,47 @@
                 </mat-select>
               </mat-form-field>
             </td>
-            <!--<td class="text-right font-weight-bold">Entrega:</td>-->
             <td>
               <mat-form-field class="fullWidth">
                 <input matInput type="text" placeholder="Dirección de entrega" name="direccion_entrega"
-                  [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+                       [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
               </mat-form-field>
             </td>
           </tr>
           <tr>
-            <!--<td class="text-right font-weight-bold">Nombre:</td>-->
             <td>
               <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre" maxlength="1000">
+                <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre"
+                       maxlength="1000">
               </mat-form-field>
             </td>
-            <!--<td class="text-right font-weight-bold">Teléfono:</td>-->
             <td>
               <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono" maxlength="1000">
+                <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono"
+                       maxlength="1000">
               </mat-form-field>
             </td>
           </tr>
+        </ng-container>
         </tbody>
       </table>
     </div>
     <div class="col m4 s4">
       <table class="table table-sm table-borderless">
         <tbody>
-          <tr>
-            <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
-            <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta |
-              number:'1.2-2'}}</td>
-          </tr>
-          <tr>
-            <td class="text-right font-weight-bold">PENDIENTE:</td>
-            <td class="text-right font-weight-bold" style="max-width: 15%;">
+        <tr>
+          <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
+          <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta |
+            number:'1.2-2'}}</td>
+        </tr>
+        <tr>
+          <td class="text-right font-weight-bold">PENDIENTE:</td>
+          <td class="text-right font-weight-bold" style="max-width: 15%;">
               <span
                 [ngClass]="{'saldo-pendiente': +inputData.saldo > 0, 'saldo-exacto': +inputData.saldo == 0, 'saldo-extra': +inputData.saldo < 0 }">{{inputData.saldo
                 | number:'1.2-2'}}</span>
-            </td>
-          </tr>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -149,9 +181,11 @@
   <app-cargando *ngIf="facturando" [configuracion]="cargandoConf"></app-cargando>
   <button mat-raised-button color="accent" (click)="cancelar()" [disabled]="facturando">Cancelar</button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 0"
-    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando">Facturar</button>
+          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
+    Facturar
+  </button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 1"
-    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede">
+          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
     Enviar
   </button>
 </div>

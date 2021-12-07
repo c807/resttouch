@@ -1,17 +1,18 @@
 <mat-dialog-content>
-    <div class="row">
+    <div class="row" *ngIf="!data.sinInputCantidad">
         <div class="col m12 s12">
             <h5>Cantidad</h5>
             <mat-form-field class="fullWidth">
                 <!--<input type="number" *ngIf="!esMovil" matKeyboard (change)="setCantidad()" matInput placeholder="Cantidad" min="1" step="1" [(ngModel)] ="seleccion.cantidad" [ngModelOptions]="{standalone: true}">
                 <input type="number" *ngIf="esMovil" (change)="setCantidad()" matInput placeholder="Cantidad" min="1" step="1" [(ngModel)] ="seleccion.cantidad" [ngModelOptions]="{standalone: true}">-->
-                <input type="number" (change)="setCantidad()" matInput placeholder="Cantidad" min="1" step="1" [(ngModel)] ="seleccion.cantidad" [ngModelOptions]="{standalone: true}">
+                <input type="number" (change)="setCantidad()" matInput placeholder="Cantidad" min="1" step="1"
+                    [(ngModel)]="seleccion.cantidad" [ngModelOptions]="{standalone: true}">
             </mat-form-field>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col s12">
             <div *ngFor="let rec of combo.receta">
                 <div *ngIf="rec.receta.length > 0">
                     <h5>
@@ -19,26 +20,32 @@
                     </h5>
                 </div>
                 <div class="row" *ngIf="rec.receta.length > 0">
-                    <div class="col m12 s12">
-                        <ng-container *ngFor="let sc of rec.input">
-                            <mat-select [(ngModel)]="sc.seleccion" [ngModelOptions]="{standalone: true}">
-                                <mat-option *ngFor="let prod of rec.receta" [value]="prod">
-                                    {{prod.descripcion}}
-                                </mat-option>
-                            </mat-select>
-                            <mat-divider></mat-divider>
-                            <br>
-                        </ng-container>
-                    </div>
+                    <ng-container *ngFor="let sc of rec.input">
+                        <div class="col m10 s12">
+                            <mat-form-field class="fullWidth">
+                                <mat-select [(ngModel)]="sc.seleccion" [ngModelOptions]="{standalone: true}">
+                                    <mat-option *ngFor="let prod of rec.receta" [value]="prod">
+                                        {{prod.descripcion}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <!-- <mat-divider></mat-divider> -->
+                            <!-- <br> -->
+                        </div>
+                        <div class="col m2 s12" align="right">
+                            <button mat-raised-button color="accent" (click)="seleccionarExtra(sc)" [disabled]="!sc.seleccion?.articulo">Extras</button>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
         </div>
-        
+
     </div>
 
     <div class="row text-right" align="right">
         <div class="col m12 s12">
-            <button mat-raised-button class="btnAccion" color="accent" (click)="onDismiss()">
+            <button mat-raised-button class="btnAccion" color="accent" (click)="onDismiss()"
+                *ngIf="!data.sinInputCantidad">
                 Cancelar
             </button>
             <button mat-raised-button class="btnAccion" color="accent" (click)="onConfirm()">

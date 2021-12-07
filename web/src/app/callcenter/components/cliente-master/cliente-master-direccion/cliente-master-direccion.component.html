@@ -1,0 +1,38 @@
+<h5>Direcciones de entrega</h5>
+<table>
+    <!-- <caption style="text-align: left;">
+        <form #fromDireccionEntrega="ngForm" (ngSubmit)="fromDireccionEntrega.form.valid && checkTelefono()" novalidate>
+            <mat-form-field style="width: 75%; padding-right: 5px;">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="telefono.numero" (keypress)="validatePhone($event)" minlength="8" maxlength="25" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="telefono.numero" (keypress)="validatePhone($event)" minlength="8" maxlength="25" required>
+            </mat-form-field>
+            <button mat-raised-button type="submit" color="accent" [disabled]="!fromDireccionEntrega.form.valid || cargando">
+                Asociar
+            </button>            
+        </form>        
+    </caption> -->
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Dirección</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let dir of lstDirecciones">
+            <td>{{dir.tipo_direccion.descripcion}}</td>
+            <td><p>{{dir.direccion_completa}}</p></td>
+            <td style="width: 10%;">
+                <button mat-raised-button type="button" color="accent" (click)="editarDireccion(dir)" [disabled]="cargando">
+                    Editar
+                </button>
+            </td>
+            <td style="width: 10%;">
+                <button mat-raised-button type="button" color="warn" (click)="eliminarDireccion(dir)" [disabled]="cargando">
+                    Eliminar
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>

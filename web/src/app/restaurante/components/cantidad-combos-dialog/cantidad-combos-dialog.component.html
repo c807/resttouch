@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>¿Cuántos combos agregará?</h1>
+<div mat-dialog-content>
+    <form #frmCantidadCombos="ngForm" novalidate>
+        <mat-form-field class="fullWidth">
+            <input type="number" matInput placeholder="Cantidad de combos" name="cantidadCombos" [(ngModel)]="cantidadCombos" min="0" max="100" required>
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cantidadCombos = 0; terminar()" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" color="accent" (click)="terminar()" [disabled]="!frmCantidadCombos.form.valid">
+        Aceptar
+    </button>
+</div>

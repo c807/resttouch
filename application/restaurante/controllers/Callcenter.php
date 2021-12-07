@@ -87,10 +87,10 @@ class Callcenter extends CI_Controller {
 									$datos['exito'] = true;
 									$datos['mensaje'] = "Datos actualizados con exito";
 									$datos['pedido'] = $com->getPK();
-									$updlst = json_decode(get_request('http://localhost:8988/api/updlstpedidos', []));
-									// $updlst = json_decode(get_request('http://192.168.18.241:8988/api/updlstpedidos', []));
-									// $updlst = json_decode(get_request('https://restouch.c807.com:8988/api/updlstpedidos', []));
-									$datos['msgws'] = $updlst;
+									$url_ws = get_url_websocket();
+									$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
+									$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
+									$datos['msgws'] = [$updlst, $updmesas];
 								} else {
 									$datos['mensaje'] = $facturar->mensaje;
 								}

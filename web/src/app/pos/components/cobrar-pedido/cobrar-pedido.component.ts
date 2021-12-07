@@ -1,27 +1,33 @@
-import { Component, OnInit, Inject, Input, OnDestroy } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import {Component, Inject, Input, NgModule, OnDestroy, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatSelectChange} from '@angular/material/select';
+import {GLOBAL} from '../../../shared/global';
+import {LocalstorageService} from '../../../admin/services/localstorage.service';
 import * as moment from 'moment';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ConfigCheckPasswordModel, CheckPasswordComponent } from '../../../shared/components/check-password/check-password.component';
-import { Socket } from 'ngx-socket-io';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogModel
+} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import {
+  CheckPasswordComponent,
+  ConfigCheckPasswordModel
+} from '../../../shared/components/check-password/check-password.component';
+import {Socket} from 'ngx-socket-io';
 
-import { FormaPago } from '../../interfaces/forma-pago';
-import { Cobro } from '../../interfaces/cobro';
-import { FormaPagoService } from '../../services/forma-pago.service';
-import { CobroService } from '../../services/cobro.service';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { FacturaRequest } from '../../interfaces/factura';
-import { FacturaService } from '../../services/factura.service';
-import { Sede } from '../../../admin/interfaces/sede';
-import { SedeService } from '../../../admin/services/sede.service';
-import { ComandaService } from '../../../restaurante/services/comanda.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { Base64 } from 'js-base64';
-import { Subscription } from 'rxjs';
+import {FormaPago} from '../../interfaces/forma-pago';
+import {Cobro} from '../../interfaces/cobro';
+import {FormaPagoService} from '../../services/forma-pago.service';
+import {CobroService} from '../../services/cobro.service';
+import {Cliente} from '../../../admin/interfaces/cliente';
+import {FacturaRequest} from '../../interfaces/factura';
+import {FacturaService} from '../../services/factura.service';
+import {Sede} from '../../../admin/interfaces/sede';
+import {SedeService} from '../../../admin/services/sede.service';
+import {ComandaService} from '../../../restaurante/services/comanda.service';
+import {ConfiguracionService} from '../../../admin/services/configuracion.service';
+import {Base64} from 'js-base64';
+import {Subscription} from 'rxjs';
 
 interface DatosPedido {
   sede: number;
@@ -44,14 +50,18 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public formasPagoDeCuenta: any[] = [];
   public factReq: FacturaRequest;
   public clienteSelected: Cliente;
-  public esMovil = false;
+  public esMovil = false;  /* Browser de Movil o Escritorio */
   public keyboardLayout: string;
   public facturando = false;
-  public cargandoConf: any = { w: 75, h: 75 };
+  public cargandoConf: any = {w: 75, h: 75};
   public pideDocumento = false;
   public sedes: Sede[] = [];
   public sede: Sede;
-  public datosPedido: DatosPedido = { sede: null, direccion_entrega: null, telefono: null, nombre: null, cliente: null };
+  public datosPedido: DatosPedido = {sede: null, direccion_entrega: null, telefono: null, nombre: null, cliente: null};
+  public descripcionUnica = {enviar_descripcion_unica: 0, descripcion_unica: null};
+  public isTipExceeded = false;
+  public porcentajeMaximoPropina = 0;
+  public MaxTooltTipMessage  = '';
 
   private endSubs = new Subscription();
 
@@ -68,10 +78,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     private sedeSrvc: SedeService,
     private comandaSrvc: ComandaService,
     private configSrvc: ConfiguracionService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+    this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
+    this.MaxTooltTipMessage = `El monto de propina sobrepasa el máximo sugerido del ${this.porcentajeMaximoPropina}%.`;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
     this.resetFactReq();
     this.processData();
@@ -88,7 +101,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   resetFactReq = () => {
-    this.factReq = { cuentas: [], factura_serie: 1, cliente: null, fecha_factura: moment().format(GLOBAL.dbDateFormat), moneda: 1 };
+    this.factReq = {
+      cuentas: [],
+      factura_serie: 1,
+      cliente: null,
+      fecha_factura: moment().format(GLOBAL.dbDateFormat),
+      moneda: 1,
+      enviar_descripcion_unica: 0,
+      descripcion_unica: null
+    };
   }
 
   processData = () => {
@@ -99,6 +120,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     }
 
     // console.log('MESA = ', this.data.mesaenuso);
+    // console.log(this.inputData.productosACobrar);
 
     this.inputData.totalDeCuenta = 0.00;
     this.inputData.productosACobrar.forEach((item: any) => {
@@ -115,7 +137,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   loadSedes = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.sedeSrvc.get().subscribe(res => {
         if (res) {
           this.sedes = res;
@@ -135,8 +157,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   loadFormasPago = () => {
-    this.endSubs.add(      
-      this.formaPagoSrvc.get({ activo: 1 }).subscribe((res: any) => {
+    this.endSubs.add(
+      this.formaPagoSrvc.get({activo: 1}).subscribe((res: any) => {
         if (!!res && res.length > 0) {
           this.lstFormasPago = res;
         }
@@ -153,18 +175,42 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         data: new ConfigCheckPasswordModel(1)
       });
 
-      this.endSubs.add(        
+      this.endSubs.add(
         vpgtRef.afterClosed().subscribe(res => {
           if (res) {
             this.agregaFormaPago(fp);
           } else {
-            this.snackBar.open('La contraseña no es correcta', 'Formas de pago', { duration: 5000 });
+            this.snackBar.open('La contraseña no es correcta', 'Formas de pago', {duration: 5000});
           }
         })
       );
     } else {
       this.agregaFormaPago(fp);
     }
+  }
+
+
+  /**
+   * It calculates if it should show the alert or not of tip Exceeded
+   * It itetares over formasDePago
+   */
+  calcTipExceeded = () => {
+    const tipPorcentaje = this.porcentajeMaximoPropina / 100;
+    const tipLimit = this.inputData.totalDeCuenta * tipPorcentaje;
+    let amount = (Number(this.formaPago.propina) || 0.00);
+
+    this.formasPagoDeCuenta.forEach((forP) => {
+      amount += Number(forP.propina);
+    });
+
+    this.isTipExceeded = (tipLimit < amount);
+  }
+
+  /**
+   * This method detects when the value changes on Propina Input
+   */
+  onPropinaInputChage = () => {
+    this.calcTipExceeded();
   }
 
   agregaFormaPago = (fp: FormaPago) => {
@@ -177,11 +223,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     });
     this.actualizaSaldo();
     this.pideDocumento = false;
+    this.calcTipExceeded();
   }
 
   delFormaPago = (idx: number) => {
     this.formasPagoDeCuenta.splice(idx, 1);
     this.actualizaSaldo();
+    this.calcTipExceeded();
   }
 
   actualizaSaldo = () => {
@@ -189,7 +237,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.formasPagoDeCuenta.forEach(fp => sumFormasPago += +fp.monto);
     // this.inputData.saldo = this.inputData.totalDeCuenta + this.inputData.montoPropina - sumFormasPago;
     this.inputData.saldo = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
-    this.formaPago = { monto: this.inputData.saldo };
+    this.formaPago = {monto: this.inputData.saldo};
   }
 
   cancelar = () => this.dialogRef.close();
@@ -235,12 +283,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.factReq.cuentas.push({ cuenta: +this.inputData.idcuenta });
-    this.endSubs.add(      
+    this.factReq.cuentas.push({cuenta: +this.inputData.idcuenta});
+    this.endSubs.add(
       this.cobroSrvc.save(objCobro).subscribe(res => {
         if (res.exito && !res.facturada) {
-          this.snackBar.open('Cobro', `${res.mensaje}`, { duration: 3000 });
+          this.snackBar.open('Cobro', `${res.mensaje}`, {duration: 3000});
           if (res.facturar) {
+            this.factReq.enviar_descripcion_unica = this.descripcionUnica.enviar_descripcion_unica;
+            this.factReq.descripcion_unica = this.descripcionUnica.descripcion_unica;
             this.endSubs.add(
               this.facturaSrvc.facturar(this.factReq).subscribe(resFact => {
                 // console.log('RESPUESTA DE FACTURAR = ', resFact);
@@ -249,23 +299,24 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
                     maxWidth: '400px',
                     data: new ConfirmDialogModel('Imprimir factura', '¿Desea imprimir la factura?', 'Sí', 'No')
                   });
-    
-                  this.endSubs.add(                
+
+                  this.endSubs.add(
                     confirmRef.afterClosed().subscribe((confirma: boolean) => {
                       if (confirma) {
-                        this.printFactura(resFact.factura);
+                        this.printFactura(resFact.factura, res.cuenta);
+                      } else {
+                        this.dialogRef.close(res.cuenta);
                       }
                       this.resetFactReq();
-                      this.snackBar.open('Factura', `${resFact.mensaje}`, { duration: 3000 });
+                      this.snackBar.open('Factura', `${resFact.mensaje}`, {duration: 3000});
                       this.facturando = false;
-                      this.dialogRef.close(res.cuenta);
-                      this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                      this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                     })
                   );
                 } else {
                   this.facturando = false;
-                  this.snackBar.open('Factura', `ERROR: ${res.mensaje}`, { duration: 7000 });
-                  this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                  this.snackBar.open('Factura', `ERROR: ${res.mensaje}`, {duration: 7000});
+                  this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                   this.dialogRef.close(res.cuenta);
                 }
               })
@@ -280,15 +331,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
                 if (confirma) {
                   this.printRecibo(res.entidad);
                 }
-                this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                 this.dialogRef.close(res.cuenta);
               })
-            );            
+            );
           }
         } else {
           this.facturando = false;
-          this.snackBar.open('Cobro', `ERROR: ${res.mensaje}`, { duration: 7000 });
-          this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+          this.snackBar.open('Cobro', `ERROR: ${res.mensaje}`, {duration: 7000});
+          this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
           this.dialogRef.close('closePanel');
         }
       })
@@ -323,28 +374,43 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     };
 
     // console.log('PEDIDO = ', obj);
-    this.endSubs.add(      
+    this.endSubs.add(
       this.comandaSrvc.enviarPedido(+this.data.mesaenuso.comanda, obj).subscribe(res => {
+        this.facturando = false;
+        // this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
         if (res.exito) {
-          this.snackBar.open('Pedido', `#${res.pedido}. ${res.mensaje}`, { duration: 3000 });
+          this.snackBar.open('Pedido', `#${res.pedido}. ${res.mensaje}`, {duration: 3000});
           this.dialogRef.close('closePanel');
         } else {
-          this.snackBar.open('Pedido', `ERROR: ${res.mensaje}`, { duration: 7000 });
+          this.snackBar.open('Pedido', `ERROR: ${res.mensaje}`, {duration: 7000});
         }
-        this.facturando = false;
-        this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
       })
     );
   }
 
-  procesaDetalleFactura = (detalle: any[]) => {
+  procesaDetalleFactura = (detalle: any[], edu = 0, descripcionUnica: string = null) => {
     const detFact: any[] = [];
-    detalle.forEach(d => detFact.push({
-      Cantidad: parseInt(d.cantidad),
-      Descripcion: d.articulo.descripcion,
-      Total: +d.total,
-      PrecioUnitario: !!d.precio_unitario ? +d.precio_unitario : +d.precio
-    }));
+
+    if (edu === 1 && descripcionUnica) {
+      let total = 0;
+      for (const det of detalle) {
+        total += +det.total;
+      }
+      detFact.push({
+        Cantidad: 1,
+        Descripcion: descripcionUnica,
+        Total: total,
+        PrecioUnitario: total
+      });
+    } else {
+      detalle.forEach(d => detFact.push({
+        Cantidad: parseInt(d.cantidad),
+        Descripcion: d.articulo.descripcion,
+        Total: +d.total,
+        PrecioUnitario: !!d.precio_unitario ? +d.precio_unitario : +d.precio
+      }));
+    }
+
     return detFact;
   }
 
@@ -360,12 +426,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     return suma;
   }
 
-  printFactura = (factura: any) => {
+  printFactura = (factura: any, cuenta: any = null) => {
     // console.log('FACTURA = ', factura);
-    this.endSubs.add(      
+    this.endSubs.add(
       this.facturaSrvc.imprimir(+factura.factura).subscribe(res => {
         if (res.factura) {
-  
+
           const msgToPrint = {
             NombreEmpresa: res.factura.empresa.nombre,
             NitEmpresa: res.factura.empresa.nit,
@@ -384,11 +450,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
             FechaDeAutorizacion: res.factura.fecha_autorizacion,
             NoOrdenEnLinea: '',
             FormaDePago: '',
-            DetalleFactura: this.procesaDetalleFactura(res.factura.detalle),
+            DetalleFactura: this.procesaDetalleFactura(res.factura.detalle, +res.factura.enviar_descripcion_unica, res.factura.descripcion_unica),
             Impresora: this.data.impresora,
             ImpuestosAdicionales: (res.factura.impuestos_adicionales || [])
           };
-  
+
           if (!!this.data.impresora) {
             if (+this.data.impresora.bluetooth === 0) {
               this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
@@ -399,13 +465,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
           } else {
             this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
           }
-  
+
           this.snackBar.open(
             `Imprimiendo factura ${res.factura.serie_factura}-${res.factura.numero_factura}`,
-            'Impresión', { duration: 3000 }
+            'Impresión', {duration: 3000}
           );
+          this.dialogRef.close(cuenta);
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Impresión', { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Impresión', {duration: 7000});
         }
       })
     );
@@ -418,13 +485,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       NitEmpresa: entidad.empresa.nit,
       SedeEmpresa: entidad.sede.nombre,
       DireccionEmpresa: entidad.sede.direccion,
-      Fecha: moment().format(GLOBAL.dateFormat),      
+      Fecha: moment().format(GLOBAL.dateFormat),
       Nombre: this.clienteSelected.nombre || entidad.nombre,
       Numero: `${entidad.comanda}-${entidad.numero}`,
       Total: this.getTotalDetalle(entidad.detalle) + +entidad.propina,
       Propina: +entidad.propina,
       DetalleRecibo: this.procesaDetalleFactura(entidad.detalle),
-      Impresora: this.data.impresora      
+      Impresora: this.data.impresora
     };
 
     // console.log(JSON.stringify(msgToPrint));
@@ -440,18 +507,18 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.socket.emit(`print:recibo`, `${JSON.stringify(msgToPrint)}`);
     }
 
-    this.snackBar.open(`Imprimiendo recibo ${entidad.comanda}-${entidad.numero}`, 'Impresión', { duration: 3000 });
+    this.snackBar.open(`Imprimiendo recibo ${entidad.comanda}-${entidad.numero}`, 'Impresión', {duration: 3000});
   }
 
   printToBT = (msgToPrint: string = '') => {
-    const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);    
+    const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);
     const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;
     // const AppHref = `${GLOBAL.DEEP_LINK_ANDROID}${data}`;
     const AppHref = GLOBAL.DEEP_LINK_ANDROID.replace('__INFOBASE64__', data);
     try {
-      window.location.href = AppHref; 
-    } catch(error) {
-      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', { duration: 3000 });
+      window.location.href = AppHref;
+    } catch (error) {
+      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', {duration: 3000});
     }
   }
 
@@ -462,5 +529,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     }
   }
 
-
+  vaciaDescripcionUnica = () => {
+    if (+this.descripcionUnica.enviar_descripcion_unica === 0) {
+      this.descripcionUnica.descripcion_unica = null;
+    } else {
+      this.descripcionUnica.descripcion_unica = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) || 'Por consumo.';
+    }
+  }
 }

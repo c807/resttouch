@@ -53,7 +53,7 @@ class Api extends CI_Controller
 				$this->db = $this->load->database($db, true);
 				$config = $this->Configuracion_model->buscar();
 
-				$sede = $this->Catalogo_model->getSede([
+				$sede = $this->Catalogo_model->getSedeForAPI([
 					"admin_llave" => $_GET['key'],
 					"_uno" => true
 				]);
@@ -166,7 +166,8 @@ class Api extends CI_Controller
 								'estatus' => 1,
 								'domicilio' => 1,
 								'comanda_origen' => $origen->comanda_origen,
-								'comanda_origen_datos' => json_encode($req)
+								'comanda_origen_datos' => json_encode($req),
+								'notas_generales' => isset($req['note']) && !empty(trim($req['note'])) ? trim($req['note']) : null
 							];
 
 							$propina = false;
@@ -1151,7 +1152,7 @@ class Api extends CI_Controller
 
 	public function set_producto()
 	{
-		$this->load->model(['Categoria_model', 'Cgrupo_model']);
+		$this->load->model(['Categoria_model', 'Cgrupo_model', 'Impresora_model', 'Bodega_model']);
 
 		$datos = ["exito" => false, 'mensaje' => ''];
 
@@ -1183,7 +1184,7 @@ class Api extends CI_Controller
 
 				$tmpcat = $this->Categoria_model->buscar([
 					'descripcion' => $req['vendor'],
-					"sede" => $sede->sede,
+					'sede' => $sede->sede,
 					'_uno' => true
 				]);
 
@@ -1205,9 +1206,13 @@ class Api extends CI_Controller
 				if ($grupo) {
 					$cgrupo->cargar($grupo->categoria_grupo);
 				} else {
+					$impresora = $this->Impresora_model->buscar(['sede' => $sede->sede, 'pordefecto' => 1, '_uno' => true]);
+					$bodega = $this->Bodega_model->buscar(['sede' => $sede->sede, 'pordefecto' => 1, '_uno' => true]);
 					$cgrupo->guardar([
-						"categoria" => $cat->getPK(),
-						"descripcion" => $req['tags']
+						'categoria' => $cat->getPK(),
+						'descripcion' => $req['tags'],
+						'impresora' => $impresora ? $impresora->impresora : null,
+						'bodega' => $bodega ? $bodega->bodega : null,
 					]);
 				}
 
@@ -1284,6 +1289,14 @@ class Api extends CI_Controller
 			$db = conexion_db($conn);
 			$this->db = $this->load->database($db, true);
 
+			if (isset($_GET['_fdel'])) {
+                $_GET['_fdel'] = ['DATE(fhcreacion)' => $_GET['_fdel']];
+            }
+
+            if (isset($_GET['_fal'])) {
+                $_GET['_fal'] = ['DATE(fhcreacion)' => $_GET['_fal']];
+            }
+
 			$datos->comandas = $this->Comanda_model->buscar($_GET);
 			foreach ($datos->comandas as $comanda) {
 				$cmd = new Comanda_model($comanda->comanda);
@@ -1305,23 +1318,36 @@ class Api extends CI_Controller
 				$detalle = $cmd->getDetalle();
 				$comanda->detalle = [];
 				foreach($detalle as $det) {
-					if ((float)$det->cantidad > 0 && (float)$det->total > 0) {
+					// if ((float)$det->cantidad > 0 && (float)$det->total > 0) {
 						$comanda->detalle[] = $det;
-					}
+					// }
 				}
 
 				$html .= "<h3>Sede: {$comanda->sede->nombre}</h3>";
 				$html .= "<h4>Comanda #{$comanda->comanda}<br/>";
 				$html .= "Mesero: {$comanda->mesero->nombres} {$comanda->mesero->apellidos} ({$comanda->mesero->usrname})</h4>";
 				$html .= "<table style='border: solid 1px black; border-collapse: collapse; width: 50%;'>";
-				$html.= "<caption><b>Detalle</b></caption><thead><tr>";
+				$html.= "<caption><b>Detalle</b></caption>";
+				$html.= "<thead><tr>";
 				$html.= "<th>Cantidad</th><th style='text-align: left;'>Artículo</th><th style='text-align: right;'>Precio</th><th style='text-align: right;'>Total</th>";
-				$html.= "</tr></thead><tbody>";
+				$html.= "</tr></thead>";
+				$html.= "<tbody>";
 				$totComanda = 0;
 				foreach($comanda->detalle as $det) {
 					$html .= "<tr>";
 					$html .= "<td style='text-align: center;'>{$det->cantidad}</td>";
-					$html .= "<td>{$det->articulo->descripcion}</td>";
+					$html .= "<td>";
+
+					if (empty($det->detalle_comanda_id)) {
+						$html .= '';
+					} else {
+						$html .= '&nbsp;&nbsp;&nbsp;';
+						if ((int)$det->articulo->multiple === 0) {
+							$html .= '&nbsp;&nbsp;&nbsp;';
+						}
+					}
+
+					$html .= "{$det->articulo->descripcion}</td>";
 					$html .= "<td style='text-align: right;'>".number_format((float)$det->precio, 2)."</td>";
 					$html .= "<td style='text-align: right;'>".number_format((float)$det->total, 2)."</td>";
 					$html .= "</tr>";

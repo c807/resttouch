@@ -1,0 +1,26 @@
+<!-- <mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-content> -->
+<form #frmClienteMaster="ngForm" (ngSubmit)="frmClienteMaster.form.valid && onSubmit()" novalidate>
+    <mat-form-field>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nombre" name="nombre" [(ngModel)]="clienteMaster.nombre" minlength="1" maxlength="250" required>
+        <input matInput *ngIf="esMovil" type="text" placeholder="Nombre" name="nombre" [(ngModel)]="clienteMaster.nombre" minlength="1" maxlength="250" required>
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="email" placeholder="E-mail" name="correo" [(ngModel)]="clienteMaster.correo" minlength="1" maxlength="75">
+        <input matInput *ngIf="esMovil" type="email" placeholder="E-mail" name="correo" [(ngModel)]="clienteMaster.correo" minlength="1" maxlength="75">        
+    </mat-form-field>
+
+    <mat-form-field>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="date" placeholder="Fecha de nacimiento" name="fecha_nacimiento" [(ngModel)]="clienteMaster.fecha_nacimiento">
+        <input matInput *ngIf="esMovil" type="date" placeholder="Fecha de nacimiento" name="fecha_nacimiento" [(ngModel)]="clienteMaster.fecha_nacimiento">
+    </mat-form-field>
+
+    <div align="end">
+        <button mat-raised-button type="submit" color="accent" [disabled]="!frmClienteMaster.form.valid">
+            Guardar
+        </button>        
+    </div>
+</form>
+<!-- </mat-card-content>
+</mat-card> -->

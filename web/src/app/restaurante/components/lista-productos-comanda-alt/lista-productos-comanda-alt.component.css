@@ -1,0 +1,33 @@
+.lineaDeTotal {
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+.noImpreso {
+  background-color: #c7c7c7;
+}
+
+.wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.first {
+  width: 48%;
+  float: left;
+}
+
+.second {
+  width: 52%;
+  overflow: hidden;
+}
+
+.product-margin {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.span-monto-producto {
+  text-align: right;
+  margin-right: 5px;
+}

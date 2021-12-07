@@ -31,15 +31,14 @@ class Turno extends CI_Controller {
 		$datos = ['exito' => false, 'pendientes' => false];
 		if ($this->input->method() == 'post') {
 			$continuar = true;
+			$esNuevo = false;
 			if (empty($id)) {
-				$tmp = $this->Turno_model->getTurno([
-					"sede" => $data->sede,
-					'abierto' => true, 
-					"_uno" => true
-				]);
+				$tmp = $this->Turno_model->getTurno(['sede' => $data->sede, 'abierto' => true,  '_uno' => true]);
 				if($tmp) {
 					$continuar = false;
-					$datos['mensaje'] = "Ya existe un turno abierto";
+					$datos['mensaje'] = 'Ya existe un turno abierto';
+				} else {
+					$esNuevo = true;
 				}
 			} else {
 				// print "En el else..."; die();
@@ -98,6 +97,9 @@ class Turno extends CI_Controller {
 				$req['sede'] = $data->sede;
 				$datos['exito'] = $turno->guardar($req);
 				if($datos['exito']) {
+					if ($esNuevo) {
+						$this->Turno_model->traslada_mesas_abiertas_nuevo_turno(['sede' => $turno->sede, 'turno' => $turno->getPK()]);
+					}
 					$datos['mensaje'] = "Datos Actualizados con Exito";
 					$datos['turno'] = $turno;
 				} else {
@@ -110,7 +112,7 @@ class Turno extends CI_Controller {
 		
 		$this->output
 		->set_output(json_encode($datos));
-	}
+	}	
 
 	public function agregar_usuario($turno)
 	{

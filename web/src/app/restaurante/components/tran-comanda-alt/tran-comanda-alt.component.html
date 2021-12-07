@@ -21,10 +21,14 @@
     <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
         <mat-chip-list>
             <mat-chip color="accent" *ngFor="let cta of mesaEnUso.cuentas"
-                [disabled]="+cta.cerrada === 1 || bloqueoBotones" (click)="+cta.cerrada === 0 && setSelectedCuenta(cta.numero)" [selected]="+cta.cerrada === 0">
+                [disabled]="+cta.cerrada === 1 || bloqueoBotones"
+                (click)="+cta.cerrada === 0 && !bloqueoBotones && setSelectedCuenta(cta.numero)"
+                [selected]="+cta.cerrada === 0">
                 {{cta.nombre}}
             </mat-chip>
-            <mat-chip (click)="nuevaCuenta(dialogRef)" *ngIf="+mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0">
+            <mat-chip (click)="nuevaCuenta(dialogRef)"
+                *ngIf="+mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0"
+                [disabled]="bloqueoBotones">
                 Nueva
             </mat-chip>
         </mat-chip-list>
@@ -32,14 +36,17 @@
     <!-- Fin de div de cuentas-->
     <!--<mat-divider></mat-divider>-->
     <!-- Inicia input para código de barras -->
-    <mat-form-field style="width: 25%;" *ngIf="usaCodigoBarras">        
-        <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text" placeholder="Código" name="codigoBarras" [(ngModel)]="codigoBarras" [ngModelOptions]="{standalone: true}" (onDetected)="buscarArticulo()">
-    </mat-form-field><br *ngIf="usaCodigoBarras"/>
+    <mat-form-field style="width: 25%;" *ngIf="usaCodigoBarras">
+        <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text" placeholder="Código"
+            name="codigoBarras" [(ngModel)]="codigoBarras" [ngModelOptions]="{standalone: true}"
+            (onDetected)="buscarArticulo()">
+    </mat-form-field><br *ngIf="usaCodigoBarras" />
     <!-- Fin de input para código de barras -->
     <!-- Inicia Categorias -->
     <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center">
         <mat-chip-list>
-            <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="loadSubcategorias(cat)" [disabled]="bloqueoBotones">
+            <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="loadSubcategorias(cat)"
+                [disabled]="bloqueoBotones">
                 {{cat.descripcion}}
             </mat-chip>
         </mat-chip-list>
@@ -47,7 +54,8 @@
     <!-- Fin de Categorias -->
     <!--<mat-divider></mat-divider>-->
     <!-- Inicia Sub Categorias -->
-    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center" *ngFor="let lstSubCat of listaSubCategorias; index as i; last as isLast" class="divSubCategorias">
+    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center"
+        *ngFor="let lstSubCat of listaSubCategorias; index as i; last as isLast" class="divSubCategorias">
         <mat-chip-list>
             <mat-chip selected color="warn" class="btnAccion" *ngFor="let subcat of lstSubCat"
                 (click)="loadSubcategorias({ categoria: subcat.categoria }, subcat, i)" [disabled]="bloqueoBotones">
@@ -58,9 +66,11 @@
     <!-- Fin de Sub Categorias -->
     <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start start">
         <!-- Inicia artículos -->
-        <div fxFlex="55%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos" fxLayout="row wrap" fxLayoutGap="8px grid" fxLayoutAlign="start start">
+        <div fxFlex="55%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos" fxLayout="row wrap"
+            fxLayoutGap="8px grid" fxLayoutAlign="start start">
             <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%" *ngFor="let producto of articulos">
-                <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && addArticulo(producto)">
+                <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && addArticulo(producto)"
+                    *ngIf="+producto.precio > 0">
                     <!--
                     <mat-card-header>
                         <mat-card-title>{{producto.descripcion}}</mat-card-title>
@@ -69,19 +79,21 @@
                     <!--<img mat-card-image src="/assets/img/comida/test_01.jpg">-->
                     <mat-card-content>
                         <p>{{producto.descripcion}}</p>
-                    </mat-card-content>                
+                    </mat-card-content>
                     <!--<mat-card-actions align="around">
                         <span matBadge="4" matBadgeOverlap="false">Por comandar</span>
                         <span matBadge="4" matBadgeOverlap="false">Comandados</span>
                     </mat-card-actions>-->
                 </mat-card>
-            </div>        
+            </div>
         </div>
         <!-- Finaliza artículos -->
         <div fxFlex="45%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos">
-            <app-lista-productos-comanda [listaProductos]="lstProductosDeCuenta" [noCuenta]="+cuentaActiva.numero"
+            <!-- <app-lista-productos-comanda [listaProductos]="lstProductosDeCuenta" [noCuenta]="+cuentaActiva.numero"
                 [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
-                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda>
+                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
+            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario"
+                (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
         </div>
     </div>
 </div>

@@ -12,6 +12,9 @@ import { GLOBAL } from '../../../shared/global';
 export class AcercaDeComponent implements OnInit {
 
   public sedeUuid: string = null;
+  public rtVersion: string = GLOBAL.rtVersion;
+  public dominio: string = null;
+  public restaurante: string = null;
 
   constructor(
     public dialogRef: MatDialogRef<AcercaDeComponent>,
@@ -20,7 +23,9 @@ export class AcercaDeComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.sedeUuid = this.ls.get(GLOBAL.usrTokenVar).sede_uuid || 'No se ha loggeado...';
+    this.sedeUuid = this.ls.get(GLOBAL.usrTokenVar).sede_uuid || 'No ha iniciado sesión.';
+    this.dominio = this.ls.get(GLOBAL.usrTokenVar).dominio || 'No ha iniciado sesión.';
+    this.restaurante = this.ls.get(GLOBAL.usrTokenVar).restaurante?.nombre || 'No ha iniciado sesión.';
   }
 
   cerrar = () => this.dialogRef.close();

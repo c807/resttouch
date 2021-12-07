@@ -3,10 +3,10 @@ import { Socket } from 'ngx-socket-io';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
-import { DialogCocina } from '../../../shared/interfaces/config-reportes';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../shared/global';
+// import { DialogCocina } from '../../../shared/interfaces/config-reportes';
 import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
-import { ConfirmDialogModel, DialogCocinaComponent } from '../../../shared/components/dialog-cocina/dialog-cocina.component';
+// import { ConfirmDialogModel, DialogCocinaComponent } from '../../../shared/components/dialog-cocina/dialog-cocina.component';
 import * as moment from 'moment';
 
 import { ComandaService } from '../../services/comanda.service';
@@ -17,6 +17,14 @@ import { ComandaService } from '../../services/comanda.service';
   styleUrls: ['./tran-cocina.component.css']
 })
 export class TranCocinaComponent implements OnInit {
+
+  get sumaCantidadProductos() {
+    return (obj: any) => {      
+      let cantProd = 0;
+      obj.cuentas.forEach(cta => cantProd += cta.productos.length);
+      return cantProd;
+    }
+  }
 
   public lstComandasCocina: any[] = [];
   public lstComandasCocinaEnProceso: any[] = [];
@@ -34,8 +42,12 @@ export class TranCocinaComponent implements OnInit {
     if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
       this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
 
-      this.socket.on('refrescar:listaCocina', () => {
-        this.loadComandasCocina();
+      this.socket.on('refrescar:listaCocina', (obj: any) => {
+        if (obj && obj.mesaenuso && obj.mesaenuso.comanda) {
+          this.loadComandasCocina(obj.mesaenuso.comanda);
+        } else {
+          this.loadComandasCocina();
+        }
         this.notificarUsuario();
       });
 
@@ -56,11 +68,27 @@ export class TranCocinaComponent implements OnInit {
     this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
   }
 
-  loadComandasCocina = () => this.comandaSrvc.getComandasCocina().subscribe(res => {
-    this.lstComandasCocina = res.pendientes;
-    this.lstComandasCocinaEnProceso = res.enproceso;
-    this.setTiempo();
-  })
+  loadComandasCocina = (idcomanda: number = 0) => {
+    const fltr: any = {};
+
+    if (+idcomanda > 0) {
+      fltr.comanda = +idcomanda;
+    }
+
+    this.comandaSrvc.getComandasCocina(fltr).subscribe(res => {
+      if (+idcomanda > 0) {
+        this.lstComandasCocina = this.lstComandasCocina.filter(c => +c.comanda !== +idcomanda);
+        this.lstComandasCocinaEnProceso = this.lstComandasCocinaEnProceso.filter(c => +c.comanda !== +idcomanda);
+        res.pendientes.forEach(p => this.lstComandasCocina.push(p));        
+        res.enproceso.forEach(p => this.lstComandasCocinaEnProceso.push(p));
+        this.lstComandasCocinaEnProceso = OrdenarArrayObjetos(this.lstComandasCocinaEnProceso, 'fecha_proceso', 3);
+      } else {
+        this.lstComandasCocina = res.pendientes;
+        this.lstComandasCocinaEnProceso = res.enproceso;
+      }
+      this.setTiempo();
+    });
+  }
 
   setTiempo = () => {
     if (this.lstComandasCocinaEnProceso) {
@@ -121,39 +149,25 @@ export class TranCocinaComponent implements OnInit {
     return date > cmd.fin_proceso;
   }
 
-  setCocinado = (cmd: any, estatus = 2) => {
-    const res: DialogCocina = { respuesta: false, tiempo: '' };
-    const confirmRef = this.dialog.open(DialogCocinaComponent, {
-      maxWidth: '400px',
-      data: new ConfirmDialogModel(
-        'Cocina',
-        `¿Seguro de marcar como '${+estatus === 1 ? 'vista' : 'cocinada'}' la comanda #${cmd.comanda}?`,
-        'Sí', 'No',
-        res,
-        +estatus === 1 ? true : false
-      )
-    });
+  setCocinado = (cmd: any, estatus = 2, idx: number) => {    
+    const datos: any = {
+      numero: +cmd.numero,
+      estatus: estatus,
+      tiempo: 0
+    };
 
-    confirmRef.afterClosed().subscribe((conf: DialogCocina) => {
+    if (estatus === 1) {
+      const ahora = moment().format(GLOBAL.dbDateTimeFormat);
+      this.lstComandasCocina[idx].fecha_proceso = ahora;
+      datos.fecha_proceso = ahora;
+      this.lstComandasCocinaEnProceso.push(this.lstComandasCocina[idx]);
+      this.lstComandasCocina.splice(idx, 1);
+      this.setTiempo();
+    } else if (estatus === 2) {
+      this.lstComandasCocinaEnProceso.splice(idx, 1);      
+    }
 
-      if (conf && conf.respuesta && conf.tiempo) {
-        // console.log(conf);
-        const datos: any = {
-          numero: +cmd.numero,
-          estatus: estatus,
-          tiempo: conf.tiempo
-        };
-
-        this.comandaSrvc.setComandaCocinada(+cmd.comanda, datos).subscribe((respuesta: any) => {
-          if (respuesta.exito) {
-            this.snackBar.open(respuesta.mensaje, 'Cocina', { duration: 3000 });
-          } else {
-            this.snackBar.open(`ERROR: ${respuesta.mensaje}`, 'Cocina', { duration: 7000 });
-          }
-          this.loadComandasCocina();
-        });
-      }
-    });
+    this.comandaSrvc.setComandaCocinada(+cmd.comanda, datos).subscribe((respuesta: any) => this.snackBar.open('Datos actualizados con éxito.', 'Cocina', { duration: 3000 }));
   }
 
 }

@@ -1,0 +1,41 @@
+<h1 mat-dialog-title>Extras de </h1>
+<div mat-dialog-content>
+    <table>
+        <tr>
+            <td>
+                <mat-form-field class="fullWidth">
+                    <mat-label>Extras disponibles:</mat-label>
+                    <mat-select name="mesero" [(ngModel)]="extra.articulo">
+                        <mat-option *ngFor="let prod of articulosExtras" [value]="prod">
+                            {{prod.descripcion}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </td>
+            <td>
+                <button mat-raised-button type="button" (click)="addExtra()" color="accent">
+                    Agregar
+                </button>
+            </td>            
+        </tr>
+        <tr *ngFor="let extArt of extras; index as i">
+            <td>
+                {{extArt.descripcion}}
+            </td>
+            <td>
+                <button mat-raised-button type="button" (click)="quitarExtra(i)" color="accent">
+                    Quitar
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button type="button" (click)="terminar()" color="warn">
+        Regresar
+    </button>
+    <!-- <button mat-raised-button type="button" color="accent" (click)="terminar()">
+        Aceptar
+    </button> -->
+</div>
+

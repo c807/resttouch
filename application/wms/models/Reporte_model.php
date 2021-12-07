@@ -174,7 +174,7 @@ EOT;
 
 		$this->sqlComanda = <<<EOT
 select 
-	sum(ifnull(a.cantidad, 0) * p.cantidad) as cantidad,
+	sum(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad) as cantidad,
 	b.articulo
 	{$select}
 from detalle_comanda a

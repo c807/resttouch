@@ -10,8 +10,10 @@
 <hr *ngIf="articulos.length > 0" />
 <div class="row">
     <div class="col m12 s12">
-        <button mat-raised-button class="btnAccion" color="warn" *ngFor="let art of articulos" (click)="clickOnArticulo(art)" [disabled]="bloqueoBotones">
-            {{art.descripcion}}
-        </button>
+        <ng-container *ngFor="let art of articulos">            
+            <button mat-raised-button class="btnAccion" color="warn" (click)="clickOnArticulo(art)" [disabled]="bloqueoBotones" *ngIf="+art.precio > 0">
+                {{art.descripcion}}
+            </button>
+        </ng-container>
     </div>
 </div>
