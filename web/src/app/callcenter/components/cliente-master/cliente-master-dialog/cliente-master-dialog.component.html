@@ -1,21 +1,30 @@
 <h1 mat-dialog-title>{{clienteMaster.cliente_master ? clienteMaster.nombre : 'Nuevo cliente'}}</h1>
 <div mat-dialog-content class="contenido">
-    <div class="row">
-        <div class="col m12 s12">
-            <app-form-cliente-master #frmClienteMaster [clienteMaster]="clienteMaster"></app-form-cliente-master>
-        </div>
-    </div>    
-    <div class="row">
-        <div class="col m5 s12">
-            <app-cliente-master-telefono #frmClienteMasterTelefono [clienteMaster]="clienteMaster"></app-cliente-master-telefono>
-        </div>
-        <div class="col m7 s12">
-            <app-cliente-master-direccion #frmClienteMasterDireccion [clienteMaster]="clienteMaster"></app-cliente-master-direccion>
-        </div>        
+  <div class="row">
+    <div class="col m12 s12">
+      <app-form-cliente-master #frmClienteMaster [clienteMaster]="clienteMaster"></app-form-cliente-master>
     </div>
+  </div>
+
+  <mat-tab-group>
+    <mat-tab label="Telefono">
+      <app-cliente-master-telefono #frmClienteMasterTelefono
+                                   [clienteMaster]="clienteMaster"></app-cliente-master-telefono>
+    </mat-tab>
+    <mat-tab label="Direccion">
+      <app-cliente-master-direccion #frmClienteMasterDireccion
+                                    [clienteMaster]="clienteMaster"></app-cliente-master-direccion>
+    </mat-tab>
+    <mat-tab label="Notas">
+      <app-cliente-master-nota #frmClienteMasterDireccion
+                               [clienteMaster]="clienteMaster"></app-cliente-master-nota>
+    </mat-tab>
+  </mat-tab-group>
+
+
 </div>
 <div mat-dialog-actions align="end">
-    <button mat-raised-button (click)="cancelar()" color="warn">
-        Cancelar
-    </button>
+  <button mat-raised-button (click)="cancelar()" color="warn">
+    Cancelar
+  </button>
 </div>

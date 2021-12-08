@@ -1,0 +1,34 @@
+
+
+<div class="direccion-head">
+  <h5>Notas</h5>
+  <button mat-raised-button class="button-st" (click)="agregarNota()" color="warn">Agregar</button>
+</div>
+<table>
+
+
+  <thead>
+  <tr>
+    <th>Fecha y Hora</th>
+    <th>Nota</th>
+    <th>&nbsp;</th>
+    <th>&nbsp;</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let not of lstNota">
+    <td>{{not.fecha_hora}}</td>
+    <td><p>{{not.nota}}</p></td>
+    <td style="width: 10%;">
+      <button mat-raised-button type="button" color="accent" (click)="editarNota(not)" >
+        Editar
+      </button>
+    </td>
+    <td style="width: 10%;">
+      <button mat-raised-button type="button" color="warn" (click)="eliminarNota(not)" >
+        Eliminar
+      </button>
+    </td>
+  </tr>
+  </tbody>
+</table>

@@ -66,24 +66,24 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
-    public function guardar_nota($id = '')
-    {
-        $cltNota = new Cliente_master_nota_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
-        $datos = ['exito' => false];
-        if ($this->input->method() == 'post') {
-            $datos['exito'] = $cltNota->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['cliente_master_nota'] = $cltNota;
-            } else {
-                $datos['mensaje'] = $cltNota->getMensaje();
-            }
-        } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
-        }
-        $this->output->set_output(json_encode($datos));
-    }
+//    public function guardar_nota($id = '')
+//    {
+//        $cltNota = new Cliente_master_nota_model($id);
+//        $req = json_decode(file_get_contents('php://input'), true);
+//        $datos = ['exito' => false];
+//        if ($this->input->method() == 'post') {
+//            $datos['exito'] = $cltNota->guardar($req);
+//            if ($datos['exito']) {
+//                $datos['mensaje'] = "Datos actualizados con éxito.";
+//                $datos['cliente_master_nota'] = $cltNota;
+//            } else {
+//                $datos['mensaje'] = $cltNota->getMensaje();
+//            }
+//        } else {
+//            $datos['mensaje'] = "Parámetros inválidos.";
+//        }
+//        $this->output->set_output(json_encode($datos));
+//    }
 
     private function srch_telefono($args = [])
     {
@@ -104,6 +104,10 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($this->srch_telefono($_GET)));
     }
 
+    /**
+     * da debaja una direccion
+     * @param $id
+     */
     public function desasociar_cliente_master_direccion($id)
     {
         $datos = ['exito' => false];
@@ -111,6 +115,24 @@ class Cliente_master extends CI_Controller
         $datos['exito'] = $cmt->guardar(['debaja' => 1]);
         if ($datos['exito']) {
             $datos['mensaje'] = 'Direccion dada debaja con éxito.';
+        } else {
+            $datos['mensaje'] = $cmt->getMensaje();
+        }
+        $this->output->set_output(json_encode($datos));
+
+    }
+
+    /**
+     * da debaja una nota
+     * @param $id
+     */
+    public function desasociar_cliente_master_nota($id)
+    {
+        $datos = ['exito' => false];
+        $cmt = new Cliente_master_nota_model($id);
+        $datos['exito'] = $cmt->guardar(['debaja' => 1]);
+        if ($datos['exito']) {
+            $datos['mensaje'] = 'Nota dada debaja con éxito.';
         } else {
             $datos['mensaje'] = $cmt->getMensaje();
         }
@@ -150,6 +172,50 @@ class Cliente_master extends CI_Controller
             if ($datos['exito']) {
                 $datos['mensaje'] = 'Datos ingresados con éxito. ';
                 $datos['cliente_master_direccion'] = $cltDir;
+            } else {
+                $datos['mensaje'] = $cltDir->getMensaje();
+            }
+
+
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
+    /**
+     * This method updates or creates a note
+     */
+    public function guardar_nota()
+    {
+
+        $cltDir = new Cliente_master_nota_model();
+
+
+        $req = json_decode(file_get_contents('php://input'), true);
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+
+
+            ///////Look if the note already exist
+            //Check if variable is in array
+            if (isset($req['cliente_master_nota'])) {
+                $nota = $this->Cliente_master_nota_model->buscar(['cliente_master_nota' => $req['cliente_master_nota'], '_uno' => true]);
+
+                //Updates key to obj
+                if ($nota) {
+                    //Updates id
+                    $cltDir = new Cliente_master_nota_model($nota->cliente_master_nota);
+                    $req['cliente_master_nota'] = $cltDir->getPK();
+                }
+            }
+
+
+            //Saves to db
+            $datos['exito'] = $cltDir->guardar($req);
+            if ($datos['exito']) {
+                $datos['mensaje'] = 'Datos ingresados con éxito. ';
+                $datos['cliente_master_nota'] = $cltDir;
             } else {
                 $datos['mensaje'] = $cltDir->getMensaje();
             }
@@ -267,6 +333,20 @@ class Cliente_master extends CI_Controller
             $datos->cliente_master = $this->Cliente_master_model->buscar(['cliente_master' => $datos->cliente_master, '_uno' => true]);
             $datos->tipo_direccion = $this->Tipo_direccion_model->buscar(['tipo_direccion' => $datos->tipo_direccion, '_uno' => true]);
             $datos->direccion_completa = $this->get_direccion_completa($datos);
+        }
+
+        $this->output->set_output(json_encode($datos));
+    }
+    public function buscar_nota()
+    {
+        $datos = $this->Cliente_master_nota_model->buscar($_GET);
+
+        if (is_array($datos)) {
+            foreach ($datos as $row) {
+                $row->cliente_master = $this->Cliente_master_model->buscar(['cliente_master' => $row->cliente_master, '_uno' => true]);
+            }
+        } else if (is_object($datos)) {
+            $datos->cliente_master = $this->Cliente_master_model->buscar(['cliente_master' => $datos->cliente_master, '_uno' => true]);
         }
 
         $this->output->set_output(json_encode($datos));

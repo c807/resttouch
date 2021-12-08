@@ -44,13 +44,15 @@ import { ClienteMasterTelefonoComponent } from './components/cliente-master/clie
 import { SeleccionaTelefonoComponent } from './components/cliente-master/selecciona-telefono/selecciona-telefono.component';
 import { ClienteMasterDireccionComponent } from './components/cliente-master/cliente-master-direccion/cliente-master-direccion.component';
 import {AgregaDireccionComponent} from './components/cliente-master/agrega-direccion/agrega-direccion.component';
+import {ClienteMasterNotaComponent} from './components/cliente-master/cliente-master-nota/cliente-master-nota.component';
+import {AgregaNotaComponent} from './components/cliente-master/agregar-nota/agrega-nota.component';
 
 /**
  * New Components must be added in declarations,
  * Modules from libraries for example Angular.Material must be added on imports
  */
 @NgModule({
-  declarations: [AgregaDireccionComponent,PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterDireccionComponent],
+  declarations: [AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent ,ClienteMasterDireccionComponent],
   imports: [
     CommonModule,
     CallcenterRoutingModule,
