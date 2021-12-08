@@ -52,10 +52,7 @@ class Articulo extends CI_Controller
 			if (!$existeCodigo) {
 				$pre = new Presentacion_model($req['presentacion']);
 				$preRep = new Presentacion_model($req['presentacion_reporte']);
-				if ($pre->medida == $preRep->medida) {
-					if ((int)$req['combo'] === 1 && (int)$req['cobro_mas_caro'] === 1 && !empty($id)) {
-						$req['precio'] = $this->get_highest_price($id);						
-					}
+				if ($pre->medida == $preRep->medida) {					
 					$datos['exito'] = $art->guardar($req);
 
 					if ($datos['exito']) {
@@ -151,12 +148,7 @@ class Articulo extends CI_Controller
 						if ($det) {
 							$datos['exito'] = true;
 							$datos['mensaje'] = "Datos Actualizados con Exito";
-							$datos['detalle'] = $det;
-							if ((int)$art->combo === 1 && (int)$art->cobro_mas_caro === 1) {
-								$datos['precio'] = $this->get_highest_price($articulo);
-								$art->precio = $datos['precio'];
-								$art->guardar();
-							}
+							$datos['detalle'] = $det;							
 						} else {
 							$datos['mensaje'] = implode("<br>", $art->getMensaje());
 						}
@@ -355,24 +347,6 @@ class Articulo extends CI_Controller
 
 		$this->output->set_output(json_encode($datos));
 	}
-	
-	private function get_highest_price($articulo, $precio = 0)
-	{		
-		$art = new Articulo_model($articulo);
-		$detalle = $art->getReceta();
-		foreach ($detalle as $det) {
-			if ((float)$det->articulo->precio > (float)$precio) {
-				$precio = (float)$det->articulo->precio;
-			}
-			$precio = $this->get_highest_price($det->articulo->articulo, $precio);
-		}
-		return $precio;
-	}
-
-	public function test_highest_price($articulo)
-	{		
-		$this->output->set_output(json_encode(['precio' => $this->get_highest_price($articulo)]));
-	}
 
 	public function calcula_existencias() {		
 		$inicia = time();
@@ -443,7 +417,6 @@ class Articulo extends CI_Controller
 		}
 		$this->output->set_output(json_encode($existencia));
 	}
-
 }
 
 /* End of file Articulo.php */

@@ -35,28 +35,131 @@ class Tablero extends CI_Controller {
 				unset($_GET['sede']);
 			}
 
-			$datos = $this->Tablero_model->getServiciosFacturados($_GET);
+			$sinFactura = $this->Tablero_model->getServiciosSinFactura($_GET);
+			$conFactura = $this->Tablero_model->getServiciosFacturados($_GET);
+
+			$datos = array_merge($sinFactura, $conFactura);
 			$dias = [];
 			$total = 0;
+			$semana = [];
+			$horario = [];
+			$producto = [];
+			$domicilio = [];
+			$mesero = [];
+			$sede = [];
+			$wlista = [];
 
-			foreach ($datos as $key => $value) {
-				if (isset($dias[$value->fecha_factura])) {
-					$dias[$value->fecha_factura] += round($value->total, 2);
-				} else {
-					$dias[$value->fecha_factura] = round($value->total, 2);
+			$fdel = new DateTime($_GET["fdel"]);
+			$fal = new DateTime($_GET["fal"]);
+
+			$period = new DatePeriod($fdel, new DateInterval('P1D'), $fal);
+
+			foreach ($period as $row) {
+				$idx = $row->format('Y').'-'.(int)$row->format('W');
+
+				if (!isset($wlista[$idx])) {
+					$wlista[$idx] = 0;
 				}
 				
+				$dias[$row->format('Y-m-d')] = 0;
+			}
+
+			$dias[$_GET["fal"]] = 0;
+
+			foreach ($datos as $key => $value) {
+				if (!isset($semana[$value->dia])) {
+					$semana[$value->dia] = 0;
+				}
+
+				if (!isset($horario[$value->hora])) {
+					$horario[$value->hora] = 0;
+				}
+
+				if (!isset($producto[$value->descripcion])) {
+					$producto[$value->descripcion] = 0;
+				}
+
+				if (!isset($domicilio[$value->domicilio])) {
+					$domicilio[$value->domicilio] = 0;
+				}
+
+				if (!isset($sede[$value->sede])) {
+					$sede[$value->sede] = 0;
+				}
+
+				if (!isset($mesero[$value->nombre_mesero])) {
+					$mesero[$value->nombre_mesero] = 0;
+				}
+
+				if (!isset($wlista[$value->semana])) {
+					$wlista[$value->semana] = 0;
+				}
+				
+				$dias[$value->fecha_factura] += $value->total;
+				$semana[$value->dia] += $value->total;
+				$horario[$value->hora] += $value->total;
+				$producto[$value->descripcion] += $value->total;
+				$domicilio[$value->domicilio] += $value->total;
+				$sede[$value->sede] += $value->total;
+				$mesero[$value->nombre_mesero] += $value->total;
+				$wlista[$value->semana] += $value->total;
+
 				$total += $value->total;
 			}
 
-			$res["exito"] = true;
+			ksort($semana);
+			ksort($horario);
+			ksort($wlista);
+
+			arsort($producto);
+			arsort($sede);
+			arsort($mesero);
+
+			if (count($producto) > 7) {
+				$producto = array_slice($producto, 0, 7, true);
+			}
+
+			$interval = $fdel->diff($fal);
+			$diferencia = (int)$interval->format('%a') + 1;
+
+			if ($diferencia > 30) {
+				$udias = array_slice($dias, -30, 30, true);
+				$res["ultimos_dias"] = 30;
+			} else {
+				$udias = $dias;
+				$res["ultimos_dias"] = $diferencia;
+			}
+			
+			$dwl = graficaDatasets($wlista, false);
+			$dwl->borderColor = randomColor();
+			$dwl->fill = false;
+
+			$res["line_wlista"] = $dwl;
+
+			$das = graficaDatasets($udias, false);
+			$das->borderColor = randomColor();
+			$das->fill = false;
+
+			$res["line_dias"] = $das;
+
+			$res["pie_semana"] = graficaDatasets($semana);
+			$res["pie_domicilio"] = graficaDatasets($domicilio);
+			$res["bar_horario"] = graficaDatasets($horario);
+			$res["bar_popular"] = graficaDatasets($producto);
+			$res["bar_sede"] = graficaDatasets($sede);
+			$res["bar_mesero"] = graficaDatasets($mesero);
+
 			$res["datos"] = $datos;
-			$res["dias"] = $dias;
-			$res["min"] = (count($dias) > 0) ? number_format(min($dias), 2) : 0;
-			$res["max"] = (count($dias) > 0) ? number_format(max($dias), 2) : 0;
-			$res["cantidad"] = count($dias);
-			$res["media"] = (count($dias) > 0) ? number_format(($total/$res["cantidad"]), 2) : 0;
-			$res["total"] = number_format($total, 2);
+
+			$res["estadistica"] = [
+				["Días", count($dias)],
+				["Mínimo", number_format(min($dias), 2)],
+				["Máximo", number_format(max($dias), 2)],
+				["Media", number_format(($total/count($dias)), 2)],
+				["TOTAL", number_format($total, 2)]
+			];
+			
+			$res["exito"] = true;
 		}
 
 		$this->output

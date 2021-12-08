@@ -10,11 +10,14 @@ import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
 export class ProductoComandaAltComponent implements OnInit {
 
   @Input() detalle: DetalleCuentaSimplified[] = [];
-  @Input() paddingLeft = '10px';
+  @Input() paddingLeft = 0;
+  public paddingLeftStr = '';
 
   constructor() { }
 
   ngOnInit(): void {
+    this.paddingLeft += 10;
+    this.paddingLeftStr = `${this.paddingLeft}px`;
   }
 
 }

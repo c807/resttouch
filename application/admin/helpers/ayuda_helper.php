@@ -544,6 +544,38 @@ if (! function_exists("get_unicos")) {
 	}
 }
 
+if ( ! function_exists("randomColor")) {
+	function randomColor()
+	{
+		$rand = str_pad(dechex(rand(0x000000, 0xFFFFFF)), 6, 0, STR_PAD_LEFT);
+		return '#' . $rand;
+	}
+}
+
+if ( ! function_exists("graficaDatasets")) {
+	function graficaDatasets($lista, $color = true)
+	{
+		$dataset = new stdClass();
+		$dataset->labels = [];
+		$dataset->data = [];
+
+		if ($color) {
+			$dataset->backgroundColor = [];
+		}
+
+		foreach ($lista as $label => $data) {
+			$dataset->labels[] = $label;
+			$dataset->data[] = round($data, 2);
+
+			if ($color) {
+				$dataset->backgroundColor[] = randomColor();
+			}
+		}
+
+		return $dataset;
+	}
+}
+
 if( ! function_exists('get_url_websocket')){
 	function get_url_websocket() {		
 		$url_ws = "{$_SERVER['REQUEST_SCHEME']}://";

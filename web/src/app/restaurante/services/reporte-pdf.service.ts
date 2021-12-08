@@ -100,6 +100,14 @@ export class ReportePdfService {
         ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getReporteIngreso(params: Object) {
+    return this.http.post<string>(
+        `${GLOBAL.urlWms}/rep/ingreso/generar_detalle`,
+        params,
+        this.httpOptions
+        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   getReporteComandas(params: Object) {
     return this.http.post<string>(
         `${GLOBAL.urlAppRestaurante}/reporte/rpt_detalle_comanda`,

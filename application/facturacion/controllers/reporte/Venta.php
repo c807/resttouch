@@ -189,7 +189,7 @@ class Venta extends CI_Controller
 			}
 		}
 
-		$montoPropinas = $this->Rpt_model->get_suma_propinas($listaDeComandas);
+		$montoPropinas = !empty(trim($listaDeComandas)) ? $this->Rpt_model->get_suma_propinas($listaDeComandas) : 0.0;
 
 		$cat = [];
 		// foreach ($_GET['sede'] as $row) {

@@ -199,6 +199,24 @@ $config['campos'] = [
 		"ordenar_por" => 0, 
 		"por_fecha" => 0, 
 		"compuesto" => 0
+	],
+	[
+		"tabla_campo"=> 23,
+		"tabla"=>8,
+		"campo" => "comanda", 
+		"descripcion" => "# Comanda", 
+		"ordenar_por" => 0, 
+		"por_fecha" => 0, 
+		"compuesto" => 0
+	],
+	[
+		"tabla_campo"=> 24,
+		"tabla"=>16,
+		"campo" => "nombres", 
+		"descripcion" => "Vendedor", 
+		"ordenar_por" => 0, 
+		"por_fecha" => 0, 
+		"compuesto" => 0
 	]
 ];
 
@@ -307,5 +325,12 @@ $config['tabla'] = [
 		"orden" => 15, 
 		"accion" => "left", 
 		"condicion" => "factura.sede = sede.sede"
+	],
+	[
+		"tabla"=> 16,
+		"entidad" => "usuario", 
+		"orden" => 16, 
+		"accion" => "left", 
+		"condicion" => "usuario.usuario = factura.usuario"
 	]
 ];

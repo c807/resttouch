@@ -56,13 +56,14 @@ import { ReplicarASedesComponent } from './components/producto/replicar-a-sedes/
 import { ReplicarASedesDialogComponent } from './components/producto/replicar-a-sedes-dialog/replicar-a-sedes-dialog.component';
 import { SubCategoriaProductoComponent } from './components/producto/sub-categoria-producto/sub-categoria-producto.component';
 import { QuickEditProductoComponent } from './components/producto/quick-edit-producto/quick-edit-producto.component';
+import { RepIngresoComponent } from './components/reporte/rep-ingreso/rep-ingreso.component';
 
 @NgModule({
   declarations: [
     ListaProductoComponent, ListaIngresoComponent, FormIngresoComponent, IngresoComponent, ProductoComponent, FormProductoComponent,
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
-    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent
+    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent
   ],
   imports: [
     CommonModule,

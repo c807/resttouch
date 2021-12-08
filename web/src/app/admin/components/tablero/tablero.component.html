@@ -45,38 +45,145 @@
 	</div>
 </div>
 <!-- Finaliza gráficas de ventas -->
+<mat-grid-list cols="5" rowHeight="125px" *ngIf="estadistica.length > 0">
+	<mat-grid-tile *ngFor="let data of estadistica">
+		<mat-card>
+  		<mat-card-title>{{ data[0] }}</mat-card-title>
+			<mat-card-content>
+				{{ data[1] }}
+			</mat-card-content>
+		</mat-card>
+	</mat-grid-tile>
+</mat-grid-list>
 
-<div class="row">
-	<div class="col m12 s12">		
-		<ejs-pivotview #pivotview id='PivotView' [dataSourceSettings]=dataSourceSettings width='100%' height='350' allowExcelExport='true' showFieldList="true"></ejs-pivotview>
-		<button ej-button id='export'>Export</button>		
-	</div>
-</div>
-<div class="row">
-	<div class="col m6 s12">
-		<table>
-			<tbody>
-				<tr>
-					<th>Cantidad de días</th>
-					<td>{{ estDias }}</td>
-				</tr>
-				<tr>
-					<th>Mínimo</th>
-					<td>{{ estMin }}</td>
-				</tr>
-				<tr>
-					<th>Máximo</th>
-					<td>{{ estMax }}</td>
-				</tr>
-				<tr>
-					<th>Media</th>
-					<td>{{ estMedia }}</td>
-				</tr>
-				<tr>
-					<th>Total</th>
-					<td>{{ estTotal }}</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
-</div>
+<mat-grid-list cols="1" rowHeight="400px">
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>Últimos {{ ultimosDias }} días</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="diasData"
+					[labels]="diasLabels"
+					[options]="chartOptions"
+					[chartType]="'line'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="3" rowHeight="350px">
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>Días de la semana</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="semanaData"
+					[labels]="semanaLabels"
+					[options]="pieOptions"
+					[chartType]="'pie'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile [colspan]="2">
+  	<mat-card>
+  		<mat-card-title>Horario</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="horarioData"
+					[labels]="horarioLabels"
+					[options]="chartOptions"
+					[chartType]="'bar'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="3" rowHeight="350px">
+  <mat-grid-tile [colspan]="2">
+  	<mat-card>
+  		<mat-card-title>Popular</mat-card-title>
+	  	<mat-card-content>
+				<canvas baseChart
+					[datasets]="popularData"
+					[labels]="popularLabels"
+					[options]="chartOptions"
+					[chartType]="'horizontalBar'">
+				</canvas>
+    	</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>A domicilio</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="domicilioData"
+					[labels]="domicilioLabels"
+					[options]="pieOptions"
+					[chartType]="'pie'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="2" rowHeight="450px">
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>Mesero</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="meseroData"
+					[labels]="meseroLabels"
+					[options]="horizontalOptions"
+					[chartType]="'horizontalBar'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>Sede</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="sedeData"
+					[labels]="sedeLabels"
+					[options]="horizontalOptions"
+					[chartType]="'horizontalBar'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="1" rowHeight="425px">
+  <mat-grid-tile>
+  	<mat-card>
+  		<mat-card-title>Por semanas</mat-card-title>
+			<mat-card-content>
+				<canvas baseChart
+					[datasets]="wlistaData"
+					[labels]="wlistaLabels"
+					[options]="chartOptions"
+					[chartType]="'line'">
+				</canvas>
+			</mat-card-content>
+		</mat-card>
+  </mat-grid-tile>
+</mat-grid-list>
+
+<mat-grid-list cols="1" rowHeight="550px">
+  <mat-grid-tile>
+		<mat-card>
+			<mat-card-actions>
+				<button ej-button id='export'>Export</button>
+			</mat-card-actions>
+			<mat-card-content >
+				<ejs-pivotview #pivotview id='PivotView' [dataSourceSettings]=pivotData width='100%' height='400' allowExcelExport='true' showFieldList="true"></ejs-pivotview>
+			</mat-card-content>
+		</mat-card>
+	</mat-grid-tile>
+</mat-grid-list>

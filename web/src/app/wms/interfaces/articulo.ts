@@ -31,6 +31,9 @@ export interface Articulo {
     cantidad_gravable?: number;
     precio_sugerido?: number;
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArticuloResponse {
@@ -58,6 +61,9 @@ export interface ArticuloResponse {
     cantidad_gravable?: number;
     precio_sugerido?: number;
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArbolCategoriaGrupo {
@@ -72,6 +78,9 @@ export interface ArbolCategoriaGrupo {
     fechabaja?: string;
     usuariobaja?: number;
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArbolArticulos {
@@ -84,6 +93,9 @@ export interface ArbolArticulos {
     fechabaja?: string;
     usuariobaja?: number;
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface NodoProducto {
@@ -100,6 +112,9 @@ export interface NodoProducto {
     fechabaja?: string;
     usuariobaja?: number;
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ProductoSelected {
@@ -127,6 +142,9 @@ export interface ProductoSelected {
     impresoras_combo?: Impresora[];
     detalle_impresion?: ArticuloImpresion[];
     cobro_mas_caro?: number;
+    esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArticuloCodigo {

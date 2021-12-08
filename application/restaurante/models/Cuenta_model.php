@@ -464,12 +464,16 @@ class Cuenta_model extends General_Model
 			$this->db->where('b.impreso', $args['impreso']);
 		}
 
+		if (isset($args['_extras'])) {
+			$this->db->where('c.esextra', 1);
+		}
+
 		$detalles = $this->db
 			->select(
 				'b.comanda, b.detalle_comanda, b.articulo, d.descuento, a.detalle_cuenta, a.cuenta_cuenta, b.cantidad, b.impreso, b.precio, b.total, b.notas, 
 				c.combo, c.categoria_grupo, c.descripcion, c.multiple, c.combo, c.esreceta, c.cantidad_gravable, c.precio_sugerido, c.cobro_mas_caro,
 				e.numero as numero_cuenta, b.detalle_comanda_id, f.impresora, f.sede, f.nombre AS nombre_impresora, f.direccion_ip, f.ubicacion, f.bluetooth, f.bluetooth_mac_address, f.modelo, 
-				f.pordefecto'
+				f.pordefecto, c.esextra'
 			)
 			->join('detalle_comanda b', 'a.detalle_comanda = b.detalle_comanda')
 			->join('articulo c', 'c.articulo = b.articulo')
@@ -485,6 +489,12 @@ class Cuenta_model extends General_Model
 			if ((int)$detalle->combo === 1 || (int)$detalle->multiple === 1) {
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$detalle->detalle = $this->obtener_detalle($args);
+			} else {
+				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
+				$args['_extras'] = true;
+				$losExtras = $this->obtener_detalle($args);
+				$detalle->detalle = $losExtras;
+				$detalle->detalle_extras = $losExtras;
 			}
 		}
 

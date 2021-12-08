@@ -25,8 +25,22 @@ class Tablero_model extends General_model
 		}
 
 		return $this->db
-			->select("d.total, 'B' AS bien_servicio, DATE(a.fhcreacion) AS fecha_factura, monthname(a.fhcreacion) as mes, dayname(a.fhcreacion) as dia, 
-			e.descripcion, f.descripcion as grupo, g.nombre as sede, 'Comanda' as operacion, IF(a.domicilio = 1, 'SI', 'NO') as domicilio, i.descripcion as turno")
+			->select("
+				d.total, 
+				'B' AS bien_servicio,
+				a.fhcreacion,
+				hour(a.fhcreacion) as hora,
+				DATE(a.fhcreacion) AS fecha_factura,
+				monthname(a.fhcreacion) as mes,
+				concat(year(a.fhcreacion),'-',week(a.fhcreacion)) as semana,
+				concat(dayofweek(a.fhcreacion),'-',dayname(a.fhcreacion)) as dia,
+				e.descripcion,
+				f.descripcion as grupo,
+				g.nombre as sede,
+				'Comanda' as operacion, 
+				IF(a.domicilio = 1, 'SI', 'NO') as domicilio,
+				i.descripcion as turno,
+				concat(mr.nombres,' ',mr.apellidos) as nombre_mesero")
 			->from('comanda a')
 			->join('cuenta b', 'a.comanda = b.cuenta')
 			->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
@@ -37,6 +51,8 @@ class Tablero_model extends General_model
 			->join('turno h', 'h.turno = a.turno')
 			->join('turno_tipo i', 'i.turno_tipo = h.turno_tipo')
 			->join('forma_pago j', 'j.forma_pago = c.forma_pago')
+			/* Mesero */ 
+			->join('usuario mr', 'mr.usuario = a.mesero', 'left')
 			->where('d.detalle_comanda_id IS NULL')
 			->where('j.sinfactura', 1)
 			->get()
@@ -63,19 +79,23 @@ class Tablero_model extends General_model
 			}
 		}
 
-		$servFact = $this->db
+		return $this->db
 			->select("
 			(a.total-a.descuento) as total, 
 		    a.bien_servicio,
+		    i.fhcreacion,
+		    hour(i.fhcreacion) as hora,
 		    b.fecha_factura,
 		    monthname(b.fecha_factura) as mes,
-		    dayname(b.fecha_factura) as dia,
+			concat(year(b.fecha_factura),'-',week(b.fecha_factura)) as semana,
+		    concat(dayofweek(b.fecha_factura),'-',dayname(b.fecha_factura)) as dia,
 		    c.descripcion,
 		    d.descripcion as grupo,
 		    e.nombre as sede,
 		    if(f.detalle_factura is null, 'Manual','Comanda') as operacion,
 		    if(i.domicilio=1,'SI','NO') as domicilio,
-		    k.descripcion as turno")
+		    k.descripcion as turno,
+		    concat(mr.nombres,' ',mr.apellidos) as nombre_mesero")
 			->from("detalle_factura a")
 			->join("factura b", "b.factura = a.factura")
 			->join("articulo c", "c.articulo = a.articulo")
@@ -87,16 +107,12 @@ class Tablero_model extends General_model
 			->join("comanda i", "i.comanda = h.comanda", "left")
 			->join("turno j", "j.turno = i.turno", "left")
 			->join("turno_tipo k", "k.turno_tipo = j.turno_tipo", "left")
+			/* Mesero */ 
+			->join('usuario mr', 'mr.usuario = i.mesero', 'left')
 			->where("b.fel_uuid is not null")
 			->where("b.fel_uuid_anulacion is null")
 			->get()
 			->result();
-		
-		$q = $this->db->last_query();
-
-		$servSinFact = $this->getServiciosSinFactura($args);
-
-		return array_merge($servFact, $servSinFact);
 	}
 
 	private function getVentasPorDiaSinFactura($args = [])

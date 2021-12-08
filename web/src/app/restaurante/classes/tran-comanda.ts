@@ -336,7 +336,7 @@ export class TranComanda {
     agregaCombo = (producto: any, sinInputCantidad = false) => {
         return new Promise((resolve, reject) => {
             const confirmRef = this.dialog.open(DialogComboComponent, {
-                maxWidth: '50%',
+                maxWidth: '50vw', width: '50vw',
                 data: new ConfirmDialogComboModel(
                     producto,
                     'Sí', 'No', sinInputCantidad
@@ -348,11 +348,7 @@ export class TranComanda {
                 if (res && res.respuesta && res.seleccion.receta.length > 0) {
                     // console.log(res.seleccion); // this.bloqueoBotones = false; return;
                     this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, res.seleccion).subscribe(resSaveDetCmb => {
-                        // console.log('NUEVO DETALLE COMANDA = ', res);
                         if (resSaveDetCmb.exito) {
-                            // this.mesaEnUso = resSaveDetCmb.comanda;
-                            // this.llenaProductosSeleccionados(this.mesaEnUso);
-                            // this.actualizaProductosSeleccionados(+resSaveDetCmb.comanda.cuentas[0].cuenta, resSaveDetCmb.comanda.cuentas[0].productos[0]);
                             this.setSelectedCuenta(+this.cuentaActiva.numero);
                         } else {
                             this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', { duration: 3000 });
@@ -742,12 +738,14 @@ export class TranComanda {
     getDetalle = (dcs: DetalleCuentaSimplified[], comoArray = true): (string[] | string) => {
         let nombres = "";
         for (const det of dcs) {
-            if (det.multiple === 0 && +det.cantidad > 1) {
+            if (+det.multiple === 0 && +det.cantidad > 1) {
                 nombres += `${det.cantidad.toString()} `
             }
             nombres += `${det.descripcion}|`;
-            if (+det.esreceta === 0) {
+            if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
                 nombres += this.getDetalle(det.detalle, false);
+            } else if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+                det.detalle_extras.forEach(de => nombres += `${de.descripcion};`);
             }
         }
         // console.log(nombres);
@@ -761,9 +759,13 @@ export class TranComanda {
         let detImpCombo: ArticuloImpresion[] = [];
         for (const det of dcs) {
             if (+det.multiple === 0 && +det.impresora > 0) {
+                let strExtras = '';
+                if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+                    det.detalle_extras.forEach(de => strExtras += `${de.descripcion};`);
+                }
                 detImpCombo.push({
                     Id: det.articulo,
-                    Nombre: `${path}${det.descripcion}`,
+                    Nombre: `${path}${det.descripcion}${strExtras !== '' ? `;${strExtras}` : ''}`,
                     Cantidad: +det.cantidad,
                     Total: 0,
                     Notas: det.notas,
@@ -784,7 +786,7 @@ export class TranComanda {
                 path += det.descripcion;
             }
 
-            if (+det.esreceta === 0) {
+            if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
                 detImpCombo = [...detImpCombo, ...this.getDetalleImpresionCombo(det.detalle, path)];
                 path = '';
             }

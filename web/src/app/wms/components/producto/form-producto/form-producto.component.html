@@ -40,7 +40,7 @@
             </mat-form-field>
             
             <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio" [disabled]="+articulo.cobro_mas_caro === 1" required>
+                <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio" required>
             </mat-form-field>
 
             <mat-form-field class="fullWidth">
@@ -76,6 +76,13 @@
             </mat-form-field>
             <mat-form-field class="fullWidth" *ngIf = "+articulo.multiple == 1 || +articulo.combo">
                 <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima" [(ngModel)]="articulo.cantidad_maxima" required>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
+                <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo" [(ngModel)]="articulo.stock_minimo">
+            </mat-form-field>
+            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
+                <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo" [(ngModel)]="articulo.stock_maximo">
             </mat-form-field>
 
             <mat-form-field class="fullWidth">
@@ -117,11 +124,14 @@
                     <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta" (change)="setOpcComboOff()" [disabled]="disableEsReceta">Es receta</mat-checkbox>
                 </div>
             </div>
-            <!-- <div class="row">
+            <div class="row">
                 <div class="col m3 s3">
-                    <mat-checkbox name="cobro_mas_caro" class="example-margin" [(ngModel)]="+articulo.cobro_mas_caro" (change)="esCobroMasCaro()" [disabled]="+articulo.combo === 0">Cobrar el más caro</mat-checkbox>
+                    <mat-checkbox name="cobro_mas_caro" class="example-margin" [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">Cobrar el más caro</mat-checkbox>
+                </div>
+                <div class="col m3 s3">
+                    <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra" [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">Usar como extra</mat-checkbox>
                 </div>                
-            </div> -->
+            </div>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
                     Guardar

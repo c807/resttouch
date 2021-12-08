@@ -91,6 +91,22 @@ class Comanda_model extends General_Model
 		return false;
 	}
 
+	private function get_highest_price($opciones = [])
+	{
+		$precio = null;
+		foreach ($opciones as $seleccion) {
+			$recetaSelec = new Articulo_model($seleccion['articulo']);
+			if ((int)$recetaSelec->multiple === 0){
+				if ((float)$recetaSelec->precio > (float)$precio) {
+					$precio = (float)$recetaSelec->precio;
+				}
+			} else {
+				$precio = $this->get_highest_price($seleccion['receta']);
+			}
+		}
+		return $precio;
+	}
+
 	public function guardarDetalleCombo($args = [], $cuenta)
 	{
 		// set_time_limit(600);
@@ -98,7 +114,13 @@ class Comanda_model extends General_Model
 		if (!isset($args['cantidad'])) {
 			$args['cantidad'] = 1;
 		}
-		$combo = $this->setDetalle($args['articulo'], $cuenta, null, null, (float)$args['cantidad']);
+		
+		$precioMasAlto = null;
+		if((int)$art->combo === 1 && (int)$art->cobro_mas_caro === 1 && isset($args['receta']) && count($args['receta']) > 0) {
+			$precioMasAlto = $this->get_highest_price($args['receta']);
+		}
+
+		$combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);
 		// $args['cantidad'] = 1;
 
 		if ($combo) {
@@ -116,7 +138,15 @@ class Comanda_model extends General_Model
 					$precio = $recetaSelec[0]->precio;
 
 					// setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
-					$this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad, $multi->cantidad);
+					$opcSelect = $this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad, $multi->cantidad);
+
+					// Para agregar los extras de cada seleccion
+					if (isset($seleccion['extras']) && count($seleccion['extras']) > 0) {
+						foreach ($seleccion['extras'] as $extra) {
+							// $this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad * (float)$recetaSelec[0]->cantidad, $opcSelect->cantidad);
+							$this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad, $opcSelect->cantidad);
+						}
+					}
 				}
 			}
 			return $combo;

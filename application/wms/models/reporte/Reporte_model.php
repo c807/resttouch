@@ -327,6 +327,90 @@ EOT;
 
 		return [];
 	}
+
+	public function getIngresoDetalle($args=[])
+	{
+		if (isset($args->fdel) && isset($args->fal)) {
+			$this->db
+				 ->where("b.fecha >=", $args->fdel)
+				 ->where("b.fecha <=", $args->fal);
+		}
+
+		if (isset($args->sede) && $args->sede) {
+			$this->db->where_in("c.sede", $args->sede);
+		}
+
+		if (isset($args->bodega) && $args->bodega) {
+			$this->db->where_in("b.bodega", $args->bodega);
+		}
+
+		if (isset($args->articulo) && $args->articulo) {
+			$this->db->where_in("d.codigo", $args->articulo);
+		}
+
+		if (isset($args->tipo_ingreso) && $args->tipo_ingreso) {
+			$this->db->where_in("b.tipo_movimiento", $args->tipo_ingreso);
+		}
+
+		if (isset($args->proveedor) && $args->proveedor) {
+			$this->db->where_in("e.proveedor", $args->proveedor);
+		}
+
+		if ($args->reporte == 1) {
+			$this->db->order_by("e.razon_social", "asc");
+		} else if($args->reporte == 2) {
+			$this->db->order_by("d.descripcion", "asc");
+		}
+
+		if($args->reporte == 3) {
+			$this->db
+				 ->select("
+				 	f.descripcion as subcategoria,
+				 	g.descripcion as categoria,
+				 	d.descripcion as producto,
+				 	a.precio_unitario as ultimo_costo,
+				 	avg(a.precio_unitario) as costo_promedio,
+				 	ifnull(stddev_samp(a.precio_unitario),0) as desviacion
+				 ")
+				 ->order_by("g.descripcion, f.descripcion, a.articulo")
+				 ->group_by("d.codigo");
+
+			if (isset($args->variacion) && $args->variacion) {
+				$this->db->having("ifnull(stddev_samp(a.precio_unitario),0) >= ", $args->variacion);
+			}
+
+		} else {
+			$this->db->select("
+				b.fecha, 
+				b.ingreso as num_documento, 
+				c.descripcion as bodega,
+				d.descripcion as producto,
+				a.cantidad, 
+				a.precio_unitario as costo,
+				e.razon_social as nproveedor
+			");
+		}
+
+		$this->db
+			->from("ingreso_detalle a")
+			->join("ingreso b", "b.ingreso = a.ingreso")
+			->join("bodega c", "c.bodega = b.bodega")
+			->join("articulo d", "d.articulo = a.articulo")
+			->join("proveedor e", "e.proveedor = b.proveedor")
+			->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
+			->join("categoria g", "g.categoria = f.categoria");
+
+		$this->db->order_by("b.fecha", "asc")
+				->order_by("b.ingreso", "desc");
+		
+		$tmp = $this->db->get();
+
+		if ($tmp->num_rows() > 0) {
+			return $tmp->result();
+		}
+
+		return [];
+	}
 }
 
 /* End of file Reporte_model.php */

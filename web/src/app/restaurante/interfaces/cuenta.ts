@@ -73,5 +73,7 @@ export interface DetalleCuentaSimplified {
     bluetooth_mac_address?: string;
     modelo?: string;
     pordefecto: number;
+    esextra?: number;
     detalle: DetalleCuentaSimplified[];
+    detalle_extras?: DetalleCuentaSimplified[];
 }

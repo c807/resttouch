@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { PivotViewComponent, IDataOptions, IDataSet, FieldListService, PivotView } from '@syncfusion/ej2-angular-pivotview';
+import { IDataOptions, FieldListService, PivotView } from '@syncfusion/ej2-angular-pivotview';
 import { Button } from '@syncfusion/ej2-buttons';
 import { TableroService } from '../../services/tablero.service';
 import * as moment from 'moment';
@@ -13,6 +13,9 @@ import { AccesoUsuarioService } from '../../../admin/services/acceso-usuario.ser
 // import { Global } from '@syncfusion/ej2-ng-grids';
 import { VentasComponent } from './graficas/ventas/ventas.component';
 
+import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
+import { Color, Label } from 'ng2-charts';
+
 @Component({
     selector: 'app-tablero',
     providers: [FieldListService],
@@ -21,25 +24,86 @@ import { VentasComponent } from './graficas/ventas/ventas.component';
 })
 
 export class TableroComponent implements OnInit {
-    public pivotData: IDataSet[];
-    public dataSourceSettings: IDataOptions;
+    public pivotData: IDataOptions;
     public button: Button;
 
     public params: any = {
         sede: []
     };
     public titulo = 'Tablero';
-    public estDias = 0;
-    public estMin = '';
-    public estMax = '';
-    public estMedia = '';
-    public estTotal = '';
+    public ultimosDias = '';
+    public estadistica: any[] = [];
     public cargando = false;
     public datosGraficas: any = {};
     public sedes: UsuarioSede[] = [];
     public grupos = GLOBAL.grupos;
+    public chartTooltips: Object = { 
+        callbacks: {
+            label: (item, data) => {
+                let label = data.datasets[item.datasetIndex].labels[item.index] || '';
+                let value = data.datasets[item.datasetIndex].data[item.index] || 0;
 
-    @ViewChild('pivotview') public pivotGridObj: PivotViewComponent;
+                if (label) {
+                    label += ': ';
+                }
+
+                label += parseFloat(value).toLocaleString('en');
+
+                return label;
+            }
+        }
+    }
+
+    public chartOptions: Object = {
+        responsive: true,
+        legend: { display: false },
+        maintainAspectRatio: false,
+        tooltips: this.chartTooltips
+    }
+
+    public horizontalOptions: Object = {
+        responsive: true,
+        legend: { display: false },
+        maintainAspectRatio: false,
+        aspectRatio: 1,
+        tooltips: this.chartTooltips
+    }
+    
+    public pieOptions: Object = {
+        responsive: true,
+        legend: {
+            position: 'left',
+            align: 'start'
+        },
+        maintainAspectRatio: true,
+        tooltips: this.chartTooltips
+    }
+
+    public semanaLabels: string[] = [];
+    public semanaData: any[] = [];
+
+    public domicilioLabels: string[] = [];
+    public domicilioData: any[] = [];
+
+    public horarioData: any[] = [];
+    public horarioLabels: string[] = [];
+    
+    public popularData: any[] = [];
+    public popularLabels: string[] = [];
+
+    public meseroData: any[] = [];
+    public meseroLabels: string[] = [];
+
+    public sedeData: any[] = [];
+    public sedeLabels: string[] = [];
+
+    public diasData: any[] = [];
+    public diasLabels: string[] = [];
+
+    public wlistaData: any[] = [];
+    public wlistaLabels: string[] = [];
+
+    @ViewChild('pivotview') public pivotGridObj: PivotView;
     @ViewChild('cmpGraficas') public cmpGraficas: VentasComponent;
 
     constructor(
@@ -51,30 +115,41 @@ export class TableroComponent implements OnInit {
 
     ngOnInit(): void {
         this.getSede();
-        this.dataSourceSettings = {
-            dataSource: this.pivotData,
-            expandAll: false,
-            columns: [
-                { name: 'dia', caption: 'Día' }
-            ],
-            values: [{ name: 'total', caption: 'Monto' }],
-            rows: [
-                { name: 'grupo', caption: 'Grupo' },
-                { name: 'descripcion', caption: 'Producto' }
-            ],
-            formatSettings: [{
-                name: 'total',
-                format: 'N2'
-            }],
-            filters: [],
-            valueSortSettings: { headerText: 'Monto', headerDelimiter: '##', sortOrder: 'Descending' }
-        };
 
         this.button = new Button({ isPrimary: true });
         this.button.appendTo('#export');
 
         this.button.element.onclick = (): void => { this.pivotGridObj.excelExport(); };
-        this.loadDataGraficas();
+
+        if (!this.params.fdel) {
+            this.params.fdel = moment().subtract(1, 'week').format(GLOBAL.dbDateFormat);
+        }
+
+        if (!this.params.sede && this.params.sede.length === 0) {
+            this.params.sede.push(this.ls.get(GLOBAL.usrTokenVar).sede);
+        }
+
+        if (!this.params.fal) {
+            this.params.fal = moment().format(GLOBAL.dbDateFormat);
+        }
+
+        this.onSubmit();
+    }
+
+    setPivotData (data) {
+        this.pivotData = {
+            dataSource: data,
+            type: 'JSON',
+            expandAll: false,
+            filters: [],
+            columns: [{ name: 'dia', caption: 'Día' }],
+            rows: [
+                { name: 'grupo', caption: 'Grupo' },
+                { name: 'descripcion', caption: 'Producto' }
+            ],
+            values: [{ name: 'total', caption: 'Monto' }],
+            formatSettings: [{ name: 'total', format: 'N2' }]
+        };
     }
 
     getSede = (params: any = {}) => {
@@ -85,16 +160,38 @@ export class TableroComponent implements OnInit {
 
     onSubmit() {
         this.cargando = true;
+        // this.pivotGridObj.engineModule.fieldList = {};
+
         this.tableroService.getTableroDatos(this.params).subscribe(res => {
             if (res.exito) {
-                this.pivotGridObj.engineModule.fieldList = {};
-                this.pivotGridObj.dataSourceSettings.dataSource = res.datos;
+                this.setPivotData(res.datos);
 
-                this.estDias = res.cantidad;
-                this.estMin = res.min;
-                this.estMax = res.max;
-                this.estMedia = res.media;
-                this.estTotal = res.total;
+                this.ultimosDias = res.ultimos_dias;
+                this.estadistica = res.estadistica;
+
+                this.semanaLabels = res.pie_semana.labels;
+                this.semanaData = [res.pie_semana];
+
+                this.domicilioLabels = res.pie_domicilio.labels;
+                this.domicilioData = [res.pie_domicilio];
+
+                this.horarioData = [res.bar_horario];
+                this.horarioLabels = res.bar_horario.labels;
+
+                this.popularData = [res.bar_popular];
+                this.popularLabels = res.bar_popular.labels;
+
+                this.meseroData = [res.bar_mesero];
+                this.meseroLabels = res.bar_mesero.labels;
+
+                this.sedeData = [res.bar_sede];
+                this.sedeLabels = res.bar_sede.labels;
+
+                this.diasData = [res.line_dias];
+                this.diasLabels = res.line_dias.labels;
+
+                this.wlistaData = [res.line_wlista];
+                this.wlistaLabels = res.line_wlista.labels;
             } else {
                 this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
             }
@@ -105,22 +202,6 @@ export class TableroComponent implements OnInit {
     }
 
     loadDataGraficas = () => {
-        this.cargando = true;
-
-        if (!this.params.fdel) {
-            this.params.fdel = moment().subtract(1, 'week').format(GLOBAL.dbDateFormat);
-            // this.params.fdel = moment().subtract(3, 'day').format(GLOBAL.dbDateFormat);
-        }
-
-        if (!this.params.sede && this.params.sede.length === 0) {
-            this.params.sede.push(this.ls.get(GLOBAL.usrTokenVar).sede);
-        }
-
-        if (!this.params.fal) {
-            this.params.fal = moment().format(GLOBAL.dbDateFormat);
-            // this.params.fal = moment().subtract(3, 'day').format(GLOBAL.dbDateFormat);
-        }
-
         this.tableroService.getDataGraficas(this.params).subscribe((res: any) => {
             this.cargando = false;
             if (res.exito) {

@@ -50,7 +50,8 @@ class Reporte extends CI_Controller
 			"cliente" => "",
 			"sub_cuenta" => "",
 			"fecha" => formatoFecha($_POST['fecha'], 2),
-			"sedes" => $_POST['sede']
+			"sedes" => $_POST['sede'],
+			'subtitulo' => (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) ? '(solo bajo mínimo de stock)' : ''
 		];
 
 		foreach($_POST['sede'] as $s)
@@ -75,6 +76,16 @@ class Reporte extends CI_Controller
 			}
 		}
 
+		if(isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) {
+			foreach($args['reg'] as $key => $registro) {
+				foreach($registro as $llave => $value) {
+					if(round((float)$value->existencia / (float)$value->presentacion->cantidad, 2) > (float)$value->articulo->stock_minimo) {
+						unset($args['reg'][$key][$llave]);
+					}
+				}				
+			}
+		}
+
 		if (verDato($_POST, "_excel")) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$excel->getProperties()
@@ -89,6 +100,8 @@ class Reporte extends CI_Controller
 				"Código",
 				"Descripción",
 				"Unidad",
+				"Mínimo",
+				"Máximo",
 				"Ingresos",
 				"Egresos",
 				"Comandas",
@@ -97,12 +110,12 @@ class Reporte extends CI_Controller
 				"Existencia"
 			];
 			/*Encabezado*/
-			$hoja->setCellValue("A1", "Reporte de Existencias");
+			$hoja->setCellValue("A1", "Reporte de Existencias {$args['subtitulo']}");
 			$hoja->setCellValue("G1", "Fecha: {$args['fecha']}");
 
 			$hoja->fromArray($nombres, null, "A3");
-			$hoja->getStyle("A3:I3")->getFont()->setBold(true);
-			$hoja->getStyle('A3:I3')->getAlignment()->setHorizontal('center');
+			$hoja->getStyle("A3:K3")->getFont()->setBold(true);
+			$hoja->getStyle('A3:K3')->getAlignment()->setHorizontal('center');
 			$hoja->getStyle("A1")->getFont()->setBold(true);
 			$fila = 4;
 			foreach ($args['sedes'] as $sede) {
@@ -121,6 +134,8 @@ class Reporte extends CI_Controller
 						(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
 						"{$row->articulo->articulo} " . $row->articulo->descripcion,
 						$row->presentacion->descripcion,
+						round((float)$row->articulo->stock_minimo, 2),
+						round((float)$row->articulo->stock_maximo, 2),
 						((float) $row->ingresos != 0) ? round($row->ingresos / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->egresos != 0) ? round($row->egresos / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",

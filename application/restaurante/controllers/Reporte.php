@@ -1,6 +1,5 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
-
+defined('BASEPATH') OR exit('No direct script access allowed');
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -1452,6 +1451,8 @@ class Reporte extends CI_Controller
 				}
 			}
 			//Formas de pago
+			$filaIniciaFormasPago = null;
+			$filaTerminaFormasPago = null;
 			if(count($cmd->forma_pago) > 0) {
 				$filaIniciaFormasPago = $fila;
 				$hoja->setCellValue("B{$fila}", "Formas de pago de comanda {$cmd->comanda}");
@@ -1479,6 +1480,8 @@ class Reporte extends CI_Controller
 				$filaTerminaFormasPago = $fila - 1;
 			}
 			//Factuaras de comanda
+			$filaIniciaFacturas = null;
+			$filaTerminaFacturas = null;
 			if(count($cmd->factura) > 0) {
 				$filaIniciaFacturas = $fila;
 				$hoja->setCellValue("B{$fila}", "Facturas de comanda {$cmd->comanda}");
@@ -1553,7 +1556,7 @@ class Reporte extends CI_Controller
 				->getStartColor()
 				->setARGB('EEECE1');
 
-			if (isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1) {
+			if (isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 && !empty($filaIniciaFormasPago) && !empty($filaTerminaFormasPago)) {
 				$hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")
 					->getBorders()
 					->getOutline()
@@ -1566,7 +1569,7 @@ class Reporte extends CI_Controller
 					->setARGB('C4BD97');
 			}
 
-			if (isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1) {
+			if (isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 && !empty($filaIniciaFacturas) && !empty($filaTerminaFacturas)) {
 				$hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")
 					->getBorders()
 					->getOutline()

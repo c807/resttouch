@@ -1,0 +1,93 @@
+<div class="row">
+	<div class="col m12 s12">
+		<mat-card class="mat-elevation-z4 fullWidth">
+			<mat-card-title>
+				<h4>Ingreso</h4>
+			</mat-card-title>
+			<mat-card-content>
+				<form novalidate>
+					<mat-form-field class="fullWidth">
+						<mat-label>Reporte</mat-label>
+						<mat-select name="reporte" [(ngModel)]="params.reporte" required>
+							<mat-option *ngFor="let rep of reportes" [value]="rep.id">
+								{{ rep.descripcion }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel"
+						[ngModelOptions]="{standalone: true}" required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}"
+						required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Sede</mat-label>
+						<mat-select name="sede" multiple [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)"
+						required>
+							<mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+								{{sede.sede.nombre}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Bodega</mat-label>
+						<mat-select name="bodega" multiple [(ngModel)]="params.bodega">
+							<mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+								{{bod.descripcion}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Artículo</mat-label>
+						<input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}"
+						placeholder="Artículo" matInput [matAutocomplete]="autoArticulos"
+						(keyup)="filtrarArticulos(txtArticuloSelected)">
+						<mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
+							<mat-option *ngFor="let a of filteredArticulos" [value]="a">
+							{{a.descripcion}} ({{a.codigo}})
+							</mat-option>
+						</mat-autocomplete>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+                        <mat-label>Tipo de ingreso</mat-label>
+                        <mat-select name="tipo_ingreso" multiple [(ngModel)]="params.tipo_ingreso">
+                            <mat-option *ngFor="let ti of tiposMovimiento" [value]="ti.tipo_movimiento">
+                                {{ti.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Proveedor</mat-label>                        
+                        <input type="text" [(ngModel)]="txtProveedorSelected" [ngModelOptions]="{standalone: true}"
+                            placeholder="Proveedor" matInput [matAutocomplete]="autoProveedores"
+                            (keyup)="filtrarProveedores(txtProveedorSelected)">
+                        <mat-autocomplete #autoProveedores="matAutocomplete" [displayWith]="displayProveedor">
+                            <mat-option *ngFor="let prov of filteredProveedores" [value]="prov">
+                                ({{prov.nit}}) {{prov.razon_social}}
+                            </mat-option>
+                        </mat-autocomplete>
+
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" *ngIf="params.reporte == 3">
+                        <input matInput type="number" step="0.00001" placeholder="Variacion" name="variacion" [(ngModel)]="params.variacion">
+                    </mat-form-field>
+
+					<div align="end">
+						<app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()"
+						(resetParamsClick)="resetParams()"></app-rpt-botones>
+					</div>
+				</form>
+			<app-cargando *ngIf="cargando"></app-cargando>
+		</mat-card-content>
+	</mat-card>
+</div>
+</div>

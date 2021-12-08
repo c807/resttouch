@@ -17,6 +17,6 @@ export class CantidadCombosDialogComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  terminar = () => this.dialogRef.close(this.cantidadCombos)  
+  terminar = () => this.dialogRef.close(this.cantidadCombos);
 
 }

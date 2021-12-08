@@ -61,7 +61,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public descripcionUnica = {enviar_descripcion_unica: 0, descripcion_unica: null};
   public isTipExceeded = false;
   public porcentajeMaximoPropina = 0;
-  public MaxTooltTipMessage = 'Se ha sobrepasado el máximo de propina.';
+  public MaxTooltTipMessage  = '';
 
   private endSubs = new Subscription();
 
@@ -83,7 +83,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA);
+    this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
+    this.MaxTooltTipMessage = `El monto de propina sobrepasa el máximo sugerido del ${this.porcentajeMaximoPropina}%.`;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
     this.resetFactReq();
     this.processData();
@@ -198,7 +199,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     const tipLimit = this.inputData.totalDeCuenta * tipPorcentaje;
     let amount = (Number(this.formaPago.propina) || 0.00);
 
-    this.formasPagoDeCuenta.forEach((forP, index) => {
+    this.formasPagoDeCuenta.forEach((forP) => {
       amount += Number(forP.propina);
     });
 
