@@ -6,32 +6,39 @@
       </mat-card-title>
       <mat-card-content>
         <form #frmRptExistencias="ngForm" novalidate>
-          <mat-form-field class="fullWidth">
-            <mat-label>Sede</mat-label>
-            <mat-select name="sede" multiple [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)" required>
-                <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                  {{sede.sede.nombre}}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
 
           <mat-form-field class="fullWidth">
-              <mat-label>Bodega</mat-label>
-              <mat-select name="bodega" multiple [(ngModel)]="params.bodega" required>
-                  <mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
-                      {{bod.descripcion}}
-                  </mat-option>
-              </mat-select>
+            <mat-label>Sede</mat-label>
+            <mat-select name="sede" multiple [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)"
+              required>
+              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
-          
-          <mat-form-field class="fullWidth">            
-            <input matInput type="date" placeholder="Al" [(ngModel)]="params.fecha" [ngModelOptions]="{standalone: true}" required>
+
+          <mat-form-field class="fullWidth">
+            <mat-label>Bodega</mat-label>
+            <mat-select name="bodega" multiple [(ngModel)]="params.bodega" required>
+              <mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+                {{bod.descripcion}}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
+
+          <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Al" [(ngModel)]="params.fecha"
+              [ngModelOptions]="{standalone: true}" required>
+          </mat-form-field>
+
+          <mat-checkbox name="solo_bajo_minimo" [(ngModel)]="+params.solo_bajo_minimo">Ver solo bajo mínimo de stock</mat-checkbox>
+
           <div align="end">
-            <app-rpt-botones [configuracion]="configBotones" (excelClick) = "onSubmit(1)" (pdfClick)="onSubmit()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+            <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()"
+              (resetParamsClick)="resetParams()"></app-rpt-botones>
           </div>
-        </form>   
-        <app-cargando *ngIf="cargando"></app-cargando>     
+        </form>
+        <app-cargando *ngIf="cargando"></app-cargando>
       </mat-card-content>
     </mat-card>
   </div>

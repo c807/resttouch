@@ -32,6 +32,8 @@ export interface Articulo {
     precio_sugerido?: number;
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArticuloResponse {
@@ -60,6 +62,8 @@ export interface ArticuloResponse {
     precio_sugerido?: number;
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArbolCategoriaGrupo {
@@ -75,6 +79,8 @@ export interface ArbolCategoriaGrupo {
     usuariobaja?: number;
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArbolArticulos {
@@ -88,6 +94,8 @@ export interface ArbolArticulos {
     usuariobaja?: number;
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface NodoProducto {
@@ -105,6 +113,8 @@ export interface NodoProducto {
     usuariobaja?: number;
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ProductoSelected {
@@ -133,6 +143,8 @@ export interface ProductoSelected {
     detalle_impresion?: ArticuloImpresion[];
     cobro_mas_caro?: number;
     esextra?: number;
+    stock_minimo?: number;
+    stock_maximo?: number;
 }
 
 export interface ArticuloCodigo {

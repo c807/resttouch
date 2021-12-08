@@ -143,7 +143,10 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       debaja: 0,
       usuariobaja: null,
       fechabaja: null,
-      cobro_mas_caro: 0
+      cobro_mas_caro: 0,
+      esextra: 0,
+      stock_minimo: null,
+      stock_maximo: null
     };
     // this.categoria = null;
     // this.subcategoria = null;

@@ -32,6 +32,8 @@ class Articulo_model extends General_model
 	public $precio_sugerido = 0.00;
 	public $cobro_mas_caro = 0;
 	public $esextra = 0;
+	public $stock_minimo = null;
+	public $stock_maximo = null;
 
 	public function __construct($id = '')
 	{
