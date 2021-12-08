@@ -22,7 +22,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
 
   get deshabilitaTipoCC() {    
     return (tipo: ccTipo) => {
-      if (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0 ) > -1 ) {
+      if (moment(this.turno.fin).isValid() || (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1)) {
         return true;
       }
       return false;
@@ -61,24 +61,26 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
   }
 
   nuevaTranCC = (tipo: ccTipo): void => {
-    if (+tipo.pedirautorizacion === 0) {
-      this.addTranCC(tipo);
-    } else {
-      const dialogChkPass = this.dialog.open(CheckPasswordComponent, {
-        width: '40%',
-        disableClose: true,
-        data: new ConfigCheckPasswordModel(1)
-      });
-
-      this.endSubs.add(
-        dialogChkPass.afterClosed().subscribe(res => {          
-          if (res) {
-            this.addTranCC(tipo);                    
-          } else {
-            this.snackBar.open('La contraseña no es correcta.', 'Caja', { duration: 7000 });
-          }        
-        })
-      );
+    if (!this.deshabilitaTipoCC(tipo)) {
+      if (+tipo.pedirautorizacion === 0) {
+        this.addTranCC(tipo);
+      } else {
+        const dialogChkPass = this.dialog.open(CheckPasswordComponent, {
+          width: '40%',
+          disableClose: true,
+          data: new ConfigCheckPasswordModel(1)
+        });
+  
+        this.endSubs.add(
+          dialogChkPass.afterClosed().subscribe(res => {          
+            if (res) {
+              this.addTranCC(tipo);                    
+            } else {
+              this.snackBar.open('La contraseña no es correcta.', 'Caja', { duration: 7000 });
+            }        
+          })
+        );
+      }
     }
   }
 
@@ -107,8 +109,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       _validar: true,
       _excel,
       turno_tipo: this.turno.turno_tipo,
-      fdel: moment(this.turno.fecha).format(GLOBAL.dbDateFormat),
-      fal:  moment(this.turno.fecha).format(GLOBAL.dbDateFormat),
+      fdel: moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
+      fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
       _pagos: []
     }

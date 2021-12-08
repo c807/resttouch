@@ -26,12 +26,16 @@ class Cajacorte_model extends General_Model {
 
 	public function getCajaCorte($args=[])
 	{
-		if (isset($args['id'])) {
-			$this->db->where('a.id', $args['id']);
+		if (isset($args['caja_corte'])) {
+			$this->db->where('a.caja_corte', $args['caja_corte']);
 		}
 
 		if (isset($args['caja_tipo'])) {
 			$this->db->where('a.caja_corte_tipo', $args['caja_tipo']);
+		}
+
+		if (isset($args['turno'])) {
+			$this->db->where('a.turno', $args['turno']);
 		}
 
 		return $this->db
