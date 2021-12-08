@@ -7,7 +7,7 @@
 <body>
 	<table class="tabla-contenido">
 		<tr>
-			<td colspan="6" class="text-center"><h1>Reporte de Existencias</h1></td>
+			<td colspan="9" class="text-center"><h1>Reporte de Existencias <?php echo $subtitulo ?></h1></td>
 			<td colspan="2" class="text-center">Fecha <?php echo $fecha?></td>
 		</tr>
 	
@@ -15,6 +15,8 @@
 			<td class="titulo">Código</td>
 			<td class="titulo">Descripción</td>
 			<td class="titulo">Unidad</td>
+			<td class="titulo">Mínimo</td>
+			<td class="titulo">Máximo</td>
 			<td class="titulo">Ingresos</td>
 			<td class="titulo">Egresos</td>
 			<td class="titulo">Comandas</td>
@@ -35,10 +37,10 @@
 			<?php foreach ($sedes as $sede): ?>
 				<?php $obj = new Sede_model($sede); ?>
 				<tr>
-					<td colspan="9" class="titulo"><?php echo $obj->nombre; ?></td>
+					<td colspan="11" class="titulo"><?php echo $obj->nombre; ?></td>
 				</tr>
 				<tr>
-					<td colspan="9" class="titulo"><?php echo $bodegas[$obj->getPK()]; ?></td>
+					<td colspan="11" class="titulo"><?php echo $bodegas[$obj->getPK()]; ?></td>
 				</tr>
 				<?php 
 					foreach ($reg[$sede] as $key => $row): 
@@ -59,6 +61,12 @@
 							</td>
 							<td>
 								<?php echo $row->presentacion->descripcion ?>
+							</td>
+							<td class="text-right">
+								<?php echo number_format($row->articulo->stock_minimo, 2) ?>
+							</td>
+							<td class="text-right">
+								<?php echo number_format($row->articulo->stock_maximo, 2) ?>
 							</td>
 							<td class="text-right">
 								<?php echo number_format($row->ingresos / $row->presentacion->cantidad,2)?>

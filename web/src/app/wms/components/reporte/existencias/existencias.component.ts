@@ -39,6 +39,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
+    this.params.solo_bajo_minimo = 0;
     this.getSede();
     //this.getBodega();
   }
@@ -65,6 +66,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
 
   onSubmit(esExcel = 0) {
     if (this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 && this.params.fecha && moment(this.params.fecha).isValid()) {
+      this.params.solo_bajo_minimo = this.params.solo_bajo_minimo ? 1 : 0;
       this.params._excel = esExcel;
       this.cargando = true;
       this.endSubs.add(
@@ -89,7 +91,8 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
 
   resetParams = () => {
     this.params = {
-      fecha: moment().format(GLOBAL.dbDateFormat)
+      fecha: moment().format(GLOBAL.dbDateFormat),
+      solo_bajo_minimo: 0
     };
     this.cargando = false;
   }

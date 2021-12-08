@@ -78,6 +78,13 @@
                 <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima" [(ngModel)]="articulo.cantidad_maxima" required>
             </mat-form-field>
 
+            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
+                <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo" [(ngModel)]="articulo.stock_minimo">
+            </mat-form-field>
+            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
+                <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo" [(ngModel)]="articulo.stock_maximo">
+            </mat-form-field>
+
             <mat-form-field class="fullWidth">
                 <mat-label>Impuesto Especial</mat-label>
                 <mat-select name="impuesto_especial" [(ngModel)]="articulo.impuesto_especial">
