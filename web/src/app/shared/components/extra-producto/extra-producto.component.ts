@@ -37,7 +37,7 @@ export class ExtraProductoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadArticulosExtras();
     if (this.data.extras) {
-      console.log(this.data.extras);
+      // console.log(this.data.extras);
       this.extras = JSON.parse(JSON.stringify(this.data.extras));
     }
   }

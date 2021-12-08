@@ -849,7 +849,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
               const productosAImprimir: ProductoSelected[] = [];
               listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
               const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
-              console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
+              // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
               await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();              
               let AImpresoraNormal: ProductoSelected[] = [];
               let AImpresoraBT: ProductoSelected[] = [];

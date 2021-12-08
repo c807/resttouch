@@ -347,8 +347,8 @@ export class TranComanda {
                 // console.log(res);
                 if (res && res.respuesta && res.seleccion.receta.length > 0) {
                     // console.log(res.seleccion); // this.bloqueoBotones = false; return;
-                    this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, res.seleccion).subscribe(resSaveDetCmb => {                        
-                        if (resSaveDetCmb.exito) {                            
+                    this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, res.seleccion).subscribe(resSaveDetCmb => {
+                        if (resSaveDetCmb.exito) {
                             this.setSelectedCuenta(+this.cuentaActiva.numero);
                         } else {
                             this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', { duration: 3000 });
@@ -742,8 +742,10 @@ export class TranComanda {
                 nombres += `${det.cantidad.toString()} `
             }
             nombres += `${det.descripcion}|`;
-            if (+det.esreceta === 0) {
+            if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
                 nombres += this.getDetalle(det.detalle, false);
+            } else if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+                det.detalle_extras.forEach(de => nombres += `${de.descripcion};`);
             }
         }
         // console.log(nombres);
@@ -757,9 +759,13 @@ export class TranComanda {
         let detImpCombo: ArticuloImpresion[] = [];
         for (const det of dcs) {
             if (+det.multiple === 0 && +det.impresora > 0) {
+                let strExtras = '';
+                if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+                    det.detalle_extras.forEach(de => strExtras += `${de.descripcion};`);
+                }
                 detImpCombo.push({
                     Id: det.articulo,
-                    Nombre: `${path}${det.descripcion}`,
+                    Nombre: `${path}${det.descripcion}${strExtras !== '' ? `;${strExtras}` : ''}`,
                     Cantidad: +det.cantidad,
                     Total: 0,
                     Notas: det.notas,
@@ -780,7 +786,7 @@ export class TranComanda {
                 path += det.descripcion;
             }
 
-            if (+det.esreceta === 0) {
+            if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
                 detImpCombo = [...detImpCombo, ...this.getDetalleImpresionCombo(det.detalle, path)];
                 path = '';
             }
