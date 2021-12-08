@@ -56,12 +56,12 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
   loadDirecciones = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.clienteMasterSrvc.buscarDireccion({cliente_master: this.clienteMaster.cliente_master, debaja:0}).subscribe(res => {
+      this.clienteMasterSrvc.buscarDireccion({cliente_master: this.clienteMaster.cliente_master, debaja: 0 }).subscribe(res => {
         this.lstDirecciones = res;
         this.cargando = false;
       })
     );
-    
+
   }
 
   agregarDireccion = () => {
