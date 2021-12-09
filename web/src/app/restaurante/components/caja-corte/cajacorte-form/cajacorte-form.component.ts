@@ -111,7 +111,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         `CAJA ${this.data.tipo.descripcion.toUpperCase()}`,
-        'Una vez guardado los datos, necesitará la contraseña del gerente de turno para modificar. ¿Desea continuar?',
+        'Una vez guardado los datos, no podrá modificar. ¿Desea continuar?',
         'Sí', 'No'
       )
     });
