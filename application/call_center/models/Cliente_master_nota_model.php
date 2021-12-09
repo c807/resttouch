@@ -6,7 +6,8 @@ class Cliente_master_nota_model extends General_model {
 	public $cliente_master_nota;
     public $cliente_master;
 	public $fecha_hora;
-    public $nota;    
+    public $nota;
+    public $debaja = null;
 
 	public function __construct($id = "")
 	{

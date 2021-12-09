@@ -2,7 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GLOBAL } from '../../shared/global';
 import { ServiceErrorHandler } from '../../shared/error-handler';
-import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion, ClienteMasterDireccionResponse } from '../interfaces/cliente-master';
+import {
+  ClienteMaster,
+  ClienteMasterTelefono,
+  ClienteMasterDireccion,
+  ClienteMasterDireccionResponse,
+  ClienteMasterNotaResponse
+} from '../interfaces/cliente-master';
 import { Telefono } from '../interfaces/telefono';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -55,6 +61,13 @@ export class ClienteMasterService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  saveNotaClienteMaster(entidad: any): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_nota`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   saveTelefonosClienteMaster(entidad: any): Observable<any> {
     return this.http.post<any>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/guardar_telefono`,
@@ -74,12 +87,22 @@ export class ClienteMasterService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  desasociarClienteMasterNota(idClienteMaster: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/desasociar_cliente_master_nota/${idClienteMaster}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   buscarDireccion(fltr: any = {}): Observable<ClienteMasterDireccionResponse[]> {
     return this.http.get<ClienteMasterDireccionResponse[]>(
       `${GLOBAL.urlCallCenter}/${this.moduleUrl}/buscar_direccion?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-
+  buscarNota(fltr: any = {}): Observable<ClienteMasterNotaResponse[]> {
+    return this.http.get<ClienteMasterNotaResponse[]>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/buscar_nota?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 
 }

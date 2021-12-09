@@ -1,0 +1,25 @@
+<h2 class="mat-title">Agregar una nota a {{nombre}}</h2>
+<mat-divider></mat-divider>
+<div class="example-container">
+
+  <form #frmAddDir="ngForm" novalidate (ngSubmit)="onNotaSubmit()">
+
+
+    <mat-form-field hintLabel="Notas" appearance="fill" class="notes-st">
+      <mat-label>Alguna nota</mat-label>
+      <input [(ngModel)]="nota.nota" name="notes"  matInput #input maxlength="50" required placeholder="Cliente responsable">
+      <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+    </mat-form-field>
+
+    <div mat-dialog-actions align="end">
+      <button mat-raised-button (click)="cancelar()" color="warn">Cancelar</button>
+      <button mat-raised-button type="submit" [disabled]="!frmAddDir.form.valid" color="primary">Guardar</button>
+    </div>
+
+  </form>
+
+</div>
+
+
+
+

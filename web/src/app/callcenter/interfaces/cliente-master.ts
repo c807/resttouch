@@ -42,3 +42,19 @@ export interface ClienteMasterDireccionResponse {
     debaja?: number;
     direccion_completa?: string;
 }
+
+export interface ClienteMasterNota {
+  cliente_master_nota: number;
+  cliente_master: number;
+  fecha_hora: any;
+  nota: string;
+  debaja: number;
+}
+
+export interface ClienteMasterNotaResponse {
+  cliente_master_nota: number;
+  cliente_master: ClienteMaster;
+  fecha_hora: any;
+  nota: string;
+  debaja: number;
+}
