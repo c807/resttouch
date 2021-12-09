@@ -5,9 +5,7 @@ import {GLOBAL} from '../../../../shared/global';
 import {LocalstorageService} from '../../../../admin/services/localstorage.service';
 
 import {
-  ClienteMaster,
-  ClienteMasterDireccion,
-  ClienteMasterDireccionResponse, ClienteMasterNota, ClienteMasterNotaResponse
+  ClienteMaster, ClienteMasterNota, ClienteMasterNotaResponse
 } from '../../../interfaces/cliente-master';
 import {ClienteMasterService} from '../../../services/cliente-master.service';
 import {
@@ -16,7 +14,6 @@ import {
 } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import {Subscription} from 'rxjs';
-import {AgregaDireccionComponent} from '../agrega-direccion/agrega-direccion.component';
 import {AgregaNotaComponent} from '../agregar-nota/agrega-nota.component';
 
 @Component({
