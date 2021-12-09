@@ -1267,6 +1267,142 @@ class Venta extends CI_Controller
 			}
 		}
 	}
+
+	public function ventas_detallada_mesero()
+	{
+		set_time_limit(1800);
+		// ini_set('memory_limit', '512M');
+		
+		$datos = [];
+
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'), true);
+			$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
+			if (!isset($req['sede']) || count($req['sede']) === 0) {
+				$req['sede'] = [$this->data->sede];
+			}
+			if (!isset($req['fdel'])) {
+				$req['fdel'] = date('Y-m-d');
+			}
+			if (!isset($req['fal'])) {
+				$req['fal'] = date('Y-m-d');
+			}
+			$rpt = new Rpt_model();
+
+			foreach ($req['sede'] as $s) {
+				$sedeObj = new Sede_model($s);
+				$sede = new stdClass();
+
+				$sede->sede = $sedeObj->getPK();
+				$req['idsede'] = $sede->sede;
+				$sede->nombre = $sedeObj->nombre;
+				$obj = $rpt->get_lista_comandas($req);
+				$sede->ventas = [];
+				$sede->cantidad = 0;
+				$sede->total = 0;
+				$sede->suma_propinas = 0;
+				$sede->suma_descuentos = 0;
+				if ($obj) {
+
+					$ventas = $rpt->get_detalle_ventas_mesero($obj->comandas, $req);
+					
+					$sede->ventas = $ventas;
+				}
+				$datos[] = $sede;
+			}
+
+			$data = [
+				'fdel' => $req['fdel'],
+				'fal' => $req['fal'],
+				'turno' => isset($req['turno_tipo']) && (int)$req['turno_tipo'] > 0 ? new TurnoTipo_model($req['turno_tipo']) : null,
+				'sedes' => $datos
+			];
+
+			// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+
+			if (verDato($req, '_excel')) {
+				$data = (object)$data;
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+				$excel->getProperties()
+					->setCreator("Restouch")
+					->setTitle("Office 2007 xlsx Ventas por mesero")
+					->setSubject("Office 2007 xlsx Ventas por mesero")
+					->setKeywords("office 2007 openxml php");
+
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+
+				$hoja->setCellValue('A1', 'Reporte de ventas');
+				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
+				$hoja->setCellValue('A3', 'Por mesero');
+				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
+				$hoja->getStyle('A1:D4')->getFont()->setBold(true);
+
+				$fila = 6;
+				foreach ($data->sedes as $s) {
+					$hoja->setCellValue("A{$fila}", $s->nombre);
+					$hoja->mergeCells("A{$fila}:D{$fila}");
+					$hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
+					$fila++;
+					$hoja->setCellValue("A{$fila}", 'Mesero');
+					$hoja->setCellValue("B{$fila}", 'Artículo');
+					$hoja->setCellValue("C{$fila}", 'Cantidad');
+					$hoja->setCellValue("D{$fila}", 'Total (sin desct., sin propina)');
+					$hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->setAutoFilter("A{$fila}:D{$fila}");
+					$fila++;
+					foreach ($s->ventas as $mesero) {
+						foreach ($mesero->ventas as $venta) {
+							$hoja->setCellValue("A{$fila}", "{$mesero->nombres} {$mesero->apellidos}");
+							$hoja->setCellValue("B{$fila}", $venta->descripcion);
+							$hoja->setCellValue("C{$fila}", $venta->cantidad);
+							$hoja->setCellValue("D{$fila}", $venta->total);
+							$fila++;
+						}
+					}					
+				}
+
+				$fila--;				
+				$hoja->getStyle("C8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+
+				foreach (range('A', 'D') as $col) {
+					$hoja->getColumnDimension($col)->setAutoSize(true);
+				}
+
+				$hoja->mergeCells('A1:D1');
+				$hoja->mergeCells('A2:D2');
+				$hoja->mergeCells('A3:D3');
+				$hoja->mergeCells('A4:D4');				
+
+				$hoja->setTitle("Ventas por mesero");
+
+				header("Content-Type: application/vnd.ms-excel");
+				header("Content-Disposition: attachment;filename=Ventas_Mesero.xls");
+				header("Cache-Control: max-age=1");
+				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+				header("Cache-Control: cache, must-revalidate");
+				header("Pragma: public");
+
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save("php://output");
+			} else {
+				$vista = $this->load->view('reporte/venta/por_mesero', array_merge($data, $req), true);
+
+				$mpdf = new \Mpdf\Mpdf([
+					'tempDir' => sys_get_temp_dir(), //Produccion
+					'format' => 'Letter'
+				]);
+
+				$mpdf->WriteHTML($vista);
+				$mpdf->Output('Ventas_por_mesero.pdf', 'D');
+
+				// $this->output->set_content_type("application/json")->set_output(json_encode(array_merge($data, $req)));
+				// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+			}
+		}
+	}	
 }
 
 /* End of file Ventas.php */

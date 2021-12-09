@@ -286,4 +286,43 @@ class Rpt_model extends General_model
         return $propina;        
 
     }
+
+    public function get_detalle_ventas_mesero($comandas, $args = [], $soloMeseros = true)
+    {
+        if (isset($args['idsede'])) {
+            $this->db->where('a.sede', $args['idsede']);
+        }
+
+        if (isset($args['mesero'])) {
+            $this->db->where('a.mesero', $args['mesero']);
+        }
+
+        if ($soloMeseros) {
+            $this->db->select('a.mesero, b.nombres, b.apellidos');
+            $this->db->group_by('a.mesero');
+            $this->db->order_by('b.nombres, b.apellidos');
+        } else {
+            $this->db->select('d.descripcion, SUM(c.cantidad) AS cantidad, SUM(c.total) AS total');
+            $this->db->group_by('c.articulo');
+            $this->db->order_by('3 DESC, d.descripcion');
+        }
+
+        $data = $this->db
+            ->join('usuario b', 'b.usuario = a.mesero')
+            ->join('detalle_comanda c', 'a.comanda = c.comanda')
+            ->join('articulo d', 'd.articulo = c.articulo')
+            ->where('c.cantidad >', 0)
+            ->where('c.total >', 0)
+            ->where("a.comanda IN({$comandas})")
+            ->get('comanda a')->result();
+
+        if ($soloMeseros) {            
+            foreach($data as $mesero) {
+                $args['mesero'] = $mesero->mesero;
+                $mesero->ventas = $this->get_detalle_ventas_mesero($comandas, $args, false);
+            }
+        }
+
+        return $data;
+    }
 }
