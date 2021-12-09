@@ -48,7 +48,7 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     this.tipoDireccion = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA);
     this.isEditing = this.data.isEditing;
     if (this.data.defData) {
-      this.direccion = this.data.defData;
+       this.direccion = this.data.defData;
     }
 
     this.nombre = this.data.clienteMaster.nombre;
@@ -63,7 +63,9 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-  cancelar = () => this.dialogRef.close();
+  cancelar = () => {
+    this.dialogRef.close();
+  }
 
   onDireccionSubmit = () => {
     const obj = {
@@ -79,7 +81,7 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
       notas: this.direccion.notas,
       debaja: 0,
       cliente_master_direccion: this.direccion.cliente_master_direccion
-    }
+    };
 
     this.endSubs.add(
       this.clienteMasterSrvc.saveDireccionClienteMaster(obj).subscribe(res => {
