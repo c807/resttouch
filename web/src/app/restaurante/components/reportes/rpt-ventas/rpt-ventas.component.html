@@ -6,13 +6,18 @@
             </mat-card-title>
             <mat-card-content>
                 <form #frmEntidad="ngForm" novalidate>
-                    <mat-form-field class="fullWidth">
+                    <mat-form-field class="fullWidth separacionPorHint">
                         <mat-label>Tipo</mat-label>
                         <mat-select name="tipo_reporte" [(ngModel)]="params.tipo_reporte" required>
                             <mat-option *ngFor="let tr of tiposReporte" [value]="tr.tipo_reporte">
                                 {{tr.descripcion}}
                             </mat-option>
                         </mat-select>
+                        <mat-hint align="start" *ngIf="+params.tipo_reporte === 4">
+                            <strong>
+                                No incluirá facturas manuales porque las facturas manuales no se asignan a ningún mesero.
+                            </strong>
+                        </mat-hint>
                     </mat-form-field>
                     <mat-form-field class="fullWidth separacionPorHint">
                         <mat-label>Tipo de turno</mat-label>
@@ -43,7 +48,16 @@
                                 {{sede.sede.nombre}}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>                    
+                    </mat-form-field>    
+                    
+                    <mat-form-field class="fullWidth" *ngIf="+params.tipo_reporte === 4">
+                        <mat-label>Mesero</mat-label>
+                        <mat-select name="mesero" [(ngModel)]="params.mesero">
+                            <mat-option *ngFor="let m of usuarios" [value]="m.usuario">
+                                {{m.nombres}} {{m.apellidos}}
+                            </mat-option>
+                        </mat-select>                        
+                    </mat-form-field>
                     <app-rpt-botones [configuracion]="configBotones" (excelClick) = "getReporte(3)" (pdfClick)="getReporte(2)" (resetParamsClick)="resetParams()"></app-rpt-botones>
                 </form>
                 <app-cargando *ngIf="cargando"></app-cargando>
