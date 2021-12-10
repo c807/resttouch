@@ -4,12 +4,12 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {GLOBAL} from '../../../../shared/global';
 import {LocalstorageService} from '../../../../admin/services/localstorage.service';
 
-import {ClienteMaster} from '../../../interfaces/cliente-master';
+import {ClienteMaster, ClienteMasterDireccion} from '../../../interfaces/cliente-master';
 import {ClienteMasterService} from '../../../services/cliente-master.service';
 
 import {Subscription} from 'rxjs';
-import {ConfiguracionService} from '../../../../admin/services/configuracion.service';
 import {TipoDireccionService} from '../../../services/tipo-direccion.service';
+import { TipoDireccion } from '../../../interfaces/tipo-direccion';
 
 @Component({
   selector: 'app-agrega-direccion',
@@ -23,9 +23,9 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
-  public nombre: any = {};
-  public direccion: any = {};
-  public tipoDireccion: any = {};
+  public nombre: string;
+  public direccion: ClienteMasterDireccion;
+  public tipoDireccion: TipoDireccion[] = [];
 
   public isEditing = false;
 
@@ -36,19 +36,22 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AgregaDireccionComponent>,
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
-    private ls: LocalstorageService,
-    private configSrvc: ConfiguracionService,
+    private ls: LocalstorageService,    
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }
 
 
   ngOnInit(): void {
-    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.tipoDireccion = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA);
+    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;    
     this.isEditing = this.data.isEditing;
     if (this.data.defData) {
        this.direccion = this.data.defData;
+    } else {
+      this.direccion = { 
+        cliente_master_direccion: null, cliente_master: this.data.clienteMaster.cliente_master, tipo_direccion: null, 
+        direccion1: null, debaja: 0 
+      };
     }
 
     this.nombre = this.data.clienteMaster.nombre;
@@ -68,23 +71,23 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   }
 
   onDireccionSubmit = () => {
-    const obj = {
-      cliente_master: this.data.clienteMaster.cliente_master,
-      tipo_direccion: this.direccion.tipo_direccion,
-      direccion1: this.direccion.direccion1,
-      direccion2: this.direccion.direccion2,
-      zona: this.direccion.zona,
-      codigo_postal: this.direccion.codigo_postal,
-      municipio: this.direccion.municipio,
-      departamento: this.direccion.departamento,
-      pais: this.direccion.pais,
-      notas: this.direccion.notas,
-      debaja: 0,
-      cliente_master_direccion: this.direccion.cliente_master_direccion
-    };
+    // const obj = {
+    //   cliente_master_direccion: this.direccion.cliente_master_direccion,
+    //   cliente_master: this.data.clienteMaster.cliente_master,
+    //   tipo_direccion: this.direccion.tipo_direccion,
+    //   direccion1: this.direccion.direccion1,
+    //   direccion2: this.direccion.direccion2,
+    //   zona: this.direccion.zona,
+    //   codigo_postal: this.direccion.codigo_postal,
+    //   municipio: this.direccion.municipio,
+    //   departamento: this.direccion.departamento,
+    //   pais: this.direccion.pais,
+    //   notas: this.direccion.notas,
+    //   debaja: 0,
+    // };
 
     this.endSubs.add(
-      this.clienteMasterSrvc.saveDireccionClienteMaster(obj).subscribe(res => {
+      this.clienteMasterSrvc.saveDireccionClienteMaster(this.direccion).subscribe(res => {
         if (res.exito) {
           this.dialogRef.close();
           this.snackBar.open(res.mensaje, 'Direccion asociada', {duration: 3000});
