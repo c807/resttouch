@@ -13,6 +13,7 @@ class Cajacorte_model extends General_Model {
 	public $numero = null;
 	public $fecha = null;
 	public $total = 0;
+	public $descripcion_documento = null;
 	
 	public function __construct($id='')
 	{

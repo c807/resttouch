@@ -46,7 +46,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
   get noGuardar() {
     let docCompleto = true;
     if (+this.data.tipo.pedirdocumento === 1) {
-      if (!this.documento.numero || !moment(this.documento.fecha).isValid()) {
+      if (!this.documento.numero || !moment(this.documento.fecha).isValid() || !this.documento.descripcion_documento) {
         docCompleto = false;
       }
     }
@@ -59,7 +59,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
   public ccorteNomi: ccNominacion[] = [];
   public formasPago: FormaPago[] = [];
   public documento: ccDocumentoRetiro = {
-    serie: null, numero: null, fecha: moment().format(GLOBAL.dbDateFormat)
+    serie: null, numero: null, fecha: moment().format(GLOBAL.dbDateFormat), descripcion_documento: null
   };
 
   private endSubs = new Subscription();
@@ -144,6 +144,16 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
   }
 
   cancelar = () => this.dialogRef.close();
+
+  validateNominacion = (e: any) => {
+    const inp = String.fromCharCode(e.keyCode);
+    if (/[0-9]/.test(inp)) {
+      return true;
+    } else {
+      e.preventDefault();
+      return false;
+    }
+  }
 
 }
 

@@ -46,4 +46,5 @@ export interface ccDocumentoRetiro {
 	serie: string;
 	numero: string;
 	fecha: string;	
+	descripcion_documento?: string;
 }

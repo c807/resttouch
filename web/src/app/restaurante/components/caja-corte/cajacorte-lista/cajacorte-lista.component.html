@@ -13,32 +13,38 @@
                         <th style="width: 25%;">Fecha/Hora</th>
                         <th style="width: 20%;">Tipo</th>
                         <th style="width: 10%;" class="rtxt">Total</th>
-                        <th colspan="3">Documento</th>
+                        <th colspan="3">Documento / Fecha</th>
                         <th style="width: 10%;"></th>
                         <th style="width: 10%;"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let cc of listacc">
-                        <td style="width: 25%;">{{cc.creacion | date:'dd/MM/YYYY HH:mm:ss'}}</td>
-                        <td style="width: 20%;">{{cc.caja_corte_tipo.descripcion}}</td>
-                        <td style="width: 10%;" class="rtxt">{{cc.total | number:'1.2-2'}}</td>
-                        <td style="width: 10%;">{{cc.serie}}</td>
-                        <td style="width: 10%;">{{cc.numero}}</td>
-                        <td style="width: 15%;">{{cc.fecha | date:'dd/MM/YYYY'}}</td>
-                        <td style="width: 10%;" class="ctxt">
-                            <button mat-icon-button (click)="imprimirCC(cc)" color="accent"
-                                *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
-                                <mat-icon>picture_as_pdf</mat-icon>
-                            </button>
-                        </td>
-                        <td style="width: 10%;" class="ctxt">
-                            <button mat-icon-button (click)="imprimirCC(cc, 1)" color="accent"
-                                *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
-                                <mat-icon>article</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
+                    <ng-container *ngFor="let cc of listacc">                        
+                        <tr>
+                            <td style="width: 25%;">{{cc.creacion | date:'dd/MM/YYYY HH:mm:ss'}}</td>
+                            <td style="width: 20%;">{{cc.caja_corte_tipo.descripcion}}</td>
+                            <td style="width: 10%;" class="rtxt">{{cc.total | number:'1.2-2'}}</td>
+                            <td style="width: 10%;">{{cc.serie}}</td>
+                            <td style="width: 10%;">{{cc.numero}}</td>
+                            <td style="width: 15%;">{{cc.fecha | date:'dd/MM/YYYY'}}</td>
+                            <td style="width: 10%;" class="ctxt">
+                                <button mat-icon-button (click)="imprimirCC(cc)" color="accent"
+                                    *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
+                                    <mat-icon>picture_as_pdf</mat-icon>
+                                </button>
+                            </td>
+                            <td style="width: 10%;" class="ctxt">
+                                <button mat-icon-button (click)="imprimirCC(cc, 1)" color="accent"
+                                    *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
+                                    <mat-icon>article</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="cc.descripcion_documento !== null && cc.descripcion_documento !== undefined && cc.descripcion_documento.trim() !== ''">
+                            <td style="width: 25%;"></td>
+                            <td colspan="7" style="width: 75%;">*{{cc.descripcion_documento}}</td>
+                        </tr>
+                    </ng-container>
                 </tbody>
             </table>
         </mat-card-content>

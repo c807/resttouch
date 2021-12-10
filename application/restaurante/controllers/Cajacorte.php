@@ -41,6 +41,7 @@ class Cajacorte extends CI_Controller
 				$cc->serie = $req->documento->serie;
 				$cc->numero = $req->documento->numero;
 				$cc->fecha = $req->documento->fecha;
+				$cc->descripcion_documento = $req->documento->descripcion_documento;
 			}
 
 			$ccGuardado = $cc->guardar();

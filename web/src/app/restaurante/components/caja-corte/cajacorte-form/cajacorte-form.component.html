@@ -18,7 +18,8 @@
               <tr *ngFor="let ccn of ccorteNomi">
                 <td class="rtxt bld" style="width: 25%;">{{ccn.nombre}}</td>
                 <td style="width: 35%;">
-                  <input id="txtCantidad_{{ccn.caja_corte_nominacion}}" matInput type="number" placeholder="Cantidad" name="cantidad" [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor">              
+                  <input id="txtCantidad_{{ccn.caja_corte_nominacion}}" matInput type="number" placeholder="Cantidad" name="cantidad" 
+                    [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)">
                 </td>
                 <td class="rtxt bld">{{ccn.total | number:'1.2-2'}}</td>
               </tr>
@@ -67,7 +68,14 @@
           </mat-form-field>
           <mat-form-field style="width: 33.34%;">
             <input type="date" matInput name="fecha" placeholder="Fecha" [(ngModel)]="documento.fecha" required>
-          </mat-form-field>
+          </mat-form-field>          
+        </div>
+      </div>
+      <div class="row" *ngIf="verDocumento">
+        <div class="col m12 s12">
+          <mat-form-field class="fullWidth">
+            <input type="text" matInput name="Descripción" placeholder="Descripción" [(ngModel)]="documento.descripcion_documento" minlength="5" maxlength="1000" required>
+          </mat-form-field>          
         </div>
       </div>
     </mat-card-content>
