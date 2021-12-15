@@ -1252,4 +1252,23 @@ export class TranComanda {
         );
     }
 
+    verHistorico = () => {
+        const confirmRef = this.dialog.open(HistoricoPedidosComponent, {
+          width: '55%',
+          data: {
+            cliente_master: (this.clientePedido as ClienteMaster).cliente_master,
+            nombre: (this.clientePedido as ClienteMaster).nombre,
+            comanda: this.mesaEnUso.comanda
+          }
+        });
+    
+        this.endSubs.add(
+          confirmRef.afterClosed().subscribe((resDialog: any) => {
+            if (resDialog) {
+              this.setSelectedCuenta(+this.cuentaActiva.numero);
+            }
+          })
+        );
+      }
+
 }

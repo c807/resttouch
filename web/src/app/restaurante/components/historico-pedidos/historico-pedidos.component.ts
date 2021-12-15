@@ -49,11 +49,11 @@ export class HistoricoPedidosComponent implements OnInit, OnDestroy {
     ));
   }
 
-  terminar = () => this.dialogRef.close();
+  terminar = (obj: any = null) => this.dialogRef.close(obj);
 
   duplicarPedido = (idComanda: number) => {
     if (this.data.comanda && +this.data.comanda > 0 && idComanda && +idComanda > 0) {
-      console.log(`Duplicando pedido ${idComanda} en ${this.data.comanda}`);
+      // console.log(`Duplicando pedido ${idComanda} en ${this.data.comanda}`);
       const confDialogRef = this.dialog.open(ConfirmDialogComponent, {
         maxWidth: '400px',
         data: new ConfirmDialogModel('Duplicar pedido', 'Esto duplicará el pedido seleccionado. ¿Desea continuar?', 'Sí', 'No')
@@ -70,7 +70,7 @@ export class HistoricoPedidosComponent implements OnInit, OnDestroy {
               this.comandaSrvc.duplicarDetalleComanda(params).subscribe((resDuplicado) => {
                 if (resDuplicado.exito) {
                   this.snackBar.open('Pedido duplicado con éxito.', 'Duplicar pedido', { duration: 3000 });
-                  this.terminar();
+                  this.terminar(true);
                 } else {
                   this.snackBar.open(`ERROR: ${resDuplicado.mensaje}`, 'Duplicar pedido', { duration: 7000 });
                 }

@@ -351,7 +351,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     const tranComandaRef = this.dialog.open(TranComandaAltComponent, {
       maxWidth: '100vw', maxHeight: '85vh', width: '99vw', height: '85vh',
       disableClose: true,
-      data: { mesa: this.mesaSeleccionada }
+      data: { mesa: this.mesaSeleccionada, clientePedido: this.clientePedido }
     });
 
     this.endSubs.add(      

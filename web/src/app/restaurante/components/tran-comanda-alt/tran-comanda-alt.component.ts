@@ -12,6 +12,8 @@ import { ConfiguracionService } from '../../../admin/services/configuracion.serv
 
 import { ComandaGetResponse } from '../../interfaces/comanda';
 import { Articulo, NodoProducto } from '../../../wms/interfaces/articulo';
+import { Cliente } from '../../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 
 import { ComandaService } from '../../services/comanda.service';
 import { ArticuloService } from '../../../wms/services/articulo.service';
@@ -20,6 +22,7 @@ import { UsuarioService } from '../../../admin/services/usuario.service';
 
 interface IDatosTranComanda {
   mesa: ComandaGetResponse;
+  clientePedido: (Cliente | ClienteMaster);
 }
 
 @Component({
@@ -68,6 +71,11 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
     if (this.data) {
       if (this.data.mesa) {
         this.mesaEnUso = this.data.mesa;
+
+        if (this.data.clientePedido) {
+          this.clientePedido = this.data.clientePedido;
+        }
+
         this.alIniciar();
         const ctaAbierta = this.mesaEnUso.cuentas.find(c => +c.cerrada === 0);
         if(ctaAbierta) {
@@ -75,7 +83,7 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
         }
         // console.log('CTA = ', this.cuentaActiva);
         // console.log(this.mesaEnUso);
-      }
+      }      
     }
   }
 
