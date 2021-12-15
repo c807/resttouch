@@ -136,9 +136,24 @@
               </mat-form-field>
             </td>
             <td>
+
+              <!-- <mat-form-field class="fullWidth">
+                <mat-label>Artículo</mat-label>                    
+                <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
+                <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
+                    <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="disableArticuloReceta(a)">
+                        {{a.descripcion}}{{ a.subcategoria && a.subcategoria.descripcion ? (' (' + a.subcategoria.descripcion + ')') : '' }}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field> -->
               <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Dirección de entrega" name="direccion_entrega"
-                       [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+                <!-- <input matInput type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required> -->
+                <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+                <mat-autocomplete #autoDirEntr="matAutocomplete" (optionSelected)="setSedeAtiende($event.option.value)">
+                  <mat-option *ngFor="let dirEnt of direccionesDeEntrega" [value]="dirEnt.direccion_completa">
+                    {{dirEnt.direccion_completa}}
+                  </mat-option>
+                </mat-autocomplete>
               </mat-form-field>
             </td>
           </tr>

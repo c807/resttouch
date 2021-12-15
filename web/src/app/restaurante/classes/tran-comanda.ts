@@ -19,6 +19,7 @@ import { NuevaCuentaComponent } from '../components/nueva-cuenta/nueva-cuenta.co
 import { DistribuirProductosCuentasComponent } from '../components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
 import { TranComandaAltComponent } from '../components/tran-comanda-alt/tran-comanda-alt.component';
 import { CantidadCombosDialogComponent } from '../components/cantidad-combos-dialog/cantidad-combos-dialog.component';
+import { HistoricoPedidosComponent } from '../components/historico-pedidos/historico-pedidos.component';
 
 import { Cuenta, DetalleCuentaSimplified } from '../interfaces/cuenta';
 import { Comanda, ComandaGetResponse } from '../interfaces/comanda';
@@ -30,6 +31,7 @@ import { ComandaService } from '../services/comanda.service';
 import { ReportePdfService } from '../services/reporte-pdf.service';
 import { ConfiguracionService } from '../../admin/services/configuracion.service';
 import { Cliente } from '../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
 import { Categoria } from '../../wms/interfaces/categoria';
 import { UsuarioService } from '../../admin/services/usuario.service';
 
@@ -44,7 +46,7 @@ export class TranComanda {
     }
 
     public mesaEnUso: ComandaGetResponse;
-    public clientePedido: Cliente = null;
+    public clientePedido: (Cliente | ClienteMaster) = null;
     public closeSideNavEv = new EventEmitter();
     public appLstProdAlt: ListaProductoAltComponent;
     public mesaSavedEv = new EventEmitter();

@@ -105,4 +105,10 @@ export class ClienteMasterService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getHistoricoPedidos(fltr: any = {}): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/historico_pedidos?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }

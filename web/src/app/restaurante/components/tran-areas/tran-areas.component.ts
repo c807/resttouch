@@ -17,6 +17,7 @@ import { Comanda, ComandaGetResponse } from '../../interfaces/comanda';
 import { ComandaService } from '../../services/comanda.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 import { Cliente } from '../../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 import { Subscription } from 'rxjs';
 // import * as moment from 'moment';
 
@@ -40,7 +41,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   public mesaSeleccionada: any;
   public mesaSeleccionadaToOpen: any;
   public configTipoPantalla = 1;
-  public clientePedido: Cliente = null;
+  public clientePedido: (Cliente | ClienteMaster) = null;
 
   private endSubs = new Subscription();
 
@@ -270,6 +271,9 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
         })
       );
     } else {
+      if(+m.escallcenter === 1) {
+        this.mesaSeleccionadaToOpen.cliente_master = (this.clientePedido as ClienteMaster).cliente_master || null;
+      }
       this.mesaSeleccionadaToOpen.mesero = this.ls.get(GLOBAL.usrTokenVar).idusr;
       this.guardarMesa(m);
     }

@@ -18,8 +18,9 @@ import { NotasGeneralesComandaComponent } from '../notas-generales-comanda/notas
 import { NuevaCuentaComponent } from '../nueva-cuenta/nueva-cuenta.component';
 import { DistribuirProductosCuentasComponent } from '../distribuir-productos-cuentas/distribuir-productos-cuentas.component';
 import { CantidadCombosDialogComponent } from '../cantidad-combos-dialog/cantidad-combos-dialog.component';
+import { HistoricoPedidosComponent } from '../historico-pedidos/historico-pedidos.component';
 
-import { Cuenta, DetalleCuentaResponse, DetalleCuentaSimplified } from '../../interfaces/cuenta';
+import { Cuenta, DetalleCuentaSimplified } from '../../interfaces/cuenta';
 import { Comanda, ComandaGetResponse } from '../../interfaces/comanda';
 import { DetalleComanda } from '../../interfaces/detalle-comanda';
 import { Articulo, ArbolArticulos, ProductoSelected, NodoProducto, ArticuloImpresion } from '../../../wms/interfaces/articulo';
@@ -29,6 +30,7 @@ import { ComandaService } from '../../services/comanda.service';
 import { ReportePdfService } from '../../services/reporte-pdf.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 import { Cliente } from '../../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 import { UsuarioService } from '../../../admin/services/usuario.service';
 // import * as moment from 'moment';
 // import { saveAs } from 'file-saver';
@@ -48,7 +50,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   }
 
   @Input() mesaEnUso: ComandaGetResponse;
-  @Input() clientePedido: Cliente = null;
+  @Input() clientePedido: (Cliente | ClienteMaster) = null;
   @Output() closeSideNavEv = new EventEmitter();
   @ViewChild('appLstProdAlt') appLstProdAlt: ListaProductoAltComponent;
   @Output() mesaSavedEv: EventEmitter<any> = new EventEmitter();
@@ -1190,5 +1192,22 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         this.closeSideNavEv.emit();
       }
     });
+  }
+
+  verHistorico = () => {
+    const confirmRef = this.dialog.open(HistoricoPedidosComponent, {
+      width: '55%',
+      data: {
+        cliente_master: (this.clientePedido as ClienteMaster).cliente_master,
+        nombre: (this.clientePedido as ClienteMaster).nombre,
+        comanda: this.mesaEnUso.comanda
+      }
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe((resDialog: any) => {
+        
+      })
+    );
   }
 }
