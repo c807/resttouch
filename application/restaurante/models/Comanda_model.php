@@ -19,6 +19,8 @@ class Comanda_model extends General_Model
 	public $notas_generales;
 	public $orden_gk = null;
 	public $razon_anulacion = null;
+	public $cliente_master = null;
+	public $detalle_comanda_original = null;
 
 	public function __construct($id = '')
 	{

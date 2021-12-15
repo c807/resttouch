@@ -66,25 +66,6 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
-//    public function guardar_nota($id = '')
-//    {
-//        $cltNota = new Cliente_master_nota_model($id);
-//        $req = json_decode(file_get_contents('php://input'), true);
-//        $datos = ['exito' => false];
-//        if ($this->input->method() == 'post') {
-//            $datos['exito'] = $cltNota->guardar($req);
-//            if ($datos['exito']) {
-//                $datos['mensaje'] = "Datos actualizados con éxito.";
-//                $datos['cliente_master_nota'] = $cltNota;
-//            } else {
-//                $datos['mensaje'] = $cltNota->getMensaje();
-//            }
-//        } else {
-//            $datos['mensaje'] = "Parámetros inválidos.";
-//        }
-//        $this->output->set_output(json_encode($datos));
-//    }
-
     private function srch_telefono($args = [])
     {
         if (isset($args['_parecido'])) {
@@ -352,7 +333,6 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
-
     private function srch_datos_facturacion($args = [])
     {
         if (isset($args['nit']) && !empty(trim($args['nit']))) {
@@ -427,4 +407,10 @@ class Cliente_master extends CI_Controller
         }
         $this->output->set_output(json_encode($datos));
     }
+
+    public function historico_pedidos()
+    {
+        $this->output->set_output(json_encode($this->Cliente_master_model->get_historico($_GET)));
+    }
+
 }

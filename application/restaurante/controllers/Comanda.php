@@ -903,6 +903,76 @@ class Comanda extends CI_Controller
 		$detalle = $this->Dcomanda_model->get_detalle_comanda_and_childs($_GET);
 		$this->output->set_output(json_encode($detalle));
 	}
+
+	private function copia_detalle_comanda($comanda_destino, $cuenta_destino, $detalle_original, $detalle_comanda_id = null, $articulo_padre = null)
+	{
+		$resultado = ['exito' => true, 'mensaje' => ''];
+		foreach($detalle_original as $detOrigen) {
+			$det = new Dcomanda_model();
+			$det->comanda = $comanda_destino;
+			$det->articulo = $detOrigen->articulo;
+			$det->cantidad = $detOrigen->cantidad;
+			$det->precio = 0;
+
+			if (empty($detalle_comanda_id)) {
+				$articulo = $this->Articulo_model->buscar(['articulo' => $detOrigen->articulo, '_uno' => true]);
+				$det->precio = $articulo->precio;
+			} else {
+				if ((int)$detOrigen->esextra === 0) {
+					$receta = $this->Receta_model->buscar(['receta' => $articulo_padre, 'articulo' => $detOrigen->articulo, '_uno' => true]);
+					$det->precio = $receta->precio;
+				} if ((int)$detOrigen->esextra === 1) {
+					$articulo = $this->Articulo_model->buscar(['articulo' => $detOrigen->articulo, '_uno' => true]);
+					$det->precio = $articulo->precio;
+				}
+			}
+
+			$det->total = (float)$det->cantidad * (float)$det->precio;
+			$det->presentacion = isset($detOrigen->presentacion) ? $detOrigen->presentacion : 1;
+			$det->cantidad_inventario = $detOrigen->cantidad;
+			$det->detalle_comanda_id = $detalle_comanda_id;
+
+			$resultado['exito'] = $det->guardar();
+
+			if (!$resultado['exito']) {
+				if ($resultado['mensaje'] !== '') {
+					$resultado['mensaje'] .= '; ';
+				}
+				$resultado['mensaje'] .= implode('; ', $det->getMensaje());
+			} else {
+				$detCta = new Dcuenta_model();
+				$detCta->cuenta_cuenta = $cuenta_destino;
+				$detCta->detalle_comanda = $det->getPK();
+				$detCta->guardar();
+			}
+
+			if (count($detOrigen->detalle) > 0) {
+				$this->copia_detalle_comanda($comanda_destino, $cuenta_destino, $detOrigen->detalle, $det->getPK(), $detOrigen->articulo);
+			}
+		}
+		return $resultado;
+	}
+
+	public function duplicar_detalle_comanda()
+	{	
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'));
+			$comanda_original = new Comanda_model($req->comanda_origen);
+			$cuenta_destino = $this->Cuenta_model->buscar(['comanda' => $req->comanda_destino, '_uno' => true]);
+			$detalle_original = json_decode($comanda_original->detalle_comanda_original);
+			$resultado = $this->copia_detalle_comanda($req->comanda_destino, $cuenta_destino->cuenta, $detalle_original);
+			if (trim($resultado['mensaje']) === '') {
+				$datos['exito'] = true;
+				$datos['mensaje'] = 'Detalle duplicado con éxito.';
+			} else {
+				$datos['mensaje'] = $resultado['mensaje'];
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Comanda.php */

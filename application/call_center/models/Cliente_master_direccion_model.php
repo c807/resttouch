@@ -14,6 +14,7 @@ class Cliente_master_direccion_model extends General_model {
     public $departamento = null;
     public $pais = null;
     public $notas = null;
+	public $sede = 3;
     public $debaja = null;
 
 	public function __construct($id = "")
