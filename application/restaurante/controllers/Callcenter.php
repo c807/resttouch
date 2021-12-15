@@ -55,7 +55,8 @@ class Callcenter extends CI_Controller {
 							'turno' => $turno->turno,
 							'comanda_origen' => $origen->comanda_origen,
 							'comanda_origen_datos' => json_encode($req->pedido),
-							'detalle_comanda_original' => json_encode($detOriginal)
+							'detalle_comanda_original' => json_encode($detOriginal),
+							'tiempo_entrega' => isset($req->pedido->tiempo_entrega) ? $req->pedido->tiempo_entrega : null,
 						]);
 						
 						$exito = $com->enviarDetalleSede();

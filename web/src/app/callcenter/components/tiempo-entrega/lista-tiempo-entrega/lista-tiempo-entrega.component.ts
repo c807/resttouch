@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -6,12 +6,14 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { TiempoEntrega } from '../../../interfaces/tiempo-entrega';
 import { TiempoEntregaService } from '../../../services/tiempo-entrega.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-lista-tiempo-entrega',
   templateUrl: './lista-tiempo-entrega.component.html',
   styleUrls: ['./lista-tiempo-entrega.component.css']
 })
-export class ListaTiempoEntregaComponent implements OnInit {
+export class ListaTiempoEntregaComponent implements OnInit, OnDestroy {
 
   public lstTiemposEntrega: TiempoEntrega[];
   public lstTiemposEntregaPaged: TiempoEntrega[];
@@ -26,6 +28,8 @@ export class ListaTiempoEntregaComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private tiempoEntregaSrvc: TiempoEntregaService,
     private ls: LocalstorageService
@@ -34,6 +38,10 @@ export class ListaTiempoEntregaComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadTiemposEntrega();    
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -48,10 +56,12 @@ export class ListaTiempoEntregaComponent implements OnInit {
   }
 
   loadTiemposEntrega = () => {
-    this.tiempoEntregaSrvc.get().subscribe(lst => {
-      this.lstTiemposEntrega = lst;
-      this.applyFilter();              
-    });
+    this.endSubs.add(      
+      this.tiempoEntregaSrvc.get().subscribe(lst => {
+        this.lstTiemposEntrega = lst;
+        this.applyFilter();              
+      })
+    );
   }
 
   getTiempoEntrega = (obj: TiempoEntrega) => {

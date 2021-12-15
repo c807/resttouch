@@ -21,6 +21,7 @@ class Comanda_model extends General_Model
 	public $razon_anulacion = null;
 	public $cliente_master = null;
 	public $detalle_comanda_original = null;
+	public $tiempo_entrega = null;
 
 	public function __construct($id = '')
 	{
