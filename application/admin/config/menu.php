@@ -316,6 +316,10 @@ $config['menu'] = [
 					2 => [
 						'nombre' => 'Clientes',
 						'link' => '/callcenter/cliente_master'
+					],
+					3 => [
+						'nombre' => 'Tiempos de entrega',
+						'link' => '/callcenter/tiempo_entrega'
 					]
 				]
 			]

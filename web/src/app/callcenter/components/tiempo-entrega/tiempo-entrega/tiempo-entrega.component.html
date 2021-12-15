@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tiempo-entrega #lstTiempoEntrega (getTiempoEntregaEv)="setTiempoEntrega($event)"></app-lista-tiempo-entrega>
+    </div>
+    <div class="col m7 s12">
+        <app-form-tiempo-entrega #frmTiempoEntrega [tiempoEntrega]="tiempoEntrega" (tiempoEntregaSavedEv)="refreshTiempoEntrega()"></app-form-tiempo-entrega>
+    </div>
+</div>
