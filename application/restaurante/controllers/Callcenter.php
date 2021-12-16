@@ -57,6 +57,7 @@ class Callcenter extends CI_Controller {
 							'comanda_origen_datos' => json_encode($req->pedido),
 							'detalle_comanda_original' => json_encode($detOriginal),
 							'tiempo_entrega' => isset($req->pedido->tiempo_entrega) ? $req->pedido->tiempo_entrega : null,
+							'estatus_callcenter' => 1
 						]);
 						
 						$exito = $com->enviarDetalleSede();
@@ -94,17 +95,22 @@ class Callcenter extends CI_Controller {
 									$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
 									$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
 									$datos['msgws'] = [$updlst, $updmesas];
+									$com->guardar(['estatus_callcenter' => 2]);
 								} else {
 									$datos['mensaje'] = $facturar->mensaje;
+									$com->guardar(['estatus_callcenter' => 9]);
 								}
 							} else {
 								$datos['mensaje'] = $cobro->mensaje;	
+								$com->guardar(['estatus_callcenter' => 9]);
 							}
 						} else {
 							$datos['mensaje'] = 'No fue posible enviar el pedido al restaurante seleccionado.';	
+							$com->guardar(['estatus_callcenter' => 9]);
 						}	
 					} else {
 						$datos['mensaje'] = 'No existe ningun turno abierto en el restaurante seleccionado.';
+						$com->guardar(['estatus_callcenter' => 9]);
 					}
 				}
 			} else {

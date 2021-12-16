@@ -3,4 +3,5 @@ export interface EstatusCallcenter {
     descripcion: string;
     color: string;
     orden: number;
+    esautomatico: number
 }

@@ -218,7 +218,7 @@ class Comanda extends CI_Controller
 			'usuario' => $this->data->idusuario,
 			'tabla' => 'detalle_comanda',
 			'registro' => $dcom->detalle_comanda,
-			'comentario' => "{$comentarioBitacora} Quedaron " . number_format((float)$req['cantidad'], 2) . " y originalmente habían " . number_format((float)$dcom->cantidad, 2) . ". Precio unitario: " . number_format((float)$dcom->precio, 2) . ".".(isset($req['regresa_inventario']) && $req['regresa_inventario'] ? ' Se reversó el inventario.' : '')
+			'comentario' => "{$comentarioBitacora} Quedaron " . number_format((float)$req['cantidad'], 2) . " y originalmente habían " . number_format((float)$dcom->cantidad, 2) . ". Precio unitario: " . number_format((float)$dcom->precio, 2) . "." . (isset($req['regresa_inventario']) && $req['regresa_inventario'] ? ' Se reversó el inventario.' : '')
 		]);
 	}
 
@@ -853,15 +853,15 @@ class Comanda extends CI_Controller
 		$datos = ['exito' => false];
 		$errores = [];
 
-		if(count($detalle) > 0) {
+		if (count($detalle) > 0) {
 			$pasa = true;
 			if ((int)$detalle[0]->impreso === 1) {
-				if (isset($req['autorizado']) && $req['autorizado'] == true) {					
+				if (isset($req['autorizado']) && $req['autorizado'] == true) {
 					$this->add_bitacora_elimina_detalle_comanda((object)$detalle[0], $req);
 				} else {
 					$pasa = false;
 					$errores[] = 'El producto ya ha sido impreso, por favor cierre el panel y vuelva a entrar.';
-				}				
+				}
 			} else {
 				$req['regresa_inventario'] = true;
 			}
@@ -871,11 +871,11 @@ class Comanda extends CI_Controller
 					$dc = new Dcomanda_model($det->detalle_comanda);
 					$dc->cantidad = (float)$req['cantidad'];
 					$dc->total = (float)$req['total'];
-					if($req['regresa_inventario'] || (int)$det->mostrar_inventario === 0) {
+					if ($req['regresa_inventario'] || (int)$det->mostrar_inventario === 0) {
 						$dc->cantidad_inventario = (float)$req['cantidad'];
 					}
 					$exito = $dc->guardar();
-					if(!$exito) {
+					if (!$exito) {
 						$errores[] = implode('; ', $dc->getMensaje());
 					}
 
@@ -888,7 +888,7 @@ class Comanda extends CI_Controller
 			$errores[] = 'No se encontró ningún detalle con esos parámetros.';
 		}
 
-		if(count($errores) === 0) {
+		if (count($errores) === 0) {
 			$datos['exito'] = true;
 			$datos['mensaje'] = 'Producto eliminado con éxito.';
 		} else {
@@ -907,7 +907,7 @@ class Comanda extends CI_Controller
 	private function copia_detalle_comanda($comanda_destino, $cuenta_destino, $detalle_original, $detalle_comanda_id = null, $articulo_padre = null)
 	{
 		$resultado = ['exito' => true, 'mensaje' => ''];
-		foreach($detalle_original as $detOrigen) {
+		foreach ($detalle_original as $detOrigen) {
 			$det = new Dcomanda_model();
 			$det->comanda = $comanda_destino;
 			$det->articulo = $detOrigen->articulo;
@@ -921,7 +921,8 @@ class Comanda extends CI_Controller
 				if ((int)$detOrigen->esextra === 0) {
 					$receta = $this->Receta_model->buscar(['receta' => $articulo_padre, 'articulo' => $detOrigen->articulo, '_uno' => true]);
 					$det->precio = $receta->precio;
-				} if ((int)$detOrigen->esextra === 1) {
+				}
+				if ((int)$detOrigen->esextra === 1) {
 					$articulo = $this->Articulo_model->buscar(['articulo' => $detOrigen->articulo, '_uno' => true]);
 					$det->precio = $articulo->precio;
 				}
@@ -954,7 +955,7 @@ class Comanda extends CI_Controller
 	}
 
 	public function duplicar_detalle_comanda()
-	{	
+	{
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$req = json_decode(file_get_contents('php://input'));
@@ -967,6 +968,29 @@ class Comanda extends CI_Controller
 				$datos['mensaje'] = 'Detalle duplicado con éxito.';
 			} else {
 				$datos['mensaje'] = $resultado['mensaje'];
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));
+	}
+
+	public function cambia_estatus_pedido_call_center()
+	{
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$this->load->helper(['jwt', 'authorization']);
+			$headers = $this->input->request_headers();
+			$data = AUTHORIZATION::validateToken($headers['Authorization']);
+			
+			$req = json_decode(file_get_contents('php://input'));
+			$cmd = new Comanda_model($req->comanda);
+			$datos['exito'] = $cmd->guardar(['estatus_callcenter' => $req->estatus_callcenter]);
+			if ($datos['exito']) {
+				$datos['mensaje'] = 'Estatus de comanda actualizado con éxito.';
+				$datos['comanda'] = $cmd->getComanda(['_usuario' => $data->idusuario]);
+			} else {
+				$datos['mensaje'] = implode('; ', $cmd->getMensaje());
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';

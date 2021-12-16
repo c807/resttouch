@@ -22,6 +22,7 @@ class Comanda_model extends General_Model
 	public $cliente_master = null;
 	public $detalle_comanda_original = null;
 	public $tiempo_entrega = null;
+	public $estatus_callcenter = null;
 
 	public function __construct($id = '')
 	{
@@ -511,6 +512,14 @@ class Comanda_model extends General_Model
 			->row();
 	}
 
+	private function get_estatus_callcenter($idEstatusCC = null)
+	{
+		if(!$idEstatusCC || !((int)$idEstatusCC > 0)) {
+			$idEstatusCC = (int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : 0;
+		}
+		return $this->db->select('estatus_callcenter, descripcion, color, orden')->where('estatus_callcenter', $idEstatusCC)->get("estatus_callcenter")->row();
+	}
+
 	public function getComanda($args = [])
 	{
 		$tmp = $this->getTurno();
@@ -578,6 +587,8 @@ class Comanda_model extends General_Model
 		$tmp->fhcreacion = empty($tmp->origen_datos['fhcreacion']) ?  $this->fhcreacion : $tmp->origen_datos['fhcreacion'];
 		$tmp->numero_pedido = $this->numero_pedido;
 		$tmp->notas_generales = $this->notas_generales;
+		$estatusCC = $this->get_estatus_callcenter();
+		$tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
 		return $tmp;
 	}
 

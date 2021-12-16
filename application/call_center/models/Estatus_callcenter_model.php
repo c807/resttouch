@@ -7,6 +7,7 @@ class Estatus_callcenter_model extends General_model {
 	public $descripcion;
     public $color;
     public $orden;
+	public $esautomatico = 0;
 
 	public function __construct($id = '')
 	{

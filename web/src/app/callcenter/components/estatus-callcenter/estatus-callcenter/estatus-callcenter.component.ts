@@ -14,7 +14,7 @@ export class EstatusCallcenterComponent implements OnInit {
   @ViewChild('lstEstatusCallcenter') lstEstatusCallcenter: ListaEstatusCallcenterComponent;
 
   constructor() {
-    this.estatusCallcenter = { estatus_callcenter: null, descripcion: null, color: null, orden: null };
+    this.estatusCallcenter = { estatus_callcenter: null, descripcion: null, color: null, orden: null, esautomatico: null };
   }
 
   ngOnInit(): void {
