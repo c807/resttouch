@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
 import {Cliente} from '../../../../admin/interfaces/cliente';
 import {AgregaDireccionComponent} from "../agrega-direccion/agrega-direccion.component";
 import {FormClienteComponent} from "../../../../admin/components/cliente/form-cliente/form-cliente.component";
+import {DialogAgregarClienteComponent} from "../dialog-agregar-cliente/dialog-agregar-cliente.component";
 
 @Component({
   selector: 'app-agregar-dato-de-facturacion',
@@ -77,7 +78,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
   }
 
   agregarCliente = () => {
-    const cmdRef = this.dialog.open(FormClienteComponent, {
+    const cmdRef = this.dialog.open(DialogAgregarClienteComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: false,
       data: {clienteMaster: this.clienteMaster, fromClienteMaster: true}
