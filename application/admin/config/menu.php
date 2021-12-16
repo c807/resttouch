@@ -320,6 +320,10 @@ $config['menu'] = [
 					3 => [
 						'nombre' => 'Tiempos de entrega',
 						'link' => '/callcenter/tiempo_entrega'
+					],
+					4 => [
+						'nombre' => 'Estatus pedido',
+						'link' => '/callcenter/estatus_callcenter'
 					]
 				]
 			]

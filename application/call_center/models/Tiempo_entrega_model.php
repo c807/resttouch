@@ -7,10 +7,10 @@ class Tiempo_entrega_model extends General_model {
 	public $descripcion;
     public $orden = 0;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("tiempo_entrega");
+		$this->setTabla('tiempo_entrega');
 		if (!empty($id)) {
 			$this->cargar($id);
 		}

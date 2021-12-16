@@ -49,13 +49,16 @@ import {AgregaNotaComponent} from './components/cliente-master/agregar-nota/agre
 import { TiempoEntregaComponent } from './components/tiempo-entrega/tiempo-entrega/tiempo-entrega.component';
 import { FormTiempoEntregaComponent } from './components/tiempo-entrega/form-tiempo-entrega/form-tiempo-entrega.component';
 import { ListaTiempoEntregaComponent } from './components/tiempo-entrega/lista-tiempo-entrega/lista-tiempo-entrega.component';
+import { EstatusCallcenterComponent } from './components/estatus-callcenter/estatus-callcenter/estatus-callcenter.component';
+import { FormEstatusCallcenterComponent } from './components/estatus-callcenter/form-estatus-callcenter/form-estatus-callcenter.component';
+import { ListaEstatusCallcenterComponent } from './components/estatus-callcenter/lista-estatus-callcenter/lista-estatus-callcenter.component';
 
 /**
  * New Components must be added in declarations,
  * Modules from libraries for example Angular.Material must be added on imports
  */
 @NgModule({
-  declarations: [AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent ,ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent],
+  declarations: [AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent ,ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent, ListaEstatusCallcenterComponent],
   imports: [
     CommonModule,
     CallcenterRoutingModule,
