@@ -17,7 +17,7 @@ class Cliente extends CI_Controller
 		$clt = new Cliente_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
-		if ($this->input->method() == 'post') {			
+		if ($this->input->method() == 'post') {
 			// $req['nit'] = str_replace("-", "", $req['nit']);
 			$req['nit'] = strtoupper(preg_replace("/[^0-9KkcCfF?!]/", '', $req['nit']));
 			$continuar = true;
@@ -103,6 +103,7 @@ class Cliente extends CI_Controller
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
+
 }
 
 /* End of file Cliente.php */

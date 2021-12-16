@@ -26,6 +26,15 @@ class Cliente_model extends General_model {
 	}
 
 
+    public function get_with_nit($args = []){
+        //Query Builder
+        $this->db->select('*');
+        $this->db->from('cliente');
+        $this->db->where('nit', $args['nit']);
+        //Get the results
+        return $this->db->get()->result();
+    }
+
 }
 
 /* End of file Cliente_model.php */

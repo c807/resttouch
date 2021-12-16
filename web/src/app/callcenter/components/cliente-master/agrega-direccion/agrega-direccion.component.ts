@@ -36,21 +36,24 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AgregaDireccionComponent>,
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
-    private ls: LocalstorageService,    
+    private ls: LocalstorageService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }
 
 
   ngOnInit(): void {
-    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;    
+    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.isEditing = this.data.isEditing;
     if (this.data.defData) {
        this.direccion = this.data.defData;
     } else {
-      this.direccion = { 
-        cliente_master_direccion: null, cliente_master: this.data.clienteMaster.cliente_master, tipo_direccion: null, 
-        direccion1: null, debaja: 0 
+      this.direccion = {
+        cliente_master_direccion: null,
+        cliente_master: this.data.clienteMaster.cliente_master,
+        tipo_direccion: null,
+        direccion1: null,
+        debaja: 0
       };
     }
 
@@ -71,20 +74,7 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   }
 
   onDireccionSubmit = () => {
-    // const obj = {
-    //   cliente_master_direccion: this.direccion.cliente_master_direccion,
-    //   cliente_master: this.data.clienteMaster.cliente_master,
-    //   tipo_direccion: this.direccion.tipo_direccion,
-    //   direccion1: this.direccion.direccion1,
-    //   direccion2: this.direccion.direccion2,
-    //   zona: this.direccion.zona,
-    //   codigo_postal: this.direccion.codigo_postal,
-    //   municipio: this.direccion.municipio,
-    //   departamento: this.direccion.departamento,
-    //   pais: this.direccion.pais,
-    //   notas: this.direccion.notas,
-    //   debaja: 0,
-    // };
+
 
     this.endSubs.add(
       this.clienteMasterSrvc.saveDireccionClienteMaster(this.direccion).subscribe(res => {

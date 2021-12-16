@@ -282,6 +282,83 @@ class Cliente_master extends CI_Controller
         $this->output->set_output(json_encode($this->Cliente_master_telefono_model->get_lista_telefonos($_GET)));
     }
 
+    public function buscar_cliente_cliente_master()
+    {
+
+        $datos = $this->Cliente_master_cliente_model->get_lista_cliente_master($_GET);
+        foreach ($datos as $row) {
+            $row->cliente =  new Cliente_model($row->cliente);
+        }
+
+        $this->output->set_output(json_encode($datos));
+    }
+    public function asociar_cliente_master_cliente(){
+
+        // Check if nit already exist
+        $resultadoNoDbj = $this->Cliente_master_cliente_model->get_join_nit_no_debaja($_GET);
+        $datos['exist'] = true;
+
+        if($resultadoNoDbj) {
+         // Already exist
+            $datos['exito'] = $resultadoNoDbj;
+            $datos['mensaje'] = 'Ya estaba asociado el dato de facturacion.';
+
+        }else{
+            // Check if was debaja in cliente_master_cliente
+            $resultado = $this->Cliente_master_cliente_model->get_join_nit_debaja($_GET);
+            $cmt = null;
+            if($resultado) {
+                $cmt = new Cliente_master_cliente_model($resultado->cliente_master_cliente);
+                $datos['exito'] = $cmt->guardar(['debaja' => 0]);
+                if ($datos['exito']) {
+                    $datos['mensaje'] = 'Datos asasociados del cliente con éxito.';
+                } else {
+                    $datos['mensaje'] = $cmt->getMensaje();
+                }
+            }else{
+                // Not as Debaja, Search in Client --> ERROR IS HERE
+                $resultadoCliente = $this->Cliente_model->get_with_nit($_GET);
+
+                if($resultadoCliente){
+                    // Client Exist
+                    $cmt = new Cliente_master_cliente_model();
+                    $datos['exito'] = $cmt->guardar([
+                        'cliente_master' => $_GET['cliente_master'],
+                        'cliente' => reset($resultadoCliente)->cliente,
+                        'debaja' => 0
+                    ]);
+                    if ($datos['exito']) {
+                        $datos['mensaje'] = 'Datos asasociados del cliente con éxito.';
+                    } else {
+                        $datos['mensaje'] = $cmt->getMensaje();
+                    }
+                }else{
+                    // Client Does not Exist
+                    $datos['mensaje'] = 'El dato de facturacion no existe';
+                    $datos['exist'] = false;
+                }
+
+
+            }
+        }
+
+        $this->output->set_output(json_encode($datos));
+
+    }
+    public function desasociar_cliente_cliente_master($id)
+    {
+
+        $datos = ['exito' => false];
+        $cmt = new Cliente_master_cliente_model($id);
+        $datos['exito'] = $cmt->guardar(['debaja' => 1]);
+        if ($datos['exito']) {
+            $datos['mensaje'] = 'Datos desasociados del cliente con éxito.';
+        } else {
+            $datos['mensaje'] = $cmt->getMensaje();
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
     public function desasociar_telefono_cliente_master($id)
     {
         $datos = ['exito' => false];

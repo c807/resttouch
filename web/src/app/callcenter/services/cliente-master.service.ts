@@ -7,7 +7,7 @@ import {
   ClienteMasterTelefono,
   ClienteMasterDireccion,
   ClienteMasterDireccionResponse,
-  ClienteMasterNotaResponse
+  ClienteMasterNotaResponse, ClienteMasterCliente
 } from '../interfaces/cliente-master';
 import { Telefono } from '../interfaces/telefono';
 import { Observable } from 'rxjs';
@@ -53,6 +53,23 @@ export class ClienteMasterService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getClienteClienteMasterCliente(fltr: any = {}): Observable<ClienteMasterCliente[]> {
+    return this.http.get<ClienteMasterCliente[]>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/buscar_cliente_cliente_master?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  desasociarClienteMasterCliente(idClienteMasterCliente: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/desasociar_cliente_cliente_master/${idClienteMasterCliente}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  asasociarClienteMasterCliente(fltr: any = {}): Observable<any> {
+    return this.http.get<ClienteMasterCliente[]>(
+      `${GLOBAL.urlCallCenter}/${this.moduleUrl}/asociar_cliente_master_cliente?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 
   saveDireccionClienteMaster(entidad: any): Observable<any> {
     return this.http.post<any>(

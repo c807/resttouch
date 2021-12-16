@@ -1,0 +1,30 @@
+<h5>Direcciones Asociadas</h5>
+<table>
+    <caption style="text-align: left;">
+        <form #frmDirC="ngForm" (ngSubmit)="frmDirC.form.valid && asociarClienteMaster()" novalidate>
+            <mat-form-field style="width: 75%; padding-right: 5px;">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nit" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="8" maxlength="25" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Nit" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="8" maxlength="25" required>
+            </mat-form-field>
+            <button mat-raised-button type="submit" color="accent" [disabled]="!frmDirC.form.valid || cargando">
+                Asociar
+            </button>
+        </form>
+    </caption>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let cl of lstClmCL">
+            <td>{{cl.cliente.nombre}}</td>
+            <td>
+                <button mat-raised-button type="button" color="accent" (click)="desasociarClienteM(cl)" [disabled]="cargando">
+                    Desasociar
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>

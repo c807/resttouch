@@ -1,5 +1,14 @@
 import { Telefono } from './telefono';
 import { TipoDireccion } from './tipo-direccion';
+import {Cliente} from '../../admin/interfaces/cliente';
+
+
+export interface ClienteMasterCliente {
+  cliente_master_cliente: number;
+  cliente_master: number;
+  cliente: Cliente;
+  debaja: number;
+}
 
 export interface ClienteMaster {
     cliente_master: number;

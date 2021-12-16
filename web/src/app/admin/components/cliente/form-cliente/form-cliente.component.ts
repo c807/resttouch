@@ -1,11 +1,14 @@
-import { Component, OnInit, Input, Output, EventEmitter, Inject, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatInput } from '@angular/material/input';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import {Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatInput} from '@angular/material/input';
+import {GLOBAL} from '../../../../shared/global';
+import {LocalstorageService} from '../../../services/localstorage.service';
 
-import { Cliente } from '../../../interfaces/cliente';
-import { ClienteService } from '../../../services/cliente.service';
+import {Cliente} from '../../../interfaces/cliente';
+import {ClienteService} from '../../../services/cliente.service';
+import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
+import {ClienteMasterService} from "../../../../callcenter/services/cliente-master.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-form-cliente',
@@ -22,12 +25,17 @@ export class FormClienteComponent implements OnInit {
   public esDialogo = false;
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
     private clienteSrvc: ClienteService,
-    private ls: LocalstorageService
-  ) { }
+    private ls: LocalstorageService,
+    private clienteMasterSrvc: ClienteMasterService,
+    public dialogRef: MatDialogRef<FormClienteComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) {
+  }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
@@ -46,11 +54,24 @@ export class FormClienteComponent implements OnInit {
       if (this.cliente.correo.match(GLOBAL.FORMATO_EMAIL)) {
         this.guardarCliente();
       } else {
-        this.snackBar.open(`El correo '${this.cliente.correo}' no es válido.`, 'Cliente', { duration: 3000 });
+        this.snackBar.open(`El correo '${this.cliente.correo}' no es válido.`, 'Cliente', {duration: 3000});
       }
     } else {
       this.guardarCliente();
     }
+  }
+
+  /**
+   * This method is to asociate cliente_master with cliente in cliente_master_cliente table
+   */
+  asociarClienteMasterCliente = (client) => {
+    this.endSubs.add(
+      this.clienteMasterSrvc.asasociarClienteMasterCliente({
+        cliente_master: this.data.clienteMaster.cliente_master, nit: client.cliente.nit }).subscribe(res => {
+        this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Datos', { duration: 5000 });
+      })
+    );
+    this.dialogRef.close();
   }
 
   guardarCliente = () => {
@@ -59,11 +80,17 @@ export class FormClienteComponent implements OnInit {
       if (res.exito) {
         this.clienteSavedEv.emit(res.cliente);
         this.resetCliente();
-        this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
+        this.snackBar.open(res.mensaje, 'Cliente', {duration: 3000});
+
+       if(this.data.fromClienteMaster){
+         this.asociarClienteMasterCliente(res);
+       }
+
       } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', {duration: 7000});
       }
     });
+
   }
 
   loadInfoContribuyente = (nit: string) => {
@@ -75,7 +102,7 @@ export class FormClienteComponent implements OnInit {
           this.cliente.nit = tmpnit;
           this.cliente.direccion = res.contribuyente.direccion;
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', {duration: 7000});
           this.cliente.nombre = null;
           this.cliente.nit = tmpnit;
           this.cliente.direccion = null;
