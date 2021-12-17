@@ -37,6 +37,8 @@ export class DialogAgregarClienteComponent implements OnInit {
   ) {
   }
 
+
+
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     if (this.inicializoCliente) {
