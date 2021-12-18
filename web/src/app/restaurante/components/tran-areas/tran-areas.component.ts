@@ -7,6 +7,7 @@ import { GLOBAL } from '../../../shared/global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
 import { PideTelefonoDialogComponent } from '../../../callcenter/components/pide-telefono-dialog/pide-telefono-dialog.component';
+import { DialogSeguimientoCallcenterComponent } from '../../../callcenter/components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
 
 import { AbrirMesaComponent } from '../abrir-mesa/abrir-mesa.component';
 import { TranComandaComponent } from '../tran-comanda/tran-comanda.component';
@@ -73,7 +74,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     setTimeout(() => {
-      this.setDivSize();
+      // this.setDivSize();
       this.snTrancomanda.resetMesaEnUso();
     }, 600);
   }
@@ -139,12 +140,12 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  setDivSize() {
+  // setDivSize() {
     // this.divSize.w = this.pestania.nativeElement.offsetWidth;
     // this.divSize.h = this.pestania.nativeElement.offsetHeight;
-  }
+  // }
 
-  onResize = (event: any) => this.setDivSize();
+  // onResize = (event: any) => this.setDivSize();
 
   onClickMesa(m: any) {
     // console.log(m.mesaSelected); return;
@@ -430,4 +431,15 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  mostrarSeguimientoCallCenter = () => {
+    const seguimientoCallCenterRef = this.dialog.open(DialogSeguimientoCallcenterComponent, {
+      maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
+      disableClose: true,
+      data: { }
+    });
+
+    this.endSubs.add(
+      seguimientoCallCenterRef.afterClosed().subscribe(() => { })
+    );
+  }
 }

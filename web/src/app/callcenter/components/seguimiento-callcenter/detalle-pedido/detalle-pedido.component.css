@@ -1,0 +1,12 @@
+.detalle-pedido {
+    border: 1px solid #D3D3D3;
+    background-color: #FFFEE0;
+    margin: 5px;
+}
+
+.tblDetallePedido > th, td, tr {
+    padding: 2px !important;
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+    border-bottom: none !important;
+  }

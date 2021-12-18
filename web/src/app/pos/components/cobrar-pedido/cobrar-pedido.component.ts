@@ -1,4 +1,4 @@
-import { Component, Inject, Input, NgModule, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
@@ -32,6 +32,8 @@ import { ClienteMasterService } from '../../../callcenter/services/cliente-maste
 import { ClienteMasterDireccionResponse } from '../../../callcenter/interfaces/cliente-master';
 import { TiempoEntrega } from '../../../callcenter/interfaces/tiempo-entrega';
 import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entrega.service';
+import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicilio.service';
 
 interface DatosPedido {
   sede: number;
@@ -40,6 +42,7 @@ interface DatosPedido {
   nombre: string;
   cliente?: any;
   tiempo_entrega?: number;
+  tipo_domicilio?: number;  
 }
 
 @Component({
@@ -62,13 +65,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public pideDocumento = false;
   public sedes: Sede[] = [];
   public sede: Sede;
-  public datosPedido: DatosPedido = { sede: null, direccion_entrega: null, telefono: null, nombre: null, cliente: null, tiempo_entrega: null };
+  public datosPedido: DatosPedido = { sede: null, direccion_entrega: null, telefono: null, nombre: null, cliente: null, tiempo_entrega: null, tipo_domicilio: null };
   public descripcionUnica = { enviar_descripcion_unica: 0, descripcion_unica: null };
   public isTipExceeded = false;
   public porcentajeMaximoPropina = 0;
   public MaxTooltTipMessage = '';
   public direccionesDeEntrega: ClienteMasterDireccionResponse[] = [];
   public tiemposEntrega: TiempoEntrega[] = [];
+  public tiposDomicilio: TipoDomicilio[] = [];
 
   private endSubs = new Subscription();
 
@@ -86,7 +90,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     private comandaSrvc: ComandaService,
     private configSrvc: ConfiguracionService,
     private clienteMasterSrvc: ClienteMasterService,
-    private tiempoEntregaSrvc: TiempoEntregaService
+    private tiempoEntregaSrvc: TiempoEntregaService,
+    private tipoDomicilioSrvc: TipoDomicilioService
   ) {
   }
 
@@ -104,6 +109,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     }
     this.loadSedes();
     this.loadTiemposEntrega();
+    this.loadTiposDomicilio();
   }
 
   ngOnDestroy() {
@@ -157,6 +163,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.tiempoEntregaSrvc.get().subscribe(res => this.tiemposEntrega = res)
     );
   }  
+
+  loadTiposDomicilio = () => {
+    this.endSubs.add(
+      this.tipoDomicilioSrvc.get().subscribe(res => this.tiposDomicilio = res)
+    );
+  }
 
   calculaPropina = () => {
     this.inputData.montoPropina = parseFloat((this.inputData.porcentajePropina * this.inputData.totalDeCuenta / 100).toFixed(2));
@@ -379,7 +391,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       telefono: this.datosPedido.telefono,
       nit: this.clienteSelected.nit,
       direccion: this.datosPedido.direccion_entrega,
-      tiempo_entrega: this.datosPedido.tiempo_entrega || null
+      tiempo_entrega: this.datosPedido.tiempo_entrega || null,
+      tipo_domicilio: this.datosPedido.tipo_domicilio || null
     };
 
     const obj = {

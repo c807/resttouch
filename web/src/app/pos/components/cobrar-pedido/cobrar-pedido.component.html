@@ -161,12 +161,22 @@
             </td>
           </tr>
           <tr>
-            <td colspan="2">
+            <td>
               <mat-form-field class="fullWidth">
                 <mat-label>Tiempo ofrecido:</mat-label>
                 <mat-select name="tiempo_entrega" [(ngModel)]="datosPedido.tiempo_entrega" required>
                   <mat-option *ngFor="let te of tiemposEntrega" [value]="te.tiempo_entrega">
                     {{te.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field class="fullWidth">
+                <mat-label>Tipo domicilio:</mat-label>
+                <mat-select name="tipo_domicilio" [(ngModel)]="datosPedido.tipo_domicilio" required>
+                  <mat-option *ngFor="let tdom of tiposDomicilio" [value]="tdom.tipo_domicilio">
+                    {{tdom.descripcion}}
                   </mat-option>
                 </mat-select>
               </mat-form-field>

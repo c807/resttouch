@@ -6,7 +6,13 @@
     <mat-sidenav-content>
         <mat-tab-group dynamicHeight backgroundColor="primary">
             <mat-tab #tabArea *ngFor="let tabA of lstTabsAreas" label="{{tabA.nombre}}">
-                <div #matTabArea class="divAreaMesa" (window:resize)="onResize($event)">
+                <!-- <div #matTabArea class="divAreaMesa" (window:resize)="onResize($event)"> -->
+                <div #matTabArea class="divAreaMesa">
+                    <div class="es-call-center" *ngIf="+tabA.escallcenter === 1">
+                        <button mat-raised-button type="button" color="accent" (click)="mostrarSeguimientoCallCenter()" [disabled]="cargando">
+                            Seguimiento
+                        </button>
+                    </div>
                     <app-mesa *ngFor="let m of tabA.mesas" [configuracion]="m" (onClickMesa)="!cargando && onClickMesa($event)" [isDisabled]="cargando"></app-mesa>
                 </div>
             </mat-tab>

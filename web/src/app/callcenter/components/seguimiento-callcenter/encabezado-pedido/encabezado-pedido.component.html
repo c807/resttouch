@@ -1,0 +1,45 @@
+<mat-card class="mat-elevation-z4">
+    <mat-card-header>
+        <mat-card-title>
+            Orden No. {{pedido.comanda | number:'1.0-0'}} a nombre de {{pedido.cliente | uppercase}} ({{pedido.domicilio_tipo}})
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <table class="tbl tblPedido">
+            <tr>
+                <td class="bld">Transcurrido:</td>
+                <td>{{tiempoTranscurrido(pedido.fhcreacion)}}</td>
+            </tr>        
+            <tr>
+                <td class="bld">Teléfono:</td>
+                <td>{{pedido.comanda_origen_datos.telefono}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Atendió:</td>
+                <td>{{pedido.nombres}} {{pedido.apellidos}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Entregar en:</td>
+                <td>{{pedido.comanda_origen_datos.direccion_entrega}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Restaurante:</td>
+                <td>{{pedido.sede_atiende}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Tiempo ofrecido:</td>
+                <td>{{pedido.tiempo_ofrecido}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Repartidor:</td>
+                <td>{{pedido.motorista}}</td>
+            </tr>
+            <tr>
+                <td class="bld">Observaciones:</td>
+                <td>{{pedido.observaciones}}</td>
+            </tr>
+        </table>
+        <h5 [style.color]="pedido.color_estatus">{{pedido.estatus}}</h5>
+        <app-detalle-pedido [detallePedido]="pedido.detalle"></app-detalle-pedido>
+    </mat-card-content>
+</mat-card>
