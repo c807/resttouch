@@ -8,10 +8,10 @@ class Cliente_master_model extends General_model {
     public $correo = null;
     public $fecha_nacimiento = null;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("cliente_master");
+		$this->setTabla('cliente_master');
 		if (!empty($id)) {
 			$this->cargar($id);
 		}

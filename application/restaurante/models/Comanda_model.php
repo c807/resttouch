@@ -23,6 +23,8 @@ class Comanda_model extends General_Model
 	public $detalle_comanda_original = null;
 	public $tiempo_entrega = null;
 	public $estatus_callcenter = null;
+	public $tipo_domicilio = null;
+	public $repartidor = null;
 
 	public function __construct($id = '')
 	{

@@ -9,6 +9,7 @@ class Area_model extends General_Model {
 	public $nombre;
 	public $impresora;
 	public $impresora_factura = 0;
+	public $escallcenter = 0;
 
 	public function __construct($id = "")
 	{
