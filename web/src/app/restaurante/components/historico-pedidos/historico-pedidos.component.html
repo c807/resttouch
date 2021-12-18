@@ -1,0 +1,44 @@
+<h1 mat-dialog-title>
+    {{data.nombre}}<br/>
+    <small>Últimos 5 pedidos</small>
+</h1>
+<div mat-dialog-content class="contenido">
+    <table class="tbl tblHistoria">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Artículo</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngFor="let pedido of historico">
+                <ng-container *ngIf="+pedido.comanda !== +data.comanda">
+                    <tr class="topRow">
+                        <td colspan="2">
+                            <strong>
+                                {{pedido.fhcreacion | date:'dd/MM/yyyy'}}
+                            </strong>
+                        </td>
+                        <td>
+                            <button mat-raised-button (click)="duplicarPedido(pedido.comanda)" color="accent" class="btnDuplicar" [disabled]="!pedido.detalle_comanda_original">
+                                Duplicar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngFor="let det of pedido.detalle; last as isLast" [ngClass]="{'midRow': !isLast, 'bottRow': isLast}">
+                        <td></td>
+                        <td colspan="2">
+                            {{+det.cantidad > 1 ? (+det.cantidad + ' ') : ''}}{{(det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? det.descripcion : ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)}}
+                        </td>
+                    </tr>
+                </ng-container>
+            </ng-container>
+        </tbody>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="warn">
+        Terminar
+    </button>
+</div>

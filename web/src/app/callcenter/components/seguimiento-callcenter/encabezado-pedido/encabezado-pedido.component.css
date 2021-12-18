@@ -1,0 +1,6 @@
+.tblPedido > th, td, tr {
+    padding: 2px !important;
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+    border-bottom: none !important;
+  }

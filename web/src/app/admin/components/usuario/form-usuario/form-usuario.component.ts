@@ -81,7 +81,9 @@ export class FormUsuarioComponent implements OnInit {
         this.usrSavedEv.emit();
         this.snackBar.open('Grabado con éxito.', 'Usuario', { duration: 5000 });
       } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Usuario', { duration: 5000 });        
+        this.resetUsuario();
+        this.usrSavedEv.emit();
+        this.snackBar.open(res.mensaje, 'Usuario', { duration: 5000 });
       }
     });
   }

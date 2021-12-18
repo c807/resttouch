@@ -1,0 +1,23 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>Repartidor</h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmRepartidor="ngForm" (ngSubmit)="frmRepartidor.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nombre" name="nombre" [(ngModel)]="repartidor.nombre" minlength="1" maxlength="250" required>
+                <input matInput *ngIf="esMovil" placeholder="Nombre" name="nombre" [(ngModel)]="repartidor.nombre" minlength="1" maxlength="250" required>
+            </mat-form-field>
+            <mat-checkbox name="debaja" class="example-margin" [(ngModel)]="+repartidor.debaja">De baja</mat-checkbox>
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmRepartidor.form.valid">
+                    Guardar
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetRepartidor()" *ngIf="repartidor.repartidor">
+                    Nuevo
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
+

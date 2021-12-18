@@ -74,4 +74,9 @@ export class AccionesComandaComponent implements OnInit {
       mesaEnUso: this.data.tranComanda.mesaEnUso
     });
   }
+
+  verHistorico = () => {
+    this.data.tranComanda.verHistorico();
+    this.cerrar();
+  }
 }

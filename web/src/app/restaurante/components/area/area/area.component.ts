@@ -14,7 +14,7 @@ export class AreaComponent implements OnInit {
   @ViewChild('listaAreas') lstAreasComponent: ListaAreaComponent;
 
   constructor() {
-    this.area = {area: null, sede: null, nombre: null, impresora: null, impresora_factura: null };
+    this.area = {area: null, sede: null, nombre: null, impresora: null, impresora_factura: null, escallcenter: null};
   }
 
   ngOnInit() {

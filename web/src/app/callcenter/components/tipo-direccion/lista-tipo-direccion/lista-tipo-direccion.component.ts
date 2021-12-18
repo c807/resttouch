@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -6,12 +6,14 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { TipoDireccion } from '../../../interfaces/tipo-direccion';
 import { TipoDireccionService } from '../../../services/tipo-direccion.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-lista-tipo-direccion',
   templateUrl: './lista-tipo-direccion.component.html',
   styleUrls: ['./lista-tipo-direccion.component.css']
 })
-export class ListaTipoDireccionComponent implements OnInit {
+export class ListaTipoDireccionComponent implements OnInit, OnDestroy {
 
   public lstTipoDireccion: TipoDireccion[];
   public lstTipoDireccionPaged: TipoDireccion[];
@@ -26,6 +28,8 @@ export class ListaTipoDireccionComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private tipoDireccionSrvc: TipoDireccionService,
     private ls: LocalstorageService
@@ -34,6 +38,10 @@ export class ListaTipoDireccionComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadTiposDireccion();    
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -48,10 +56,12 @@ export class ListaTipoDireccionComponent implements OnInit {
   }
 
   loadTiposDireccion = () => {
-    this.tipoDireccionSrvc.get().subscribe(lst => {
-      this.lstTipoDireccion = lst;
-      this.applyFilter();              
-    });
+    this.endSubs.add(      
+      this.tipoDireccionSrvc.get().subscribe(lst => {
+        this.lstTipoDireccion = lst;
+        this.applyFilter();              
+      })
+    );
   }
 
   getTipoDireccion = (obj: TipoDireccion) => {

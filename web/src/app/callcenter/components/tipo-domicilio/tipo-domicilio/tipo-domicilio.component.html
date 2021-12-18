@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tipo-domicilio #lstTipoDomicilio (getTipoDomicilioEv)="setTipoDomicilio($event)"></app-lista-tipo-domicilio>
+    </div>
+    <div class="col m7 s12">
+        <app-form-tipo-domicilio #frmTipoDomicilio [tipoDomicilio]="tipoDomicilio" (tipoDomicilioSavedEv)="refreshTipoDomicilio()"></app-form-tipo-domicilio>        
+    </div>
+</div>

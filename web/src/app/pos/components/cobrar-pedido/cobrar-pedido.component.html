@@ -136,9 +136,13 @@
               </mat-form-field>
             </td>
             <td>
-              <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Dirección de entrega" name="direccion_entrega"
-                       [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+              <mat-form-field class="fullWidth">                
+                <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+                <mat-autocomplete #autoDirEntr="matAutocomplete" (optionSelected)="setSedeAtiende($event.option.value)">
+                  <mat-option *ngFor="let dirEnt of direccionesDeEntrega" [value]="dirEnt.direccion_completa">
+                    {{dirEnt.direccion_completa}}
+                  </mat-option>
+                </mat-autocomplete>
               </mat-form-field>
             </td>
           </tr>
@@ -155,6 +159,28 @@
                        maxlength="1000">
               </mat-form-field>
             </td>
+          </tr>
+          <tr>
+            <td>
+              <mat-form-field class="fullWidth">
+                <mat-label>Tiempo ofrecido:</mat-label>
+                <mat-select name="tiempo_entrega" [(ngModel)]="datosPedido.tiempo_entrega" required>
+                  <mat-option *ngFor="let te of tiemposEntrega" [value]="te.tiempo_entrega">
+                    {{te.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field class="fullWidth">
+                <mat-label>Tipo domicilio:</mat-label>
+                <mat-select name="tipo_domicilio" [(ngModel)]="datosPedido.tipo_domicilio" required>
+                  <mat-option *ngFor="let tdom of tiposDomicilio" [value]="tdom.tipo_domicilio">
+                    {{tdom.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </td>            
           </tr>
         </ng-container>
         </tbody>

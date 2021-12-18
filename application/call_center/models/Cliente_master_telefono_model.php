@@ -8,10 +8,10 @@ class Cliente_master_telefono_model extends General_model {
     public $telefono;
 	public $desasociado = 0;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("cliente_master_telefono");
+		$this->setTabla('cliente_master_telefono');
 		if (!empty($id)) {
 			$this->cargar($id);
 		}

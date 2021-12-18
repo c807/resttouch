@@ -48,13 +48,35 @@ import {ClienteMasterNotaComponent} from './components/cliente-master/cliente-ma
 import {AgregaNotaComponent} from './components/cliente-master/agregar-nota/agrega-nota.component';
 import {AgregarDatoDeFacturacionComponent} from './components/cliente-master/agregar-dato-de-facturacion/agregar-dato-de-facturacion';
 import {DialogAgregarClienteComponent} from './components/cliente-master/dialog-agregar-cliente/dialog-agregar-cliente.component';
+import { TiempoEntregaComponent } from './components/tiempo-entrega/tiempo-entrega/tiempo-entrega.component';
+import { FormTiempoEntregaComponent } from './components/tiempo-entrega/form-tiempo-entrega/form-tiempo-entrega.component';
+import { ListaTiempoEntregaComponent } from './components/tiempo-entrega/lista-tiempo-entrega/lista-tiempo-entrega.component';
+import { EstatusCallcenterComponent } from './components/estatus-callcenter/estatus-callcenter/estatus-callcenter.component';
+import { FormEstatusCallcenterComponent } from './components/estatus-callcenter/form-estatus-callcenter/form-estatus-callcenter.component';
+import { ListaEstatusCallcenterComponent } from './components/estatus-callcenter/lista-estatus-callcenter/lista-estatus-callcenter.component';
+import { SeguimientoCallcenterComponent } from './components/seguimiento-callcenter/seguimiento-callcenter/seguimiento-callcenter.component';
+import { DialogSeguimientoCallcenterComponent } from './components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
+import { EncabezadoPedidoComponent } from './components/seguimiento-callcenter/encabezado-pedido/encabezado-pedido.component';
+import { DetallePedidoComponent } from './components/seguimiento-callcenter/detalle-pedido/detalle-pedido.component';
+import { RepartidorComponent } from './components/repartidor/repartidor/repartidor.component';
+import { FormRepartidorComponent } from './components/repartidor/form-repartidor/form-repartidor.component';
+import { ListaRepartidorComponent } from './components/repartidor/lista-repartidor/lista-repartidor.component';
+import { TipoDomicilioComponent } from './components/tipo-domicilio/tipo-domicilio/tipo-domicilio.component';
+import { FormTipoDomicilioComponent } from './components/tipo-domicilio/form-tipo-domicilio/form-tipo-domicilio.component';
+import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-tipo-domicilio/lista-tipo-domicilio.component';
 
 /**
  * New Components must be added in declarations,
  * Modules from libraries for example Angular.Material must be added on imports
  */
 @NgModule({
-  declarations: [DialogAgregarClienteComponent , AgregarDatoDeFacturacionComponent, AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent ,ClienteMasterDireccionComponent],
+  declarations: [
+    AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, 
+    ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent, 
+    ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
+    ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent, 
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent
+  ],
   imports: [
     CommonModule,
     CallcenterRoutingModule,
@@ -88,6 +110,6 @@ import {DialogAgregarClienteComponent} from './components/cliente-master/dialog-
     MatBadgeModule,
     ScrollingModule
   ],
-  exports: [PideTelefonoDialogComponent]
+  exports: [PideTelefonoDialogComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent]
 })
 export class CallcenterModule { }

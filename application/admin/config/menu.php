@@ -302,7 +302,7 @@ $config['menu'] = [
 				'opciones' => [
 					1 => [
 						'nombre' => 'Seguimiento',
-						'link' => '/admin/dashboard'
+						'link' => '/callcenter/seguimiento_callcenter'
 					]
 				]
 					],
@@ -316,6 +316,22 @@ $config['menu'] = [
 					2 => [
 						'nombre' => 'Clientes',
 						'link' => '/callcenter/cliente_master'
+					],
+					3 => [
+						'nombre' => 'Tiempos de entrega',
+						'link' => '/callcenter/tiempo_entrega'
+					],
+					4 => [
+						'nombre' => 'Estatus pedido',
+						'link' => '/callcenter/estatus_callcenter'
+					],
+					5 => [
+						'nombre' => 'Tipo de domicilio',
+						'link' => '/callcenter/tipo_domicilio'
+					],
+					6 => [
+						'nombre' => 'Repartidores',
+						'link' => '/callcenter/repartidor'
 					]
 				]
 			]

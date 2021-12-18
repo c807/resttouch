@@ -14,6 +14,7 @@ export interface Comanda {
     notas_generales?: string;
     replaceUnica?: boolean;
     _no_get_comanda?: boolean;
+    cliente_master?: number;
 }
 
 export interface ComandaGetResponse {
@@ -52,4 +53,5 @@ export interface ComandaGetResponse {
     mensaje?: string;
     numero_pedido?: string;
     notas_generales?: string;
+    cliente_master?: number;
 }

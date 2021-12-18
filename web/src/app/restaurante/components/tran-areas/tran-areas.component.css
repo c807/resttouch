@@ -20,11 +20,12 @@ mat-sidenav {
     overflow-x: hidden !important;
 }
 
-/*
-@media (max-width: 600px) {
-    ::ng-deep .mat-drawer-inner-container {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-    }
+.es-call-center {
+    /* border: 1px black solid; */
+    position: absolute;
+    top: 5px;
+    right: 5px;    
+    width: 113px;
+    height: 50px;
+    z-index: 9999;
 }
-*/

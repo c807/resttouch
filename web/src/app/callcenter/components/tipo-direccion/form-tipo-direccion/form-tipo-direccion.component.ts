@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -6,17 +6,21 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { TipoDireccion } from '../../../interfaces/tipo-direccion';
 import { TipoDireccionService } from '../../../services/tipo-direccion.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-form-tipo-direccion',
   templateUrl: './form-tipo-direccion.component.html',
   styleUrls: ['./form-tipo-direccion.component.css']
 })
-export class FormTipoDireccionComponent implements OnInit {
+export class FormTipoDireccionComponent implements OnInit, OnDestroy {
 
   @Input() tipoDireccion: TipoDireccion;
   @Output() tipoDireccionSavedEv = new EventEmitter();
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -28,18 +32,24 @@ export class FormTipoDireccionComponent implements OnInit {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   resetTipoDireccion() {
     this.tipoDireccion = { tipo_direccion: null, descripcion: null };
   }
 
   onSubmit() {
-    this.tipoDireccionSrvc.save(this.tipoDireccion).subscribe((res) => {
-      if (res) {
-        this.resetTipoDireccion();
-        this.tipoDireccionSavedEv.emit();
-        this.snackBar.open('Grabado con éxito.', 'Tipo de dirección', { duration: 5000 });
-      }
-    });
+    this.endSubs.add(      
+      this.tipoDireccionSrvc.save(this.tipoDireccion).subscribe((res) => {
+        if (res) {
+          this.resetTipoDireccion();
+          this.tipoDireccionSavedEv.emit();
+          this.snackBar.open('Grabado con éxito.', 'Tipo de dirección', { duration: 5000 });
+        }
+      })
+    );
   }  
 
 }

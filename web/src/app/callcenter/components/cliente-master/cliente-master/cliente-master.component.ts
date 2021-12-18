@@ -71,10 +71,8 @@ export class ClienteMasterComponent implements OnInit, OnDestroy {
     });
 
     this.endSubs.add(
-      cmdRef.afterClosed().subscribe(res => {
-        if (res) {
-          console.log(res);
-        }
+      cmdRef.afterClosed().subscribe(() => {
+        this.loadClientesMaster();
       })
     );
 
