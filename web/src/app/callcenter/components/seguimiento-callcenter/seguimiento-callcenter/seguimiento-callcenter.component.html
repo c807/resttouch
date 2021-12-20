@@ -1,4 +1,22 @@
+<div class="row">
+    <div class="col m3 s12">
+        <mat-form-field class="fullWidth">
+            <input type="date" matInput placeholder="Del" name="fdel" [(ngModel)]="params._fdel" required>
+        </mat-form-field>        
+    </div>
+    <div class="col m3 s12">        
+        <mat-form-field class="fullWidth">
+            <input type="date" matInput placeholder="Al" name="fal" [(ngModel)]="params._fal" required>
+        </mat-form-field>
+    </div>
+    <div class="col m2 s12">
+        <button mat-raised-button type="button" color="accent" (click)="loadPedidos()">
+            Buscar
+        </button>
+    </div>
+</div>
 <div class="divPedido" *ngFor="let pedido of lstPedidos">
     <app-encabezado-pedido [pedido]="pedido"></app-encabezado-pedido>
 </div>
+
 

@@ -10,7 +10,7 @@ class Seguimiento_callcenter_model extends CI_Model
 		}
 
 		if (isset($args["_fal"])) {
-            $this->db->where('DATE(a.fhcreacion) <=', $args["_fdel"]);
+            $this->db->where('DATE(a.fhcreacion) <=', $args["_fal"]);
 		}
 
         if (count($args) > 0) {

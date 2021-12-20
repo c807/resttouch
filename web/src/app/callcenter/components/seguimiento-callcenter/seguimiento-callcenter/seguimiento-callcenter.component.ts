@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
+import * as moment from 'moment';
 
 import { SeguimientoCallcenterService } from '../../../services/seguimiento-callcenter.service';
 
@@ -15,6 +16,10 @@ import { Subscription } from 'rxjs';
 export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
 
   public lstPedidos: any[] = [];  
+  public params: any = {
+    _fdel: moment().format(GLOBAL.dbDateFormat),
+    _fal: moment().format(GLOBAL.dbDateFormat)
+  };
   
   private endSubs = new Subscription();
 
@@ -43,7 +48,7 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
 
   loadPedidos = () => {
     this.endSubs.add(      
-      this.seguimientoCallcenterSrvc.get_pedidos({}).subscribe((lista: any[]) => {
+      this.seguimientoCallcenterSrvc.get_pedidos(this.params).subscribe((lista: any[]) => {
         this.lstPedidos = lista;
       })
     );
