@@ -33,8 +33,7 @@ export interface ClienteMasterDireccion {
     municipio?: string;
     departamento?: string;
     pais?: string;
-    notas?: string;
-    sede?: number;
+    notas?: string;    
     debaja?: number;
     sede?: number;
 }
@@ -51,8 +50,7 @@ export interface ClienteMasterDireccionResponse {
     departamento?: string;
     pais?: string;
     notas?: string;
-    debaja?: number;
-    sede?: number;
+    debaja?: number;    
     direccion_completa?: string;
     sede?: Sede;
 }
