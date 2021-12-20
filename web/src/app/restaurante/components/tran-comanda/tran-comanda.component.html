@@ -92,6 +92,11 @@
                             Cobrar cuenta
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
+                            (click)="verHistorico()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
+                            *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
+                            Histórico
+                        </button>
+                        <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="enviarPedido()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
                             *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
                             Enviar pedido

@@ -1,0 +1,22 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>Tipo de domicilio</h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmTipoDomicilio="ngForm" (ngSubmit)="frmTipoDomicilio.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoDomicilio.descripcion" minlength="1" maxlength="45" required>
+                <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoDomicilio.descripcion" minlength="1" maxlength="45" required>
+            </mat-form-field>
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoDomicilio.form.valid">
+                    Guardar
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetTipoDomicilio()" *ngIf="tipoDomicilio.tipo_domicilio">
+                    Nuevo
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
+

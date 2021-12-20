@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-repartidor #lstRepartidores (getRepartidorEv)="setRepartidor($event)"></app-lista-repartidor>
+    </div>
+    <div class="col m7 s12">
+        <app-form-repartidor #frmRepartidor [repartidor]="repartidor" (repartidorSavedEv)="refreshRepartidores()"></app-form-repartidor>        
+    </div>
+</div>

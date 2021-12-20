@@ -35,7 +35,7 @@ class Tipo_direccion extends CI_Controller
             $datos['exito'] = $tipodir->guardar($req);
             if ($datos['exito']) {
                 $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['cliente_master'] = $tipodir;
+                $datos['tipo_direccion'] = $tipodir;
             } else {
                 $datos['mensaje'] = $tipodir->getMensaje();
             }

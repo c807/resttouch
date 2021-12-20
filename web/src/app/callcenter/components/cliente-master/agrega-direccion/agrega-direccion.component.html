@@ -34,7 +34,7 @@
 
           <mat-form-field appearance="fill" class="input-ml">
             <mat-label>Codigo Postal</mat-label>
-            <input [(ngModel)]="direccion.codigo_postal"  name="codigo_postal" matInput type="number" placeholder="Ej. 01057" min="0">
+            <input [(ngModel)]="direccion.codigo_postal"  name="codigo_postal" matInput type="text" placeholder="Ej. 01057" minlength="3">
           </mat-form-field>
 
           <mat-form-field hintLabel="Municipio" appearance="fill" class="input-ml">

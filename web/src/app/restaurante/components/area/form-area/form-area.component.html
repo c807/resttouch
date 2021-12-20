@@ -31,6 +31,7 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-checkbox name="escallcenter" class="example-margin" [(ngModel)]="+entidad.escallcenter">Es Call Center</mat-checkbox>            
             <h5>Mesas en el área: {{entidad.mesas.length}}</h5>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"

@@ -125,6 +125,11 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     this.resetDetalleTurno();
     this.detallesTurno = [];
     this.updateTableDataSource();
+    if (this.lstCajaCorte) {
+      this.lstCajaCorte.idTurno = null;
+      this.lstCajaCorte.turno = null;
+      this.lstCajaCorte.listacc = [];
+    }
   }
 
   saveInfoTurno = () => {

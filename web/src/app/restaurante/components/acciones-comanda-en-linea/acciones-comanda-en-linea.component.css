@@ -1,0 +1,17 @@
+.accion-comanda-en-linea {
+    background-color: #F3D852;
+    font-weight: bold;    
+    margin: 10px 0;
+}
+
+.accion-comanda-en-linea-generales {
+    background-color: #DA332D;
+    font-weight: bold;
+    margin: 10px 0;    
+}
+
+.accion-comanda-en-linea-estatus-callcenter {
+    font-weight: bold;
+    margin: 10px 0;    
+    color: #acacac
+}

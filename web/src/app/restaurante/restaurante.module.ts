@@ -87,6 +87,8 @@ import { CantidadCombosDialogComponent } from './components/cantidad-combos-dial
 import { ListaProductosComandaAltComponent } from './components/lista-productos-comanda-alt/lista-productos-comanda-alt.component';
 import { ProductoComandaAltComponent } from './components/producto-comanda-alt/producto-comanda-alt.component';
 import { ComandaComponent } from './components/reportes/comanda/comanda.component';
+import { HistoricoPedidosComponent } from './components/historico-pedidos/historico-pedidos.component';
+import { AccionesComandaEnLineaComponent } from './components/acciones-comanda-en-linea/acciones-comanda-en-linea.component';
 
 @NgModule({
   declarations: [
@@ -98,7 +100,7 @@ import { ComandaComponent } from './components/reportes/comanda/comanda.componen
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
-    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent
+    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent
   ],
   imports: [
     CommonModule,

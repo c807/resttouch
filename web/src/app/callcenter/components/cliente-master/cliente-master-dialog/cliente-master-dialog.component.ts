@@ -3,11 +3,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ClienteMaster } from '../../../interfaces/cliente-master';
 import { FormClienteMasterComponent } from '../form-cliente-master/form-cliente-master.component';
+import { ClienteMasterTelefonoComponent } from '../cliente-master-telefono/cliente-master-telefono.component';
 
 interface IDataClienteMasterDialog {
-  clienteMaster: ClienteMaster
+  clienteMaster: ClienteMaster,
+  numero?: string
 }
-
 
 @Component({
   selector: 'app-cliente-master-dialog',
@@ -17,6 +18,7 @@ interface IDataClienteMasterDialog {
 export class ClienteMasterDialogComponent implements OnInit {
 
   @ViewChild('frmClienteMaster') frmClienteMaster: FormClienteMasterComponent;
+  @ViewChild('frmClienteMasterTelefono') frmClienteMasterTelefono: ClienteMasterTelefonoComponent;
   public clienteMaster: ClienteMaster;
 
   constructor(
@@ -25,11 +27,21 @@ export class ClienteMasterDialogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // console.log(this.data);
     if (this.data.clienteMaster) {
       this.clienteMaster = this.data.clienteMaster;
     }
   }
 
-  cancelar = () => this.dialogRef.close();
+  cancelar = () => this.dialogRef.close(this.clienteMaster);
+
+  clienteMasterSvd = (cliMas: ClienteMaster) => {
+    this.clienteMaster = cliMas;
+    if (this.data.numero && this.data.numero.trim().length >= 8) {
+      this.frmClienteMasterTelefono.clienteMaster = this.clienteMaster;
+      this.frmClienteMasterTelefono.telefono = { telefono: null, numero: this.data.numero.trim() };
+      this.frmClienteMasterTelefono.checkTelefono();
+    }
+  }
 
 }

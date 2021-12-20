@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-estatus-callcenter #lstEstatusCallcenter (getEstatusCallcenterEv)="setEstatusCallcenter($event)"></app-lista-estatus-callcenter>
+    </div>
+    <div class="col m7 s12">
+        <app-form-estatus-callcenter #frmCallcenter [estatusCallcenter]="estatusCallcenter" (estatusCallcenterSavedEv)="refreshCallcenter()"></app-form-estatus-callcenter>
+    </div>
+</div>

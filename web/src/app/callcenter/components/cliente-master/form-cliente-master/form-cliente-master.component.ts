@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 export class FormClienteMasterComponent implements OnInit, OnDestroy {
 
   @Input() clienteMaster: ClienteMaster;
+  @Output() clienteMasterSvd = new EventEmitter();
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public cargando = false;
@@ -53,6 +54,7 @@ export class FormClienteMasterComponent implements OnInit, OnDestroy {
       this.clienteMasterSrvc.save(this.clienteMaster).subscribe(res => {
         if (res.exito) {
           this.clienteMaster = res.cliente_master;
+          this.clienteMasterSvd.emit(this.clienteMaster);
           this.snackBar.open(res.mensaje, 'Cliente', { duration: 5000 });
         } else {
           this.snackBar.open(`ERROR:${res.mensaje}`, 'Cliente', { duration: 7000 });

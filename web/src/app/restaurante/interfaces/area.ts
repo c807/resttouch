@@ -8,4 +8,5 @@ export interface Area {
     mesas?: Mesa[];
     impresora?: number;
     impresora_factura?: number;
+    escallcenter?: number;
 }

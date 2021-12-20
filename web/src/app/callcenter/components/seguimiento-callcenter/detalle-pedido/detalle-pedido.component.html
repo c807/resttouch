@@ -1,0 +1,16 @@
+<div class="detalle-pedido">
+    <table class="tbl tblDetallePedido">
+        <tbody>
+            <tr *ngFor="let det of detallePedido; last as isLast">
+                <td>
+                    {{det.cantidad > 1 ? (+det.cantidad + ' ') : ''}} 
+                    {{
+                        (det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? 
+                        det.descripcion : 
+                        ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)
+                    }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

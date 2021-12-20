@@ -1297,6 +1297,18 @@ class Api extends CI_Controller
                 $_GET['_fal'] = ['DATE(fhcreacion)' => $_GET['_fal']];
             }
 
+			$argsDetalle = [];
+
+			$cuenta = null;
+			$detalle_cuenta = [];
+			if (isset($_GET['_cuenta'])) {
+                $cuenta = new Cuenta_model($_GET['_cuenta']);
+				$detC = $cuenta->getDetalle(['impreso' => 1, '_for_print' => true]);
+				foreach ($detC as $row) {
+					$detalle_cuenta[] = (int)$row->detalle_comanda;
+				}
+            }
+
 			$datos->comandas = $this->Comanda_model->buscar($_GET);
 			foreach ($datos->comandas as $comanda) {
 				$cmd = new Comanda_model($comanda->comanda);
@@ -1315,12 +1327,16 @@ class Api extends CI_Controller
 					'apellidos' => $mesero->apellidos,
 					'usrname' => $mesero->usrname
 				];
-				$detalle = $cmd->getDetalle();
+				$detalle = $cmd->getDetalle($argsDetalle);
 				$comanda->detalle = [];
 				foreach($detalle as $det) {
-					// if ((float)$det->cantidad > 0 && (float)$det->total > 0) {
+					if (isset($_GET['_cuenta'])) {
+						if (in_array((int)$det->detalle_comanda, $detalle_cuenta)) {
+							$comanda->detalle[] = $det;
+						}
+					} else {
 						$comanda->detalle[] = $det;
-					// }
+					}		
 				}
 
 				$html .= "<h3>Sede: {$comanda->sede->nombre}</h3>";
