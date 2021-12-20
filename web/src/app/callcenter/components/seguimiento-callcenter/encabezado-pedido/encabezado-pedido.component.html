@@ -7,6 +7,10 @@
     <mat-card-content>
         <table class="tbl tblPedido">
             <tr>
+                <td class="bld">Fecha/hora:</td>
+                <td>{{pedido.fhcreacion | date:'dd/MM/yyyy HH:mm:ss'}}</td>
+            </tr>
+            <tr>
                 <td class="bld">Transcurrido:</td>
                 <td>{{tiempoTranscurrido(pedido.fhcreacion)}}</td>
             </tr>        
