@@ -404,11 +404,15 @@ class Cliente_master extends CI_Controller
             foreach ($datos as $row) {
                 $row->cliente_master = $this->Cliente_master_model->buscar(['cliente_master' => $row->cliente_master, '_uno' => true]);
                 $row->tipo_direccion = $this->Tipo_direccion_model->buscar(['tipo_direccion' => $row->tipo_direccion, '_uno' => true]);
+                $row->sede = $this->Sede_model->buscar(['sede' => $row->sede, '_uno' => true]);
+
                 $row->direccion_completa = $this->get_direccion_completa($row);
             }
         } else if (is_object($datos)) {
             $datos->cliente_master = $this->Cliente_master_model->buscar(['cliente_master' => $datos->cliente_master, '_uno' => true]);
             $datos->tipo_direccion = $this->Tipo_direccion_model->buscar(['tipo_direccion' => $datos->tipo_direccion, '_uno' => true]);
+            $datos->sede = $this->Sede_model->buscar(['sede' => $datos->sede, '_uno' => true]);
+
             $datos->direccion_completa = $this->get_direccion_completa($datos);
         }
 

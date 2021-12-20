@@ -1,6 +1,7 @@
 import { Telefono } from './telefono';
 import { TipoDireccion } from './tipo-direccion';
 import {Cliente} from '../../admin/interfaces/cliente';
+import {Sede} from "../../admin/interfaces/sede";
 
 
 export interface ClienteMasterCliente {
@@ -34,6 +35,7 @@ export interface ClienteMasterDireccion {
     pais?: string;
     notas?: string;
     debaja?: number;
+    sede?: number;
 }
 
 export interface ClienteMasterDireccionResponse {
@@ -50,6 +52,7 @@ export interface ClienteMasterDireccionResponse {
     notas?: string;
     debaja?: number;
     direccion_completa?: string;
+    sede?: Sede;
 }
 
 export interface ClienteMasterNota {

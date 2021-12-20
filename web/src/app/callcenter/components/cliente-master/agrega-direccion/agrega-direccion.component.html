@@ -19,6 +19,15 @@
           </mat-form-field>
 
           <mat-form-field appearance="fill" class="input-ml">
+            <mat-label>Sede</mat-label>
+
+            <mat-select  [(value)]="direccion.sede" [(ngModel)]="direccion.sede"  name="sede" required >
+              <mat-option *ngFor="let td of sedes" [value]="td.sede">{{td.nombre}}</mat-option>
+            </mat-select>
+            <mat-hint align="end">Seleccione una.</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="input-ml">
             <mat-label>Zona</mat-label>
             <input [(ngModel)]="direccion.zona" name="zona"   matInput type="number" placeholder="Ej. 2" min="0">
           </mat-form-field>

@@ -90,7 +90,8 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       departamento: direccion.departamento,
       pais: direccion.pais,
       notas: direccion.notas,
-      debaja: direccion.debaja
+      debaja: direccion.debaja,
+      sede: direccion.sede.sede
     };
 
     const cmdRef = this.dialog.open(AgregaDireccionComponent, {

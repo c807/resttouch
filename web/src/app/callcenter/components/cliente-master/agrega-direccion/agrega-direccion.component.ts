@@ -10,6 +10,8 @@ import {ClienteMasterService} from '../../../services/cliente-master.service';
 import {Subscription} from 'rxjs';
 import {TipoDireccionService} from '../../../services/tipo-direccion.service';
 import { TipoDireccion } from '../../../interfaces/tipo-direccion';
+import {SedeService} from "../../../../admin/services/sede.service";
+import {Sede} from "../../../../admin/interfaces/sede";
 
 @Component({
   selector: 'app-agrega-direccion',
@@ -27,6 +29,7 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   public direccion: ClienteMasterDireccion;
   public tipoDireccion: TipoDireccion[] = [];
 
+  public sedes: Sede[] = [];
   public isEditing = false;
 
   private endSubs = new Subscription();
@@ -37,12 +40,21 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
+    private sedeSrvc: SedeService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }
 
+  loadSedes = () => {
+    this.sedeSrvc.get().subscribe(res => {
+      if (res) {
+        this.sedes = res;
+      }
+    });
+  }
 
   ngOnInit(): void {
+    this.loadSedes();
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.isEditing = this.data.isEditing;
     if (this.data.defData) {
