@@ -25,6 +25,7 @@ class Comanda_model extends General_Model
 	public $estatus_callcenter = null;
 	public $tipo_domicilio = null;
 	public $repartidor = null;
+	public $fhtomapedido = null;
 
 	public function __construct($id = '')
 	{

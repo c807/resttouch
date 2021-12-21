@@ -16,7 +16,7 @@ class Seguimiento_callcenter_model extends CI_Model
         if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if (substr($key, 0, 1) != "_") {
-					$this->db->where($key, $row);
+					$this->db->where("a.{$key}", $row);
 				}
 			}
 		}
@@ -24,7 +24,7 @@ class Seguimiento_callcenter_model extends CI_Model
         $campos = 'a.comanda, a.usuario, b.nombres, b.apellidos, a.sede, c.nombre AS sede_atiende, a.comanda_origen_datos, a.fhcreacion, ';
         $campos.= 'IFNULL(a.notas_generales, "No tiene") AS observaciones, a.cliente_master, d.nombre AS cliente, a.tiempo_entrega, ';
         $campos.= 'e.descripcion AS tiempo_ofrecido, a.estatus_callcenter, f.descripcion AS estatus, f.color AS color_estatus, ';
-        $campos.= 'a.tipo_domicilio, g.descripcion AS domicilio_tipo, a.repartidor, IFNULL(h.nombre, "No asignado") AS motorista';
+        $campos.= 'a.tipo_domicilio, g.descripcion AS domicilio_tipo, a.repartidor, IFNULL(h.nombre, "No asignado") AS motorista, a.fhtomapedido';
         $pedidos = $this->db->select($campos, false)
             ->join('usuario b', 'b.usuario = a.usuario')
             ->join('sede c', 'c.sede = a.sede')

@@ -987,8 +987,15 @@ class Comanda extends CI_Controller
 			$cmd = new Comanda_model($req->comanda);
 			$datos['exito'] = $cmd->guardar(['estatus_callcenter' => $req->estatus_callcenter]);
 			if ($datos['exito']) {
+				$this->load->helper('api');
 				$datos['mensaje'] = 'Estatus de comanda actualizado con éxito.';
 				$datos['comanda'] = $cmd->getComanda(['_usuario' => $data->idusuario]);
+
+				$url_ws = get_url_websocket();
+				$idPedido = (int)$datos['comanda']->comanda;
+				$idEstatusCC = (int)$datos['comanda']->estatus_callcenter->estatus_callcenter;
+				get_request("{$url_ws}/api/updpedidocc/{$idPedido}/{$idEstatusCC}", []);
+
 			} else {
 				$datos['mensaje'] = implode('; ', $cmd->getMensaje());
 			}
