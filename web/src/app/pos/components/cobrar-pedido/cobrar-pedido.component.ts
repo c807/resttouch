@@ -579,7 +579,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     if (dEnt && dEnt.trim() !== '') {
       dEnt = dEnt.trim();
       const de = this.direccionesDeEntrega.find(d => d.direccion_completa?.trim() === dEnt);
-      if (de && +de.sede > 0) {
+      if (de.sede && +de.sede.sede > 0) {
         this.datosPedido.sede = de.sede.sede;
       }
     }

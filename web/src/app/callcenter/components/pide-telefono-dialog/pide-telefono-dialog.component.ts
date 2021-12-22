@@ -6,7 +6,7 @@ import { LocalstorageService } from '../../../admin/services/localstorage.servic
 
 import { ClienteService } from '../../../admin/services/cliente.service';
 import { Cliente } from '../../../admin/interfaces/cliente';
-import { FormClienteDialogComponent } from '../../../admin/components/cliente/form-cliente-dialog/form-cliente-dialog.component';
+// import { FormClienteDialogComponent } from '../../../admin/components/cliente/form-cliente-dialog/form-cliente-dialog.component';
 import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion } from '../../interfaces/cliente-master';
 import { ClienteMasterService } from '../../services/cliente-master.service';
 import { ClienteMasterDialogComponent } from '../cliente-master/cliente-master-dialog/cliente-master-dialog.component';

@@ -8,6 +8,8 @@ class Estatus_callcenter_model extends General_model {
     public $color;
     public $orden;
 	public $esautomatico = 0;
+	public $pedir_repartidor = 0;
+	public $esultimo = 0;
 
 	public function __construct($id = '')
 	{

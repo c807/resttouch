@@ -30,6 +30,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { CallcenterRoutingModule } from './callcenter-routing.module';
@@ -43,11 +44,11 @@ import { FormClienteMasterComponent } from './components/cliente-master/form-cli
 import { ClienteMasterTelefonoComponent } from './components/cliente-master/cliente-master-telefono/cliente-master-telefono.component';
 import { SeleccionaTelefonoComponent } from './components/cliente-master/selecciona-telefono/selecciona-telefono.component';
 import { ClienteMasterDireccionComponent } from './components/cliente-master/cliente-master-direccion/cliente-master-direccion.component';
-import {AgregaDireccionComponent} from './components/cliente-master/agrega-direccion/agrega-direccion.component';
-import {ClienteMasterNotaComponent} from './components/cliente-master/cliente-master-nota/cliente-master-nota.component';
-import {AgregaNotaComponent} from './components/cliente-master/agregar-nota/agrega-nota.component';
-import {AgregarDatoDeFacturacionComponent} from './components/cliente-master/agregar-dato-de-facturacion/agregar-dato-de-facturacion';
-import {DialogAgregarClienteComponent} from './components/cliente-master/dialog-agregar-cliente/dialog-agregar-cliente.component';
+import { AgregaDireccionComponent } from './components/cliente-master/agrega-direccion/agrega-direccion.component';
+import { ClienteMasterNotaComponent } from './components/cliente-master/cliente-master-nota/cliente-master-nota.component';
+import { AgregaNotaComponent } from './components/cliente-master/agregar-nota/agrega-nota.component';
+import { AgregarDatoDeFacturacionComponent } from './components/cliente-master/agregar-dato-de-facturacion/agregar-dato-de-facturacion';
+import { DialogAgregarClienteComponent } from './components/cliente-master/dialog-agregar-cliente/dialog-agregar-cliente.component';
 import { TiempoEntregaComponent } from './components/tiempo-entrega/tiempo-entrega/tiempo-entrega.component';
 import { FormTiempoEntregaComponent } from './components/tiempo-entrega/form-tiempo-entrega/form-tiempo-entrega.component';
 import { ListaTiempoEntregaComponent } from './components/tiempo-entrega/lista-tiempo-entrega/lista-tiempo-entrega.component';
@@ -64,6 +65,8 @@ import { ListaRepartidorComponent } from './components/repartidor/lista-repartid
 import { TipoDomicilioComponent } from './components/tipo-domicilio/tipo-domicilio/tipo-domicilio.component';
 import { FormTipoDomicilioComponent } from './components/tipo-domicilio/form-tipo-domicilio/form-tipo-domicilio.component';
 import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-tipo-domicilio/lista-tipo-domicilio.component';
+import { DetalleFormaPagoComponent } from './components/seguimiento-callcenter/detalle-forma-pago/detalle-forma-pago.component';
+import { PideRepartidorDialogComponent } from './components/pide-repartidor-dialog/pide-repartidor-dialog.component';
 
 /**
  * New Components must be added in declarations,
@@ -75,7 +78,7 @@ import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-t
     ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent, 
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
     ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent, 
-    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent
   ],
   imports: [
     CommonModule,
@@ -108,8 +111,9 @@ import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-t
     MatNativeDateModule,
     DragDropModule,
     MatBadgeModule,
-    ScrollingModule
+    ScrollingModule,
+    MatTooltipModule
   ],
-  exports: [PideTelefonoDialogComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent]
+  exports: [PideTelefonoDialogComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, PideRepartidorDialogComponent]
 })
 export class CallcenterModule { }

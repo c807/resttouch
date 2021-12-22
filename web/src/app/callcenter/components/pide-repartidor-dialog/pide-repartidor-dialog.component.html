@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>Repartidor para el pedido #{{data.comanda}}</h1>
+<div mat-dialog-content>
+    <mat-form-field class="fullWidth">
+        <mat-label>Seleccione un repartidor</mat-label>
+        <mat-select name="repartidor" [(ngModel)]="idRepartidor">
+            <mat-option *ngFor="let r of lstRepartidores" [value]="r.repartidor">
+                {{r.nombre}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button type="button" color="accent" (click)="cancelar()">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" color="warn" (click)="asignar()" [disabled]="!idRepartidor || !(+idRepartidor > 0)">
+        Asignar
+    </button>
+</div>

@@ -58,7 +58,8 @@ class Callcenter extends CI_Controller {
 							'detalle_comanda_original' => json_encode($detOriginal),
 							'tiempo_entrega' => isset($req->pedido->tiempo_entrega) ? $req->pedido->tiempo_entrega : null,
 							'tipo_domicilio' => isset($req->pedido->tipo_domicilio) ? $req->pedido->tipo_domicilio : null,
-							'estatus_callcenter' => 1
+							'estatus_callcenter' => 1,
+							'fhtomapedido' => date('Y-m-d H:i:s')
 						]);
 						
 						$exito = $com->enviarDetalleSede();
@@ -97,7 +98,7 @@ class Callcenter extends CI_Controller {
 									$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
 									$updpedidos = json_decode(get_request("{$url_ws}/api/updseguimientocc", []));
 									$datos['msgws'] = [$updlst, $updmesas, $updpedidos];
-									$com->guardar(['estatus_callcenter' => 2]);
+									$com->guardar(['estatus_callcenter' => 2, 'fhtomapedido' => date('Y-m-d H:i:s')]);
 								} else {
 									$datos['mensaje'] = $facturar->mensaje;
 									$com->guardar(['estatus_callcenter' => 9]);

@@ -36,7 +36,7 @@ import { FormFormaPagoComponent } from './components/formaPago/form-forma-pago/f
 import { FacturaManualComponent } from './components/facturaManual/factura-manual/factura-manual.component';
 import { ListaFacturaManualComponent } from './components/facturaManual/lista-factura-manual/lista-factura-manual.component';
 import { FormFacturaManualComponent } from './components/facturaManual/form-factura-manual/form-factura-manual.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 
 @NgModule({

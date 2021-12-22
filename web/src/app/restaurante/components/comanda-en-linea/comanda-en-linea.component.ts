@@ -10,15 +10,10 @@ import { GLOBAL } from '../../../shared/global';
 import * as moment from 'moment';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
-// import { NotasGeneralesComandaComponent } from '../notas-generales-comanda/notas-generales-comanda.component';
 import { AccionesComandaEnLineaComponent } from '../acciones-comanda-en-linea/acciones-comanda-en-linea.component';
-
-// import { ProductoSelected } from '../../../wms/interfaces/articulo';
 import { ComandaService } from '../../services/comanda.service';
-// import { FacturaService } from '../../../pos/services/factura.service';
-// import { ReportePdfService } from '../../services/reporte-pdf.service';
-// import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-// import { OrdenGkService } from '../../../ghost-kitchen/services/orden-gk.service';
+import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
+import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
 
 import { Subscription } from 'rxjs';
 
@@ -36,6 +31,14 @@ import { Subscription } from 'rxjs';
 })
 export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
+  get montoPropina() {
+    return (formas_pago: any = []) => {
+      let monto = 0;
+      formas_pago.forEach(fp => monto += +fp.propina);
+      return monto;
+    }
+  }
+
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
   public dataSource: any[] = [];
   // public columnsToDisplay = ['comanda', 'orden', 'fechahora', 'nombre', 'total', 'acciones', 'notas', 'imprimir', 'cancelar', 'facturar'];
@@ -44,6 +47,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   public comandasEnLinea: any[] = [];
   // public intervalId: any;
   public params: any = { de: 0, a: 99 };
+  public lstEstatusCallCenter: EstatusCallcenter[] = [];
 
   private endSubs = new Subscription();
 
@@ -54,8 +58,9 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     private socket: Socket,
     private ls: LocalstorageService,
     private comandaSrvc: ComandaService,
-    // private facturaSrvc: FacturaService,
     private dns: DesktopNotificationService,
+    private estatusCallcenterSrvc: EstatusCallcenterService
+    // private facturaSrvc: FacturaService,
     // private pdfServicio: ReportePdfService,
     // private configSrvc: ConfiguracionService,
     // private ordenGkSrvc: OrdenGkService,
@@ -99,6 +104,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       });
     }
 
+    this.loadEstatusCallCenter();
     this.loadComandasEnLinea();
   }
 
@@ -124,9 +130,11 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
+  loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
+
   loadComandasEnLinea = () => {
     this.endSubs.add(
-      this.comandaSrvc.getComandasOnLIne().subscribe((res: any[]) => {
+      this.comandaSrvc.getComandasOnLIne({ callcenter: 1 }).subscribe((res: any[]) => {
         this.comandasEnLinea = res;
         this.dataSource = this.comandasEnLinea;
       })
@@ -136,17 +144,17 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   abrirAccionesComandaEnLinea = (obj: any) => {
     const bs = this.bsAccionesCmd.open(AccionesComandaEnLineaComponent, {
       autoFocus: false,
-      data: { comanda: obj }
+      data: { comanda: obj, lstEstatus: this.lstEstatusCallCenter }
     });
 
     this.endSubs.add(
       bs.afterDismissed().subscribe((res: any) => {
-        if (res.refrescar) {
+        if (res?.refrescar) {
           this.loadComandasEnLinea();
         }
 
-        if (res.comanda) {
-          this.updateRegistroPedido(res.comanda);          
+        if (res?.comanda) {
+          this.updateRegistroPedido(res.comanda);
         }
       })
     );
@@ -155,10 +163,14 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   updateRegistroPedido = (pedido: any) => {
     let idx = this.comandasEnLinea.findIndex(o => +o.comanda === +pedido.comanda);
     if (idx > -1) {
-      this.comandasEnLinea[idx] = pedido;
+      if (+pedido.estatus_callcenter?.esultimo === 0) {
+        this.comandasEnLinea[idx] = pedido;
+      } else {
+        this.comandasEnLinea.splice(idx, 1);
+      }
       this.tblPedidos.renderRows();
-    }    
-  }  
+    }
+  }
 
   // setToPrint = (articulos: any[]) => {
   //   const lstArticulos: any[] = [];
