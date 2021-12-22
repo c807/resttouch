@@ -10,6 +10,8 @@ import * as moment from 'moment';
 import { NotasGeneralesComandaComponent } from '../notas-generales-comanda/notas-generales-comanda.component';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
+import { PideRepartidorDialogComponent } from '../../../callcenter/components/pide-repartidor-dialog/pide-repartidor-dialog.component';
+
 import { ComandaService } from '../../services/comanda.service';
 import { ProductoSelected } from '../../../wms/interfaces/articulo';
 import { OrdenGkService } from '../../../ghost-kitchen/services/orden-gk.service';
@@ -22,6 +24,7 @@ import { Subscription } from 'rxjs';
 
 interface IDataAccionesComandaEnLinea {
   comanda: any;
+  lstEstatus: EstatusCallcenter[];
 }
 
 @Component({
@@ -30,6 +33,14 @@ interface IDataAccionesComandaEnLinea {
   styleUrls: ['./acciones-comanda-en-linea.component.css']
 })
 export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
+
+  get estaFirmada() {
+    const fact = this.data.comanda.factura;
+    if (fact !== null && fact !== undefined && fact.fel_uuid !== null && fact.fel_uuid !== undefined) {
+      return true;
+    }
+    return false;
+  }
 
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
   
@@ -52,7 +63,11 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.data.comanda.estatus_callcenter.estatus_callcenter !== undefined && this.data.comanda.estatus_callcenter.estatus_callcenter !== null) {
-      this.loadEstatusCallCenter();
+      if (this.data.lstEstatus && this.data.lstEstatus.length > 0) {
+        this.lstEstatusCallCenter = this.data.lstEstatus;
+      } else {
+        this.loadEstatusCallCenter();
+      }
     }
   }
 
@@ -338,6 +353,19 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       '"></iframe>');
   }
 
+  updateEstatusPedidoCC = (params: any) => {
+    this.endSubs.add(
+      this.comandaSrvc.cambiaEstatusPedidoCallCenter(params).subscribe(res => {
+        if (res.exito) {
+          this.snackBar.open(res.mensaje, 'Estatus', { duration: 3000 });
+          this.cerrar(false, res.comanda);
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Estatus', { duration: 7000 });
+        }      
+      })
+    );    
+  }
+
   cambiarEstatusPedidoCallCenter = (estatusCC: EstatusCallcenter) => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
@@ -349,18 +377,32 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         if (confirma) {
           const params = {
             estatus_callcenter: +estatusCC.estatus_callcenter,
-            comanda: +this.data.comanda.comanda
+            comanda: +this.data.comanda.comanda,
+            repartidor: null
           };
-          this.endSubs.add(
-            this.comandaSrvc.cambiaEstatusPedidoCallCenter(params).subscribe(res => {
-              if (res.exito) {
-                this.snackBar.open(res.mensaje, 'Estatus', { duration: 3000 });
-                this.cerrar(false, res.comanda);
-              } else {
-                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Estatus', { duration: 7000 });
-              }      
-            })
-          );          
+
+          if (+estatusCC.pedir_repartidor === 0) {
+            this.updateEstatusPedidoCC(params);
+          } else {
+            const pideRepartidorRef = this.dialog.open(PideRepartidorDialogComponent, {
+              width: '50%',
+              disableClose: true,
+              data: {
+                comanda: +this.data.comanda.comanda,
+              }
+            });
+
+            this.endSubs.add(
+              pideRepartidorRef.afterClosed().subscribe((idRepartidor: number = null) => {
+                if (idRepartidor) {
+                  params.repartidor = idRepartidor;
+                  this.updateEstatusPedidoCC(params);
+                } else {
+                  this.snackBar.open('Se canceló el cambio de estatus.', 'Estatus', { duration: 3000 });
+                }
+              })
+            );
+          }
         }        
       })
     );

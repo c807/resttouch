@@ -37,7 +37,7 @@ export class FormEstatusCallcenterComponent implements OnInit, OnDestroy {
   }
 
   resetEstatusCallcenter() {
-    this.estatusCallcenter = { estatus_callcenter: null, descripcion: null, color: null, orden: null, esautomatico: null };
+    this.estatusCallcenter = { estatus_callcenter: null, descripcion: null, color: null, orden: null, esautomatico: 0, pedir_repartidor: 0, esultimo: 0 };
   }
 
   onSubmit() {

@@ -7,6 +7,8 @@ import * as moment from 'moment';
 import { SeguimientoCallcenterService } from '../../../services/seguimiento-callcenter.service';
 import { EstatusCallcenter } from '../../../interfaces/estatus-callcenter';
 import { EstatusCallcenterService } from '../../../services/estatus-callcenter.service';
+import { Repartidor } from '../../../interfaces/repartidor';
+import { RepartidorService } from '../../../services/repartidor.service';
 
 import { Subscription } from 'rxjs';
 
@@ -20,6 +22,7 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
   public lstPedidos: any[] = [];  
   public lstPedidosFull: any[] = [];  
   public lstEstatusCallcenter: EstatusCallcenter[] = [];
+  public lstRepartidores: Repartidor[] = [];
   public txtFiltro = '';
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
@@ -35,7 +38,8 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
     private seguimientoCallcenterSrvc: SeguimientoCallcenterService,
     private ls: LocalstorageService,
     private socket: Socket,
-    private estatusCallcenterSrvc: EstatusCallcenterService
+    private estatusCallcenterSrvc: EstatusCallcenterService,
+    private repartidorSrvc: RepartidorService  
   ) { }
 
   ngOnInit(): void {
@@ -51,12 +55,13 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
 
       this.socket.on('callcenter:updpedidocc', (obj: any) => {
         if (obj.comanda && obj.estatus_callcenter) {
-          this.actualizaEstatusPedidoCC(+obj.comanda, +obj.estatus_callcenter);
+          this.actualizaEstatusPedidoCC(+obj.comanda, +obj.estatus_callcenter, (obj.repartidor ? +obj.repartidor : null));
         }
       });
     }    
     this.params._fdel = moment().subtract(5, 'days').format(GLOBAL.dbDateFormat); // Solo para dev
     this.loadEstatusCallcenter();
+    this.loadRepartidores();
     this.loadPedidos();
   }
 
@@ -89,6 +94,14 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadRepartidores = () => {
+    this.endSubs.add(
+      this.repartidorSrvc.get().subscribe((lista: Repartidor[]) => {
+        this.lstRepartidores = lista;
+      })
+    );
+  }
+
   applyFilter = () => {
     if (this.txtFiltro.length > 0) {
       this.lstPedidos = MultiFiltro(this.lstPedidosFull, this.txtFiltro);      
@@ -97,26 +110,30 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
     }    
   }
 
-  actualizaEstatusPedidoCC = (idPedido: number, idEstatus: number) => {
-    // console.log(`Comanda ${idPedido} cambió de estatus a ${idEstatus}`);
+  actualizaEstatusPedidoCC = (idPedido: number, idEstatus: number, idRepartidor: number = null) => {    
     const idxEstatusCC = this.lstEstatusCallcenter.findIndex(ecc => +ecc.estatus_callcenter === +idEstatus);
     const idxPedidoFull = this.lstPedidosFull.findIndex(p => +p.comanda === idPedido);
     const idxPedido = this.lstPedidos.findIndex(p => +p.comanda === idPedido);
+    const idxRepartidor = this.lstRepartidores.findIndex(r => +r.repartidor === +idRepartidor);
     if (idxPedido > -1 && idxEstatusCC > -1) {
-      // console.log(`Pedido ${idPedido} encontrado en lista. (idxPedido: ${idxPedido}).`);
-      // console.log('Estatus CC: ', this.lstEstatusCallcenter[idxEstatusCC]);
       this.lstPedidos[idxPedido].estatus_callcenter = this.lstEstatusCallcenter[idxEstatusCC].estatus_callcenter;
       this.lstPedidos[idxPedido].estatus = this.lstEstatusCallcenter[idxEstatusCC].descripcion;
       this.lstPedidos[idxPedido].color_estatus = this.lstEstatusCallcenter[idxEstatusCC].color;
+      if (idxRepartidor > -1) {
+        this.lstPedidos[idxPedido].motorista = this.lstRepartidores[idxRepartidor].nombre;
+      }
     }
 
     if (idxPedidoFull > -1 && idxEstatusCC > -1) {
-      // console.log(`Pedido ${idPedido} encontrado en lista full.() (idxPedidoFull: ${idxPedidoFull}).`);
-      // console.log('Estatus CC: ', this.lstEstatusCallcenter[idxEstatusCC]);
       this.lstPedidosFull[idxPedido].estatus_callcenter = this.lstEstatusCallcenter[idxEstatusCC].estatus_callcenter;
       this.lstPedidosFull[idxPedido].estatus = this.lstEstatusCallcenter[idxEstatusCC].descripcion;
       this.lstPedidosFull[idxPedido].color_estatus = this.lstEstatusCallcenter[idxEstatusCC].color;
+      if (idxRepartidor > -1) {
+        this.lstPedidosFull[idxPedido].motorista = this.lstRepartidores[idxRepartidor].nombre;
+      }
     }    
+
+    
   }
 
 }

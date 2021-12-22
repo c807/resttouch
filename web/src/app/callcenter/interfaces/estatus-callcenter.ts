@@ -3,5 +3,7 @@ export interface EstatusCallcenter {
     descripcion: string;
     color: string;
     orden: number;
-    esautomatico: number
+    esautomatico: number;
+    pedir_repartidor: number;
+    esultimo?: number;
 }

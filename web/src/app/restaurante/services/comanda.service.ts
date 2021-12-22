@@ -92,9 +92,9 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getComandasOnLIne(): Observable<ComandaGetResponse[]> {
+  getComandasOnLIne(fltr = {}): Observable<ComandaGetResponse[]> {
     return this.http.get<ComandaGetResponse[]>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/get_comanda?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 

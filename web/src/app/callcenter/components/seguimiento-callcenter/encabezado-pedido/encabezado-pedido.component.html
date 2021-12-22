@@ -1,8 +1,12 @@
 <mat-card class="mat-elevation-z4">
     <mat-card-header>
-        <mat-card-title>
-            Orden No. {{pedido.comanda | number:'1.0-0'}} a nombre de {{pedido.cliente | uppercase}} ({{pedido.domicilio_tipo}})
-        </mat-card-title>
+        <mat-card-title (click)="verDetalleFormaPago()">
+            Orden No. {{pedido.comanda | number:'1.0-0'}} a nombre de {{pedido.cliente | uppercase}}<br/>
+            <span class="sub-titulo">                
+                {{pedido.domicilio_tipo}}<br/>
+                Total: {{(+pedido.total_pedido + +pedido.total_propina) | number:'1.2-2'}}{{pedido.formas_pago && pedido.formas_pago.trim() !== '' ? (' (' + pedido.formas_pago.trim() + ')') : ''}}
+            </span>
+        </mat-card-title>        
     </mat-card-header>
     <mat-card-content>
         <table class="tbl tblPedido">

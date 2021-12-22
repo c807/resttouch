@@ -406,15 +406,33 @@ class Comanda extends CI_Controller
 		$datos = [];
 
 		if (empty($mesa)) {
-			$tmp = $this->Comanda_model->getComandas([
-				'domicilio' => 1,
-				'sede' => $data->sede
-			]);
+			ini_set('memory_limit', '512M');
+			$params = ['domicilio' => 1, 'sede' => $data->sede];
 
+			if (isset($_GET['callcenter'])) {
+				$params['callcenter'] = 1;
+			}
+
+			$tmp = $this->Comanda_model->getComandas($params);
 			foreach ($tmp as $row) {
 				$comanda = new Comanda_model($row->comanda);
 				$datos[] = $comanda->getComanda(['_usuario' => $data->idusuario]);
 			}
+
+			// if (!isset($_GET['callcenter'])) {				
+			// } else {
+			// 	foreach ($tmp as $row) {
+			// 		$comanda = new Comanda_model($row->comanda);
+			// 		$laComanda = $comanda->getComanda(['_usuario' => $data->idusuario]);
+			// 		if (
+			// 			isset($laComanda->estatus_callcenter->estatus_callcenter) || 
+			// 			(!isset($laComanda->estatus_callcenter->estatus_callcenter) && is_null($row->fel_uuid))
+			// 			) {
+			// 			$datos[] = $laComanda;
+			// 		}					
+			// 	}
+			// }
+
 		} else {
 			$mesa = new Mesa_model($mesa);
 			$tmp = $mesa->get_comanda(['estatus' => 1, 'sede' => $data->sede]);
@@ -985,7 +1003,14 @@ class Comanda extends CI_Controller
 			
 			$req = json_decode(file_get_contents('php://input'));
 			$cmd = new Comanda_model($req->comanda);
-			$datos['exito'] = $cmd->guardar(['estatus_callcenter' => $req->estatus_callcenter]);
+
+			$params = ['estatus_callcenter' => $req->estatus_callcenter];
+
+			if(isset($req->repartidor) && !empty($req->repartidor) && (int)$req->repartidor > 0) {
+				$params['repartidor'] = $req->repartidor;
+			}
+
+			$datos['exito'] = $cmd->guardar($params);
 			if ($datos['exito']) {
 				$this->load->helper('api');
 				$datos['mensaje'] = 'Estatus de comanda actualizado con éxito.';
@@ -994,7 +1019,7 @@ class Comanda extends CI_Controller
 				$url_ws = get_url_websocket();
 				$idPedido = (int)$datos['comanda']->comanda;
 				$idEstatusCC = (int)$datos['comanda']->estatus_callcenter->estatus_callcenter;
-				get_request("{$url_ws}/api/updpedidocc/{$idPedido}/{$idEstatusCC}", []);
+				get_request("{$url_ws}/api/updpedidocc/{$idPedido}/{$idEstatusCC}".(!isset($params['repartidor']) ? '' : "/{$params['repartidor']}"), []);
 
 			} else {
 				$datos['mensaje'] = implode('; ', $cmd->getMensaje());

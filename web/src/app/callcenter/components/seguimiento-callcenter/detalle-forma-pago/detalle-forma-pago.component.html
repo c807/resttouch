@@ -1,0 +1,32 @@
+<h1 mat-dialog-title>Formas de pago de pedido #{{data.pedido.comanda | number:'1.0-0'}}</h1>
+<div mat-dialog-content>
+    <table>
+        <thead>
+            <tr>
+                <th>Forma de pago</th>
+                <th class="rtxt bld">Monto</th>
+                <th class="rtxt bld">Propina</th>
+                <th class="rtxt bld">Total</th>
+            </tr>
+        </thead>
+        <tr *ngFor="let fp of data.pedido.forma_pago">
+            <td>{{fp.descripcion_forma_pago}}</td>
+            <td class="rtxt">{{fp.monto | number:'1.2-2'}}</td>
+            <td class="rtxt">{{fp.propina | number:'1.2-2'}}</td>
+            <td class="rtxt">{{(+fp.monto + +fp.propina) | number:'1.2-2'}}</td>
+        </tr>
+        <tfoot>
+            <tr>                
+                <td class="rtxt bld">Totales:</td>
+                <td class="rtxt bld">{{data.pedido.total_pedido | number:'1.2-2'}}</td>
+                <td class="rtxt bld">{{data.pedido.total_propina | number:'1.2-2'}}</td>            
+                <td class="rtxt bld">{{(+data.pedido.total_pedido + +data.pedido.total_propina) | number:'1.2-2'}}</td>
+            </tr>            
+        </tfoot>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cerrar()" color="warn">
+        Cerrar
+    </button>
+</div>

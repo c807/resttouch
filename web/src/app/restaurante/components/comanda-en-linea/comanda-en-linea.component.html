@@ -81,43 +81,74 @@
             <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
             <ng-container matColumnDef="expandedDetail">
                 <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
-                    <div class="example-element-detail"
-                        [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-                        <table style="width: 75%; background-color:#f5f5f5; table-layout: fixed;">
-                            <caption>
-                                <h5>Detalle del pedido #{{element.comanda}}</h5>
-                                <h6 *ngIf="element.origen_datos.numero_orden">Orden #{{element.origen_datos.numero_orden}}</h6>                                
-                            </caption>
-                            <thead>
-                                <th>Producto</th>
-                                <!--<th class="rtxt">Precio</th>-->
-                                <th class="rtxt">Total</th>
-                            </thead>
-                            <tbody>
-                                <tr *ngIf="element.notas_generales">
-                                    <td colspan="2">
-                                        <p class="long-notes">{{element.notas_generales}}</p>
-                                    </td>
-                                </tr>
-                                <ng-container *ngFor="let det of element.cuentas[0].productos">
-                                    <tr>
-                                        <td>
-                                            {{det.cantidad}} {{det.articulo.descripcion}}<br *ngIf="det.notas && det.notas.length > 0"/>
-                                            <span *ngIf="det.notas && det.notas.length > 0">&nbsp;&nbsp;&nbsp;{{det.notas}}</span>
-                                        </td>
-                                        <!--<td class="rtxt">{{det.precio | number: '1.2-2'}}</td>-->
-                                        <td class="rtxt">{{ ((+det.precio * +det.cantidad) + +det.monto_extra) | number: '1.2-2'}}</td>
-                                    </tr>
-                                    <ng-container *ngFor="let dc of det.detalle">
-                                        <tr *ngIf="dc.length > 0">
-                                            <td colspan="2" class="tabulador-doble">
-                                                {{dc}}
+                    <div class="example-element-detail" [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">                        
+                        <div class="row">
+                            <div class="col m6 s12">
+                                <table style="width: 100%; background-color:#f5f5f5; table-layout: fixed;">
+                                    <caption>                                        
+                                        <h5>Detalle del pedido #{{element.comanda}}</h5>
+                                        <h6 *ngIf="element.origen_datos.numero_orden">Orden #{{element.origen_datos.numero_orden}}</h6>
+                                        <h6 *ngIf="element.estatus_callcenter.descripcion" [style.color]="element.estatus_callcenter.color" >{{element.estatus_callcenter.descripcion}}</h6>
+                                    </caption>
+                                    <thead>
+                                        <th>Producto</th>                                        
+                                        <th class="rtxt">Total</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngIf="element.notas_generales">
+                                            <td colspan="2">
+                                                <p class="long-notes">{{element.notas_generales}}</p>
                                             </td>
                                         </tr>
-                                    </ng-container>                                    
-                                </ng-container>
-                            </tbody>
-                        </table>
+                                        <ng-container *ngFor="let det of element.cuentas[0].productos">
+                                            <tr>
+                                                <td>
+                                                    {{det.cantidad}} {{det.articulo.descripcion}}<br *ngIf="det.notas && det.notas.length > 0"/>
+                                                    <span *ngIf="det.notas && det.notas.length > 0">&nbsp;&nbsp;&nbsp;{{det.notas}}</span>
+                                                </td>                                                
+                                                <td class="rtxt">{{ ((+det.precio * +det.cantidad) + +det.monto_extra) | number: '1.2-2'}}</td>
+                                            </tr>
+                                            <ng-container *ngFor="let dc of det.detalle">
+                                                <tr *ngIf="dc.length > 0">
+                                                    <td colspan="2" class="tabulador-doble">
+                                                        {{dc}}
+                                                    </td>
+                                                </tr>
+                                            </ng-container>                                    
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col m6 s12">
+                                <table class="tbl" *ngIf="!!element.estatus_callcenter.estatus_callcenter">
+                                    <caption>
+                                        <h5>Formas de pago</h5>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th class="rtxt">Monto</th>
+                                            <th class="rtxt">Propina</th>                                            
+                                            <th class="rtxt">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ng-container *ngFor="let fp of element.formas_pago">
+                                            <tr>
+                                                <td class="bld">{{fp.descripcion_forma_pago}}</td>
+                                                <td class="rtxt">{{fp.monto | number: '1.2-2'}}</td>
+                                                <td class="rtxt">{{fp.propina | number: '1.2-2'}}</td>
+                                                <td class="rtxt bld">{{(+fp.monto + +fp.propina) | number: '1.2-2'}}</td>
+                                            </tr>
+                                            <tr *ngIf="fp.documento">
+                                                <td>&nbsp;</td>
+                                                <td colspan="3">Documento: {{fp.documento}}</td>                                                
+                                            </tr>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>                        
                     </div>
                 </td>
             </ng-container>

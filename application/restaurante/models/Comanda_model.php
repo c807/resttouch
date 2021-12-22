@@ -520,7 +520,7 @@ class Comanda_model extends General_Model
 		if(!$idEstatusCC || !((int)$idEstatusCC > 0)) {
 			$idEstatusCC = (int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : 0;
 		}
-		return $this->db->select('estatus_callcenter, descripcion, color, orden')->where('estatus_callcenter', $idEstatusCC)->get("estatus_callcenter")->row();
+		return $this->db->select('estatus_callcenter, descripcion, color, orden, pedir_repartidor, esultimo')->where('estatus_callcenter', $idEstatusCC)->get("estatus_callcenter")->row();
 	}
 
 	public function getComanda($args = [])
@@ -592,6 +592,7 @@ class Comanda_model extends General_Model
 		$tmp->notas_generales = $this->notas_generales;
 		$estatusCC = $this->get_estatus_callcenter();
 		$tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
+		$tmp->formas_pago = $this->get_forma_pago();
 		return $tmp;
 	}
 
@@ -616,45 +617,55 @@ class Comanda_model extends General_Model
 		}
 
 		$this->db
-			->select("a.comanda")
-			->from("comanda a")
-			->join("turno t", "a.turno = t.turno")
-			->where("t.sede", $args['sede'])
-			->group_by("a.comanda");
+			->select('a.comanda')
+			->from('comanda a')
+			->join('turno t', 'a.turno = t.turno')
+			->where('t.sede', $args['sede'])
+			->group_by('a.comanda');
 
-		if (isset($args["domicilio"]) || isset($args['cocinado'])) {
+		if (isset($args['domicilio']) || isset($args['cocinado'])) {
+			if (!isset($args['callcenter'])) {
+				$this->db->where('f.fel_uuid is null');
+			}
+
+			if (isset($args['callcenter'])) {
+				// $this->db->select('f.fel_uuid');
+				$this->db->join('estatus_callcenter h', 'h.estatus_callcenter = a.estatus_callcenter', 'left');
+				$this->db->where('(h.esultimo IS NULL or h.esultimo = 0)');
+				$this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid IS NULL OR f.fel_uuid IS NOT NULL))');
+			}
+
 			$this->db
-				->join("detalle_comanda b", "a.comanda = b.comanda")
-				->join("detalle_cuenta c", "b.detalle_comanda = c.detalle_comanda")
-				->join("detalle_factura_detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta", "left")
-				->join("detalle_factura e", "e.detalle_factura = d.detalle_factura", (isset($args['cocinado']) ? "left" : ''))
-				->join("factura f", "f.factura = e.factura", "left")
-				->join("articulo g", "b.articulo = g.articulo")
-				->where("f.fel_uuid is null");
+				->join('detalle_comanda b', 'a.comanda = b.comanda')
+				->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+				->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta', 'left')
+				->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura', (isset($args['cocinado']) ? 'left' : ''))
+				->join('factura f', 'f.factura = e.factura', 'left')
+				->join('articulo g', 'b.articulo = g.articulo');				
 
-			if (isset($args["domicilio"])) {
+			if (isset($args['domicilio'])) {
 				$this->db->where('a.domicilio', $args['domicilio']);
 			}
 
 			if (isset($args['cocinado'])) {
 				if (isset($args['categoria_grupo'])) {
 					if (is_array($args['categoria_grupo'])) {
-						if (count($args["categoria_grupo"]) == 0) {
+						if (count($args['categoria_grupo']) == 0) {
 							$args['categoria_grupo'][] = null;
 						}
 						$this->db->where_in('g.categoria_grupo', $args['categoria_grupo']);
 					}
 				}
 
-				if (verDato($args, "order_by")) {
+				if (verDato($args, 'order_by')) {
 					$this->db->order_by($args['order_by'],);
 				}
 
 				$this->db
-					->select("b.numero")
+					->select('b.numero')
 					->where('b.cocinado', $args['cocinado'])
-					->where("b.numero is not null")
-					->group_by("b.numero");
+					->where('b.numero is not null')
+					->group_by('b.numero');
 			}
 		}
 
@@ -1007,6 +1018,22 @@ class Comanda_model extends General_Model
             $descuentos = (float)$mnt->monto;
         }
         return $descuentos;		
+	}
+
+	public function get_forma_pago($idComanda = null)
+	{
+		if(!$idComanda) {
+			$idComanda = $this->getPK();
+		}
+
+		return $this->db
+			->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento')
+			->join('cuenta b', 'a.comanda = b.comanda')
+			->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
+			->join('forma_pago d', 'd.forma_pago = c.forma_pago')
+			->where('a.comanda', $idComanda)
+			->get('comanda a')
+			->result();
 	}
 
 }

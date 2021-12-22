@@ -15,6 +15,9 @@
             <mat-form-field class="fullWidth">                
                 <input matInput type="number" placeholder="Orden" name="orden" [(ngModel)]="estatusCallcenter.orden" min="1" required>
             </mat-form-field>
+            <mat-checkbox name="esautomatico" [(ngModel)]="+estatusCallcenter.esautomatico">Es automático</mat-checkbox>
+            <mat-checkbox name="pedir_repartidor" [(ngModel)]="+estatusCallcenter.pedir_repartidor">Con repartidor</mat-checkbox>
+            <mat-checkbox name="esultimo" [(ngModel)]="+estatusCallcenter.esultimo">Es el último</mat-checkbox>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmEstatusCallcenter.form.valid">
                     Guardar
