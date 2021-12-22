@@ -31,11 +31,20 @@ if (isset($_SERVER["GAE_APPLICATION"])) {
 	$db['default']['database'] = 'administracion';
 } else {
 	/* LOCAL */
-	$db['default']['hostname'] = '127.0.0.1';
-	$db['default']['username'] = 'root';
-	$db['default']['password'] = 'PoChoco2016';
-	$db['default']['database'] = 'administracion';
+//	$db['default']['hostname'] = '127.0.0.1';
+//	$db['default']['username'] = 'root';
+//	$db['default']['password'] = 'PoChoco2016';
+//	$db['default']['database'] = 'administracion';
 
+	//DEV SOLO VPN
+    $db['default']['hostname'] = '192.168.18.240';
+    $db['default']['username'] = 'devdm';
+    $db['default']['password'] = 'za9Cjq43jXqp';
+    $db['default']['database'] = 'administracion';
+
+	//192.168.18.240
+    //username devdm
+    //password za9Cjq43jXqp
 	/* DEV */
 	// $db['default']['hostname'] = '192.168.18.240';
 	// $db['default']['username'] = 'devja';

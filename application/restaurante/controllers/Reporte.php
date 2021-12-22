@@ -175,7 +175,7 @@ class Reporte extends CI_Controller
 			$totalMonto = 0;
 			$totalPropina = 0;
 			foreach($data['facturas_sin_comanda'] as $fsc) {
-				$totalMonto += (float)$fsc->monto;	
+				$totalMonto += (float)$fsc->monto;
 				$totalPropina += (float)$fsc->propina;
 			}
 			$data['ingresos'][] = (object)[
@@ -196,7 +196,7 @@ class Reporte extends CI_Controller
 				$data['detalle']['Ingresos sin comanda'] = $data['facturas_sin_comanda'];
 			}
 		}
-		
+
 
 
 		if (verDato($data, "_excel")) {
@@ -573,7 +573,7 @@ class Reporte extends CI_Controller
 		$_GET['sede'] = $this->data->sede;
 		$_GET["_facturadas"] = true;
 
-		$facts = $this->Factura_model->get_facturas($_GET);		
+		$facts = $this->Factura_model->get_facturas($_GET);
 
 		$data = $_GET;
 		$data['impuesto_especial'] = false;
@@ -793,7 +793,7 @@ class Reporte extends CI_Controller
 					// }
 
 					array_push($tituloDet, "Total");
-					array_push($tituloDet, "");
+					array_push($tituloDet, "Descuento");
 					$hoja->fromArray($tituloDet, null, "A{$fila}");
 					$hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 					$fila++;
@@ -845,7 +845,7 @@ class Reporte extends CI_Controller
 			// $fila++;
 			// $hoja->fromArray($total2, null, "A{$fila}");
 			// $hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
-			
+
 			array_push($total3, "Ventas sin factura:");
 			array_push($total3, round($data['ventas_sin_factura'], 2));
 			array_push($total3, '');
@@ -862,7 +862,7 @@ class Reporte extends CI_Controller
 
 			$fila++;
 			$hoja->fromArray($total4, null, "A{$fila}");
-			$hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);			
+			$hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 
 			for ($i = 0; $i <= count($nombres); $i++) {
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
@@ -1304,8 +1304,8 @@ class Reporte extends CI_Controller
 		if (isset($req['turno_tipo']) && (int)$req['turno_tipo'] > 0 && isset($req['descripcion_turno']) && trim($req['descripcion_turno']) !== '') {
 			if($parametros != ''){ $parametros .= ' '; }
 			$parametros .= 'Turno: '.$req['descripcion_turno'];
-		}	
-		
+		}
+
 		if($parametros != ''){ $parametros .= ' '; }
 		$parametros .= (isset($req['activos']) && (int)$req['activos'] === 1 ? 'Sin' : 'Con').' artículos eliminados de comanda.';
 
@@ -1372,7 +1372,7 @@ class Reporte extends CI_Controller
 		$hoja->mergeCells('A2:N2');
 		$hoja->getStyle('A2:N2')->getFont()->setBold(true);
 
-		$fila = 4;		
+		$fila = 4;
 		foreach ($comandas as $cmd) {
 			$filaIniciaComanda = $fila;
 			$hoja->setCellValue("A{$fila}", 'Sede');
@@ -1390,8 +1390,8 @@ class Reporte extends CI_Controller
 			$hoja->setCellValue("M{$fila}", 'Razón de anulación de comanda');
 			$hoja->setCellValue("N{$fila}", 'Total de comanda');
 			$hoja->getStyle("A{$fila}:N{$fila}")->getFont()->setBold(true);
-			$hoja->getStyle("A{$fila}:N{$fila}")->getAlignment()->setHorizontal('center');		
-			$fila++;			
+			$hoja->getStyle("A{$fila}:N{$fila}")->getAlignment()->setHorizontal('center');
+			$fila++;
 			$hoja->setCellValue("A{$fila}", $cmd->sede);
 			$hoja->setCellValue("B{$fila}", $cmd->orden_gk);
 			$hoja->setCellValue("C{$fila}", $cmd->comanda);
@@ -1413,7 +1413,7 @@ class Reporte extends CI_Controller
 			if(count($cmd->detalle) > 0) {
 				$hoja->setCellValue("B{$fila}", "Detalle de comanda {$cmd->comanda}");
 				$hoja->mergeCells("B{$fila}:I{$fila}");
-				$hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);				
+				$hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
 				$fila++;
 				$hoja->setCellValue("B{$fila}", 'Artículo');
 				$hoja->setCellValue("C{$fila}", 'Presentación');
@@ -1424,7 +1424,7 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("H{$fila}", 'Bodega');
 				$hoja->setCellValue("I{$fila}", 'Cantidad de inventario');
 				$hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
-				$hoja->getStyle("B{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');				
+				$hoja->getStyle("B{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				foreach($cmd->detalle as $det) {
 					$descArticulo = '';
@@ -1465,7 +1465,7 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("E{$fila}", 'Monto');
 				$hoja->setCellValue("F{$fila}", 'Propina');
 				$hoja->getStyle("B{$fila}:F{$fila}")->getFont()->setBold(true);
-				$hoja->getStyle("B{$fila}:F{$fila}")->getAlignment()->setHorizontal('center');				
+				$hoja->getStyle("B{$fila}:F{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				foreach($cmd->forma_pago as $fp) {
 					$hoja->setCellValue("B{$fila}", $fp->nombre_cuenta);
@@ -1496,7 +1496,7 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("G{$fila}", 'Total');
 				$hoja->setCellValue("H{$fila}", 'Razón de anulación de factura');
 				$hoja->getStyle("B{$fila}:H{$fila}")->getFont()->setBold(true);
-				$hoja->getStyle("B{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');				
+				$hoja->getStyle("B{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				foreach($cmd->factura as $fact) {
 					$hoja->setCellValue("B{$fila}", $fact->serie_factura);
@@ -1562,7 +1562,7 @@ class Reporte extends CI_Controller
 					->getOutline()
 					->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
 					->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-	
+
 				$hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()
@@ -1575,7 +1575,7 @@ class Reporte extends CI_Controller
 					->getOutline()
 					->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
 					->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-				
+
 				$hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")->getFill()
 					->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
 					->getStartColor()
