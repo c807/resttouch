@@ -19,7 +19,7 @@
         <mat-action-list>
             <ng-container *ngIf="data.comanda.estatus_callcenter.estatus_callcenter !== undefined && data.comanda.estatus_callcenter.estatus_callcenter !== null">
                 <button mat-list-item *ngFor="let ecc of lstEstatusCallCenter" class="accion-comanda-en-linea-estatus-callcenter mat-elevation-z4" 
-                    [style.backgroundColor]="ecc.color" (click)="cambiarEstatusPedidoCallCenter(ecc)">
+                    [style.backgroundColor]="ecc.color" (click)="cambiarEstatusPedidoCallCenter(ecc)" [disabled]="!estaFirmada && +ecc.esultimo === 1">
                     {{ecc.descripcion}}
                 </button>
             </ng-container>

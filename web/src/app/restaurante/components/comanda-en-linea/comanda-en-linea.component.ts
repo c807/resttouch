@@ -31,6 +31,14 @@ import { Subscription } from 'rxjs';
 })
 export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
+  get montoPropina() {
+    return (formas_pago: any = []) => {
+      let monto = 0;
+      formas_pago.forEach(fp => monto += +fp.propina);
+      return monto;
+    }
+  }
+
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
   public dataSource: any[] = [];
   // public columnsToDisplay = ['comanda', 'orden', 'fechahora', 'nombre', 'total', 'acciones', 'notas', 'imprimir', 'cancelar', 'facturar'];
@@ -146,7 +154,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         }
 
         if (res?.comanda) {
-          this.updateRegistroPedido(res.comanda);          
+          this.updateRegistroPedido(res.comanda);
         }
       })
     );
@@ -161,8 +169,8 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         this.comandasEnLinea.splice(idx, 1);
       }
       this.tblPedidos.renderRows();
-    }    
-  }  
+    }
+  }
 
   // setToPrint = (articulos: any[]) => {
   //   const lstArticulos: any[] = [];

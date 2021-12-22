@@ -59,7 +59,7 @@ export class SeguimientoCallcenterComponent implements OnInit, OnDestroy {
         }
       });
     }    
-    this.params._fdel = moment().subtract(5, 'days').format(GLOBAL.dbDateFormat); // Solo para dev
+    // this.params._fdel = moment().subtract(5, 'days').format(GLOBAL.dbDateFormat); // Solo para dev
     this.loadEstatusCallcenter();
     this.loadRepartidores();
     this.loadPedidos();
