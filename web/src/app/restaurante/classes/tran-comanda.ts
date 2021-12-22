@@ -746,7 +746,7 @@ export class TranComanda {
             nombres += `${det.descripcion}|`;
             if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
                 nombres += this.getDetalle(det.detalle, false);
-            } else if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+            } else if (det.detalle_extras && det.detalle_extras.length > 0) {
                 det.detalle_extras.forEach(de => nombres += `${de.descripcion};`);
             }
         }
@@ -762,7 +762,7 @@ export class TranComanda {
         for (const det of dcs) {
             if (+det.multiple === 0 && +det.impresora > 0) {
                 let strExtras = '';
-                if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+                if (det.detalle_extras && det.detalle_extras.length > 0) {
                     det.detalle_extras.forEach(de => strExtras += `${de.descripcion};`);
                 }
                 detImpCombo.push({
