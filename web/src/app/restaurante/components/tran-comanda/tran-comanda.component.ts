@@ -741,7 +741,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       nombres += `${det.descripcion}|`;
       if (+det.esreceta === 0 && (!det.detalle_extras || det.detalle_extras.length === 0)) {
         nombres += this.getDetalle(det.detalle, false);
-      } else if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+      } else if (det.detalle_extras && det.detalle_extras.length > 0) {
         det.detalle_extras.forEach(de => nombres += `${de.descripcion};`);
       }
     }
@@ -757,7 +757,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     for (const det of dcs) {
       if (+det.multiple === 0 && +det.impresora > 0) {
         let strExtras = '';
-        if (+det.esreceta === 0 && det.detalle_extras && det.detalle_extras.length > 0) {
+        if (det.detalle_extras && det.detalle_extras.length > 0) {
           det.detalle_extras.forEach(de => strExtras += `${de.descripcion};`);
         }
         detImpCombo.push({
@@ -850,6 +850,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             if (listaProductos.length > 0) {
               const productosAImprimir: ProductoSelected[] = [];
               listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
+              // console.log('productosAImprimir = ', productosAImprimir);
               const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
               // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
               await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();              

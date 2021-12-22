@@ -168,8 +168,7 @@ export class DialogComboComponent implements OnInit, OnDestroy {
     this.dialogRef.close(this.datos);
   }
 
-  seleccionarExtra = (sc: any) => {
-    // console.log('Before = ', sc);
+  seleccionarExtra = (sc: any) => {    
     const extrasRef = this.dialog.open(ExtraProductoComponent, {
       maxWidth: '40vw', width: '40vw',
       data: { extras: sc.seleccion.extras || [] }
@@ -177,12 +176,9 @@ export class DialogComboComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       extrasRef.afterClosed().subscribe(resExt => {
-        if (resExt && resExt.length > 0) {
-          // this.seleccion.receta.push(resExt);
-          // console.log(resExt);
+        if (resExt && resExt.length > 0) {          
           sc.seleccion.extras = resExt;
-        }
-        // console.log('After = ', sc);
+        }        
       })
     );
   }
