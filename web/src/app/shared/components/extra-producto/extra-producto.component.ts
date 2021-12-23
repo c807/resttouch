@@ -39,6 +39,8 @@ export class ExtraProductoComponent implements OnInit, OnDestroy {
     if (this.data.extras) {
       // console.log(this.data.extras);
       this.extras = JSON.parse(JSON.stringify(this.data.extras));
+    } else {
+      this.extras = [];
     }
   }
 
