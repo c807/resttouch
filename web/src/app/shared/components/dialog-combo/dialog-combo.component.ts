@@ -77,6 +77,7 @@ export class DialogComboComponent implements OnInit, OnDestroy {
       let multiple = 0;
       this.combo = res;
       for (let i = 0; i < this.combo.receta.length; i++) {
+        this.combo.receta[i].idx = i;
 
         const element = this.combo.receta[i];
 
@@ -87,7 +88,9 @@ export class DialogComboComponent implements OnInit, OnDestroy {
           for (let cont = 0; cont < +this.combo.receta[i].cantidad_maxima; cont++) {
             list.push({
               id: cont,
-              seleccion: {}
+              seleccion: {
+                extras: []
+              }
             });
           }
           this.combo.receta[i].input = list;
@@ -168,17 +171,21 @@ export class DialogComboComponent implements OnInit, OnDestroy {
     this.dialogRef.close(this.datos);
   }
 
-  seleccionarExtra = (sc: any) => {    
+  seleccionarExtra = (i: number, j: number) => {
+    // console.log(`RECETA (${i}) = `, this.combo.receta[i]);
+    // console.log(`INPUT (${i}, ${j}) = `, this.combo.receta[i].input[j]);
+    let sel = this.combo.receta[i].input[j].seleccion;    
+    // console.log('EXTRAS = ', sel.extras);
     const extrasRef = this.dialog.open(ExtraProductoComponent, {
       maxWidth: '40vw', width: '40vw',
-      data: { extras: sc.seleccion.extras || [] }
+      data: { extras: sel.extras || [] }
     });
 
     this.endSubs.add(
       extrasRef.afterClosed().subscribe(resExt => {
-        if (resExt && resExt.length > 0) {          
-          sc.seleccion.extras = resExt;
-        }        
+        // console.log(`INPUT (${i}, ${j}) = `, this.combo.receta[i].input[j]);
+        this.combo.receta[i].input[j].seleccion.extras = resExt || [];
+        sel = null;
       })
     );
   }
