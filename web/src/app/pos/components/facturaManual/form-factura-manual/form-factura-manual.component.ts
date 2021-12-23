@@ -338,7 +338,7 @@ export class FormFacturaManualComponent implements OnInit {
   }
 
   printToBT = (msgToPrint: string = '') => {
-    const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);    
+    const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);
     const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;
     // const AppHref = `${GLOBAL.DEEP_LINK_ANDROID}${data}`;
     const AppHref = GLOBAL.DEEP_LINK_ANDROID.replace('__INFOBASE64__', data);
@@ -470,6 +470,10 @@ export class FormFacturaManualComponent implements OnInit {
   }
 
   onSubmitDetail = () => {
+    if(this.detalleFactura.articulo == null){
+      this.snackBar.open(`ERROR: Artículo no valido, Seleccione un artículo valido.`, 'Articulo', { duration: 7000 });
+      return;
+    }
     this.detalleFactura.factura = this.factura.factura;
     this.detalleFactura.total = +this.detalleFactura.precio_unitario * +this.detalleFactura.cantidad;
     // console.log(this.detalleFactura);
