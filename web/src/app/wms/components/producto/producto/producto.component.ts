@@ -62,7 +62,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   }
 
   setArticulo = (art: Articulo) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getArticulo({ articulo: art.articulo }).subscribe(res => {
         if (!!res && res.length > 0) {
           const obj: ArticuloResponse = res[0];
@@ -93,7 +93,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
             stock_minimo: obj.stock_minimo,
             stock_maximo: obj.stock_maximo,
           };
-  
+
           this.categoria = this.categorias.find(c => +c.categoria === +obj.categoria_grupo.categoria);
           this.categoriaGrupo = {
             categoria_grupo: +obj.categoria_grupo.categoria_grupo,
@@ -123,7 +123,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   }
 
   loadCategorias = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategorias({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0), _activos: true }).subscribe((res: Categoria[]) => {
         if (res) {
           this.categorias = res;
@@ -144,17 +144,15 @@ export class ProductoComponent implements OnInit, OnDestroy {
     };
 
     if (idsubcat) {
-      this.frmProductoComponent.articulo.categoria_grupo = idsubcat;
       fltr.categoria_grupo_grupo = idsubcat;
-    } else {      
-      delete fltr.categoria_grupo_grupo;      
+    } else {
+      delete fltr.categoria_grupo_grupo;
     }
 
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategoriasGrupos(fltr).subscribe((res: any[]) => {
         if (res && res.length > 0) {
           if (!idsubcat) {
-            this.frmProductoComponent.articulo.categoria_grupo = null;
             this.listasCategoriasGrupo = [];
           }
           this.listasCategoriasGrupo.push(this.articuloSrvc.adaptCategoriaGrupoResponse(res));
@@ -178,7 +176,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
       delete fltr.categoria_grupo;
     }
 
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getArticulos(fltr).subscribe((res: Articulo[]) => {
         if (res) {
           this.articulosFull = res;
@@ -209,11 +207,11 @@ export class ProductoComponent implements OnInit, OnDestroy {
     this.categoriaGrupo = null;
     // this.frmProductoComponent.resetArticulo();
     this.articulos = [];
-    this.loadSubCategorias(cat.categoria)    
+    this.loadSubCategorias(cat.categoria);
   }
 
   selectSubcat = (subcat: CategoriaGrupo) => {
     this.categoriaGrupo = subcat;
-    this.loadSubCategorias(this.categoria.categoria, subcat.categoria_grupo)
+    this.loadSubCategorias(this.categoria.categoria, subcat.categoria_grupo);
   }
 }
