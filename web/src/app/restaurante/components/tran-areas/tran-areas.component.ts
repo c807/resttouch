@@ -151,6 +151,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     // console.log(m.mesaSelected); return;
     if (!this.cargando) {
       if (+m.mesaSelected.escallcenter === 0) {
+        this.clientePedido = null;
         this.aperturaCargaMesa(m);
       } else {
         const varCliPedido = `${GLOBAL.rtClientePedido}_${m.mesaSelected.mesa}`;
