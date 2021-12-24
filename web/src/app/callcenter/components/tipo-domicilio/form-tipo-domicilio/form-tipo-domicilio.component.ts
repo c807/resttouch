@@ -43,10 +43,12 @@ export class FormTipoDomicilioComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.endSubs.add(      
       this.tipoDomicilioSrvc.save(this.tipoDomicilio).subscribe((res) => {
-        if (res) {
+        if (res.exito) {
           this.resetTipoDomicilio();
           this.tipoDomicilioSavedEv.emit();
-          this.snackBar.open('Grabado con éxito.', 'Tipo de domicilio', { duration: 5000 });
+          this.snackBar.open('Grabado con éxito.', 'Tipo de domicilio', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tipo de domicilio', { duration: 7000 });
         }
       })
     );

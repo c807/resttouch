@@ -43,13 +43,25 @@ export class FormEstatusCallcenterComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.endSubs.add(      
       this.estatusCallcenterSrvc.save(this.estatusCallcenter).subscribe((res) => {
-        if (res) {
+        if (res.exito) {
           this.resetEstatusCallcenter();
           this.estatusCallcenterSavedEv.emit();
-          this.snackBar.open('Grabado con éxito.', 'Tiempo de entrega', { duration: 5000 });
+          this.snackBar.open('Grabado con éxito.', 'Tiempo de entrega', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tiempo de entrega', { duration: 7000 });
         }
       })
     );
   }  
+
+  validateKey = (e: any) => {
+    const inp = String.fromCharCode(e.keyCode);
+    if (/[0-9]/.test(inp)) {
+      return true;
+    } else {
+      e.preventDefault();
+      return false;
+    }
+  }
 
 }

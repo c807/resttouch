@@ -632,7 +632,7 @@ class Comanda_model extends General_Model
 				// $this->db->select('f.fel_uuid');
 				$this->db->join('estatus_callcenter h', 'h.estatus_callcenter = a.estatus_callcenter', 'left');
 				$this->db->where('(h.esultimo IS NULL or h.esultimo = 0)');
-				$this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid IS NULL OR f.fel_uuid IS NOT NULL))');
+				$this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid_anulacion IS NULL AND (f.fel_uuid IS NULL OR f.fel_uuid IS NOT NULL)))');
 			}
 
 			$this->db

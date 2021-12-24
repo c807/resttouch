@@ -43,10 +43,12 @@ export class FormRepartidorComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.endSubs.add(      
       this.repartidorSrvc.save(this.repartidor).subscribe((res) => {
-        if (res) {
+        if (res.exito) {
           this.resetRepartidor();
           this.repartidorSavedEv.emit();
           this.snackBar.open('Grabado con éxito.', 'Repartidor', { duration: 5000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Repartidor', { duration: 7000 });
         }
       })
     );

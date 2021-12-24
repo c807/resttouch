@@ -43,10 +43,12 @@ export class FormTipoDireccionComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.endSubs.add(      
       this.tipoDireccionSrvc.save(this.tipoDireccion).subscribe((res) => {
-        if (res) {
+        if (res.exito) {
           this.resetTipoDireccion();
           this.tipoDireccionSavedEv.emit();
-          this.snackBar.open('Grabado con éxito.', 'Tipo de dirección', { duration: 5000 });
+          this.snackBar.open('Grabado con éxito.', 'Tipo de dirección', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tipo de dirección', { duration: 7000 });
         }
       })
     );
