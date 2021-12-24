@@ -150,8 +150,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickMesa(m: any) {
     // console.log(m.mesaSelected); return;
     if (!this.cargando) {
-      if (+m.mesaSelected.escallcenter === 0) {
-        this.clientePedido = null;
+      if (+m.mesaSelected.escallcenter === 0) {        
         this.aperturaCargaMesa(m);
       } else {
         const varCliPedido = `${GLOBAL.rtClientePedido}_${m.mesaSelected.mesa}`;
@@ -247,7 +246,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
       cuentas: [
         {
           numero: 1,
-          nombre: this.clientePedido?.nombre || 'Única',
+          nombre: +m.escallcenter === 0 ? 'Única' : (this.clientePedido?.nombre || 'Unica'),
           productos: []
         }
       ]
