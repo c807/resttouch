@@ -1,8 +1,8 @@
 <h1 mat-dialog-title>Teléfono</h1>
 <div mat-dialog-content>
     <mat-form-field class="fullWidth">
-        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
-        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
     </mat-form-field>    
     <table *ngIf="clientes.length > 0">
         <thead>

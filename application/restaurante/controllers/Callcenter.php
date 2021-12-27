@@ -28,6 +28,8 @@ class Callcenter extends CI_Controller {
 
 	public function guardar_pedido($comanda = '')
 	{
+		set_time_limit(300);
+		ini_set('default_socket_timeout', 300);		
 		$req = json_decode(file_get_contents('php://input'));
 		$datos = ['exito' => false];
 
