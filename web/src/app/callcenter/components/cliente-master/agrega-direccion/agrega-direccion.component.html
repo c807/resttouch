@@ -1,4 +1,4 @@
-<h2 class="mat-title">Agregar una direccion a {{nombre}}</h2>
+<h2 class="mat-title">Agregar una dirección a {{nombre}}</h2>
 <mat-divider></mat-divider>
 <div class="example-container">
 
@@ -10,7 +10,7 @@
         <td>
 
           <mat-form-field appearance="fill" class="input-ml">
-            <mat-label>Tipo Direccion</mat-label>
+            <mat-label>Tipo Dirección</mat-label>
 
             <mat-select  [(value)]="direccion.tipo_direccion" [(ngModel)]="direccion.tipo_direccion"  name="tipo_direccion" required >
               <mat-option *ngFor="let td of tipoDireccion" [value]="td.tipo_direccion">{{td.descripcion}}</mat-option>
@@ -33,7 +33,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="fill" class="input-ml">
-            <mat-label>Codigo Postal</mat-label>
+            <mat-label>Código Postal</mat-label>
             <input [(ngModel)]="direccion.codigo_postal"  name="codigo_postal" matInput type="text" placeholder="Ej. 01057" minlength="3">
           </mat-form-field>
 
@@ -43,14 +43,14 @@
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
-          <mat-form-field hintLabel="Pais" appearance="fill" class="input-ml">
-            <mat-label>Ingrese Pais</mat-label>
+          <mat-form-field hintLabel="País" appearance="fill" class="input-ml">
+            <mat-label>Ingrese País</mat-label>
             <input [(ngModel)]="direccion.pais"  name="pais" matInput #input maxlength="50" placeholder="Ex. Mexico">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
           <mat-form-field hintLabel="Departamento" appearance="fill" class="input-ml">
-            <mat-label>Ingrese Departament</mat-label>
+            <mat-label>Ingrese Departamento</mat-label>
             <input [(ngModel)]="direccion.departamento"  name="departamento" matInput #input maxlength="50" placeholder="Ex. Mixco">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
@@ -71,13 +71,13 @@
         <td >
 
           <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
-            <mat-label>Ingrese Direccion 1</mat-label>
+            <mat-label>Ingrese Dirección 1</mat-label>
             <input  [(ngModel)]="direccion.direccion1" required name="direccion1" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
 
           <mat-form-field hintLabel="Max 50 caracteres" appearance="fill" class="notes-st">
-            <mat-label>Ingrese Direccion 2</mat-label>
+            <mat-label>Ingrese Dirección 2</mat-label>
             <input  [(ngModel)]="direccion.direccion2"  name="direccion2" matInput #input maxlength="50" placeholder="Ex. 1 Calle B">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>

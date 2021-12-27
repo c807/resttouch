@@ -43,7 +43,7 @@ if (isset($_SERVER["GAE_APPLICATION"])) {
     //password za9Cjq43jXqp
 	/* DEV */
 	// $db['default']['hostname'] = '192.168.18.240';
-	// $db['default']['username'] = 'devja';
-	// $db['default']['password'] = 'D3vJA2020!';
+	// $db['default']['username'] = 'devdm';
+	// $db['default']['password'] = 'za9Cjq43jXqp';
 	// $db['default']['database'] = 'administracion';
 }

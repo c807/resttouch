@@ -7,21 +7,21 @@
   </div>
 
   <mat-tab-group>
-    <mat-tab label="Telefono">
+    <mat-tab label="Teléfono">
       <app-cliente-master-telefono #frmClienteMasterTelefono [clienteMaster]="clienteMaster"></app-cliente-master-telefono>
     </mat-tab>
-    <mat-tab label="Direccion">
+    <mat-tab label="Dirección">
       <app-cliente-master-direccion #frmClienteMasterDireccion [clienteMaster]="clienteMaster"></app-cliente-master-direccion>
     </mat-tab>
     <mat-tab label="Notas">
       <app-cliente-master-nota #frmClienteMasterDireccion [clienteMaster]="clienteMaster"></app-cliente-master-nota>
     </mat-tab>
-    <mat-tab label="Datos de Facturacion">
+    <mat-tab label="Datos de Facturación">
       <app-agregar-dato-de-facturacion #frmClienteMasterDireccion
                                [clienteMaster]="clienteMaster"></app-agregar-dato-de-facturacion>
     </mat-tab>
   </mat-tab-group>
-  
+
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button (click)="cancelar()" color="warn">
