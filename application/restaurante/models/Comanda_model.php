@@ -37,6 +37,9 @@ class Comanda_model extends General_Model
 		} else {
 			$this->fhcreacion = date('Y-m-d H:i:s');
 		}
+
+		$this->load->library('AsyncTasks');
+
 	}
 
 	public function getMesas()
@@ -171,7 +174,8 @@ class Comanda_model extends General_Model
 		$menu = $this->Catalogo_model->getModulo(['modulo' => 4, '_uno' => true]);
 		$validar = true;
 		$cantidad = 0;
-		$articulo = $det->articulo;		
+		$articulo = $det->articulo;
+		$at = new AsyncTasks();
 		if (empty($id)) {
 			$articulo = $args['articulo'];
 			$cantidad = $args['cantidad'];
@@ -220,7 +224,7 @@ class Comanda_model extends General_Model
 			$nuevo = ($det->getPK() == null);
 			$result = $det->guardar($args);
 			$idx = $det->getPK();
-			$receta = $art->getReceta();
+			// $receta = $art->getReceta();
 
 			// if(!empty($menu) && (int)$art->mostrar_inventario === 1) {
 			// 	$art->existencias = (float)$art->existencias - ((float)$cantidad * (float)$cantPres);
@@ -228,7 +232,10 @@ class Comanda_model extends General_Model
 			// 	$art->actualiza_existencia_bodega_articulo_costo($args['bodega']);
 			// }
 
-			if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
+			// if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
+			if ((int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {				
+				$at->guardar_receta_en_comanda($this->getPK(), $idx, $art->getPK());
+				/*
 				foreach ($receta as $rec) {
 					$presR = $this->Presentacion_model->buscar([
 						'medida' => $rec->medida->medida,
@@ -265,9 +272,11 @@ class Comanda_model extends General_Model
 					];
 					$detr->guardar($dato);
 				}
+				*/
 			}
 			if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-				$det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
+				// $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
+				$at->actualiza_cantidad_hijos($det->getPK(), isset($args['regresa_inventario']) ? ($args['regresa_inventario'] ? 1 : 0) : 1);
 			}
 			if ($result) {
 				if (!empty($menu) && !$vnegativo) {

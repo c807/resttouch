@@ -205,6 +205,54 @@ class Comanda extends CI_Controller
 			->set_output(json_encode($datos));
 	}
 
+	public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo)
+	{
+		$art = new Articulo_model($id_articulo);
+		$receta = $art->getReceta();
+		foreach ($receta as $rec) {
+			$presR = $this->Presentacion_model->buscar([
+				'medida' => $rec->medida->medida,
+				'cantidad' => 1,
+				'_uno' => true
+			]);
+
+			if (!$presR) {
+				$presR = new Presentacion_model();
+				$presR->guardar([
+					'medida' => $rec->medida->medida,
+					'descripcion' => $rec->medida->descripcion,
+					'cantidad' => 1
+				]);
+
+				$presR->presentacion = $presR->getPK();
+			}
+
+			$artR = new Articulo_model($rec->articulo->articulo);
+			$bodegaR = $artR->getBodega();
+
+			$detr = new Dcomanda_model();
+			$dato = [
+				'comanda' => $id_comanda,
+				'articulo' => $rec->articulo->articulo,
+				'cantidad' => $rec->cantidad,
+				'precio' => 0,
+				'total' => 0,
+				'impreso' => 0,
+				'presentacion' => $presR->presentacion,
+				'detalle_comanda_id' => $detalle_comanda_id,
+				'bodega' => $bodegaR ? $bodegaR->bodega : null,
+				'cantidad_inventario' => $rec->cantidad
+			];
+			$detr->guardar($dato);
+		}		
+	}
+
+	public function actualiza_cantidad_hijos($id_detalle_comanda, $regresa_inventario)
+	{
+		$det = new Dcomanda_model($id_detalle_comanda);
+		$det->actualizarCantidadHijos((int)$regresa_inventario === 1);
+	}
+
 	private function add_bitacora_elimina_detalle_comanda($dcom, $req)
 	{
 		$articuloAEliminar = new Articulo_model($dcom->articulo);
