@@ -9,7 +9,7 @@
                 <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tiempoEntrega.descripcion" minlength="1" maxlength="50" required>
             </mat-form-field>
             <mat-form-field class="fullWidth">                
-                <input matInput type="number" placeholder="Orden" name="orden" [(ngModel)]="tiempoEntrega.orden" min="1" required>
+                <input matInput type="number" placeholder="Orden" name="orden" (keypress)="validateKey($event)" [(ngModel)]="tiempoEntrega.orden" min="1" required>
             </mat-form-field>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTiempoEntrega.form.valid">

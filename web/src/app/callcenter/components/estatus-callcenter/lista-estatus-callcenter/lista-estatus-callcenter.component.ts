@@ -1,6 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-
-import { PageEvent } from '@angular/material/paginator';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
@@ -19,6 +18,7 @@ export class ListaEstatusCallcenterComponent implements OnInit, OnDestroy {
   public lstEstatusCallcenter: EstatusCallcenter[];
   public lstEstatusCallcenterPaged: EstatusCallcenter[];
   @Output() getEstatusCallcenterEv = new EventEmitter();
+  @ViewChild('paginador') paginador: MatPaginator;
 
   public length = 0;
   public pageSize = 5;
@@ -45,7 +45,7 @@ export class ListaEstatusCallcenterComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-  applyFilter() {
+  applyFilter(cambioPagina = false) {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstEstatusCallcenter, this.txtFiltro);
       this.length = tmpList.length;
@@ -53,6 +53,9 @@ export class ListaEstatusCallcenterComponent implements OnInit, OnDestroy {
     } else {
       this.length = this.lstEstatusCallcenter.length;
       this.lstEstatusCallcenterPaged = PaginarArray(this.lstEstatusCallcenter, this.pageSize, this.pageIndex + 1);
+    }
+    if (!cambioPagina) {
+      this.paginador.firstPage();
     }
   }
 
@@ -72,7 +75,7 @@ export class ListaEstatusCallcenterComponent implements OnInit, OnDestroy {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter();
+    this.applyFilter(true);
   }  
 
 }

@@ -28,16 +28,24 @@ class Tiempo_entrega extends CI_Controller
 
     public function guardar($id = '')
     {
-        $tiempoEntrega = new Tiempo_entrega_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
-            $datos['exito'] = $tiempoEntrega->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['tiempo_entrega'] = $tiempoEntrega;
+            $tiempoEntrega = new Tiempo_entrega_model($id);
+            $req = json_decode(file_get_contents('php://input'), true);
+            $existe = false;
+            if (empty($id)) {
+                $existe = $this->Tiempo_entrega_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
+            }
+            if (!$existe) {
+                $datos['exito'] = $tiempoEntrega->guardar($req);
+                if ($datos['exito']) {
+                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['tiempo_entrega'] = $tiempoEntrega;
+                } else {
+                    $datos['mensaje'] = $tiempoEntrega->getMensaje();
+                }
             } else {
-                $datos['mensaje'] = $tiempoEntrega->getMensaje();
+                $datos['mensaje'] = "'{$req['descripcion']}' ya existe en el listado.";
             }
         } else {
             $datos['mensaje'] = "Parámetros inválidos.";

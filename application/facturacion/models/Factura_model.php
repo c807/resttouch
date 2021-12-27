@@ -35,6 +35,7 @@ class Factura_model extends General_model
 		if (!empty($id)) {
 			$this->cargar($id);
 		}
+		$this->load->library('AsyncTasks');
 	}
 
 	public function getDetalleImpuestos()
@@ -77,7 +78,14 @@ class Factura_model extends General_model
 		$art = new Articulo_model($articulo);
 		$pres = $art->getPresentacion();
 		$oldart = new Articulo_model($det->articulo);
-		$art->actualizarExistencia();
+
+		$at = new AsyncTasks();
+		if ($vnegativo) {			
+			$art->actualizarExistencia();
+		} else {
+			$at->actualizar_existencias_articulo($art->getPK());
+		}
+
 		if ($vnegativo || isset($args['detalle_cuenta']) || empty($menu) || !$validar || $art->existencias >= $cantidad * $pres->cantidad || $art->mostrar_pos == 0) {
 			$nuevo = ($det->getPK() == null);
 			$result = $det->guardar($args);
@@ -133,9 +141,18 @@ class Factura_model extends General_model
 						->set("detalle_cuenta", $args['detalle_cuenta'])
 						->insert("detalle_factura_detalle_cuenta");
 				}
-				$art->actualizarExistencia();
+				if ($vnegativo) {
+					$at->actualizar_existencias_articulo($art->getPK());
+				} else {
+					$art->actualizarExistencia();
+				}
+
 				if ($oldart->articulo) {
-					$oldart->actualizarExistencia();
+					if ($vnegativo) {
+						$at->actualizar_existencias_articulo($oldart->getPK());
+					} else {
+						$oldart->actualizarExistencia();
+					}
 				}
 				return $det;
 			} else {

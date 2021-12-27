@@ -417,6 +417,22 @@ class Articulo extends CI_Controller
 		}
 		$this->output->set_output(json_encode($existencia));
 	}
+
+	public function actualiza_existencia_articulo($idArticulo)
+	{
+		$articulo = new Articulo_model($idArticulo);
+		$articulo->actualizarExistencia();
+		if (isset($_GET['async'])) {
+			$fp = fopen("actualiza_existencias_{$idArticulo}.rtt", 'a');
+			fwrite($fp, (date('d/m/Y H:i:s:')." Se actualizaron las existencias de {$articulo->descripcion}.\r\n"));
+			fclose($fp);
+		}
+		$this->output->set_output(json_encode([
+			'exito' => true,
+			'mensaje' => "Existencias de {$articulo->descripcion} actualizadas con éxito.",
+			'HTTP_HOST' => $_SERVER['HTTP_HOST']
+		]));
+	}
 }
 
 /* End of file Articulo.php */

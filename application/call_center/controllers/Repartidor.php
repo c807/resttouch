@@ -28,19 +28,29 @@ class Repartidor extends CI_Controller
 
     public function guardar($id = '')
     {
-        $entidad = new Repartidor_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
+            $entidad = new Repartidor_model($id);
+            $req = json_decode(file_get_contents('php://input'), true);
             if(!isset($req['sede'])) {
                 $req['sede'] = $this->data->sede;
             }
-            $datos['exito'] = $entidad->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['repartidor'] = $entidad;
+
+            $existe = false;
+            if (empty($id)) {
+                $existe = $this->Repartidor_model->buscar(['UPPER(TRIM(nombre))' => strtoupper(trim($req['nombre'])), 'sede' => $req['sede'], '_uno' => true]);
+            }
+
+            if (!$existe) {
+                $datos['exito'] = $entidad->guardar($req);
+                if ($datos['exito']) {
+                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['repartidor'] = $entidad;
+                } else {
+                    $datos['mensaje'] = $entidad->getMensaje();
+                }
             } else {
-                $datos['mensaje'] = $entidad->getMensaje();
+                $datos['mensaje'] = "'{$req['nombre']}' ya existe en el listado.";
             }
         } else {
             $datos['mensaje'] = "Parámetros inválidos.";

@@ -28,16 +28,24 @@ class Tipo_domicilio extends CI_Controller
 
     public function guardar($id = '')
     {
-        $entidad = new Tipo_domicilio_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
-            $datos['exito'] = $entidad->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['tipo_domicilio'] = $entidad;
+            $entidad = new Tipo_domicilio_model($id);
+            $req = json_decode(file_get_contents('php://input'), true);
+            $existe = false;
+            if(empty($id)) {
+                $existe = $this->Tipo_domicilio_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
+            }
+            if (!$existe) {
+                $datos['exito'] = $entidad->guardar($req);
+                if ($datos['exito']) {
+                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['tipo_domicilio'] = $entidad;
+                } else {
+                    $datos['mensaje'] = $entidad->getMensaje();
+                }
             } else {
-                $datos['mensaje'] = $entidad->getMensaje();
+                $datos['mensaje'] = "'{$req['descripcion']}' ya existe en el listado.";
             }
         } else {
             $datos['mensaje'] = "Parámetros inválidos.";

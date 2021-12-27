@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { PageEvent } from '@angular/material/paginator';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
@@ -13,11 +13,12 @@ import { Subscription } from 'rxjs';
   templateUrl: './lista-repartidor.component.html',
   styleUrls: ['./lista-repartidor.component.css']
 })
-export class ListaRepartidorComponent implements OnInit {
+export class ListaRepartidorComponent implements OnInit, OnDestroy {
 
   public lstRepartidores: Repartidor[];
   public lstRepartidoresPaged: Repartidor[];
   @Output() getRepartidorEv = new EventEmitter();
+  @ViewChild('paginador') paginador: MatPaginator;
 
   public length = 0;
   public pageSize = 5;
@@ -44,7 +45,7 @@ export class ListaRepartidorComponent implements OnInit {
     this.endSubs.unsubscribe();
   }
 
-  applyFilter() {
+  applyFilter(cambioPagina = false) {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstRepartidores, this.txtFiltro);
       this.length = tmpList.length;
@@ -52,6 +53,9 @@ export class ListaRepartidorComponent implements OnInit {
     } else {
       this.length = this.lstRepartidores.length;
       this.lstRepartidoresPaged = PaginarArray(this.lstRepartidores, this.pageSize, this.pageIndex + 1);
+    }
+    if (!cambioPagina) {
+      this.paginador.firstPage();
     }
   }
 
@@ -71,7 +75,7 @@ export class ListaRepartidorComponent implements OnInit {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter();
+    this.applyFilter(true);
   }
 
 }

@@ -43,13 +43,25 @@ export class FormTiempoEntregaComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.endSubs.add(      
       this.tiempoEntregaSrvc.save(this.tiempoEntrega).subscribe((res) => {
-        if (res) {
+        if (res.exito) {
           this.resetTiempoEntrega();
           this.tiempoEntregaSavedEv.emit();
-          this.snackBar.open('Grabado con éxito.', 'Tiempo de entrega', { duration: 5000 });
+          this.snackBar.open('Grabado con éxito.', 'Tiempo de entrega', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tiempo de entrega', { duration: 7000 });
         }
       })
     );
+  }
+
+  validateKey = (e: any) => {
+    const inp = String.fromCharCode(e.keyCode);
+    if (/[0-9]/.test(inp)) {
+      return true;
+    } else {
+      e.preventDefault();
+      return false;
+    }
   }
 
 }

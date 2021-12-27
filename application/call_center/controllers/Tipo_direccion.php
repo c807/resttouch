@@ -28,17 +28,27 @@ class Tipo_direccion extends CI_Controller
 
     public function guardar($id = '')
     {
-        $tipodir = new Tipo_direccion_model($id);
-        $req = json_decode(file_get_contents('php://input'), true);
         $datos = ['exito' => false];
-        if ($this->input->method() == 'post') {
-            $datos['exito'] = $tipodir->guardar($req);
-            if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
-                $datos['tipo_direccion'] = $tipodir;
-            } else {
-                $datos['mensaje'] = $tipodir->getMensaje();
+        if ($this->input->method() == 'post') {            
+            $tipodir = new Tipo_direccion_model($id);
+            $req = json_decode(file_get_contents('php://input'), true);
+
+            $existe = false;
+            if(empty($id)) {
+                $existe = $this->Tipo_direccion_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
             }
+            
+            if (!$existe) {
+                $datos['exito'] = $tipodir->guardar($req);                
+                if ($datos['exito']) {
+                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['tipo_direccion'] = $tipodir;
+                } else {
+                    $datos['mensaje'] = implode(',', $tipodir->getMensaje());
+                }
+            } else {
+                $datos['mensaje'] = "'{$req['descripcion']}' ya existe en el listado.";                
+            }            
         } else {
             $datos['mensaje'] = "Parámetros inválidos.";
         }

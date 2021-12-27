@@ -417,6 +417,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         this.facturando = false;
         // this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
         if (res.exito) {
+          this.ls.clear(`${GLOBAL.rtClientePedido}_${this.data.mesaenuso.mesa.mesa}`);
           this.snackBar.open('Pedido', `#${res.pedido}. ${res.mensaje}`, { duration: 3000 });
           this.dialogRef.close('closePanel');
         } else {

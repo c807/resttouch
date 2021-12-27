@@ -10,10 +10,10 @@
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Color (Ej.: #FF00AA)" name="color" [(ngModel)]="estatusCallcenter.color" minlength="1" maxlength="10" required>
-                <input matInput *ngIf="esMovil" placeholder="Color (Ej.: #FF00AA)" name="color" [(ngModel)]="estatusCallcenter.color" minlength="1" maxlength="10" required>
+                <input matInput *ngIf="esMovil" placeholder="Color (Ej.: #FF00AA)" name="color" [(ngModel)]="estatusCallcenter.color" minlength="1" maxlength="10" pattern="[#][a-fA-F0-9]{3,6}" required>
             </mat-form-field>
             <mat-form-field class="fullWidth">                
-                <input matInput type="number" placeholder="Orden" name="orden" [(ngModel)]="estatusCallcenter.orden" min="1" required>
+                <input matInput type="number" placeholder="Orden" name="orden" (keypress)="validateKey($event)" [(ngModel)]="estatusCallcenter.orden" min="1" required>
             </mat-form-field>
             <mat-checkbox name="esautomatico" [(ngModel)]="+estatusCallcenter.esautomatico">Es automático</mat-checkbox>
             <mat-checkbox name="pedir_repartidor" [(ngModel)]="+estatusCallcenter.pedir_repartidor">Con repartidor</mat-checkbox>
