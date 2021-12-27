@@ -130,8 +130,7 @@ class Factura_model extends General_model
 			}
 
 			if ($det->getPK() && $art->combo == 0 && $art->multiple == 0) {
-				// $det->actualizarCantidadHijos();
-				$at->actualiza_cantidad_hijos($det->getPK(), isset($args['regresa_inventario']) ? ($args['regresa_inventario'] ? 1 : 0) : 1);
+				$det->actualizarCantidadHijos();				
 			}
 
 
