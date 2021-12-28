@@ -427,7 +427,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     );
   }
 
-  procesaDetalleFactura = (detalle: any[], edu = 0, descripcionUnica: string = null) => {
+  procesaDetalleFactura = (detalle: any[], edu = 0, descripcionUnica: string = null, esRecibo = false) => {
     const detFact: any[] = [];
 
     if (edu === 1 && descripcionUnica) {
@@ -445,17 +445,17 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       detalle.forEach(d => detFact.push({
         Cantidad: parseInt(d.cantidad),
         Descripcion: d.articulo.descripcion,
-        Total: +d.total,
-        PrecioUnitario: !!d.precio_unitario ? +d.precio_unitario : +d.precio
+        Total: +d.total + (esRecibo ? +d.monto_extra : 0),
+        PrecioUnitario: (!!d.precio_unitario ? +d.precio_unitario : +d.precio) + (esRecibo ? +d.monto_extra : 0)
       }));
     }
 
     return detFact;
   }
 
-  getTotalDetalle = (detalle: any[]): number => {
+  getTotalDetalle = (detalle: any[], esRecibo = false): number => {
     let suma = 0.00;
-    detalle.forEach(d => suma += +d.total);
+    detalle.forEach(d => suma += (+d.total + (esRecibo ? +d.monto_extra : 0)));
     return suma;
   }
 
@@ -527,9 +527,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       Fecha: moment().format(GLOBAL.dateFormat),
       Nombre: this.clienteSelected.nombre || entidad.nombre,
       Numero: `${entidad.comanda}-${entidad.numero}`,
-      Total: this.getTotalDetalle(entidad.detalle) + +entidad.propina,
+      Total: this.getTotalDetalle(entidad.detalle, true) + +entidad.propina,
       Propina: +entidad.propina,
-      DetalleRecibo: this.procesaDetalleFactura(entidad.detalle),
+      DetalleRecibo: this.procesaDetalleFactura(entidad.detalle, 0, null, true),
       Impresora: this.data.impresora
     };
 
