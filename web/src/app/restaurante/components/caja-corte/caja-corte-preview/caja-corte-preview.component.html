@@ -5,6 +5,10 @@
     </small>
 </h1>
 <div mat-dialog-content>
+    <span *ngIf="data.caja_corte.numero">
+        <strong>Documento:</strong> {{data.caja_corte.serie}} {{data.caja_corte.numero}} <strong>del:</strong> {{data.caja_corte.fecha | date:'dd/MM/YYYY'}}<br/>
+        <strong>Por:</strong> {{data.caja_corte.descripcion_documento}}
+    </span>
     <div class="row">
         <div class="col m6 s12">
             <table class="tbl tblNominaciones">

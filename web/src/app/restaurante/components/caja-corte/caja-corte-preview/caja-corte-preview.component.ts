@@ -28,6 +28,7 @@ export class CajaCortePreviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    console.log(this.data.caja_corte);
     this.loadDetalleCC();
   }
 
@@ -38,10 +39,7 @@ export class CajaCortePreviewComponent implements OnInit, OnDestroy {
   loadDetalleCC = () => {
     if (this.data.caja_corte && +this.data.caja_corte.caja_corte > 0) {
       this.endSubs.add(
-        this.cajaCorteSrvc.getDetalleCaja(+this.data.caja_corte.caja_corte).subscribe((det: any) => {
-          this.detalle = det;
-          // console.log(this.detalle);
-        })
+        this.cajaCorteSrvc.getDetalleCaja(+this.data.caja_corte.caja_corte).subscribe((det: any) => this.detalle = det)
       );
     }
   }
