@@ -32,10 +32,7 @@ class Tipo_domicilio extends CI_Controller
         if ($this->input->method() == 'post') {
             $entidad = new Tipo_domicilio_model($id);
             $req = json_decode(file_get_contents('php://input'), true);
-            $existe = false;
-            if(empty($id)) {
-                $existe = $this->Tipo_domicilio_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
-            }
+            $existe = $this->Tipo_domicilio_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);            
             if (!$existe) {
                 $datos['exito'] = $entidad->guardar($req);
                 if ($datos['exito']) {

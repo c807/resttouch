@@ -32,12 +32,7 @@ class Tipo_direccion extends CI_Controller
         if ($this->input->method() == 'post') {            
             $tipodir = new Tipo_direccion_model($id);
             $req = json_decode(file_get_contents('php://input'), true);
-
-            $existe = false;
-            if(empty($id)) {
-                $existe = $this->Tipo_direccion_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
-            }
-            
+            $existe = $this->Tipo_direccion_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $tipodir->guardar($req);                
                 if ($datos['exito']) {

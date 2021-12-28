@@ -35,12 +35,7 @@ class Repartidor extends CI_Controller
             if(!isset($req['sede'])) {
                 $req['sede'] = $this->data->sede;
             }
-
-            $existe = false;
-            if (empty($id)) {
-                $existe = $this->Repartidor_model->buscar(['UPPER(TRIM(nombre))' => strtoupper(trim($req['nombre'])), 'sede' => $req['sede'], '_uno' => true]);
-            }
-
+            $existe = $this->Repartidor_model->buscar(['UPPER(TRIM(nombre))' => strtoupper(trim($req['nombre'])), 'sede' => $req['sede'], '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $entidad->guardar($req);
                 if ($datos['exito']) {
