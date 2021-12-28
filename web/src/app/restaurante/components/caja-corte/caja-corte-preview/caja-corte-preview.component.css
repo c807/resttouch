@@ -1,0 +1,5 @@
+.tblNominaciones > th, td {
+  padding: 2px !important;
+  margin-top: 1px !important;
+  margin-bottom: 1px !important;
+}

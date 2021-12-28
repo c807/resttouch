@@ -10,6 +10,7 @@ export interface ccGeneral {
 	numero: string;
 	fecha: string;
 	total: number;
+	descripcion_documento?: string;
 }
 
 export interface ccDetalle {

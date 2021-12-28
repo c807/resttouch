@@ -81,9 +81,9 @@ class Factura_model extends General_model
 
 		$at = new AsyncTasks();
 		if ($vnegativo) {			
-			$art->actualizarExistencia();
-		} else {
 			$at->actualizar_existencias_articulo($art->getPK());
+		} else {
+			$art->actualizarExistencia();
 		}
 
 		if ($vnegativo || isset($args['detalle_cuenta']) || empty($menu) || !$validar || $art->existencias >= $cantidad * $pres->cantidad || $art->mostrar_pos == 0) {
@@ -126,11 +126,11 @@ class Factura_model extends General_model
 						"detalle_factura_id" => $idx
 					];
 					$detr->guardar($dato);
-				}
+				}				
 			}
 
 			if ($det->getPK() && $art->combo == 0 && $art->multiple == 0) {
-				$det->actualizarCantidadHijos();
+				$det->actualizarCantidadHijos();				
 			}
 
 

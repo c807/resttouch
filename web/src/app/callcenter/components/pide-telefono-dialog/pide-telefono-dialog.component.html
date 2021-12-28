@@ -1,8 +1,8 @@
 <h1 mat-dialog-title>Teléfono</h1>
 <div mat-dialog-content>
     <mat-form-field class="fullWidth">
-        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
-        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
     </mat-form-field>    
     <table *ngIf="clientes.length > 0">
         <thead>
@@ -12,14 +12,24 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let cli of clientes">
-                <td>{{cli.nombre}}</td>
-                <td style="width: 15%;" align="center">
-                    <button mat-raised-button type="button" color="accent" (click)="seleccionarCliente(cli)">
-                        Seleccionar
-                    </button>
-                </td>
-            </tr>
+            <ng-container *ngFor="let cli of clientes">
+                <tr>
+                    <td>
+                        {{cli.nombre}}
+                        <small *ngIf="cli.notas && cli.notas.length > 0">
+                            <br/>
+                            <ul>
+                                <li *ngFor="let n of cli.notas">&bull; {{n.nota}}</li>
+                            </ul>
+                        </small>
+                    </td>
+                    <td style="width: 15%;" align="center">
+                        <button mat-raised-button type="button" color="accent" (click)="seleccionarCliente(cli)">
+                            Seleccionar
+                        </button>
+                    </td>
+                </tr>
+            </ng-container>
         </tbody>
     </table>
 </div>

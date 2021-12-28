@@ -1,7 +1,7 @@
 import { Telefono } from './telefono';
 import { TipoDireccion } from './tipo-direccion';
-import {Cliente} from '../../admin/interfaces/cliente';
-import {Sede} from "../../admin/interfaces/sede";
+import { Cliente } from '../../admin/interfaces/cliente';
+import { Sede } from "../../admin/interfaces/sede";
 
 
 export interface ClienteMasterCliente {
@@ -20,6 +20,7 @@ export interface ClienteMaster {
 
 export interface ClienteMasterTelefono extends ClienteMaster, Telefono {
     cliente_master_telefono: number;
+    notas?: ClienteMasterNota[];
 }
 
 export interface ClienteMasterDireccion {
