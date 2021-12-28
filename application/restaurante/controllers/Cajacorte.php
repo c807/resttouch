@@ -14,7 +14,8 @@ class Cajacorte extends CI_Controller
 			'Dcajacortefpago_model',
 			'Turno_model',
 			'Catalogo_model',
-			'Fpago_model'
+			'Fpago_model',
+			'Cajacorte_nominacion_model',
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -150,6 +151,7 @@ class Cajacorte extends CI_Controller
 		foreach($data->efectivo->detalle as $det)
 		{
 			$data->efectivo->total += (float)$det->total;
+			$det->caja_corte_nominacion = $this->Cajacorte_nominacion_model->buscar(['caja_corte_nominacion' => $det->caja_corte_nominacion, '_uno' => true]);
 		}
 
 		foreach($data->formas_pago->detalle as $det)
@@ -160,8 +162,7 @@ class Cajacorte extends CI_Controller
 
 		$fp_efectivo = $this->Fpago_model->buscar(['esefectivo' => 1, '_uno' => true]);
 		if ($fp_efectivo) {
-			array_unshift($data->formas_pago->detalle, (object)['caja_corte_detalle_forma_pago' => 0, 'caja_corte' => $id, 'forma_pago' => $fp_efectivo, 'total' => $data->efectivo->total]);
-			// $data->formas_pago->detalle[] = (object)['caja_corte_detalle_forma_pago' => 0, 'caja_corte' => $id, 'forma_pago' => $fp_efectivo, 'total' => $data->efectivo->total];
+			array_unshift($data->formas_pago->detalle, (object)['caja_corte_detalle_forma_pago' => 0, 'caja_corte' => $id, 'forma_pago' => $fp_efectivo, 'total' => $data->efectivo->total]);			
 		}
 
 		$this->output->set_output(json_encode($data));

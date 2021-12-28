@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>
+    {{data.caja_corte.caja_corte_tipo.descripcion}} del {{data.caja_corte.creacion | date:'dd/MM/YYYY HH:mm:ss'}}<br/>
+    <small>        
+        TOTAL: {{data.caja_corte.total | number:'1.2-2'}}
+    </small>
+</h1>
+<div mat-dialog-content>
+    <div class="row">
+        <div class="col m6 s12">
+            <table class="tbl tblNominaciones">
+                <thead>
+                    <th class="rtxt">Nominación</th>
+                    <th class="rtxt">Cantidad</th>
+                    <th class="rtxt">Total</th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let efec of detalle?.efectivo?.detalle">
+                        <td class="rtxt">{{efec.caja_corte_nominacion.nombre}}</td>
+                        <td class="rtxt">{{efec.cantidad | number:'1.0-0'}}</td>
+                        <td class="rtxt">{{efec.total | number:'1.2-2'}}</td>
+                    </tr>                    
+                </tbody>
+            </table>
+        </div>
+        <div class="col m6 s12">
+            <table class="tbl tblNominaciones">
+                <thead>
+                    <th class="rtxt">Forma de pago</th>                    
+                    <th class="rtxt">Total</th>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let fp of detalle?.formas_pago?.detalle">
+                        <td class="rtxt">{{fp.forma_pago.descripcion}}</td>                        
+                        <td class="rtxt">{{fp.total | number:'1.2-2'}}</td>
+                    </tr>                    
+                </tbody>
+            </table>            
+        </div>
+    </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button (click)="cerrar()" color="warn">
+      Cerrar
+  </button>  
+</div>

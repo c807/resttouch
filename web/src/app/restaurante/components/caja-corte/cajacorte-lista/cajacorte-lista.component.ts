@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
 import { CajacorteFormComponent } from '../cajacorte-form/cajacorte-form.component';
+import { CajaCortePreviewComponent } from '../caja-corte-preview/caja-corte-preview.component';
 import { ReportePdfService } from '../../../services/reporte-pdf.service';
 
 import { ccGeneral, ccTipo } from '../../../interfaces/cajacorte';
@@ -133,5 +134,18 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
         );        
       })
     );    
+  }
+
+  verCC = (cc: ccGeneral) => {
+    // console.log(cc);
+    const dialogCCF = this.dialog.open(CajaCortePreviewComponent, {
+      width: '60%',
+      disableClose: true,
+      data: { caja_corte: cc }
+    });
+
+    this.endSubs.add(
+      dialogCCF.afterClosed().subscribe(() => {})
+    );
   }
 }
