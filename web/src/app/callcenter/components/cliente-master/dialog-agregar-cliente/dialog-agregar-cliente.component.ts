@@ -44,10 +44,14 @@ export class DialogAgregarClienteComponent implements OnInit {
     if (this.inicializoCliente) {
       this.resetCliente();
     }
+
+    if (this.data.nit) {
+      this.cliente.nit = this.data.nit;
+    }
   }
 
   resetCliente = () => this.cliente = {
-    cliente: null, nombre: null, direccion: null, nit: null, telefono: null, correo: null,
+    cliente: null, nombre: null, direccion: null, nit: this.data?.nit || null, telefono: null, correo: null,
     codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
   }
 
@@ -133,5 +137,7 @@ export class DialogAgregarClienteComponent implements OnInit {
       return false;
     }
   }
+
+  cancelar = () => this.dialogRef.close(false);
 
 }

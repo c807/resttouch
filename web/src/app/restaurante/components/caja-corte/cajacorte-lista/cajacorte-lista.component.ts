@@ -111,7 +111,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       _excel,
       turno_tipo: this.turno.turno_tipo,
       fdel: moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
-      fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
+      fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
       _pagos: []
     }
