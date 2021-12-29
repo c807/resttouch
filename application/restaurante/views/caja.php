@@ -94,14 +94,17 @@
 										<?php 
 											$clase = "";
 											$ing = $row->monto + $row->propina;
-											$dif = abs($ing -$rec);
-											if ($dif > 0) {
+											// $dif = abs($ing -$rec);
+											$dif = $ing -$rec;
+											// if ($dif > 0) {
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												// echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									<?php endif ?>
@@ -128,14 +131,16 @@
 										<?php 
 											$clase = "";
 											$ing = 0;
-											$dif = abs($ing -$rec);
-											if ($dif > 0) {
+											// $dif = abs($ing -$rec);
+											$dif = $ing -$rec;
+											// if ($dif > 0) {
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									</tr>
@@ -166,7 +171,8 @@
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recIng > 0) {
+											// if ($recIng > 0) {
+											if ($recIng < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recIng, 2);
@@ -174,7 +180,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($ing+$prop - $recIng, 2);
+											echo number_format(abs($ing+$prop - $recIng), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -202,14 +208,15 @@
 										</td>
 										<?php 
 											$clase = "";
-											$dif = abs($row->monto - $rec);
-											if ($dif > 0) {
+											// $dif = abs($row->monto - $rec);
+											$dif = $row->monto - $rec;
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									<?php endif ?>
@@ -234,14 +241,15 @@
 											</td>
 											<?php 
 												$clase = "";
-												$dif = abs(0 - $rec);
+												// $dif = abs(0 - $rec);
+												$dif = 0 - $rec;
 												if ($dif > 0) {
 													$clase = "color:#bd2130";
 												}
 											?>
 											<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 												<?php 
-													echo number_format($dif, 2);
+													echo number_format(abs($dif), 2);
 												 ?>
 											</td>
 										<?php endif ?>
@@ -253,20 +261,21 @@
 								<td style="padding: 5px;" class="text-right">
 									<?php 
 										$desc = suma_field($descuentos,"monto");
-										echo number_format($desc,2);
+										echo number_format(abs($desc),2);
 									?>
 								</td>
 								<td></td>
 								<td style="padding: 5px;" class="text-right">
 									<?php 
-										echo number_format($desc,2);
+										echo number_format(abs($desc),2);
 									?>
 								</td>
 								<?php if ($_validar): ?>
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recDesc > 0) {
+											// if ($recDesc > 0) {
+											if (($desc - $recDesc) < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recDesc, 2);
@@ -274,7 +283,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($desc - $recDesc, 2);
+											echo number_format(abs($desc - $recDesc), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -294,7 +303,8 @@
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recIng > 0 || $recDesc > 0) {
+											// if ($recIng > 0 || $recDesc > 0) {
+											if ($recIng < 0 || $recDesc < 0 || ($ing+$prop+$desc - ($recIng+$recDesc)) < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recIng+$recDesc, 2);
@@ -302,7 +312,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($ing+$prop+$desc - ($recIng+$recDesc), 2);
+											echo number_format(abs($ing+$prop+$desc - ($recIng+$recDesc)), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -347,14 +357,16 @@
 											<?php 
 												$clase = "";
 												$ing = $row->monto + $row->propina;
-												$dif = abs($ing -$rec);
-												if ($dif > 0) {
+												// $dif = abs($ing -$rec);
+												$dif = $ing -$rec;
+												// if ($dif > 0) {
+												if ($dif < 0) {
 													$clase = "color:#bd2130";
 												}
 											?>
 											<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 												<?php 
-													echo number_format($dif, 2);
+													echo number_format(abs($dif), 2);
 												 ?>
 											</td>
 										<?php endif ?>

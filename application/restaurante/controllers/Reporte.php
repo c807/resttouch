@@ -344,7 +344,8 @@ class Reporte extends CI_Controller
 						$recDesc += $rec;
 						$hoja->setCellValue("E{$fila}", round($rec, 2));
 
-						$dif = abs($row->monto - $rec);
+						// $dif = abs($row->monto - $rec);
+						$dif = $row->monto - $rec;
 						$hoja->setCellValue("F{$fila}", round($dif, 2));
 					}
 					$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -361,7 +362,8 @@ class Reporte extends CI_Controller
 							$recDesc += $rec;
 							$hoja->setCellValue("E{$fila}", $rec);
 
-							$dif = abs(0 - $rec);
+							// $dif = abs(0 - $rec);
+							$dif = 0 - $rec;
 							$hoja->setCellValue("F{$fila}", round($dif, 2));
 						}
 						$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -380,6 +382,7 @@ class Reporte extends CI_Controller
 				if ($data['_validar']) {
 					$hoja->setCellValue("E{$fila}", round($recDesc, 2));
 
+					// $hoja->setCellValue("F{$fila}", round(abs($desc - $recDesc), 2));
 					$hoja->setCellValue("F{$fila}", round($desc - $recDesc, 2));
 				}
 
@@ -395,6 +398,7 @@ class Reporte extends CI_Controller
 
 				if ($data['_validar']) {
 					$hoja->setCellValue("E{$fila}", round($recIng + $recDesc, 2));
+					// $hoja->setCellValue("F{$fila}", round(abs($ing + $prop + $desc - ($recIng + $recDesc)), 2));
 					$hoja->setCellValue("F{$fila}", round($ing + $prop + $desc - ($recIng + $recDesc), 2));
 				}
 
@@ -428,7 +432,8 @@ class Reporte extends CI_Controller
 							$recIng += $rec;
 							$hoja->setCellValue("E{$fila}", round($rec, 2));
 
-							$dif = abs($ing - $rec);
+							// $dif = abs($ing - $rec);
+							$dif = $ing - $rec;
 							$hoja->setCellValue("F{$fila}", round($dif, 2));
 						}
 						$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
