@@ -266,6 +266,6 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
 
   setListaCC = (lst: ccGeneral[]) => {
     this.listacc = lst
-    console.log(this.listacc);
+    // console.log(this.listacc);
   };
 }

@@ -2,7 +2,7 @@
 
 <div class="direccion-head">
   <h5>Notas</h5>
-  <button mat-raised-button class="button-st" (click)="agregarNota()" color="warn">Agregar</button>
+  <button mat-raised-button class="button-st" (click)="agregarNota()" color="warn" [disabled]="!(+clienteMaster?.cliente_master > 0)">Agregar</button>
 </div>
 <table>
 

@@ -137,7 +137,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
           fp.forma_pago.monto = fp.total;
           params._pagos.push(fp.forma_pago);
         });
-        console.log(params);
+        // console.log(params);
         this.endSubs.add(
           this.pdfServicio.getReporteCaja(params).subscribe(res => {
             if (res) {
