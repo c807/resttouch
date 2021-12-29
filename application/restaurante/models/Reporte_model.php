@@ -47,10 +47,18 @@ class Reporte_model extends CI_Model
 					->where("f.sinfactura", 0)
 					->where("date(i.fecha) >=", $args['fdel'])
 					->where("date(i.fecha) <=", $args['fal']);
+
+				if (isset($args['_fecha_caja'])) {
+					$this->db->where("h.fhcreacion <=", $args['_fecha_caja']);
+				}
 			} else {
 				$this->db
 					->where("e.fecha_factura >=", $args['fdel'])
 					->where("e.fecha_factura <=", $args['fal']);
+
+				if (isset($args['_fecha_caja'])) {
+					$this->db->where("h.fhcreacion <=", $args['_fecha_caja']);
+				}
 			}
 		} else {
 			$this->db->where("f.sinfactura", 1);
@@ -59,10 +67,19 @@ class Reporte_model extends CI_Model
 				$this->db
 					->where("date(i.fecha) >=", $args['fdel'])
 					->where("date(i.fecha) <=", $args['fal']);
+
+				if (isset($args['_fecha_caja'])) {
+					$this->db->where("h.fhcreacion <=", $args['_fecha_caja']);
+				} 
 			} else {
 				$this->db
-					->where("date(h.fhcreacion) >=", $args['fdel'])
-					->where("date(h.fhcreacion) <=", $args['fal']);
+					->where("date(h.fhcreacion) >=", $args['fdel']);
+				
+				if (!isset($args['_fecha_caja'])) {
+					$this->db->where("date(h.fhcreacion) <=", $args['fal']);
+				} else {
+					$this->db->where("h.fhcreacion <=", $args['_fecha_caja']);
+				}
 			}
 		}
 
@@ -110,7 +127,7 @@ class Reporte_model extends CI_Model
 
 		if (isset($args['_saldo_actual'])) {
 			$saldo_actual = (float)$args['_saldo_actual'];
-			foreach($resumen as $res) {
+			foreach ($resumen as $res) {
 				if ((int)$res->esefectivo === 1) {
 					$res->monto += $saldo_actual;
 					break;
@@ -127,8 +144,12 @@ class Reporte_model extends CI_Model
 			$this->db->where('a.fecha_factura >=', $args['fdel']);
 		}
 
-		if (isset($args['fal'])) {
-			$this->db->where('a.fecha_factura <=', $args['fal']);
+		if (!isset($args['_fecha_caja'])) {
+			if (isset($args['fal'])) {
+				$this->db->where('a.fecha_factura <=', $args['fal']);
+			}
+		} else {
+			$this->db->where("a.fecha_factura <= DATE('{$args['_fecha_caja']}')", NULL, FALSE);
 		}
 
 		if (isset($args['factura'])) {
@@ -168,7 +189,8 @@ class Reporte_model extends CI_Model
 						'fdel' => $args['fdel'],
 						'fal' => $args['fal'],
 						'factura' => $fact->factura,
-						'propina' => TRUE
+						'propina' => TRUE,
+						'_fecha_caja' => !isset($args['_fecha_caja']) ? null : $args['_fecha_caja']
 					]);
 					$facturas[] = $fact;
 				}

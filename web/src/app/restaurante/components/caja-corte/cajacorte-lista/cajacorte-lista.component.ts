@@ -30,7 +30,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     };
   }
   
-  @Output() getCajacorteEv = new EventEmitter();  
+  // @Output() getCajacorteEv = new EventEmitter();
+  @Output() listaCCEv = new EventEmitter();
   public idTurno: number = null;
   public turno: Turno = null;
   public listacc: ccGeneral[];
@@ -101,6 +102,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     this.endSubs.add(      
       this.ccorteSrvc.buscar({ turno: this.idTurno }).subscribe(lst => {
         this.listacc = lst;
+        this.listaCCEv.emit(this.listacc);
       })
     );
   }  
@@ -125,7 +127,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
       _pagos: [],
-      _saldo_actual: this.calcularSaldo()
+      _saldo_actual: this.calcularSaldo(),
+      _fecha_caja: obj.creacion
     }
 
     this.endSubs.add(
