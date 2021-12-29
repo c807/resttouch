@@ -19,17 +19,17 @@ import { saveAs } from 'file-saver';
   templateUrl: './cajacorte-lista.component.html',
   styleUrls: ['./cajacorte-lista.component.css']
 })
-export class CajacorteListaComponent implements OnInit, OnDestroy {  
+export class CajacorteListaComponent implements OnInit, OnDestroy {
 
-  get deshabilitaTipoCC() {    
+  get deshabilitaTipoCC() {
     return (tipo: ccTipo) => {
-      if (moment(this.turno.fin).isValid() || (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1)) {
+      if (this.turno && moment(this.turno.fin).isValid() || (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1)) {
         return true;
       }
       return false;
     };
   }
-  
+
   // @Output() getCajacorteEv = new EventEmitter();
   @Output() listaCCEv = new EventEmitter();
   public idTurno: number = null;
@@ -55,7 +55,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
   }
 
   loadCajaCorteTipo = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.ccorteSrvc.getCajaCorteTipo().subscribe(res => {
         this.ccorteTipo = res;
       })
@@ -72,14 +72,14 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
           disableClose: true,
           data: new ConfigCheckPasswordModel(1)
         });
-  
+
         this.endSubs.add(
-          dialogChkPass.afterClosed().subscribe(res => {          
+          dialogChkPass.afterClosed().subscribe(res => {
             if (res) {
-              this.addTranCC(tipo);                    
+              this.addTranCC(tipo);
             } else {
               this.snackBar.open('La contraseña no es correcta.', 'Caja', { duration: 7000 });
-            }        
+            }
           })
         );
       }
@@ -97,15 +97,15 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       dialogCCF.afterClosed().subscribe(() => this.getCajascortes())
     );
   }
-  
+
   getCajascortes = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.ccorteSrvc.buscar({ turno: this.idTurno }).subscribe(lst => {
         this.listacc = lst;
         this.listaCCEv.emit(this.listacc);
       })
     );
-  }  
+  }
 
   calcularSaldo = (): number => {
     let saldo = 0;
@@ -117,7 +117,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     });
     return saldo;
   }
-  
+
   imprimirCC = (obj: ccGeneral, _excel = 0) => {
     const params = {
       _validar: true,
@@ -146,10 +146,10 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
             } else {
               this.snackBar.open('No se pudo generar el reporte...', 'Caja', { duration: 7000 });
             }
-          })          
-        );        
+          })
+        );
       })
-    );    
+    );
   }
 
   verCC = (cc: ccGeneral) => {
