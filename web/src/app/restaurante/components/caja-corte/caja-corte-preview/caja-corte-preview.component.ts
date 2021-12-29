@@ -28,7 +28,7 @@ export class CajaCortePreviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    console.log(this.data.caja_corte);
+    // console.log(this.data.caja_corte);
     this.loadDetalleCC();
   }
 

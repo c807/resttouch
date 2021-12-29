@@ -104,6 +104,17 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       })
     );
   }  
+
+  calcularSaldo = (): number => {
+    let saldo = 0;
+    this.listacc.forEach(cc => {
+      switch (+cc.caja_corte_tipo.caja_corte_tipo) {
+        case 1: saldo += +cc.total; break;
+        case 2: saldo -= +cc.total; break;
+      }
+    });
+    return saldo;
+  }
   
   imprimirCC = (obj: ccGeneral, _excel = 0) => {
     const params = {
@@ -113,7 +124,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       fdel: moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
       fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
-      _pagos: []
+      _pagos: [],
+      _saldo_actual: this.calcularSaldo()
     }
 
     this.endSubs.add(
@@ -121,7 +133,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
         det.formas_pago.detalle.forEach(fp => {
           fp.forma_pago.monto = fp.total;
           params._pagos.push(fp.forma_pago);
-        });        
+        });
+        console.log(params);
         this.endSubs.add(
           this.pdfServicio.getReporteCaja(params).subscribe(res => {
             if (res) {
