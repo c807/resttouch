@@ -336,8 +336,10 @@ class Reporte extends CI_Controller
 					$hoja->setCellValue("A{$fila}", $row->descripcion);
 
 					$hoja->setCellValue("B{$fila}", round($row->monto, 2));
+					
+					$hoja->setCellValue("C{$fila}", round($row->propina, 2));
 
-					$hoja->setCellValue("D{$fila}", round($row->monto, 2));
+					$hoja->setCellValue("D{$fila}", round($row->monto + $row->propina, 2));
 
 					if ($data['_validar']) {
 						$rec = verDato($data['pagos'], $row->forma_pago, "0");
@@ -345,7 +347,7 @@ class Reporte extends CI_Controller
 						$hoja->setCellValue("E{$fila}", round($rec, 2));
 
 						// $dif = abs($row->monto - $rec);
-						$dif = $row->monto - $rec;
+						$dif = $row->monto + $row->propina - $rec;
 						$hoja->setCellValue("F{$fila}", round($dif, 2));
 					}
 					$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -377,13 +379,16 @@ class Reporte extends CI_Controller
 				$desc = suma_field($data['descuentos'], "monto");
 				$hoja->setCellValue("B{$fila}", round($desc, 2));
 
+				$prop_desc = suma_field($data['descuentos'], "propina");
+				$hoja->setCellValue("C{$fila}", round($prop_desc, 2));
+
 				$hoja->setCellValue("D{$fila}", round($desc, 2));
 
 				if ($data['_validar']) {
 					$hoja->setCellValue("E{$fila}", round($recDesc, 2));
 
 					// $hoja->setCellValue("F{$fila}", round(abs($desc - $recDesc), 2));
-					$hoja->setCellValue("F{$fila}", round($desc - $recDesc, 2));
+					$hoja->setCellValue("F{$fila}", round($desc + $prop_desc - $recDesc, 2));
 				}
 
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
@@ -393,13 +398,13 @@ class Reporte extends CI_Controller
 
 				$hoja->setCellValue("A{$fila}", "TOTAL: ");
 				$hoja->setCellValue("B{$fila}", round(($desc + $ing), 2));
-				$hoja->setCellValue("C{$fila}", round($prop, 2));
-				$hoja->setCellValue("D{$fila}", round(($desc + $ing + $prop), 2));
+				$hoja->setCellValue("C{$fila}", round($prop + $prop_desc, 2));
+				$hoja->setCellValue("D{$fila}", round(($desc + $ing + $prop + $prop_desc), 2));
 
 				if ($data['_validar']) {
 					$hoja->setCellValue("E{$fila}", round($recIng + $recDesc, 2));
 					// $hoja->setCellValue("F{$fila}", round(abs($ing + $prop + $desc - ($recIng + $recDesc)), 2));
-					$hoja->setCellValue("F{$fila}", round($ing + $prop + $desc - ($recIng + $recDesc), 2));
+					$hoja->setCellValue("F{$fila}", round($ing + $prop + $prop_desc + $desc - ($recIng + $recDesc), 2));
 				}
 
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
@@ -409,6 +414,7 @@ class Reporte extends CI_Controller
 				$totalIngresos = 0;
 				$totalDescuentos = 0;
 				$totalPropinas = 0;
+				$totalPropDescuentos = 0;
 
 				foreach ($data['ingresos'] as $value) {
 					$hoja->setCellValue("A{$fila}", $value[0]->nsede);
@@ -479,18 +485,20 @@ class Reporte extends CI_Controller
 						$fila++;
 						$hoja->setCellValue("A{$fila}", $row->descripcion);
 						$hoja->setCellValue("B{$fila}", round($row->monto, 2));
-						$hoja->setCellValue("C{$fila}", "0.00");
-						$hoja->setCellValue("D{$fila}", round($row->monto, 2));
+						$hoja->setCellValue("C{$fila}", round($row->propina, 2));
+						$hoja->setCellValue("D{$fila}", round($row->monto + $row->propina, 2));
 
 						$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
 					}
 					$fila++;
 					$hoja->setCellValue("A{$fila}", "Total Descuentos " . $value[0]->nsede);
 					$desc = suma_field($value, "monto");
+					$prop_desc = suma_field($value, "propina");
 					$totalDescuentos += $desc;
+					$totalPropDescuentos += $prop_desc;
 					$hoja->setCellValue("B{$fila}", round($desc, 2));
-					$hoja->setCellValue("C{$fila}", round("0.00", 2));
-					$hoja->setCellValue("D{$fila}", round($desc, 2));
+					$hoja->setCellValue("C{$fila}", round($prop_desc, 2));
+					$hoja->setCellValue("D{$fila}", round($desc + $prop_desc, 2));
 
 					$hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
 					$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
@@ -499,8 +507,8 @@ class Reporte extends CI_Controller
 				$fila++;
 				$hoja->setCellValue("A{$fila}", "Total Descuentos: ");
 				$hoja->setCellValue("B{$fila}", round($totalDescuentos, 2));
-				$hoja->setCellValue("C{$fila}", round("0", 2));
-				$hoja->setCellValue("D{$fila}", round($totalDescuentos, 2));
+				$hoja->setCellValue("C{$fila}", round($totalPropDescuentos, 2));
+				$hoja->setCellValue("D{$fila}", round($totalDescuentos + $totalPropDescuentos, 2));
 
 				$hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
