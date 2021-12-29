@@ -662,7 +662,9 @@ class Comanda_model extends General_Model
 						if (count($args['categoria_grupo']) == 0) {
 							$args['categoria_grupo'][] = null;
 						}
-						$this->db->where_in('g.categoria_grupo', $args['categoria_grupo']);
+						$this->db->where_in('g.categoria_grupo', $args['categoria_grupo']);						
+						$this->db->join('usuario_tipo_categoria_grupo h', 'g.categoria_grupo = h.categoria_grupo', 'left');
+						$this->db->where('(b.fecha IS NULL OR b.fecha >= h.desde)');
 					}
 				}
 
