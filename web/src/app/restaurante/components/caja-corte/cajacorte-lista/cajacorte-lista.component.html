@@ -1,4 +1,4 @@
-<ng-container *ngIf="+idTurno > 0">
+<ng-container >
     <mat-button-toggle-group name="tiposCajaCorte" aria-label="Tipos de corte de caja">
         <mat-button-toggle *ngFor="let cct of ccorteTipo" [value]="cct.caja_corte_tipo" (click)="nuevaTranCC(cct)"
             [disabled]="deshabilitaTipoCC(cct)">
@@ -19,7 +19,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngFor="let cc of listacc">                        
+                    <ng-container *ngFor="let cc of listacc">
                         <tr>
                             <td style="width: 25%;">{{cc.creacion | date:'dd/MM/YYYY HH:mm:ss'}}</td>
                             <td style="width: 20%;">{{cc.caja_corte_tipo.descripcion}}</td>
