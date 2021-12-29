@@ -76,11 +76,8 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes): void {
-    if (+changes.turno?.currentValue?.turno > 0) {
-      // console.log('CAMBIOS = ', changes.turno.currentValue);
-      this.lstCajaCorte.idTurno = +changes.turno.currentValue.turno;
-      this.lstCajaCorte.turno = changes.turno.currentValue;
-      this.lstCajaCorte.getCajascortes();
+    if (+changes.turno?.currentValue?.turno > 0) {      
+      this.loadCortesCaja(changes.turno.currentValue);      
     }
   }
 
@@ -135,6 +132,12 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  loadCortesCaja = (elTurno: Turno) => {
+    this.lstCajaCorte.idTurno = +elTurno.turno;
+    this.lstCajaCorte.turno = elTurno;
+    this.lstCajaCorte.getCajascortes();
+  }
+
   saveInfoTurno = () => {
     this.pendientes = false;
     this.endSubs.add(
@@ -143,6 +146,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
           this.turnoSavedEv.emit();
           this.resetTurno();
           this.turno = res.turno;
+          this.loadCortesCaja(this.turno);
           this.snackBar.open('Turno modificado con éxito...', 'Turno', { duration: 3000 });
         } else {
           if (res.pendientes) {
@@ -161,7 +165,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     let cerrada = true;
     if (this.listacc.length > 0) {
       cerrada = false;
-      for(const cc of this.listacc) {
+      for (const cc of this.listacc) {
         if (+cc.caja_corte_tipo.caja_corte_tipo === 4) {
           cerrada = true;
           break;
