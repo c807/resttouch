@@ -351,8 +351,8 @@ class Reporte extends CI_Controller
 				}
 
 				if ($data['_validar']) {
-					$fila++;
 					foreach ($data['descuento_sin_fact'] as $row) {
+						$fila++;
 						$hoja->setCellValue("A{$fila}", $row->descripcion);
 						$hoja->setCellValue("B{$fila}", round("0.00", 2));
 

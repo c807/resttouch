@@ -4,16 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
-import {ClienteMaster, ClienteMasterCliente, ClienteMasterTelefono} from '../../../interfaces/cliente-master';
-import { Telefono } from '../../../interfaces/telefono';
+import { ClienteMaster, ClienteMasterCliente } from '../../../interfaces/cliente-master';
 import { ClienteMasterService } from '../../../services/cliente-master.service';
-import { SeleccionaTelefonoComponent } from '../selecciona-telefono/selecciona-telefono.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { Subscription } from 'rxjs';
 import {Cliente} from '../../../../admin/interfaces/cliente';
-import {AgregaDireccionComponent} from "../agrega-direccion/agrega-direccion.component";
-import {FormClienteComponent} from "../../../../admin/components/cliente/form-cliente/form-cliente.component";
 import {DialogAgregarClienteComponent} from "../dialog-agregar-cliente/dialog-agregar-cliente.component";
 
 @Component({
@@ -73,19 +69,17 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
     );
   }
 
-  checkTelefono = () => {
-
-  }
-
   agregarCliente = () => {
     const cmdRef = this.dialog.open(DialogAgregarClienteComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: false,
-      data: {clienteMaster: this.clienteMaster, fromClienteMaster: true}
+      data: {clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: this.ClientefrmDirC.nit}
     });
-    cmdRef.afterClosed().subscribe(() => {
-      // Do stuff after the dialog has closed
-      this.loadClienteMasterCliente();
+    cmdRef.afterClosed().subscribe((recargar = true) => {
+      if (recargar) {
+        this.loadClienteMasterCliente();
+        this.ClientefrmDirC.nit = null;
+      }
     });
   }
 
@@ -98,6 +92,8 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
         this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Datos', { duration: 5000 });
         if(!res.exist){
           this.agregarCliente();
+        } else {
+          this.ClientefrmDirC.nit = null;
         }
         this.cargando = false;
       })
@@ -109,7 +105,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Desasociar los datos',
-        `Esto desasociará el dato de facturacion ${tel.cliente.nit} de ${tel.cliente.nombre}. ¿Desea continuar?`,
+        `Esto desasociará el dato de facturación ${tel.cliente.nit} de ${tel.cliente.nombre}. ¿Desea continuar?`,
         'Sí',
         'No'
       )

@@ -1,13 +1,10 @@
-<h5>Direcciones Asociadas</h5>
+<h5>Datos de facturación asociados</h5>
 <table>
   <caption style="text-align: left;">
     <form #frmDirC="ngForm" (ngSubmit)="frmDirC.form.valid && asociarClienteMaster()" novalidate>
       <mat-form-field style="width: 75%; padding-right: 5px;">
-        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nit" name="nit"
-               [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="8" maxlength="25"
-               required>
-        <input matInput *ngIf="esMovil" type="text" placeholder="Nit" name="nit" [(ngModel)]="ClientefrmDirC.nit"
-               (keypress)="validatePhone($event)" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="NIT" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="4" maxlength="25" required>
+        <input matInput *ngIf="esMovil" type="text" placeholder="NIT" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="4" maxlength="25" required>
       </mat-form-field>
       <button mat-raised-button type="submit" color="accent" [disabled]="!frmDirC.form.valid || cargando">
         Asociar
@@ -18,7 +15,7 @@
   <tr>
     <th>Nombre</th>
     <th>Direccion</th>
-    <th>Nit</th>
+    <th>NIT</th>
     <th>Correo</th>
     <th></th>
   </tr>

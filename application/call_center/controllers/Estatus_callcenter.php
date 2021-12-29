@@ -32,12 +32,7 @@ class Estatus_callcenter extends CI_Controller
         if ($this->input->method() == 'post') {
             $estatus = new Estatus_callcenter_model($id);
             $req = json_decode(file_get_contents('php://input'), true);
-
-            $existe = false;
-            if(empty($id)) {
-                $existe = $this->Estatus_callcenter_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
-            }
-
+            $existe = $this->Estatus_callcenter_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $estatus->guardar($req);
                 if ($datos['exito']) {

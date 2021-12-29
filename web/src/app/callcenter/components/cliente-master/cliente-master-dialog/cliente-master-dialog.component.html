@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <mat-tab-group>
+  <mat-tab-group *ngIf="+clienteMaster?.cliente_master > 0">
     <mat-tab label="Teléfono">
       <app-cliente-master-telefono #frmClienteMasterTelefono [clienteMaster]="clienteMaster"></app-cliente-master-telefono>
     </mat-tab>
@@ -17,8 +17,7 @@
       <app-cliente-master-nota #frmClienteMasterDireccion [clienteMaster]="clienteMaster"></app-cliente-master-nota>
     </mat-tab>
     <mat-tab label="Datos de Facturación">
-      <app-agregar-dato-de-facturacion #frmClienteMasterDireccion
-                               [clienteMaster]="clienteMaster"></app-agregar-dato-de-facturacion>
+      <app-agregar-dato-de-facturacion #frmClienteMasterDireccion [clienteMaster]="clienteMaster"></app-agregar-dato-de-facturacion>
     </mat-tab>
   </mat-tab-group>
 

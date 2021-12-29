@@ -54,12 +54,15 @@
         <input matInput *ngIf="esMovil" type="text" maxlength="2" placeholder="Pais ISO" name="pais_iso_dos" [(ngModel)]="cliente.pais_iso_dos">
       </mat-form-field>
 
-      <div align="end">
+      <div align="end">        
         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmCliente.form.valid">
           Guardar
         </button>
-        <button mat-raised-button type="button" color="accent" (click)="resetCliente()" *ngIf="cliente.cliente">
+        <button mat-raised-button type="button" color="accent"class="btnAccion" (click)="resetCliente()" *ngIf="cliente.cliente">
           Nuevo
+        </button>
+        <button mat-raised-button type="button" (click)="cancelar()">
+          Cancelar
         </button>
       </div>
     </form>

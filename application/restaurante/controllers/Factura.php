@@ -22,8 +22,7 @@ class Factura extends CI_Controller {
 			'Webhook_model',
 			'ImpuestoEspecial_model'
 		]);
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type("application/json", "UTF-8");
 	}	
 
 	public function guardar()

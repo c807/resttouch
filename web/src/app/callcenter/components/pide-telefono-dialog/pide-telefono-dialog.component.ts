@@ -67,7 +67,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     this.telefonoPedido = this.telefonoPedido.trim().toUpperCase().replace(/[^0-9]/gi, '');
     if (this.telefonoPedido && this.telefonoPedido.length >= 8) {
       this.endSubs.add(
-        this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido }).subscribe((res: ClienteMasterTelefono[]) => {
+        this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, _notas: 1 }).subscribe((res: ClienteMasterTelefono[]) => {
           if (res && res.length > 0) {
             this.clientes = res;
           } else {

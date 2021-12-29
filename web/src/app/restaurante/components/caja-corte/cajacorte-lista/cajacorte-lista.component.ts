@@ -1,20 +1,18 @@
-import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {Subscription} from 'rxjs';
-import {
-  CheckPasswordComponent,
-  ConfigCheckPasswordModel
-} from '../../../../shared/components/check-password/check-password.component';
-import {CajacorteFormComponent} from '../cajacorte-form/cajacorte-form.component';
-import {ReportePdfService} from '../../../services/reporte-pdf.service';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subscription } from 'rxjs';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
+import { CajacorteFormComponent } from '../cajacorte-form/cajacorte-form.component';
+import { CajaCortePreviewComponent } from '../caja-corte-preview/caja-corte-preview.component';
+import { ReportePdfService } from '../../../services/reporte-pdf.service';
 
-import {ccGeneral, ccTipo} from '../../../interfaces/cajacorte';
-import {CajacorteService} from '../../../services/cajacorte.service';
-import {Turno} from '../../../interfaces/turno';
+import { ccGeneral, ccTipo } from '../../../interfaces/cajacorte';
+import { CajacorteService } from '../../../services/cajacorte.service';
+import { Turno } from '../../../interfaces/turno';
 import * as moment from 'moment';
-import {GLOBAL} from '../../../../shared/global';
-import {saveAs} from 'file-saver';
+import { GLOBAL } from '../../../../shared/global';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-cajacorte-lista',
@@ -24,7 +22,6 @@ import {saveAs} from 'file-saver';
 export class CajacorteListaComponent implements OnInit, OnDestroy {
 
   get deshabilitaTipoCC() {
-
     return (tipo: ccTipo) => {
       if (this.turno && moment(this.turno.fin).isValid() || (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1)) {
         return true;
@@ -33,7 +30,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     };
   }
 
-  @Output() getCajacorteEv = new EventEmitter();
+  // @Output() getCajacorteEv = new EventEmitter();
+  @Output() listaCCEv = new EventEmitter();
   public idTurno: number = null;
   public turno: Turno = null;
   public listacc: ccGeneral[];
@@ -46,8 +44,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private pdfServicio: ReportePdfService
-  ) {
-  }
+   ) { }
 
   ngOnInit() {
     this.loadCajaCorteTipo();
@@ -57,9 +54,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-
   loadCajaCorteTipo = () => {
-
     this.endSubs.add(
       this.ccorteSrvc.getCajaCorteTipo().subscribe(res => {
         this.ccorteTipo = res;
@@ -83,7 +78,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
             if (res) {
               this.addTranCC(tipo);
             } else {
-              this.snackBar.open('La contraseña no es correcta.', 'Caja', {duration: 7000});
+              this.snackBar.open('La contraseña no es correcta.', 'Caja', { duration: 7000 });
             }
           })
         );
@@ -95,7 +90,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     const dialogCCF = this.dialog.open(CajacorteFormComponent, {
       width: '50%',
       disableClose: true,
-      data: {turno: this.idTurno, tipo}
+      data: { turno: this.idTurno, tipo }
     });
 
     this.endSubs.add(
@@ -105,10 +100,22 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
 
   getCajascortes = () => {
     this.endSubs.add(
-      this.ccorteSrvc.buscar({turno: this.idTurno}).subscribe(lst => {
+      this.ccorteSrvc.buscar({ turno: this.idTurno }).subscribe(lst => {
         this.listacc = lst;
+        this.listaCCEv.emit(this.listacc);
       })
     );
+  }
+
+  calcularSaldo = (): number => {
+    let saldo = 0;
+    this.listacc.forEach(cc => {
+      switch (+cc.caja_corte_tipo.caja_corte_tipo) {
+        case 1: saldo += +cc.total; break;
+        case 2: saldo -= +cc.total; break;
+      }
+    });
+    return saldo;
   }
 
   imprimirCC = (obj: ccGeneral, _excel = 0) => {
@@ -117,9 +124,11 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       _excel,
       turno_tipo: this.turno.turno_tipo,
       fdel: moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
-      fal: this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
+      fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
-      _pagos: []
+      _pagos: [],
+      _saldo_actual: this.calcularSaldo(),
+      _fecha_caja: obj.creacion
     }
 
     this.endSubs.add(
@@ -128,17 +137,31 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
           fp.forma_pago.monto = fp.total;
           params._pagos.push(fp.forma_pago);
         });
+        console.log(params);
         this.endSubs.add(
           this.pdfServicio.getReporteCaja(params).subscribe(res => {
             if (res) {
-              const blob = new Blob([res], {type: (_excel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+              const blob = new Blob([res], { type: (_excel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
               saveAs(blob, `Caja_${moment().format(GLOBAL.dateTimeFormatRptName)}.${_excel === 0 ? 'pdf' : 'xls'}`);
             } else {
-              this.snackBar.open('No se pudo generar el reporte...', 'Caja', {duration: 7000});
+              this.snackBar.open('No se pudo generar el reporte...', 'Caja', { duration: 7000 });
             }
           })
         );
       })
+    );
+  }
+
+  verCC = (cc: ccGeneral) => {
+    // console.log(cc);
+    const dialogCCF = this.dialog.open(CajaCortePreviewComponent, {
+      width: '60%',
+      disableClose: true,
+      data: { caja_corte: cc }
+    });
+
+    this.endSubs.add(
+      dialogCCF.afterClosed().subscribe(() => {})
     );
   }
 }

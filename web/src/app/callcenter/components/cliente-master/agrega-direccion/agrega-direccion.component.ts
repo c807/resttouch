@@ -65,7 +65,8 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
         cliente_master: this.data.clienteMaster.cliente_master,
         tipo_direccion: null,
         direccion1: null,
-        debaja: 0
+        debaja: 0,
+        pais: 'Guatemala'
       };
     }
 

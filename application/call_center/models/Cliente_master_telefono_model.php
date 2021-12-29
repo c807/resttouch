@@ -35,12 +35,21 @@ class Cliente_master_telefono_model extends General_model {
 			}
 		}
 
-		return $this->db
+		$telefonos = $this->db
 			->select('a.cliente_master_telefono, b.*, c.*')
 			->join('cliente_master b', 'b.cliente_master = a.cliente_master')
 			->join('telefono c', 'c.telefono = a.telefono')
 			->where('a.desasociado', 0)
 			->get('cliente_master_telefono a')
 			->result();
+
+		if(isset($args['_notas'])) {
+			$this->load->model('Cliente_master_nota_model');
+			foreach ($telefonos as $tel) {
+				$tel->notas = $this->Cliente_master_nota_model->buscar(['cliente_master' => $tel->cliente_master, 'debaja' => 0]);
+			}
+		}
+
+		return $telefonos;
 	}
 }

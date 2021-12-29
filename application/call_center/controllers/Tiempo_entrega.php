@@ -32,10 +32,7 @@ class Tiempo_entrega extends CI_Controller
         if ($this->input->method() == 'post') {
             $tiempoEntrega = new Tiempo_entrega_model($id);
             $req = json_decode(file_get_contents('php://input'), true);
-            $existe = false;
-            if (empty($id)) {
-                $existe = $this->Tiempo_entrega_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
-            }
+            $existe = $this->Tiempo_entrega_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);            
             if (!$existe) {
                 $datos['exito'] = $tiempoEntrega->guardar($req);
                 if ($datos['exito']) {

@@ -19,6 +19,7 @@ import { UsuarioTipo } from '../../../../admin/interfaces/usuario-tipo';
 import { UsuarioTipoService } from '../../../../admin/services/usuario-tipo.service';
 import { Usuario } from '../../../../admin/models/usuario';
 import { UsuarioService } from '../../../../admin/services/usuario.service';
+import { ccGeneral } from '../../../interfaces/cajacorte';
 
 @Component({
   selector: 'app-form-turno',
@@ -52,6 +53,8 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   public comandas: any[] = [];
   public facturas: any[] = [];
   public pendientes = false;
+  public listacc: ccGeneral[] = [];
+
   private endSubs = new Subscription();
 
   constructor(
@@ -154,6 +157,20 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     );
   }
 
+  checkCierreCaja = (): boolean => {
+    let cerrada = true;
+    if (this.listacc.length > 0) {
+      cerrada = false;
+      for(const cc of this.listacc) {
+        if (+cc.caja_corte_tipo.caja_corte_tipo === 4) {
+          cerrada = true;
+          break;
+        }
+      }
+    }
+    return cerrada;
+  }
+
   onSubmit = () => {
     if (moment(this.turno.fin).isValid()) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -164,7 +181,11 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
       this.endSubs.add(
         dialogRef.afterClosed().subscribe(res => {
           if (res) {
-            this.saveInfoTurno();
+            if (this.checkCierreCaja()) {
+              this.saveInfoTurno();
+            } else {
+              this.snackBar.open('No puede cerrar el turno si no tiene saldo final de caja.', 'Turno', { duration: 7000 });
+            }
           }
         })
       );
@@ -242,4 +263,9 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
       dialogRef.afterClosed().subscribe(() => this.loadDetalleTurno(+this.turno.turno))
     );
   }
+
+  setListaCC = (lst: ccGeneral[]) => {
+    this.listacc = lst
+    console.log(this.listacc);
+  };
 }
