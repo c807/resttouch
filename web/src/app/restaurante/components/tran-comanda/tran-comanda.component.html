@@ -65,7 +65,7 @@
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="getNotasGenerales()" [disabled]="bloqueoBotones">
                             Notas
-                        </button>                        
+                        </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="validarImpresion()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                             *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
