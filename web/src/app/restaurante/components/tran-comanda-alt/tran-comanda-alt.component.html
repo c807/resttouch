@@ -1,100 +1,107 @@
 <div fxLayout="row" fxLayout.xs="column">
-    <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="start start">
+  <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="start start">
         <span class="bld" style="font-size: 16pt; margin-left: 10px;">
             {{mesaEnUso.mesa.area.nombre}} - Mesa{{mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda}}
         </span>
-    </div>
-    <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">
-        <button mat-raised-button type="button" color="warn" (click)="abrirAccionesComanda(dialogRef)"
+  </div>
+  <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">
+    <button mat-raised-button type="button" color="warn" (click)="abrirAccionesComanda(dialogRef)"
             [disabled]="bloqueoBotones">
-            Acciones
-        </button>
-        <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="cerrar()"
+      Acciones
+    </button>
+    <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="cerrar()"
             [disabled]="bloqueoBotones">
-            Cerrar
-        </button>
-    </div>
+      Cerrar
+    </button>
+  </div>
 </div>
 
 <div mat-dialog-content class="contenido">
-    <!-- Div de cuentas-->
-    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
-        <mat-chip-list>
-            <mat-chip color="accent" *ngFor="let cta of mesaEnUso.cuentas"
+  <!-- Div de cuentas-->
+  <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
+    <mat-chip-list>
+      <mat-chip color="accent" *ngFor="let cta of mesaEnUso.cuentas"
                 [disabled]="+cta.cerrada === 1 || bloqueoBotones"
                 (click)="+cta.cerrada === 0 && !bloqueoBotones && setSelectedCuenta(cta.numero)"
                 [selected]="+cta.cerrada === 0">
-                {{cta.nombre}}
-            </mat-chip>
-            <mat-chip (click)="nuevaCuenta(dialogRef)"
+        {{cta.nombre}}
+      </mat-chip>
+      <mat-chip (click)="nuevaCuenta(dialogRef)"
                 *ngIf="+mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0"
                 [disabled]="bloqueoBotones">
-                Nueva
-            </mat-chip>
-        </mat-chip-list>
-    </div>
-    <!-- Fin de div de cuentas-->
-    <!--<mat-divider></mat-divider>-->
-    <!-- Inicia input para código de barras -->
-    <mat-form-field style="width: 25%;" *ngIf="usaCodigoBarras">
-        <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text" placeholder="Código"
-            name="codigoBarras" [(ngModel)]="codigoBarras" [ngModelOptions]="{standalone: true}"
-            (onDetected)="buscarArticulo()">
-    </mat-form-field><br *ngIf="usaCodigoBarras" />
-    <!-- Fin de input para código de barras -->
-    <!-- Inicia Categorias -->
-    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center">
-        <mat-chip-list>
-            <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="loadSubcategorias(cat)"
+        Nueva
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+  <!-- Fin de div de cuentas-->
+  <!--<mat-divider></mat-divider>-->
+  <!-- Inicia input para código de barras -->
+  <mat-form-field style="width: 25%;" *ngIf="usaCodigoBarras">
+    <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text" placeholder="Código"
+           name="codigoBarras" [(ngModel)]="codigoBarras" [ngModelOptions]="{standalone: true}"
+           (onDetected)="buscarArticulo()">
+  </mat-form-field>
+  <br *ngIf="usaCodigoBarras"/>
+  <!-- Fin de input para código de barras -->
+  <!-- Inicia Categorias -->
+  <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center">
+    <mat-chip-list>
+      <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="loadSubcategorias(cat)"
                 [disabled]="bloqueoBotones">
-                {{cat.descripcion}}
-            </mat-chip>
-        </mat-chip-list>
-    </div>
-    <!-- Fin de Categorias -->
-    <!--<mat-divider></mat-divider>-->
-    <!-- Inicia Sub Categorias -->
-    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center"
-        *ngFor="let lstSubCat of listaSubCategorias; index as i; last as isLast" class="divSubCategorias">
-        <mat-chip-list>
-            <mat-chip selected color="warn" class="btnAccion" *ngFor="let subcat of lstSubCat"
+        {{cat.descripcion}}
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+  <!-- Fin de Categorias -->
+  <!--<mat-divider></mat-divider>-->
+  <!-- Inicia Sub Categorias -->
+  <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center"
+       *ngFor="let lstSubCat of listaSubCategorias; index as i; last as isLast" class="divSubCategorias">
+    <mat-chip-list>
+      <mat-chip selected color="warn" class="btnAccion" *ngFor="let subcat of lstSubCat"
                 (click)="loadSubcategorias({ categoria: subcat.categoria }, subcat, i)" [disabled]="bloqueoBotones">
-                {{subcat.descripcion}}
-            </mat-chip>
-        </mat-chip-list>
+        {{subcat.descripcion}}
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+  <!-- Fin de Sub Categorias -->
+  <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start start">
+    <!-- Inicia artículos -->
+    <div fxFlex="55%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos" fxLayout="row wrap"
+         fxLayoutGap="8px grid" fxLayoutAlign="start start">
+      <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%" *ngFor="let producto of articulos">
+        <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && addArticulo(producto)"
+                  *ngIf="+producto.precio > 0">
+          <!--
+          <mat-card-header>
+              <mat-card-title>{{producto.descripcion}}</mat-card-title>
+          </mat-card-header>
+          -->
+          <!--<img mat-card-image src="/assets/img/comida/test_01.jpg">-->
+          <mat-card-content>
+            <p>{{producto.descripcion}}</p>
+          </mat-card-content>
+          <!--<mat-card-actions align="around">
+              <span matBadge="4" matBadgeOverlap="false">Por comandar</span>
+              <span matBadge="4" matBadgeOverlap="false">Comandados</span>
+          </mat-card-actions>-->
+        </mat-card>
+      </div>
     </div>
-    <!-- Fin de Sub Categorias -->
-    <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start start">
-        <!-- Inicia artículos -->
-        <div fxFlex="55%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos" fxLayout="row wrap"
-            fxLayoutGap="8px grid" fxLayoutAlign="start start">
-            <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%" *ngFor="let producto of articulos">
-                <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && addArticulo(producto)"
-                    *ngIf="+producto.precio > 0">
-                    <!--
-                    <mat-card-header>
-                        <mat-card-title>{{producto.descripcion}}</mat-card-title>
-                    </mat-card-header>
-                    -->
-                    <!--<img mat-card-image src="/assets/img/comida/test_01.jpg">-->
-                    <mat-card-content>
-                        <p>{{producto.descripcion}}</p>
-                    </mat-card-content>
-                    <!--<mat-card-actions align="around">
-                        <span matBadge="4" matBadgeOverlap="false">Por comandar</span>
-                        <span matBadge="4" matBadgeOverlap="false">Comandados</span>
-                    </mat-card-actions>-->
-                </mat-card>
-            </div>
-        </div>
-        <!-- Finaliza artículos -->
-        <div fxFlex="45%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos">
-            <!-- <app-lista-productos-comanda [listaProductos]="lstProductosDeCuenta" [noCuenta]="+cuentaActiva.numero"
-                [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
-                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
-            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario"
-                (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
-        </div>
+    <!-- Finaliza artículos -->
+    <div fxFlex="45%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos">
+      <!-- <app-lista-productos-comanda [listaProductos]="lstProductosDeCuenta" [noCuenta]="+cuentaActiva.numero"
+          [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
+          [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
+      <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
+        <mat-chip *ngIf="(ctSlect!=null)">
+          <h6 *ngIf="(ctSlect!=null)">{{mesaEnUso.cuentas[ctSlect].nombre}}</h6>
+        </mat-chip>
+      </div>
+      <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones"
+                                       [rolesUsuario]="rolesUsuario"
+                                       (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
     </div>
+  </div>
 </div>
 <!--<div mat-dialog-actions align="end"></div>-->
