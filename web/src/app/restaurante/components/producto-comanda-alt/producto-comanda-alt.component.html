@@ -1,4 +1,6 @@
 <ng-container *ngFor="let det of detalle">    
-    <span [style.paddingLeft]="paddingLeft">{{det.descripcion}}</span><br/>
+    <span [style.paddingLeft]="paddingLeft">
+        {{+det.cantidad !== 1 ? (sinDecimales(+det.cantidad) ? (det.cantidad | number:'1.0-0') : (det.cantidad | number:'1.2-2')) + ' '  : ''}}{{det.descripcion}}
+    </span><br/>
     <app-producto-comanda-alt *ngIf="det.detalle.length > 0" [detalle]="det.detalle" [paddingLeft]="'20px'"></app-producto-comanda-alt>
 </ng-container>
