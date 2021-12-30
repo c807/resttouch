@@ -5,7 +5,7 @@ const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ?
 import * as moment from 'moment';
 
 export const GLOBAL = {
-    rtVersion: '2021.12.29.15.55.40',
+    rtVersion: '2021.12.30.08.04.23',
     dbDateFormat: 'YYYY-MM-DD',
     dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
     dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
