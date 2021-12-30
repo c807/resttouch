@@ -23,7 +23,12 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
 
   get deshabilitaTipoCC() {
     return (tipo: ccTipo) => {
-      if (this.turno && moment(this.turno.fin).isValid() || (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1)) {
+      if (
+        this.turno &&
+        moment(this.turno.fin).isValid() ||
+        (+tipo.unico === 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === +tipo.caja_corte_tipo && +cct.anulado === 0) > -1) ||
+        (+tipo.caja_corte_tipo > 1 && this.listacc?.findIndex(cct => +cct.caja_corte_tipo?.caja_corte_tipo === 1 && +cct.anulado === 0)) < 0
+      ) {
         return true;
       }
       return false;
@@ -44,7 +49,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private pdfServicio: ReportePdfService
-   ) { }
+  ) { }
 
   ngOnInit() {
     this.loadCajaCorteTipo();
@@ -124,7 +129,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       _excel,
       turno_tipo: this.turno.turno_tipo,
       fdel: moment(this.turno.inicio).format(GLOBAL.dbDateFormat),
-      fal:  this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
+      fal: this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
       _pagos: [],
       _saldo_actual: this.calcularSaldo(),
@@ -137,7 +142,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
           fp.forma_pago.monto = fp.total;
           params._pagos.push(fp.forma_pago);
         });
-        console.log(params);
+        // console.log(params);
         this.endSubs.add(
           this.pdfServicio.getReporteCaja(params).subscribe(res => {
             if (res) {
@@ -161,7 +166,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     });
 
     this.endSubs.add(
-      dialogCCF.afterClosed().subscribe(() => {})
+      dialogCCF.afterClosed().subscribe(() => { })
     );
   }
 }

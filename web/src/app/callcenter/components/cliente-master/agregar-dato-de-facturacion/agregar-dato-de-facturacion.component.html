@@ -6,7 +6,7 @@
         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="NIT" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="4" maxlength="25" required>
         <input matInput *ngIf="esMovil" type="text" placeholder="NIT" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validatePhone($event)" minlength="4" maxlength="25" required>
       </mat-form-field>
-      <button mat-raised-button type="submit" color="accent" [disabled]="!frmDirC.form.valid || cargando">
+      <button mat-raised-button type="submit" color="accent" [disabled]="!frmDirC.form.valid || cargando || !(+clienteMaster?.cliente_master > 0)">
         Asociar
       </button>
     </form>

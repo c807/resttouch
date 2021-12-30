@@ -90,7 +90,8 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
           r.total = 0;
           return r;
         });
-        setTimeout(() => document.getElementById(`txtCantidad_${this.ccorteNomi[0].caja_corte_nominacion}`).focus());
+        // setTimeout(() => document.getElementById(`txtCantidad_${this.ccorteNomi[0].caja_corte_nominacion}`).focus());
+        setTimeout(() => document.getElementById('txtCantidad_0').focus());
       })
     );
   }
@@ -152,6 +153,34 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
     } else {
       e.preventDefault();
       return false;
+    }
+  }
+
+  moveNextElement = (obj: KeyboardEvent) => {    
+    const srcElem = obj.target as HTMLInputElement;
+    const idx = +srcElem.id.split('_')[1];
+    let nextElement = document.getElementById(`txtCantidad_${idx + 1}`);    
+    if (nextElement) {
+      nextElement.focus();
+    } else {
+      nextElement = document.getElementById('txtFP_0');
+      if (nextElement) {
+        nextElement.focus();
+      }
+    }
+  }
+
+  moveNextElementFP = (obj: KeyboardEvent) => {    
+    const srcElem = obj.target as HTMLInputElement;
+    const idx = +srcElem.id.split('_')[1];
+    let nextElement = document.getElementById(`txtFP_${idx + 1}`);    
+    if (nextElement) {
+      nextElement.focus();
+    } else {
+      nextElement = document.getElementById('txtCantidad_0');
+      if (nextElement) {
+        nextElement.focus();
+      }      
     }
   }
 

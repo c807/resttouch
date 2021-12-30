@@ -94,14 +94,17 @@
 										<?php 
 											$clase = "";
 											$ing = $row->monto + $row->propina;
-											$dif = abs($ing -$rec);
-											if ($dif > 0) {
+											// $dif = abs($ing -$rec);
+											$dif = $ing -$rec;
+											// if ($dif > 0) {
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												// echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									<?php endif ?>
@@ -128,14 +131,16 @@
 										<?php 
 											$clase = "";
 											$ing = 0;
-											$dif = abs($ing -$rec);
-											if ($dif > 0) {
+											// $dif = abs($ing -$rec);
+											$dif = $ing -$rec;
+											// if ($dif > 0) {
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									</tr>
@@ -166,7 +171,8 @@
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recIng > 0) {
+											// if ($recIng > 0) {
+											if ($recIng < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recIng, 2);
@@ -174,7 +180,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($ing+$prop - $recIng, 2);
+											echo number_format(abs($ing+$prop - $recIng), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -188,9 +194,11 @@
 									<td style="padding: 5px;" class="text-right">
 										<?php echo $row->monto ?>
 									</td>
-									<td></td>
 									<td style="padding: 5px;" class="text-right">
-										<?php echo number_format($row->monto,2) ?>
+										<?php echo $row->propina ?>
+									</td>
+									<td style="padding: 5px;" class="text-right">
+										<?php echo number_format($row->monto + $row->propina,2) ?>
 									</td>
 									<?php if ($_validar): ?>
 										<td style="padding: 5px;" class="text-right">
@@ -202,14 +210,15 @@
 										</td>
 										<?php 
 											$clase = "";
-											$dif = abs($row->monto - $rec);
-											if ($dif > 0) {
+											// $dif = abs($row->monto - $rec);
+											$dif = $row->monto + $row->propina - $rec;
+											if ($dif < 0) {
 												$clase = "color:#bd2130";
 											}
 										?>
 										<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 											<?php 
-												echo number_format($dif, 2);
+												echo number_format(abs($dif), 2);
 											 ?>
 										</td>
 									<?php endif ?>
@@ -234,14 +243,15 @@
 											</td>
 											<?php 
 												$clase = "";
-												$dif = abs(0 - $rec);
+												// $dif = abs(0 - $rec);
+												$dif = 0 - $rec;
 												if ($dif > 0) {
 													$clase = "color:#bd2130";
 												}
 											?>
 											<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 												<?php 
-													echo number_format($dif, 2);
+													echo number_format(abs($dif), 2);
 												 ?>
 											</td>
 										<?php endif ?>
@@ -253,20 +263,26 @@
 								<td style="padding: 5px;" class="text-right">
 									<?php 
 										$desc = suma_field($descuentos,"monto");
-										echo number_format($desc,2);
+										echo number_format(abs($desc),2);
 									?>
 								</td>
-								<td></td>
 								<td style="padding: 5px;" class="text-right">
 									<?php 
-										echo number_format($desc,2);
+										$prop_desc = suma_field($descuentos,"propina");
+										echo number_format(abs($prop_desc),2);
+									?>
+								</td>
+								<td style="padding: 5px;" class="text-right">
+									<?php 
+										echo number_format(abs($desc + $prop_desc),2);
 									?>
 								</td>
 								<?php if ($_validar): ?>
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recDesc > 0) {
+											// if ($recDesc > 0) {
+											if (($desc + $prop_desc - $recDesc) < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recDesc, 2);
@@ -274,7 +290,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($desc - $recDesc, 2);
+											echo number_format(abs($desc + $prop_desc - $recDesc), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -285,16 +301,17 @@
 									<?php echo number_format(($desc+$ing),2) ?>
 								</td>
 								<td style="padding: 5px;" class="text-right">
-									<?php echo number_format($prop, 2) ?>
+									<?php echo number_format($prop+$prop_desc, 2) ?>
 								</td>
 								<td style="padding: 5px;" class="text-right">
-									<?php echo number_format(($desc+$ing+$prop),2) ?>
+									<?php echo number_format(($desc+$ing+$prop+$prop_desc),2) ?>
 								</td>
 								<?php if ($_validar): ?>
 									<td style="padding: 5px;" class="text-right">
 										<?php 
 											$clase = '';
-											if ($recIng > 0 || $recDesc > 0) {
+											// if ($recIng > 0 || $recDesc > 0) {
+											if ($recIng < 0 || $recDesc < 0 || ($ing+$prop+$prop_desc+$desc - ($recIng+$recDesc)) < 0) {
 												$clase = " color:#bd2130";
 											}
 											echo number_format($recIng+$recDesc, 2);
@@ -302,7 +319,7 @@
 									</td>
 									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 										<?php 
-											echo number_format($ing+$prop+$desc - ($recIng+$recDesc), 2);
+											echo number_format(abs($ing+$prop+$prop_desc+$desc - ($recIng+$recDesc)), 2);
 										 ?>
 									</td>
 								<?php endif ?>
@@ -311,6 +328,7 @@
 							<?php $totalIngresos = 0; ?>
 							<?php $totalDescuentos = 0; ?>
 							<?php $totalPropinas = 0; ?>
+							<?php $totalPropDescuentos = 0; ?>
 							<?php foreach ($ingresos as $value): ?>
 								<tr>
 									<td colspan="3" style="padding: 5px; font-weight: bold;">
@@ -347,14 +365,16 @@
 											<?php 
 												$clase = "";
 												$ing = $row->monto + $row->propina;
-												$dif = abs($ing -$rec);
-												if ($dif > 0) {
+												// $dif = abs($ing -$rec);
+												$dif = $ing -$rec;
+												// if ($dif > 0) {
+												if ($dif < 0) {
 													$clase = "color:#bd2130";
 												}
 											?>
 											<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right">
 												<?php 
-													echo number_format($dif, 2);
+													echo number_format(abs($dif), 2);
 												 ?>
 											</td>
 										<?php endif ?>
@@ -422,8 +442,10 @@
 										<td style="padding: 5px;" class="text-right">
 											<?php echo number_format($row->monto, 2) ?>
 										</td>
-										<td style="padding: 5px;" class="text-right">0.00</td>
-										<td style="padding: 5px;" class="text-right"><?php echo number_format($row->monto, 2) ?></td>
+										<td style="padding: 5px;" class="text-right">
+											<?php echo number_format($row->propina, 2) ?>
+										</td>
+										<td style="padding: 5px;" class="text-right"><?php echo number_format($row->monto + $row->propina, 2) ?></td>
 									</tr>
 								<?php endforeach ?>
 								<tr>
@@ -437,8 +459,14 @@
 											echo number_format($desc,2);
 										?>
 									</td>
-									<td style="padding: 5px;" class="text-right">0.00</td>
-									<td style="padding: 5px;" class="text-right"><?php echo number_format($desc,2); ?></td>
+									<td style="padding: 5px;" class="text-right">
+										<?php 
+											$prop_desc = suma_field($value,"propina");
+											$totalPropDescuentos += $prop_desc;
+											echo number_format($prop_desc,2);
+										?>
+									</td>
+									<td style="padding: 5px;" class="text-right"><?php echo number_format($desc + $prop_desc,2); ?></td>
 								</tr>
 							<?php endforeach ?>
 							<tr>
@@ -452,12 +480,12 @@
 								</td>
 								<td style="padding: 5px;" class="text-right">
 									<?php 
-										echo number_format(0,2);
+										echo number_format($totalPropDescuentos,2);
 									?>
 								</td>
 								<td style="padding: 5px;" class="text-right">
 									<?php 
-										echo number_format($totalDescuentos,2);
+										echo number_format($totalDescuentos + $totalPropDescuentos,2);
 									?>
 								</td>
 							</tr>
