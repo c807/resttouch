@@ -23,7 +23,8 @@ class Articulo extends CI_Controller
 
 	public function chkCodigoExistente($codigo = '')
 	{
-		$art = $this->Articulo_model->buscar(['codigo' => $codigo, '_uno' => true]);
+		// $art = $this->Articulo_model->buscar(['codigo' => $codigo, '_uno' => true]);
+		$art = $this->Articulo_model->buscarArticulo(['codigo' => $codigo, 'sede' => $this->data->sede]);
 		return $art ? true : false;
 	}
 
