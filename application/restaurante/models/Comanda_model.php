@@ -857,12 +857,22 @@ class Comanda_model extends General_Model
 	}
 
 	public function enviarDetalleSede()
-	{
+	{		
 		$exito = true;
-		foreach ($this->getDetalle() as $row) {
+		// $detCom = $this->getDetalle(); 
+
+		$detCom = $this->db
+			->select('a.detalle_comanda, b.codigo')
+			->join('articulo b', 'b.articulo = a.articulo')
+			->where('a.comanda', $this->getPK())
+			->get('detalle_comanda a')
+			->result();
+
+		foreach ($detCom as $row) {
 			$art = $this->Articulo_model->buscarArticulo([
-				"codigo" => $row->articulo->codigo,
-				"sede" => $this->sede
+				// "codigo" => $row->articulo->codigo,
+				'TRIM(codigo)' => trim($row->codigo),
+				'sede' => $this->sede
 			]);
 
 			if ($art) {
