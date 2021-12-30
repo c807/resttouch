@@ -15,11 +15,11 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let ccn of ccorteNomi">
+              <tr *ngFor="let ccn of ccorteNomi; index as i">
                 <td class="rtxt bld" style="width: 25%;">{{ccn.nombre}}</td>
                 <td style="width: 35%;">
-                  <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{ccn.caja_corte_nominacion}}" matInput type="number" placeholder="Cantidad" name="cantidad"
-                    [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)">
+                  <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{i}}" matInput type="number" placeholder="Cantidad" name="cantidad"
+                    [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)" (keyup.enter)="moveNextElement($event)">
                 </td>
                 <td class="rtxt bld">{{ccn.total | number:'1.2-2'}}</td>
               </tr>
@@ -42,10 +42,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let ccfp of formasPago">
+              <tr *ngFor="let ccfp of formasPago; index as i">
                 <td class="rtxt bld" style="width: 60%;">{{ccfp.descripcion}}</td>
                 <td>
-                  <input onKeyPress="if(this.value.length==30) return false;" matInput type="number" placeholder="Monto" name="montocc" [(ngModel)]="ccfp.montocc" step="1">
+                  <input onKeyPress="if(this.value.length==30) return false;" id="txtFP_{{i}}" matInput type="number" placeholder="Monto" name="montocc" [(ngModel)]="ccfp.montocc" step="1" (keyup.enter)="moveNextElementFP($event)">
                 </td>
               </tr>
             </tbody>
