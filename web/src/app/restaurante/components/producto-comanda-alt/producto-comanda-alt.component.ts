@@ -9,6 +9,15 @@ import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
 })
 export class ProductoComandaAltComponent implements OnInit {
 
+  get sinDecimales() {
+    return (cant: number) => {
+      if ((cant % 1) === 0) {
+        return true;
+      }      
+      return false;
+    }
+  }
+
   @Input() detalle: DetalleCuentaSimplified[] = [];
   @Input() paddingLeft = 0;
   public paddingLeftStr = '';
