@@ -5,12 +5,18 @@
   <p>{{message}}</p>
   <div *ngIf="config && config.input">
     <p *ngFor="let input of config.input">
+      <!-- <span *ngIf="input.select">
+        {{input.datos | json}}
+      </span> -->
       <mat-form-field class="fullWidth" *ngIf="input.select">
         <mat-label>{{ input.label }}</mat-label>
         <mat-select name="input.label" [(ngModel)]="input.valor" [ngModelOptions]="{standalone: true}" [required]="input.requerido">
-            <mat-option *ngFor="let dato of input.datos" [value]="dato[input.id]">
+            <!-- <mat-option *ngFor="let dato of input.datos" [value]="dato[input.id]">
                 {{ dato[input.descripcion] }}
-            </mat-option>
+            </mat-option> -->
+            <mat-option *ngFor="let dato of input.datos" [value]="dato.id">
+              {{ dato.descripcion }}
+          </mat-option>
         </mat-select>
       </mat-form-field>
       <mat-form-field class="fullWidth" *ngIf="!input.select">

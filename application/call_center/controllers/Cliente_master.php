@@ -292,7 +292,7 @@ class Cliente_master extends CI_Controller
                 $cmt = new Cliente_master_cliente_model($resultado->cliente_master_cliente);
                 $datos['exito'] = $cmt->guardar(['debaja' => 0]);
                 if ($datos['exito']) {
-                    $datos['mensaje'] = 'Datos asasociados del cliente con éxito.';
+                    $datos['mensaje'] = 'Datos de facturación asociados con éxito.';
                 } else {
                     $datos['mensaje'] = $cmt->getMensaje();
                 }
@@ -309,7 +309,7 @@ class Cliente_master extends CI_Controller
                         'debaja' => 0
                     ]);
                     if ($datos['exito']) {
-                        $datos['mensaje'] = 'Datos asasociados del cliente con éxito.';
+                        $datos['mensaje'] = 'Datos de facturación asociados con éxito.';
                     } else {
                         $datos['mensaje'] = $cmt->getMensaje();
                     }

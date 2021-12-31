@@ -772,13 +772,29 @@ class Comanda extends CI_Controller
 				if ($com->getPK()) {
 					$req = json_decode(file_get_contents('php://input'), true);
 					$com->guardar(["estatus" => 2]);
+
+					$reversaInventario = isset($req['reversa_inventario']) && (int)$req['reversa_inventario'] === 1;
+					if($reversaInventario){
+						$detalle = $this->Dcomanda_model->get_detalle_comanda_and_childs(['comanda' => $com->getPK()]);
+						foreach ($detalle as $det) {
+							$dc = new Dcomanda_model($det->detalle_comanda);
+							$dc->cantidad = 0;
+							$dc->total = 0;
+							$dc->cantidad_inventario = 0;
+							$dc->guardar();
+						}
+					}
+
 					$fac = $com->getFactura();
 					$acc = $this->Accion_model->buscar([
 						"descripcion" => "Modificacion",
 						"_uno" => true
 					]);
 
-					$comentario = "Anulación: El usuario {$usu->nombres} {$usu->apellidos} anuló la comanda {$comanda} Motivo: {$req['comentario']}";
+					$comentario = "Anulación: El usuario {$usu->nombres} {$usu->apellidos} anuló la comanda {$comanda} Motivo: {$req['comentario']}.";
+					if ($reversaInventario) {
+						$comentario .= " Se reversó el inventario.";
+					}
 
 					$bitComanda->guardar([
 						"accion" => $acc->accion,

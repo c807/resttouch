@@ -42,8 +42,12 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  get usaWMS() {
+    return (this.ls.get(GLOBAL.usrTokenVar).acceso as Array<any> || []).findIndex(a => a.nombre === 'WMS') > -1;
+  }
+
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
-  
+
   private endSubs = new Subscription();
 
   constructor(
@@ -77,7 +81,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
 
   loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
 
-  cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({refrescar, comanda});
+  cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
 
   getNotasGenerales = (obj: any) => {
     // console.log(obj); return;
@@ -85,11 +89,11 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       width: '50%',
       data: { notasGenerales: (obj.notas_generales || '') }
     });
-    this.endSubs.add(      
+    this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
         if (notasGen !== null) {
           if (notasGen.trim().length > 0) {
-            this.endSubs.add(              
+            this.endSubs.add(
               this.comandaSrvc.saveNotasGenerales({ comanda: obj.comanda, notas_generales: notasGen }).subscribe(res => {
                 if (res.exito) {
                   obj.notas_generales = notasGen;
@@ -103,7 +107,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         }
       })
     );
-  }  
+  }
 
   setToPrint = (articulos: any[]) => {
     const lstArticulos: any[] = [];
@@ -187,7 +191,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   cambiarEstatusOrdenGK = (params: any) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.ordenGkSrvc.cambiarEstatus(params).subscribe(res => {
         if (res.exito) {
           this.socket.emit('gk:updEstatusOrden', `${JSON.stringify({ orden_gk: params.orden_gk, estatus_orden_gk: res.estatus_orden_gk, sede_uuid: this.ls.get(GLOBAL.usrTokenVar).sede_uuid })}`);
@@ -201,6 +205,34 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   cancelarPedido = (obj: any) => {
     // console.log(obj);
 
+    const inputs: any = {
+      input: [
+        {
+          select: false,
+          label: 'Comentario',
+          valor: null,
+          id: 'comentario',
+          requerido: false
+        }
+      ]
+    };
+
+    if (this.usaWMS) {
+      inputs.input.push(
+        {
+          select: true,
+          label: '¿Reversar inventario?',
+          valor: 1,
+          id: 'reversa_inventario',
+          requerido: true,
+          datos: [
+            { id: 1, descripcion: 'Sí' },
+            { id: 2, descripcion: 'No' }
+          ]
+        }
+      );
+    }
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
@@ -208,30 +240,21 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         'Si cancela el pedido, será necesario volver a ingresarlo. ¿Desea continuar?',
         'Sí',
         'No',
-        {
-          input: [
-            {
-              select: false,
-              label: 'Comentario',
-              valor: null,
-              id: 'comentario',
-              requerido: false
-            }
-          ]
-        }
+        inputs
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       dialogRef.afterClosed().subscribe(res => {
         if (res.resultado) {
-          const params = {};  
+          const params = {};
           for (const input of res.config.input) {
             params[input.id] = input.valor;
           }
-          this.endSubs.add(            
+          console.log('PARAMS = ', params);
+          this.endSubs.add(
             this.comandaSrvc.cancelarPedido(obj.comanda, params).subscribe(resAnula => {
-              if (resAnula.exito) {    
+              if (resAnula.exito) {
                 if (+obj.orden_gk > 0) {
                   const params = {
                     orden_gk: +obj.orden_gk,
@@ -240,14 +263,14 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
                     comentario: `Se canceló la comanda #${obj.comanda} de la orden #${obj.orden_gk} de Ghost Kitchen.`
                   };
                   this.cambiarEstatusOrdenGK(params);
-                }    
+                }
                 this.snackBar.open('Pedido cancelado con éxito...', 'Pedido', { duration: 3000 });
               } else {
                 this.snackBar.open(`ERROR: ${resAnula.mensaje}`, 'Pedido', { duration: 7000 });
               }
               this.cerrar(true);
             })
-          );  
+          );
         }
       })
     );
@@ -258,8 +281,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.facturaSrvc.firmar(+obj.factura.factura).subscribe((res: any) => {
         // console.log(res);
-        if (res.exito) {       
-  
+        if (res.exito) {
+
           if (+obj.orden_gk > 0) {
             const params = {
               orden_gk: +obj.orden_gk,
@@ -269,13 +292,13 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
             };
             this.cambiarEstatusOrdenGK(params);
           }
-  
+
           const confirmRef = this.dialog.open(ConfirmDialogComponent, {
             maxWidth: '400px',
             data: new ConfirmDialogModel('Imprimir factura', '¿Desea imprimir la factura?', 'Sí', 'No')
           });
-  
-          this.endSubs.add(            
+
+          this.endSubs.add(
             confirmRef.afterClosed().subscribe((confirma: boolean) => {
               if (confirma) {
                 const modoFactura = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_MODO_FACTURA) || 1;
@@ -361,9 +384,9 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
           this.cerrar(false, res.comanda);
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Estatus', { duration: 7000 });
-        }      
+        }
       })
-    );    
+    );
   }
 
   cambiarEstatusPedidoCallCenter = (estatusCC: EstatusCallcenter) => {
@@ -372,7 +395,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       data: new ConfirmDialogModel('Cambiar estatus de pedido', `¿Desea cambiar el estatus a ${estatusCC.descripcion}`, 'Sí', 'No')
     });
 
-    this.endSubs.add(            
+    this.endSubs.add(
       confirmRef.afterClosed().subscribe((confirma: boolean) => {
         if (confirma) {
           const params = {
@@ -403,7 +426,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
               })
             );
           }
-        }        
+        }
       })
     );
   }
