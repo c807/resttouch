@@ -71,12 +71,16 @@ class Articulo_model extends General_model
 			->row();
 	}
 
-	public function getBodega()
+	public function getBodega($idArticulo = null)
 	{
+		if (empty($idArticulo)) {
+			$idArticulo = $this->articulo;
+		}
 		return $this->db->select('b.bodega')
 			->from('articulo a')
 			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
-			->where('a.articulo', $this->articulo)
+			// ->where('a.articulo', $this->articulo)
+			->where('a.articulo', $idArticulo)
 			->get()->row();
 	}
 
@@ -736,7 +740,11 @@ class Articulo_model extends General_model
 			'mostrar_inventario' => $this->mostrar_inventario,
 			'esreceta' => $this->esreceta,
 			'cantidad_gravable' => $this->cantidad_gravable,
-			'precio_sugerido' => $this->precio_sugerido
+			'precio_sugerido' => $this->precio_sugerido,
+			'cobro_mas_caro' => $this->cobro_mas_caro,
+			'esextra' => $this->esextra,
+			'stock_minimo' => $this->stock_minimo,
+			'stock_maximo' => $this->stock_maximo
 		];
 
 		$art->guardar($datos);

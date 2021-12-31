@@ -883,8 +883,9 @@ class Comanda_model extends General_Model
 
 			if ($art) {
 				if ($enviar) {
+					$bodegaDestino = $this->Articulo_model->getBodega($art->articulo);
 					$det = new Dcomanda_model($row->detalle_comanda);
-					$det->guardar(["articulo" => $art->articulo]);
+					$det->guardar(['articulo' => $art->articulo, 'bodega' => $bodegaDestino && isset($bodegaDestino->bodega) ? $bodegaDestino->bodega : null]);
 				}
 			} else {
 				$exito = false;

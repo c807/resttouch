@@ -124,17 +124,7 @@
               <strong>Datos de envío</strong>
             </td>
           </tr>
-          <tr>
-            <td>
-              <mat-form-field class="fullWidth">
-                <mat-label>Atiende:</mat-label>
-                <mat-select name="sede" [(ngModel)]="datosPedido.sede" required>
-                  <mat-option *ngFor="let s of sedes" [value]="s.sede">
-                    {{s.nombre}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </td>
+          <tr>            
             <td>
               <mat-form-field class="fullWidth">                
                 <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
@@ -145,18 +135,14 @@
                 </mat-autocomplete>
               </mat-form-field>
             </td>
-          </tr>
-          <tr>
             <td>
               <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre"
-                       maxlength="1000">
-              </mat-form-field>
-            </td>
-            <td>
-              <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono"
-                       maxlength="1000">
+                <mat-label>Atiende:</mat-label>
+                <mat-select name="sede" [(ngModel)]="datosPedido.sede" required>
+                  <mat-option *ngFor="let s of sedes" [value]="s.sede">
+                    {{s.nombre}}
+                  </mat-option>
+                </mat-select>
               </mat-form-field>
             </td>
           </tr>
@@ -182,6 +168,20 @@
               </mat-form-field>
             </td>            
           </tr>
+          <tr>
+            <td>
+              <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre"
+                       maxlength="1000">
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono"
+                       maxlength="1000">
+              </mat-form-field>
+            </td>
+          </tr>          
         </ng-container>
         </tbody>
       </table>
