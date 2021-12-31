@@ -418,10 +418,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         // this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
         if (res.exito) {
           this.ls.clear(`${GLOBAL.rtClientePedido}_${this.data.mesaenuso.mesa.mesa}`);
-          this.snackBar.open('Pedido', `#${res.pedido}. ${res.mensaje}`, { duration: 3000 });
+          this.snackBar.open(`#${res.pedido}. ${res.mensaje}`, 'Pedido', { duration: 3000 });
           this.dialogRef.close('closePanel');
         } else {
-          this.snackBar.open('Pedido', `ERROR: ${res.mensaje}`, { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Pedido', { duration: 7000 });
         }
       })
     );

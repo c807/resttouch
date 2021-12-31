@@ -856,35 +856,44 @@ class Comanda_model extends General_Model
 		return new Sede_model($this->sede);
 	}
 
-	public function enviarDetalleSede()
+	public function enviarDetalleSede($enviar = true, $sedeDestino = null)
 	{		
 		$exito = true;
+		$faltantes = [];
 		// $detCom = $this->getDetalle(); 
 
 		$detCom = $this->db
-			->select('a.detalle_comanda, b.codigo')
+			->select('a.detalle_comanda, b.codigo, b.descripcion')
 			->join('articulo b', 'b.articulo = a.articulo')
 			->where('a.comanda', $this->getPK())
 			->get('detalle_comanda a')
 			->result();
 
+		if (!$sedeDestino) {
+			$sedeDestino = $this->sede;
+		}
+
 		foreach ($detCom as $row) {
 			$art = $this->Articulo_model->buscarArticulo([
 				// "codigo" => $row->articulo->codigo,
 				'codigo' => trim($row->codigo),
-				'sede' => $this->sede
+				// 'sede' => $this->sede
+				'sede' => $sedeDestino
 			]);
 
 			if ($art) {
-				$det = new Dcomanda_model($row->detalle_comanda);
-				$det->guardar(["articulo" => $art->articulo]);
+				if ($enviar) {
+					$det = new Dcomanda_model($row->detalle_comanda);
+					$det->guardar(["articulo" => $art->articulo]);
+				}
 			} else {
 				$exito = false;
+				$faltantes[] = "{$row->descripcion} ({$row->codigo})";
 			}
 			$art = null;
 		}
 
-		return $exito;
+		return (object)['exito' => $exito, 'faltantes' => join(', ', $faltantes)];
 	}
 
 	public function get_sin_factura($args = [])

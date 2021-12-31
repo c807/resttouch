@@ -49,70 +49,76 @@ class Callcenter extends CI_Controller {
 						'_uno' => true
 					]);
 
-					if ($turno) {						
-						$detOriginal = $this->Cuenta_model->obtener_detalle(['comanda' => $com->getPK()]);
-						$com->guardar([
-							'domicilio' => 1,
-							'sede' => $req->pedido->sede,
-							'turno' => $turno->turno,
-							'comanda_origen' => $origen->comanda_origen,
-							'comanda_origen_datos' => json_encode($req->pedido),
-							'detalle_comanda_original' => json_encode($detOriginal),
-							'tiempo_entrega' => isset($req->pedido->tiempo_entrega) ? $req->pedido->tiempo_entrega : null,
-							'tipo_domicilio' => isset($req->pedido->tipo_domicilio) ? $req->pedido->tipo_domicilio : null,
-							'estatus_callcenter' => 1,
-							'fhtomapedido' => date('Y-m-d H:i:s')
-						]);
-						
-						$exito = $com->enviarDetalleSede();
-
-						$opciones = array(
-	                            'http' => array(
-	                                'method'=>'POST',
-	                                'header'=> "Authorization: {$headers["Authorization"]}\r\nContent-Type: application/json",
-	                                'content' => json_encode($req->cobro)
-	                            )
-	                    );
-
-						if ($exito) {
-		                    $contexto = stream_context_create($opciones);
-
-		                    $cobro = json_decode(file_get_contents(url_base("restaurante.php/cuenta/cobrar/{$req->cobro->cuenta}"), false, $contexto));
-
-							if ($cobro->exito) {
-								$req->factura->sinfirma = true;
-								$opciones['http']['content'] = json_encode($req->factura);
-								$contexto = stream_context_create($opciones);
-								$facturar = json_decode(
-									file_get_contents(
-										url_base("restaurante.php/factura/guardar/{$req->cobro->cuenta}"),
-										false, 
-										$contexto
+					if ($turno) {
+						$siHayTodos = $com->enviarDetalleSede(false, (int)$req->pedido->sede);
+						if ($siHayTodos->exito) {
+							$detOriginal = $this->Cuenta_model->obtener_detalle(['comanda' => $com->getPK()]);						
+							$com->guardar([
+								'domicilio' => 1,
+								'sede' => $req->pedido->sede,
+								'turno' => $turno->turno,
+								'comanda_origen' => $origen->comanda_origen,
+								'comanda_origen_datos' => json_encode($req->pedido),
+								'detalle_comanda_original' => json_encode($detOriginal),
+								'tiempo_entrega' => isset($req->pedido->tiempo_entrega) ? $req->pedido->tiempo_entrega : null,
+								'tipo_domicilio' => isset($req->pedido->tipo_domicilio) ? $req->pedido->tipo_domicilio : null,
+								'estatus_callcenter' => 1,
+								'fhtomapedido' => date('Y-m-d H:i:s')
+							]);
+							
+							$exito = $com->enviarDetalleSede();
+	
+							$opciones = array(
+									'http' => array(
+										'method'=>'POST',
+										'header'=> "Authorization: {$headers["Authorization"]}\r\nContent-Type: application/json",
+										'content' => json_encode($req->cobro)
 									)
-								);
-
-								if ($facturar->exito) {
-									$datos['exito'] = true;
-									$datos['mensaje'] = 'Datos actualizados con exito';
-									$datos['pedido'] = $com->getPK();
-									$url_ws = get_url_websocket();
-									$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
-									$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
-									$updpedidos = json_decode(get_request("{$url_ws}/api/updseguimientocc", []));
-									$datos['msgws'] = [$updlst, $updmesas, $updpedidos];
-									$com->guardar(['estatus_callcenter' => 2, 'fhtomapedido' => date('Y-m-d H:i:s')]);
+							);
+	
+							if ($exito->exito) {
+								$contexto = stream_context_create($opciones);
+	
+								$cobro = json_decode(file_get_contents(url_base("restaurante.php/cuenta/cobrar/{$req->cobro->cuenta}"), false, $contexto));
+	
+								if ($cobro->exito) {
+									$req->factura->sinfirma = true;
+									$opciones['http']['content'] = json_encode($req->factura);
+									$contexto = stream_context_create($opciones);
+									$facturar = json_decode(
+										file_get_contents(
+											url_base("restaurante.php/factura/guardar/{$req->cobro->cuenta}"),
+											false, 
+											$contexto
+										)
+									);
+	
+									if ($facturar->exito) {
+										$datos['exito'] = true;
+										$datos['mensaje'] = 'Datos actualizados con exito';
+										$datos['pedido'] = $com->getPK();
+										$url_ws = get_url_websocket();
+										$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
+										$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
+										$updpedidos = json_decode(get_request("{$url_ws}/api/updseguimientocc", []));
+										$datos['msgws'] = [$updlst, $updmesas, $updpedidos];
+										$com->guardar(['estatus_callcenter' => 2, 'fhtomapedido' => date('Y-m-d H:i:s')]);
+									} else {
+										$datos['mensaje'] = $facturar->mensaje;
+										$com->guardar(['estatus_callcenter' => 9]);
+									}
 								} else {
-									$datos['mensaje'] = $facturar->mensaje;
+									$datos['mensaje'] = $cobro->mensaje;	
 									$com->guardar(['estatus_callcenter' => 9]);
 								}
 							} else {
-								$datos['mensaje'] = $cobro->mensaje;	
+								$datos['mensaje'] = 'No fue posible enviar el pedido al restaurante seleccionado.';	
 								$com->guardar(['estatus_callcenter' => 9]);
 							}
 						} else {
-							$datos['mensaje'] = 'No fue posible enviar el pedido al restaurante seleccionado.';	
+							$datos['mensaje'] = "Los siguientes artículos no existen en la sede destino: {$siHayTodos->faltantes}.";
 							$com->guardar(['estatus_callcenter' => 9]);
-						}	
+						}
 					} else {
 						$datos['mensaje'] = 'No existe ningun turno abierto en el restaurante seleccionado.';
 						$com->guardar(['estatus_callcenter' => 9]);
