@@ -871,7 +871,7 @@ class Comanda_model extends General_Model
 		foreach ($detCom as $row) {
 			$art = $this->Articulo_model->buscarArticulo([
 				// "codigo" => $row->articulo->codigo,
-				'TRIM(codigo)' => trim($row->codigo),
+				'codigo' => trim($row->codigo),
 				'sede' => $this->sede
 			]);
 
@@ -881,6 +881,7 @@ class Comanda_model extends General_Model
 			} else {
 				$exito = false;
 			}
+			$art = null;
 		}
 
 		return $exito;
