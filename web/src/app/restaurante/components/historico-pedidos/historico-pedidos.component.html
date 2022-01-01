@@ -29,7 +29,7 @@
                     <tr *ngFor="let det of pedido.detalle; last as isLast" [ngClass]="{'midRow': !isLast, 'bottRow': isLast}">
                         <td></td>
                         <td colspan="2">
-                            {{+det.cantidad > 1 ? (+det.cantidad + ' ') : ''}}{{(det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? det.descripcion : ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)}}
+                            {{+det.cantidad > 1 && (det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? (+det.cantidad + ' ') : ''}}{{(det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? det.descripcion : ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)}}
                         </td>
                     </tr>
                 </ng-container>
