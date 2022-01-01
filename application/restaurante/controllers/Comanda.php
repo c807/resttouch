@@ -205,7 +205,7 @@ class Comanda extends CI_Controller
 			->set_output(json_encode($datos));
 	}
 
-	public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo)
+	public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo, $regresa_inventario)
 	{
 		$art = new Articulo_model($id_articulo);
 		$receta = $art->getReceta();
@@ -245,6 +245,9 @@ class Comanda extends CI_Controller
 			];
 			$detr->guardar($dato);
 		}		
+
+		$det = new Dcomanda_model($detalle_comanda_id);
+		$det->actualizarCantidadHijos((int)$regresa_inventario === 1);
 	}
 
 	public function actualiza_cantidad_hijos($id_detalle_comanda, $regresa_inventario)

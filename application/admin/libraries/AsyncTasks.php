@@ -38,9 +38,9 @@ class AsyncTasks
         $this->run_get_task($endpoint);
     }
 
-    public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo)
+    public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo, $regresa_inventario)
     {
-        $endpoint = "restaurante.php/comanda/guardar_receta_en_comanda/{$id_comanda}/{$detalle_comanda_id}/{$id_articulo}";
+        $endpoint = "restaurante.php/comanda/guardar_receta_en_comanda/{$id_comanda}/{$detalle_comanda_id}/{$id_articulo}/{$regresa_inventario}";
         $this->run_get_task($endpoint);
     }
 
