@@ -982,7 +982,7 @@ class Comanda extends CI_Controller
 
 	public function test()
 	{
-		$detalle = $this->Dcomanda_model->get_detalle_comanda_and_childs($_GET);
+		$detalle = $this->Cuenta_model->obtener_detalle($_GET);
 		$this->output->set_output(json_encode($detalle));
 	}
 
@@ -995,6 +995,7 @@ class Comanda extends CI_Controller
 			$det->articulo = $detOrigen->articulo;
 			$det->cantidad = $detOrigen->cantidad;
 			$det->precio = 0;
+			$det->fecha = date('Y-m-d H:i:s');
 
 			if (empty($detalle_comanda_id)) {
 				$articulo = $this->Articulo_model->buscar(['articulo' => $detOrigen->articulo, '_uno' => true]);

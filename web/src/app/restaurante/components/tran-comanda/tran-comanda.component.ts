@@ -1208,6 +1208,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       confirmRef.afterClosed().subscribe((resDialog: any) => {
         if (resDialog) {
+          this.cuentaActiva.productos = [];
           this.setSelectedCuenta(+this.cuentaActiva.numero);
         }
       })

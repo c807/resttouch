@@ -344,7 +344,9 @@ export class TranComanda {
   }
 
   setLstProductosDeCuenta() {
-    this.lstProductosDeCuenta = this.lstProductosSeleccionados.filter(p => +p.cuenta === +this.cuentaActiva.numero);
+    const noCta = this.cuentaActiva?.numero || 1;
+    this.lstProductosDeCuenta = this.lstProductosSeleccionados.filter(p => +p.cuenta === +noCta);
+    // this.lstProductosDeCuenta = this.lstProductosSeleccionados.filter(p => +p.cuenta === +this.cuentaActiva.numero);
     // console.log(this.lstProductosDeCuenta);
   }
 
@@ -1281,6 +1283,7 @@ export class TranComanda {
     this.endSubs.add(
       confirmRef.afterClosed().subscribe((resDialog: any) => {
         if (resDialog) {
+          this.cuentaActiva.productos = [];
           this.setSelectedCuenta(+this.cuentaActiva.numero);
         }
       })

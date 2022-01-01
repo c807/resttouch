@@ -475,10 +475,10 @@ class Cuenta_model extends General_Model
 				e.numero as numero_cuenta, b.detalle_comanda_id, f.impresora, f.sede, f.nombre AS nombre_impresora, f.direccion_ip, f.ubicacion, f.bluetooth, f.bluetooth_mac_address, f.modelo, 
 				f.pordefecto, c.esextra, b.presentacion'
 			)
-			->join('detalle_comanda b', 'a.detalle_comanda = b.detalle_comanda')
-			->join('articulo c', 'c.articulo = b.articulo')
-			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
-			->join('cuenta e', 'e.cuenta = a.cuenta_cuenta')
+			->join('detalle_comanda b', 'a.detalle_comanda = b.detalle_comanda', isset($args['_esreceta']) ? 'right' : '')
+			->join('articulo c', 'c.articulo = b.articulo', isset($args['_esreceta']) ? 'left' : '')
+			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo', isset($args['_esreceta']) ? 'left' : '')
+			->join('cuenta e', 'e.cuenta = a.cuenta_cuenta', isset($args['_esreceta']) ? 'left' : '')
 			->join('impresora f', 'f.impresora = d.impresora', 'left')
 			->where('b.cantidad >', 0)
 			->get('detalle_cuenta a')
@@ -489,6 +489,11 @@ class Cuenta_model extends General_Model
 			if ((int)$detalle->combo === 1 || (int)$detalle->multiple === 1) {
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$detalle->detalle = $this->obtener_detalle($args);
+			} else if ((int)$detalle->esreceta === 1 && isset($args['comanda'])) {
+				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
+				$args['_esreceta'] = true;
+				$detalle->detalle = $this->obtener_detalle($args);
+				unset($args['_esreceta']);
 			} else {
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$args['_extras'] = true;
