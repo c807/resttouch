@@ -120,12 +120,12 @@ class Callcenter extends CI_Controller {
 							$com->guardar(['estatus_callcenter' => 9]);
 						}
 					} else {
-						$datos['mensaje'] = 'No existe ningun turno abierto en el restaurante seleccionado.';
+						$datos['mensaje'] = 'No existe ningún turno abierto en el restaurante seleccionado.';
 						$com->guardar(['estatus_callcenter' => 9]);
 					}
 				}
 			} else {
-				$datos['mensaje'] = "No existe una comanda con el numero {$comanda}.";	
+				$datos['mensaje'] = "No existe una comanda con el número {$comanda}.";	
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';

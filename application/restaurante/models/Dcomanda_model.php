@@ -50,27 +50,31 @@ class Dcomanda_model extends General_Model
 		return $tmp;
 	}
 
-	public function getDescripcionCombo($iddetcomanda = '')
+	public function getDescripcionCombo($iddetcomanda = '', $soloExtras = false)
 	{
 		$iddetcomanda = !empty($iddetcomanda) ? $iddetcomanda : $this->getPK();
 		$descripcion = "";
+
+		if ($soloExtras) {
+			$this->db->where('b.esextra', 1);
+		}
+
 		$tmp = $this->db
-			->select("a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta")
-			->join("articulo b", "a.articulo = b.articulo")
-			// ->where("a.detalle_comanda_id", $this->getPK())
-			->where("a.detalle_comanda_id", $iddetcomanda)
-			->get("detalle_comanda a")
+			->select('a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta')
+			->join('articulo b', 'a.articulo = b.articulo')			
+			->where('a.detalle_comanda_id', $iddetcomanda)
+			->get('detalle_comanda a')
 			->result();
 
-		foreach ($tmp as $row) {
-			// $det = new Dcomanda_model($row->detalle_comanda);
+		foreach ($tmp as $row) {			
 			if ($row->multiple == 0 && (float)$row->cantidad > 1) {
 				$descripcion .= " {$row->cantidad}";
 			}
 			$descripcion .= " {$row->descripcion} |";
-			if ((int)$row->esreceta === 0) {
-				// $descripcion.=$det->getDescripcionCombo();
+			if ((int)$row->esreceta === 0) {				
 				$descripcion .= $this->getDescripcionCombo($row->detalle_comanda);
+			} else {
+				$descripcion .= $this->getDescripcionCombo($row->detalle_comanda, true);
 			}
 		}
 

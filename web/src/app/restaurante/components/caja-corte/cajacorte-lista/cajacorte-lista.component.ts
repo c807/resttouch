@@ -112,12 +112,14 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     );
   }
 
-  calcularSaldo = (): number => {
+  calcularSaldo = (obj: ccGeneral): number => {
     let saldo = 0;
     this.listacc.forEach(cc => {
-      switch (+cc.caja_corte_tipo.caja_corte_tipo) {
-        case 1: saldo += +cc.total; break;
-        case 2: saldo -= +cc.total; break;
+      if (moment(cc.creacion).isBefore(moment(obj.creacion))) {
+        switch (+cc.caja_corte_tipo.caja_corte_tipo) {
+          case 1: saldo += +cc.total; break;
+          case 2: saldo -= +cc.total; break;
+        }
       }
     });
     return saldo;
@@ -132,7 +134,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       fal: this.turno.fin ? moment(this.turno.fin).format(GLOBAL.dbDateFormat) : moment().format(GLOBAL.dbDateFormat),
       sede: [this.turno.sede],
       _pagos: [],
-      _saldo_actual: this.calcularSaldo(),
+      _saldo_actual: this.calcularSaldo(obj),
       _fecha_caja: obj.creacion
     }
 

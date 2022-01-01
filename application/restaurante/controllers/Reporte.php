@@ -265,7 +265,7 @@ class Reporte extends CI_Controller
 					];
 
 					if ($data['_validar']) {
-						$rec = verDato($data['pagos'], $row->forma_pago, "0");
+						$rec = verDato($data['pagos'], $row->forma_pago, '0.00');
 						$recIng += $rec;
 						array_push($regs, round($rec, 2));
 
@@ -285,20 +285,20 @@ class Reporte extends CI_Controller
 					foreach ($data['ingreso_sin_fact'] as $row) {
 						$regs = [
 							$row->descripcion,
-							"0.00",
-							"0.00",
-							"0.00"
+							'0.00',
+							'0.00',
+							'0.00'
 						];
 
-						$rec = verDato($data['pagos'], $row->forma_pago, "0");
+						$rec = verDato($data['pagos'], $row->forma_pago, '0.00');
 						$recIng += $rec;
-						array_push($regs, round($rec, 2));
+						array_push($regs, (float)$rec !== 0 ? round($rec, 2) : '0.00');
 
 						$clase = "";
-						$ing = (isset($row->monto) ? $row->monto : 0.00) + (isset($row->propina) ? $row->propina : 0.00);
+						$ing = (isset($row->monto) ? $row->monto : '0.00') + (isset($row->propina) ? $row->propina : '0.00');
 						$dif = $ing - $rec;
 
-						array_push($regs, round($dif, 2));
+						array_push($regs, (float)$dif !== 0 ? round($dif, 2) : '0.00');
 
 						$hoja->fromArray($regs, null, "A{$fila}");
 						$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
