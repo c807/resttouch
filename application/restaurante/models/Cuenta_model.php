@@ -490,11 +490,17 @@ class Cuenta_model extends General_Model
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$detalle->detalle = $this->obtener_detalle($args);
 			} else if ((int)$detalle->esreceta === 1 && isset($args['comanda'])) {
+				if (isset($args['_extras'])) {
+					unset($args['_extras']);
+				}
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$args['_esreceta'] = true;
 				$detalle->detalle = $this->obtener_detalle($args);
 				unset($args['_esreceta']);
 			} else {
+				if (isset($args['_esreceta'])) {
+					unset($args['_esreceta']);
+				}
 				$args['detalle_comanda_id'] = $detalle->detalle_comanda;
 				$args['_extras'] = true;
 				$losExtras = $this->obtener_detalle($args);

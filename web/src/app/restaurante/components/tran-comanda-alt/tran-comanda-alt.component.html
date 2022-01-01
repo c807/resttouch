@@ -94,9 +94,10 @@
           [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
           [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
       <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
-        <mat-chip *ngIf="(ctSlect!=null)">
-          <h6 *ngIf="(ctSlect!=null)">{{mesaEnUso.cuentas[ctSlect].nombre}}</h6>
-        </mat-chip>
+        <ng-container>
+          <span class="bld" *ngIf="ctSlect !== null && ctSlect !== undefined">Cuenta de {{mesaEnUso.cuentas[ctSlect].nombre}}</span>
+          <span class="bld" *ngIf="ctSlect === null || ctSlect === undefined">Por favor seleccione una cuenta. Gracias.</span>
+        </ng-container>
       </div>
       <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones"
                                        [rolesUsuario]="rolesUsuario"
