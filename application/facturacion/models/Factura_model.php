@@ -79,12 +79,16 @@ class Factura_model extends General_model
 		$pres = $art->getPresentacion();
 		$oldart = new Articulo_model($det->articulo);
 
-		$at = new AsyncTasks();
-		if ($vnegativo) {			
-			$at->actualizar_existencias_articulo($art->getPK());
-		} else {
+		// $at = new AsyncTasks();
+		// if ($vnegativo) {			
+		// 	$at->actualizar_existencias_articulo($art->getPK());
+		// } else {
+		// 	$art->actualizarExistencia();
+		// }
+
+		if (!$vnegativo) {						
 			$art->actualizarExistencia();
-		}
+		} 
 
 		if ($vnegativo || isset($args['detalle_cuenta']) || empty($menu) || !$validar || $art->existencias >= $cantidad * $pres->cantidad || $art->mostrar_pos == 0) {
 			$nuevo = ($det->getPK() == null);
@@ -141,16 +145,24 @@ class Factura_model extends General_model
 						->set("detalle_cuenta", $args['detalle_cuenta'])
 						->insert("detalle_factura_detalle_cuenta");
 				}
-				if ($vnegativo) {
-					$at->actualizar_existencias_articulo($art->getPK());
-				} else {
+				// if ($vnegativo) {
+				// 	$at->actualizar_existencias_articulo($art->getPK());
+				// } else {
+				// 	$art->actualizarExistencia();
+				// }
+
+				if (!$vnegativo) {					
 					$art->actualizarExistencia();
 				}
 
 				if ($oldart->articulo) {
-					if ($vnegativo) {
-						$at->actualizar_existencias_articulo($oldart->getPK());
-					} else {
+					// if ($vnegativo) {
+					// 	$at->actualizar_existencias_articulo($oldart->getPK());
+					// } else {
+					// 	$oldart->actualizarExistencia();
+					// }
+
+					if (!$vnegativo) {						
 						$oldart->actualizarExistencia();
 					}
 				}

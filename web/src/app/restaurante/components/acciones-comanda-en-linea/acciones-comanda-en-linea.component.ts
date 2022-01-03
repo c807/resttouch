@@ -224,10 +224,11 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
           label: '¿Reversar inventario?',
           valor: 1,
           id: 'reversa_inventario',
+          descripcion: 'descripcion',
           requerido: true,
           datos: [
-            { id: 1, descripcion: 'Sí' },
-            { id: 2, descripcion: 'No' }
+            { reversa_inventario: 1, descripcion: 'Sí' },
+            { reversa_inventario: 2, descripcion: 'No' }
           ]
         }
       );
