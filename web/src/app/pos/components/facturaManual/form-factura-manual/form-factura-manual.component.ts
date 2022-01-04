@@ -471,7 +471,7 @@ export class FormFacturaManualComponent implements OnInit {
 
   onSubmitDetail = () => {
     if(this.detalleFactura.articulo == null){
-      this.snackBar.open(`ERROR: Artículo no valido, Seleccione un artículo valido.`, 'Articulo', { duration: 7000 });
+      this.snackBar.open(`ERROR: Artículo no válido. Por favor seleccione un artículo válido.`, 'Artículo', { duration: 7000 });
       return;
     }
     this.detalleFactura.factura = this.factura.factura;
