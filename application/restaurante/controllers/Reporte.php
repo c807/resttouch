@@ -336,7 +336,7 @@ class Reporte extends CI_Controller
 					$hoja->setCellValue("A{$fila}", $row->descripcion);
 
 					$hoja->setCellValue("B{$fila}", round($row->monto, 2));
-					
+
 					$hoja->setCellValue("C{$fila}", round($row->propina, 2));
 
 					$hoja->setCellValue("D{$fila}", round($row->monto + $row->propina, 2));
@@ -797,28 +797,29 @@ class Reporte extends CI_Controller
 						"",
 						"",
 						"",
-						"Artículo",
-						"Cantidad"
-					];
+						"Artículo", // Columnas del articulo
+						"Cantidad" // Columnas del articulo
+ 					];
 
 					// if ($data['impuesto_especial']) {
 					// 	$tituloDet[] = "Impuesto Especial";
 					// }
 
-					array_push($tituloDet, "Total");
-					array_push($tituloDet, "Descuento");
+					array_push($tituloDet, "Total");  // Columnas del articulo
+					array_push($tituloDet, "Descuento"); //Columans del articulo
 					$hoja->fromArray($tituloDet, null, "A{$fila}");
 					$hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 					$fila++;
 
 					foreach ($detalle as $det) {
 						$reg = [
-							"",
-							"",
-							"",
-							$det->articulo->descripcion,
-							$det->cantidad,
-							round($det->total, 2)
+							"",  // Espacio en blanco de columna A
+							"",  // Espacio en blanco de columna B
+							"",  // Espacio en blanco de columna C
+							$det->articulo->descripcion, //Nombre del articulo, Col D
+							$det->cantidad, // Alado cantidad del articulo, Col E
+							round($det->total, 2), // Col F
+                            $det->descuento// Col Descuento G
 						];
 						$hoja->fromArray($reg, null, "A{$fila}");
 						$fila++;
