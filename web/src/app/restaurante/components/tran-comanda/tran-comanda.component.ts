@@ -639,7 +639,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
 
                         if (!this.imprimeRecetaEnComanda) {
                           AImpresoraNormal.map(d => {
-                            if (+d.combo === 0 && +d.esreceta === 1) {
+                            if (+d.combo === 0 && +d.esreceta === 1) {                              
                               d.detalle = []
                             }
                             return d;
@@ -821,7 +821,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       detalle_comanda: +p.detalle_comanda,
       detalle_cuenta: +p.detalle_cuenta,
       detalle_impresion: p.detalle.length === 0 ? [] : this.getDetalleImpresionCombo(p.detalle),
-      impresoras_combo: []
+      impresoras_combo: [],
+      combo: +p.combo,
+      esreceta: +p.esreceta,
+      esextra: +p.esextra
     }
     for (const artImp of obj.detalle_impresion) {
       const idx = obj.impresoras_combo.findIndex(ic => +ic.impresora === +artImp.Impresora.impresora);
@@ -872,7 +875,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   
                   if (!this.imprimeRecetaEnComanda) {
                     AImpresoraNormal.map(d => {
-                      if (+d.combo === 0 && +d.esreceta === 1) {
+                      if (+d.combo === 0 && +d.esreceta === 1) {                      
                         d.detalle = []
                       }
                       return d;
@@ -900,7 +903,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                 if (modoComanda !== 3) {
                   if (!this.imprimeRecetaEnComanda) {
                     AImpresoraBT.map(d => {
-                      if (+d.combo === 0 && +d.esreceta === 1) {
+                    if (+d.combo === 0 && +d.esreceta === 1) {                    
                         d.detalle = []
                       }
                       return d;

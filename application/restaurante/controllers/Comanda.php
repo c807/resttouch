@@ -774,7 +774,14 @@ class Comanda extends CI_Controller
 				$usu = new Usuario_model($this->data->idusuario);
 				if ($com->getPK()) {
 					$req = json_decode(file_get_contents('php://input'), true);
-					$com->guardar(["estatus" => 2]);
+					
+					$params = ["estatus" => 2];
+					
+					if($com->estatus_callcenter) {
+						$params['estatus_callcenter'] = 10;
+					}
+
+					$com->guardar($params);
 
 					$reversaInventario = isset($req['reversa_inventario']) && (int)$req['reversa_inventario'] === 1;
 					if($reversaInventario){

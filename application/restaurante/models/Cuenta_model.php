@@ -497,6 +497,11 @@ class Cuenta_model extends General_Model
 				$args['_esreceta'] = true;
 				$detalle->detalle = $this->obtener_detalle($args);
 				unset($args['_esreceta']);
+
+				$args['_extras'] = true;
+				$detalle->detalle_extras = $this->obtener_detalle($args);		
+				unset($args['_extras']);		
+
 			} else {
 				if (isset($args['_esreceta'])) {
 					unset($args['_esreceta']);

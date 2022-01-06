@@ -841,7 +841,10 @@ export class TranComanda {
       detalle_comanda: +p.detalle_comanda,
       detalle_cuenta: +p.detalle_cuenta,
       detalle_impresion: p.detalle.length === 0 ? [] : this.getDetalleImpresionCombo(p.detalle),
-      impresoras_combo: []
+      impresoras_combo: [],
+      combo: +p.combo,
+      esreceta: +p.esreceta,
+      esextra: +p.esextra
     }
     for (const artImp of obj.detalle_impresion) {
       const idx = obj.impresoras_combo.findIndex(ic => +ic.impresora === +artImp.Impresora.impresora);

@@ -1092,10 +1092,11 @@ class Venta extends CI_Controller
 										];
 										$idxOpcion = count($opciones) - 1;
 									}
-									$opciones[$idxOpcion]->cantidad++;
-									// $opciones[$idxOpcion]->cantidad += (float)$ld->cantidad;
-									$opciones[$idxOpcion]->total += (float)$ld->precio;									
-									$sumExtrasSubcat += (float)$ld->precio;
+									// $opciones[$idxOpcion]->cantidad++;
+									$opciones[$idxOpcion]->cantidad = $opciones[$idxOpcion]->cantidad + ((int)$ld->esextra === 0 ? 1 : (float)$ld->cantidad);
+									// $opciones[$idxOpcion]->total += (float)$ld->precio;									
+									$opciones[$idxOpcion]->total = $opciones[$idxOpcion]->total + ((int)$ld->esextra === 0 ? (float)$ld->precio : (float)$ld->precio * (float)$ld->cantidad);
+									$sumExtrasSubcat = $sumExtrasSubcat + ((int)$ld->esextra === 0 ? (float)$ld->precio : (float)$ld->precio * (float)$ld->cantidad);
 								}
 							}
 						}

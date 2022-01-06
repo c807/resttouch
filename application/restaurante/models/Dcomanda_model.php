@@ -288,7 +288,7 @@ class Dcomanda_model extends General_Model
 		}
 
 		return $this->db
-			->select("{$campos}, b.mostrar_inventario, b.multiple, b.descripcion, b.combo")
+			->select("{$campos}, b.mostrar_inventario, b.multiple, b.descripcion, b.combo, b.esextra")
 			->join('articulo b', 'b.articulo = a.articulo')
 			->get('detalle_comanda a')
 			->result();

@@ -101,6 +101,7 @@ class Rpt_model extends General_model
                 ->where('b.multiple', 0)
                 ->where('b.combo', 1)
                 ->where('a.cantidad >', 0)
+                ->where('b.esextra', 0)
                 // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
                 // ->where('DATE(c.fhcreacion) <=', $args['fal'])
                 ->group_by('a.articulo, b.descripcion')                
@@ -116,8 +117,23 @@ class Rpt_model extends General_model
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)                
                 ->where('a.cantidad >', 0)
+                ->where('b.esextra', 0)
                 // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
                 // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->group_by('a.articulo, b.descripcion')                
+                ->get('detalle_comanda a')
+                ->result();
+
+            $extras = $this->db
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total', false)
+                ->join('articulo b', 'b.articulo = a.articulo')
+                ->join('comanda c', 'c.comanda = a.comanda')
+                ->where("a.comanda IN({$comandas})")
+                ->where('a.detalle_comanda_id IS NOT NULL')
+                ->where('b.multiple', 0)
+                ->where('b.combo', 0)                
+                ->where('a.cantidad >', 0)                
+                ->where('b.esextra', 1)
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
@@ -132,6 +148,7 @@ class Rpt_model extends General_model
                 ->where('b.combo', 0)
                 ->where('a.total >', 0)
                 ->where('a.cantidad >', 0)
+                ->where('b.esextra', 0)
                 // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
                 // ->where('DATE(c.fhcreacion) <=', $args['fal'])
                 ->group_by('a.articulo, b.descripcion')                
@@ -177,7 +194,7 @@ class Rpt_model extends General_model
                 ->result();
         }
 
-        $articulos = array_merge($combos, $multiples, $directos, $facturas_manuales);
+        $articulos = array_merge($combos, $multiples, $extras, $directos, $facturas_manuales);
         if (!empty($articulos)) {
             $articulos = ordenar_array_objetos($articulos, 'descripcion');
         }
