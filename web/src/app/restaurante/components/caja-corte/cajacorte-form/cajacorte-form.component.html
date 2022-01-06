@@ -61,10 +61,10 @@
       <div class="row" *ngIf="verDocumento">
         <div class="col m12 s12">
           <mat-form-field style="width: 33.33%;">
-            <input type="text" [maxLength]="50" matInput name="serie" placeholder="Serie" [(ngModel)]="documento.serie">
+            <input type="text" [maxLength]="30" matInput name="serie" placeholder="Serie" [(ngModel)]="documento.serie">
           </mat-form-field>
           <mat-form-field style="width: 33.33%;">
-            <input type="text" [maxLength]="50" matInput name="numero" placeholder="Número" [(ngModel)]="documento.numero" required>
+            <input type="text" [maxLength]="30" matInput name="numero" placeholder="Número" [(ngModel)]="documento.numero" required>
           </mat-form-field>
           <mat-form-field style="width: 33.34%;">
             <input type="date" matInput name="fecha" placeholder="Fecha" [(ngModel)]="documento.fecha" required>
@@ -74,7 +74,7 @@
       <div class="row" *ngIf="verDocumento">
         <div class="col m12 s12">
           <mat-form-field class="fullWidth">
-            <input type="text" [maxLength]="150" matInput name="Descripción" placeholder="Descripción" [(ngModel)]="documento.descripcion_documento" minlength="5"  required>
+            <input type="text" [maxLength]="50" matInput name="Descripción" placeholder="Descripción" [(ngModel)]="documento.descripcion_documento" minlength="5"  required>
           </mat-form-field>
         </div>
       </div>
