@@ -27,9 +27,14 @@ class Area extends CI_Controller
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
-
+						
 			$existe = $this->Area_model->buscar(['TRIM(UPPER(nombre))' => trim(strtoupper($req['nombre']))]);
 			if (!$existe) {
+				
+				if(!isset($req['escallcenter']) || empty($req['escallcenter'])) {
+					$req['escallcenter'] = 0;
+				}
+
 				$datos['exito'] = $mesa->guardar($req);
 	
 				if ($datos['exito']) {
