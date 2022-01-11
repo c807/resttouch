@@ -42,21 +42,21 @@
         <div class="col m3 s12">
           <mat-form-field hintLabel="Municipio" appearance="fill" class="input-ml">
             <mat-label>Ingrese Municipio</mat-label>
-            <input [(ngModel)]="direccion.municipio"  name="municipio" matInput #input maxlength="50" placeholder="Ej. Mixco" pattern="[a-zA-Z]{1,50}">
+            <input [(ngModel)]="direccion.municipio"  name="municipio" matInput #input maxlength="50" placeholder="Ej. Mixco" pattern="[a-zA-Z ]{1,50}">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
         </div>
         <div class="col m3 s12">
           <mat-form-field hintLabel="Departamento" appearance="fill" class="input-ml">
             <mat-label>Ingrese Departamento</mat-label>
-            <input [(ngModel)]="direccion.departamento"  name="departamento" matInput #input maxlength="50" placeholder="Ej. Sacatepéquez" pattern="[a-zA-Z]{1,50}">
+            <input [(ngModel)]="direccion.departamento"  name="departamento" matInput #input maxlength="50" placeholder="Ej. Sacatepéquez" pattern="[a-zA-Z ]{1,50}">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
         </div>
         <div class="col m3 s12">
           <mat-form-field hintLabel="País" appearance="fill" class="input-ml">
             <mat-label>Ingrese País</mat-label>
-            <input [(ngModel)]="direccion.pais"  name="pais" matInput #input maxlength="50" placeholder="Ej. Guatemala" pattern="[a-zA-Z]{1,50}">
+            <input [(ngModel)]="direccion.pais"  name="pais" matInput #input maxlength="50" placeholder="Ej. Guatemala" pattern="[a-zA-Z ]{1,50}">
             <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
           </mat-form-field>
         </div>

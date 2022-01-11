@@ -215,7 +215,7 @@
     Facturar
   </button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 1"
-          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
+          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || !this.datosPedido.tiempo_entrega || !this.datosPedido.tipo_domicilio">
     Enviar
   </button>
 </div>
