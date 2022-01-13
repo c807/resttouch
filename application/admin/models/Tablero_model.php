@@ -55,6 +55,7 @@ class Tablero_model extends General_model
 			->join('usuario mr', 'mr.usuario = a.mesero', 'left')
 			->where('d.detalle_comanda_id IS NULL')
 			->where('j.sinfactura', 1)
+			->not_like('e.descripcion', 'propi', 'after')
 			->get()
 			->result();
 	}
@@ -111,6 +112,7 @@ class Tablero_model extends General_model
 			->join('usuario mr', 'mr.usuario = i.mesero', 'left')
 			->where("b.fel_uuid is not null")
 			->where("b.fel_uuid_anulacion is null")
+			->not_like('c.descripcion', 'propi', 'after')
 			->get()
 			->result();
 	}
@@ -153,7 +155,7 @@ class Tablero_model extends General_model
 			->get()
 			->result();
 
-		$q = $this->db->last_query();
+		// $q = $this->db->last_query();
 
 		return $vdsf;
 	}
@@ -226,6 +228,55 @@ class Tablero_model extends General_model
 		return $facturados;
 	}
 
+	private function getVentasPorCategoriaSinFactura($args = [])
+	{
+		$this->db->query("SET @@lc_time_names = 'es_GT'");
+
+		if (isset($args["fdel"])) {
+			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+		}
+
+		if (isset($args["fal"])) {
+			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('a.sede', $args['sede']);
+			} else {
+				$this->db->where('a.sede', $args['sede']);
+			}
+		}
+
+		if (verDato($args, "_grupo", 0) == 2) {
+			$this->db->group_by('a.sede');
+		}
+
+		$vdsf = $this->db
+			->select('CONCAT(j.nombre, "-", i.descripcion) AS categoria, SUM(f.total) AS venta, a.sede')
+			->from('comanda a')
+			->join('turno b', 'b.turno = a.turno')
+			->join('cuenta c', 'a.comanda = c.comanda')
+			->join('cuenta_forma_pago d', 'c.cuenta = d.cuenta')
+			->join('forma_pago e', 'e.forma_pago = d.forma_pago')
+			->join('detalle_comanda f', 'a.comanda = f.comanda')
+			->join('articulo g', 'g.articulo = f.articulo')
+			->join('categoria_grupo h', 'h.categoria_grupo = g.categoria_grupo')
+			->join('categoria i', 'i.categoria = h.categoria')
+			->join('sede j', 'i.sede = j.sede')
+			->where('e.sinfactura', 1)
+			->where('e.descuento', 0)
+			->where('f.total <>', 0)
+			->group_by('i.descripcion')
+			->order_by('i.descripcion')
+			->get()
+			->result();
+
+		// $q = $this->db->last_query();
+
+		return $vdsf;
+	}
+
 	public function getVentasPorCategoria($args = [])
 	{
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
@@ -250,7 +301,7 @@ class Tablero_model extends General_model
 			$this->db->group_by('a.sede');
 		}
 
-		return $this->db
+		$facturados = $this->db
 			->select('
 				CONCAT(f.nombre, "-", e.descripcion) AS categoria, 
 				SUM(b.total - b.descuento) AS venta,
@@ -267,6 +318,33 @@ class Tablero_model extends General_model
 			->order_by('f.nombre, e.descripcion')
 			->get()
 			->result();
+
+		$sinFactura = $this->getVentasPorCategoriaSinFactura($args);	
+
+		if (count($facturados) > 0 && count($sinFactura) > 0) {
+			foreach($sinFactura as $sf) 
+			{	
+				$existente = false;
+				foreach($facturados as $f)
+				{
+					if($f->categoria === $sf->categoria && (int)$f->sede === (int)$sf->sede)
+					{
+						$f->venta = (float)$f->venta + (float)$sf->venta;
+						$existente = true;
+					}
+				}
+				if (!$existente) 
+				{
+					$facturados[] = $sf;
+				}
+			}
+			$facturados = ordenar_array_objetos($facturados, 'categoria');
+		} else if (count($facturados) === 0 && count($sinFactura) > 0)
+		{
+			$facturados = $sinFactura;
+		}
+
+		return $facturados;		
 	}
 
 	public function getVentasPorTurno($args = [])

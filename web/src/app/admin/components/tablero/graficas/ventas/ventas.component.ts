@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 import { ChartDataSets } from 'chart.js';
-import { Color, Label } from 'ng2-charts';
+// import { Color, Label } from 'ng2-charts';
 
 @Component({
   selector: 'app-graficas-ventas',
@@ -10,35 +10,7 @@ import { Color, Label } from 'ng2-charts';
 })
 export class VentasComponent implements OnInit {
 
-  @Input() datos: any = {};
-
-  /*public xAxisPorDia: any;
-  public yAxisPorDia: any;
-  public chartTitlePorDia: string;
-  public legendPorDia: any;
-  public markerSettingsPorDia: any;
-  public toolTipSettingsPorDia: any;*/
-
-  /*public xAxisPorCategoria: any;
-  public yAxisPorCategoria: any;
-  public chartTitlePorCategoria: string;
-  public legendPorCategoria: any;
-  public markerSettingsPorCategoria: any;
-  public toolTipSettingsPorCategoria: any;*/
-
-  /*public xAxisPorTurno: any;
-  public yAxisPorTurno: any;
-  public chartTitlePorTurno: string;
-  public legendPorTurno: any;
-  public markerSettingsPorTurno: any;
-  public toolTipSettingsPorTurno: any;*/
-
-  /*public xAxisPorMesero: any;
-  public yAxisPorMesero: any;
-  public chartTitlePorMesero: string;
-  public legendPorMesero: any;
-  public markerSettingsPorMesero: any;
-  public toolTipSettingsPorMesero: any;*/
+  @Input() datos: any = {};  
 
   dsPorDia: ChartDataSets[] = [];
   lblsPorDia: string[] = [];
@@ -54,13 +26,7 @@ export class VentasComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-    /*console.log('DATOS = ', this.datos);
-    this.setGraficaPorDia();
-    this.setGraficaPorCategoria();
-    this.setGraficaPorTurno();
-    this.setGraficaPorMesero();*/
-  }
+  ngOnInit() { }
 
   setGraficas = () => {
     this.setGraficaPorDia();
@@ -69,13 +35,7 @@ export class VentasComponent implements OnInit {
     this.setGraficaPorMesero();
   }
 
-  setGraficaPorDia = () => {
-    /*this.chartTitlePorDia = 'Ventas por día';
-    this.toolTipSettingsPorDia = { enable: true };
-    this.markerSettingsPorDia = { visible: true, dataLabel: { visible: true } };
-    this.legendPorDia = { visible: true };
-    this.xAxisPorDia = { title: 'Día', valueType: 'Category', labelIntersectAction: 'Rotate90' };
-    this.yAxisPorDia = { title: 'Ventas' };*/
+  setGraficaPorDia = () => {    
     this.dsPorDia = [];
     this.lblsPorDia = [];
     if (this.datos.porDia) {
@@ -99,13 +59,7 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  setGraficaPorCategoria = () => {
-    /*this.chartTitlePorCategoria = 'Ventas por categoria';
-    this.toolTipSettingsPorCategoria = { enable: true };
-    this.markerSettingsPorCategoria = { visible: true, dataLabel: { visible: true } };
-    this.legendPorCategoria = { visible: true };
-    this.xAxisPorCategoria = { title: 'Categoría', valueType: 'Category', labelIntersectAction: 'Rotate90' };
-    this.yAxisPorCategoria = { title: 'Ventas' };*/
+  setGraficaPorCategoria = () => {    
     this.dsPorCategoria = [];
     this.lblsPorCategoria = [];
     if (this.datos.porCategoria) {
@@ -129,13 +83,7 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  setGraficaPorTurno = () => {
-    /*this.chartTitlePorTurno = 'Ventas por turno';
-    this.toolTipSettingsPorTurno = { enable: true };
-    this.markerSettingsPorTurno = { visible: true, dataLabel: { visible: true } };
-    this.legendPorTurno = { visible: true };
-    this.xAxisPorTurno = { title: 'Turno', valueType: 'Category', labelIntersectAction: 'Rotate90' };
-    this.yAxisPorTurno = { title: 'Ventas' };*/
+  setGraficaPorTurno = () => {    
     this.dsPorTurno = [];
     this.lblsPorTurno = [];
     if (this.datos.porTurno) {
@@ -159,13 +107,7 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  setGraficaPorMesero = () => {
-    /*this.chartTitlePorMesero = 'Ventas por mesero';
-    this.toolTipSettingsPorMesero = { enable: true };
-    this.markerSettingsPorMesero = { visible: true, dataLabel: { visible: true } };
-    this.legendPorMesero = { visible: true };
-    this.xAxisPorMesero = { title: 'Mesero', valueType: 'Category', labelIntersectAction: 'Rotate90' };
-    this.yAxisPorMesero = { title: 'Ventas' };*/
+  setGraficaPorMesero = () => {    
     this.dsPorMesero = [];
     this.lblsPorMesero = [];
     if (this.datos.porMesero) {

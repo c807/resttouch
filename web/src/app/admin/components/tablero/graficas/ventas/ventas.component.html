@@ -1,81 +1,38 @@
-<div fxLayout="column" fxLayout.xs="column" fxFlexFill>
-    <!--Inicia Fila superior-->
-    <div fxLayout="row" fxLayout.xs="column" fxFlexFill>
-        <div fxFlex="50%" fxFlex.xs="100%">
-            <!--Inicia ventas por día-->
-            <app-grafica-linea [lineChartData]="dsPorDia" [lineChartLabels]="lblsPorDia" [titulo]="'Ventas por día'"></app-grafica-linea>
-            <!--<ejs-chart [primaryXAxis]="xAxisPorDia" [primaryYAxis]="yAxisPorDia" [title]="chartTitlePorDia" [legendSettings]="legendPorDia" [tooltip]="toolTipSettingsPorDia">
-                <e-series-collection>                                        
-                    <e-series 
-                        *ngFor="let pd of datos.porDia; index as i" 
-                        type="Line" 
-                        [dataSource]="pd.datos" 
-                        xName="fecha" 
-                        yName="venta"                         
-                        [marker]="markerSettingsPorDia">
-                    </e-series>                    
-                </e-series-collection>
-            </ejs-chart>-->
-            <!--Finaliza ventas por día-->
-        </div>
-        <div fxFlex="50%" fxFlex.xs="100%">
-            <!--Inicia ventas por categoría-->
-            <app-grafica-linea [lineChartData]="dsPorCategoria" [lineChartLabels]="lblsPorCategoria" [titulo]="'Ventas por categoría'"></app-grafica-linea>
-            <!--<ejs-chart [primaryXAxis]="xAxisPorCategoria" [primaryYAxis]="yAxisPorCategoria" [title]="chartTitlePorCategoria" [legendSettings]="legendPorCategoria" [tooltip]="toolTipSettingsPorCategoria">
-                <e-series-collection>
-                    <e-series 
-                        *ngFor="let porCategoria of datos.porCategoria; index as i" 
-                        type="Line" 
-                        [dataSource]="porCategoria.datos" 
-                        xName="categoria" 
-                        yName="venta" 
-                        [name]="porCategoria.nombre" 
-                        [marker]="markerSettingsPorCategoria">
-                    </e-series>
-                </e-series-collection>
-            </ejs-chart>-->
-            <!--Finaliza ventas por categoría-->
-        </div>
-    </div>
-    <!--Termina fila superior-->
-    <!--Inicia fila inferior-->
-    <div fxLayout="row" fxLayout.xs="column" fxFlexFill>
-        <div fxFlex="50%" fxFlex.xs="100%">
-            <!--Inicia ventas por turno-->
-            <app-grafica-linea [lineChartData]="dsPorTurno" [lineChartLabels]="lblsPorTurno" [titulo]="'Ventas por turno'"></app-grafica-linea>
-            <!--<ejs-chart [primaryXAxis]="xAxisPorTurno" [primaryYAxis]="yAxisPorTurno" [title]="chartTitlePorTurno" [legendSettings]="legendPorTurno" [tooltip]="toolTipSettingsPorTurno">
-                <e-series-collection>
-                    <e-series 
-                        *ngFor="let porTurno of datos.porTurno; index as i" 
-                        type="Line" 
-                        [dataSource]="porTurno.datos" 
-                        xName="turno" 
-                        yName="venta" 
-                        [name]="porTurno.nombre" 
-                        [marker]="markerSettingsPorTurno">
-                    </e-series>
-                </e-series-collection>
-            </ejs-chart>-->
-            <!--Finaliza ventas por turno-->
-        </div>
-        <div fxFlex="50%" fxFlex.xs="100%">
-            <!--Inicia ventas por mesero-->
-            <app-grafica-linea [lineChartData]="dsPorMesero" [lineChartLabels]="lblsPorMesero" [titulo]="'Ventas por mesero'"></app-grafica-linea>
-            <!--<ejs-chart [primaryXAxis]="xAxisPorMesero" [primaryYAxis]="yAxisPorMesero" [title]="chartTitlePorMesero" [legendSettings]="legendPorMesero" [tooltip]="toolTipSettingsPorMesero">
-                <e-series-collection>
-                    <e-series 
-                        *ngFor="let porMesero of datos.porMesero; index as i" 
-                        type="Line" 
-                        [dataSource]="porMesero.datos" 
-                        xName="mesero" 
-                        yName="venta" 
-                        [name]="porMesero.nombre" 
-                        [marker]="markerSettingsPorMesero">
-                    </e-series>
-                </e-series-collection>
-            </ejs-chart>-->
-            <!--Finaliza ventas por mesero-->
-        </div>
-    </div>
-    <!--Termina fila inferior-->
-</div>
+<mat-grid-list cols="2" rowHeight="400px">
+    <mat-grid-tile>
+        <mat-card class="fill-space">
+            <mat-card-title>Ventas por día</mat-card-title>
+            <mat-card-subtitle>(Con descuentos, con propina)</mat-card-subtitle>
+            <mat-card-content>
+                <app-grafica-linea [lineChartData]="dsPorDia" [lineChartLabels]="lblsPorDia" [titulo]="'Ventas por día'"></app-grafica-linea>
+            </mat-card-content>
+        </mat-card>
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-card class="fill-space">
+            <mat-card-title>Ventas por categoría</mat-card-title>
+            <mat-card-subtitle>(Con descuentos, con propina)</mat-card-subtitle>
+            <mat-card-content>
+                <app-grafica-linea [lineChartData]="dsPorCategoria" [lineChartLabels]="lblsPorCategoria" [titulo]="'Ventas por categoría'"></app-grafica-linea>
+            </mat-card-content>
+        </mat-card>        
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-card class="fill-space">
+            <mat-card-title>Ventas por turno</mat-card-title>
+            <mat-card-subtitle>(Con descuentos, sin propina)</mat-card-subtitle>
+            <mat-card-content>
+                <app-grafica-linea [lineChartData]="dsPorTurno" [lineChartLabels]="lblsPorTurno" [titulo]="'Ventas por turno'"></app-grafica-linea>
+            </mat-card-content>
+        </mat-card>        
+    </mat-grid-tile>
+    <mat-grid-tile>
+        <mat-card class="fill-space">
+            <mat-card-title>Ventas por mesero</mat-card-title>
+            <mat-card-subtitle>(Con descuentos, sin propina)</mat-card-subtitle>
+            <mat-card-content>
+                <app-grafica-linea [lineChartData]="dsPorMesero" [lineChartLabels]="lblsPorMesero" [titulo]="'Ventas por mesero'"></app-grafica-linea>
+            </mat-card-content>
+        </mat-card>        
+    </mat-grid-tile>
+</mat-grid-list>

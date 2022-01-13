@@ -38,13 +38,7 @@
 		</mat-card>
 	</div>
 </div>
-<!-- Inicia gráficas de ventas -->
-<div class="row">
-	<div class="col m12 s12">
-		<app-graficas-ventas #cmpGraficas [datos]="datosGraficas"></app-graficas-ventas>
-	</div>
-</div>
-<!-- Finaliza gráficas de ventas -->
+
 <mat-grid-list cols="5" rowHeight="125px" *ngIf="estadistica.length > 0">
 	<mat-grid-tile *ngFor="let data of estadistica">
 		<mat-card>
@@ -56,7 +50,15 @@
 	</mat-grid-tile>
 </mat-grid-list>
 
-<mat-grid-list cols="1" rowHeight="400px">
+<!-- Inicia gráficas de ventas -->
+<div class="row">
+	<div class="col m12 s12">
+		<app-graficas-ventas #cmpGraficas [datos]="datosGraficas"></app-graficas-ventas>
+	</div>
+</div>
+<!-- Finaliza gráficas de ventas -->
+
+<!-- <mat-grid-list cols="1" rowHeight="400px">
   <mat-grid-tile>
   	<mat-card>
   		<mat-card-title>Últimos {{ ultimosDias }} días</mat-card-title>
@@ -70,7 +72,7 @@
 			</mat-card-content>
 		</mat-card>
   </mat-grid-tile>
-</mat-grid-list>
+</mat-grid-list> -->
 
 <mat-grid-list cols="3" rowHeight="350px">
   <mat-grid-tile>
@@ -115,7 +117,7 @@
     	</mat-card-content>
 		</mat-card>
   </mat-grid-tile>
-  <mat-grid-tile>
+  <!-- <mat-grid-tile>
   	<mat-card>
   		<mat-card-title>A domicilio</mat-card-title>
 			<mat-card-content>
@@ -127,7 +129,7 @@
 				</canvas>
 			</mat-card-content>
 		</mat-card>
-  </mat-grid-tile>
+  </mat-grid-tile> -->
 </mat-grid-list>
 
 <mat-grid-list cols="2" rowHeight="450px">
@@ -144,7 +146,8 @@
 			</mat-card-content>
 		</mat-card>
   </mat-grid-tile>
-  <mat-grid-tile>
+
+  <!-- <mat-grid-tile>
   	<mat-card>
   		<mat-card-title>Sede</mat-card-title>
 			<mat-card-content>
@@ -157,9 +160,9 @@
 			</mat-card-content>
 		</mat-card>
   </mat-grid-tile>
-</mat-grid-list>
+</mat-grid-list> -->
 
-<mat-grid-list cols="1" rowHeight="425px">
+<!-- <mat-grid-list cols="1" rowHeight="425px">
   <mat-grid-tile>
   	<mat-card>
   		<mat-card-title>Por semanas</mat-card-title>
@@ -173,7 +176,7 @@
 			</mat-card-content>
 		</mat-card>
   </mat-grid-tile>
-</mat-grid-list>
+</mat-grid-list> -->
 
 <mat-grid-list cols="1" rowHeight="550px">
   <mat-grid-tile>

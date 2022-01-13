@@ -5,16 +5,13 @@ import { Button } from '@syncfusion/ej2-buttons';
 import { TableroService } from '../../services/tablero.service';
 import * as moment from 'moment';
 import { GLOBAL } from '../../../shared/global';
-// import { SedeService } from '../../../admin/services/sede.service';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
-// import { Sede } from '../../../admin/interfaces/sede';
 import { UsuarioSede } from '../../../admin/interfaces/acceso';
 import { AccesoUsuarioService } from '../../../admin/services/acceso-usuario.service';
-// import { Global } from '@syncfusion/ej2-ng-grids';
 import { VentasComponent } from './graficas/ventas/ventas.component';
 
-import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
-import { Color, Label } from 'ng2-charts';
+// import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
+// import { Color, Label } from 'ng2-charts';
 
 @Component({
     selector: 'app-tablero',
@@ -122,7 +119,8 @@ export class TableroComponent implements OnInit {
         this.button.element.onclick = (): void => { this.pivotGridObj.excelExport(); };
 
         if (!this.params.fdel) {
-            this.params.fdel = moment().subtract(1, 'week').format(GLOBAL.dbDateFormat);
+            this.params.fdel = '2021-11-02'; // Esto solo es para pruebas.
+            // this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);            
         }
 
         if (!this.params.sede && this.params.sede.length === 0) {
@@ -130,7 +128,8 @@ export class TableroComponent implements OnInit {
         }
 
         if (!this.params.fal) {
-            this.params.fal = moment().format(GLOBAL.dbDateFormat);
+            this.params.fal = '2021-11-02'; //Esto es solo para pruebas.
+            // this.params.fal = moment().format(GLOBAL.dbDateFormat);
         }
 
         this.onSubmit();
@@ -159,6 +158,7 @@ export class TableroComponent implements OnInit {
     }
 
     onSubmit() {
+        this.params.sede = [3]; //Esto solo es para pruebas.
         this.cargando = true;
         // this.pivotGridObj.engineModule.fieldList = {};
 
