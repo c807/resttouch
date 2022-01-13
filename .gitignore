@@ -2,3 +2,6 @@ application/vendor/*
 vendor/
 web/dist
 actualiza*.rtt
+web_bck_angular_11.1.1
+web/prod
+web/dev
