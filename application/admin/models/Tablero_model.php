@@ -347,6 +347,48 @@ class Tablero_model extends General_model
 		return $facturados;		
 	}
 
+	public function getVentasPorTurnoSinFactura($args = [])
+	{
+		$this->db->query("SET @@lc_time_names = 'es_GT'");
+
+		if (isset($args["fdel"])) {
+			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+		}
+
+		if (isset($args["fal"])) {
+			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('a.sede', $args['sede']);
+			} else {
+				$this->db->where('a.sede', $args['sede']);
+			}
+		}
+
+		if (verDato($args, "_grupo", 0) == 2) {
+			$this->db->group_by('a.sede');
+		}
+
+		return $this->db
+			->select('d.descripcion AS turno, SUM(b.total) AS venta, a.sede')
+			->from('comanda a')
+			->join('detalle_comanda b', 'a.comanda = b.comanda')
+			->join('turno c', 'c.turno = a.turno')
+			->join('turno_tipo d', 'd.turno_tipo = c.turno_tipo')
+			->join('cuenta e', 'a.comanda = e.comanda')
+			->join('cuenta_forma_pago f', 'e.cuenta = f.cuenta')
+			->join('forma_pago g', 'g.forma_pago = f.forma_pago')
+			->where('g.sinfactura', 1)
+			->where('g.descuento', 0)
+			->where('b.total <>', 0)
+			->group_by('d.descripcion')
+			->order_by('d.descripcion')
+			->get()
+			->result();
+	}
+
 	public function getVentasPorTurno($args = [])
 	{
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
@@ -371,7 +413,7 @@ class Tablero_model extends General_model
 			$this->db->group_by('a.sede');
 		}
 
-		return $this->db
+		$facturados = $this->db
 			->select('h.descripcion AS turno, SUM(e.total - e.descuento) AS venta, a.sede')
 			->from('comanda a')
 			->join('detalle_comanda b', 'a.comanda = b.comanda')
@@ -385,6 +427,77 @@ class Tablero_model extends General_model
 			->where('f.fel_uuid_anulacion IS NULL')
 			->group_by('h.descripcion')
 			->order_by('h.descripcion')
+			->get()
+			->result();
+
+		$sinFactura = $this->getVentasPorTurnoSinFactura($args);
+
+		if (count($facturados) > 0 && count($sinFactura) > 0) {
+			foreach($sinFactura as $sf) 
+			{	
+				$existente = false;
+				foreach($facturados as $f)
+				{
+					if($f->turno === $sf->turno && (int)$f->sede === (int)$sf->sede)
+					{
+						$f->venta = (float)$f->venta + (float)$sf->venta;
+						$existente = true;
+					}
+				}
+				if (!$existente) 
+				{
+					$facturados[] = $sf;
+				}
+			}
+			$facturados = ordenar_array_objetos($facturados, 'turno');
+		} else if (count($facturados) === 0 && count($sinFactura) > 0)
+		{
+			$facturados = $sinFactura;
+		}
+
+		return $facturados;		
+	}
+
+	public function getVentasPorMeseroSinFactura($args = [])
+	{
+		$this->db->query("SET @@lc_time_names = 'es_GT'");
+
+		if (isset($args["fdel"])) {
+			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+		}
+
+		if (isset($args["fal"])) {
+			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('a.sede', $args['sede']);
+			} else {
+				$this->db->where('a.sede', $args['sede']);
+			}
+		}
+
+		if (verDato($args, "_grupo", 0) == 2) {
+			$this->db->group_by('a.sede');
+		}
+
+		return $this->db
+			->select(
+				'TRIM(CONCAT(IFNULL(c.nombres, ""), " ", IFNULL(c.apellidos, ""))) AS mesero, 
+				SUM(b.total) AS venta,
+				a.sede')
+			->from('comanda a')
+			->join('detalle_comanda b', 'a.comanda = b.comanda')
+			->join('usuario c', 'c.usuario = a.mesero')
+			->join('cuenta d', 'a.comanda = d.comanda')
+			->join('cuenta_forma_pago e', 'd.cuenta = e.cuenta')
+			->join('forma_pago f', 'f.forma_pago = e.forma_pago')			
+			->where('f.sinfactura', 1)
+			->where('f.descuento', 0)
+			->where('b.total <>', 0)
+			->group_by('c.usuario')
+			->order_by('venta', "desc")
 			->get()
 			->result();
 	}
@@ -413,7 +526,7 @@ class Tablero_model extends General_model
 			$this->db->group_by('a.sede');
 		}
 
-		return $this->db
+		$facturados = $this->db
 			->select(
 				'TRIM(CONCAT(IFNULL(g.nombres, ""), " ", IFNULL(g.apellidos, ""))) AS mesero, 
 				SUM(e.total - e.descuento + ifnull(e.valor_impuesto_especial, 0)) AS venta,
@@ -431,6 +544,33 @@ class Tablero_model extends General_model
 			->order_by('venta', "desc")
 			->get()
 			->result();
+
+		$sinFactura = $this->getVentasPorMeseroSinFactura($args);
+
+		if (count($facturados) > 0 && count($sinFactura) > 0) {
+			foreach($sinFactura as $sf) 
+			{	
+				$existente = false;
+				foreach($facturados as $f)
+				{
+					if($f->mesero === $sf->mesero && (int)$f->sede === (int)$sf->sede)
+					{
+						$f->venta = (float)$f->venta + (float)$sf->venta;
+						$existente = true;
+					}
+				}
+				if (!$existente) 
+				{
+					$facturados[] = $sf;
+				}
+			}
+			$facturados = ordenar_array_objetos($facturados, 'venta', 1, 'desc');
+		} else if (count($facturados) === 0 && count($sinFactura) > 0)
+		{
+			$facturados = $sinFactura;
+		}
+
+		return $facturados;
 	}
 
 	public function agruparDatos($datos, $grupo=1)

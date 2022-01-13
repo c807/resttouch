@@ -79,7 +79,7 @@
   	<mat-card>
   		<mat-card-title>Días de la semana</mat-card-title>
 			<mat-card-content>
-				<canvas baseChart
+				<canvas baseChart style="max-width: 490px !important; max-height: 245px !important;"
 					[datasets]="semanaData"
 					[labels]="semanaLabels"
 					[options]="pieOptions"
@@ -132,7 +132,7 @@
   </mat-grid-tile> -->
 </mat-grid-list>
 
-<mat-grid-list cols="2" rowHeight="450px">
+<!-- <mat-grid-list cols="2" rowHeight="450px">
   <mat-grid-tile>
   	<mat-card>
   		<mat-card-title>Mesero</mat-card-title>
@@ -145,7 +145,7 @@
 				</canvas>
 			</mat-card-content>
 		</mat-card>
-  </mat-grid-tile>
+  </mat-grid-tile> -->
 
   <!-- <mat-grid-tile>
   	<mat-card>
@@ -178,15 +178,18 @@
   </mat-grid-tile>
 </mat-grid-list> -->
 
-<mat-grid-list cols="1" rowHeight="550px">
-  <mat-grid-tile>
-		<mat-card>
-			<mat-card-actions>
-				<button ej-button id='export'>Export</button>
-			</mat-card-actions>
-			<mat-card-content >
+<!-- <div class="row">
+</div> -->
+
+<mat-card style="height: 815px; margin-left: 10px;">
+	<mat-card-content style="width: 100%;">
+		<div class="row">
+			<div class="col m11 s12">		
 				<ejs-pivotview #pivotview id='PivotView' [dataSourceSettings]=pivotData width='100%' height='400' allowExcelExport='true' showFieldList="true"></ejs-pivotview>
-			</mat-card-content>
-		</mat-card>
-	</mat-grid-tile>
-</mat-grid-list>
+			</div>
+			<div class="col m1 s12">		
+				<button ej-button id='export'>Export</button>
+			</div>
+		</div>
+	</mat-card-content>	
+</mat-card>
