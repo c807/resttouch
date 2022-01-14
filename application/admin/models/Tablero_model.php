@@ -233,40 +233,40 @@ class Tablero_model extends General_model
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
 
 		if (isset($args["fdel"])) {
-			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+			$this->db->where('DATE(f.fhcreacion) >= ', $args["fdel"]);
 		}
 
 		if (isset($args["fal"])) {
-			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+			$this->db->where('DATE(f.fhcreacion) <= ', $args["fal"]);
 		}
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
-				$this->db->where_in('a.sede', $args['sede']);
+				$this->db->where_in('f.sede', $args['sede']);
 			} else {
-				$this->db->where('a.sede', $args['sede']);
+				$this->db->where('f.sede', $args['sede']);
 			}
 		}
 
 		if (verDato($args, "_grupo", 0) == 2) {
-			$this->db->group_by('a.sede');
+			$this->db->group_by('f.sede');
 		}
 
 		$vdsf = $this->db
-			->select('CONCAT(j.nombre, "-", i.descripcion) AS categoria, SUM(f.total) AS venta, a.sede')
-			->from('comanda a')
-			->join('turno b', 'b.turno = a.turno')
-			->join('cuenta c', 'a.comanda = c.comanda')
-			->join('cuenta_forma_pago d', 'c.cuenta = d.cuenta')
-			->join('forma_pago e', 'e.forma_pago = d.forma_pago')
-			->join('detalle_comanda f', 'a.comanda = f.comanda')
-			->join('articulo g', 'g.articulo = f.articulo')
+			->select('CONCAT(j.nombre, "-", i.descripcion) AS categoria, SUM(e.total) AS venta, j.sede')
+			->from('cuenta a')
+			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
+			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
+			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->join('articulo g', 'g.articulo = e.articulo')
 			->join('categoria_grupo h', 'h.categoria_grupo = g.categoria_grupo')
 			->join('categoria i', 'i.categoria = h.categoria')
-			->join('sede j', 'i.sede = j.sede')
-			->where('e.sinfactura', 1)
-			->where('e.descuento', 0)
-			->where('f.total <>', 0)
+			->join('sede j', 'j.sede = i.sede')
+			->where('c.sinfactura', 1)
+			->where('c.descuento', 0)
+			->where('e.total <>', 0)
 			->group_by('i.descripcion')
 			->order_by('i.descripcion')
 			->get()
@@ -352,39 +352,40 @@ class Tablero_model extends General_model
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
 
 		if (isset($args["fdel"])) {
-			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+			$this->db->where('DATE(f.fhcreacion) >= ', $args["fdel"]);
 		}
 
 		if (isset($args["fal"])) {
-			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+			$this->db->where('DATE(f.fhcreacion) <= ', $args["fal"]);
 		}
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
-				$this->db->where_in('a.sede', $args['sede']);
+				$this->db->where_in('f.sede', $args['sede']);
 			} else {
-				$this->db->where('a.sede', $args['sede']);
+				$this->db->where('f.sede', $args['sede']);
 			}
 		}
 
 		if (verDato($args, "_grupo", 0) == 2) {
-			$this->db->group_by('a.sede');
+			$this->db->group_by('f.sede');
 		}
 
 		return $this->db
-			->select('d.descripcion AS turno, SUM(b.total) AS venta, a.sede')
-			->from('comanda a')
-			->join('detalle_comanda b', 'a.comanda = b.comanda')
-			->join('turno c', 'c.turno = a.turno')
-			->join('turno_tipo d', 'd.turno_tipo = c.turno_tipo')
-			->join('cuenta e', 'a.comanda = e.comanda')
-			->join('cuenta_forma_pago f', 'e.cuenta = f.cuenta')
-			->join('forma_pago g', 'g.forma_pago = f.forma_pago')
-			->where('g.sinfactura', 1)
-			->where('g.descuento', 0)
-			->where('b.total <>', 0)
-			->group_by('d.descripcion')
-			->order_by('d.descripcion')
+			->select('h.descripcion AS turno, SUM(e.total) AS venta, f.sede')
+			->from('cuenta a')
+			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
+			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
+			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->join('turno g', 'g.turno = f.turno')
+			->join('turno_tipo h', 'h.turno_tipo = g.turno_tipo')
+			->where('c.sinfactura', 1)
+			->where('c.descuento', 0)
+			->where('e.total <>', 0)
+			->group_by('h.descripcion')
+			->order_by('h.descripcion')
 			->get()
 			->result();
 	}
@@ -463,40 +464,41 @@ class Tablero_model extends General_model
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
 
 		if (isset($args["fdel"])) {
-			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+			$this->db->where('DATE(f.fhcreacion) >= ', $args["fdel"]);
 		}
 
 		if (isset($args["fal"])) {
-			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+			$this->db->where('DATE(f.fhcreacion) <= ', $args["fal"]);
 		}
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
-				$this->db->where_in('a.sede', $args['sede']);
+				$this->db->where_in('f.sede', $args['sede']);
 			} else {
-				$this->db->where('a.sede', $args['sede']);
+				$this->db->where('f.sede', $args['sede']);
 			}
 		}
 
 		if (verDato($args, "_grupo", 0) == 2) {
-			$this->db->group_by('a.sede');
+			$this->db->group_by('f.sede');
 		}
 
 		return $this->db
 			->select(
-				'TRIM(CONCAT(IFNULL(c.nombres, ""), " ", IFNULL(c.apellidos, ""))) AS mesero, 
-				SUM(b.total) AS venta,
-				a.sede')
-			->from('comanda a')
-			->join('detalle_comanda b', 'a.comanda = b.comanda')
-			->join('usuario c', 'c.usuario = a.mesero')
-			->join('cuenta d', 'a.comanda = d.comanda')
-			->join('cuenta_forma_pago e', 'd.cuenta = e.cuenta')
-			->join('forma_pago f', 'f.forma_pago = e.forma_pago')			
-			->where('f.sinfactura', 1)
-			->where('f.descuento', 0)
-			->where('b.total <>', 0)
-			->group_by('c.usuario')
+				'TRIM(CONCAT(IFNULL(g.nombres, ""), " ", IFNULL(g.apellidos, ""))) AS mesero, 
+				SUM(e.total) AS venta,
+				f.sede')
+			->from('cuenta a')
+			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
+			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
+			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
+			->join('comanda f', 'f.comanda = e.comanda')			
+			->join('usuario g', 'g.usuario = f.mesero')
+			->where('c.sinfactura', 1)
+			->where('c.descuento', 0)
+			->where('e.total <>', 0)
+			->group_by('g.usuario')
 			->order_by('venta', "desc")
 			->get()
 			->result();
