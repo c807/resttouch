@@ -119,7 +119,7 @@ export class TableroComponent implements OnInit {
         this.button.element.onclick = (): void => { this.pivotGridObj.excelExport(); };
 
         if (!this.params.fdel) {
-            // this.params.fdel = '2021-11-03'; // Esto solo es para pruebas.
+            // this.params.fdel = '2021-11-02'; // Esto solo es para pruebas.
             this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);            
         }
 
@@ -128,7 +128,7 @@ export class TableroComponent implements OnInit {
         }
 
         if (!this.params.fal) {
-            // this.params.fal = '2021-11-03'; //Esto es solo para pruebas.
+            // this.params.fal = '2021-11-02'; //Esto es solo para pruebas.
             this.params.fal = moment().format(GLOBAL.dbDateFormat);
         }
 

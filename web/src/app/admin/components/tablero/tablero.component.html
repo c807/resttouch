@@ -39,6 +39,19 @@
 	</div>
 </div>
 
+<!-- Inicia gráficas de ventas -->
+<div class="row">
+	<div class="col m12 s12">
+		<app-graficas-ventas #cmpGraficas [datos]="datosGraficas"></app-graficas-ventas>
+	</div>
+</div>
+<!-- Finaliza gráficas de ventas -->
+
+<mat-card style="height: 100px; margin-left: 10px;">
+  <mat-card-title align="center">GRÁFICOS DE VENTAS</mat-card-title>
+  <mat-card-subtitle align="center">(Con descuentos, sin propina)</mat-card-subtitle>
+</mat-card>
+
 <mat-grid-list cols="5" rowHeight="125px" *ngIf="estadistica.length > 0">
 	<mat-grid-tile *ngFor="let data of estadistica">
 		<mat-card>
@@ -49,14 +62,6 @@
 		</mat-card>
 	</mat-grid-tile>
 </mat-grid-list>
-
-<!-- Inicia gráficas de ventas -->
-<div class="row">
-	<div class="col m12 s12">
-		<app-graficas-ventas #cmpGraficas [datos]="datosGraficas"></app-graficas-ventas>
-	</div>
-</div>
-<!-- Finaliza gráficas de ventas -->
 
 <!-- <mat-grid-list cols="1" rowHeight="400px">
   <mat-grid-tile>

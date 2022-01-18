@@ -9,53 +9,42 @@ class Tablero_model extends General_model
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
 
 		if (isset($args["fdel"])) {
-			$this->db->where('DATE(a.fhcreacion) >= ', $args["fdel"]);
+			$this->db->where('DATE(f.fhcreacion) >= ', $args["fdel"]);
 		}
 
 		if (isset($args["fal"])) {
-			$this->db->where('DATE(a.fhcreacion) <= ', $args["fal"]);
+			$this->db->where('DATE(f.fhcreacion) <= ', $args["fal"]);
 		}
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
-				$this->db->where_in('a.sede', $args['sede']);
+				$this->db->where_in('f.sede', $args['sede']);
 			} else {
-				$this->db->where('a.sede', $args['sede']);
+				$this->db->where('f.sede', $args['sede']);
 			}
 		}
 
 		return $this->db
-			->select("
-				d.total, 
-				'B' AS bien_servicio,
-				a.fhcreacion,
-				hour(a.fhcreacion) as hora,
-				DATE(a.fhcreacion) AS fecha_factura,
-				monthname(a.fhcreacion) as mes,
-				concat(year(a.fhcreacion),'-',week(a.fhcreacion)) as semana,
-				concat(dayofweek(a.fhcreacion),'-',dayname(a.fhcreacion)) as dia,
-				e.descripcion,
-				f.descripcion as grupo,
-				g.nombre as sede,
-				'Comanda' as operacion, 
-				IF(a.domicilio = 1, 'SI', 'NO') as domicilio,
-				i.descripcion as turno,
-				concat(mr.nombres,' ',mr.apellidos) as nombre_mesero")
-			->from('comanda a')
-			->join('cuenta b', 'a.comanda = b.cuenta')
-			->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
-			->join('detalle_comanda d', 'a.comanda = d.comanda')
-			->join('articulo e', 'e.articulo = d.articulo')
-			->join('categoria_grupo f', 'f.categoria_grupo = e.categoria_grupo')
-			->join('sede g', 'g.sede = a.sede')
-			->join('turno h', 'h.turno = a.turno')
-			->join('turno_tipo i', 'i.turno_tipo = h.turno_tipo')
-			->join('forma_pago j', 'j.forma_pago = c.forma_pago')
+			->select("e.total, 'B' AS bien_servicio, f.fhcreacion, HOUR(f.fhcreacion) AS hora, DATE(f.fhcreacion) AS fecha_factura, MONTHNAME(f.fhcreacion) AS mes, 
+					  CONCAT(YEAR(f.fhcreacion), '-', WEEK(f.fhcreacion)) AS semana, CONCAT(DAYOFWEEK(f.fhcreacion), '-', DAYNAME(f.fhcreacion)) as dia, g.descripcion, 
+					  h.descripcion AS grupo, i.nombre AS sede, 'Comanda' AS operacion, IF(f.domicilio = 1, 'SI', 'NO') AS domicilio, k.descripcion AS turno, 
+					  CONCAT(mr.nombres, ' ', mr.apellidos) AS nombre_mesero, f.comanda")
+			->from('cuenta a')
+			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
+			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
+			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->join('articulo g', 'g.articulo = e.articulo')
+			->join('categoria_grupo h', 'h.categoria_grupo = g.categoria_grupo')
+			->join('sede i', 'i.sede = f.sede')
+			->join('turno j', 'j.turno = f.turno')
+			->join('turno_tipo k', 'k.turno_tipo = j.turno_tipo')
 			/* Mesero */ 
-			->join('usuario mr', 'mr.usuario = a.mesero', 'left')
-			->where('d.detalle_comanda_id IS NULL')
-			->where('j.sinfactura', 1)
-			->not_like('e.descripcion', 'propi', 'after')
+			->join('usuario mr', 'mr.usuario = f.mesero', 'left')
+			->where('e.detalle_comanda_id IS NULL')
+			->where('c.sinfactura', 1)
+			->not_like('g.descripcion', 'propi', 'after')
 			->get()
 			->result();
 	}
