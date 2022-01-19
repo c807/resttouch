@@ -363,6 +363,20 @@ class Factura_model extends General_model
 			->row();
 	}
 
+	private function get_tipo_venta_macf($detfact = []) {
+		$cntBien = 0;
+		$cntServ = 0;
+		foreach($detfact as $det) {
+			if (strtoupper(trim($det->articulo->bien_servicio)) === 'B') {
+				$cntBien++;
+			} else {
+				$cntServ++;
+			}
+		}
+		//1 = Bienes, 2 = Servicios
+		return $cntBien > $cntServ ? 1 : 2;
+	}
+
 	public function getXmlWebhook($raw = false)
 	{
 
@@ -386,7 +400,7 @@ class Factura_model extends General_model
 		$enca->fechaingreso = $this->fecha_factura;
 		$enca->mesiva = formatoFecha($this->fecha_factura, 4);
 		$enca->fecha = $this->fecha_factura;
-		$enca->idtipoventa = 1;
+		$enca->idtipoventa = $this->get_tipo_venta_macf($dfac);
 		$enca->conceptomayor = $conceptoMayor;
 		$enca->iva = $sumIva;
 		$enca->subtotal = $sumTotal;

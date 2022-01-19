@@ -2,3 +2,5 @@ application/vendor/*
 vendor/
 web/dist
 actualiza*.rtt
+web/.angular
+web_bck_angular*
