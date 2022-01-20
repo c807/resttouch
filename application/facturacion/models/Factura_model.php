@@ -374,7 +374,7 @@ class Factura_model extends General_model
 			}
 		}
 		//1 = Bienes, 2 = Servicios
-		return $cntBien > $cntServ ? 1 : 2;
+		return $cntBien >= $cntServ ? 1 : 2;
 	}
 
 	public function getXmlWebhook($raw = false)
