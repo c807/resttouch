@@ -30,7 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatCheckboxModule,
     MatIconModule,
     MatToolbarModule,
-    MatButtonModule
+    MatButtonModule    
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: TokenAuthInterceptor, multi: true }
