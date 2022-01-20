@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IDataOptions, FieldListService, PivotView } from '@syncfusion/ej2-angular-pivotview';
+import { L10n, setCulture, setCurrencyCode } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
 import { TableroService } from '../../services/tablero.service';
 import * as moment from 'moment';
@@ -111,6 +112,15 @@ export class TableroComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        setCulture('es');
+        setCurrencyCode('GTQ');
+        L10n.load({
+            'es': {
+                'pivotview': {
+                    'grandTotal': 'Total (con desct.)'
+                }
+            }
+        });
         this.getSede();
 
         this.button = new Button({ isPrimary: true });
@@ -119,8 +129,8 @@ export class TableroComponent implements OnInit {
         this.button.element.onclick = (): void => { this.pivotGridObj.excelExport(); };
 
         if (!this.params.fdel) {
-            // this.params.fdel = '2021-11-02'; // Esto solo es para pruebas.
-            this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);            
+            this.params.fdel = '2021-12-13'; // Esto solo es para pruebas.
+            // this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);            
         }
 
         if (!this.params.sede && this.params.sede.length === 0) {
@@ -128,8 +138,8 @@ export class TableroComponent implements OnInit {
         }
 
         if (!this.params.fal) {
-            // this.params.fal = '2021-11-02'; //Esto es solo para pruebas.
-            this.params.fal = moment().format(GLOBAL.dbDateFormat);
+            this.params.fal = '2021-12-19'; //Esto es solo para pruebas.
+            // this.params.fal = moment().format(GLOBAL.dbDateFormat);
         }
 
         this.onSubmit();
@@ -158,7 +168,7 @@ export class TableroComponent implements OnInit {
     }
 
     onSubmit() {
-        // this.params.sede = [3]; //Esto solo es para pruebas.
+        this.params.sede = [3]; //Esto solo es para pruebas.
         this.cargando = true;
         // this.pivotGridObj.engineModule.fieldList = {};
 
