@@ -309,10 +309,10 @@ export class TranComanda {
     indices.forEach(i => this.lstProductosSeleccionados.splice(i, 1));
   }
 
-  setSelectedCuenta(noCuenta: number) {
-    this.ctSlect = noCuenta - 1;
+  setSelectedCuenta(noCuenta: number) {    
     this.bloqueoBotones = true;
     const idx = this.mesaEnUso.cuentas.findIndex((c: Cuenta) => +c.numero === +noCuenta);
+    this.ctSlect = idx;
     this.cuentaActiva = this.mesaEnUso.cuentas[idx];
     if (this.cuentaActiva.productos.length === 0) {
       this.endSubs.add(
