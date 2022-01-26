@@ -45,6 +45,7 @@
     "@syncfusion/ej2-angular-pivotview": "^19.4.43",
     "angular-onscreen-material-keyboard": "^0.6.0",
     "chart.js": "^2.9.4",
+    "dexie": "^3.2.0",
     "file-saver": "^2.0.5",
     "jquery": "^3.5.1",
     "js-base64": "^3.6.0",
