@@ -15,7 +15,9 @@
     "prod": "ng build --configuration production",
     "prodnaot": "ng build --configuration production --aot=false --buildOptimizer=false --vendorChunk=true",
     "proddev": "ng build --configuration production --output-path=distdev --base-href=/rt/",
-    "dev": "ng build --configuration production --output-path=dev"
+    "dev": "ng build --configuration production --output-path=dev",
+    "server": "http-server -p 4200 -c-1 dist/",
+    "build-serve": "npm run prod && npm run server"
   },
   "private": true,
   "dependencies": {
