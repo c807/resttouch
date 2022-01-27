@@ -13,7 +13,7 @@ export class RTLocalDB extends Dexie {
         super('rt_local_db');
         this.version(1).stores({
             arbol_articulos: 'categoria, descripcion, categoria_grupo.categoria_grupo, categoria_grupo.descripcion, categoria_grupo.articulo.articulo, categoria_grupo.articulo.descripcion',
-            areas: 'area, nombre, mesas.mesa, mesas.numero, mesas.etiqueta'
+            areas: 'area, nombre, mesas.mesa, mesas.numero, mesas.etiqueta, updated'
         });
     }
 }

@@ -9,4 +9,5 @@ export interface Area {
     impresora?: number;
     impresora_factura?: number;
     escallcenter?: number;
+    updated?: number;
 }
