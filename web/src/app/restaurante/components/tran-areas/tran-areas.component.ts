@@ -9,6 +9,7 @@ import { Socket } from 'ngx-socket-io';
 import { PideTelefonoDialogComponent } from '../../../callcenter/components/pide-telefono-dialog/pide-telefono-dialog.component';
 import { DialogSeguimientoCallcenterComponent } from '../../../callcenter/components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
 import { OnlineService } from '../../../shared/services/online.service';
+import { db } from '../../../offline/db';
 
 import { AbrirMesaComponent } from '../abrir-mesa/abrir-mesa.component';
 import { TranComandaComponent } from '../tran-comanda/tran-comanda.component';
@@ -116,21 +117,38 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     cuentas: []
   }
 
+  private afterLoadAreas = (lasAreas: Area[], saveOnTemp = false, objMesaEnUso: any = {}) => {
+    if (!saveOnTemp) {
+      this.lstTabsAreas = lasAreas;
+      this.cargando = false;
+    } else {
+      this.lstTabsAreasForUpdate = lasAreas;
+      this.updateTableStatus(objMesaEnUso.mesaenuso);
+    }    
+  }
+
   loadAreas = (saveOnTemp = false, objMesaEnUso: any = {}) => {
     this.cargando = true;
     if(this.isOnline) {
       this.endSubs.add(      
         this.areaSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((res) => {
-          if (!saveOnTemp) {
-            this.lstTabsAreas = res;
-            this.cargando = false;
-          } else {
-            this.lstTabsAreasForUpdate = res;
-            this.updateTableStatus(objMesaEnUso.mesaenuso);
-          }
+          db.areas.clear().then(() => {
+            db.areas.bulkAdd(res);
+          });
+          this.afterLoadAreas(res, saveOnTemp, objMesaEnUso);
+          // if (!saveOnTemp) {
+          //   this.lstTabsAreas = res;
+          //   this.cargando = false;
+          // } else {
+          //   this.lstTabsAreasForUpdate = res;
+          //   this.updateTableStatus(objMesaEnUso.mesaenuso);
+          // }
         })
       );
     } else {
+      db.areas.toArray().then((res: Area[]) => {
+        this.afterLoadAreas(res, saveOnTemp, objMesaEnUso);
+      });
       this.cargando = false;
     }
   }
@@ -148,13 +166,6 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
-
-  // setDivSize() {
-    // this.divSize.w = this.pestania.nativeElement.offsetWidth;
-    // this.divSize.h = this.pestania.nativeElement.offsetHeight;
-  // }
-
-  // onResize = (event: any) => this.setDivSize();
 
   onClickMesa(m: any) {
     // console.log(m.mesaSelected); return;

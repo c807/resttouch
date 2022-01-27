@@ -1,17 +1,25 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
 
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { OnlineService } from '../../../../shared/services/online.service';
+import { db } from '../../../../offline/db';
 
 import { ArbolArticulos, ArbolCategoriaGrupo, Articulo, NodoProducto } from '../../../interfaces/articulo';
 import { ArticuloService } from '../../../services/articulo.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-producto-alt',
   templateUrl: './lista-producto-alt.component.html',
   styleUrls: ['./lista-producto-alt.component.css']
 })
-export class ListaProductoAltComponent implements OnInit {
+export class ListaProductoAltComponent implements OnInit, OnDestroy {
+
+  get isOnline() {
+    return this.onlineSrvc.isOnline$.value;
+  }
 
   @Input() bloqueoBotones = false;
   @Output() productoClickedEv = new EventEmitter();
@@ -20,19 +28,37 @@ export class ListaProductoAltComponent implements OnInit {
   public subcategorias: ArbolCategoriaGrupo[] = [];
   public articulos: Articulo[] = [];
 
+  private endSubs = new Subscription();
+
   constructor(
     private articuloSrvc: ArticuloService,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private onlineSrvc: OnlineService
   ) { }
 
   ngOnInit() {
     this.loadArbolArticulos();
   }
 
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
+  }
+
   loadArbolArticulos = () => {
-    this.articuloSrvc.getArbolArticulos((this.ls.get(GLOBAL.usrTokenVar).sede || 0)).subscribe((res: ArbolArticulos[]) => {
-      this.fillCategorias(res);
-    });
+    if (this.isOnline) {
+      this.endSubs.add(        
+        this.articuloSrvc.getArbolArticulos((this.ls.get(GLOBAL.usrTokenVar).sede || 0)).subscribe((res: ArbolArticulos[]) => {
+          this.fillCategorias(res);
+          db.arbol_articulos.clear().then(() => {
+            db.arbol_articulos.bulkAdd(res);
+          });
+        })
+      );
+    } else {
+      db.arbol_articulos.toArray().then((res: ArbolArticulos[]) => {
+        this.fillCategorias(res);
+      });
+    }
   }
 
   fillCategorias = (cats: ArbolArticulos[]) => {
