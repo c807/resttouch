@@ -5,6 +5,7 @@ import { usrLogin, Usuario, usrLogInResponse } from '../../models/usuario';
 import { UsuarioService } from '../../services/usuario.service';
 import { LocalstorageService } from '../../services/localstorage.service';
 import { GLOBAL } from '../../../shared/global';
+import { OnlineService } from '../../../shared/services/online.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,10 @@ import { GLOBAL } from '../../../shared/global';
 })
 export class LoginComponent implements OnInit {
 
+  get isOnline() {
+    return this.onlineSrvc.isOnline$.value;
+  }
+
   public usr: usrLogin;
   public usuario: Usuario;
 
@@ -20,7 +25,8 @@ export class LoginComponent implements OnInit {
     private usrSrvc: UsuarioService,
     private ls: LocalstorageService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private onlineSrvc: OnlineService
   ) {
     this.usr = new usrLogin(null, null);
     this.usuario = new Usuario(null, null, null, null, null, null, 0, null, 0, 0);

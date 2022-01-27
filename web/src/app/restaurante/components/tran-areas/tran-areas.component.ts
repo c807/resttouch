@@ -8,6 +8,7 @@ import { LocalstorageService } from '../../../admin/services/localstorage.servic
 import { Socket } from 'ngx-socket-io';
 import { PideTelefonoDialogComponent } from '../../../callcenter/components/pide-telefono-dialog/pide-telefono-dialog.component';
 import { DialogSeguimientoCallcenterComponent } from '../../../callcenter/components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
+import { OnlineService } from '../../../shared/services/online.service';
 
 import { AbrirMesaComponent } from '../abrir-mesa/abrir-mesa.component';
 import { TranComandaComponent } from '../tran-comanda/tran-comanda.component';
@@ -20,7 +21,6 @@ import { ConfiguracionService } from '../../../admin/services/configuracion.serv
 import { Cliente } from '../../../admin/interfaces/cliente';
 import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 import { Subscription } from 'rxjs';
-// import * as moment from 'moment';
 
 @Component({
   selector: 'app-tran-areas',
@@ -28,6 +28,10 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./tran-areas.component.css']
 })
 export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  get isOnline() {
+    return this.onlineSrvc.isOnline$.value;
+  }
 
   public divSize: any = { h: 0, w: 0 };
   public openedRightPanel: boolean;
@@ -53,7 +57,8 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     public areaSrvc: AreaService,
     public comandaSrvc: ComandaService,
     private configSrvc: ConfiguracionService,
-    private socket: Socket
+    private socket: Socket,
+    private onlineSrvc: OnlineService
   ) { }
 
   ngOnInit() {
@@ -113,17 +118,21 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadAreas = (saveOnTemp = false, objMesaEnUso: any = {}) => {
     this.cargando = true;
-    this.endSubs.add(      
-      this.areaSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((res) => {
-        if (!saveOnTemp) {
-          this.lstTabsAreas = res;
-          this.cargando = false;
-        } else {
-          this.lstTabsAreasForUpdate = res;
-          this.updateTableStatus(objMesaEnUso.mesaenuso);
-        }
-      })
-    );
+    if(this.isOnline) {
+      this.endSubs.add(      
+        this.areaSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((res) => {
+          if (!saveOnTemp) {
+            this.lstTabsAreas = res;
+            this.cargando = false;
+          } else {
+            this.lstTabsAreasForUpdate = res;
+            this.updateTableStatus(objMesaEnUso.mesaenuso);
+          }
+        })
+      );
+    } else {
+      this.cargando = false;
+    }
   }
 
   updateTableStatus = (objMesaEnUso: any = {}) => {

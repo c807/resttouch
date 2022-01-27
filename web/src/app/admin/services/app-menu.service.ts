@@ -6,8 +6,8 @@ import { Subject } from 'rxjs';
 })
 export class AppMenuService {
 
-  private dataObs$ = new Subject();
-  private opciones$ = new Subject();
+  private dataObs$ = new Subject<any>();
+  private opciones$ = new Subject<any>();
 
   constructor() { }
 

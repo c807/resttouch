@@ -3,8 +3,10 @@ import { LocalstorageService } from './admin/services/localstorage.service';
 import { GLOBAL } from './shared/global';
 import { UsuarioService } from './admin/services/usuario.service';
 import { Router } from '@angular/router';
-import { AccesoUsuario, SubModulo, NodoAppMenu } from './admin/interfaces/acceso-usuario';
-import { AppMenuService } from './admin/services/app-menu.service';
+import { AccesoUsuario } from './admin/interfaces/acceso-usuario';
+// import { AppMenuService } from './admin/services/app-menu.service';
+import { OnlineService } from './shared/services/online.service';
+// import * as moment from 'moment';
 
 @Component({
   selector: 'app-root',
@@ -25,15 +27,24 @@ export class AppComponent implements OnInit{
     private ls: LocalstorageService,
     private usrSrvc: UsuarioService,
     private router: Router,
-    private appMenuSrvc: AppMenuService
+    // private appMenuSrvc: AppMenuService,
+    private onlineSrvc: OnlineService
   ) { }
 
   async ngOnInit() {
+    this.onlineSrvc.listenToOnlineStatus();
     await this.checkIfUserIsLogged();
   }
 
   private goToLogin = () => {
     this.isLogged = false;
+
+    this.ls.clear('ng2Idle.main.expiry');
+    this.ls.clear('ng2Idle.main.idling');
+    this.ls.clear(GLOBAL.usrTokenVar);
+    this.ls.clear(GLOBAL.usrUnlockVar);
+    this.ls.clear(GLOBAL.usrLastModuleVar);
+
     this.usrAppMenu = [];
     this.router.navigate(['/admin/login']);        
   }
@@ -44,10 +55,11 @@ export class AppComponent implements OnInit{
       if (usrData.token) {
         const valido = await this.usrSrvc.checkUserToken();
         if (valido) {
+          // console.log(`VALIDO (${moment().format(GLOBAL.dbDateTimeFormat)}) =`, valido);
           this.isLogged = true;
-          this.usrAppMenu = this.usrSrvc.getAppMenu();
-          this.appMenuSrvc.updData(this.usrAppMenu);
-          //console.log(this.usrAppMenu);
+          // this.usrAppMenu = this.usrSrvc.getAppMenu();
+          // this.appMenuSrvc.updData(this.usrAppMenu);          
+          // console.log(this.usrAppMenu);
         } else {
           this.goToLogin();
         }

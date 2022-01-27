@@ -7,6 +7,9 @@ import { AccesoUsuario, SubModulo, NodoAppMenu } from '../interfaces/acceso-usua
 import { LocalstorageService } from '../services/localstorage.service';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { OnlineService } from '../../shared/services/online.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,10 +19,12 @@ export class UsuarioService {
   private srvcErrHndl: ServiceErrorHandler;
   private moduleUrl = 'usuario';
   private usrToken: string = null;
+  private readonly jwtHelper = new JwtHelperService();
 
   constructor(
     private http: HttpClient,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private onlineSrvc: OnlineService,
   ) {
     this.srvcErrHndl = new ServiceErrorHandler();
     this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;
@@ -61,17 +66,33 @@ export class UsuarioService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  async checkUserToken() {
+  async checkUserToken(): Promise<boolean> {
     this.setToken();
-    if (this.usrToken) {
-      const resp: any = await this.http.get(`${GLOBAL.url}/${this.moduleUrl}/checktoken_get`).toPromise();
-      if (resp.valido) {
-        return resp.valido;
-      } else {
-        return false;
+    return new Promise((resolve, reject) => {
+      if (this.usrToken) {
+        const decodedToken = this.jwtHelper.decodeToken(this.usrToken);
+        // console.log('decodedToken', decodedToken);
+        if (moment().isBefore(moment(decodedToken.hasta))) {
+          resolve(true);
+        }
       }
-    }
-    return false;
+      resolve(false);
+    });
+    // if (this.usrToken) {
+    //   if (this.onlineSrvc.isOnline$.value){
+    //     const resp: any = await this.http.get(`${GLOBAL.url}/${this.moduleUrl}/checktoken_get`).toPromise();
+    //     if (resp.valido) {
+    //       return resp.valido;
+    //     } else {
+    //       return false;
+    //     }
+    //   } else {
+    //     const decodedToken = this.jwtHelper.decodeToken(this.usrToken);
+    //     console.log('decodedToken', decodedToken);
+    //     return true;
+    //   }
+    // }
+    // return false;
   }
 
   get(filtros: any): Observable<Usuario[]> {

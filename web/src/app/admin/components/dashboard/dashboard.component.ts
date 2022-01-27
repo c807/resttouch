@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { LocalstorageService } from '../../services/localstorage.service';
 import { GLOBAL } from '../../../shared/global';
@@ -12,7 +12,7 @@ import { DesktopNotificationService } from '../../../shared/services/desktop-not
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
 
   public appMenu: any[];
 
@@ -23,26 +23,38 @@ export class DashboardComponent implements OnInit {
     private usrSrvc: UsuarioService,
     private appMenuSrvc: AppMenuService,
     private dns: DesktopNotificationService
-  ) {
-    // this.appMenu = this.usrSrvc.getUserAppMenu();
-  }
+  ) { }
 
   ngOnInit() {
-    this.appMenuSrvc.getData().subscribe((res: any) => {
-      if (res) {
-        this.appMenu = res;
-        const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
-        if (lastModule) {
-          this.handleClick(lastModule);
-        }
-      }
-    });
     this.dns.havePermission().then((res) => {
       if (!res) {
         this.dns.requestPermission();
       }
     });
+    // console.log('ngOnInit de dashboard');
+    // this.appMenuSrvc.getData().subscribe((res: any) => {
+    //   console.log('appMenuSrvc.getData() = ', res);
+    //   if (res) {
+    //     this.appMenu = res;
+    //     const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
+    //     if (lastModule) {
+    //       this.handleClick(lastModule);
+    //     }
+    //   }
+    // });
   }
+
+  ngAfterViewInit(): void {
+    Promise.resolve(null).then(() => {
+      const usrAppMenu = this.usrSrvc.getAppMenu()
+      this.appMenuSrvc.updData(usrAppMenu);
+      this.appMenu = usrAppMenu;
+      const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
+      if (lastModule) {
+        this.handleClick(lastModule);
+      }
+    });
+  }  
 
   handleClick = (modulo: string = '') => {
     this.ls.set(GLOBAL.usrLastModuleVar, modulo);
