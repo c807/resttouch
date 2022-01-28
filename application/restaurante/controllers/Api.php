@@ -388,6 +388,7 @@ class Api extends CI_Controller
 													}
 
 													$impuesto_especial = $artTmp->getImpuestoEspecial();
+													$desctEspecial = 0; $desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
 													if ($impuesto_especial) {
 														$det->impuesto_especial = $impuesto_especial->impuesto_especial;
 														$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
@@ -407,16 +408,19 @@ class Api extends CI_Controller
 															$total = $det->total;
 															$total_ext = $det->total_ext;
 
-															$det->monto_base = $total / $pimpuesto;
-															$det->monto_base_ext = $total_ext / $pimpuesto;
+															$desctEspecial = $det->descuento;
+															$desctEspecial_ext = $det->descuento_ext;
+
+															$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
+															$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
 														} else {
 															$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
 															$det->valor_impuesto_especial_ext = $det->monto_base_ext * ((float)$impuesto_especial->porcentaje / 100);
 														}
 													}
 
-													$det->monto_iva = $total - $det->monto_base;
-													$det->monto_iva_ext = $total_ext - $det->monto_base_ext;
+													$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;
+													$det->monto_iva_ext = ($total_ext - $desctEspecial_ext) - $det->monto_base_ext;
 													$fac->setDetalle((array) $det);
 												}
 												if (get_configuracion($config, "RT_FIRMA_DTE_AUTOMATICA", 3)) {

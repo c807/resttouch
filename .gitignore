@@ -6,4 +6,6 @@ web_bck_angular_11.1.1
 web/prod
 web/dev
 web/.vscode
+web/.angular
+web_bck_angular*
 web_bck*
