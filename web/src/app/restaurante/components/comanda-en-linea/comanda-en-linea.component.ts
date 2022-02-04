@@ -14,6 +14,8 @@ import { AccionesComandaEnLineaComponent } from '../acciones-comanda-en-linea/ac
 import { ComandaService } from '../../services/comanda.service';
 import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
+import { ConfiguracionService } from '../../../admin/services/configuracion.service';
+import { Impresion } from '../../classes/impresion';
 
 import { Subscription } from 'rxjs';
 
@@ -41,11 +43,9 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
   public dataSource: any[] = [];
-  // public columnsToDisplay = ['comanda', 'orden', 'fechahora', 'nombre', 'total', 'acciones', 'notas', 'imprimir', 'cancelar', 'facturar'];
   public columnsToDisplay = ['comanda', 'orden', 'fechahora', 'nombre', 'total', 'acciones'];
   public expandedElement: any | null;
   public comandasEnLinea: any[] = [];
-  // public intervalId: any;
   public params: any = { de: 0, a: 99 };
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
 
@@ -59,11 +59,8 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private comandaSrvc: ComandaService,
     private dns: DesktopNotificationService,
-    private estatusCallcenterSrvc: EstatusCallcenterService
-    // private facturaSrvc: FacturaService,
-    // private pdfServicio: ReportePdfService,
-    // private configSrvc: ConfiguracionService,
-    // private ordenGkSrvc: OrdenGkService,
+    private estatusCallcenterSrvc: EstatusCallcenterService,
+    private configSrvc: ConfiguracionService,
   ) { }
 
   ngOnInit() {
@@ -93,10 +90,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
       // this.socket.on('pong', (ms: number) => this.snackBar.open(`PONG: ${ms}ms`, 'Pong', { duration: 5000 }));
 
-      this.socket.on(
-        'reconnect_attempt',
-        (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 })
-      );
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));
 
       this.socket.on('shopify:error', (mensaje: string) => {
         this.loadComandasEnLinea();
@@ -132,11 +126,28 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
   loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
 
+  autoImprimir = () => {
+    const autoImprimir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTOIMPRIMIR_PEDIDO);
+    const objImprimir = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+    this.comandasEnLinea.forEach((obj, i) => {
+      if (autoImprimir) {
+        if (+obj.impresa === 0) {
+          objImprimir.imprimir(obj, i);
+          objImprimir.imprimirCuenta(obj);
+        }
+      } else {
+        objImprimir.marcarComoImpresa(obj);
+      }
+      this.comandasEnLinea[i].impresa = 1;
+    });    
+  }
+
   loadComandasEnLinea = () => {
     this.endSubs.add(
       this.comandaSrvc.getComandasOnLIne({ callcenter: 1 }).subscribe((res: any[]) => {
         this.comandasEnLinea = res;
         this.dataSource = this.comandasEnLinea;
+        this.autoImprimir();
       })
     );
   }

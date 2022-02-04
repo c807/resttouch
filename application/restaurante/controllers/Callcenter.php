@@ -27,7 +27,7 @@ class Callcenter extends CI_Controller {
 	}
 
 	public function guardar_pedido($comanda = '')
-	{
+	{		
 		set_time_limit(300);
 		ini_set('default_socket_timeout', 300);		
 		$req = json_decode(file_get_contents('php://input'));
@@ -97,6 +97,7 @@ class Callcenter extends CI_Controller {
 										$datos['exito'] = true;
 										$datos['mensaje'] = 'Datos actualizados con exito';
 										$datos['pedido'] = $com->getPK();
+										$com->db->simple_query("UPDATE detalle_comanda SET impreso = 0 WHERE impreso = 1 AND comanda = {$com->getPK()}");
 										$url_ws = get_url_websocket();
 										$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
 										$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));

@@ -45,7 +45,7 @@ class Seguimiento_callcenter_model extends CI_Model
             } catch (Exception $e) {
                 $pedido->comanda_origen_datos = (object)[];
             }
-            $cmdHisto = $this->Cliente_master_model->get_historico(['comanda' => $pedido->comanda]);
+            $cmdHisto = $this->Cliente_master_model->get_historico(['comanda' => $pedido->comanda], false, false);
             $pedido->detalle = $cmdHisto && count($cmdHisto) > 0 ? $cmdHisto[0]->detalle : [];
             $pedido->forma_pago = $this->Comanda_model->get_forma_pago($pedido->comanda);
             $formas_pago = [];
@@ -63,4 +63,5 @@ class Seguimiento_callcenter_model extends CI_Model
 
         return $pedidos;
     }
+    
 }

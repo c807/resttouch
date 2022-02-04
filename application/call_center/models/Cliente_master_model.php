@@ -1,12 +1,13 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Cliente_master_model extends General_model {
+class Cliente_master_model extends General_model
+{
 
 	public $cliente_master;
 	public $nombre;
-    public $correo = null;
-    public $fecha_nacimiento = null;
+	public $correo = null;
+	public $fecha_nacimiento = null;
 
 	public function __construct($id = '')
 	{
@@ -17,42 +18,41 @@ class Cliente_master_model extends General_model {
 		}
 	}
 
-    public function get_lista_telefonos($args = [])
-    {
-        if(isset($args['cliente_master'])) {
-            $this->db->where('a.cliente_master', $args['cliente_master']);
-        }
-
-//        if(isset($args['telefono'])) {
-//            $this->db->where('a.telefono', $args['telefono']);
-//        }
-//
-//        if(isset($args['numero'])) {
-//            if(isset($args['_parecido'])) {
-//                $this->db->like('c.numero', $args['numero'], 'both', false);
-//            } else {
-//                $this->db->where('c.numero', $args['numero']);
-//            }
-//        }
-
-        return $this->db
-            ->select('a.cliente_master_telefono')
-            //->select('a.cliente_master_telefono, b.*, c.*')
-            //->join('cliente_master b', 'b.cliente_master = a.cliente_master')
-            //->join('telefono c', 'c.telefono = a.telefono')
-            ->where('a.debaja', 0)
-            //->get('cliente_master_telefono a')
-            ->result();
-    }
-	public function get_historico($args = [], $soloDetalle = false)
+	public function get_lista_telefonos($args = [])
 	{
-		if (isset($args['cliente_master']))
-		{
+		if (isset($args['cliente_master'])) {
 			$this->db->where('a.cliente_master', $args['cliente_master']);
 		}
 
-		if (isset($args['comanda']))
-		{
+		//        if(isset($args['telefono'])) {
+		//            $this->db->where('a.telefono', $args['telefono']);
+		//        }
+		//
+		//        if(isset($args['numero'])) {
+		//            if(isset($args['_parecido'])) {
+		//                $this->db->like('c.numero', $args['numero'], 'both', false);
+		//            } else {
+		//                $this->db->where('c.numero', $args['numero']);
+		//            }
+		//        }
+
+		return $this->db
+			->select('a.cliente_master_telefono')
+			//->select('a.cliente_master_telefono, b.*, c.*')
+			//->join('cliente_master b', 'b.cliente_master = a.cliente_master')
+			//->join('telefono c', 'c.telefono = a.telefono')
+			->where('a.debaja', 0)
+			//->get('cliente_master_telefono a')
+			->result();
+	}
+
+	public function get_historico($args = [], $soloDetalle = false, $conReceta = true)
+	{
+		if (isset($args['cliente_master'])) {
+			$this->db->where('a.cliente_master', $args['cliente_master']);
+		}
+
+		if (isset($args['comanda'])) {
 			$this->db->where('a.comanda', $args['comanda']);
 		}
 
@@ -73,12 +73,53 @@ class Cliente_master_model extends General_model {
 			->result();
 
 		if (!$soloDetalle) {
-			foreach($data as $cmd) {
+			foreach ($data as $cmd) {
 				$args['comanda'] = $cmd->comanda;
-				$cmd->detalle = $this->get_historico($args, true);
+				if ($conReceta) {
+					$cmd->detalle = $this->get_historico($args, true);					
+				} else {
+					$cmd->detalle = $this->get_detalle_comanda_seguimiento($args);
+				}
 			}
 		}
-		
+
 		return $data;
+	}
+
+	public function get_detalle_comanda_seguimiento($args)
+	{
+		$datos = [];
+
+		if (isset($args['detalle_comanda_id'])) {
+			$this->db->where('a.detalle_comanda_id', $args['detalle_comanda_id']);
+		} else {
+			$this->db->where('a.detalle_comanda_id IS NULL');
+		}
+
+		if (isset($args['esextra'])) {
+			$this->db->where('b.esextra', $args['esextra']);
+		}
+
+		$detalle = $this->db
+			->select('a.detalle_comanda, a.cantidad, a.articulo, b.descripcion, a.notas, a.detalle_comanda_id, b.multiple, b.esreceta')
+			->join('articulo b', 'b.articulo = a.articulo')
+			->where('a.comanda', $args['comanda'])
+			->where('a.cantidad >', 0)
+			->get('detalle_comanda a')
+			->result();
+
+		foreach ($detalle as $det) {
+			if (empty($det->detalle_comanda_id)) {
+				$datos[] = $det;
+				$datos = array_merge($datos, $this->get_detalle_comanda_seguimiento(['comanda' => $args['comanda'], 'detalle_comanda_id' => $det->detalle_comanda]));
+			} else if((int)$det->multiple === 1) {
+				$datos = array_merge($datos, $this->get_detalle_comanda_seguimiento(['comanda' => $args['comanda'], 'detalle_comanda_id' => $det->detalle_comanda]));
+			} else {
+				$datos[] = $det;				
+				$datos = array_merge($datos, $this->get_detalle_comanda_seguimiento(['comanda' => $args['comanda'], 'detalle_comanda_id' => $det->detalle_comanda, 'esextra' => 1]));
+			}
+		}
+
+		return $datos;
 	}
 }

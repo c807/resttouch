@@ -7,6 +7,7 @@ class Fpago_model extends General_model {
 	public $descripcion;
 	public $activo = 1;
 	public $descuento = 0;
+	public $aumento_porcentaje = 0.00;
 	public $comision_porcentaje = 0.00;
 	public $retencion_porcentaje = 0.00;
 	public $pedirdocumento = 0;

@@ -24,4 +24,10 @@ class Seguimiento_callcenter extends CI_Controller {
         $datos = $this->Seguimiento_callcenter_model->get_pedidos($_GET);
         $this->output->set_output(json_encode($datos));
     }
+
+    public function test($idcomanda = '')
+    {
+        $datos = $this->Cliente_master_model->get_detalle_comanda_seguimiento(['comanda' => $idcomanda]);
+        $this->output->set_output(json_encode($datos));
+    }
 }

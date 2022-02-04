@@ -4,6 +4,7 @@ export interface CobroFormaPago {
     propina?: number;
     documento?: string;
     comision_monto?: number;
+    aumento_porcentaje?: number;
 }
 
 export interface Cobro {
@@ -13,4 +14,5 @@ export interface Cobro {
     propina_monto: number;
     propina_porcentaje: number;
     comision_monto?: number;
+    aumento_porcentaje?: number;
 }

@@ -525,6 +525,10 @@ class Articulo_model extends General_model
 			$this->db->where('TRIM(a.descripcion)', trim($args['descripcion']));
 		}
 
+		if (isset($args['mostrar_pos'])) {
+			$this->db->where('a.mostrar_pos', $args['mostrar_pos']);
+		}
+
 		$tmp = $this->db
 			->select('a.*')
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')

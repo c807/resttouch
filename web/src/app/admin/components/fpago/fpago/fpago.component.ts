@@ -17,6 +17,7 @@ export class FpagoComponent implements OnInit {
       forma_pago: null,
       descripcion: null,
       descuento: 0,
+      aumento_porcentaje: 0.00,
       comision_porcentaje: 0.00,
       retencion_porcentaje: 0.00,
       pedirdocumento: 0,

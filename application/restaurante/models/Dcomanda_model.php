@@ -11,6 +11,8 @@ class Dcomanda_model extends General_Model
 	public $precio;
 	public $impreso = false;
 	public $total;
+	public $aumento_porcentaje = 0.0;
+	public $aumento = 0.0;
 	public $notas;
 	public $cocinado = 0;
 	public $presentacion;

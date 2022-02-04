@@ -52,6 +52,23 @@ interface DatosPedido {
 })
 export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
+  get deshabilitaFormaPagoConAumento() {
+    return (opcFp: FormaPago) => {
+      return +opcFp.aumento_porcentaje > 0 && this.formasPagoDeCuenta.length > 0;
+    }
+  }
+
+  get deshabilitaFormaPagoSinAumento() {
+    let deshabilitar = false;
+    for (const fpc of this.formasPagoDeCuenta){
+      if (+fpc.forma_pago.aumento_porcentaje > 0) {
+        deshabilitar = true;
+        break;
+      }
+    }      
+    return deshabilitar;    
+  }
+
   @Input() inputData: any = {};
   public lstFormasPago: FormaPago[] = [];
   public formaPago: any = {};
@@ -73,6 +90,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public direccionesDeEntrega: ClienteMasterDireccionResponse[] = [];
   public tiemposEntrega: TiempoEntrega[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
+  public porcentajeAumento = 1;
+  public bloqueaMonto = false;
 
   private endSubs = new Subscription();
 
@@ -138,10 +157,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     // console.log('MESA = ', this.data.mesaenuso);
     // console.log(this.inputData.productosACobrar);
 
-    this.inputData.totalDeCuenta = 0.00;
-    this.inputData.productosACobrar.forEach((item: any) => {
-      this.inputData.totalDeCuenta += (item.precio * item.cantidad) + (item.monto_extra);
-    });
+    // this.inputData.totalDeCuenta = 0.00;
+    this.calculaTotalDeCuenta();
+    // this.inputData.productosACobrar.forEach((item: any) => {
+    //   this.inputData.totalDeCuenta += ((item.precio * item.cantidad) + (item.monto_extra)) * this.porcentajeAumento;
+    // });
 
     this.calculaPropina();
     this.actualizaSaldo();
@@ -180,9 +200,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.actualizaSaldo();
   }
 
+  calculaTotalDeCuenta = () => {
+    this.inputData.totalDeCuenta = 0.00;
+    this.inputData.productosACobrar.forEach((item: any) => this.inputData.totalDeCuenta += ((item.precio * item.cantidad) + (item.monto_extra)) * this.porcentajeAumento);
+  }
+
   loadFormasPago = () => {
     this.endSubs.add(
-      this.formaPagoSrvc.get({ activo: 1 }).subscribe((res: any) => {
+      this.formaPagoSrvc.get({ activo: 1 }).subscribe((res: FormaPago[]) => {
         if (!!res && res.length > 0) {
           this.lstFormasPago = res;
         }
@@ -191,6 +216,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   addFormaPago = () => {
+    // console.log(this.formaPago); return;
     const fp = this.lstFormasPago.filter(f => +f.forma_pago === +this.formaPago.forma_pago)[0];
     if (+fp.pedirautorizacion === 1) {
       const vpgtRef = this.dialog.open(CheckPasswordComponent, {
@@ -246,7 +272,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       comision_monto: +this.formaPago.monto * +fp.comision_porcentaje / 100
     });
     this.actualizaSaldo();
+
     this.pideDocumento = false;
+    this.bloqueaMonto = false;
+    this.formaPago.forma_pago = null;
     this.calcTipExceeded();
   }
 
@@ -261,7 +290,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.formasPagoDeCuenta.forEach(fp => sumFormasPago += +fp.monto);
     // this.inputData.saldo = this.inputData.totalDeCuenta + this.inputData.montoPropina - sumFormasPago;
     this.inputData.saldo = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
-    this.formaPago = { monto: this.inputData.saldo };
+    this.formaPago = { 
+      monto: this.inputData.saldo,
+      forma_pago: this.formaPago?.forma_pago || null
+    };
   }
 
   cancelar = () => this.dialogRef.close();
@@ -308,7 +340,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         monto: +fp.monto + +fp.comision_monto,
         propina: (fp.propina || 0.00),
         documento: fp.documento,
-        comision_monto: fp.comision_monto
+        comision_monto: fp.comision_monto,
+        aumento_porcentaje: +fp.forma_pago.aumento_porcentaje
       });
     }
     objCobro.comision_monto = sumaMontoComision;
@@ -564,7 +597,17 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   onSelectionChangeFP = (msc: MatSelectChange) => {
     const idx = this.lstFormasPago.findIndex(lfp => +lfp.forma_pago === +msc.value);
     if (idx > -1) {
+      // console.log(this.lstFormasPago[idx]);
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
+      if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
+        this.porcentajeAumento += +this.lstFormasPago[idx].aumento_porcentaje / 100;
+        this.bloqueaMonto = true;
+      } else {
+        this.porcentajeAumento = 1;
+        this.bloqueaMonto = false;
+      }
+      this.calculaTotalDeCuenta();
+      this.actualizaSaldo();      
     }
   }
 

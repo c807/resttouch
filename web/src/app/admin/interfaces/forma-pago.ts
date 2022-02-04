@@ -3,8 +3,9 @@ import { ComandaOrigen } from '../interfaces/comanda-origen';
 export interface FormaPago {
     forma_pago: number;
     descripcion: string;
-    activo: number;
+    activo: number;    
     descuento?: number;
+    aumento_porcentaje?: number;
     comision_porcentaje?: number;
     retencion_porcentaje?: number;
     pedirdocumento?: number;

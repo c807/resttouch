@@ -70,11 +70,13 @@ class Factura extends CI_Controller {
 							foreach ($cta->getDetalle(['impreso' => 1, '_for_prnt_recibo' => true]) as $det) {
 								$det->bien_servicio = $det->articulo->bien_servicio;
 								$det->articulo = $det->articulo->articulo;
+
+								$factorAumento = 1 + (float)$det->aumento_porcentaje / 100;								
 								
-								$det->precio_unitario = (float)$det->precio;
-								$det->precio_unitario_ext = (float)$det->precio;
-								$det->total = ($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra;
-								$det->total_ext = ($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra;
+								$det->precio_unitario = (float)$det->precio * $factorAumento;
+								$det->precio_unitario_ext = (float)$det->precio * $factorAumento;
+								$det->total = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
+								$det->total_ext = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
 								// $det->total = ($det->precio_unitario * $det->cantidad);
 								$det->precio_unitario = round($det->total / $det->cantidad, 2);
 								$det->precio_unitario_ext = $det->total_ext / $det->cantidad;
@@ -94,6 +96,7 @@ class Factura extends CI_Controller {
 								}
 								$art = new Articulo_model($det->articulo);
 								$impuesto_especial = $art->getImpuestoEspecial();
+								$desctEspecial = 0; $desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
 								if ($impuesto_especial) {
 									$det->impuesto_especial = $impuesto_especial->impuesto_especial;
 									$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
@@ -114,16 +117,19 @@ class Factura extends CI_Controller {
 										$total = $det->total;
 										$total_ext = $det->total_ext;
 
-										$det->monto_base = $total / $pimpuesto;
-										$det->monto_base_ext = $total_ext / $pimpuesto;
+										$desctEspecial = $det->descuento;
+										$desctEspecial_ext = $det->descuento_ext;
+
+										$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
+										$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
 
 									} else {
 										$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
 										$det->valor_impuesto_especial_ext = $det->monto_base_ext * ((float)$impuesto_especial->porcentaje / 100);
 									}
 								}
-								$det->monto_iva = $total - $det->monto_base;	
-								$det->monto_iva_ext = $total_ext - $det->monto_base_ext;
+								$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;	
+								$det->monto_iva_ext = ($total_ext - $desctEspecial_ext) - $det->monto_base_ext;
 								$fac->setDetalle((array) $det);
 							}
 						}
