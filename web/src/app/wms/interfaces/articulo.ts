@@ -145,6 +145,8 @@ export interface ProductoSelected {
     esextra?: number;
     stock_minimo?: number;
     stock_maximo?: number;
+    aumento?: number;
+    aumento_porcentaje?: number;
 }
 
 export interface ArticuloCodigo {

@@ -11,10 +11,13 @@
                 <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="fpago.descripcion" minlength="1" maxlength="45" required>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Porcentaje de comisión" name="comision_porcentaje" [(ngModel)]="fpago.comision_porcentaje">
+                <input matInput type="number" placeholder="Porcentaje de aumento" name="aumento_porcentaje" [(ngModel)]="fpago.aumento_porcentaje" pattern="[0-9.]{1,50}">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje">            
+                <input matInput type="number" placeholder="Porcentaje de comisión" name="comision_porcentaje" [(ngModel)]="fpago.comision_porcentaje" pattern="[0-9.]{1,50}">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje" pattern="[0-9.]{1,50}">
             </mat-form-field>
             <mat-checkbox name="descuento" class="btnAccion" [(ngModel)]="+fpago.descuento">¿Es descuento?</mat-checkbox>
             <mat-checkbox name="pedirdocumento" class="btnAccion" [(ngModel)]="+fpago.pedirdocumento">Pedir número de documento</mat-checkbox>

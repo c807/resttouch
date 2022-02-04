@@ -6,6 +6,7 @@ import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { GLOBAL } from '../../../shared/global';
 import * as moment from 'moment';
+import { Impresion } from '../../classes/impresion';
 
 import { NotasGeneralesComandaComponent } from '../notas-generales-comanda/notas-generales-comanda.component';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -13,7 +14,7 @@ import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/comp
 import { PideRepartidorDialogComponent } from '../../../callcenter/components/pide-repartidor-dialog/pide-repartidor-dialog.component';
 
 import { ComandaService } from '../../services/comanda.service';
-import { ProductoSelected } from '../../../wms/interfaces/articulo';
+// import { ProductoSelected } from '../../../wms/interfaces/articulo';
 import { OrdenGkService } from '../../../ghost-kitchen/services/orden-gk.service';
 import { FacturaService } from '../../../pos/services/factura.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
@@ -109,69 +110,72 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     );
   }
 
-  setToPrint = (articulos: any[]) => {
-    const lstArticulos: any[] = [];
-    articulos.forEach(item => {
-      lstArticulos.push({
-        id: +item.articulo.articulo,
-        nombre: item.articulo.descripcion,
-        cantidad: +item.cantidad,
-        total: +item.total,
-        notas: item.notas || '',
-        impresora: {
-          bluetooth: +item.articulo.impresora.bluetooth,
-          direccion_ip: item.articulo.impresora.direccion_ip || '',
-          impresora: +item.articulo.impresora.impresora,
-          nombre: item.articulo.impresora.nombre || '',
-          sede: +item.articulo.impresora.sede,
-          ubicacion: item.articulo.impresora.ubicacion || ''
-        },
-        detalle: item.detalle
-      });
-    });
-    return lstArticulos;
-  }
+  // setToPrint = (articulos: any[]) => {
+  //   const lstArticulos: any[] = [];
+  //   articulos.forEach(item => {
+  //     lstArticulos.push({
+  //       id: +item.articulo.articulo,
+  //       nombre: item.articulo.descripcion,
+  //       cantidad: +item.cantidad,
+  //       total: +item.total,
+  //       notas: item.notas || '',
+  //       impresora: {
+  //         bluetooth: +item.articulo.impresora.bluetooth,
+  //         direccion_ip: item.articulo.impresora.direccion_ip || '',
+  //         impresora: +item.articulo.impresora.impresora,
+  //         nombre: item.articulo.impresora.nombre || '',
+  //         sede: +item.articulo.impresora.sede,
+  //         ubicacion: item.articulo.impresora.ubicacion || ''
+  //       },
+  //       detalle: item.detalle
+  //     });
+  //   });
+  //   return lstArticulos;
+  // }
 
   imprimir = (obj: any, idx: number = 0) => {
     // console.log(obj); // return;
-    const listaProductos = this.setToPrint(obj.cuentas[0].productos);
-    const AImpresoraNormal: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 0);
-    const AImpresoraBT: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 1);
+    const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+    objImpresion.imprimir(obj, idx);
 
-    let objToPrint = {};
+    // const listaProductos = this.setToPrint(obj.cuentas[0].productos);
+    // const AImpresoraNormal: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 0);
+    // const AImpresoraBT: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 1);
 
-    if (AImpresoraNormal.length > 0) {
-      // console.log(AImpresoraNormal);
-      objToPrint = {
-        Indice: (idx + 1),
-        Tipo: 'Comanda',
-        Nombre: obj.cuentas[0].nombre,
-        Numero: obj.comanda,
-        NoOrdenEnLinea: obj.origen_datos.numero_orden,
-        DireccionEntrega: obj.origen_datos.direccion_entrega,
-        DetalleCuenta: AImpresoraNormal,
-        Total: 0.00,
-        NotasGenerales: obj.notas_generales || ''
-      };
-      // console.log('STRING (IN) = ', JSON.stringify(objToPrint));
-      // console.log('OBJETO (IN) = ', objToPrint);
-      this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
-    }
+    // let objToPrint = {};
 
-    if (AImpresoraBT.length > 0) {
-      objToPrint = {
-        Tipo: 'Comanda',
-        Nombre: obj.cuentas[0].nombre,
-        Numero: obj.comanda,
-        NoOrdenEnLinea: obj.origen_datos.numero_orden,
-        DireccionEntrega: obj.origen_datos.direccion_entrega,
-        DetalleCuenta: AImpresoraBT,
-        Total: 0.00
-      };
-      // console.log('STRING (BT) = ', JSON.stringify(objToPrint));
-      // console.log('OBJETO (BT) = ', objToPrint);
-      this.printToBT(JSON.stringify(objToPrint));
-    }
+    // if (AImpresoraNormal.length > 0) {
+    //   // console.log(AImpresoraNormal);
+    //   objToPrint = {
+    //     Indice: (idx + 1),
+    //     Tipo: 'Comanda',
+    //     Nombre: obj.cuentas[0].nombre,
+    //     Numero: obj.comanda,
+    //     NoOrdenEnLinea: obj.origen_datos.numero_orden,
+    //     DireccionEntrega: obj.origen_datos.direccion_entrega,
+    //     DetalleCuenta: AImpresoraNormal,
+    //     Total: 0.00,
+    //     NotasGenerales: obj.notas_generales || ''
+    //   };
+    //   // console.log('STRING (IN) = ', JSON.stringify(objToPrint));
+    //   // console.log('OBJETO (IN) = ', objToPrint);
+    //   this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
+    // }
+
+    // if (AImpresoraBT.length > 0) {
+    //   objToPrint = {
+    //     Tipo: 'Comanda',
+    //     Nombre: obj.cuentas[0].nombre,
+    //     Numero: obj.comanda,
+    //     NoOrdenEnLinea: obj.origen_datos.numero_orden,
+    //     DireccionEntrega: obj.origen_datos.direccion_entrega,
+    //     DetalleCuenta: AImpresoraBT,
+    //     Total: 0.00
+    //   };
+    //   // console.log('STRING (BT) = ', JSON.stringify(objToPrint));
+    //   // console.log('OBJETO (BT) = ', objToPrint);
+    //   this.printToBT(JSON.stringify(objToPrint));
+    // }
 
     if (+obj.orden_gk > 0) {
       const params = {
@@ -184,11 +188,11 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     }
   }
 
-  printToBT = (msgToPrint: string = '') => {
-    const AppHref = `com.restouch.impresion://impresion/${msgToPrint}`;
-    const wref = window.open(AppHref, 'PrntBT', 'height=200,width=200,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
-    setTimeout(() => wref.close(), 1000);
-  }
+  // printToBT = (msgToPrint: string = '') => {
+  //   const AppHref = `com.restouch.impresion://impresion/${msgToPrint}`;
+  //   const wref = window.open(AppHref, 'PrntBT', 'height=200,width=200,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
+  //   setTimeout(() => wref.close(), 1000);
+  // }
 
   cambiarEstatusOrdenGK = (params: any) => {
     this.endSubs.add(
@@ -252,7 +256,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
           for (const input of res.config.input) {
             params[input.id] = input.valor;
           }
-          console.log('PARAMS = ', params);
+          // console.log('PARAMS = ', params);
           this.endSubs.add(
             this.comandaSrvc.cancelarPedido(obj.comanda, params).subscribe(resAnula => {
               if (resAnula.exito) {

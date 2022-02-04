@@ -41,6 +41,36 @@ class Cuenta extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
+	private function actualizaAumentoEnDetalleComanda($formas_pago, $detalleComanda)
+	{
+		$porcentajeAumento = 0;
+
+		foreach ($formas_pago as $fp) {
+			if ((float)$fp->aumento_porcentaje > 0) {
+				$porcentajeAumento = (float)$fp->aumento_porcentaje;
+				break;
+			}
+		}
+
+		if($porcentajeAumento > 0) {
+			$cntDetalles = count($detalleComanda);
+			for ($i = 0; $i < $cntDetalles; $i++) {
+				$dc = new Dcomanda_model($detalleComanda[$i]->detalle_comanda);
+				$aumento = $porcentajeAumento * (float)$detalleComanda[$i]->total / 100;
+				$exito = $dc->guardar([
+					'aumento_porcentaje' => $porcentajeAumento,
+					'aumento' => $aumento
+				]);
+				if (!$exito) {
+					$mensaje = $dc->getMensaje();
+				}
+				$detalleComanda[$i]->aumento_porcentaje = $porcentajeAumento;
+				$detalleComanda[$i]->aumento = $aumento;
+			}
+		}
+		return $detalleComanda;
+	}
+
 	public function cobrar($cuenta)
 	{
 		$req =  json_decode(file_get_contents('php://input'));
@@ -56,9 +86,10 @@ class Cuenta extends CI_Controller
 
 					if ($cta->cerrada == 0) {
 						$det = $cta->getDetalle(['impreso' => 1, '_for_print' => true]);
+						$det = $this->actualizaAumentoEnDetalleComanda($req->forma_pago, $det);
 						$total = 0;
 						foreach ($det as $row) {
-							$total += (((float)$row->cantidad * (float)$row->precio) + ((float)$row->monto_extra));
+							$total += (((float)$row->cantidad * (float)$row->precio) + ((float)$row->monto_extra)) + (float)$row->aumento;
 						}
 
 						$total += $req->propina_monto;
@@ -67,7 +98,7 @@ class Cuenta extends CI_Controller
 							$total += $req->comision_monto;
 						}
 
-						if ($total == $req->total) {
+						if (round($total, 2) == round($req->total, 2)) {
 							$exito = true;
 							$continuar = true;
 							$facturar = true;

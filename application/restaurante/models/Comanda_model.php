@@ -557,8 +557,17 @@ class Comanda_model extends General_Model
 				$buscar['_categoria_grupo'] = $args['_categoria_grupo'];
 			}
 		}
+
 		// $det = $this->getDetalle($buscar); 
-		$det = $this->getDetalleComandaSimplified($buscar);		
+		$det = $this->getDetalleComandaSimplified($buscar);
+		
+		$tmp->impresa = 0;
+		foreach($det as $d) {
+			if((int)$d->impreso === 1) {
+				$tmp->impresa = 1;
+				break;
+			}
+		}
 
 		if (count($det) > 0) {
 			$tmp->tiempo_preparacion = $det[0]->tiempo_preparacion;
@@ -591,6 +600,8 @@ class Comanda_model extends General_Model
 		if ($this->comanda_origen == 1) {
 			$args['_totalCero'] = true;
 		}
+
+		$tmp->impresora_defecto = $this->db->where('sede', $this->sede)->where('pordefecto', 1)->get('impresora')->row();
 		$tmp->cuentas = $this->getCuentas($args);
 		$tmp->factura = $this->getFactura();
 		$tmp->origen_datos = $this->getOrigenDatos();
@@ -860,8 +871,13 @@ class Comanda_model extends General_Model
 		$faltantes = [];
 		// $detCom = $this->getDetalle(); 
 
+		if (!$enviar) {
+			$this->db->where('a.cantidad >', 0);
+			$this->db->where('a.total >', 0);
+		}
+
 		$detCom = $this->db
-			->select('a.detalle_comanda, b.codigo, b.descripcion')
+			->select('a.detalle_comanda, b.codigo, b.descripcion, a.detalle_comanda_id')
 			->join('articulo b', 'b.articulo = a.articulo')
 			->where('a.comanda', $this->getPK())
 			->get('detalle_comanda a')
@@ -872,12 +888,16 @@ class Comanda_model extends General_Model
 		}
 
 		foreach ($detCom as $row) {
-			$art = $this->Articulo_model->buscarArticulo([
-				// "codigo" => $row->articulo->codigo,
+			$fltr = [
 				'codigo' => trim($row->codigo),
-				// 'sede' => $this->sede
 				'sede' => $sedeDestino
-			]);
+			];
+
+			if (!$enviar && empty($row->detalle_comanda_id)) {
+				$fltr['mostrar_pos'] = 1;
+			}
+
+			$art = $this->Articulo_model->buscarArticulo($fltr);
 
 			if ($art) {
 				if ($enviar) {

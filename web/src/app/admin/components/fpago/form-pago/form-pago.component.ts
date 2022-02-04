@@ -33,7 +33,7 @@ export class FormPagoComponent implements OnInit {
   }
 
   resetFormaPago = () => this.fpago = {
-    forma_pago: null, descripcion: null, activo: 1, descuento: 0, comision_porcentaje: 0.00,
+    forma_pago: null, descripcion: null, activo: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
     retencion_porcentaje: 0.00, pedirdocumento: 0, adjuntararchivo: 0, pedirautorizacion: 0,
     sinfactura: 0
   }
