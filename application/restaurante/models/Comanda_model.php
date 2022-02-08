@@ -26,6 +26,7 @@ class Comanda_model extends General_Model
 	public $tipo_domicilio = null;
 	public $repartidor = null;
 	public $fhtomapedido = null;
+	public $comensales = 0;
 
 	public function __construct($id = '')
 	{
