@@ -565,7 +565,7 @@ export class TranComanda {
               if (+imp.impresora === +detimp.Impresora.impresora) {
                 const detalles = detimp.Nombre.split('|');
                 detalles.forEach((d, i) => {
-                  obj.detalle.push(`${i != 1 ? '' : (+detimp.Cantidad > 1 ? detimp.Cantidad : '')} ${d}`.trim());
+                  obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
                 })
               }
             }

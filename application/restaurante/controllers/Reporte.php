@@ -197,7 +197,7 @@ class Reporte extends CI_Controller
 			}
 		}
 
-
+		$data['fhimpresion'] = date('d/m/Y H:i:s');
 
 		if (verDato($data, "_excel")) {
 			$fdel = formatoFecha($data['fdel'], 2);
@@ -551,6 +551,11 @@ class Reporte extends CI_Controller
 					}
 				}
 			}
+			
+			$fila += 3;
+			$hoja->setCellValue("A{$fila}", "Impresión: {$data['fhimpresion']}");
+			// $hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode('dd/mm/yyyy h:mm:ss');
+			$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
 
 			for ($i = 0; $i <= count($nombres); $i++) {
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
