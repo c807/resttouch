@@ -17,8 +17,7 @@ class Area extends CI_Controller
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 
-		$this->output
-			->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = "")
@@ -27,8 +26,17 @@ class Area extends CI_Controller
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+
+			$fltr = [
+				'TRIM(UPPER(nombre))' => trim(strtoupper($req['nombre'])),
+				'sede' => $this->data->sede
+			];
+
+			if (!empty($id)) {
+				$fltr['area <>'] = $id;
+			}
 						
-			$existe = $this->Area_model->buscar(['TRIM(UPPER(nombre))' => trim(strtoupper($req['nombre']))]);
+			$existe = $this->Area_model->buscar($fltr);
 			if (!$existe) {
 				
 				if(!isset($req['escallcenter']) || empty($req['escallcenter'])) {
