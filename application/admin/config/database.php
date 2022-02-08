@@ -42,8 +42,8 @@ if (isset($_SERVER["GAE_APPLICATION"])) {
     //username devdm
     //password za9Cjq43jXqp
 	/* DEV */
-	// $db['default']['hostname'] = '192.168.18.240';
-	// $db['default']['username'] = 'devdm';
-	// $db['default']['password'] = 'za9Cjq43jXqp';
-	// $db['default']['database'] = 'administracion';
+//	 $db['default']['hostname'] = '192.168.18.240';
+//	 $db['default']['username'] = 'devdm';
+//	 $db['default']['password'] = 'za9Cjq43jXqp';
+//	 $db['default']['database'] = 'administracion';
 }
