@@ -34,6 +34,7 @@ import {TiempoEntrega} from '../../../callcenter/interfaces/tiempo-entrega';
 import {TiempoEntregaService} from '../../../callcenter/services/tiempo-entrega.service';
 import {TipoDomicilio} from '../../../callcenter/interfaces/tipo-domicilio';
 import {TipoDomicilioService} from '../../../callcenter/services/tipo-domicilio.service';
+import {ValidaPwdGerenteTurnoComponent} from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
 
 interface DatosPedido {
   sede: number;
@@ -95,6 +96,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public isTipExceeded = false;
   public porcentajeMaximoPropina = 0;
   public SET_PROPINA_AUTOMATICA = false;
+  public RT_AUTORIZA_CAMBIO_PROPINA = false;
+  public RT_AUTORIZA_CAMBIO_PROPINA_ICON = false;
   public MaxTooltTipMessage = '';
   public direccionesDeEntrega: ClienteMasterDireccionResponse[] = [];
   public tiemposEntrega: TiempoEntrega[] = [];
@@ -126,6 +129,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.SET_PROPINA_AUTOMATICA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) || 0;
+    this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
+    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
     this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
     this.MaxTooltTipMessage = `El monto de propina sobrepasa el máximo sugerido del ${this.porcentajeMaximoPropina}%.`;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -143,6 +148,23 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
+  }
+
+  autorizaCambioPropina() {
+    const dialogoRef = this.dialog.open(ValidaPwdGerenteTurnoComponent, {
+      width: '40%', disableClose: true,
+      data: {botonMensaje: 'Habilitar'}
+    });
+
+    dialogoRef.afterClosed().subscribe(res => {
+      console.log(res);
+      if (res && res.esgerente) {
+        this.RT_AUTORIZA_CAMBIO_PROPINA = false;
+      } else {
+        this.RT_AUTORIZA_CAMBIO_PROPINA = true;
+        this.snackBar.open('La contraseña no es correcta', 'Comanda', {duration: 5000});
+      }
+    });
   }
 
   resetFactReq = () => {
@@ -262,20 +284,20 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
    * This method calculates the automatic Tip
    */
   calcTipAuto = () => {
-     const tipPorcentaje = this.porcentajeMaximoPropina / 100;
-     const tipLimit = this.inputData.totalDeCuenta * tipPorcentaje;
-     let amount = (Number(this.formaPago.propina) || 0.00);
+    const tipPorcentaje = this.porcentajeMaximoPropina / 100;
+    const tipLimit = this.inputData.totalDeCuenta * tipPorcentaje;
+    let amount = (Number(this.formaPago.propina) || 0.00);
 
-     this.formasPagoDeCuenta.forEach((forP) => {
-       amount += Number(forP.propina);
-     });
+    this.formasPagoDeCuenta.forEach((forP) => {
+      amount += Number(forP.propina);
+    });
 
-     const tipRestante = tipLimit - amount;
+    const tipRestante = tipLimit - amount;
 
-     if (tipRestante >= 0 && this.SET_PROPINA_AUTOMATICA ) {
-       this.formaPago.propina = tipRestante.toFixed(2);
-     }
-   }
+    if (tipRestante >= 0 && this.SET_PROPINA_AUTOMATICA) {
+      this.formaPago.propina = tipRestante.toFixed(2);
+    }
+  }
   /**
    * This method detects when the value changes on Propina Input
    */

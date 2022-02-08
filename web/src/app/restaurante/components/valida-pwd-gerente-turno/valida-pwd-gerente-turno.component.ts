@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {GLOBAL} from '../../../shared/global';
+import {LocalstorageService} from '../../../admin/services/localstorage.service';
 
-import { ComandaService } from '../../services/comanda.service';
+import {ComandaService} from '../../services/comanda.service';
+
+interface IDatosPWD {
+  botonMensaje: string;
+}
 
 @Component({
   selector: 'app-valida-pwd-gerente-turno',
@@ -12,15 +16,21 @@ import { ComandaService } from '../../services/comanda.service';
 })
 export class ValidaPwdGerenteTurnoComponent implements OnInit {
 
-  public data: any = { pwd: undefined };
+  public dataE: any = {pwd: undefined};
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public MensajeBoton = 'Eliminar producto';
 
   constructor(
     public dialogRef: MatDialogRef<ValidaPwdGerenteTurnoComponent>,
     private comandaSrvc: ComandaService,
-    private ls: LocalstorageService
-  ) { }
+    private ls: LocalstorageService,
+    @Inject(MAT_DIALOG_DATA) public data: IDatosPWD,
+  ) {
+    if (this.data.botonMensaje) {
+      this.MensajeBoton = this.data.botonMensaje;
+    }
+  }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
@@ -29,8 +39,7 @@ export class ValidaPwdGerenteTurnoComponent implements OnInit {
   cancelar = () => this.dialogRef.close();
 
   terminar = () => {
-    this.comandaSrvc.validaPwdGerenteTurno(this.data.pwd).subscribe(res => {
-      // console.log(res);
+    this.comandaSrvc.validaPwdGerenteTurno(this.dataE.pwd).subscribe(res => {
       if (res.exito) {
         this.dialogRef.close({esgerente: res.esgerente, gerente_turno: res.gerente_turno});
       } else {

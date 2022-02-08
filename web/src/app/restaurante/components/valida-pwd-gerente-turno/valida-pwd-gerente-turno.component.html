@@ -2,8 +2,8 @@
 <mat-dialog-content>
     <form #frmValidarPwdGerenteTurno="ngForm" (ngSubmit)="frmValidarPwdGerenteTurno.form.valid" novalidate>
         <mat-form-field class="fullWidth">
-            <input type="password" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Contraseña del gerente de turno" name="pwd" [(ngModel)]="data.pwd" required>
-            <input type="password" matInput *ngIf="esMovil" placeholder="Contraseña del gerente de turno" name="pwd" [(ngModel)]="data.pwd" required>
+            <input type="password" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Contraseña del gerente de turno" name="pwd" [(ngModel)]="dataE.pwd" required>
+            <input type="password" matInput *ngIf="esMovil" placeholder="Contraseña del gerente de turno" name="pwd" [(ngModel)]="dataE.pwd" required>
         </mat-form-field>
     </form>
 </mat-dialog-content>
@@ -12,6 +12,6 @@
         Cancelar
     </button>
     <button mat-raised-button (click)="terminar()" [disabled]="!frmValidarPwdGerenteTurno.form.valid" color="accent">
-        Eliminar producto
+      {{MensajeBoton}}
     </button>
 </mat-dialog-actions>
