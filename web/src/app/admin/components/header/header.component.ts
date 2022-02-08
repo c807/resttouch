@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../services/localstorage.service';
@@ -22,7 +22,7 @@ import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, AfterViewInit {
 
   public usrInfo: any = {};
   public appMenu: any[];
@@ -49,13 +49,16 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.loadNotificacionesCliente();
-    this.appMenuSrvc.getData().subscribe((res: any) => {
-      if (res) {
-        this.appMenu = res;
-        const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
-        if (lastModule) {
-          this.handleClick(lastModule);
-        }
+  }
+
+  ngAfterViewInit(): void {
+    Promise.resolve(null).then(() => {
+      const usrAppMenu = this.usrSrvc.getAppMenu()
+      this.appMenuSrvc.updData(usrAppMenu);
+      this.appMenu = usrAppMenu;
+      const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
+      if (lastModule) {
+        this.handleClick(lastModule);
       }
     });
   }

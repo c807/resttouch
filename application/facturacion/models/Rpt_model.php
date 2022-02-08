@@ -29,6 +29,14 @@ class Rpt_model extends General_model
             $this->db->where('g.turno_tipo', $args['turno_tipo']);
         }
 
+        if (isset($args['domicilio'])) {
+			$this->db->where('a.domicilio', $args['domicilio']);			
+		}
+
+		if (isset($args['tipo_domicilio'])) {
+			$this->db->where('a.tipo_domicilio', $args['tipo_domicilio']);			
+		}
+
         $facturadas = $this->db
             ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ',') AS comandas, GROUP_CONCAT(DISTINCT f.factura ORDER BY f.factura SEPARATOR ',') AS facturas")
             ->join('detalle_comanda b', 'a.comanda = b.comanda')
@@ -61,6 +69,14 @@ class Rpt_model extends General_model
         if (isset($args['turno_tipo'])) {
             $this->db->where('e.turno_tipo', $args['turno_tipo']);
         }
+
+        if (isset($args['domicilio'])) {
+			$this->db->where('a.domicilio', $args['domicilio']);			
+		}
+
+		if (isset($args['tipo_domicilio'])) {
+			$this->db->where('a.tipo_domicilio', $args['tipo_domicilio']);			
+		}
 
         $sinfactura = $this->db
             ->select("GROUP_CONCAT(DISTINCT a.comanda ORDER BY a.comanda SEPARATOR ',') AS comandas")
@@ -158,25 +174,7 @@ class Rpt_model extends General_model
 
         $facturas_manuales = [];
 
-        if(!isset($args['turno_tipo'])) {
-            // if(!empty($facturas)) {            
-            //     $this->db->where("b.factura NOT IN({$facturas})");
-            // }
-    
-            // $facturas_manuales = $this->db
-            //     ->select('a.articulo, c.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
-            //     ->join('factura b', 'b.factura = a.factura')
-            //     ->join('articulo c', 'c.articulo = a.articulo')            
-            //     ->where('b.sede', $args['idsede'])
-            //     ->where('b.numero_factura IS NOT NULL')
-            //     ->where('b.fel_uuid_anulacion IS NULL')
-            //     ->where('b.fecha_factura >=', $args['fdel'])
-            //     ->where('b.fecha_factura <=', $args['fal'])
-            //     ->group_by('a.articulo, c.descripcion')
-            //     // ->get_compiled_select('detalle_factura a');
-            //     ->get('detalle_factura a')
-            //     ->result();
-
+        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
             $facturas_manuales = $this->db
                 ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total) AS total')
                 ->join('detalle_factura b', 'a.factura = b.factura')
@@ -245,7 +243,7 @@ class Rpt_model extends General_model
 
         $facturas_manuales = [];
 
-        if(!isset($args['turno_tipo'])) {
+        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
             // if(!empty($facturas)) {            
             //     $this->db->where("b.factura NOT IN({$facturas})");
             // }    

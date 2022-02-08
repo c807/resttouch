@@ -31,17 +31,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.dns.requestPermission();
       }
     });
-    // console.log('ngOnInit de dashboard');
-    // this.appMenuSrvc.getData().subscribe((res: any) => {
-    //   console.log('appMenuSrvc.getData() = ', res);
-    //   if (res) {
-    //     this.appMenu = res;
-    //     const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
-    //     if (lastModule) {
-    //       this.handleClick(lastModule);
-    //     }
-    //   }
-    // });
   }
 
   ngAfterViewInit(): void {

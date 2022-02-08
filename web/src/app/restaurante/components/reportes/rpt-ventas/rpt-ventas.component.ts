@@ -3,7 +3,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
 import * as moment from 'moment';
 
-// import { PorCategoria, PorArticulo } from '../../../interfaces/reporte-ventas';
 import { PorCategoria } from '../../../interfaces/reporte-ventas';
 import { ReporteVentasService } from '../../../services/reporte-ventas.service';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
@@ -13,8 +12,9 @@ import { TipoTurnoService } from '../../../services/tipo-turno.service';
 import { Usuario } from '../../../../admin/interfaces/usuario';
 import { UsuarioService } from '../../../../admin/services/usuario.service';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { TipoDomicilio } from '../../../../callcenter/interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '../../../../callcenter/services/tipo-domicilio.service';
 import { saveAs } from 'file-saver';
-// import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 
 import { Subscription } from 'rxjs';
 
@@ -34,10 +34,6 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     }
   };
 
-  // get placeHolderFechaDel() {
-  //   return +this.params.tipo_reporte === 3 ? 'Fecha' : 'Del';
-  // }
-
   public tiposReporte: any[] = [];
   public params: any = {};
   public paramsToSend: any = {};
@@ -51,6 +47,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   public tituloArticulo = 'Ventas_Articulo';
   public cargando = false;
   public usuarios: Usuario[] = [];
+  public tiposDomicilio: TipoDomicilio[] = [];
 
   private endSubs = new Subscription();
 
@@ -60,7 +57,8 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     private tipoTurnoSrvc: TipoTurnoService,
     private sedeSrvc: AccesoUsuarioService,
     private usuarioSrvc: UsuarioService,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private tipoDomicilioSrvc: TipoDomicilioService
   ) { }
 
   ngOnInit() {
@@ -69,6 +67,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.loadTiposTurno();
     this.loadSedes();
     this.loadUsuarios();
+    this.loadTiposDomicilio();
   }
 
   ngOnDestroy() {
@@ -84,6 +83,12 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   loadTiposTurno = () => {
     this.endSubs.add(      
       this.tipoTurnoSrvc.get().subscribe(res => this.tiposTurno = res)
+    );
+  }
+
+  loadTiposDomicilio = () => {
+    this.endSubs.add(
+      this.tipoDomicilioSrvc.get().subscribe(res => this.tiposDomicilio = res)
     );
   }
 
@@ -113,17 +118,16 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.params = {
       tipo_reporte: undefined,
       fdel: moment().startOf('week').format(GLOBAL.dbDateFormat),
-      fal: moment().endOf('week').format(GLOBAL.dbDateFormat)
+      fal: moment().endOf('week').format(GLOBAL.dbDateFormat),
+      tipo_venta: undefined
     };
     this.cargando = false;
   }
 
   getReporte = (tipo: number = 1) => {
-    // if(+this.params.tipo_reporte === 3) {
-    //   this.params.fal = this.params.fdel;
-    // }
     this.paramsToSend = JSON.parse(JSON.stringify(this.params));
     this.msgGenerandoReporte = 'GENERANDO REPORTE EN ';
+    // console.log(this.paramsToSend); return;
     switch (tipo) {
       case 1 : this.getEnPantalla(); break;
       case 2 : this.getPdf(); break;
@@ -140,7 +144,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     }
   }
 
-  getExcel = () => {
+  getExcel = () => {    
     switch (this.params.tipo_reporte) {
       case 1: this.getPorCategoriaPdf(1); break;
       case 2: this.getPorArticuloPdf(1); break;
@@ -168,6 +172,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
 
   getPorCategoriaPdf = (esExcel = 0) => {
     this.paramsToSend._excel = esExcel;
+    // console.log(this.paramsToSend); return;
     this.cargando = true;
     this.cleanParams();
     this.endSubs.add(      

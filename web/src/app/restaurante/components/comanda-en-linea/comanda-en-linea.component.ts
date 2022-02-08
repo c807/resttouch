@@ -118,6 +118,8 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       dir: 'auto'
     };
     this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
+    const audio = new Audio(`${GLOBAL.sonidos_rt}/notificacion.wav`);
+    audio.play();
   }
 
   ngOnDestroy() {

@@ -4,9 +4,7 @@ import { GLOBAL } from './shared/global';
 import { UsuarioService } from './admin/services/usuario.service';
 import { Router } from '@angular/router';
 import { AccesoUsuario } from './admin/interfaces/acceso-usuario';
-// import { AppMenuService } from './admin/services/app-menu.service';
 import { OnlineService } from './shared/services/online.service';
-// import * as moment from 'moment';
 
 @Component({
   selector: 'app-root',
@@ -54,12 +52,8 @@ export class AppComponent implements OnInit{
     if (usrData) {
       if (usrData.token) {
         const valido = await this.usrSrvc.checkUserToken();
-        if (valido) {
-          // console.log(`VALIDO (${moment().format(GLOBAL.dbDateTimeFormat)}) =`, valido);
-          this.isLogged = true;
-          // this.usrAppMenu = this.usrSrvc.getAppMenu();
-          // this.appMenuSrvc.updData(this.usrAppMenu);          
-          // console.log(this.usrAppMenu);
+        if (valido) {          
+          this.isLogged = true;          
         } else {
           this.goToLogin();
         }

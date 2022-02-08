@@ -48,7 +48,7 @@
                                 {{sede.sede.nombre}}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>    
+                    </mat-form-field>                       
                     
                     <mat-form-field class="fullWidth" *ngIf="+params.tipo_reporte === 4">
                         <mat-label>Mesero</mat-label>
@@ -58,6 +58,18 @@
                             </mat-option>
                         </mat-select>                        
                     </mat-form-field>
+
+                    <mat-form-field class="fullWidth separacionPorHint">
+                        <mat-label>Tipo de venta</mat-label>
+                        <mat-select name="tipo_venta" [(ngModel)]="params.tipo_venta">
+                            <mat-option value="R">Restaurante</mat-option>
+                            <mat-option value="D">Call center</mat-option>
+                            <mat-option *ngFor="let tv of tiposDomicilio" [value]="tv.tipo_domicilio">
+                                {{tv.descripcion}}
+                            </mat-option>
+                        </mat-select>                        
+                    </mat-form-field>
+                    
                     <app-rpt-botones [configuracion]="configBotones" (excelClick) = "getReporte(3)" (pdfClick)="getReporte(2)" (resetParamsClick)="resetParams()"></app-rpt-botones>
                 </form>
                 <app-cargando *ngIf="cargando"></app-cargando>

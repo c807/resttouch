@@ -1422,6 +1422,16 @@ class Factura_model extends General_model
 			unset($args['turno_tipo']);
 		}
 
+		if (isset($args['domicilio'])) {
+			$this->db->where('f.domicilio', $args['domicilio']);
+			unset($args['domicilio']);
+		}
+
+		if (isset($args['tipo_domicilio'])) {
+			$this->db->where('f.tipo_domicilio', $args['tipo_domicilio']);
+			unset($args['tipo_domicilio']);
+		}
+
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if (substr($key, 0, 1) != "_") {

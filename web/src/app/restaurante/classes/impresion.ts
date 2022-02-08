@@ -64,8 +64,9 @@ export class Impresion {
                 DireccionEntrega: obj.origen_datos.direccion_entrega,
                 DetalleCuenta: AImpresoraNormal,
                 Total: 0.00,
-                NotasGenerales: obj.notas_generales || ''
-            };
+                NotasGenerales: obj.notas_generales || '',
+                FormasPago: obj.formas_pago || [],
+            };            
             this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
         }
 
@@ -77,7 +78,9 @@ export class Impresion {
                 NoOrdenEnLinea: obj.origen_datos.numero_orden,
                 DireccionEntrega: obj.origen_datos.direccion_entrega,
                 DetalleCuenta: AImpresoraBT,
-                Total: 0.00
+                Total: 0.00,
+                NotasGenerales: obj.notas_generales || '',
+                FormasPago: obj.formas_pago || [],
             };
             this.printToBT(JSON.stringify(objToPrint));
         }

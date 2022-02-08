@@ -118,6 +118,28 @@ class Venta extends CI_Controller
 			->set_output(json_encode($datos));
 	}
 
+	private function addFiltersCallCenter($args)
+	{
+		if (isset($args['tipo_venta']) && !empty(trim($args['tipo_venta']))) {
+			switch (trim($args['tipo_venta'])) {
+				case 'R':
+					$args['domicilio'] = 0;
+					break;
+				case 'D':
+					$args['domicilio'] = 1;
+					break;
+				default: {
+						if (is_numeric($args['tipo_venta']) && (int)$args['tipo_venta'] > 0) {
+							$args['domicilio'] = 1;
+							$args['tipo_domicilio'] = (int)$args['tipo_venta'];
+						}
+					}
+			}
+			unset($args['tipo_venta']);
+		}
+		return $args;
+	}
+
 	public function categoriapdf($pdf = 0)
 	{
 		set_time_limit(1800);
@@ -129,6 +151,9 @@ class Venta extends CI_Controller
 		if (!$this->input->get('sede')) {
 			$req['sede'] = [$this->data->sede];
 		}
+
+		$req = $this->addFiltersCallCenter($req);
+
 		$req['_vivas'] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 		$facts = $this->Factura_model->get_facturas($req);
@@ -142,8 +167,10 @@ class Venta extends CI_Controller
 
 			$laComanda = $fac->getComanda();
 			if ($laComanda && (int)$laComanda->getPK() > 0) {
-				if ($listaDeComandas !== ''){ $listaDeComandas.= ','; }
-				$listaDeComandas.= $laComanda->comanda;
+				if ($listaDeComandas !== '') {
+					$listaDeComandas .= ',';
+				}
+				$listaDeComandas .= $laComanda->comanda;
 			}
 
 			$tmp = $fac->getDetalle();
@@ -167,10 +194,12 @@ class Venta extends CI_Controller
 		$montoDescuento = 0;
 		foreach ($comandas as $row) {
 			$com = new Comanda_model($row->comanda);
-			if ($listaDeComandas !== ''){ $listaDeComandas.= ','; }
-			$listaDeComandas.= $row->comanda;
+			if ($listaDeComandas !== '') {
+				$listaDeComandas .= ',';
+			}
+			$listaDeComandas .= $row->comanda;
 			$montoDescuento += $com->get_total_descuento();
-			$detalleComanda = $com->getDetalle(['_solo_sin_factura' => true]);			
+			$detalleComanda = $com->getDetalle(['_solo_sin_factura' => true]);
 
 			foreach ($detalleComanda as $det) {
 				$art = new Articulo_model($det->articulo->articulo);
@@ -181,7 +210,7 @@ class Venta extends CI_Controller
 				} else {
 					$detalle[$art->articulo] = [
 						'cantidad' => $det->cantidad,
-						'total' => $det->total,						
+						'total' => $det->total,
 						'descripcion' => $art->descripcion,
 						'precio_unitario' => $det->precio
 					];
@@ -251,7 +280,7 @@ class Venta extends CI_Controller
 			unset($datos[$quita]);
 		}
 
-		$data = [			
+		$data = [
 			'detalle' => $datos,
 			'monto_descuento' => $montoDescuento,
 			'monto_propinas' => $montoPropinas
@@ -371,7 +400,6 @@ class Venta extends CI_Controller
 				$hoja->setCellValue("E{$fila}", (float)$granTotal - (float)$montoDescuento + (float)$montoPropinas);
 				$hoja->getStyle("D{$fila}:E{$fila}")->getFont()->setBold(true);
 				$hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
-
 			} else {
 				foreach ($data['detalle']['datos'] as $sede) {
 					$totalSede = 0;
@@ -477,6 +505,9 @@ class Venta extends CI_Controller
 		}
 		$req["_vivas"] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
+
+		$req = $this->addFiltersCallCenter($req);
+
 		$facts = $this->Factura_model->get_facturas($req);
 		$comandas = $this->Comanda_model->get_sin_factura($req);
 
@@ -556,6 +587,9 @@ class Venta extends CI_Controller
 		}
 		$req["_vivas"] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
+		
+		$req = $this->addFiltersCallCenter($req);
+
 		$facts = $this->Factura_model->get_facturas($req);
 		$comandas = $this->Comanda_model->get_sin_factura($req);
 		$datos = [];
@@ -832,6 +866,8 @@ class Venta extends CI_Controller
 			}
 			$rpt = new Rpt_model();
 
+			$req = $this->addFiltersCallCenter($req);
+
 			foreach ($req['sede'] as $s) {
 				$sedeObj = new Sede_model($s);
 				$sede = new stdClass();
@@ -1005,6 +1041,9 @@ class Venta extends CI_Controller
 			if (!isset($req['fal'])) {
 				$req['fal'] = date('Y-m-d');
 			}
+
+			$req = $this->addFiltersCallCenter($req);
+
 			$rpt = new Rpt_model();
 
 			foreach ($req['sede'] as $s) {
@@ -1072,12 +1111,12 @@ class Venta extends CI_Controller
 						$ventas[$idxCategoria]->subcategorias[$idxSubCategoria]->cantidad += (float)$rv->cantidad;
 						$ventas[$idxCategoria]->cantidad += (float)$rv->cantidad;
 						$sede->cantidad += (float)$rv->cantidad;
-						
+
 						$opciones = $ventas[$idxCategoria]->subcategorias[$idxSubCategoria]->articulos[$idxArticulo]->opciones;
-						$sumExtrasSubcat = 0;						
+						$sumExtrasSubcat = 0;
 						$lineasDetalle = [];
 
-						if((int)$rv->combo === 1) {
+						if ((int)$rv->combo === 1) {
 							$lineasDetalle = array_merge($lineasDetalle, $this->Dcomanda_model->get_detalle_comanda_and_childs(['detalle_comanda' => $rv->detalle_comanda]));
 							foreach ($lineasDetalle as $ld) {
 								if ((int)$ld->multiple === 0 && (int)$ld->detalle_comanda_id > 0) {
@@ -1100,7 +1139,7 @@ class Venta extends CI_Controller
 								}
 							}
 						}
-						
+
 						$opciones = ordenar_array_objetos($opciones, 'cantidad', 1, 'desc');
 						$ventas[$idxCategoria]->subcategorias[$idxSubCategoria]->articulos[$idxArticulo]->opciones = $opciones;
 
@@ -1114,7 +1153,7 @@ class Venta extends CI_Controller
 					}
 
 					// $memMiddle = round(memory_get_usage() / 1048576, 2);
-					
+
 					$sede->ventas = $ventas;
 				}
 				$datos[] = $sede;
@@ -1273,7 +1312,7 @@ class Venta extends CI_Controller
 	{
 		set_time_limit(1800);
 		// ini_set('memory_limit', '512M');
-		
+
 		$datos = [];
 
 		if ($this->input->method() == 'post') {
@@ -1288,6 +1327,9 @@ class Venta extends CI_Controller
 			if (!isset($req['fal'])) {
 				$req['fal'] = date('Y-m-d');
 			}
+
+			$req = $this->addFiltersCallCenter($req);
+			
 			$rpt = new Rpt_model();
 
 			foreach ($req['sede'] as $s) {
@@ -1306,7 +1348,7 @@ class Venta extends CI_Controller
 				if ($obj) {
 
 					$ventas = $rpt->get_detalle_ventas_mesero($obj->comandas, $req);
-					
+
 					$sede->ventas = $ventas;
 				}
 				$datos[] = $sede;
@@ -1361,10 +1403,10 @@ class Venta extends CI_Controller
 							$hoja->setCellValue("D{$fila}", $venta->total);
 							$fila++;
 						}
-					}					
+					}
 				}
 
-				$fila--;				
+				$fila--;
 				$hoja->getStyle("C8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
 
 				foreach (range('A', 'D') as $col) {
@@ -1374,7 +1416,7 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A1:D1');
 				$hoja->mergeCells('A2:D2');
 				$hoja->mergeCells('A3:D3');
-				$hoja->mergeCells('A4:D4');				
+				$hoja->mergeCells('A4:D4');
 
 				$hoja->setTitle("Ventas por mesero");
 
@@ -1403,7 +1445,7 @@ class Venta extends CI_Controller
 				// $this->output->set_content_type("application/json")->set_output(json_encode($data));
 			}
 		}
-	}	
+	}
 }
 
 /* End of file Ventas.php */
