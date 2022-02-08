@@ -271,8 +271,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
      });
 
      const tipRestante = tipLimit - amount;
-     //&& this.SET_PROPINA_AUTOMATICA
-     if (tipRestante >= 0 ) {
+
+     if (tipRestante >= 0 && this.SET_PROPINA_AUTOMATICA ) {
        this.formaPago.propina = tipRestante.toFixed(2);
      }
    }
