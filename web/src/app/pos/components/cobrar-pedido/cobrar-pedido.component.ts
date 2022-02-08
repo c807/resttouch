@@ -92,6 +92,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public tiposDomicilio: TipoDomicilio[] = [];
   public porcentajeAumento = 1;
   public bloqueaMonto = false;
+  public esEfectivo = false;
 
   private endSubs = new Subscription();
 
@@ -269,7 +270,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       monto: parseFloat(this.formaPago.monto).toFixed(2),
       propina: (this.formaPago.propina || 0.00),
       documento: (this.formaPago.documento || null),
-      comision_monto: +this.formaPago.monto * +fp.comision_porcentaje / 100
+      comision_monto: +this.formaPago.monto * +fp.comision_porcentaje / 100,
+      vuelto_para: +this.formaPago.vuelto_para || 0,
+      vuelto: +this.formaPago.vuelto || 0,
     });
     this.actualizaSaldo();
 
@@ -341,11 +344,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         propina: (fp.propina || 0.00),
         documento: fp.documento,
         comision_monto: fp.comision_monto,
-        aumento_porcentaje: +fp.forma_pago.aumento_porcentaje
+        aumento_porcentaje: +fp.forma_pago.aumento_porcentaje,
+        vuelto_para: +fp.vuelto_para,
+        vuelto: +fp.vuelto
       });
     }
     objCobro.comision_monto = sumaMontoComision;
     objCobro.total += sumaMontoComision;
+
+    // console.log(objCobro); return;
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
       this.enviarPedido(objCobro);
@@ -599,6 +606,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     if (idx > -1) {
       // console.log(this.lstFormasPago[idx]);
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
+      this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
         this.porcentajeAumento += +this.lstFormasPago[idx].aumento_porcentaje / 100;
         this.bloqueaMonto = true;
@@ -626,6 +634,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       if (de.sede && +de.sede.sede > 0) {
         this.datosPedido.sede = de.sede.sede;
       }
+    }
+  }
+
+  calculaVuelto = (fp: any) => {    
+    if (this.esEfectivo && +fp.vuelto_para > (+fp.monto + +fp.propina)) {
+      this.formaPago.vuelto = +fp.vuelto_para - (+fp.monto + +fp.propina);
+    } else {
+      this.formaPago.vuelto = 0;
     }
   }
 }

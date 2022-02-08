@@ -1078,7 +1078,7 @@ class Comanda_model extends General_Model
 		}
 
 		return $this->db
-			->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento')
+			->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento, c.vuelto_para, c.vuelto')
 			->join('cuenta b', 'a.comanda = b.comanda')
 			->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
 			->join('forma_pago d', 'd.forma_pago = c.forma_pago')
