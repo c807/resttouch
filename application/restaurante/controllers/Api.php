@@ -217,8 +217,22 @@ class Api extends CI_Controller
 										if (strtolower($row['title']) != 'tip') {
 											if ($art) {
 												$shop_money = $row['total_discount_set']['shop_money'];
+
+												// JA: Extraccion de campo 'properties' para las notas. 08/02/2022
+												$notas_producto = '';
+												if (isset($row['properties']) && is_array($row['properties']) && count($row['properties']) > 0) {
+													foreach ($row['properties'] as $property) {
+														if ($notas_producto !== '') {
+															$notas_producto .= '; ';
+														}
+														$pos = strpos($property['name'], ':');
+														$notas_producto .= trim($property['name']) . ($pos === false ? ': ' : '') . trim($property['value']);
+													}
+												}
+												// JA: Fin de Extraccion de campo 'properties' para las notas. 08/02/2022
+
 												$datosDcomanda = [
-													'articulo' => $art->articulo, 'cantidad' => $row['quantity'], 'precio' => $row['price'], 'impreso' => 0, 'total' => $row['price'] * $row['quantity'], 'notas' => ''
+													'articulo' => $art->articulo, 'cantidad' => $row['quantity'], 'precio' => $row['price'], 'impreso' => 0, 'total' => $row['price'] * $row['quantity'], 'notas' => $notas_producto
 												];
 												$total += ($row['price'] * $row['quantity']);
 												$det = $comanda->guardarDetalle($datosDcomanda);
@@ -388,7 +402,8 @@ class Api extends CI_Controller
 													}
 
 													$impuesto_especial = $artTmp->getImpuestoEspecial();
-													$desctEspecial = 0; $desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
+													$desctEspecial = 0;
+													$desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
 													if ($impuesto_especial) {
 														$det->impuesto_especial = $impuesto_especial->impuesto_especial;
 														$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
@@ -1294,24 +1309,24 @@ class Api extends CI_Controller
 			$this->db = $this->load->database($db, true);
 
 			if (isset($_GET['_fdel'])) {
-                $_GET['_fdel'] = ['DATE(fhcreacion)' => $_GET['_fdel']];
-            }
+				$_GET['_fdel'] = ['DATE(fhcreacion)' => $_GET['_fdel']];
+			}
 
-            if (isset($_GET['_fal'])) {
-                $_GET['_fal'] = ['DATE(fhcreacion)' => $_GET['_fal']];
-            }
+			if (isset($_GET['_fal'])) {
+				$_GET['_fal'] = ['DATE(fhcreacion)' => $_GET['_fal']];
+			}
 
 			$argsDetalle = [];
 
 			$cuenta = null;
 			$detalle_cuenta = [];
 			if (isset($_GET['_cuenta'])) {
-                $cuenta = new Cuenta_model($_GET['_cuenta']);
+				$cuenta = new Cuenta_model($_GET['_cuenta']);
 				$detC = $cuenta->getDetalle(['impreso' => 1, '_for_print' => true]);
 				foreach ($detC as $row) {
 					$detalle_cuenta[] = (int)$row->detalle_comanda;
 				}
-            }
+			}
 
 			$datos->comandas = $this->Comanda_model->buscar($_GET);
 			foreach ($datos->comandas as $comanda) {
@@ -1333,27 +1348,27 @@ class Api extends CI_Controller
 				];
 				$detalle = $cmd->getDetalle($argsDetalle);
 				$comanda->detalle = [];
-				foreach($detalle as $det) {
+				foreach ($detalle as $det) {
 					if (isset($_GET['_cuenta'])) {
 						if (in_array((int)$det->detalle_comanda, $detalle_cuenta)) {
 							$comanda->detalle[] = $det;
 						}
 					} else {
 						$comanda->detalle[] = $det;
-					}		
+					}
 				}
 
 				$html .= "<h3>Sede: {$comanda->sede->nombre}</h3>";
 				$html .= "<h4>Comanda #{$comanda->comanda}<br/>";
 				$html .= "Mesero: {$comanda->mesero->nombres} {$comanda->mesero->apellidos} ({$comanda->mesero->usrname})</h4>";
 				$html .= "<table style='border: solid 1px black; border-collapse: collapse; width: 50%;'>";
-				$html.= "<caption><b>Detalle</b></caption>";
-				$html.= "<thead><tr>";
-				$html.= "<th>Cantidad</th><th style='text-align: left;'>Artículo</th><th style='text-align: right;'>Precio</th><th style='text-align: right;'>Total</th>";
-				$html.= "</tr></thead>";
-				$html.= "<tbody>";
+				$html .= "<caption><b>Detalle</b></caption>";
+				$html .= "<thead><tr>";
+				$html .= "<th>Cantidad</th><th style='text-align: left;'>Artículo</th><th style='text-align: right;'>Precio</th><th style='text-align: right;'>Total</th>";
+				$html .= "</tr></thead>";
+				$html .= "<tbody>";
 				$totComanda = 0;
-				foreach($comanda->detalle as $det) {
+				foreach ($comanda->detalle as $det) {
 					$html .= "<tr>";
 					$html .= "<td style='text-align: center;'>{$det->cantidad}</td>";
 					$html .= "<td>";
@@ -1368,14 +1383,14 @@ class Api extends CI_Controller
 					}
 
 					$html .= "{$det->articulo->descripcion}</td>";
-					$html .= "<td style='text-align: right;'>".number_format((float)$det->precio, 2)."</td>";
-					$html .= "<td style='text-align: right;'>".number_format((float)$det->total, 2)."</td>";
+					$html .= "<td style='text-align: right;'>" . number_format((float)$det->precio, 2) . "</td>";
+					$html .= "<td style='text-align: right;'>" . number_format((float)$det->total, 2) . "</td>";
 					$html .= "</tr>";
 					$totComanda += (float)$det->total;
 				}
 				$html .= "<tfoot><tr>";
 				$html .= "<td colspan='3' style='text-align: right;'><b>Total:</b></td>";
-				$html .= "<td style='text-align: right;'><b>".number_format($totComanda, 2)."</b></td>";
+				$html .= "<td style='text-align: right;'><b>" . number_format($totComanda, 2) . "</b></td>";
 				$html .= "</tr></tfoot>";
 				$html .= "</tbody></table>";
 			}

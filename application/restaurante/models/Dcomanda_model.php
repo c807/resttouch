@@ -69,7 +69,7 @@ class Dcomanda_model extends General_Model
 			->result();
 
 		foreach ($tmp as $row) {			
-			if ($row->multiple == 0 && (float)$row->cantidad > 1) {
+			if ($row->multiple == 0 && (float)$row->cantidad > 0 && (int)$row->cantidad !== 1) {
 				$descripcion .= " {$row->cantidad}";
 			}
 			$descripcion .= " {$row->descripcion} |";
