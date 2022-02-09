@@ -340,4 +340,9 @@ class Rpt_model extends General_model
 
         return $data;
     }
+
+    public function get_tipo_domicilio($idTipoDomicilio)
+    {
+        return $this->db->where('tipo_domicilio', $idTipoDomicilio)->get('tipo_domicilio')->row();
+    }
 }

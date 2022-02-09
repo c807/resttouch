@@ -124,14 +124,18 @@ class Venta extends CI_Controller
 			switch (trim($args['tipo_venta'])) {
 				case 'R':
 					$args['domicilio'] = 0;
+					$args['_titulocc'] = "Restaurante";
 					break;
 				case 'D':
 					$args['domicilio'] = 1;
+					$args['_titulocc'] = "Call center";
 					break;
 				default: {
 						if (is_numeric($args['tipo_venta']) && (int)$args['tipo_venta'] > 0) {
 							$args['domicilio'] = 1;
 							$args['tipo_domicilio'] = (int)$args['tipo_venta'];
+							$td = $this->Rpt_model->get_tipo_domicilio($args['tipo_domicilio']);
+							$args['_titulocc'] = "Call center ({$td->descripcion})";
 						}
 					}
 			}
@@ -342,12 +346,15 @@ class Venta extends CI_Controller
 			$hoja->setCellValue('A4', 'Reporte de Ventas');
 			$hoja->setCellValue('A5', 'Por Categoría');
 			$hoja->setCellValue('A6', "Del: {$fdel} al: {$fal}");
+			if (isset($req['_titulocc'])) {
+				$hoja->setCellValue('A7', $req['_titulocc']);
+			}
 
-			$hoja->fromArray($nombres, null, 'A8');
-			$hoja->getStyle('A1:A6')->getFont()->setBold(true);
-			$hoja->getStyle('A8:E8')->getFont()->setBold(true);
+			$hoja->fromArray($nombres, null, 'A9');
+			$hoja->getStyle('A1:A7')->getFont()->setBold(true);
+			$hoja->getStyle('A9:E9')->getFont()->setBold(true);
 
-			$fila = 9;
+			$fila = 10;
 			$granTotal = 0;
 
 			if (!isset($data['detalle']['grupo'])) {
@@ -712,12 +719,15 @@ class Venta extends CI_Controller
 			$hoja->setCellValue("A4", "Reporte de Ventas");
 			$hoja->setCellValue("A5", "Por Articulo");
 			$hoja->setCellValue("A6", "Del: {$fdel} al: {$fal}");
+			if (isset($req['_titulocc'])) {
+				$hoja->setCellValue('A7', $req['_titulocc']);
+			}
 
-			$hoja->fromArray($nombres, null, "A8");
-			$hoja->getStyle("A1:A6")->getFont()->setBold(true);
-			$hoja->getStyle("A8:C8")->getFont()->setBold(true);
+			$hoja->fromArray($nombres, null, "A9");
+			$hoja->getStyle("A1:A7")->getFont()->setBold(true);
+			$hoja->getStyle("A9:C9")->getFont()->setBold(true);
 
-			$fila = 9;
+			$fila = 10;
 			$total = 0;
 
 			if ($data['detalle']['grupo'] == 1) {
@@ -896,6 +906,10 @@ class Venta extends CI_Controller
 				'sedes' => $datos
 			];
 
+			if (isset($req['_titulocc'])) {
+				$data['_titulocc'] = $req['_titulocc'];
+			}
+
 			if (verDato($req, "_excel")) {
 				$data = (object)$data;
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -912,17 +926,20 @@ class Venta extends CI_Controller
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
 				$hoja->setCellValue('A3', 'Por artículo');
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
+				if (isset($req['_titulocc'])) {
+					$hoja->setCellValue('A5', $req['_titulocc']);
+				}
 
-				$hoja->setCellValue('A6', 'Sede');
-				$hoja->setCellValue('B6', 'Descripción');
-				$hoja->setCellValue('C6', 'Cantidad');
-				$hoja->setCellValue('D6', 'Total (sin desct., sin propina)');
-				$hoja->getStyle('A6:B6')->getAlignment()->setHorizontal('center');
-				$hoja->getStyle('C6:D6')->getAlignment()->setHorizontal('right');
-				$hoja->getStyle('A6:D6')->getFont()->setBold(true);
-				$hoja->setAutoFilter('A6:D6');
+				$hoja->setCellValue('A7', 'Sede');
+				$hoja->setCellValue('B7', 'Descripción');
+				$hoja->setCellValue('C7', 'Cantidad');
+				$hoja->setCellValue('D7', 'Total (sin desct., sin propina)');
+				$hoja->getStyle('A7:B7')->getAlignment()->setHorizontal('center');
+				$hoja->getStyle('C7:D7')->getAlignment()->setHorizontal('right');
+				$hoja->getStyle('A7:D7')->getFont()->setBold(true);
+				$hoja->setAutoFilter('A7:D7');
 
-				$fila = 7;
+				$fila = 8;
 				foreach ($data->sedes as $sede) {
 					$totalSede = 0;
 					foreach ($sede->ventas as $venta) {
@@ -967,8 +984,8 @@ class Venta extends CI_Controller
 				$fila--;
 				// $SUMRANGE = "D7:D{$fila}";
 				// $fila++;				
-				$hoja->getStyle("C7:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-				$hoja->getStyle("A6:D{$fila}")->getBorders()->getAllBorders()
+				$hoja->getStyle("C8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+				$hoja->getStyle("A7:D{$fila}")->getBorders()->getAllBorders()
 					->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
 					->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
 
@@ -982,6 +999,7 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A2:D2');
 				$hoja->mergeCells('A3:D3');
 				$hoja->mergeCells('A4:D4');
+				$hoja->mergeCells('A5:D5');
 
 				$hoja->setTitle("Ventas por artículo");
 
@@ -1184,9 +1202,12 @@ class Venta extends CI_Controller
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
 				$hoja->setCellValue('A3', 'Por categoría agrupado por combos');
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
-				$hoja->getStyle('A1:D4')->getFont()->setBold(true);
+				if (isset($req['_titulocc'])) {
+					$hoja->setCellValue('A5', $req['_titulocc']);
+				}
+				$hoja->getStyle('A1:D5')->getFont()->setBold(true);
 
-				$fila = 6;
+				$fila = 7;
 				foreach ($data->sedes as $s) {
 					$hoja->setCellValue("A{$fila}", $s->nombre);
 					$hoja->mergeCells("A{$fila}:D{$fila}");
@@ -1260,7 +1281,7 @@ class Venta extends CI_Controller
 
 				$fila -= 2;
 				// $hoja->getStyle("B8:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
-				$hoja->getStyle("B8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+				$hoja->getStyle("B9:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
 
 				foreach (range('A', 'D') as $col) {
 					$hoja->getColumnDimension($col)->setAutoSize(true);
@@ -1270,6 +1291,7 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A2:D2');
 				$hoja->mergeCells('A3:D3');
 				$hoja->mergeCells('A4:D4');
+				$hoja->mergeCells('A5:D5');
 
 				// $memAfterExcel = round(memory_get_usage() / 1048576, 2);
 
@@ -1379,9 +1401,12 @@ class Venta extends CI_Controller
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
 				$hoja->setCellValue('A3', 'Por mesero');
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
-				$hoja->getStyle('A1:D4')->getFont()->setBold(true);
+				if (isset($req['_titulocc'])) {
+					$hoja->setCellValue('A5', $req['_titulocc']);
+				}
+				$hoja->getStyle('A1:D5')->getFont()->setBold(true);
 
-				$fila = 6;
+				$fila = 7;
 				foreach ($data->sedes as $s) {
 					$hoja->setCellValue("A{$fila}", $s->nombre);
 					$hoja->mergeCells("A{$fila}:D{$fila}");
@@ -1407,7 +1432,7 @@ class Venta extends CI_Controller
 				}
 
 				$fila--;
-				$hoja->getStyle("C8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+				$hoja->getStyle("C9:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
 
 				foreach (range('A', 'D') as $col) {
 					$hoja->getColumnDimension($col)->setAutoSize(true);
@@ -1417,6 +1442,7 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A2:D2');
 				$hoja->mergeCells('A3:D3');
 				$hoja->mergeCells('A4:D4');
+				$hoja->mergeCells('A5:D5');
 
 				$hoja->setTitle("Ventas por mesero");
 

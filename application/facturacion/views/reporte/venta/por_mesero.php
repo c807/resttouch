@@ -23,6 +23,13 @@
 			<span><b>Del:</b> <?php echo formatoFecha($fdel, 2) ?> <b>al:</b> <?php echo formatoFecha($fal, 2) ?></span>
 		</div>
 	</div>
+	<?php if (isset($_titulocc)) : ?>
+		<div class="row">
+			<div class="col-sm-12 text-center">
+				<span><?php echo $_titulocc ?></span>
+			</div>
+		</div>				
+	<?php endif ?>
 	<br /><br />
 	<div class="row">
 		<div class="col-sm-12">

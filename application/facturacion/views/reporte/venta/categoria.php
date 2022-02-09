@@ -17,6 +17,11 @@
 				<tr>
 					<td><?php echo "Sede: {$nsede}" ?></td>
 				</tr>
+				<?php if(isset($_titulocc)): ?>
+					<tr>
+						<td><?php echo $_titulocc ?></td>
+					</tr>
+				<?php endif ?>
 			</table>
 		</div>
 	</div>

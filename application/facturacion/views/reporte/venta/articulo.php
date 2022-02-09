@@ -24,7 +24,14 @@
 			<span><b>Del:</b> <?php echo formatoFecha($fdel, 2) ?> <b>al:</b> <?php echo formatoFecha($fal, 2) ?></span>
 		</div>
 	</div>
-	<br/>
+	<?php if (isset($_titulocc)) : ?>
+		<div class="row">
+			<div class="col-sm-12 text-center">
+				<span><?php echo $_titulocc ?></span>
+			</div>
+		</div>
+	<?php endif ?>
+	<br />
 	<?php foreach ($sedes as $sede) : ?>
 		<div class="table-responsive">
 			<table class="table table-bordered" style="padding: 5px">

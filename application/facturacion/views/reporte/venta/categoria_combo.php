@@ -23,6 +23,13 @@
 			<span><b>Del:</b> <?php echo formatoFecha($fdel, 2) ?> <b>al:</b> <?php echo formatoFecha($fal, 2) ?></span>
 		</div>
 	</div>
+	<?php if (isset($_titulocc)) : ?>
+		<div class="row">
+			<div class="col-sm-12 text-center">
+				<span><?php echo $_titulocc ?></span>
+			</div>
+		</div>
+	<?php endif ?>
 	<br /><br />
 	<div class="row">
 		<div class="col-sm-12">
@@ -56,14 +63,14 @@
 										<td style="padding: 5px; font-weight: bold;" class="text-right"><?php echo number_format($subcat->cantidad, 2) ?></td>
 										<td style="padding: 5px;" class="text-right"></td>
 										<td style="padding: 5px; font-weight: bold;" class="text-right"><?php echo number_format($subcat->total, 2) ?></td>
-									</tr>									
+									</tr>
 									<?php foreach ($subcat->articulos as $art) : ?>
-										<tr>											
+										<tr>
 											<td style="padding: 5px; margin-left: 10px; padding-left: 20px;"><?php echo $art->articulo ?></td>
 											<td style="padding: 5px;" class="text-right"><?php echo number_format($art->cantidad, 2) ?></td>
 											<td style="padding: 5px;" class="text-right"><?php echo $art->precio == 0 ? '' : number_format($art->precio, 2) ?></td>
 											<td style="padding: 5px;" class="text-right"><?php echo $art->total == 0 ? '' : number_format($art->total, 2) ?></td>
-										</tr>										
+										</tr>
 										<?php if (count($art->opciones) > 0) : ?>
 											<?php foreach ($art->opciones as $opc) : ?>
 												<tr>
