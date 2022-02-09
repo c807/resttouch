@@ -39,10 +39,20 @@
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
-          <input matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina">
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina"
+                 [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA" matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina"
+                 [(ngModel)]="formaPago.propina">
           <!-- Warning Icon ,Tip Quantity Exceed -->
-          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
+
+          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
+                    [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning
+          </mat-icon>
+          <mat-icon
+            (click)="autorizaCambioPropina()"
+            *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip" matTooltipPosition="left"
+                     style="color:orange;" matSuffix>lock
+          </mat-icon>
         </mat-form-field>
         <!--Fin de input de propina por forma de pago-->
 
@@ -125,9 +135,9 @@
               <strong>Datos de envío</strong>
             </td>
           </tr>
-          <tr>            
+          <tr>
             <td>
-              <mat-form-field class="fullWidth">                
+              <mat-form-field class="fullWidth">
                 <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
                 <mat-autocomplete #autoDirEntr="matAutocomplete" (optionSelected)="setSedeAtiende($event.option.value)">
                   <mat-option *ngFor="let dirEnt of direccionesDeEntrega" [value]="dirEnt.direccion_completa">
@@ -167,7 +177,7 @@
                   </mat-option>
                 </mat-select>
               </mat-form-field>
-            </td>            
+            </td>
           </tr>
           <tr>
             <td>
@@ -182,7 +192,7 @@
                        maxlength="1000">
               </mat-form-field>
             </td>
-          </tr>          
+          </tr>
         </ng-container>
         </tbody>
       </table>

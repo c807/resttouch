@@ -1,9 +1,9 @@
-import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatSelectChange} from '@angular/material/select';
+import {GLOBAL} from '../../../shared/global';
+import {LocalstorageService} from '../../../admin/services/localstorage.service';
 import * as moment from 'moment';
 import {
   ConfirmDialogComponent,
@@ -13,27 +13,28 @@ import {
   CheckPasswordComponent,
   ConfigCheckPasswordModel
 } from '../../../shared/components/check-password/check-password.component';
-import { Socket } from 'ngx-socket-io';
+import {Socket} from 'ngx-socket-io';
 
-import { FormaPago } from '../../interfaces/forma-pago';
-import { Cobro } from '../../interfaces/cobro';
-import { FormaPagoService } from '../../services/forma-pago.service';
-import { CobroService } from '../../services/cobro.service';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { FacturaRequest } from '../../interfaces/factura';
-import { FacturaService } from '../../services/factura.service';
-import { Sede } from '../../../admin/interfaces/sede';
-import { SedeService } from '../../../admin/services/sede.service';
-import { ComandaService } from '../../../restaurante/services/comanda.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { Base64 } from 'js-base64';
-import { Subscription } from 'rxjs';
-import { ClienteMasterService } from '../../../callcenter/services/cliente-master.service';
-import { ClienteMasterDireccionResponse } from '../../../callcenter/interfaces/cliente-master';
-import { TiempoEntrega } from '../../../callcenter/interfaces/tiempo-entrega';
-import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entrega.service';
-import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
-import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicilio.service';
+import {FormaPago} from '../../interfaces/forma-pago';
+import {Cobro} from '../../interfaces/cobro';
+import {FormaPagoService} from '../../services/forma-pago.service';
+import {CobroService} from '../../services/cobro.service';
+import {Cliente} from '../../../admin/interfaces/cliente';
+import {FacturaRequest} from '../../interfaces/factura';
+import {FacturaService} from '../../services/factura.service';
+import {Sede} from '../../../admin/interfaces/sede';
+import {SedeService} from '../../../admin/services/sede.service';
+import {ComandaService} from '../../../restaurante/services/comanda.service';
+import {ConfiguracionService} from '../../../admin/services/configuracion.service';
+import {Base64} from 'js-base64';
+import {Subscription} from 'rxjs';
+import {ClienteMasterService} from '../../../callcenter/services/cliente-master.service';
+import {ClienteMasterDireccionResponse} from '../../../callcenter/interfaces/cliente-master';
+import {TiempoEntrega} from '../../../callcenter/interfaces/tiempo-entrega';
+import {TiempoEntregaService} from '../../../callcenter/services/tiempo-entrega.service';
+import {TipoDomicilio} from '../../../callcenter/interfaces/tipo-domicilio';
+import {TipoDomicilioService} from '../../../callcenter/services/tipo-domicilio.service';
+import {ValidaPwdGerenteTurnoComponent} from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
 
 interface DatosPedido {
   sede: number;
@@ -42,7 +43,7 @@ interface DatosPedido {
   nombre: string;
   cliente?: any;
   tiempo_entrega?: number;
-  tipo_domicilio?: number;  
+  tipo_domicilio?: number;
 }
 
 @Component({
@@ -60,13 +61,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   get deshabilitaFormaPagoSinAumento() {
     let deshabilitar = false;
-    for (const fpc of this.formasPagoDeCuenta){
+    for (const fpc of this.formasPagoDeCuenta) {
       if (+fpc.forma_pago.aumento_porcentaje > 0) {
         deshabilitar = true;
         break;
       }
-    }      
-    return deshabilitar;    
+    }
+    return deshabilitar;
   }
 
   @Input() inputData: any = {};
@@ -78,14 +79,25 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public esMovil = false;  /* Browser de Movil o Escritorio */
   public keyboardLayout: string;
   public facturando = false;
-  public cargandoConf: any = { w: 75, h: 75 };
+  public cargandoConf: any = {w: 75, h: 75};
   public pideDocumento = false;
   public sedes: Sede[] = [];
   public sede: Sede;
-  public datosPedido: DatosPedido = { sede: null, direccion_entrega: null, telefono: null, nombre: null, cliente: null, tiempo_entrega: null, tipo_domicilio: null };
-  public descripcionUnica = { enviar_descripcion_unica: 0, descripcion_unica: null };
+  public datosPedido: DatosPedido = {
+    sede: null,
+    direccion_entrega: null,
+    telefono: null,
+    nombre: null,
+    cliente: null,
+    tiempo_entrega: null,
+    tipo_domicilio: null
+  };
+  public descripcionUnica = {enviar_descripcion_unica: 0, descripcion_unica: null};
   public isTipExceeded = false;
   public porcentajeMaximoPropina = 0;
+  public SET_PROPINA_AUTOMATICA = false;
+  public RT_AUTORIZA_CAMBIO_PROPINA = false;
+  public RT_AUTORIZA_CAMBIO_PROPINA_ICON = false;
   public MaxTooltTipMessage = '';
   public direccionesDeEntrega: ClienteMasterDireccionResponse[] = [];
   public tiemposEntrega: TiempoEntrega[] = [];
@@ -117,7 +129,20 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
+    this.SET_PROPINA_AUTOMATICA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) || 0;
+    this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
+    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
+    if (+this.data.mesaenuso.mesa.escallcenter === 1){
+      console.log("Es callcenter");
+      if(+this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER) === 1){
+        this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
+      }else{
+        this.porcentajeMaximoPropina = 0;
+      }
+    }else{
+      console.log("No es callcenter");
+      this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
+    }
     this.MaxTooltTipMessage = `El monto de propina sobrepasa el máximo sugerido del ${this.porcentajeMaximoPropina}%.`;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
     this.resetFactReq();
@@ -134,6 +159,23 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
+  }
+
+  autorizaCambioPropina() {
+    const dialogoRef = this.dialog.open(ValidaPwdGerenteTurnoComponent, {
+      width: '40%', disableClose: true,
+      data: {botonMensaje: 'Habilitar'}
+    });
+
+    dialogoRef.afterClosed().subscribe(res => {
+      console.log(res);
+      if (res && res.esgerente) {
+        this.RT_AUTORIZA_CAMBIO_PROPINA = false;
+      } else {
+        this.RT_AUTORIZA_CAMBIO_PROPINA = true;
+        this.snackBar.open('La contraseña no es correcta', 'Comanda', {duration: 5000});
+      }
+    });
   }
 
   resetFactReq = () => {
@@ -155,19 +197,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.data = this.inputData;
     }
 
-    // console.log('MESA = ', this.data.mesaenuso);
-    // console.log(this.inputData.productosACobrar);
 
-    // this.inputData.totalDeCuenta = 0.00;
     this.calculaTotalDeCuenta();
-    // this.inputData.productosACobrar.forEach((item: any) => {
-    //   this.inputData.totalDeCuenta += ((item.precio * item.cantidad) + (item.monto_extra)) * this.porcentajeAumento;
-    // });
+
 
     this.calculaPropina();
     this.actualizaSaldo();
     this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
-    // console.log('INPUT DATA = ', this.inputData);
     if (this.inputData.clientePedido) {
       this.setClienteFacturar(this.inputData.clientePedido);
     }
@@ -183,7 +219,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.tiempoEntregaSrvc.get().subscribe(res => this.tiemposEntrega = res)
     );
-  }  
+  }
 
   loadTiposDomicilio = () => {
     this.endSubs.add(
@@ -196,10 +232,6 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.actualizaSaldo();
   }
 
-  calculaPorcentajePropina() {
-    this.inputData.porcentajePropina = parseFloat((this.inputData.montoPropina * 100 / this.inputData.totalDeCuenta).toFixed(2));
-    this.actualizaSaldo();
-  }
 
   calculaTotalDeCuenta = () => {
     this.inputData.totalDeCuenta = 0.00;
@@ -208,7 +240,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   loadFormasPago = () => {
     this.endSubs.add(
-      this.formaPagoSrvc.get({ activo: 1 }).subscribe((res: FormaPago[]) => {
+      this.formaPagoSrvc.get({activo: 1}).subscribe((res: FormaPago[]) => {
         if (!!res && res.length > 0) {
           this.lstFormasPago = res;
         }
@@ -231,7 +263,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
           if (res) {
             this.agregaFormaPago(fp);
           } else {
-            this.snackBar.open('La contraseña no es correcta', 'Formas de pago', { duration: 5000 });
+            this.snackBar.open('La contraseña no es correcta', 'Formas de pago', {duration: 5000});
           }
         })
       );
@@ -255,8 +287,28 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     });
 
     this.isTipExceeded = (tipLimit < amount);
+
+
   }
 
+  /**
+   * This method calculates the automatic Tip
+   */
+  calcTipAuto = () => {
+    const tipPorcentaje = this.porcentajeMaximoPropina / 100;
+    const tipLimit = this.inputData.totalDeCuenta * tipPorcentaje;
+    let amount = (Number(this.formaPago.propina) || 0.00);
+
+    this.formasPagoDeCuenta.forEach((forP) => {
+      amount += Number(forP.propina);
+    });
+
+    const tipRestante = tipLimit - amount;
+
+    if (tipRestante >= 0 && this.SET_PROPINA_AUTOMATICA) {
+      this.formaPago.propina = tipRestante.toFixed(2);
+    }
+  }
   /**
    * This method detects when the value changes on Propina Input
    */
@@ -280,12 +332,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.bloqueaMonto = false;
     this.formaPago.forma_pago = null;
     this.calcTipExceeded();
+    this.calcTipAuto()
   }
 
   delFormaPago = (idx: number) => {
     this.formasPagoDeCuenta.splice(idx, 1);
     this.actualizaSaldo();
     this.calcTipExceeded();
+    this.calcTipAuto()
   }
 
   actualizaSaldo = () => {
@@ -293,7 +347,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.formasPagoDeCuenta.forEach(fp => sumFormasPago += +fp.monto);
     // this.inputData.saldo = this.inputData.totalDeCuenta + this.inputData.montoPropina - sumFormasPago;
     this.inputData.saldo = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
-    this.formaPago = { 
+    this.formaPago = {
       monto: this.inputData.saldo,
       forma_pago: this.formaPago?.forma_pago || null
     };
@@ -314,7 +368,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         this.datosPedido.nombre = cliPedido.nombre;
         this.datosPedido.direccion_entrega = this.datosPedido?.direccion_entrega || null;
         this.datosPedido.telefono = cliPedido.numero;
-        this.direccionesDeEntrega = await this.clienteMasterSrvc.buscarDireccion({ cliente_master: +cliPedido.cliente_master }).toPromise();
+        this.direccionesDeEntrega = await this.clienteMasterSrvc.buscarDireccion({cliente_master: +cliPedido.cliente_master}).toPromise();
       } else {
         this.datosPedido.nombre = obj.nombre;
         this.datosPedido.direccion_entrega = obj.direccion;
@@ -359,11 +413,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.factReq.cuentas.push({ cuenta: +this.inputData.idcuenta });
+    this.factReq.cuentas.push({cuenta: +this.inputData.idcuenta});
     this.endSubs.add(
       this.cobroSrvc.save(objCobro).subscribe(res => {
         if (res.exito && !res.facturada) {
-          this.snackBar.open('Cobro', `${res.mensaje}`, { duration: 3000 });
+          this.snackBar.open('Cobro', `${res.mensaje}`, {duration: 3000});
           if (res.facturar) {
             this.factReq.enviar_descripcion_unica = this.descripcionUnica.enviar_descripcion_unica;
             this.factReq.descripcion_unica = this.descripcionUnica.descripcion_unica;
@@ -384,15 +438,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
                         this.dialogRef.close(res.cuenta);
                       }
                       this.resetFactReq();
-                      this.snackBar.open('Factura', `${resFact.mensaje}`, { duration: 3000 });
+                      this.snackBar.open('Factura', `${resFact.mensaje}`, {duration: 3000});
                       this.facturando = false;
-                      this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                      this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                     })
                   );
                 } else {
                   this.facturando = false;
-                  this.snackBar.open('Factura', `ERROR: ${res.mensaje}`, { duration: 7000 });
-                  this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                  this.snackBar.open('Factura', `ERROR: ${res.mensaje}`, {duration: 7000});
+                  this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                   this.dialogRef.close(res.cuenta);
                 }
               })
@@ -407,15 +461,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
                 if (confirma) {
                   this.printRecibo(res.entidad);
                 }
-                this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
                 this.dialogRef.close(res.cuenta);
               })
             );
           }
         } else {
           this.facturando = false;
-          this.snackBar.open('Cobro', `ERROR: ${res.mensaje}`, { duration: 7000 });
-          this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+          this.snackBar.open('Cobro', `ERROR: ${res.mensaje}`, {duration: 7000});
+          this.socket.emit('refrescar:mesa', {mesaenuso: this.data.mesaenuso});
           this.dialogRef.close('closePanel');
         }
       })
@@ -458,10 +512,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         // this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
         if (res.exito) {
           this.ls.clear(`${GLOBAL.rtClientePedido}_${this.data.mesaenuso.mesa.mesa}`);
-          this.snackBar.open(`#${res.pedido}. ${res.mensaje}`, 'Pedido', { duration: 3000 });
+          this.snackBar.open(`#${res.pedido}. ${res.mensaje}`, 'Pedido', {duration: 3000});
           this.dialogRef.close('closePanel');
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Pedido', { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Pedido', {duration: 7000});
         }
       })
     );
@@ -547,11 +601,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
           this.snackBar.open(
             `Imprimiendo factura ${res.factura.serie_factura}-${res.factura.numero_factura}`,
-            'Impresión', { duration: 3000 }
+            'Impresión', {duration: 3000}
           );
           this.dialogRef.close(cuenta);
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Impresión', { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Impresión', {duration: 7000});
         }
       })
     );
@@ -586,7 +640,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.socket.emit(`print:recibo`, `${JSON.stringify(msgToPrint)}`);
     }
 
-    this.snackBar.open(`Imprimiendo recibo ${entidad.comanda}-${entidad.numero}`, 'Impresión', { duration: 3000 });
+    this.snackBar.open(`Imprimiendo recibo ${entidad.comanda}-${entidad.numero}`, 'Impresión', {duration: 3000});
   }
 
   printToBT = (msgToPrint: string = '') => {
@@ -597,7 +651,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     try {
       window.location.href = AppHref;
     } catch (error) {
-      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', { duration: 3000 });
+      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', {duration: 3000});
     }
   }
 
@@ -615,8 +669,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         this.bloqueaMonto = false;
       }
       this.calculaTotalDeCuenta();
-      this.actualizaSaldo();      
+      this.actualizaSaldo();
     }
+    this.calcTipAuto();
   }
 
   vaciaDescripcionUnica = () => {
@@ -626,7 +681,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.descripcionUnica.descripcion_unica = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) || 'Por consumo.';
     }
   }
-  
+
   setSedeAtiende = (dEnt: string = null) => {
     if (dEnt && dEnt.trim() !== '') {
       dEnt = dEnt.trim();
@@ -637,7 +692,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     }
   }
 
-  calculaVuelto = (fp: any) => {    
+  calculaVuelto = (fp: any) => {
     if (this.esEfectivo && +fp.vuelto_para > (+fp.monto + +fp.propina)) {
       this.formaPago.vuelto = +fp.vuelto_para - (+fp.monto + +fp.propina);
     } else {
