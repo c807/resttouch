@@ -167,7 +167,8 @@ class Api extends CI_Controller
 								'domicilio' => 1,
 								'comanda_origen' => $origen->comanda_origen,
 								'comanda_origen_datos' => json_encode($req),
-								'notas_generales' => isset($req['note']) && !empty(trim($req['note'])) ? trim($req['note']) : null
+								'notas_generales' => isset($req['note']) && !empty(trim($req['note'])) ? trim($req['note']) : null,
+								'comensales' => 1
 							];
 
 							$propina = false;
@@ -619,7 +620,8 @@ class Api extends CI_Controller
 								'estatus' => 1,
 								'domicilio' => 1,
 								'comanda_origen' => $origen->comanda_origen,
-								'comanda_origen_datos' => json_encode($req)
+								'comanda_origen_datos' => json_encode($req),
+								'comensales' => 1
 							];
 
 							$propina = false;
@@ -976,7 +978,8 @@ class Api extends CI_Controller
 								'domicilio' => 1,
 								'comanda_origen' => $origen->comanda_origen,
 								'comanda_origen_datos' => json_encode($req),
-								'notas_generales' => isset($req['notas_generales']) ? $req['notas_generales'] : null
+								'notas_generales' => isset($req['notas_generales']) ? $req['notas_generales'] : null,
+								'comensales' => 1
 							];
 
 							$propina = false;

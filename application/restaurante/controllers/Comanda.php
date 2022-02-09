@@ -469,21 +469,7 @@ class Comanda extends CI_Controller
 				$comanda = new Comanda_model($row->comanda);
 				$datos[] = $comanda->getComanda(['_usuario' => $data->idusuario]);
 			}
-
-			// if (!isset($_GET['callcenter'])) {				
-			// } else {
-			// 	foreach ($tmp as $row) {
-			// 		$comanda = new Comanda_model($row->comanda);
-			// 		$laComanda = $comanda->getComanda(['_usuario' => $data->idusuario]);
-			// 		if (
-			// 			isset($laComanda->estatus_callcenter->estatus_callcenter) || 
-			// 			(!isset($laComanda->estatus_callcenter->estatus_callcenter) && is_null($row->fel_uuid))
-			// 			) {
-			// 			$datos[] = $laComanda;
-			// 		}					
-			// 	}
-			// }
-
+			
 		} else {
 			$mesa = new Mesa_model($mesa);
 			$tmp = $mesa->get_comanda(['estatus' => 1, 'sede' => $data->sede]);

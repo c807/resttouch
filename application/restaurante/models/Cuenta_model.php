@@ -391,6 +391,14 @@ class Cuenta_model extends General_Model
 				$this->db->set("retencion_monto", $pago->retencion_monto);
 			}
 
+			if (isset($pago->vuelto_para)) {
+				$this->db->set("vuelto_para", $pago->vuelto_para);
+			}
+
+			if (isset($pago->vuelto)) {
+				$this->db->set("vuelto", $pago->vuelto);
+			}
+
 			$this->db
 				->set("cuenta", $this->cuenta)
 				->set("forma_pago", $pago->forma_pago)
