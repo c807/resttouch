@@ -339,6 +339,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.pideDocumento = false;
     this.bloqueaMonto = false;
     this.formaPago.forma_pago = null;
+    this.esEfectivo = false;
     this.calcTipExceeded();
     this.calcTipAuto()
   }
@@ -701,8 +702,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   calculaVuelto = (fp: any) => {
-    if (this.esEfectivo && +fp.vuelto_para > (+fp.monto + +fp.propina)) {
-      this.formaPago.vuelto = +fp.vuelto_para - (+fp.monto + +fp.propina);
+    const monto = +fp.monto || 0;
+    const propina = +fp.propina || 0;
+    if (this.esEfectivo && +fp.vuelto_para > (monto + propina)) {
+      this.formaPago.vuelto = +fp.vuelto_para - (monto + propina);
     } else {
       this.formaPago.vuelto = 0;
     }
