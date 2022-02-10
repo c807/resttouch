@@ -598,6 +598,7 @@ class Comanda_model extends General_Model
 		}
 
 		$tmp->total = suma_field($det, 'total');
+		$tmp->aumento = suma_field($det, 'aumento');
 		if ($this->comanda_origen == 1) {
 			$args['_totalCero'] = true;
 		}

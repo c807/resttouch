@@ -6,7 +6,7 @@ import {LocalstorageService} from '../../../admin/services/localstorage.service'
 import {ComandaService} from '../../services/comanda.service';
 
 interface IDatosPWD {
-  botonMensaje: string;
+  botonMensaje?: string;
 }
 
 @Component({
@@ -27,7 +27,7 @@ export class ValidaPwdGerenteTurnoComponent implements OnInit {
     private ls: LocalstorageService,
     @Inject(MAT_DIALOG_DATA) public data: IDatosPWD,
   ) {
-    if (this.data.botonMensaje) {
+    if (this.data?.botonMensaje) {
       this.MensajeBoton = this.data.botonMensaje;
     }
   }
