@@ -692,6 +692,19 @@ class Articulo_model extends General_model
 			$cgrupo = $cgrupo->row();
 			$categoria_grupo = $cgrupo->categoria_grupo;
 		} else {
+
+			$bodega = $this->db->select('bodega')->where('sede', $sede)->where('pordefecto', 1)->get('bodega')->row();
+			$bodegaPorDefecto = null;
+			if ($bodega) {
+				$bodegaPorDefecto = $bodega->bodega;
+			}
+
+			$impresora = $this->db->select('impresora')->where('sede', $sede)->where('pordefecto', 1)->get('impresora')->row();
+			$impresoraPorDefecto = null;
+			if ($impresora) {
+				$impresoraPorDefecto = $impresora->impresora;
+			}
+
 			$cat = $this->db
 				->where('descripcion', $grupo->ncategoria)
 				->where('sede', $sede)
@@ -714,8 +727,9 @@ class Articulo_model extends General_model
 				'categoria' => $categoria,
 				'categoria_grupo_grupo' => $grupo->categoria_grupo_grupo,
 				'receta' => $grupo->receta,
-				'impresora' => null,
-				'descuento' => $grupo->descuento
+				'impresora' => $impresoraPorDefecto,
+				'descuento' => $grupo->descuento,
+				'bodega' => $bodegaPorDefecto
 			]);
 
 			$categoria_grupo = $cgrupo->getPK();
