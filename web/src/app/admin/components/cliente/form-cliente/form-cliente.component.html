@@ -22,7 +22,7 @@
             <mat-form-field class="fullWidth">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Dirección de factura" name="direccion" [(ngModel)]="cliente.direccion" required maxlength="150">
                 <input matInput *ngIf="esMovil" type="text" placeholder="Dirección de factura" name="direccion" [(ngModel)]="cliente.direccion" required maxlength="150">
-            </mat-form-field>
+            </mat-form-field>            
             
             <mat-form-field class="fullWidth">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="cliente.telefono" maxlength="25" (keypress)="validatePhone($event)">
@@ -32,6 +32,15 @@
             <mat-form-field class="fullWidth" *ngIf="verTodos">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="E-mail" name="correo" [(ngModel)]="cliente.correo" maxlength="50" (keypress)="validateEmail($event)">
                 <input matInput *ngIf="esMovil" type="text" placeholder="E-mail" name="correo" [(ngModel)]="cliente.correo" maxlength="50" (keypress)="validateEmail($event)">
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth">
+                <mat-label>Tipo de cliente</mat-label>
+                <mat-select name="tipo_cliente" [(ngModel)]="cliente.tipo_cliente">                    
+                    <mat-option *ngFor="let tc of tiposCliente" [value]="tc.tipo_cliente">
+                        {{tc.descripcion}}
+                    </mat-option>
+                </mat-select>
             </mat-form-field>
             
             <mat-form-field class="fullWidth" *ngIf="verTodos">

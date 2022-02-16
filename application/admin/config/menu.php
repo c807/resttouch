@@ -91,6 +91,10 @@ $config['menu'] = [
 					21 => [
 						'nombre' => 'Edición rápida de artículos',
 						'link' => '/wms/qeprod'
+					],
+					22 => [
+						'nombre' => 'Tipo de cliente',
+						'link' => '/admin/tipo_cliente'
 					]
 				]
 			],

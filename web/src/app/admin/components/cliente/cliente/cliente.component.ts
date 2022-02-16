@@ -16,7 +16,7 @@ export class ClienteComponent implements OnInit {
   constructor() {
     this.cliente = { 
       cliente: null, nombre: null, direccion: null, nit: null, telefono: null, correo: null,
-      codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
+      codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null, tipo_cliente: null
     };
   }
 

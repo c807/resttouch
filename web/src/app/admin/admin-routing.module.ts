@@ -26,6 +26,8 @@ import { DocumentoTipoComponent } from './components/documento-tipo/documento-ti
 import { FormaPagoComandaOrigenComponent } from './components/formaPagoComandaOrigen/forma-pago-comanda-origen/forma-pago-comanda-origen.component';
 import { VendorTerceroComponent } from './components/vendor-tercero/vendor-tercero/vendor-tercero.component';
 import { ReporteBitacoraComponent } from './components/bitacora/reporte-bitacora/reporte-bitacora.component';
+import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tipo-cliente.component';
+
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -52,6 +54,7 @@ const routes: Routes = [
   { path: 'fp_co', component: FormaPagoComandaOrigenComponent, canActivate: [AuthGuard] },
   { path: 'vdt', component: VendorTerceroComponent, canActivate: [AuthGuard] },
   { path: 'rptbitacora', component: ReporteBitacoraComponent, canActivate: [AuthGuard] },
+  { path: 'tipo_cliente', component: TipoClienteComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
 

@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tipo-cliente #lstTipoCliente (getTipoClienteEv)="setTipoCliente($event)"></app-lista-tipo-cliente>
+    </div>
+    <div class="col m7 s12">
+        <app-form-tipo-cliente #frmTipoCliente [tipoCliente]="tipoCliente" (tipoClienteSavedEv)="refreshTipoClienteList()"></app-form-tipo-cliente>
+    </div>
+</div>

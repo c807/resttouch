@@ -14,6 +14,7 @@ class Cliente_model extends General_model {
 	public $departamento;
 	public $pais_iso_dos;
 	public $observaciones;
+	public $tipo_cliente = null;
 
 	public function __construct($id = "")
 	{
