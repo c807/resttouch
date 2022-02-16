@@ -42,7 +42,9 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   get audioUrl() {
-    return `${GLOBAL.sonidos_rt}/notificacion.wav`;
+    const nombreAudio = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUDIO_NOTIFICACION) || 'notificacion.wav';
+    const urlAudio = `${GLOBAL.sonidos_rt}/${nombreAudio}`;    
+    return urlAudio;
   }
 
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
@@ -110,6 +112,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   ngAfterViewInit() {
     // console.log(this.audioNotificacion);
     // this.audioNotificacion.nativeElement.play();
+    console.log(this.audioUrl);
   }
 
   avisoSocketIOEvent = (aviso: string = '') => {
