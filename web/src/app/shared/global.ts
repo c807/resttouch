@@ -5,7 +5,7 @@ const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ?
 import * as moment from 'moment';
 
 export const GLOBAL = {
-  rtVersion: '2022.02.16.08.57.53',
+  rtVersion: '2022.02.16.13.11.10',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -64,7 +64,8 @@ export const GLOBAL = {
     RT_PROPINA_AUTOMATICA: 'RT_PROPINA_AUTOMATICA',
     RT_AUTORIZA_CAMBIO_PROPINA: 'RT_AUTORIZA_CAMBIO_PROPINA',
     RT_PROPINA_EN_CALLCENTER: 'RT_PROPINA_EN_CALLCENTER',
-    RT_PORCENTAJE_PROPINA: 'RT_PORCENTAJE_PROPINA'
+    RT_PORCENTAJE_PROPINA: 'RT_PORCENTAJE_PROPINA',
+    RT_AUDIO_NOTIFICACION: 'RT_AUDIO_NOTIFICACION'
   },
   grupos: [
     {
