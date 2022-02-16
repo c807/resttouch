@@ -41,6 +41,17 @@ class Reporte extends CI_Controller
 		return get_configuracion($config, "RT_REPORTES_FECHAS_TURNOS", 3);
 	}
 
+	private function agrupa_lista_comandas($data, $lista = '')
+	{		
+		foreach($data as $value) {
+			if ($lista !== '') {
+				$lista .= ',';
+			}
+			$lista .= $value->comanda;
+		}
+		return $lista;
+	}
+
 	public function caja()
 	{
 		ini_set("pcre.backtrack_limit", "15000000");
@@ -62,11 +73,12 @@ class Reporte extends CI_Controller
 		$data["_facturadas"] = true;
 
 		$data["descuento"] = 0;
-		$data['ingresos'] = $this->Reporte_model->get_ingresos($data);
+		$data['ingresos'] = $this->Reporte_model->get_ingresos($data);		
 		$data['comandas'] = true;
 		$tmp = $this->Reporte_model->get_ingresos($data);
 		unset($data['comandas']);
 		$data['ingresos'] = array_merge($data['ingresos'], $tmp);
+		$listaComandas = $this->agrupa_lista_comandas($data['ingresos']);
 
 		$ingr = array_result($data['ingresos'], "forma_pago");
 		$data['ingreso_sin_fact'] = [];
@@ -83,6 +95,7 @@ class Reporte extends CI_Controller
 		$tmp = $this->Reporte_model->get_ingresos($data);
 		unset($data['comandas']);
 		$data['descuentos'] = array_merge($data['descuentos'], $tmp);
+		$listaComandas = $this->agrupa_lista_comandas($data['descuentos'], $listaComandas);
 
 		$desc = array_result($data['descuentos'], "forma_pago");
 		$data['descuento_sin_fact'] = [];
@@ -198,6 +211,8 @@ class Reporte extends CI_Controller
 		}
 
 		$data['fhimpresion'] = date('d/m/Y H:i:s');
+
+		$data['totalComensales'] = $this->Reporte_model->get_suma_comensales($listaComandas);
 
 		if (verDato($data, "_excel")) {
 			$fdel = formatoFecha($data['fdel'], 2);
@@ -400,12 +415,21 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("B{$fila}", round(($desc + $ing), 2));
 				$hoja->setCellValue("C{$fila}", round($prop + $prop_desc, 2));
 				$hoja->setCellValue("D{$fila}", round(($desc + $ing + $prop + $prop_desc), 2));
+				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
+				$hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
+				$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
 
 				if ($data['_validar']) {
 					$hoja->setCellValue("E{$fila}", round($recIng + $recDesc, 2));
 					// $hoja->setCellValue("F{$fila}", round(abs($ing + $prop + $desc - ($recIng + $recDesc)), 2));
 					$hoja->setCellValue("F{$fila}", round($ing + $prop + $prop_desc + $desc - ($recIng + $recDesc), 2));
 				}
+
+				$fila++;
+				$hoja->setCellValue("A{$fila}", 'COMENSALES: ');
+				$hoja->setCellValue("B{$fila}", $data['totalComensales']);
+				$hoja->setCellValue("C{$fila}", 'CONSUMO/COMENSAL:');
+				$hoja->setCellValue("D{$fila}", round($data['totalComensales'] > 0 ? (($desc + $ing + $prop + $prop_desc) / $data['totalComensales']) : 0, 2));
 
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('right');
 				$hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);

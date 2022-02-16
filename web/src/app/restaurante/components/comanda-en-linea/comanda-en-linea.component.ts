@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,7 +31,7 @@ import { Subscription } from 'rxjs';
     ])
   ]
 })
-export class ComandaEnLineaComponent implements OnInit, OnDestroy {
+export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get montoPropina() {
     return (formas_pago: any = []) => {
@@ -41,7 +41,12 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     }
   }
 
+  get audioUrl() {
+    return `${GLOBAL.sonidos_rt}/notificacion.wav`;
+  }
+
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
+  @ViewChild('audioNotificacion') audioNotificacion: ElementRef;
   public dataSource: any[] = [];
   public columnsToDisplay = ['comanda', 'orden', 'fechahora', 'nombre', 'total', 'acciones'];
   public expandedElement: any | null;
@@ -102,6 +107,11 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     this.loadComandasEnLinea();
   }
 
+  ngAfterViewInit() {
+    // console.log(this.audioNotificacion);
+    // this.audioNotificacion.nativeElement.play();
+  }
+
   avisoSocketIOEvent = (aviso: string = '') => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
@@ -118,8 +128,9 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       dir: 'auto'
     };
     this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
-    const audio = new Audio(`${GLOBAL.sonidos_rt}/notificacion.wav`);
-    audio.play();
+    // const audio = new Audio(this.audioUrl);
+    // audio.play();    
+    this.audioNotificacion.nativeElement.play();
   }
 
   ngOnDestroy() {

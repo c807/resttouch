@@ -17,9 +17,9 @@
 				</tr>
 				<tr>
 					<td style="font-weight: bold;"><?php echo $nsede ?></td>
-				</tr>				
+				</tr>
 			</table>
-		</div>		
+		</div>
 	</div>
 	<div class="row">
 		<div class="col-sm-12 text-center">
@@ -51,7 +51,7 @@
 	<br>
 
 	<br>
-	<div class="row">
+	<div class="row">		
 		<div class="col-sm-12">
 			<div class="table-responsive">
 				<table class="table table-bordered" style="padding: 5px">
@@ -72,7 +72,7 @@
 							<tr>
 								<td style="padding: 10px;" colspan="3"><b>Ingresos</b></td>
 							</tr>
-							<?php foreach ($ingresos as $row) : ?>
+							<?php foreach ($ingresos as $row) : ?>								
 								<tr>
 									<td style="padding: 5px;"><?php echo $row->descripcion ?></td>
 									<td style="padding: 5px;" class="text-right">
@@ -113,7 +113,7 @@
 							<?php endforeach ?>
 							<?php if ($_validar) : ?>
 								<!-- hasta aqui-->
-								<?php foreach ($ingreso_sin_fact as $row) : ?>
+								<?php foreach ($ingreso_sin_fact as $row) : ?>									
 									<tr>
 										<td style="padding: 5px;"><?php echo $row->descripcion ?></td>
 										<td style="padding: 5px;" class="text-right">
@@ -190,7 +190,7 @@
 							<tr>
 								<td style="padding: 10px;" colspan="3"><b>Descuentos</b></td>
 							</tr>
-							<?php foreach ($descuentos as $row) : ?>
+							<?php foreach ($descuentos as $row) : ?>								
 								<tr>
 									<td style="padding: 5px;"><?php echo $row->descripcion ?></td>
 									<td style="padding: 5px;" class="text-right">
@@ -227,7 +227,7 @@
 								</tr>
 							<?php endforeach ?>
 							<?php if ($_validar) : ?>
-								<?php foreach ($descuento_sin_fact as $row) : ?>
+								<?php foreach ($descuento_sin_fact as $row) : ?>									
 									<tr>
 										<td style="padding: 5px;"><?php echo $row->descripcion ?></td>
 										<td style="padding: 5px;" class="text-right">
@@ -326,6 +326,18 @@
 									</td>
 								<?php endif ?>
 							</tr>
+							<!-- Inicia fila de comensales -->
+							<tr>
+								<td style="padding: 5px;" class="text-right"><b>COMENSALES:</b></td>
+								<td style="padding: 5px;" class="text-right"><?php echo $totalComensales ?></td>
+								<td style="padding: 5px;" class="text-right">CONSUMO/COMENSAL:</td>
+								<td style="padding: 5px;" class="text-right"><?php echo number_format($totalComensales > 0 ? (($desc + $ing + $prop + $prop_desc) / $totalComensales) : 0, 2) ?></td>
+								<?php if ($_validar) : ?>
+									<td style="padding: 5px;" class="text-right"></td>
+									<td style='<?php echo "padding: 5px; {$clase}" ?>' class="text-right"></td>
+								<?php endif ?>
+							</tr>
+							<!-- Termina fila de comensales -->
 						<?php else : ?>
 							<?php $totalIngresos = 0; ?>
 							<?php $totalDescuentos = 0; ?>
@@ -535,7 +547,7 @@
 	<?php endif ?>
 
 	<footer class="text-right">
-		<span style="font-weight: bold;">Impresión: <?php echo $fhimpresion ?></span>	
+		<span style="font-weight: bold;">Impresión: <?php echo $fhimpresion ?></span>
 	</footer>
 </body>
 

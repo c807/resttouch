@@ -95,7 +95,7 @@ class Reporte_model extends CI_Model
 			ifnull(e.fecha_factura, date(h.fhcreacion)) as fecha_factura,
 			h.sede,
 			j.nombre as nsede,
-			ifnull(e.serie_factura, '') as serie_factura, h.estatus as estatus_comanda, f.esefectivo")
+			ifnull(e.serie_factura, '') as serie_factura, h.estatus as estatus_comanda, f.esefectivo, group_concat(distinct h.comanda separator ',') as comanda")
 			->from("cuenta_forma_pago a")
 			->join("detalle_cuenta b", "a.cuenta = b.cuenta_cuenta")
 			->join("detalle_factura_detalle_cuenta c", "b.detalle_cuenta = c.detalle_cuenta", "left")
@@ -120,7 +120,7 @@ class Reporte_model extends CI_Model
 				a.numero_factura,
 				a.sede,
 				nsede,
-				a.serie_factura, a.estatus_comanda, a.esefectivo
+				a.serie_factura, a.estatus_comanda, a.esefectivo, group_concat(distinct a.comanda separator ',') as comanda
 			from ( {$tmp} ) a
 			group by a.forma_pago {$group}")
 			->result();
@@ -466,6 +466,17 @@ class Reporte_model extends CI_Model
 			}
 		}
 		return $facturas;
+	}
+
+	public function get_suma_comensales($comandas = '')
+	{
+		if (trim($comandas) !== '') {
+			$suma = $this->db->select_sum('comensales')->where("comanda IN({$comandas})")->get('comanda')->row();
+			if ($suma) {
+				return (int)$suma->comensales;
+			}
+		}
+		return 0;
 	}
 }
 
