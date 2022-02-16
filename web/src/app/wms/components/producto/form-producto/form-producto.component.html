@@ -1,255 +1,312 @@
-<mat-card class="mat-elevation-z4 fullWidth">
-    <mat-card-title>
-        <h4>
-            Artículo {{!!articulo.articulo ? (articulo.descripcion | truncar:35) : ''}}
-            <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = true;"
-                *ngIf="!showArticuloForm">
-                <mat-icon class="iconFontSize">expand_more</mat-icon>
-            </button>
-            <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = false;"
-                *ngIf="showArticuloForm">
-                <mat-icon class="iconFontSize">expand_less</mat-icon>
-            </button>
-        </h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmArticulo="ngForm" *ngIf="showArticuloForm" (ngSubmit)="frmArticulo.form.valid && onSubmit()" novalidate>
-            <!-- <mat-hint align="start" *ngIf="!categoria || !categoria.descripcion"><strong>Por favor seleccione un categoría.</strong></mat-hint><br *ngIf="!categoria || !categoria.descripcion"/>
-            <mat-hint align="start" *ngIf="!subcategoria || !subcategoria.descripcion"><strong>Por favor seleccione un sub-categoría.</strong></mat-hint>
-            <mat-chip-list>
-                <mat-chip color="accent" class="catSubCat" *ngIf="categoria" selected>
-                    {{categoria.descripcion}}
-                </mat-chip>
-                <mat-chip color="warn" class="catSubCat" *ngIf="subcategoria" selected>
-                    {{subcategoria.descripcion}}
-                </mat-chip>
-            </mat-chip-list> -->
-
-            <mat-form-field class="fullWidth" style="margin-top: 10px;">
-                <mat-label>Sub-categoría</mat-label>
-                <mat-select name="categoria_grupo" [(ngModel)]="articulo.categoria_grupo" required>
-                    <mat-option *ngFor="let sc of lstSubCategorias" [value]="sc.categoria_grupo">
-                        {{sc.descripcion}} ({{sc.categoria.descripcion}})
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
-                <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
-            </mat-form-field>
-            
-            <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio" required>
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth">
-                <mat-label>Presentación Venta</mat-label>
-                <mat-select name="presentacion" [(ngModel)]="articulo.presentacion" required>
-                    <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
-                        {{p.descripcion}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <mat-label>Presentación Reportes</mat-label>
-                <mat-select name="presentacion_reporte" [(ngModel)]="articulo.presentacion_reporte" required>
-                    <mat-option *ngFor="let p of presentacionesFiltered" [value]="p.presentacion">
-                        {{p.descripcion}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código" name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
-                <input matInput *ngIf="esMovil" type="text" placeholder="Código" name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
-                <input matInput *ngIf="esMovil" type="text" placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth" *ngIf = "+articulo.produccion == 1">
-                <input matInput type="number" step="0.05" placeholder="Rendimiento" name="rendimiento" [(ngModel)]="articulo.rendimiento" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth" *ngIf = "+articulo.multiple == 1 || +articulo.combo">
-                <input matInput type="number" step="1" placeholder="Cantidad minima" name="minima" [(ngModel)]="articulo.cantidad_minima" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth" *ngIf = "+articulo.multiple == 1 || +articulo.combo">
-                <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima" [(ngModel)]="articulo.cantidad_maxima" required>
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
-                <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo" [(ngModel)]="articulo.stock_minimo">
-            </mat-form-field>
-            <mat-form-field class="fullWidth" *ngIf = "+articulo.mostrar_inventario === 1">
-                <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo" [(ngModel)]="articulo.stock_maximo">
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth">
-                <mat-label>Impuesto Especial</mat-label>
-                <mat-select name="impuesto_especial" [(ngModel)]="articulo.impuesto_especial">
-                    <mat-option *ngFor="let impesp of impuestosEspeciales" [value]="impesp.impuesto_especial">
-                        {{impesp.descripcion_interna}} ({{impesp.porcentaje | number:'1.2-2'}}%)
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field class="fullWidth" *ngIf="articulo.impuesto_especial">
-                <input matInput type="number" placeholder="Cantidad gravable" name="cantidad_gravable" [(ngModel)]="articulo.cantidad_gravable">
-            </mat-form-field>
-            
-            <mat-form-field class="fullWidth" *ngIf="articulo.impuesto_especial">
-                <input matInput type="number" placeholder="Precio sugerido" name="precio_sugerido" [(ngModel)]="articulo.precio_sugerido">
-            </mat-form-field>
-
-            <div class="row">
-                <div class="col m3 s3">
-                    <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion" (change)="setEsRecetaOn()" [disabled]="articuloEsOpcionMultiple || articuloEsCombo">Producción</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos" (change)="setMultipleOff()" [disabled]="articuloEsOpcionMultiple">De POS</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo" (change)="setOpcMultOff()" [disabled]="articuloEsReceta || articuloMostrarInventario || articuloEsOpcionMultiple">Combo</mat-checkbox>
-                </div>                
-            </div>
-            <div class="row">
-                <div class="col m3 s3">
-                    <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple" (change)="setComboOff()" [disabled]="articuloEsReceta || articuloMostrarPOS || articuloMostrarInventario || articuloEsCombo">Opción múltiple</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="mostrar_inventario" class="example-margin" [(ngModel)]="+articulo.mostrar_inventario" [disabled]="articuloEsCombo || articuloEsOpcionMultiple" (change)="apagaCombo()">De inventario</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta" (change)="setOpcComboOff()" [disabled]="disableEsReceta">Es receta</mat-checkbox>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col m3 s3">
-                    <mat-checkbox name="cobro_mas_caro" class="example-margin" [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">Cobrar el más caro</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra" [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">Usar como extra</mat-checkbox>
-                </div>                
-            </div>
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
-                    Replicar a sedes
-                </button>
-                <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
-                    Dar de baja
-                </button> -->
-                <button mat-raised-button type="button" color="accent" (click)="resetArticulo()" *ngIf="articulo.articulo">
-                    Nuevo
-                </button>
-            </div>
-        </form>
-    </mat-card-content>
-</mat-card>
-<hr *ngIf="articulo.articulo" />
-<mat-card class="mat-elevation-z4 fullWidth" *ngIf="articulo.articulo">
-    <mat-card-title>
-        <h4>
-            Detalle del artículo {{articulo.descripcion | truncar:35}}
-            <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = true;"
-                *ngIf="!showDetalleForm">
-                <mat-icon class="iconFontSize">expand_more</mat-icon>
-            </button>
-            <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = false;"
-                *ngIf="showDetalleForm">
-                <mat-icon class="iconFontSize">expand_less</mat-icon>
-            </button>
-        </h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmDetalleArticulo="ngForm" *ngIf="showDetalleForm" (ngSubmit)="frmDetalleArticulo.form.valid && onSubmitDetail()" novalidate>            
-            <mat-form-field class="fullWidth">
-                <mat-label>Artículo</mat-label>                    
-                <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
-                <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
-                    <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="disableArticuloReceta(a)">
-                        {{a.descripcion}}{{ a.subcategoria && a.subcategoria.descripcion ? (' (' + a.subcategoria.descripcion + ')') : '' }}
-                    </mat-option>
-                </mat-autocomplete>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput placeholder="Cantidad" type="number" step="0.01" name="cantidad" min="0" [(ngModel)]="receta.cantidad" required>
-            </mat-form-field>            
-            <mat-form-field class="fullWidth" *ngIf="receta.precio_extra && receta.precio_extra > 0">
-                <input matInput placeholder="Precio" name="precio" [(ngModel)]="receta.precio" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <mat-label>Unidad de medida</mat-label>
-                <mat-select name="medida" [(ngModel)]="receta.medida" required>
-                    <mat-option *ngFor="let m of medidas" [value]="m.medida">
-                        {{m.descripcion}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <div class="row">
-                <div class="col m3 s3">
-                    <mat-checkbox name="racionable" class="fullWidth" [(ngModel)]="+receta.racionable">¿Es racionable?</mat-checkbox>
-                </div>
-                <div class="col m3 s3">
-                    <mat-checkbox 
-                        name="extra" 
-                        class="fullWidth" 
-                        [(ngModel)]="+receta.precio_extra">
-                        Precio Extra
-                    </mat-checkbox>
-                </div>
-            </div>
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmDetalleArticulo.form.valid || +receta.cantidad < 0 || +articulo.debaja === 1">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetReceta()" *ngIf="receta.articulo_detalle">
-                    Nuevo
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="imprimirReceta()" *ngIf="recetas.length > 0">
-                    Imprimir
-                </button>
-            </div>
-        </form>
-        <hr *ngIf="recetas.length > 0" />
-        <mat-form-field class="fullWidth">
-            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Buscar">
-        </mat-form-field>
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z4 full-width" *ngIf="recetas.length > 0">
-            <ng-container matColumnDef="articulo">
-                <th mat-header-cell *matHeaderCellDef>Artículo</th>
-                <td mat-cell *matCellDef="let element" class="text-wrap">{{element.articulo.descripcion}}</td>
-            </ng-container>
-            <ng-container matColumnDef="cantidad">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}</td>
-            </ng-container>
-            <ng-container matColumnDef="medida">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Unida de medida</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.medida.descripcion}}</td>
-            </ng-container>
-            <ng-container matColumnDef="precio">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Precio</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.precio | number:'1.2-2'}}</td>
-            </ng-container>
-            <ng-container matColumnDef="editItem">
-                <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
-                <td mat-cell *matCellDef="let element" class="text-wrap">
-                    <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="getReceta(element.receta, element.articulo_detalle)" [disabled]="+articulo.debaja === 1">
-                        Editar
+<mat-tab-group>
+    <mat-tab label="Artículo">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>
+                    {{!!articulo.articulo ? (articulo.descripcion | truncar:35) : 'Artículo'}}
+                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = true;"
+                        *ngIf="!showArticuloForm">
+                        <mat-icon class="iconFontSize">expand_more</mat-icon>
                     </button>
-                    <button mat-raised-button type="button" color="accent" (click)="eliminaReceta(element)" [disabled]="+articulo.debaja === 1">
-                        Eliminar
+                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = false;"
+                        *ngIf="showArticuloForm">
+                        <mat-icon class="iconFontSize">expand_less</mat-icon>
                     </button>
-                </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;">
-            </tr>
-        </table>
-    </mat-card-content>
-</mat-card>
+                </h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmArticulo="ngForm" *ngIf="showArticuloForm" (ngSubmit)="frmArticulo.form.valid && onSubmit()"
+                    novalidate>
+                    <!-- <mat-hint align="start" *ngIf="!categoria || !categoria.descripcion"><strong>Por favor seleccione un categoría.</strong></mat-hint><br *ngIf="!categoria || !categoria.descripcion"/>
+                    <mat-hint align="start" *ngIf="!subcategoria || !subcategoria.descripcion"><strong>Por favor seleccione un sub-categoría.</strong></mat-hint>
+                    <mat-chip-list>
+                        <mat-chip color="accent" class="catSubCat" *ngIf="categoria" selected>
+                            {{categoria.descripcion}}
+                        </mat-chip>
+                        <mat-chip color="warn" class="catSubCat" *ngIf="subcategoria" selected>
+                            {{subcategoria.descripcion}}
+                        </mat-chip>
+                    </mat-chip-list> -->
+
+                    <mat-form-field class="fullWidth" style="margin-top: 10px;">
+                        <mat-label>Sub-categoría</mat-label>
+                        <mat-select name="categoria_grupo" [(ngModel)]="articulo.categoria_grupo" required>
+                            <mat-option *ngFor="let sc of lstSubCategorias" [value]="sc.categoria_grupo">
+                                {{sc.descripcion}} ({{sc.categoria.descripcion}})
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text"
+                            placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion"
+                            minlength="1" maxlength="250" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion"
+                            [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio"
+                            required>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Presentación Venta</mat-label>
+                        <mat-select name="presentacion" [(ngModel)]="articulo.presentacion" required>
+                            <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
+                                {{p.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Presentación Reportes</mat-label>
+                        <mat-select name="presentacion_reporte" [(ngModel)]="articulo.presentacion_reporte" required>
+                            <mat-option *ngFor="let p of presentacionesFiltered" [value]="p.presentacion">
+                                {{p.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código"
+                            name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Código" name="codigo"
+                            [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text"
+                            placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1"
+                            maxlength="25">
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Shopify ID" name="shopify_id"
+                            [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" *ngIf="+articulo.produccion == 1">
+                        <input matInput type="number" step="0.05" placeholder="Rendimiento" name="rendimiento"
+                            [(ngModel)]="articulo.rendimiento" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="+articulo.multiple == 1 || +articulo.combo">
+                        <input matInput type="number" step="1" placeholder="Cantidad minima" name="minima"
+                            [(ngModel)]="articulo.cantidad_minima" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="+articulo.multiple == 1 || +articulo.combo">
+                        <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima"
+                            [(ngModel)]="articulo.cantidad_maxima" required>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" *ngIf="+articulo.mostrar_inventario === 1">
+                        <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo"
+                            [(ngModel)]="articulo.stock_minimo">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="+articulo.mostrar_inventario === 1">
+                        <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo"
+                            [(ngModel)]="articulo.stock_maximo">
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Impuesto Especial</mat-label>
+                        <mat-select name="impuesto_especial" [(ngModel)]="articulo.impuesto_especial">
+                            <mat-option *ngFor="let impesp of impuestosEspeciales" [value]="impesp.impuesto_especial">
+                                {{impesp.descripcion_interna}} ({{impesp.porcentaje | number:'1.2-2'}}%)
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" *ngIf="articulo.impuesto_especial">
+                        <input matInput type="number" placeholder="Cantidad gravable" name="cantidad_gravable"
+                            [(ngModel)]="articulo.cantidad_gravable">
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" *ngIf="articulo.impuesto_especial">
+                        <input matInput type="number" placeholder="Precio sugerido" name="precio_sugerido"
+                            [(ngModel)]="articulo.precio_sugerido">
+                    </mat-form-field>
+
+                    <div class="row">
+                        <div class="col m3 s3">
+                            <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion"
+                                (change)="setEsRecetaOn()" [disabled]="articuloEsOpcionMultiple || articuloEsCombo">
+                                Producción</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos"
+                                (change)="setMultipleOff()" [disabled]="articuloEsOpcionMultiple">De POS</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo"
+                                (change)="setOpcMultOff()"
+                                [disabled]="articuloEsReceta || articuloMostrarInventario || articuloEsOpcionMultiple">
+                                Combo</mat-checkbox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m3 s3">
+                            <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple"
+                                (change)="setComboOff()"
+                                [disabled]="articuloEsReceta || articuloMostrarPOS || articuloMostrarInventario || articuloEsCombo">
+                                Opción múltiple</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="mostrar_inventario" class="example-margin"
+                                [(ngModel)]="+articulo.mostrar_inventario"
+                                [disabled]="articuloEsCombo || articuloEsOpcionMultiple" (change)="apagaCombo()">De
+                                inventario</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta"
+                                (change)="setOpcComboOff()" [disabled]="disableEsReceta">Es receta</mat-checkbox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m3 s3">
+                            <mat-checkbox name="cobro_mas_caro" class="example-margin"
+                                [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">Cobrar el más
+                                caro</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra"
+                                [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">Usar como extra
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion"
+                            [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" class="btnAccion"
+                            (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
+                            Replicar a sedes
+                        </button>
+                        <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
+                            Dar de baja
+                        </button> -->
+                        <button mat-raised-button type="button" color="accent" (click)="resetArticulo()"
+                            *ngIf="articulo.articulo">
+                            Nuevo
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+        <hr *ngIf="articulo.articulo" />
+        <mat-card class="mat-elevation-z4 fullWidth" *ngIf="articulo.articulo">
+            <mat-card-title>
+                <h4>
+                    Detalle del artículo {{articulo.descripcion | truncar:35}}
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = true;"
+                        *ngIf="!showDetalleForm">
+                        <mat-icon class="iconFontSize">expand_more</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = false;"
+                        *ngIf="showDetalleForm">
+                        <mat-icon class="iconFontSize">expand_less</mat-icon>
+                    </button>
+                </h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmDetalleArticulo="ngForm" *ngIf="showDetalleForm"
+                    (ngSubmit)="frmDetalleArticulo.form.valid && onSubmitDetail()" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Artículo</mat-label>
+                        <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}"
+                            placeholder="Artículo" matInput [matAutocomplete]="autoArticulos"
+                            (keyup)="filtrarArticulos(txtArticuloSelected)" required>
+                        <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
+                            <mat-option *ngFor="let a of filteredArticulos" [value]="a"
+                                [disabled]="disableArticuloReceta(a)">
+                                {{a.descripcion}}{{ a.subcategoria && a.subcategoria.descripcion ? (' (' +
+                                a.subcategoria.descripcion + ')') : '' }}
+                            </mat-option>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput placeholder="Cantidad" type="number" step="0.01" name="cantidad" min="0"
+                            [(ngModel)]="receta.cantidad" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="receta.precio_extra && receta.precio_extra > 0">
+                        <input matInput placeholder="Precio" name="precio" [(ngModel)]="receta.precio" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Unidad de medida</mat-label>
+                        <mat-select name="medida" [(ngModel)]="receta.medida" required>
+                            <mat-option *ngFor="let m of medidas" [value]="m.medida">
+                                {{m.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <div class="row">
+                        <div class="col m3 s3">
+                            <mat-checkbox name="racionable" class="fullWidth" [(ngModel)]="+receta.racionable">¿Es
+                                racionable?</mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="extra" class="fullWidth" [(ngModel)]="+receta.precio_extra">
+                                Precio Extra
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion"
+                            [disabled]="!frmDetalleArticulo.form.valid || +receta.cantidad < 0 || +articulo.debaja === 1">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetReceta()"
+                            *ngIf="receta.articulo_detalle">
+                            Nuevo
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="imprimirReceta()"
+                            *ngIf="recetas.length > 0">
+                            Imprimir
+                        </button>
+                    </div>
+                </form>
+                <hr *ngIf="recetas.length > 0" />
+                <mat-form-field class="fullWidth">
+                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Buscar">
+                </mat-form-field>
+                <table mat-table [dataSource]="dataSource" class="mat-elevation-z4 full-width"
+                    *ngIf="recetas.length > 0">
+                    <ng-container matColumnDef="articulo">
+                        <th mat-header-cell *matHeaderCellDef>Artículo</th>
+                        <td mat-cell *matCellDef="let element" class="text-wrap">{{element.articulo.descripcion}}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="cantidad">
+                        <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
+                        <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="medida">
+                        <th mat-header-cell *matHeaderCellDef class="text-right">Unida de medida</th>
+                        <td mat-cell *matCellDef="let element" class="text-right">{{element.medida.descripcion}}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="precio">
+                        <th mat-header-cell *matHeaderCellDef class="text-right">Precio</th>
+                        <td mat-cell *matCellDef="let element" class="text-right">{{element.precio | number:'1.2-2'}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="editItem">
+                        <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
+                        <td mat-cell *matCellDef="let element" class="text-wrap">
+                            <button mat-raised-button type="button" color="accent" class="btnAccion"
+                                (click)="getReceta(element.receta, element.articulo_detalle)"
+                                [disabled]="+articulo.debaja === 1">
+                                Editar
+                            </button>
+                            <button mat-raised-button type="button" color="accent" (click)="eliminaReceta(element)"
+                                [disabled]="+articulo.debaja === 1">
+                                Eliminar
+                            </button>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+                    </tr>
+                </table>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+    <mat-tab [label]="lblPrecioPorTipo" [disabled]="tabPreciosPorClienteDisabled">
+        <app-lista-precios-tipo-cliente></app-lista-precios-tipo-cliente>
+    </mat-tab>
+</mat-tab-group>

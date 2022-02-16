@@ -6,8 +6,6 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { GLOBAL } from '../../../../shared/global';
 import { saveAs } from 'file-saver';
 
-// import { Categoria } from '../../../interfaces/categoria';
-// import { CategoriaGrupo, CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
 import { CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
 import { Articulo } from '../../../interfaces/articulo';
 import { ArticuloDetalle } from '../../../interfaces/articulo-detalle';
@@ -71,9 +69,18 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     return +this.articulo.mostrar_inventario === 1;
   }
 
-  @Input() articulo: Articulo;
-  // @Input() categoria: Categoria = null;
-  // @Input() subcategoria: CategoriaGrupo = null;
+  get lblPrecioPorTipo(): string {
+    if (!!this.articulo.articulo) {
+      return `Precios de '${this.articulo.descripcion}' por tipo de cliente`;
+    }
+    return '';
+  }
+
+  get tabPreciosPorClienteDisabled(): boolean {
+    return this.lblPrecioPorTipo.trim() === '' || this.articulo === null || this.articulo === undefined || +this.articulo.mostrar_pos === 0;
+  }
+
+  @Input() articulo: Articulo;  
   @Output() articuloSvd = new EventEmitter();
   private titulo = 'Receta';
   public showArticuloForm = true;
@@ -147,9 +154,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       esextra: 0,
       stock_minimo: null,
       stock_maximo: null
-    };
-    // this.categoria = null;
-    // this.subcategoria = null;
+    };    
     this.recetas = [];
     this.resetReceta();
     this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));
@@ -296,8 +301,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       precio_extra: 0,
       precio: 0
     };
-    this.txtArticuloSelected = undefined;
-    // this.recetas = [];
+    this.txtArticuloSelected = undefined;    
     this.updateTableDataSource();
   }
 
