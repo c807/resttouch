@@ -338,6 +338,15 @@ $config['menu'] = [
 						'link' => '/callcenter/repartidor'
 					]
 				]
+			],
+			3 => [
+				'nombre' => 'Reportes',
+				'opciones' => [
+					1 => [
+						'nombre' => 'Pedidos por sede',
+						'link' => '/callcenter/rpt_pedidos_sede'
+					]
+				]
 			]
 		]
 	],
