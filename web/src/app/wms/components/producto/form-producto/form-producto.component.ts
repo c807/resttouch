@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -19,6 +19,8 @@ import { ImpuestoEspecialService } from '../../../../admin/services/impuesto-esp
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { ReplicarASedesDialogComponent } from '../replicar-a-sedes-dialog/replicar-a-sedes-dialog.component';
+import { ListaPreciosTipoClienteComponent } from '../lista-precios-tipo-cliente/lista-precios-tipo-cliente.component';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -82,6 +84,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
 
   @Input() articulo: Articulo;  
   @Output() articuloSvd = new EventEmitter();
+  @ViewChild('lstPreciosTipoCliente') lstPreciosTipoCliente: ListaPreciosTipoClienteComponent;
   private titulo = 'Receta';
   public showArticuloForm = true;
   public medidas: Medida[] = [];
@@ -501,4 +504,10 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       })
     );    
   }
+
+  loadPreciosPorTipoDeCliente = (art: Articulo) => {
+    this.lstPreciosTipoCliente.articulo = art;
+    this.lstPreciosTipoCliente.loadArticulosTipoCliente(art.articulo);
+  }
+
 }

@@ -7,6 +7,7 @@ import { Impresora } from '../interfaces/impresora';
 import { CategoriaGrupo, CategoriaGrupoResponse, CategoriaGrupoImpresora } from '../interfaces/categoria-grupo';
 import { Articulo, ArbolArticulos, NodoProducto, ArbolCategoriaGrupo, ArticuloResponse, ArticuloCodigo, ArticuloFastEdit } from '../interfaces/articulo';
 import { ArticuloDetalle } from '../interfaces/articulo-detalle';
+import { ArticuloTipoCliente } from '../interfaces/articulo-tipo-cliente';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -248,5 +249,20 @@ export class ArticuloService {
       `${GLOBAL.urlMantenimientos}/${this.categoriaUrl}/dar_de_baja/${idCat}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  // Inicia métodos para precios por tipo de cliente
+  getArticulosPorTipoCliente(fltr: any = {}): Observable<ArticuloTipoCliente[]> {
+    return this.http.get<ArticuloTipoCliente[]>(
+      `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/get_lista_precios?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }  
+
+  saveArticuloTipocliente(entidad: ArticuloTipoCliente) {
+    return this.http.post<any>(
+      `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/guardar_articulo_tipo_cliente${entidad.articulo_tipo_cliente ? ('/' + entidad.articulo_tipo_cliente) : ''}`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+  // Fin de métodos para precios por tipo de cliente
 
 }

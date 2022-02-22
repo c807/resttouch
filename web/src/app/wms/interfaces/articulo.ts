@@ -172,3 +172,8 @@ export interface ArticuloImpresion {
     Detalle: string[];
     Impresora: Impresora;
 }
+
+export interface ArticuloSimplified {
+    articulo: number;
+    descripcion: string;
+}
