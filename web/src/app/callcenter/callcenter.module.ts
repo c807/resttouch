@@ -67,6 +67,7 @@ import { FormTipoDomicilioComponent } from './components/tipo-domicilio/form-tip
 import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-tipo-domicilio/lista-tipo-domicilio.component';
 import { DetalleFormaPagoComponent } from './components/seguimiento-callcenter/detalle-forma-pago/detalle-forma-pago.component';
 import { PideRepartidorDialogComponent } from './components/pide-repartidor-dialog/pide-repartidor-dialog.component';
+import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedidos_sede.component";
 
 /**
  * New Components must be added in declarations,
@@ -74,10 +75,11 @@ import { PideRepartidorDialogComponent } from './components/pide-repartidor-dial
  */
 @NgModule({
   declarations: [
-    AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent, 
-    ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent, 
+    RtpPedidosComponent,
+    AgregaNotaComponent, AgregaDireccionComponent, PideTelefonoDialogComponent, TipoDireccionComponent, ListaTipoDireccionComponent, FormTipoDireccionComponent,
+    ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent,
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
-    ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent, 
+    ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent,
     FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent
   ],
   imports: [

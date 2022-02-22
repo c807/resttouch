@@ -1,0 +1,12 @@
+.numWidth {
+  width: 10%;
+}
+
+tr {
+  border: none;
+}
+
+th, td {
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}

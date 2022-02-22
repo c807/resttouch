@@ -9,6 +9,7 @@ import { EstatusCallcenterComponent } from './components/estatus-callcenter/esta
 import { SeguimientoCallcenterComponent } from './components/seguimiento-callcenter/seguimiento-callcenter/seguimiento-callcenter.component';
 import { TipoDomicilioComponent } from './components/tipo-domicilio/tipo-domicilio/tipo-domicilio.component';
 import { RepartidorComponent } from './components/repartidor/repartidor/repartidor.component';
+import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedidos_sede.component";
 
 const routes: Routes = [
   { path: 'tipo_direccion', component: TipoDireccionComponent, canActivate: [AuthGuard] },
@@ -18,6 +19,7 @@ const routes: Routes = [
   { path: 'seguimiento_callcenter', component: SeguimientoCallcenterComponent, canActivate: [AuthGuard] },
   { path: 'tipo_domicilio', component: TipoDomicilioComponent, canActivate: [AuthGuard] },
   { path: 'repartidor', component: RepartidorComponent, canActivate: [AuthGuard] },
+  { path: 'rpt_pedidos_sede', component: RtpPedidosComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
