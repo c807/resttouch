@@ -1,4 +1,4 @@
-<div align="end">
+<div align="end">    
     <button mat-raised-button type="button" class="btnAccion" color="accent" (click)="onHtmlClick()" [disabled]="configuracion.isHtmlDisabled" *ngIf="configuracion.showHtml">
         Generar
     </button>
@@ -8,6 +8,9 @@
     <button mat-raised-button type="button" class="btnAccion" color="accent" (click)="onExcelClick()" [disabled]="configuracion.isExcelDisabled" *ngIf="configuracion.showExcel">
         Excel
     </button>    
+    <button mat-raised-button type="button" class="btnAccion" color="accent" (click)="onImprimirClick()" [disabled]="configuracion.isImprimirDisabled" *ngIf="configuracion.showImprimir">
+        Imprimir
+    </button>
     <button mat-raised-button type="button" color="accent" (click)="onResetParamsClick()">
         Restaurar
     </button>
