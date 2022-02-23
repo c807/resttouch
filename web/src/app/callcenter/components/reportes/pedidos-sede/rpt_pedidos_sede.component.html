@@ -15,17 +15,9 @@
           </mat-form-field>
           <mat-form-field class="fullWidth">
             <mat-label>Sede</mat-label>
-            <mat-select name="sede" multiple [(ngModel)]="params.sede">
+            <mat-select name="sede" [(ngModel)]="params.sede">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
                 {{sede.sede.nombre}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field class="fullWidth" *ngIf="+params.tipo_reporte === 4">
-            <mat-label>Mesero</mat-label>
-            <mat-select name="mesero" [(ngModel)]="params.mesero">
-              <mat-option *ngFor="let m of usuarios" [value]="m.usuario">
-                {{m.nombres}} {{m.apellidos}}
               </mat-option>
             </mat-select>
           </mat-form-field>

@@ -129,18 +129,18 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.cargando = true;
     this.cleanParams();
     console.log('Generando reporte ');
-    this.paramsToSend.fdel = '2022-02-07';
-    this.paramsToSend.fal = '2022-02-01';
+    this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+    this.paramsToSend.fal =  moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
         console.log('Reporte salida ' + JSON.stringify(res));
         this.cargando = false;
-        // if (res) {
-        //   const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-        //   saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
-        // } else {
-        //   this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', { duration: 3000 });
-        // }
+        if (res) {
+          const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+          saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', { duration: 3000 });
+        }
       })
     );
   }
@@ -149,7 +149,8 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
     this.cleanParams();
-    console.log('Generando reporte ');
+    this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+    this.paramsToSend.fal =  moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
         console.log('Reporte salida ' + JSON.stringify(res));

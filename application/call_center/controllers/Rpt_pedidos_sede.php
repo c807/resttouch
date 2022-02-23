@@ -1,8 +1,5 @@
 <?php
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
-
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Rpt_pedidos_sede extends CI_Controller
@@ -31,14 +28,150 @@ class Rpt_pedidos_sede extends CI_Controller
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
     }
 
-    public function getpedidosrpt(){
+    public function getpedidosrpt()
+    {
         $comanda = new Comanda_model();
         $fdel = $this->input->get('fdel');
         $fal = $this->input->get('fal');
+        $tipoD = $this->input->get('tipo_venta');
+        $sedeN = $this->input->get('sede');
+        $totalDeVenta = 0;
 
-        $result = $comanda->get_as_pedidos($fdel, $fal);
 
-        $this->output->set_output(json_encode($result));
+        $result = $comanda->get_as_pedidos($fdel, $fal, $tipoD, $sedeN);
+        //GET ALL SEDES IN RESPONSE
+        $arraySEDES = [];
+        foreach ($result as $value) {
+            if (!in_array($value->sede, $arraySEDES)) {
+                array_push($arraySEDES, $value->sede);
+            }
+        }
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        //EXCEL
+        if (verDato($_GET, "_excel")) {
+            $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $excel->getProperties()
+                ->setCreator("Restouch")
+                ->setTitle("Office 2007 xlsx Valorizado")
+                ->setSubject("Office 2007 xlsx Valorizado")
+                ->setKeywords("office 2007 openxml php");
+
+            $excel->setActiveSheetIndex(0);
+            $hoja = $excel->getActiveSheet();
+
+            $hoja->getStyle('A1:K5')->getFont()->setBold(true);
+            $hoja->getStyle('A9:C9')->getFont()->setBold(true);
+
+            $hoja->mergeCells('A1:K1');
+            $hoja->mergeCells('A2:K2');
+            $hoja->setCellValue('A1', 'Pedidos por sede');
+            $hoja->setCellValue('A2', "Del $fdel");
+            $hoja->setCellValue('A3', "Al $fal");
+            $hoja->setCellValue('A4', "Sede $tipoD");
+            $hoja->setCellValue('A5', "Tipo domicilio $sedeN");
+
+            $hoja->setTitle("Pedidos por sede");
+
+            $fila = 9;
+            $hoja->setCellValue("A{$fila}", "Sede");
+            $hoja->setCellValue("B{$fila}", "Pedido");
+            $hoja->setCellValue("C{$fila}", "Monto");
+            $fila++;
+
+
+
+
+            //ITERATE THROUG SEDES
+            foreach ($arraySEDES as $sede) {
+                $flag = $sede;
+                $fila++;
+
+                $arrayA = [];
+                foreach ($result as $value) {
+                    if ($value->sede === $flag) {
+                        array_push($arrayA, $value);
+                    }
+                }
+
+                $hoja->setCellValue("A{$fila}", $flag);
+                $montoTotal = 0;
+                foreach ($arrayA as $row) {
+                    $fila++;
+                    //Pedidos data
+                    $hoja->setCellValue("B{$fila}", $row->pedido);
+                    $hoja->setCellValue("C{$fila}", $row->monto);
+                    $montoTotal = $montoTotal + $row->monto;
+                }
+                $fila++;
+                $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+                $hoja->setCellValue("B{$fila}", "Total");
+                $hoja->setCellValue("C{$fila}", $montoTotal);
+                $totalDeVenta = $totalDeVenta + $montoTotal;
+                $montoTotal = 0;
+                $fila++;
+            }
+
+            $fila++;
+            $fila++;
+            $hoja->setCellValue("B{$fila}", "Total de venta");
+            $hoja->setCellValue("C{$fila}", $totalDeVenta);
+            $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+            $fila++;
+            $hoja->setCellValue("B{$fila}", "Cantidad de pedidos");
+            $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+            $hoja->setCellValue("C{$fila}", count($result));
+            $fila++;
+            $hoja->setCellValue("B{$fila}", "Consumo/Pedido");
+            $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+            $hoja->setCellValue("C{$fila}", $totalDeVenta / count($result));
+
+            // ITERATE THROUG THAT IN RESPONSE
+
+
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment;filename=Valorizado.xls");
+            header("Cache-Control: max-age=1");
+            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+            header("Cache-Control: cache, must-revalidate");
+            header("Pragma: public");
+
+
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+            $writer->save("php://output");
+
+        } else {
+
+            $mpdf = new \Mpdf\Mpdf([
+                'tempDir' => sys_get_temp_dir(),
+                'format' => 'Legal'
+            ]);
+
+
+            $forViewArr =[];
+            foreach ($arraySEDES as $sede) {
+                $arrayA = [];
+                $arrayRsult =[];
+                foreach ($result as $value) {
+                    if ($value->sede === $sede) {
+                        array_push($arrayA, $value);
+                    }
+                }
+                $arrayRsult['sede'] = $sede;
+                $arrayRsult['pedidos'] = $arrayA;
+                array_push($forViewArr, $arrayRsult);
+            }
+
+            $data['forViewArr'] = $forViewArr;
+            set_time_limit(300); //
+
+            $mpdf->WriteHTML($this->load->view('detalle_pedido',
+                $data,
+                true));
+            $mpdf->Output("Detalle de Pedidos.pdf", "D");
+        }
+
     }
 
     public function report_art()

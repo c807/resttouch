@@ -1089,21 +1089,45 @@ class Comanda_model extends General_Model
             ->result();
     }
 
-    public function get_as_pedidos($fdel, $al)
+    public function get_as_pedidos($fdel, $al, $tipoD = null, $sedeN = null)
     {
-        $fdel = '2022-02-01';
-        $al = '2022-02-07';
+        // Domicilio = 1 // default
 
-        return $this->db->query("
-            SELECT b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto
-            FROM comanda a
-            INNER JOIN sede b ON b.sede = a.sede
-            INNER JOIN detalle_comanda c ON a.comanda = c.comanda
-            WHERE a.domicilio = 1 AND DATE(a.fhcreacion) >= '$fdel' AND DATE(a.fhcreacion) <= '$al'
-            GROUP BY a.comanda
-            ORDER BY b.nombre, a.comanda;"
-        )
+        /// FILTERING THE SEDE - FABRIBURGER
+        /// FILTERING DOMICILIO
+        /// FILTERING DATE
+        ///
+
+        $query = $this->db
+            ->select('b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto')
+            ->from('comanda a')
+            ->join('sede b', 'b.sede = a.sede', 'inner')
+            ->join('detalle_comanda c', 'a.comanda = c.comanda', 'inner');
+
+        if ($tipoD !== null) {
+            $query->where('a.domicilio', "$tipoD");
+        }
+        if ($sedeN !== null) {
+            $query->where('b.sede', "$sedeN");
+        }
+
+        return $query->where('DATE(a.fhcreacion) >=', "$fdel")
+            ->where('DATE(a.fhcreacion) <=', "$al")
+            ->group_by('a.comanda')
+            ->group_by(array("b.nombre", "a.comanda"))
+            ->get()
             ->result();
+
+//        return $this->db->query("
+//            SELECT b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto
+//            FROM comanda a
+//            INNER JOIN sede b ON b.sede = a.sede
+//            INNER JOIN detalle_comanda c ON a.comanda = c.comanda
+//            WHERE a.domicilio = '$tipoD' AND DATE(a.fhcreacion) >= '$fdel' AND DATE(a.fhcreacion) <= '$al'
+//            GROUP BY a.comanda
+//            ORDER BY b.nombre, a.comanda;"
+//        )
+//            ->result();
     }
 
 }
