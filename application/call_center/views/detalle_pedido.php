@@ -17,7 +17,7 @@
 
 <body lang="es-GT" dir="ltr">
 <div class="row">
-    <h5>Pedidos por sede</h5>
+    <h5 style="font-weight: bold">Pedidos por sede</h5>
 
     <div style="display: flex;">
 
