@@ -40,7 +40,7 @@
 
             <?php if ($sedeNName !== null): ?>
                 <tr>
-                    <td style="font-weight: bold">Sede :</td>
+                    <td style="font-weight: bold">Sede: </td>
                     <td><?php echo $sedeNName ?></td>
                 </tr>
             <?php endif; ?>
@@ -83,7 +83,7 @@
 
             <tr>
                 <td></td>
-                <td style="font-weight: bold">Total&nbsp;</td>
+                <td style="font-weight: bold; text-align:right;">Total&nbsp;</td>
                 <td><?php echo number_format($row['total'],2) ?></td>
             </tr>
         <?php endforeach ?>
@@ -100,7 +100,7 @@
         <tr>
             <td></td>
             <td style="font-weight: bold; text-align:right; ">Cantidad de pedidos&nbsp;</td>
-            <td><?php echo $cantPedidos ?></td>
+            <td style="text-align:right; "><?php echo $cantPedidos ?></td>
         </tr>
         <tr>
             <td></td>
