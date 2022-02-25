@@ -1,1 +1,74 @@
-<p>lista-precios-tipo-cliente works!</p>
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h5>Tabla de precios</h5>
+    </mat-card-title>
+    <mat-card-subtitle *ngIf="articulo?.articulo">
+        <h6>{{articulo.descripcion | truncar:35}}</h6>
+    </mat-card-subtitle>
+    <mat-card-content>        
+        <table>
+            <thead>
+                <tr>
+                    <th class="ltxt">Tipo de cliente</th>
+                    <th class="rtxt">Precio</th>
+                    <th class="rtxt"></th>
+                    <th class="rtxt"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let atc of lstArticulosTipoCliente">
+                    <td class="ltxt">                                                
+                        <mat-form-field class="fullWidth" required>
+                            <mat-select name="tipo_cliente" [(ngModel)]="atc.tipo_cliente.tipo_cliente">
+                                <mat-option *ngFor="let tc of tiposCliente" [value]="tc.tipo_cliente">
+                                   {{tc.descripcion}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <td class="ltxt">
+                        <mat-form-field class="fullWidth">                    
+                            <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="atc.precio" min="0" required>
+                        </mat-form-field>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="accent" (click)="updArticuloTipoCliente(atc)" [disabled]="cargando || !atc.tipo_cliente || !atc.precio">
+                            Guardar
+                        </button>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="secondary" (click)="updArticuloTipoCliente(atc)" [disabled]="cargando || !atc.tipo_cliente || !atc.precio">
+                            De baja
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ltxt">                                                
+                        <mat-form-field class="fullWidth" required>
+                            <mat-select name="tipo_cliente" [(ngModel)]="articuloTipoCliente.tipo_cliente">
+                                <mat-option *ngFor="let tc of tiposCliente" [value]="tc.tipo_cliente">
+                                   {{tc.descripcion}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <td class="ltxt">
+                        <mat-form-field class="fullWidth">                    
+                            <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articuloTipoCliente.precio" min="0" required>
+                        </mat-form-field>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="accent" (click)="updArticuloTipoCliente(articuloTipoCliente)" [disabled]="cargando || !articuloTipoCliente.tipo_cliente || !articuloTipoCliente.precio">
+                            Guardar
+                        </button>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="warn" (click)="resetArticuloTipoCliente()" [disabled]="cargando">
+                            Cancelar
+                        </button>
+                    </td>
+                </tr>                
+            </tbody>
+        </table>
+    </mat-card-content>
+</mat-card>

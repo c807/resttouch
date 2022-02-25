@@ -22,9 +22,10 @@ export class CajaComponent implements OnInit {
   get configBotones() {
     const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
     return {
-      showPdf: true, showHtml: false, showExcel: true,
+      showPdf: true, showHtml: false, showExcel: true, showImprimir: true,
       isPdfDisabled: deshabilitar,
-      isExcelDisabled: deshabilitar
+      isExcelDisabled: deshabilitar,
+      isImprimirDisabled: deshabilitar
     }
   };
 
@@ -88,38 +89,54 @@ export class CajaComponent implements OnInit {
     this.cargando = false;
   }
 
-  excelClick = () => {
+  // excelClick = () => {
+  //   this.cargando = true;
+  //   this.params._pagos = this.fpagos;
+  //   this.params._excel = 1;
+
+  //   this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
+  //     this.cargando = false;
+  //     if (res) {
+  //       const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+  //       saveAs(blob, `${this.titulo}.xls`);
+  //     } else {
+  //       this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+  //     }
+  //   });
+  // }
+
+  onSubmit(enExcel = 0, enComandera = 0) {
     this.cargando = true;
     this.params._pagos = this.fpagos;
-    this.params._excel = 1;
+    this.params._excel = enExcel;
+    this.params._encomandera = enComandera;
 
     this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
       this.cargando = false;
       if (res) {
-        const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
-        saveAs(blob, `${this.titulo}.xls`);
+        if (+enComandera === 1) {
+          const blob = new Blob([res], { type: 'application/json' });
+          const fr = new FileReader();
+          fr.onload = (e) => {
+            const obj = JSON.parse((e.target.result as string));
+            this.sendToImpresora(obj);
+          };
+          fr.readAsText(blob);
+        } else {
+          const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+          saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        }
       } else {
         this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
       }
     });
   }
 
-  onSubmit() {
-    this.cargando = true;
-    this.params._pagos = this.fpagos;
-    this.params._excel = 0;
+  sendToImpresora = async (res: any) => {
+    console.log(res);
 
-    // console.log(this.params); return;
 
-    this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-        const blob = new Blob([res], { type: 'application/pdf' });
-        saveAs(blob, `${this.titulo}.pdf`);
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-      }
-    });
+    
   }
 
 }

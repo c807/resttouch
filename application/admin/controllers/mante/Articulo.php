@@ -11,7 +11,8 @@ class Articulo extends CI_Controller
 			'Articulo_model',
 			'Receta_model',
 			'Presentacion_model',
-			'Usuario_model'
+			'Usuario_model',
+			'Articulo_tipo_cliente_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -434,6 +435,52 @@ class Articulo extends CI_Controller
 			'HTTP_HOST' => $_SERVER['HTTP_HOST']
 		]));
 	}
+
+	// Inicia endpoints para variación de precio de artículo por tipo de cliente
+	public function get_lista_precios()
+	{
+		$data = $this->Articulo_tipo_cliente_model->get_articulo_tipo_cliente($_GET);
+		$this->output->set_output(json_encode($data));
+	}
+
+	public function guardar_articulo_tipo_cliente($id = "")
+	{
+		$atc = new Articulo_tipo_cliente_model($id);
+		$req = json_decode(file_get_contents('php://input'), true);
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+
+			$fltr = [
+				'articulo' => $req['articulo'],
+				'tipo_cliente' => $req['tipo_cliente']
+			];
+
+			if (!empty($id)) {
+				$fltr['articulo_tipo_cliente <>'] = $id;
+			}
+						
+			$existe = $this->Articulo_tipo_cliente_model->buscar($fltr);
+			if (!$existe) {
+
+				$datos['exito'] = $atc->guardar($req);
+	
+				if ($datos['exito']) {
+					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['articulo_tipo_cliente'] = $atc;
+				} else {
+					$datos['mensaje'] = $atc->getMensaje();
+				}
+			} else {
+				$datos['mensaje'] = "Ya existe un precio para este tipo de cliente.";
+			}
+		} else {
+			$datos['mensaje'] = "Parámetros inválidos.";
+		}
+
+		$this->output->set_output(json_encode($datos));
+	}
+
+	// Finaliza endpoints para variación de precio de artículo por tipo de cliente
 }
 
 /* End of file Articulo.php */

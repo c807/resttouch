@@ -597,6 +597,8 @@ class Reporte extends CI_Controller
 
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save("php://output");
+		} else if(verDato($data, "_encomandera")) {
+			$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
 		} else {
 			$mpdf = new \Mpdf\Mpdf([
 				'tempDir' => sys_get_temp_dir(),
