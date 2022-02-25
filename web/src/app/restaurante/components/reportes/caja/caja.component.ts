@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
-import { TipoTurno } from '../../../interfaces/tipo-turno';
-import { TipoTurnoService } from '../../../services/tipo-turno.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso'
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service'
-import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
-import { FpagoService } from '../../../../admin/services/fpago.service';
-import { FormaPago } from '../../../../admin/interfaces/forma-pago';
+import {Component, OnInit} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ReportePdfService} from '../../../services/reporte-pdf.service';
+import {TipoTurno} from '../../../interfaces/tipo-turno';
+import {TipoTurnoService} from '../../../services/tipo-turno.service';
+import {UsuarioSede} from '../../../../admin/interfaces/acceso'
+import {AccesoUsuarioService} from '../../../../admin/services/acceso-usuario.service'
+import {saveAs} from 'file-saver';
+import {GLOBAL} from '../../../../shared/global';
+import {FpagoService} from '../../../../admin/services/fpago.service';
+import {FormaPago} from '../../../../admin/interfaces/forma-pago';
 import * as moment from 'moment';
 
 @Component({
@@ -34,6 +33,7 @@ export class CajaComponent implements OnInit {
     sede: [],
     fdel: moment().format(GLOBAL.dbDateFormat),
     fal: moment().format(GLOBAL.dbDateFormat),
+    porTurno: false
   };
   public titulo = 'Resumen de caja';
   public tiposTurno: TipoTurno[] = [];
@@ -49,7 +49,8 @@ export class CajaComponent implements OnInit {
     private tipoTurnoSrvc: TipoTurnoService,
     private fpagoSrvc: FpagoService,
     private sedeSrvc: AccesoUsuarioService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.loadTiposTurno();
@@ -66,7 +67,7 @@ export class CajaComponent implements OnInit {
   }
 
   loadSedes = () => {
-    this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
+    this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
       if (res) {
         this.sedes = res
       }
@@ -105,7 +106,29 @@ export class CajaComponent implements OnInit {
   //   });
   // }
 
+
+  printPorTurno(enExcel = 0) {
+    this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
+      this.cargando = false;
+      if (res) {
+
+        console.log(res);
+        //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+        //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+
+      } else {
+        this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
+      }
+    });
+
+  }
+
   onSubmit(enExcel = 0, enComandera = 0) {
+    if (this.params.porTurno) {
+      this.printPorTurno(enExcel);
+      return;
+    }
+
     this.cargando = true;
     this.params._pagos = this.fpagos;
     this.params._excel = enExcel;
@@ -115,7 +138,7 @@ export class CajaComponent implements OnInit {
       this.cargando = false;
       if (res) {
         if (+enComandera === 1) {
-          const blob = new Blob([res], { type: 'application/json' });
+          const blob = new Blob([res], {type: 'application/json'});
           const fr = new FileReader();
           fr.onload = (e) => {
             const obj = JSON.parse((e.target.result as string));
@@ -123,11 +146,11 @@ export class CajaComponent implements OnInit {
           };
           fr.readAsText(blob);
         } else {
-          const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+          const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
           saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
         }
       } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+        this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
       }
     });
   }
@@ -136,7 +159,6 @@ export class CajaComponent implements OnInit {
     console.log(res);
 
 
-    
   }
 
 }

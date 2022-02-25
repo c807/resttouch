@@ -68,12 +68,12 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->mergeCells('A1:K1');
             $hoja->mergeCells('A2:K2');
             $hoja->setCellValue('A1', 'Pedidos por sede');
-            $hoja->setCellValue('A2', "Del $fdel");
-            $hoja->setCellValue('A3', "Al $fal");
-            if($sedeNName !== null){
-                $hoja->setCellValue('A4', "Sede ". $sedeNName);
+            $hoja->setCellValue('A2', "Del : " . formatoFecha($fdel, 2));
+            $hoja->setCellValue('A3', "Al : " . formatoFecha($fal, 2));
+            if ($sedeNName !== null) {
+                $hoja->setCellValue('A4', "Sede " . $sedeNName);
             }
-            if($tipoDName !== null) {
+            if ($tipoDName !== null) {
                 $hoja->setCellValue('A5', "Tipo domicilio $tipoDName");
             }
 
@@ -84,8 +84,6 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->setCellValue("B{$fila}", "Pedido");
             $hoja->setCellValue("C{$fila}", "Monto");
             $fila++;
-
-
 
 
             //ITERATE THROUG SEDES
@@ -100,28 +98,33 @@ class Rpt_pedidos_sede extends CI_Controller
                     }
                 }
 
-                $hoja->setCellValue("A{$fila}", $flag);
                 $montoTotal = 0;
                 foreach ($arrayA as $row) {
-                    $fila++;
-                    //Pedidos data
-                    $hoja->setCellValue("B{$fila}", $row->pedido);
-                    $hoja->setCellValue("C{$fila}", number_format((float)$row->monto, 2, '.', ''));
-                    $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
-
                     $montoTotal = $montoTotal + $row->monto;
                 }
-                $fila++;
-                $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
-                $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
-                $hoja->setCellValue("B{$fila}", "Total");
-                $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                $hoja->setCellValue("C{$fila}", number_format((float)$montoTotal, 2, '.', ''));
-                $totalDeVenta = $totalDeVenta + $montoTotal;
-                $montoTotal = 0;
-                $fila++;
+                if($montoTotal > 0){
+                    $hoja->setCellValue("A{$fila}", $flag);
+                    foreach ($arrayA as $row) {
+                        $fila++;
+                        //Pedidos data
+                        $hoja->setCellValue("B{$fila}", $row->pedido);
+                        $hoja->setCellValue("C{$fila}", number_format((float)$row->monto, 2, '.', ''));
+                        $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+
+                    }
+                    $fila++;
+                    $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
+                    $hoja->setCellValue("B{$fila}", "Total");
+                    $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+                    $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                    $hoja->setCellValue("C{$fila}", number_format((float)$montoTotal, 2, '.', ''));
+                    $totalDeVenta = $totalDeVenta + $montoTotal;
+                    $montoTotal = 0;
+                    $fila++;
+                }
+
             }
 
             $fila++;
@@ -131,7 +134,7 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->setCellValue("B{$fila}", "Total de venta");
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta,2,'.', ''));
+            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta, 2, '.', ''));
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $fila++;
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
@@ -144,7 +147,7 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta / (count($result)!==0?count($result):1),2,'.', ''));
+            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta / (count($result) !== 0 ? count($result) : 1), 2, '.', ''));
 
             // ITERATE THROUG THAT IN RESPONSE
 
@@ -169,11 +172,11 @@ class Rpt_pedidos_sede extends CI_Controller
             ]);
 
 
-            $forViewArr =[];
+            $forViewArr = [];
             $totalDeVenta = 0;
             foreach ($arraySEDES as $sede) {
                 $arrayA = [];
-                $arrayRsult =[];
+                $arrayRsult = [];
                 $totalOfPedidos = 0;
                 foreach ($result as $value) {
                     if ($value->sede === $sede) {
@@ -185,7 +188,9 @@ class Rpt_pedidos_sede extends CI_Controller
                 $arrayRsult['total'] = $totalOfPedidos;
                 $arrayRsult['sede'] = $sede;
                 $arrayRsult['pedidos'] = $arrayA;
-                array_push($forViewArr, $arrayRsult);
+                if($totalOfPedidos>0){
+                    array_push($forViewArr, $arrayRsult);
+                }
             }
 
 
@@ -194,7 +199,7 @@ class Rpt_pedidos_sede extends CI_Controller
             $data['forViewArr'] = $forViewArr;
             $data['totalDeVenta'] = $totalDeVenta;
             $data['cantPedidos'] = count($result);
-            $data['consumoP'] = number_format($totalDeVenta / (count($result)!==0?count($result):1),2,'.', '');
+            $data['consumoP'] = number_format($totalDeVenta / (count($result) !== 0 ? count($result) : 1), 2, '.', '');
 
             set_time_limit(300); //
 

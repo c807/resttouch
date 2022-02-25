@@ -6,53 +6,64 @@
       </mat-card-title>
       <mat-card-content>
         <form #frmRptCaja="ngForm" novalidate>
+          <mat-form-field  class="fullWidth">
+            <mat-label>Tipo de turno</mat-label>
+            <mat-select [disabled]="params.porTurno" name="turno_tipo" [(ngModel)]="params.turno_tipo">
+              <mat-option *ngFor="let tt of tiposTurno" [value]="tt.turno_tipo">
+                {{tt.descripcion}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
           <mat-form-field class="fullWidth">
-              <mat-label>Tipo de turno</mat-label>
-              <mat-select name="turno_tipo" [(ngModel)]="params.turno_tipo">
-                  <mat-option *ngFor="let tt of tiposTurno" [value]="tt.turno_tipo">
-                      {{tt.descripcion}}
-                  </mat-option>
-              </mat-select>
+            <input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel"
+                   [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>
-          <mat-form-field class="fullWidth">            
-            <input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel" [ngModelOptions]="{standalone: true}" required>
-          </mat-form-field>
-          <mat-form-field class="fullWidth">            
-            <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}" required>
+          <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}"
+                   required>
           </mat-form-field>
           <mat-form-field class="fullWidth">
             <mat-label>Sede</mat-label>
             <mat-select name="sede" multiple [(ngModel)]="params.sede">
-                <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                    {{sede.sede.nombre}}
-                </mat-option>
+              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}}
+              </mat-option>
             </mat-select>
           </mat-form-field>
           <mat-form-field class="fullWidth" *ngIf="params.sede && params.sede.length > 1">
-              <mat-label>Agrupar por</mat-label>
-              <mat-select name="grupo"  [(ngModel)]="params._grupo">
-                  <mat-option *ngFor="let grp of grupos" [value]="grp.id">
-                      {{grp.descripcion}}
-                  </mat-option>
-              </mat-select>
+            <mat-label>Agrupar por</mat-label>
+            <mat-select name="grupo" [(ngModel)]="params._grupo">
+              <mat-option *ngFor="let grp of grupos" [value]="grp.id">
+                {{grp.descripcion}}
+              </mat-option>
+            </mat-select>
           </mat-form-field>
           <div class="row">
             <div class="col">
-              <mat-checkbox name="mostrar_detalle" class="fullWidth" [(ngModel)]="+params._detalle">Mostrar Detalle</mat-checkbox>
+              <mat-checkbox [disabled]="params.porTurno" name="mostrar_detalle" class="fullWidth" [(ngModel)]="+params._detalle">Mostrar Detalle
+              </mat-checkbox>
             </div>
             <div class="col">
-              <mat-checkbox name="validar" class="fullWidth" [(ngModel)]="+params._validar">Validar Montos</mat-checkbox>
+              <mat-checkbox [disabled]="params.porTurno" name="validar" class="fullWidth"
+                            [(ngModel)]="+params._validar">Validar Montos
+              </mat-checkbox>
+            </div>
+            <div class="col">
+              <mat-checkbox name="porTurno" class="fullWidth" [(ngModel)]="+params.porTurno">Reporte por turno
+              </mat-checkbox>
             </div>
           </div>
           <hr *ngIf="params._validar">
           <form *ngIf="params._validar">
             <div *ngFor="let fp of fpagos">
               <mat-form-field class="fullWidth">
-                <input matInput type="number" step="0.01" placeholder="{{fp.descripcion}}" [(ngModel)]="fp.monto" [ngModelOptions]="{standalone: true}">
+                <input matInput type="number" step="0.01" placeholder="{{fp.descripcion}}" [(ngModel)]="fp.monto"
+                       [ngModelOptions]="{standalone: true}">
               </mat-form-field>
             </div>
           </form>
-          <app-rpt-botones [configuracion]="configBotones" (excelClick) = "onSubmit(1, 0)" (pdfClick)="onSubmit()" (imprimirClick)="onSubmit(0, 1)" (resetParamsClick)="resetParams()"></app-rpt-botones>
+          <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1, 0)" (pdfClick)="onSubmit()"
+                           (imprimirClick)="onSubmit(0, 1)" (resetParamsClick)="resetParams()"></app-rpt-botones>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>
       </mat-card-content>

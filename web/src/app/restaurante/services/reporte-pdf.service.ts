@@ -35,6 +35,14 @@ export class ReportePdfService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getReporteCajaTurno(params: Object) {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/reporte/cajaTurno`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   getReporteExistencia(params: Object) {
 
     return this.http.post<string>(
