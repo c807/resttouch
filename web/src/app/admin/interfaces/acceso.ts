@@ -13,3 +13,10 @@ export interface UsuarioSede {
 	usuario: number,
 	anulado: number
 }
+
+export interface UsuarioSedeRPT {
+  usuario_sede: number,
+  sede: any,
+  usuario: number,
+  anulado: number
+}

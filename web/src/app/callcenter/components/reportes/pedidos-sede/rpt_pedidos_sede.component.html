@@ -24,8 +24,6 @@
           <mat-form-field class="fullWidth separacionPorHint">
             <mat-label>Tipo de venta</mat-label>
             <mat-select name="tipo_venta" [(ngModel)]="params.tipo_venta">
-              <mat-option value="R">Restaurante</mat-option>
-              <mat-option value="D">Call center</mat-option>
               <mat-option *ngFor="let tv of tiposDomicilio" [value]="tv.tipo_domicilio">
                 {{tv.descripcion}}
               </mat-option>

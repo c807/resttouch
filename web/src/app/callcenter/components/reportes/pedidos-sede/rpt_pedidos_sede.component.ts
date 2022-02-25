@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import * as moment from 'moment';
 import {GLOBAL} from "../../../../shared/global";
-import {UsuarioSede} from "../../../../admin/interfaces/acceso";
+import {UsuarioSedeRPT} from "../../../../admin/interfaces/acceso";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Usuario} from "../../../../admin/interfaces/usuario";
 import {Subscription} from "rxjs";
@@ -13,11 +13,14 @@ import {TipoDomicilioService} from "../../../services/tipo-domicilio.service";
 import {saveAs} from 'file-saver';
 import {RtpPedidosService} from "../../../services/rtp_pedidos.service";
 
+
+
 @Component({
   selector: 'app-rpt-pedidos-sede',
   templateUrl: './rpt_pedidos_sede.component.html',
   styleUrls: ['./rpt_pedidos_sede.component.css']
 })
+
 export class RtpPedidosComponent implements OnInit, OnDestroy {
 
   get configBotones() {
@@ -33,9 +36,8 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
   public params: any = {};
   public paramsToSend: any = {};
   public msgGenerandoReporte: string = null;
-  public sedes: UsuarioSede[] = [];
-  public tituloCategoria = 'Ventas_Categoria';
-  public tituloArticulo = 'Ventas_Articulo';
+  public sedes: UsuarioSedeRPT[] = [];
+  public tituloArticulo = 'Pedidos_Sede';
   public cargando = false;
   public usuarios: Usuario[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
@@ -114,43 +116,58 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
 
   getPdf = () => {
 
-    this.getPorArticuloPdf();
+    this.requestPDF();
 
   }
 
   getExcel = () => {
 
-    this.getPorCatAgrupadoCombo(1);
+    this.requestExcel(1);
 
   }
 
-  getPorArticuloPdf = (esExcel = 0) => {
+  requestPDF = (esExcel = 0) => {
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
     this.cleanParams();
-    console.log('Generando reporte ');
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-    this.paramsToSend.fal =  moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+    if (this.params.sede !== undefined && this.params.sede !== null) {
+      this.paramsToSend.sedeNName = this.sedes[this.params.sede - 1].sede.nombre;
+    }
+    if (this.params.tipo_venta !== undefined && this.params.tipo_venta !== null) {
+      this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
+    }
+
+
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
         console.log('Reporte salida ' + JSON.stringify(res));
         this.cargando = false;
         if (res) {
-          const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+          const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
           saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
         } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', { duration: 3000 });
+          this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', {duration: 3000});
         }
       })
     );
   }
 
-  getPorCatAgrupadoCombo = (esExcel = 0) => {
+  requestExcel = (esExcel = 0) => {
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
     this.cleanParams();
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-    this.paramsToSend.fal =  moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+    if (this.params.sede !== undefined) {
+      this.paramsToSend.sedeNName = this.sedes[this.params.sede - 1].sede.nombre;
+    }
+    if (this.params.tipo_venta !== undefined) {
+      this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
+    }
+
+
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
         console.log('Reporte salida ' + JSON.stringify(res));

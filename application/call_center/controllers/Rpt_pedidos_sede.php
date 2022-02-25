@@ -35,6 +35,8 @@ class Rpt_pedidos_sede extends CI_Controller
         $fal = $this->input->get('fal');
         $tipoD = $this->input->get('tipo_venta');
         $sedeN = $this->input->get('sede');
+        $tipoDName = $this->input->get('tipoDName');
+        $sedeNName = $this->input->get('sedeNName');
         $totalDeVenta = 0;
 
 
@@ -68,8 +70,12 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->setCellValue('A1', 'Pedidos por sede');
             $hoja->setCellValue('A2', "Del $fdel");
             $hoja->setCellValue('A3', "Al $fal");
-            $hoja->setCellValue('A4', "Sede $tipoD");
-            $hoja->setCellValue('A5', "Tipo domicilio $sedeN");
+            if($sedeNName !== null){
+                $hoja->setCellValue('A4', "Sede ". $sedeNName);
+            }
+            if($tipoDName !== null) {
+                $hoja->setCellValue('A5', "Tipo domicilio $tipoDName");
+            }
 
             $hoja->setTitle("Pedidos por sede");
 
@@ -100,13 +106,18 @@ class Rpt_pedidos_sede extends CI_Controller
                     $fila++;
                     //Pedidos data
                     $hoja->setCellValue("B{$fila}", $row->pedido);
-                    $hoja->setCellValue("C{$fila}", $row->monto);
+                    $hoja->setCellValue("C{$fila}", number_format((float)$row->monto, 2, '.', ''));
+                    $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                    $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+
                     $montoTotal = $montoTotal + $row->monto;
                 }
                 $fila++;
                 $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
                 $hoja->setCellValue("B{$fila}", "Total");
-                $hoja->setCellValue("C{$fila}", $montoTotal);
+                $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+                $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                $hoja->setCellValue("C{$fila}", number_format((float)$montoTotal, 2, '.', ''));
                 $totalDeVenta = $totalDeVenta + $montoTotal;
                 $montoTotal = 0;
                 $fila++;
@@ -115,7 +126,9 @@ class Rpt_pedidos_sede extends CI_Controller
             $fila++;
             $fila++;
             $hoja->setCellValue("B{$fila}", "Total de venta");
-            $hoja->setCellValue("C{$fila}", $totalDeVenta);
+            $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta,2,'.', ''));
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $fila++;
             $hoja->setCellValue("B{$fila}", "Cantidad de pedidos");
@@ -123,8 +136,10 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->setCellValue("C{$fila}", count($result));
             $fila++;
             $hoja->setCellValue("B{$fila}", "Consumo/Pedido");
+            $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
-            $hoja->setCellValue("C{$fila}", $totalDeVenta / count($result));
+            $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta / (count($result)!==0?count($result):1),2,'.', ''));
 
             // ITERATE THROUG THAT IN RESPONSE
 
@@ -150,20 +165,32 @@ class Rpt_pedidos_sede extends CI_Controller
 
 
             $forViewArr =[];
+            $totalDeVenta = 0;
             foreach ($arraySEDES as $sede) {
                 $arrayA = [];
                 $arrayRsult =[];
+                $totalOfPedidos = 0;
                 foreach ($result as $value) {
                     if ($value->sede === $sede) {
                         array_push($arrayA, $value);
+                        $totalOfPedidos = $totalOfPedidos + $value->monto;
                     }
                 }
+                $totalDeVenta = $totalDeVenta + $totalOfPedidos;
+                $arrayRsult['total'] = $totalOfPedidos;
                 $arrayRsult['sede'] = $sede;
                 $arrayRsult['pedidos'] = $arrayA;
                 array_push($forViewArr, $arrayRsult);
             }
 
+
+            $data['tipoDName'] = $tipoDName;
+            $data['sedeNName'] = $sedeNName;
             $data['forViewArr'] = $forViewArr;
+            $data['totalDeVenta'] = $totalDeVenta;
+            $data['cantPedidos'] = count($result);
+            $data['consumoP'] = number_format($totalDeVenta / (count($result)!==0?count($result):1),2,'.', '');
+
             set_time_limit(300); //
 
             $mpdf->WriteHTML($this->load->view('detalle_pedido',
