@@ -114,6 +114,7 @@ class Rpt_pedidos_sede extends CI_Controller
                 }
                 $fila++;
                 $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
+                $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
                 $hoja->setCellValue("B{$fila}", "Total");
                 $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
                 $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -125,17 +126,21 @@ class Rpt_pedidos_sede extends CI_Controller
 
             $fila++;
             $fila++;
+
+            $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->setCellValue("B{$fila}", "Total de venta");
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
             $hoja->setCellValue("C{$fila}", number_format($totalDeVenta,2,'.', ''));
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $fila++;
+            $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->setCellValue("B{$fila}", "Cantidad de pedidos");
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $hoja->setCellValue("C{$fila}", count($result));
             $fila++;
             $hoja->setCellValue("B{$fila}", "Consumo/Pedido");
+            $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
