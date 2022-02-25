@@ -21,7 +21,7 @@ export class CajaComponent implements OnInit {
   get configBotones() {
     const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
     return {
-      showPdf: true, showHtml: false, showExcel: true, showImprimir: true,
+      showPdf: true, showHtml: false, showExcel: true, showImprimir: false,
       isPdfDisabled: deshabilitar,
       isExcelDisabled: deshabilitar,
       isImprimirDisabled: deshabilitar
