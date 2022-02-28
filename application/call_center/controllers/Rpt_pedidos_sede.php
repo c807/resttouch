@@ -41,6 +41,12 @@ class Rpt_pedidos_sede extends CI_Controller
 
 
         $result = $comanda->get_as_pedidos($fdel, $fal, $tipoD, $sedeN);
+        $result_count_no_cer = count(array_filter($result, function ($var) {
+            return ($var->monto > 0);
+        }));
+
+        //$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($result));
+        //return;
         //GET ALL SEDES IN RESPONSE
         $arraySEDES = [];
         foreach ($result as $value) {
@@ -86,8 +92,6 @@ class Rpt_pedidos_sede extends CI_Controller
             $fila++;
 
 
-
-
             //ITERATE THROUG SEDES
             foreach ($arraySEDES as $sede) {
                 $flag = $sede;
@@ -104,7 +108,7 @@ class Rpt_pedidos_sede extends CI_Controller
                 foreach ($arrayA as $row) {
                     $montoTotal = $montoTotal + $row->monto;
                 }
-                if($montoTotal > 0){
+                if ($montoTotal > 0) {
                     $hoja->setCellValue("A{$fila}", $flag);
                     foreach ($arrayA as $row) {
                         $fila++;
@@ -142,14 +146,14 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->setCellValue("B{$fila}", "Cantidad de pedidos");
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
-            $hoja->setCellValue("C{$fila}", count($result));
+            $hoja->setCellValue("C{$fila}", $result_count_no_cer);
             $fila++;
             $hoja->setCellValue("B{$fila}", "Consumo/Pedido");
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta / (count($result) !== 0 ? count($result) : 1), 2, '.', ''));
+            $hoja->setCellValue("C{$fila}", number_format($totalDeVenta / ($result_count_no_cer !== 0 ? $result_count_no_cer : 1), 2, '.', ''));
 
             // ITERATE THROUG THAT IN RESPONSE
 
@@ -190,7 +194,7 @@ class Rpt_pedidos_sede extends CI_Controller
                 $arrayRsult['total'] = $totalOfPedidos;
                 $arrayRsult['sede'] = $sede;
                 $arrayRsult['pedidos'] = $arrayA;
-                if($totalOfPedidos>0){
+                if ($totalOfPedidos > 0) {
                     array_push($forViewArr, $arrayRsult);
                 }
             }
@@ -200,8 +204,8 @@ class Rpt_pedidos_sede extends CI_Controller
             $data['sedeNName'] = $sedeNName;
             $data['forViewArr'] = $forViewArr;
             $data['totalDeVenta'] = $totalDeVenta;
-            $data['cantPedidos'] = count($result);
-            $data['consumoP'] = number_format($totalDeVenta / (count($result) !== 0 ? count($result) : 1), 2, '.', '');
+            $data['cantPedidos'] = $result_count_no_cer;
+            $data['consumoP'] = number_format($totalDeVenta / ($result_count_no_cer !== 0 ? $result_count_no_cer : 1), 2, '.', '');
 
             set_time_limit(300); //
 
