@@ -24,24 +24,24 @@
         <table >
             <tr>
                 <td style="font-weight: bold">Del:</td>
-                <td><?php echo formatoFecha($fdel, 2) ?></td>
+                <td>&nbsp;<?php echo formatoFecha($fdel, 2) ?></td>
             </tr>
             <tr>
                 <td style="font-weight: bold">Al:</td>
-                <td><?php echo formatoFecha($fal, 2) ?></td>
+                <td>&nbsp;<?php echo formatoFecha($fal, 2) ?></td>
             </tr>
 
             <?php if ($tipoDName !== null): ?>
                 <tr>
                     <td style="font-weight: bold">Tipo:</td>
-                    <td><?php echo $tipoDName ?></td>
+                    <td>&nbsp;<?php echo $tipoDName ?></td>
                 </tr>
             <?php endif; ?>
 
             <?php if ($sedeNName !== null): ?>
                 <tr>
                     <td style="font-weight: bold">Sede: </td>
-                    <td><?php echo $sedeNName ?></td>
+                    <td>&nbsp;<?php echo $sedeNName ?></td>
                 </tr>
             <?php endif; ?>
 
@@ -84,7 +84,7 @@
             <tr>
                 <td></td>
                 <td style="font-weight: bold; text-align:right;">Total&nbsp;</td>
-                <td><?php echo number_format($row['total'],2) ?></td>
+                <td style="text-align:right;" ><?php echo number_format($row['total'],2) ?></td>
             </tr>
         <?php endforeach ?>
 
@@ -95,7 +95,7 @@
         <tr>
             <td></td>
             <td style="font-weight: bold; text-align:right; ">Total de venta&nbsp;</td>
-            <td><?php echo number_format($totalDeVenta,2) ?></td>
+            <td style="text-align:right; "><?php echo number_format($totalDeVenta,2) ?></td>
         </tr>
         <tr>
             <td></td>
@@ -105,7 +105,7 @@
         <tr>
             <td></td>
             <td style="font-weight: bold; text-align:right; ">Consumo/Pedido&nbsp;</td>
-            <td><?php echo $consumoP ?></td>
+            <td style="text-align:right;"><?php echo $consumoP ?></td>
         </tr>
 
     </table>
