@@ -138,8 +138,10 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
     this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     if (this.params.sede !== undefined && this.params.sede !== null) {
+      this.paramsToSend.sedeNName = this.sedes.find(element => element.sede.sede === this.params.sede).sede.nombre;
       console.log(this.params);
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
+      console.log(this.sedes);
+      console.log(this.sedes.find(element => element.sede.sede === this.params.sede).sede.nombre);
     }
     if (this.params.tipo_venta !== undefined && this.params.tipo_venta !== null) {
       this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
@@ -167,7 +169,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
     this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     if (this.params.sede !== undefined) {
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
+      this.paramsToSend.sedeNName = this.sedes.find(element => element.sede.sede === this.params.sede).sede.nombre;
     }
     if (this.params.tipo_venta !== undefined) {
       this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
