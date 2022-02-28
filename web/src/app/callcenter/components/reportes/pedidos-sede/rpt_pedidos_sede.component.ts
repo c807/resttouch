@@ -66,14 +66,19 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
 
   loadSedes = () => {
     this.endSubs.add(
-      this.sedeSrvc.getSedes({reporte: true}).subscribe(res => this.sedes = res)
+      this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+        this.sedes = res;
+      })
     );
   }
 
 
   loadTiposDomicilio = () => {
     this.endSubs.add(
-      this.tipoDomicilioSrvc.get().subscribe(res => this.tiposDomicilio = res)
+      this.tipoDomicilioSrvc.get().subscribe(res => {
+        console.log(res);
+        this.tiposDomicilio = res;
+      })
     );
   }
 
@@ -133,7 +138,8 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
     this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     if (this.params.sede !== undefined && this.params.sede !== null) {
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede - 1].sede.nombre;
+      console.log(this.params);
+      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
     }
     if (this.params.tipo_venta !== undefined && this.params.tipo_venta !== null) {
       this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
@@ -161,7 +167,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
     this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
     if (this.params.sede !== undefined) {
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede - 1].sede.nombre;
+      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
     }
     if (this.params.tipo_venta !== undefined) {
       this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
@@ -170,7 +176,6 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
-        console.log('Reporte salida ' + JSON.stringify(res));
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
