@@ -62,18 +62,70 @@ class Reporte extends CI_Controller
 
         // Decode the JSON file
         $reporte = new MyJson();
-        $json_data = json_decode($reporte->msg(), true);
+        $json_dataA = json_decode($reporte->msg(), true);
+        $json_dataA['tipo_domicilio ']= "Ingreso a restaurante";
+        $json_dataB = json_decode($reporte->msg(), true);
+        //$json_dataB->tipo_domicilio = "Domicilio";
+        $json_dataC = json_decode($reporte->msg(), true);
+       // $json_dataC->tipo_domicilio = "Para llevar";
+        $json_dataE = json_decode($reporte->msg(), true);
+       // $json_dataE->tipo_domicilio = "Descuentos";
 
         // Tipo domicilio array
-        $tiposdomicilio = ['Ingrese Restaurante', 'A domicilio', 'Para llevar'];
-        $total_dia_jsonDataAndTipoD = [$json_data, $json_data, $json_data, $json_data];
-        $sample_turno_jsonDataAndTipoD = [$json_data, $json_data, $json_data, $json_data];
+        $sample_turno_jsonDataAndTipoD = [$json_dataA, $json_dataB, $json_dataC, $json_dataE];
 
-        $jsonobjA = "{'name':'turno A','data':$sample_turno_jsonDataAndTipoD}";
-        $jsonobjB = "{'name':'turno B','data':$sample_turno_jsonDataAndTipoD}";
-        $jsonobjC = "{'name':'turno C','data':$sample_turno_jsonDataAndTipoD}";
+        $newObjectA = new stdClass;
+        $newObjectA->name = "turno A";
+        $newObjectA->data = $sample_turno_jsonDataAndTipoD;
 
-        $json_data_turnos = array($jsonobjA, $jsonobjB, $jsonobjC);
+        $newObjectB = new stdClass;
+        $newObjectB->name = "turno B";
+        $newObjectB->data = $sample_turno_jsonDataAndTipoD;
+
+        $newObjectC = new stdClass;
+        $newObjectC->name = "turno V";
+        $newObjectC->data = $sample_turno_jsonDataAndTipoD;
+
+        $json_data_turnos = array($newObjectA, $newObjectB, $newObjectC);
+
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => sys_get_temp_dir(),
+            'format' => 'Legal'
+        ]);
+        $data = json_decode(file_get_contents('php://input'), true);
+        if ($this->input->get('turno_tipo')) {
+            $data["turno"] = new TurnoTipo_model($data["turno_tipo"]);
+        }
+
+        $sede = $this->Catalogo_model->getSede([
+            'sede' => $this->data->sede,
+            "_uno" => true
+        ]);
+
+        $tmp = [];
+        foreach ($data['sede'] as $row) {
+            $sede = $this->Catalogo_model->getSede([
+                'sede' => $row,
+                "_uno" => true
+            ]);
+
+            $tmp[] = $sede->nombre;
+        }
+
+        if ($sede) {
+            $emp = $this->Catalogo_model->getEmpresa([
+                "empresa" => $sede->empresa,
+                "_uno" => true
+            ]);
+            if ($emp) {
+                $data['empresa'] = $emp;
+                $data['nsede'] = implode(", ", $tmp);
+            }
+        }
+
+        $data['json_data_turno'] = $json_data_turnos;
+        $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
+        $mpdf->Output("Reporte de Caja Turno.pdf", "D");
 
         $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($json_data));
 

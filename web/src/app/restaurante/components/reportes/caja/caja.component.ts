@@ -113,8 +113,8 @@ export class CajaComponent implements OnInit {
       if (res) {
 
         console.log(res);
-        //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-        //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+        saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
 
       } else {
         this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
