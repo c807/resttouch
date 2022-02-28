@@ -1104,8 +1104,10 @@ class Comanda_model extends General_Model
             ->join('sede b', 'b.sede = a.sede', 'inner')
             ->join('detalle_comanda c', 'a.comanda = c.comanda', 'inner');
 
+        $query->where('a.domicilio', 1);
+
         if ($tipoD !== null) {
-            $query->where('a.domicilio', "$tipoD");
+            $query->where('a.tipo_domicilio', "$tipoD");
         }
         if ($sedeN !== null) {
             $query->where('b.sede', "$sedeN");
@@ -1120,12 +1122,12 @@ class Comanda_model extends General_Model
 
 //        return $this->db->query("
 //            SELECT b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto
-//            FROM comanda a
-//            INNER JOIN sede b ON b.sede = a.sede
-//            INNER JOIN detalle_comanda c ON a.comanda = c.comanda
-//            WHERE a.domicilio = '$tipoD' AND DATE(a.fhcreacion) >= '$fdel' AND DATE(a.fhcreacion) <= '$al'
-//            GROUP BY a.comanda
-//            ORDER BY b.nombre, a.comanda;"
+//FROM comanda a
+//INNER JOIN sede b ON b.sede = a.sede
+//INNER JOIN detalle_comanda c ON a.comanda = c.comanda
+//WHERE a.domicilio = 0 AND b.sede = 1 AND DATE(a.fhcreacion) >= '2022-02-01' AND DATE(a.fhcreacion) <= '2022-02-07'
+//GROUP BY a.comanda
+//ORDER BY b.nombre, a.comanda;"
 //        )
 //            ->result();
     }
