@@ -72,7 +72,6 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     );
   }
 
-
   loadTiposDomicilio = () => {
     this.endSubs.add(
       this.tipoDomicilioSrvc.get().subscribe(res => {
@@ -91,102 +90,52 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     ];
   }
 
-
   resetParams = () => {
-
     this.msgGenerandoReporte = null;
     this.params = {
-      tipo_reporte: undefined,
-      fdel: moment().startOf('week').format(GLOBAL.dbDateFormat),
-      fal: moment().endOf('week').format(GLOBAL.dbDateFormat),
+      fdel: moment().format(GLOBAL.dbDateFormat),
+      fal: moment().format(GLOBAL.dbDateFormat),
+      sede: undefined,
       tipo_venta: undefined
     };
     this.cargando = false;
   }
 
-  getReporte = (tipo: number = 1) => {
-    this.paramsToSend = JSON.parse(JSON.stringify(this.params));
-    this.msgGenerandoReporte = 'GENERANDO REPORTE EN ';
-    //console.log(this.paramsToSend);
-
-    switch (tipo) {
-      case 2 :
-        this.getPdf();
-        break;
-      case 3 :
-        this.getExcel();
-        break;
-    }
-  }
-
-  getPdf = () => {
-
-    this.requestPDF();
-
-  }
-
-  getExcel = () => {
-
-    this.requestExcel(1);
-
-  }
-
   requestPDF = (esExcel = 0) => {
+    this.paramsToSend = JSON.parse(JSON.stringify(this.params));
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
-    this.cleanParams();
+    // this.cleanParams();
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');    
+    
     if (this.params.sede !== undefined && this.params.sede !== null) {
-      console.log(this.params);
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
+      // console.log(this.params);
+      const idx = this.sedes.findIndex(s => +s.sede.sede === +this.params.sede);
+      if (idx > -1) {
+        this.paramsToSend.sedeNName = this.sedes[idx].sede.nombre;
+      }
     }
+
     if (this.params.tipo_venta !== undefined && this.params.tipo_venta !== null) {
-      this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
+      const idx = this.tiposDomicilio.findIndex(td => +td.tipo_domicilio === +this.params.tipo_venta);
+      if (idx > -1) {
+        this.paramsToSend.tipoDName = this.tiposDomicilio[idx].descripcion;
+      }
     }
 
 
     this.endSubs.add(
       this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
-        console.log('Reporte salida ' + JSON.stringify(res));
+        // console.log('Reporte salida ' + JSON.stringify(res));
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
           saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
         } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', {duration: 3000});
+          this.snackBar.open('No se pudo generar el reporte...', 'Reporte de pedidos.', {duration: 3000});
         }
       })
     );
   }
-
-  requestExcel = (esExcel = 0) => {
-    this.paramsToSend._excel = esExcel;
-    this.cargando = true;
-    this.cleanParams();
-    this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
-    if (this.params.sede !== undefined) {
-      this.paramsToSend.sedeNName = this.sedes[this.params.sede].sede.nombre;
-    }
-    if (this.params.tipo_venta !== undefined) {
-      this.paramsToSend.tipoDName = this.tiposDomicilio[this.params.tipo_venta - 1].descripcion;
-    }
-
-
-    this.endSubs.add(
-      this.rptVentasSrvc.pedidosRTP(this.paramsToSend).subscribe(res => {
-        this.cargando = false;
-        if (res) {
-          const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-          saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
-        } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', {duration: 3000});
-        }
-      })
-    );
-  }
-
-  cleanParams = () => delete this.paramsToSend.tipo_reporte;
-
 }
