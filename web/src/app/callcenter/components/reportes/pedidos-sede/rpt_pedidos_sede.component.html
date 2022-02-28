@@ -16,7 +16,7 @@
           <mat-form-field class="fullWidth">
             <mat-label>Sede</mat-label>
             <mat-select name="sede" [(ngModel)]="params.sede">
-              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+              <mat-option *ngFor="let sede of sedes" [value]="sedes.indexOf(sede)">
                 {{sede.sede.nombre}}
               </mat-option>
             </mat-select>
