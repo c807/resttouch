@@ -35,7 +35,6 @@ export class CajaComponent implements OnInit {
     sede: [],
     fdel: moment().format(GLOBAL.dbDateFormat),
     fal: moment().format(GLOBAL.dbDateFormat),
-    porTurno: false
   };
   public titulo = 'Resumen de caja';
   public tiposTurno: TipoTurno[] = [];
@@ -53,8 +52,7 @@ export class CajaComponent implements OnInit {
     private sedeSrvc: AccesoUsuarioService,
     private socket: Socket,
     private ls: LocalstorageService
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     this.conectarAWS();
@@ -110,28 +108,23 @@ export class CajaComponent implements OnInit {
     this.cargando = false;
   }
 
-  printPorTurno(enExcel = 0) {
-    this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
+  // printPorTurno(enExcel = 0) {
+  //   this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
+  //     this.cargando = false;
+  //     if (res) {
 
-        console.log(res);
-        //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-        //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+  //       console.log(res);
+  //       //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+  //       //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
 
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-      }
-    });
+  //     } else {
+  //       this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+  //     }
+  //   });
 
-  }
+  // }
 
   onSubmit(enExcel = 0, enComandera = 0) {
-    if (this.params.porTurno) {
-      this.printPorTurno(enExcel);
-      return;
-    }
-
     this.cargando = true;
     this.params._pagos = this.fpagos;
     this.params._excel = enExcel;
@@ -162,6 +155,7 @@ export class CajaComponent implements OnInit {
     console.log(res);
 
 
+    
   }
 
 }

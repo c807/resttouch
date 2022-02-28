@@ -107,8 +107,8 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
     this.cargando = true;
     // this.cleanParams();
     this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');    
-    
+    this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+
     if (this.params.sede !== undefined && this.params.sede !== null) {
       // console.log(this.params);
       const idx = this.sedes.findIndex(s => +s.sede.sede === +this.params.sede);
