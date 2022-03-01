@@ -52,7 +52,7 @@ class Reporte extends CI_Controller
 		return $lista;
 	}
 
-	public function caja()
+	private function get_info_corte_caja($data)
 	{
 		ini_set("pcre.backtrack_limit", "15000000");
 
@@ -63,7 +63,6 @@ class Reporte extends CI_Controller
 			"descuento" => 1
 		]);
 
-		$data = json_decode(file_get_contents('php://input'), true);
 
 		$data['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 
@@ -213,6 +212,14 @@ class Reporte extends CI_Controller
 		$data['fhimpresion'] = date('d/m/Y H:i:s');
 
 		$data['totalComensales'] = $this->Reporte_model->get_suma_comensales($listaComandas);
+		
+		return $data;
+	}
+
+	public function caja()
+	{
+		// $data = json_decode(file_get_contents('php://input'), true);
+		$data = $this->get_info_corte_caja(json_decode(file_get_contents('php://input'), true));
 
 		if (verDato($data, "_excel")) {
 			$fdel = formatoFecha($data['fdel'], 2);
