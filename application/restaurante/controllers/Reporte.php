@@ -152,7 +152,7 @@ class Reporte extends CI_Controller
 			$data['_validar'] = false;
 		}
 
-		if ($this->input->get('turno_tipo')) {
+		if (isset($data['turno_tipo']) && (int)$data['turno_tipo'] > 0) {
 			$data["turno"] = new TurnoTipo_model($data["turno_tipo"]);
 		}
 
@@ -246,7 +246,7 @@ class Reporte extends CI_Controller
 			}
 
 			if (isset($data['turno'])) {
-				$hoja->setCellValue("B5", "--Resumen--");
+				$hoja->setCellValue("B5", $data['turno']->descripcion);
 			}
 
 			$hoja->setCellValue("A6", "Del: {$fdel}");
