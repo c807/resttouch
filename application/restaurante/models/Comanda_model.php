@@ -1090,44 +1090,27 @@ class Comanda_model extends General_Model
     }
 
     public function get_as_pedidos($fdel, $al, $tipoD = null, $sedeN = null)
-    {
-        // Domicilio = 1 // default
+    {        
+        if ($tipoD !== null) {
+            $this->db->where('a.tipo_domicilio', "$tipoD");
+        }
+        if ($sedeN !== null) {
+            $this->db->where('b.sede', "$sedeN");
+        }
 
-        /// FILTERING THE SEDE - FABRIBURGER
-        /// FILTERING DOMICILIO
-        /// FILTERING DATE
-        ///
-
-        $query = $this->db
+        return $this->db
             ->select('b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto')
             ->from('comanda a')
             ->join('sede b', 'b.sede = a.sede', 'inner')
-            ->join('detalle_comanda c', 'a.comanda = c.comanda', 'inner');
-
-        if ($tipoD !== null) {
-            $query->where('a.domicilio', "$tipoD");
-        }
-        if ($sedeN !== null) {
-            $query->where('b.sede', "$sedeN");
-        }
-
-        return $query->where('DATE(a.fhcreacion) >=', "$fdel")
+            ->join('detalle_comanda c', 'a.comanda = c.comanda', 'inner')
+            ->where('a.domicilio', 1)
+            ->where('DATE(a.fhcreacion) >=', "$fdel")
             ->where('DATE(a.fhcreacion) <=', "$al")
             ->group_by('a.comanda')
-            ->group_by(array("b.nombre", "a.comanda"))
+            ->having('SUM(c.total + c.aumento) <> 0')
+            ->order_by("b.nombre, a.comanda")
             ->get()
-            ->result();
-
-//        return $this->db->query("
-//            SELECT b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto
-//            FROM comanda a
-//            INNER JOIN sede b ON b.sede = a.sede
-//            INNER JOIN detalle_comanda c ON a.comanda = c.comanda
-//            WHERE a.domicilio = '$tipoD' AND DATE(a.fhcreacion) >= '$fdel' AND DATE(a.fhcreacion) <= '$al'
-//            GROUP BY a.comanda
-//            ORDER BY b.nombre, a.comanda;"
-//        )
-//            ->result();
+            ->result();            
     }
 
 }

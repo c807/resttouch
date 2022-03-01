@@ -22,7 +22,7 @@
             </mat-select>
           </mat-form-field>
           <mat-form-field class="fullWidth separacionPorHint">
-            <mat-label>Tipo de venta</mat-label>
+            <mat-label>Tipo de domicilio</mat-label>
             <mat-select name="tipo_venta" [(ngModel)]="params.tipo_venta">
               <mat-option *ngFor="let tv of tiposDomicilio" [value]="tv.tipo_domicilio">
                 {{tv.descripcion}}
@@ -30,7 +30,7 @@
             </mat-select>
           </mat-form-field>
 
-          <app-rpt-botones [configuracion]="configBotones" (excelClick) = "getReporte(3)" (pdfClick)="getReporte(2)" (resetParamsClick)="resetParams()"></app-rpt-botones>
+          <app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>
       </mat-card-content>

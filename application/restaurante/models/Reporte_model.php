@@ -83,6 +83,14 @@ class Reporte_model extends CI_Model
 			}
 		}
 
+		if (isset($args['domicilio'])) {
+			$this->db->where('h.domicilio', $args['domicilio']);
+		}
+
+		if (isset($args['tipo_domicilio'])) {
+			$this->db->where('h.tipo_domicilio', $args['tipo_domicilio']);
+		}
+
 		$tmp = $this->db
 			->select("
 			a.forma_pago, 

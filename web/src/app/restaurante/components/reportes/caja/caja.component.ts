@@ -1,14 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {ReportePdfService} from '../../../services/reporte-pdf.service';
-import {TipoTurno} from '../../../interfaces/tipo-turno';
-import {TipoTurnoService} from '../../../services/tipo-turno.service';
-import {UsuarioSede} from '../../../../admin/interfaces/acceso'
-import {AccesoUsuarioService} from '../../../../admin/services/acceso-usuario.service'
-import {saveAs} from 'file-saver';
-import {GLOBAL} from '../../../../shared/global';
-import {FpagoService} from '../../../../admin/services/fpago.service';
-import {FormaPago} from '../../../../admin/interfaces/forma-pago';
+import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ReportePdfService } from '../../../services/reporte-pdf.service';
+import { TipoTurno } from '../../../interfaces/tipo-turno';
+import { TipoTurnoService } from '../../../services/tipo-turno.service';
+import { UsuarioSede } from '../../../../admin/interfaces/acceso'
+import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service'
+import { saveAs } from 'file-saver';
+import { GLOBAL } from '../../../../shared/global';
+import { FpagoService } from '../../../../admin/services/fpago.service';
+import { FormaPago } from '../../../../admin/interfaces/forma-pago';
+import { Socket } from 'ngx-socket-io';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 import * as moment from 'moment';
 
 @Component({
@@ -21,7 +23,7 @@ export class CajaComponent implements OnInit {
   get configBotones() {
     const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
     return {
-      showPdf: true, showHtml: false, showExcel: true, showImprimir: false,
+      showPdf: true, showHtml: false, showExcel: true, showImprimir: true,
       isPdfDisabled: deshabilitar,
       isExcelDisabled: deshabilitar,
       isImprimirDisabled: deshabilitar
@@ -33,7 +35,6 @@ export class CajaComponent implements OnInit {
     sede: [],
     fdel: moment().format(GLOBAL.dbDateFormat),
     fal: moment().format(GLOBAL.dbDateFormat),
-    porTurno: false
   };
   public titulo = 'Resumen de caja';
   public tiposTurno: TipoTurno[] = [];
@@ -48,14 +49,31 @@ export class CajaComponent implements OnInit {
     private pdfServicio: ReportePdfService,
     private tipoTurnoSrvc: TipoTurnoService,
     private fpagoSrvc: FpagoService,
-    private sedeSrvc: AccesoUsuarioService
-  ) {
-  }
+    private sedeSrvc: AccesoUsuarioService,
+    private socket: Socket,
+    private ls: LocalstorageService
+  ) { }
 
   ngOnInit() {
+    this.conectarAWS();
     this.loadTiposTurno();
     this.loadFormaPago();
     this.loadSedes();
+  }
+
+  conectarAWS = () => {
+    if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
+      this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
+
+      this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
+
+      this.socket.on('connect_timeout', () => {
+        const msg = 'DESCONECTADO DEL SERVIDOR (TIMEOUT)';
+        this.snackBar.open(msg, 'ERROR', { duration: 5000 });        
+      });
+
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));      
+    }    
   }
 
   loadFormaPago = () => {
@@ -67,7 +85,7 @@ export class CajaComponent implements OnInit {
   }
 
   loadSedes = () => {
-    this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+    this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
       if (res) {
         this.sedes = res
       }
@@ -90,45 +108,23 @@ export class CajaComponent implements OnInit {
     this.cargando = false;
   }
 
-  // excelClick = () => {
-  //   this.cargando = true;
-  //   this.params._pagos = this.fpagos;
-  //   this.params._excel = 1;
-
-  //   this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
+  // printPorTurno(enExcel = 0) {
+  //   this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
   //     this.cargando = false;
   //     if (res) {
-  //       const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
-  //       saveAs(blob, `${this.titulo}.xls`);
+
+  //       console.log(res);
+  //       //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+  //       //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+
   //     } else {
   //       this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
   //     }
   //   });
+
   // }
 
-
-  printPorTurno(enExcel = 0) {
-    this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-
-        console.log(res);
-        const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-        saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
-
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
-      }
-    });
-
-  }
-
   onSubmit(enExcel = 0, enComandera = 0) {
-    if (this.params.porTurno) {
-      this.printPorTurno(enExcel);
-      return;
-    }
-
     this.cargando = true;
     this.params._pagos = this.fpagos;
     this.params._excel = enExcel;
@@ -138,7 +134,7 @@ export class CajaComponent implements OnInit {
       this.cargando = false;
       if (res) {
         if (+enComandera === 1) {
-          const blob = new Blob([res], {type: 'application/json'});
+          const blob = new Blob([res], { type: 'application/json' });
           const fr = new FileReader();
           fr.onload = (e) => {
             const obj = JSON.parse((e.target.result as string));
@@ -146,11 +142,11 @@ export class CajaComponent implements OnInit {
           };
           fr.readAsText(blob);
         } else {
-          const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+          const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
           saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
         }
       } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
+        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
       }
     });
   }
@@ -159,6 +155,7 @@ export class CajaComponent implements OnInit {
     console.log(res);
 
 
+    
   }
 
 }
