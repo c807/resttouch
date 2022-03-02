@@ -35,7 +35,7 @@ class Factura extends CI_Controller {
 		$continuar = true;
 		if ($this->input->method() == 'post') {
 			if (isset($req['cliente']) && isset($req['moneda']) && isset($req['factura_serie'])) {
-				$sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
+				// $sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
 				$clt = new Cliente_model($req['cliente']);
 				$config = $this->Configuracion_model->buscar([
 					'campo' => 'RT_FACTURA_PROPINA',
@@ -51,6 +51,8 @@ class Factura extends CI_Controller {
 						$continuar = false;
 					}
 				}
+
+				$sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
 				
 				$req['usuario'] = $data->idusuario;
 				$req['sede'] = $data->sede;
