@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<?php foreach ($json_data_turno as $row) : ?>
+<?php foreach ($json_data_turnos as $row) : ?>
     <!-- Encabezado -->
     <div class="row">
         <div class="col-sm-12">
@@ -61,10 +61,17 @@
         <tbody>
         <?php foreach ($row->data as $rowD) : ?>
             <tr>
-                <td><?php echo $rowD ?></td>
-                <td>Test</td>
-                <td>Test</td>
+                <td><?php echo $rowD->name ?></td>
+                <td></td>
+                <td></td>
             </tr>
+            <?php foreach ($rowD->ingresos as $rowDI) : ?>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            <?php endforeach ?>
         <?php endforeach ?>
         </tbody>
     </table>

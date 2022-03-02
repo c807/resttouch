@@ -31,6 +31,7 @@ export class CajaComponent implements OnInit {
   };
 
   public params: any = {
+    porTurno: false,
     _validar: false,
     sede: [],
     fdel: moment().format(GLOBAL.dbDateFormat),
@@ -69,11 +70,11 @@ export class CajaComponent implements OnInit {
 
       this.socket.on('connect_timeout', () => {
         const msg = 'DESCONECTADO DEL SERVIDOR (TIMEOUT)';
-        this.snackBar.open(msg, 'ERROR', { duration: 5000 });        
+        this.snackBar.open(msg, 'ERROR', { duration: 5000 });
       });
 
-      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));      
-    }    
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));
+    }
   }
 
   loadFormaPago = () => {
@@ -81,7 +82,7 @@ export class CajaComponent implements OnInit {
       if (res) {
         this.fpagos = res;
       }
-    })
+    });
   }
 
   loadSedes = () => {
@@ -108,27 +109,34 @@ export class CajaComponent implements OnInit {
     this.cargando = false;
   }
 
-  // printPorTurno(enExcel = 0) {
-  //   this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
-  //     this.cargando = false;
-  //     if (res) {
+  printPorTurno(enExcel = 0) {
+    this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
+      this.cargando = false;
+      if (res) {
 
-  //       console.log(res);
-  //       //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-  //       //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        console.log(res);
+        const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+        saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
 
-  //     } else {
-  //       this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-  //     }
-  //   });
+      } else {
+        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+      }
+    });
 
-  // }
+  }
 
   onSubmit(enExcel = 0, enComandera = 0) {
     this.cargando = true;
     this.params._pagos = this.fpagos;
     this.params._excel = enExcel;
     this.params._encomandera = enComandera;
+
+    if(this.params.porTurno){
+      console.log("Printing por turno");
+      this.printPorTurno();
+      return;
+    }
+
 
     this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
       this.cargando = false;
@@ -155,7 +163,7 @@ export class CajaComponent implements OnInit {
     console.log(res);
 
 
-    
+
   }
 
 }

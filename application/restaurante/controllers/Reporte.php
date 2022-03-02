@@ -5,6 +5,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 ini_set('memory_limit', -1);
 set_time_limit(0);
+include 'testJson/MyJson.php';
 
 class Reporte extends CI_Controller
 {
@@ -42,7 +43,7 @@ class Reporte extends CI_Controller
 	}
 
 	private function agrupa_lista_comandas($data, $lista = '')
-	{		
+	{
 		foreach($data as $value) {
 			if ($lista !== '') {
 				$lista .= ',';
@@ -72,7 +73,7 @@ class Reporte extends CI_Controller
 		$data["_facturadas"] = true;
 
 		$data["descuento"] = 0;
-		$data['ingresos'] = $this->Reporte_model->get_ingresos($data);		
+		$data['ingresos'] = $this->Reporte_model->get_ingresos($data);
 		$data['comandas'] = true;
 		$tmp = $this->Reporte_model->get_ingresos($data);
 		unset($data['comandas']);
@@ -212,10 +213,106 @@ class Reporte extends CI_Controller
 		$data['fhimpresion'] = date('d/m/Y H:i:s');
 
 		$data['totalComensales'] = $this->Reporte_model->get_suma_comensales($listaComandas);
-		
+
 		return $data;
 	}
 
+    /**
+     * Ingresamos -> domicilio , tipo_domicilio
+     * Retorna -> array([metodo_pago, monto, propina , total])
+     */
+	private function get_turno_domicilio_info($data){
+	    // domicilio
+        // tipo_domicilio
+
+        $data['domicilio'] = 0; // Ingresos por restaurante
+        $json_data = $this->get_info_corte_caja($data);
+
+        $jsonobj = new stdClass();
+        $jsonobj->name = "Ingresos en restaurante";
+        $ingresos = [];
+
+        //Itereamos por los metodos de pago y los agregamos al array.
+        foreach ($data['_pagos'] as $row) {
+            $metodo_pago = new stdClass();
+            $metodo_pago->metodo_pago = $row['descripcion'];
+
+            //calculando_montos
+            //ingresos + descuentos + factura sin comanda == sumarlos todos
+            //monto, propina , total
+            $basic_ingreso = new stdClass(); //Respuesta por defecto para simplificar logica
+            $basic_ingreso->monto = 0;
+
+            $monto_ingresos = (!empty($json_data['ingresos']))?array_filter($json_data['ingresos'], function($item) use ($row) {return $item->forma_pago === $row['forma_pago'];}):$basic_ingreso;
+
+            $metodo_pago->monto = 0;
+            $metodo_pago->data = $monto_ingresos;
+            array_push($ingresos, $metodo_pago);
+        }
+
+        //agregamos el array de metodos de pago y totales al objeto a retornar
+        $jsonobj->ingresos = $ingresos;
+        return $jsonobj;
+    }
+
+    /**
+     * Desglose de reporte
+     *  -> Total del dia
+     *  -> Desglose por turnos
+     */
+	public function rpt_caja_turno(){
+        $data = json_decode(file_get_contents('php://input'), true);
+        // Decode the JSON file
+
+        ///////////////////// Detalles de la sede
+        $sede = $this->Catalogo_model->getSede([
+            'sede' => $this->data->sede,
+            "_uno" => true
+        ]);
+        $tmp = [];
+        foreach ($data['sede'] as $row) {
+            $sede = $this->Catalogo_model->getSede([
+                'sede' => $row,
+                "_uno" => true
+            ]);
+
+            $tmp[] = $sede->nombre;
+        }
+        if ($sede) {
+            $emp = $this->Catalogo_model->getEmpresa([
+                "empresa" => $sede->empresa,
+                "_uno" => true
+            ]);
+            if ($emp) {
+                $data['empresa'] = $emp;
+                $data['nsede'] = implode(", ", $tmp);
+            }
+        }
+
+        ///////////////////// TURNO TOTAL DEL DIA /////////
+        $json_data = $this->get_turno_domicilio_info($data);
+        $sample_turno_jsonDataAndTipoD = [$json_data];
+
+        ///////////////////// Creando informacion de turnos
+        $jsonobjA = new stdClass();
+        $jsonobjA->name = 'turno A';
+        $jsonobjA->data = $sample_turno_jsonDataAndTipoD;
+
+        //////// Agregando turnos a la data
+        $json_data_turnos = array($jsonobjA);
+        $data['json_data_turnos'] = $json_data_turnos;
+
+        /////// Desplegando informacion
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => sys_get_temp_dir(),
+            'format' => 'Legal'
+        ]);
+        $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
+        $mpdf->Output("Reporte de Caja Turno.pdf", "D");
+
+//        $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($json_data));
+
+    }
 	public function caja()
 	{
 		// $data = json_decode(file_get_contents('php://input'), true);
@@ -582,7 +679,7 @@ class Reporte extends CI_Controller
 					}
 				}
 			}
-			
+
 			$fila += 3;
 			$hoja->setCellValue("A{$fila}", "Impresión: {$data['fhimpresion']}");
 			// $hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode('dd/mm/yyyy h:mm:ss');
