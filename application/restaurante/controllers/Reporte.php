@@ -319,7 +319,7 @@ class Reporte extends CI_Controller
         }
 
         ///////////////////// TURNO TOTAL DEL DIA /////////
-        //$datos = $this->Tipo_domicilio_model->buscar();
+        $datos = $this->Tipo_domicilio_model->buscar();
 
         $data['domicilio'] = 0; // Ingresos por restaurante
         $ingreso_en_restaurante = $this->get_turno_domicilio_info($data);
