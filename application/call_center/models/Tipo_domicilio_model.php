@@ -14,4 +14,5 @@ class Tipo_domicilio_model extends General_model {
 			$this->cargar($id);
 		}
 	}
+
 }

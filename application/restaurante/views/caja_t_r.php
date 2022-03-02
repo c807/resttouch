@@ -67,8 +67,9 @@
             </tr>
             <?php foreach ($rowD->ingresos as $rowDI) : ?>
                 <tr>
-                    <td></td>
-                    <td></td>
+                    <td><?php echo $rowDI->metodo_pago ?></td>
+                    <td><?php echo $rowDI->monto ?></td>
+                    <td><?php echo $rowDI->propina ?></td>
                     <td></td>
                 </tr>
             <?php endforeach ?>
