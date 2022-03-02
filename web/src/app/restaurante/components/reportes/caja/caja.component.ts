@@ -37,6 +37,7 @@ export class CajaComponent implements OnInit, OnDestroy {
   };
 
   public params: any = {
+    porTurno: false,
     _validar: false,
     sede: [],
     fdel: moment().format(GLOBAL.dbDateFormat),
@@ -83,11 +84,11 @@ export class CajaComponent implements OnInit, OnDestroy {
 
       this.socket.on('connect_timeout', () => {
         const msg = 'DESCONECTADO DEL SERVIDOR (TIMEOUT)';
-        this.snackBar.open(msg, 'ERROR', { duration: 5000 });        
+        this.snackBar.open(msg, 'ERROR', { duration: 5000 });
       });
 
-      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));      
-    }    
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));
+    }
   }
 
   loadImpresoraDefecto = () => {
@@ -97,7 +98,7 @@ export class CajaComponent implements OnInit, OnDestroy {
           this.impresora = res[0];
         }
       })
-    );    
+    );
   }
 
   loadFormaPago = () => {
@@ -120,21 +121,21 @@ export class CajaComponent implements OnInit, OnDestroy {
     this.cargando = false;
   }
 
-  // printPorTurno(enExcel = 0) {
-  //   this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
-  //     this.cargando = false;
-  //     if (res) {
+  printPorTurno(enExcel = 0) {
+    this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
+      this.cargando = false;
+      if (res) {
 
-  //       console.log(res);
-  //       //const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-  //       //saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        console.log(res);
+        const blob = new Blob([res], {type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+        saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
 
-  //     } else {
-  //       this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-  //     }
-  //   });
+      } else {
+        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+      }
+    });
 
-  // }
+  }
 
   onSubmit(enExcel = 0, enComandera = 0) {
     this.cargando = true;
@@ -142,7 +143,14 @@ export class CajaComponent implements OnInit, OnDestroy {
     this.params._excel = enExcel;
     this.params._encomandera = enComandera;
 
-    this.endSubs.add(      
+    if(this.params.porTurno){
+      console.log("Printing por turno");
+      this.printPorTurno();
+      return;
+    }
+
+
+    this.endSubs.add(
       this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
         this.cargando = false;
         if (res) {
@@ -177,7 +185,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       Ingresos: res.ingresos || [],
       FacturasSinComanda: res.facturas_sin_comanda || [],
       Descuentos: res.descuentos || []
-    } 
+    }
 
     const imprimir = new Impresion(this.socket, this.ls);
     imprimir.imprimirCorteCaja(obj);
