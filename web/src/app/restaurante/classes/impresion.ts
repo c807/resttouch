@@ -10,8 +10,8 @@ export class Impresion {
     constructor(
         private socket: Socket,
         private ls: LocalstorageService,
-        private comandaSrvc: ComandaService,
-        private configSrvc: ConfiguracionService
+        private comandaSrvc?: ComandaService,
+        private configSrvc?: ConfiguracionService
     ) { }
 
     private setToPrint = (articulos: any[]) => {
@@ -137,6 +137,15 @@ export class Impresion {
             } else {
                 this.printToBT(JSON.stringify(msgToPrint));
             }
+        }
+    }
+
+    imprimirCorteCaja = (obj: any) => {
+        const printerToUse = obj.Impresora || null;
+        if (!printerToUse || +printerToUse?.bluetooth === 0) {
+            this.socket.emit(`print:corte_caja`, `${JSON.stringify(obj)}`);
+        } else {
+            this.printToBT(JSON.stringify(obj));
         }
     }
 

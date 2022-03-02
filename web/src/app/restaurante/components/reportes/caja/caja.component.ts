@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ReportePdfService } from '../../../services/reporte-pdf.service';
 import { TipoTurno } from '../../../interfaces/tipo-turno';
@@ -11,14 +11,20 @@ import { FpagoService } from '../../../../admin/services/fpago.service';
 import { FormaPago } from '../../../../admin/interfaces/forma-pago';
 import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { ImpresionCorteCaja } from '../../../interfaces/cajacorte';
+import { Impresora } from '../../../../admin/interfaces/impresora';
+import { ImpresoraService } from '../../../../admin/services/impresora.service';
+import { Impresion } from '../../../classes/impresion';
 import * as moment from 'moment';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-caja',
   templateUrl: './caja.component.html',
   styleUrls: ['./caja.component.css']
 })
-export class CajaComponent implements OnInit {
+export class CajaComponent implements OnInit, OnDestroy {
 
   get configBotones() {
     const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
@@ -43,7 +49,9 @@ export class CajaComponent implements OnInit {
   public fpagos: FormaPago[] = [];
   public sedes: UsuarioSede[] = [];
   public grupos = GLOBAL.grupos;
+  public impresora: Impresora;
 
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -52,7 +60,8 @@ export class CajaComponent implements OnInit {
     private fpagoSrvc: FpagoService,
     private sedeSrvc: AccesoUsuarioService,
     private socket: Socket,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private impresoraSrvc: ImpresoraService
   ) { }
 
   ngOnInit() {
@@ -60,6 +69,11 @@ export class CajaComponent implements OnInit {
     this.loadTiposTurno();
     this.loadFormaPago();
     this.loadSedes();
+    this.loadImpresoraDefecto();
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   conectarAWS = () => {
@@ -77,28 +91,26 @@ export class CajaComponent implements OnInit {
     }
   }
 
+  loadImpresoraDefecto = () => {
+    this.endSubs.add(
+      this.impresoraSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) , pordefecto: 1 }).subscribe(res => {
+        if (res && res.length > 0) {
+          this.impresora = res[0];
+        }
+      })
+    );
+  }
+
   loadFormaPago = () => {
-    this.fpagoSrvc.get().subscribe(res => {
-      if (res) {
-        this.fpagos = res;
-      }
-    });
+    this.endSubs.add(this.fpagoSrvc.get().subscribe(res => this.fpagos = res));
   }
 
   loadSedes = () => {
-    this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
-      if (res) {
-        this.sedes = res
-      }
-    })
+    this.endSubs.add(this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => this.sedes = res));
   }
 
   loadTiposTurno = () => {
-    this.tipoTurnoSrvc.get().subscribe(res => {
-      if (res) {
-        this.tiposTurno = res;
-      }
-    });
+    this.endSubs.add(this.tipoTurnoSrvc.get().subscribe(res => this.tiposTurno = res));
   }
 
   resetParams = () => {
@@ -138,32 +150,45 @@ export class CajaComponent implements OnInit {
     }
 
 
-    this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-        if (+enComandera === 1) {
-          const blob = new Blob([res], { type: 'application/json' });
-          const fr = new FileReader();
-          fr.onload = (e) => {
-            const obj = JSON.parse((e.target.result as string));
-            this.sendToImpresora(obj);
-          };
-          fr.readAsText(blob);
+    this.endSubs.add(
+      this.pdfServicio.getReporteCaja(this.params).subscribe(res => {
+        this.cargando = false;
+        if (res) {
+          if (+enComandera === 1) {
+            const blob = new Blob([res], { type: 'application/json' });
+            const fr = new FileReader();
+            fr.onload = (e) => {
+              const obj = JSON.parse((e.target.result as string));
+              this.sendToImpresora(obj);
+            };
+            fr.readAsText(blob);
+          } else {
+            const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+            saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
-          const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+          this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-      }
-    });
+      })
+    );
   }
 
-  sendToImpresora = async (res: any) => {
-    console.log(res);
+  sendToImpresora = (res: any) => {
+    const obj: ImpresionCorteCaja = {
+      Empresa: res.empresa.nombre,
+      Sede: res.nsede,
+      FechaDel: moment(res.fdel).format(GLOBAL.dateFormat),
+      FechaAl: moment(res.fal).format(GLOBAL.dateFormat),
+      Turno: res.turno?.descripcion || null,
+      TotalDeComensales: res.totalComensales,
+      Impresora: this.impresora || null,
+      Ingresos: res.ingresos || [],
+      FacturasSinComanda: res.facturas_sin_comanda || [],
+      Descuentos: res.descuentos || []
+    }
 
-
-
+    const imprimir = new Impresion(this.socket, this.ls);
+    imprimir.imprimirCorteCaja(obj);
   }
 
 }

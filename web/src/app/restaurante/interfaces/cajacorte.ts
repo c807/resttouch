@@ -1,3 +1,5 @@
+import { Impresora } from "../../admin/interfaces/impresora";
+
 export interface ccGeneral {
 	caja_corte: number;
 	creacion: string;
@@ -48,4 +50,17 @@ export interface ccDocumentoRetiro {
 	numero: string;
 	fecha: string;	
 	descripcion_documento?: string;
+}
+
+export interface ImpresionCorteCaja {
+	Empresa: string;
+	Sede: string;
+	FechaDel: string;
+	FechaAl: string;
+	Turno?: string;
+	TotalDeComensales: number;
+	Impresora?: Impresora;
+	Ingresos: any[];
+	FacturasSinComanda: any[];
+	Descuentos: any[];
 }
