@@ -32,7 +32,7 @@
 </div>
 
 <?php foreach ($json_data_turnos as $row) : ?>
-    <!-- Encabezado -->
+    <!-- Encabezado nombre del turno -->
     <div class="row">
         <div class="col-sm-12">
             <table style="width: 100%;">
@@ -48,18 +48,19 @@
             </table>
         </div>
     </div>
+    <!-- Table de domicilios o formas de entregar -->
+    <?php foreach ($row->data as $rowD) : ?>
+        <table class="table table-bordered" style="padding: 5px">
+            <thead>
+            <tr>
+                <th style="padding: 5px;" class="text-center">Descripcion</th>
+                <th style="padding: 5px;" class="text-center">Monto</th>
+                <th style="padding: 5px;" class="text-center">Propina</th>
+                <th style="padding: 5px;" class="text-center">Total</th>
+            </tr>
+            </thead>
+            <tbody>
 
-    <table class="table table-bordered" style="padding: 5px">
-        <thead>
-        <tr>
-            <th style="padding: 5px;" class="text-center">Descripcion</th>
-            <th style="padding: 5px;" class="text-center">Monto</th>
-            <th style="padding: 5px;" class="text-center">Propina</th>
-            <th style="padding: 5px;" class="text-center">Total</th>
-        </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($row->data as $rowD) : ?>
             <tr>
                 <td><?php echo $rowD->name ?></td>
                 <td></td>
@@ -70,12 +71,13 @@
                     <td><?php echo $rowDI->metodo_pago ?></td>
                     <td><?php echo $rowDI->monto ?></td>
                     <td><?php echo $rowDI->propina ?></td>
-                    <td></td>
+                    <td><?php echo $rowDI->total ?></td>
                 </tr>
             <?php endforeach ?>
-        <?php endforeach ?>
-        </tbody>
-    </table>
+
+            </tbody>
+        </table>
+    <?php endforeach ?>
 <?php endforeach ?>
 
 

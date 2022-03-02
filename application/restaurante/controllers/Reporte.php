@@ -26,7 +26,8 @@ class Reporte extends CI_Controller
             'Usuario_model',
             'TurnoTipo_model',
             'Catalogo_model',
-            'Configuracion_model'
+            'Configuracion_model',
+            'Tipo_domicilio_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -251,15 +252,20 @@ class Reporte extends CI_Controller
         // domicilio
         // tipo_domicilio
 
-        $json_data = $this->get_info_corte_caja($data);
 
         $jsonobj = new stdClass();
-        $jsonobj->name = "Ingresos en restaurante";
+        $jsonobj->name = $data['tipo_de_ingreso'];
         $ingresos = []; // ARRAY DE LOS METODOS DE PAGO
+
+        // Agregando seccion de descuentos para mejorar logica
+        $formas_pago = $data['_pagos'];
+        $descuento = new stdClass();
+        //$descuento->descripcion = "Descuento";
+        //array_push($formas_pago, json_encode($descuento));
 
         //Itereamos por los metodos de pago y los agregamos al array.
         // Esta seccion crea un objeto para obtner los montos en los distintos metodos de pago como Efectivo , Dolares etc.
-        foreach ($data['_pagos'] as $row) {
+        foreach ($formas_pago as $row) {
             $metodo_pago = new stdClass();
             $metodo_pago->metodo_pago = $row['descripcion'];
 
@@ -267,14 +273,25 @@ class Reporte extends CI_Controller
             //ingresos + descuentos + factura sin comanda == sumarlos todos
             //monto, propina , total
             //Montos Ingres0
-            $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
-            $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
-            $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
+            if($metodo_pago->metodo_pago !== 'Descuento'){
+                $json_data = $this->get_info_corte_caja($data);
+                $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
+                $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
+                $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-            $metodo_pago->monto = number_format((float)$ingresos_mont->monto + (float)$descuentos_mont->monto + (float)$facturas_sin_com->monto, 2, '.', '');
-            $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', '');
-            $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
-            $metodo_pago->data = '';
+                $metodo_pago->monto = number_format((float)$ingresos_mont->monto + (float)$descuentos_mont->monto + (float)$facturas_sin_com->monto, 2, '.', '');
+                $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', '');
+                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
+
+            }else {
+                $json_data = $this->get_info_corte_caja($data);
+                $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
+
+                $metodo_pago->monto = number_format($descuentos->monto, 2, '.', '');
+                $metodo_pago->propina = number_format($descuentos->propina, 2, '.', '');
+                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
+            }
+
             array_push($ingresos, $metodo_pago);
         }
 
@@ -292,7 +309,6 @@ class Reporte extends CI_Controller
     {
         $data = json_decode(file_get_contents('php://input'), true);
         // Decode the JSON file
-
         ///////////////////// Detalles de la sede
         $sede = $this->Catalogo_model->getSede([
             'sede' => $this->data->sede,
@@ -318,20 +334,46 @@ class Reporte extends CI_Controller
             }
         }
 
-        ///////////////////// TURNO TOTAL DEL DIA /////////
-        $datos = $this->Tipo_domicilio_model->buscar();
+        ///////////////////// CREADOR DE TURNOS /////////
+        $json_data_turnos = [];
+        $turnoDia = new stdClass(); // agregando turno total para mejorar logica
+        $turnoDia->descripcion = "TODO EL DIA";
+        $turnoDia->turno_tipo = -1;
+        $tipos_de_turnos = $this->TurnoTipo_model->buscar();
+        array_unshift($tipos_de_turnos, $turnoDia); // adds at begining
+        ////////iteration between schedules
+        ///
 
-        $data['domicilio'] = 0; // Ingresos por restaurante
-        $ingreso_en_restaurante = $this->get_turno_domicilio_info($data);
-        $sample_turno_jsonDataAndTipoD = [$ingreso_en_restaurante];
+        foreach ($tipos_de_turnos as $turnoDB){
+            $turno = new stdClass();
+            $turno->name = $turnoDB->descripcion;
 
-        ///////////////////// Creando informacion de turnos
-        $jsonobjA = new stdClass();
-        $jsonobjA->name = 'TODO EL DIA';
-        $jsonobjA->data = $sample_turno_jsonDataAndTipoD;
+            if($turnoDB->turno_tipo > -1){
+                $data['turno_tipo'] = $turnoDB->turno_tipo;
+            }
 
-        //////// Agregando turnos a la data
-        $json_data_turnos = array($jsonobjA);
+            $tipos_domicilio = $this->Tipo_domicilio_model->buscar();
+            $data['domicilio'] = 0; // Ingresos por restaurante
+            $data['tipo_de_ingreso'] = "Ingreso en restaurante";
+            $ingreso_en_restaurante = $this->get_turno_domicilio_info($data);
+            $sample_turno_jsonDataAndTipoD = [$ingreso_en_restaurante];
+
+            foreach ($tipos_domicilio as $row) {
+                $data['domicilio'] = 1;
+                $data['tipo_domicilio'] = $row->tipo_domicilio;
+                $data['tipo_de_ingreso'] = $row->descripcion;
+                $ingreso_en_restaurante_dom = $this->get_turno_domicilio_info($data);
+                array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
+            }
+
+            $turno->data = $sample_turno_jsonDataAndTipoD;
+            array_push($json_data_turnos,$turno);
+        }
+
+
+        ///////////////////////////////////////////
+
+
         $data['json_data_turnos'] = $json_data_turnos;
 
         /////// Desplegando informacion
