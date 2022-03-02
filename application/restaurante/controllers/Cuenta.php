@@ -13,7 +13,9 @@ class Cuenta extends CI_Controller
 			'Cuenta_model',
 			'Dcuenta_model',
 			'Mesa_model',
-			'Sede_model'
+			'Sede_model',
+			'Articulo_tipo_cliente_model',
+			'Cliente_model'
 		]);
 
 		$this->output->set_content_type('application/json', 'UTF-8');
@@ -52,20 +54,43 @@ class Cuenta extends CI_Controller
 			}
 		}
 
-		if($porcentajeAumento > 0) {
+		if ($porcentajeAumento > 0) {
 			$cntDetalles = count($detalleComanda);
 			for ($i = 0; $i < $cntDetalles; $i++) {
 				$dc = new Dcomanda_model($detalleComanda[$i]->detalle_comanda);
 				$aumento = $porcentajeAumento * (float)$detalleComanda[$i]->total / 100;
-				$exito = $dc->guardar([
+				$dc->guardar([
 					'aumento_porcentaje' => $porcentajeAumento,
 					'aumento' => $aumento
-				]);
-				if (!$exito) {
-					$mensaje = $dc->getMensaje();
-				}
+				]);				
 				$detalleComanda[$i]->aumento_porcentaje = $porcentajeAumento;
 				$detalleComanda[$i]->aumento = $aumento;
+			}
+		}
+		return $detalleComanda;
+	}
+
+	private function cambiaPreciosPorTipoCliente($idCliente, $detalleComanda)
+	{
+		$cliente = new Cliente_model($idCliente);
+		if ($cliente && (int)$cliente->tipo_cliente > 0) {
+			$cntDetalles = count($detalleComanda);
+			$fltr = ['tipo_cliente' => $cliente->tipo_cliente, '_uno' => true];
+			for ($i = 0; $i < $cntDetalles; $i++) {
+				$dc = new Dcomanda_model($detalleComanda[$i]->detalle_comanda);
+				$fltr['articulo'] = $dc->articulo;
+				$atc = $this->Articulo_tipo_cliente_model->buscar($fltr);
+				if ($atc) {
+					$nuevo_precio = (float)$atc->precio;
+					$nuevo_total = (float)$dc->cantidad * (float)$atc->precio;
+					$dc->guardar([
+						'precio' => $nuevo_precio,
+						'total' => $nuevo_total
+					]);
+
+					$detalleComanda[$i]->precio = $nuevo_precio;
+					$detalleComanda[$i]->total = $nuevo_total;
+				}
 			}
 		}
 		return $detalleComanda;
@@ -86,6 +111,13 @@ class Cuenta extends CI_Controller
 
 					if ($cta->cerrada == 0) {
 						$det = $cta->getDetalle(['impreso' => 1, '_for_print' => true]);
+
+						// Incia proceso de actualizar los precios según el tipo de cliente
+						if (isset($req->actualizacion_precios) && $req->actualizacion_precios && isset($req->cliente) && (int)$req->cliente > 0) {
+							$det = $this->cambiaPreciosPorTipoCliente((int)$req->cliente, $det);
+						}
+						// Finaliza proceso de actualizar los precios según el tipo de cliente
+
 						$det = $this->actualizaAumentoEnDetalleComanda($req->forma_pago, $det);
 						$total = 0;
 						foreach ($det as $row) {
