@@ -35,6 +35,8 @@ import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entreg
 import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
 import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicilio.service';
 import { ValidaPwdGerenteTurnoComponent } from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
+import { ArticuloTipoCliente } from '../../../wms/interfaces/articulo-tipo-cliente';
+import { ArticuloService } from '../../../wms/services/articulo.service';
 
 interface DatosPedido {
   sede: number;
@@ -125,7 +127,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private clienteMasterSrvc: ClienteMasterService,
     private tiempoEntregaSrvc: TiempoEntregaService,
-    private tipoDomicilioSrvc: TipoDomicilioService
+    private tipoDomicilioSrvc: TipoDomicilioService,
+    private articuloSrvc: ArticuloService
   ) {
   }
 
@@ -368,6 +371,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     if (obj && +obj.cliente > 0) {
       this.clienteSelected = obj;
       this.factReq.cliente = +obj.cliente;
+
+      if (obj.tipo_cliente && +obj.tipo_cliente > 0) {
+        this.recalculaPrecios(obj);
+      }
     }
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
@@ -708,6 +715,28 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.formaPago.vuelto = +fp.vuelto_para - (monto + propina);
     } else {
       this.formaPago.vuelto = 0;
+    }
+  }
+
+  recalculaPrecios = async (cli: Cliente) => {
+    let huboCambioPrecio = false;
+    const params = {
+      _flat: 1, _uno: true, tipo_cliente: cli.tipo_cliente, articulo: null
+    }
+    // console.log('A cobrar = ', this.inputData.productosACobrar);
+
+    for(const pac of this.inputData.productosACobrar) {
+      params.articulo = pac.id;
+      const atc: ArticuloTipoCliente = (await this.articuloSrvc.getArticulosPorTipoCliente(params).toPromise()) as ArticuloTipoCliente;
+      if (atc) {
+        // console.log('ART TIP CLI = ', atc);
+        pac.precio = +atc.precio;
+        huboCambioPrecio = true;
+      }
+    }
+
+    if (huboCambioPrecio) {
+
     }
   }
 }

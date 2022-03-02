@@ -251,8 +251,8 @@ export class ArticuloService {
   }
 
   // Inicia métodos para precios por tipo de cliente
-  getArticulosPorTipoCliente(fltr: any = {}): Observable<ArticuloTipoCliente[]> {
-    return this.http.get<ArticuloTipoCliente[]>(
+  getArticulosPorTipoCliente(fltr: any = {}): (Observable<(ArticuloTipoCliente[] | ArticuloTipoCliente)>) {
+    return this.http.get<(ArticuloTipoCliente[] | ArticuloTipoCliente)>(
       `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/get_lista_precios?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }  
