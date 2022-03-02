@@ -60,7 +60,7 @@ export class ListaPreciosTipoClienteComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       this.articuloSrvc.getArticulosPorTipoCliente(fltr).subscribe(res => {
-        this.lstArticulosTipoCliente = res;
+        this.lstArticulosTipoCliente = (res as ArticuloTipoCliente[]);
       })
     );
   }
