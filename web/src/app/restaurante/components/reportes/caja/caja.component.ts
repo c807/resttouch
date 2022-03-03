@@ -122,6 +122,7 @@ export class CajaComponent implements OnInit, OnDestroy {
   }
 
   printPorTurno(enExcel = 0) {
+    
     this.pdfServicio.getReporteCajaTurno(this.params).subscribe(res => {
       this.cargando = false;
       if (res) {
