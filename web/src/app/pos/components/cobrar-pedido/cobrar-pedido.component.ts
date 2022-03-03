@@ -73,6 +73,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   }
 
   @Input() inputData: any = {};
+  public inputDataOriginal: any = {};
   public lstFormasPago: FormaPago[] = [];
   public formaPago: any = {};
   public formasPagoDeCuenta: any[] = [];
@@ -207,9 +208,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.data = this.inputData;
     }
 
+    this.inputDataOriginal = JSON.parse(JSON.stringify(this.inputData));
 
     this.calculaTotalDeCuenta();
-
 
     this.calculaPropina();
     this.actualizaSaldo();
@@ -375,6 +376,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
       if (obj.tipo_cliente && +obj.tipo_cliente > 0) {
         this.recalculaPrecios(obj);
+      } else {
+        this.resetPreciosProductosACobrar();
       }
     }
 
@@ -744,8 +747,19 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       this.calculaPropina();
       this.actualizaSaldo();
       this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
+    } else {
+      this.resetPreciosProductosACobrar();
     }
 
     this.seActualizaronLosPrecios = huboCambioPrecio;
+  }
+
+  resetPreciosProductosACobrar = () => {
+    this.inputData.productosACobrar = JSON.parse(JSON.stringify(this.inputDataOriginal.productosACobrar));
+    this.formasPagoDeCuenta = [];
+    this.calculaTotalDeCuenta();
+    this.calculaPropina();
+    this.actualizaSaldo();
+    this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
   }
 }
