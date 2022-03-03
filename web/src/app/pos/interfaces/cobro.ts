@@ -19,4 +19,6 @@ export interface Cobro {
     aumento_porcentaje?: number;
     vuelto_para?: number;
     vuelto?: number;
+    actualizacion_precios?: boolean;
+    cliente?: number;
 }

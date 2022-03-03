@@ -35,6 +35,8 @@ import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entreg
 import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
 import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicilio.service';
 import { ValidaPwdGerenteTurnoComponent } from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
+import { ArticuloTipoCliente } from '../../../wms/interfaces/articulo-tipo-cliente';
+import { ArticuloService } from '../../../wms/services/articulo.service';
 
 interface DatosPedido {
   sede: number;
@@ -107,6 +109,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public esEfectivo = false;
   public porcentajePropina = 0;
   public aceptaPropinaEnCallCenter = false;
+  public seActualizaronLosPrecios = false;
 
   private endSubs = new Subscription();
 
@@ -125,7 +128,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private clienteMasterSrvc: ClienteMasterService,
     private tiempoEntregaSrvc: TiempoEntregaService,
-    private tipoDomicilioSrvc: TipoDomicilioService
+    private tipoDomicilioSrvc: TipoDomicilioService,
+    private articuloSrvc: ArticuloService
   ) {
   }
 
@@ -134,9 +138,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.SET_PROPINA_AUTOMATICA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) || 0;
     this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
     this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
-    this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER);    
+    this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER);
 
-    if (+this.data.mesaenuso.mesa.escallcenter === 1) {      
+    if (+this.data.mesaenuso.mesa.escallcenter === 1) {
       if (this.aceptaPropinaEnCallCenter) {
         this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
         this.porcentajePropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) || 0;
@@ -144,7 +148,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
         this.porcentajeMaximoPropina = 0;
         this.porcentajePropina = 0;
       }
-    } else {      
+    } else {
       this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
       this.porcentajePropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) || 0;
     }
@@ -171,9 +175,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
       width: '40%', disableClose: true,
       data: { botonMensaje: 'Habilitar' }
     });
-    
-    this.endSubs.add(      
-      dialogoRef.afterClosed().subscribe(res => {      
+
+    this.endSubs.add(
+      dialogoRef.afterClosed().subscribe(res => {
         if (res && res.esgerente) {
           this.RT_AUTORIZA_CAMBIO_PROPINA = false;
         } else {
@@ -368,6 +372,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     if (obj && +obj.cliente > 0) {
       this.clienteSelected = obj;
       this.factReq.cliente = +obj.cliente;
+
+      if (obj.tipo_cliente && +obj.tipo_cliente > 0) {
+        this.recalculaPrecios(obj);
+      }
     }
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
@@ -414,6 +422,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     }
     objCobro.comision_monto = sumaMontoComision;
     objCobro.total += sumaMontoComision;
+    objCobro.actualizacion_precios = this.seActualizaronLosPrecios;
+    objCobro.cliente = this.clienteSelected?.cliente || null;
 
     // console.log(objCobro); return;
 
@@ -709,5 +719,33 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     } else {
       this.formaPago.vuelto = 0;
     }
+  }
+
+  recalculaPrecios = async (cli: Cliente) => {
+    let huboCambioPrecio = false;
+    const params = {
+      _flat: 1, _uno: true, tipo_cliente: cli.tipo_cliente, articulo: null
+    }
+    // console.log('A cobrar = ', this.inputData.productosACobrar);
+
+    for (const pac of this.inputData.productosACobrar) {
+      params.articulo = pac.id;
+      const atc: ArticuloTipoCliente = (await this.articuloSrvc.getArticulosPorTipoCliente(params).toPromise()) as ArticuloTipoCliente;
+      if (atc) {
+        // console.log('ART TIP CLI = ', atc);
+        pac.precio = +atc.precio;
+        huboCambioPrecio = true;
+      }
+    }
+
+    if (huboCambioPrecio) {
+      this.formasPagoDeCuenta = [];
+      this.calculaTotalDeCuenta();
+      this.calculaPropina();
+      this.actualizaSaldo();
+      this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
+    }
+
+    this.seActualizaronLosPrecios = huboCambioPrecio;
   }
 }
