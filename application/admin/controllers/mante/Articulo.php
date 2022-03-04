@@ -131,7 +131,9 @@ class Articulo extends CI_Controller
 
 	public function buscar()
 	{
-		$this->output->set_content_type("application/json")->set_output(json_encode($this->search_product($_GET)));
+		$datos = $this->search_product($_GET);
+		$datos = ordenar_array_objetos($datos, 'descripcion');
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function guardar_receta($articulo, $id = '')

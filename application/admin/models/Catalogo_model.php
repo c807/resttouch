@@ -138,6 +138,7 @@ class Catalogo_model extends CI_Model
 			$datos[] = $art;
 		}
 
+		$datos = ordenar_array_objetos($datos, 'descripcion');
 		return $datos;
 	}
 
