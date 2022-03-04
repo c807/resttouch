@@ -49,7 +49,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
 
   validatePhone = (e: any) => {
     const inp = String.fromCharCode(e.keyCode);
-    if (/[0-9]/.test(inp)) {
+    if (/[0-9CcFfKk]/.test(inp)) {
       return true;
     } else {
       e.preventDefault();
