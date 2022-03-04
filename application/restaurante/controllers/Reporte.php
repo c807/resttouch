@@ -258,6 +258,7 @@ class Reporte extends CI_Controller
         $jsonobj->name = $data['tipo_de_ingreso'];
         $ingresos = []; // ARRAY DE LOS METODOS DE PAGO
         $jsonobj->total_comensales = 0;
+        $jsonobj->consumo_promedio_total = 0;
 
         // Agregando seccion de descuentos para mejorar logica
         $formas_pago = $data['_pagos'];
@@ -273,6 +274,12 @@ class Reporte extends CI_Controller
             //monto, propina , total
             //Montos Ingres0
             if(isset($data['domicilio'])){
+
+                //Si estara en descuento skip
+                if((bool)$row['descuento']){
+                    continue;
+                }
+
                 $json_data = $this->get_info_corte_caja($data);
                 $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
@@ -282,10 +289,15 @@ class Reporte extends CI_Controller
                 $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', '');
                 $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
-
-                //$metodo_pago->total = json_encode($json_data);
+                $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
 
             }else {
+
+                //Si no es descuentos que haga skip
+                if(!((bool)$row['descuento'])){
+                    continue;
+                }
+
                 $json_data = $this->get_info_corte_caja($data);
                 $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
@@ -293,12 +305,18 @@ class Reporte extends CI_Controller
                 $metodo_pago->propina = number_format($descuentos->propina, 2, '.', '');
                 $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
 
+                $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
             }
 
             array_push($ingresos, $metodo_pago);
         }
 
+        if($jsonobj->consumo_promedio_total > 0 && $jsonobj->total_comensales > 0){
+            $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total / $jsonobj->total_comensales; // consumo_promedio_total solo era suma y ahora se promedia
+            $jsonobj->consumo_promedio_total = number_format($jsonobj->consumo_promedio_total, 2, '.', ''); // se formatea
+        }
+        
         //agregamos el array de metodos de pago y totales al objeto a retornar
         $jsonobj->ingresos = $ingresos;
         return $jsonobj;
