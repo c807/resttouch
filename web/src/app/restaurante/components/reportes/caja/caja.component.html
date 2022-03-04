@@ -22,14 +22,25 @@
             <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}"
                    required>
           </mat-form-field>
-          <mat-form-field class="fullWidth">
+
+          <!-- Selector for Sede only one or multiple -->
+          <mat-form-field *ngIf="params.porTurno" class="fullWidth">
             <mat-label>Sede</mat-label>
-            <mat-select name="sede" multiple [(ngModel)]="params.sede">
+            <mat-select  name="sede"  [(ngModel)]="params.sede">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
                 {{sede.sede.nombre}}
               </mat-option>
             </mat-select>
           </mat-form-field>
+          <mat-form-field *ngIf="!params.porTurno" class="fullWidth">
+            <mat-label>Sede</mat-label>
+            <mat-select  name="sede" multiple [(ngModel)]="params.sede">
+              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
           <mat-form-field class="fullWidth" *ngIf="params.sede && params.sede.length > 1">
             <mat-label>Agrupar por</mat-label>
             <mat-select name="grupo" [(ngModel)]="params._grupo">
