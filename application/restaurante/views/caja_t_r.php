@@ -68,11 +68,14 @@
                 </thead>
                 <tbody>
 
+
+                <!-- Nombre del metodo de pago -->
                 <tr>
                     <td style="text-align: left; font-weight: bold; padding-left: 5px;">
                         <strong><?php echo $rowD->name ?></strong></td>
-
                 </tr>
+
+                <!-- Itereando por los metodos de pago -->
                 <?php foreach ($rowD->ingresos as $rowDI) : ?>
                     <tr>
                         <td style="text-align: left;  padding-left: 5px;"><?php echo $rowDI->metodo_pago ?></td>
@@ -81,6 +84,14 @@
                         <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->total ?></td>
                     </tr>
                 <?php endforeach ?>
+
+                <!-- Consumo Total -->
+                <tr>
+                    <td style="text-align: left;  padding-left: 5px;"></td>
+                    <td style="text-align: right; padding-right: 5px;"></td>
+                    <td style="text-align: right; padding-right: 5px; font-weight: bold;"><strong>Total :</strong></td>
+                    <td style="text-align: right; padding-right: 5px;"><?php echo $rowD->consumo_total ?></td>
+                </tr>
 
                 </tbody>
             </table>

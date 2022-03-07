@@ -290,6 +290,7 @@ class Reporte extends CI_Controller
                 $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
+                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ''); // se formatea
 
             }else {
 
@@ -307,6 +308,8 @@ class Reporte extends CI_Controller
 
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
+                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ''); // se formatea
+
             }
 
             array_push($ingresos, $metodo_pago);
@@ -464,7 +467,7 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("A7", "Al: ");
             $hoja->setCellValue("B7", $data['fal']);
             $hoja->getStyle("A6:A7")->getFont()->setBold(true);
-            
+
 
             $fila = 8;
             /// ITEREAMOS POR LOS TURNOS
@@ -487,11 +490,11 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("C" . $fila, "Monto");
                     $hoja->setCellValue("D" . $fila, "Propina");
                     $hoja->setCellValue("E" . $fila, "Total");
-                    //$hoja->getStyle("B" . $fila.":"."E" . $fila)->getFont()->setBold(true);
 
                      // Tipo domicilio y descuento
                     $fila++;
                     $hoja->setCellValue("B" . $fila, $rowD->name);
+                    $hoja->getStyle("B" . $fila.":"."E" . $fila)->getFont()->setBold(true);
 
                     foreach ($rowD->ingresos as $rowDI) {
                         $fila++;
@@ -500,6 +503,12 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("D" . $fila, $rowDI->propina);
                         $hoja->setCellValue("E" . $fila, $rowDI->total);
                     }
+                    $fila++;
+                    $hoja->getStyle("D" . $fila.":"."D" . $fila)->getFont()->setBold(true);
+                    $hoja->setCellValue("D" . $fila, "Total: ");
+                    $hoja->setCellValue("E" . $fila, $rowD->consumo_total);
+
+
                     $end = $fila;
 
                     //Set square style
