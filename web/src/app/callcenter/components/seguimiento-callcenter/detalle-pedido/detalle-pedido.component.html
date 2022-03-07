@@ -1,16 +1,27 @@
 <div class="detalle-pedido">
     <table class="tbl tblDetallePedido">
         <tbody>
-            <tr *ngFor="let det of detallePedido; last as isLast">
-                <td>
-                    {{det.cantidad > 1 ? (+det.cantidad + ' ') : ''}} 
-                    {{
-                        (det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? 
-                        det.descripcion : 
-                        ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)
-                    }}
-                </td>
-            </tr>
+            <ng-container *ngFor="let det of detallePedido; last as isLast">
+                <tr>
+                    <td>
+                        {{det.cantidad > 1 ? (+det.cantidad + ' ') : ''}} 
+                        {{
+                            (det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? 
+                            det.descripcion : 
+                            ('&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;' : '') + det.descripcion)
+                        }}
+                    </td>
+                </tr>
+                <tr *ngIf="det.notas && det.notas.length > 0">
+                    <td>
+                        {{
+                            (det.detalle_comanda_id === undefined || det.detalle_comanda_id === null) ? 
+                            ('&nbsp;&nbsp;N: ' + det.notas) : 
+                            ('&nbsp;&nbsp;&nbsp;&nbsp;' + (+det.multiple === 0 ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '') + ('N: ' + det.notas))
+                        }}
+                    </td>
+                </tr>
+            </ng-container>
         </tbody>
     </table>
 </div>

@@ -66,6 +66,7 @@ export class Impresion {
                 Total: 0.00,
                 NotasGenerales: obj.notas_generales || '',
                 FormasPago: obj.formas_pago || [],
+                TipoDomicilio: obj.tipo_domicilio?.descripcion || ''
             };            
             this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
         }
@@ -127,7 +128,10 @@ export class Impresion {
                 PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
                 Impresora: printerToUse,
                 Ubicacion: `${mesaEnUso.area.nombre} - Mesa ${mesaEnUso.etiqueta || mesaEnUso.numero} - Comanda ${obj.comanda}`,
-                Mesero: `${obj.mesero.nombres} ${obj.mesero.apellidos}`
+                Mesero: `${obj.mesero.nombres} ${obj.mesero.apellidos}`,
+                DireccionEntrega: obj.origen_datos.direccion_entrega,
+                FormasPago: obj.formas_pago || [],
+                TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
             };
 
             // console.log('CUENTA = ', msgToPrint);
