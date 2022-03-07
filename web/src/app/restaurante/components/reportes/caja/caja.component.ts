@@ -146,7 +146,7 @@ export class CajaComponent implements OnInit, OnDestroy {
 
     if(this.params.porTurno){
       console.log("Printing por turno");
-      this.printPorTurno();
+      this.printPorTurno(enExcel);
       return;
     }
 

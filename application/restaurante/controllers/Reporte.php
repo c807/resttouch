@@ -312,11 +312,8 @@ class Reporte extends CI_Controller
             array_push($ingresos, $metodo_pago);
         }
 
-        if($jsonobj->consumo_promedio_total > 0 && $jsonobj->total_comensales > 0){
-            $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total / $jsonobj->total_comensales; // consumo_promedio_total solo era suma y ahora se promedia
-            $jsonobj->consumo_promedio_total = number_format($jsonobj->consumo_promedio_total, 2, '.', ''); // se formatea
-        }
-        
+
+
         //agregamos el array de metodos de pago y totales al objeto a retornar
         $jsonobj->ingresos = $ingresos;
         return $jsonobj;
@@ -386,6 +383,7 @@ class Reporte extends CI_Controller
             $descuento->descripcion = "Descuentos";
             $tipos_domicilio = array_merge($tipos_domicilio, [$descuento]);
             $totalComensalesTurno = $ingreso_en_restaurante->total_comensales;
+            $consumoPromedioTotal = $ingreso_en_restaurante->consumo_promedio_total;
 
             foreach ($tipos_domicilio as $row) {
                 $data['tipo_de_ingreso'] = $row->descripcion; // Esto es el nombre Tarjeta , Efectivo , Dolares
@@ -400,10 +398,16 @@ class Reporte extends CI_Controller
                 }
                 $ingreso_en_restaurante_dom = $this->get_turno_domicilio_info($data);
                 $totalComensalesTurno = $totalComensalesTurno+ $ingreso_en_restaurante_dom->total_comensales;
+                $consumoPromedioTotal = $consumoPromedioTotal + $ingreso_en_restaurante_dom->consumo_promedio_total;
                 array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
             }
 
+            if($consumoPromedioTotal > 0 && $totalComensalesTurno > 0){
+                 $consumoPromedioTotal = number_format($totalComensalesTurno, 2, '.', ''); // se formatea
+            }
+
             $turno->totalComensales = $totalComensalesTurno;
+            $turno->consumo_promedio_total = $consumoPromedioTotal;
             $turno->data = $sample_turno_jsonDataAndTipoD;
             array_push($json_data_turnos,$turno);
         }
@@ -415,12 +419,130 @@ class Reporte extends CI_Controller
         $data['json_data_turnos'] = $json_data_turnos;
 
         /////// Desplegando informacion
-        $mpdf = new \Mpdf\Mpdf([
-            'tempDir' => sys_get_temp_dir(),
-            'format' => 'Legal'
-        ]);
-        $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
-        $mpdf->Output("Reporte de Caja Turno.pdf", "D");
+        ///
+        if (verDato($data, "_excel")){
+               ///EXCEL
+
+            $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $excel->getProperties()
+                ->setCreator("Restouch")
+                ->setTitle("Office 2007 xlsx Articulo")
+                ->setSubject("Office 2007 xlsx Articulo")
+                ->setKeywords("office 2007 openxml php");
+
+            $excel->setActiveSheetIndex(0);
+            $hoja = $excel->getActiveSheet();
+            $nombres = [
+                "Descripción",
+                "Monto",
+                "Propina",
+                "Total"
+            ];
+
+            /*Encabezado*/
+            $hoja->getStyle("A1:A3")->getFont()->setBold(true);
+            $hoja->setCellValue("A1", "Empresa: ");
+            $hoja->setCellValue("A2", "Sede: ");
+            $hoja->setCellValue("A3", "Documento: ");
+
+            $hoja->setCellValue("B1", $data['empresa']->nombre);
+            $hoja->setCellValue("B2", $data['nsede']);
+            $hoja->setCellValue("B3", "Reporte de Caja por Turno");
+
+            if (isset($data['detalle'])) {
+                $hoja->setCellValue("C4", "--Detalle--");
+            } else {
+                $hoja->setCellValue("C4", "--Resumen--");
+            }
+
+            if (isset($data['turno'])) {
+                $hoja->setCellValue("C5", $data['turno']->descripcion);
+            }
+
+            $hoja->setCellValue("A6", "Del: ");
+            $hoja->setCellValue("B6", $data['fdel']);
+            $hoja->setCellValue("A7", "Al: ");
+            $hoja->setCellValue("B7", $data['fal']);
+            $hoja->getStyle("A6:A7")->getFont()->setBold(true);
+            
+
+            $fila = 8;
+            /// ITEREAMOS POR LOS TURNOS
+            foreach ($json_data_turnos as $row){
+
+                // NOMBRE DEL TURNO
+                $fila = $fila + 3;
+                $hoja->setCellValue("C".$fila, $row->name);
+                //
+                ///// DATOS DEL TURNO
+                foreach ($row->data as $rowD) {
+
+                    //For style usage
+                    $start = 0;
+                    $end = 0;
+
+                    $fila = $fila + 3;
+                    $start = $fila;
+                    $hoja->setCellValue("B" . $fila, "Descripcion");
+                    $hoja->setCellValue("C" . $fila, "Monto");
+                    $hoja->setCellValue("D" . $fila, "Propina");
+                    $hoja->setCellValue("E" . $fila, "Total");
+                    //$hoja->getStyle("B" . $fila.":"."E" . $fila)->getFont()->setBold(true);
+
+                     // Tipo domicilio y descuento
+                    $fila++;
+                    $hoja->setCellValue("B" . $fila, $rowD->name);
+
+                    foreach ($rowD->ingresos as $rowDI) {
+                        $fila++;
+                        $hoja->setCellValue("B" . $fila, $rowDI->metodo_pago);
+                        $hoja->setCellValue("C" . $fila, $rowDI->monto);
+                        $hoja->setCellValue("D" . $fila, $rowDI->propina);
+                        $hoja->setCellValue("E" . $fila, $rowDI->total);
+                    }
+                    $end = $fila;
+
+                    //Set square style
+                    $hoja->getStyle("B{$start}:E{$end}")
+                        ->getBorders()
+                        ->getAllBorders()
+                        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+                        ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+                }
+
+                $fila++;
+
+                $fila++;
+                $hoja->setCellValue("B".$fila, "Total de comensales: ");
+                $hoja->setCellValue("C".$fila, $row->totalComensales);
+
+                $fila++;
+                $hoja->setCellValue("B".$fila, "Consumo promedio total: ");
+                $hoja->setCellValue("C".$fila, $row->consumo_promedio_total);
+
+            }
+
+
+            $hoja->setTitle("Reporte de caja por turnos");
+
+            header("Content-Type: application/vnd.ms-excel");
+            header("Content-Disposition: attachment;filename=Ventas.xlsx");
+            header("Cache-Control: max-age=1");
+            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+            header("Cache-Control: cache, must-revalidate");
+            header("Pragma: public");
+
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+            $writer->save("php://output");
+        }else{
+            $mpdf = new \Mpdf\Mpdf([
+                'tempDir' => sys_get_temp_dir(),
+                'format' => 'Legal'
+            ]);
+            $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
+            $mpdf->Output("Reporte de Caja Turno.pdf", "D");
+        }
 
 //        $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($json_data));
 

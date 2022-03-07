@@ -87,7 +87,7 @@
         <?php endforeach ?>
         <!-- Footer del turno -->
         <div class="row"><h5>TOTAL DE COMENSALES :<?php echo $row->totalComensales ?></h5></div>
-        <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo $row->totalComensales ?></h5></div>
+        <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo $row->consumo_promedio_total ?></h5></div>
 
     <?php endforeach ?>
 
