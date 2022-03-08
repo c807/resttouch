@@ -56,7 +56,11 @@
             </div>
         </div>
         <!-- Table de domicilios o formas de entregar -->
-        <?php foreach ($row->data as $rowD) : ?>
+        <?php
+        $last_index = count($row->data);
+        $counter = 0;
+        foreach ($row->data as $rowD) : ?>
+
             <table class="table table-bordered" style="padding: 5px">
                 <thead>
                 <tr>
@@ -81,7 +85,7 @@
                         <td style="text-align: left;  padding-left: 5px;"><?php echo $rowDI->metodo_pago ?></td>
                         <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->monto ?></td>
                         <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->propina ?></td>
-                        <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->total ?></td>
+                        <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->total, 2, '.', ',') ?></td>
                     </tr>
                 <?php endforeach ?>
 
@@ -93,9 +97,26 @@
                     <td style="text-align: right; padding-right: 5px;"><?php echo $rowD->consumo_total ?></td>
                 </tr>
 
+                <!-- GRAN TOTAL -->
+                <?php
+                $counter++;
+                if ($last_index === $counter): ?>
+                    <tr>
+                        <td style="text-align: left;  padding-left: 5px;"></td>
+                        <td style="text-align: right; padding-right: 5px;"></td>
+                        <td style="text-align: left; font-weight: bold; padding-left: 5px;">
+                            <strong>Gran Total</strong></td>
+                        <td style="text-align: right; font-weight: bold; padding-left: 5px;">
+                            <strong><?php echo number_format($row->granTotal, 2, '.', ','); ?></strong></td>
+                    </tr>
+                <?php endif; ?>
+
+
                 </tbody>
             </table>
         <?php endforeach ?>
+
+
         <!-- Footer del turno -->
         <div class="row"><h5>TOTAL DE COMENSALES :<?php echo $row->totalComensales ?></h5></div>
         <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo $row->consumo_promedio_total ?></h5></div>

@@ -273,10 +273,10 @@ class Reporte extends CI_Controller
             //ingresos + descuentos + factura sin comanda == sumarlos todos
             //monto, propina , total
             //Montos Ingres0
-            if(isset($data['domicilio'])){
+            if (isset($data['domicilio'])) {
 
                 //Si estara en descuento skip
-                if((bool)$row['descuento']){
+                if ((bool)$row['descuento']) {
                     continue;
                 }
 
@@ -285,36 +285,37 @@ class Reporte extends CI_Controller
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
                 $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-                $metodo_pago->monto = number_format((float)$ingresos_mont->monto + (float)$descuentos_mont->monto + (float)$facturas_sin_com->monto, 2, '.', '');
-                $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', '');
+                $metodo_pago->monto = number_format((float)$ingresos_mont->monto + (float)$descuentos_mont->monto + (float)$facturas_sin_com->monto, 2, '.', ',');
+                $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', ',');
                 $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
                 $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ''); // se formatea
+                $jsonobj->data = json_encode($json_data);
 
-            }else {
+            } else {
 
                 //Si no es descuentos que haga skip
-                if(!((bool)$row['descuento'])){
+                if (!((bool)$row['descuento'])) {
                     continue;
                 }
 
                 $json_data = $this->get_info_corte_caja($data);
                 $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-                $metodo_pago->monto = number_format($descuentos->monto, 2, '.', '');
-                $metodo_pago->propina = number_format($descuentos->propina, 2, '.', '');
-                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
+                $metodo_pago->monto = number_format($descuentos->monto, 2, '.', ',');
+                $metodo_pago->propina = number_format($descuentos->propina, 2, '.', ',');
+                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', ',');
 
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
-                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ''); // se formatea
-
+                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ','); // se formatea
+                $jsonobj->data = json_encode($json_data);
             }
+
 
             array_push($ingresos, $metodo_pago);
         }
-
 
 
         //agregamos el array de metodos de pago y totales al objeto a retornar
@@ -367,11 +368,11 @@ class Reporte extends CI_Controller
         ////////iteration between schedules
         ///
 
-        foreach ($tipos_de_turnos as $turnoDB){
+        foreach ($tipos_de_turnos as $turnoDB) {
             $turno = new stdClass();
-            $turno->name = ($turnoDB->descripcion ==="TODO EL DIA")?$turnoDB->descripcion: "TURNO : ".$turnoDB->descripcion ;
+            $turno->name = ($turnoDB->descripcion === "TODO EL DIA") ? $turnoDB->descripcion : "TURNO : " . $turnoDB->descripcion;
 
-            if($turnoDB->turno_tipo > -1){
+            if ($turnoDB->turno_tipo > -1) {
                 $data['turno_tipo'] = $turnoDB->turno_tipo;
             }
 
@@ -379,52 +380,64 @@ class Reporte extends CI_Controller
             $data['domicilio'] = 0; // Ingresos por restaurante
             $data['tipo_de_ingreso'] = "Ingreso en restaurante";
             $ingreso_en_restaurante = $this->get_turno_domicilio_info($data);
-            $sample_turno_jsonDataAndTipoD = [$ingreso_en_restaurante];
+            $sample_turno_jsonDataAndTipoD = [];
 
-            $descuento  = new stdClass(); // Agregando descuento al array para mejora logica
+            // Si el consumo total del es 0 no se muestra
+            if ($ingreso_en_restaurante->consumo_total > 0) {
+                $sample_turno_jsonDataAndTipoD = [$ingreso_en_restaurante];
+            }
+
+            $descuento = new stdClass(); // Agregando descuento al array para mejora logica
             $descuento->tipo_domicilio = -1;
             $descuento->descripcion = "Descuentos";
             $tipos_domicilio = array_merge($tipos_domicilio, [$descuento]);
+
+
             $totalComensalesTurno = $ingreso_en_restaurante->total_comensales;
             $consumoPromedioTotal = $ingreso_en_restaurante->consumo_promedio_total;
+            $granTotal = $ingreso_en_restaurante->consumo_total;
 
             foreach ($tipos_domicilio as $row) {
                 $data['tipo_de_ingreso'] = $row->descripcion; // Esto es el nombre Tarjeta , Efectivo , Dolares
 
-                if($row->tipo_domicilio > -1 ){
+                if ($row->tipo_domicilio > -1) {
                     $data['domicilio'] = 1;
                     $data['tipo_domicilio'] = $row->tipo_domicilio;
-                }else{
+                } else {
                     // Aqui pasara Descuentos
                     unset($data['domicilio']);
                     unset($data['tipo_domicilio']);
                 }
                 $ingreso_en_restaurante_dom = $this->get_turno_domicilio_info($data);
-                $totalComensalesTurno = $totalComensalesTurno+ $ingreso_en_restaurante_dom->total_comensales;
+                $totalComensalesTurno = $totalComensalesTurno + $ingreso_en_restaurante_dom->total_comensales;
                 $consumoPromedioTotal = $consumoPromedioTotal + $ingreso_en_restaurante_dom->consumo_promedio_total;
-                array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
+                $granTotal = $granTotal + $ingreso_en_restaurante_dom->consumo_total;
+
+                if ($ingreso_en_restaurante_dom->consumo_total > 0) {
+                    array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
+                }
             }
 
-            if($consumoPromedioTotal > 0 && $totalComensalesTurno > 0){
-                 $consumoPromedioTotal = number_format($totalComensalesTurno, 2, '.', ''); // se formatea
+            if ($consumoPromedioTotal > 0 && $totalComensalesTurno > 0) {
+                $consumoPromedioTotal = number_format($totalComensalesTurno, 2, '.', ','); // se formatea
+            } else {
+                $consumoPromedioTotal = 0;
             }
 
+            $turno->granTotal = $granTotal;
             $turno->totalComensales = $totalComensalesTurno;
             $turno->consumo_promedio_total = $consumoPromedioTotal;
             $turno->data = $sample_turno_jsonDataAndTipoD;
-            array_push($json_data_turnos,$turno);
+            array_push($json_data_turnos, $turno);
         }
 
 
         ///////////////////////////////////////////
-
-
         $data['json_data_turnos'] = $json_data_turnos;
 
         /////// Desplegando informacion
-        ///
-        if (verDato($data, "_excel")){
-               ///EXCEL
+        if (verDato($data, "_excel")) {
+            ///EXCEL
 
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
@@ -471,14 +484,15 @@ class Reporte extends CI_Controller
 
             $fila = 8;
             /// ITEREAMOS POR LOS TURNOS
-            foreach ($json_data_turnos as $row){
+            foreach ($json_data_turnos as $row) {
 
                 // NOMBRE DEL TURNO
                 $fila = $fila + 3;
-                $hoja->setCellValue("C".$fila, $row->name);
+                $hoja->setCellValue("C" . $fila, $row->name);
                 //
                 ///// DATOS DEL TURNO
                 foreach ($row->data as $rowD) {
+
 
                     //For style usage
                     $start = 0;
@@ -491,10 +505,10 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("D" . $fila, "Propina");
                     $hoja->setCellValue("E" . $fila, "Total");
 
-                     // Tipo domicilio y descuento
+                    // Tipo domicilio y descuento
                     $fila++;
                     $hoja->setCellValue("B" . $fila, $rowD->name);
-                    $hoja->getStyle("B" . $fila.":"."E" . $fila)->getFont()->setBold(true);
+                    $hoja->getStyle("B" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
 
                     foreach ($rowD->ingresos as $rowDI) {
                         $fila++;
@@ -502,12 +516,16 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("C" . $fila, $rowDI->monto);
                         $hoja->setCellValue("D" . $fila, $rowDI->propina);
                         $hoja->setCellValue("E" . $fila, $rowDI->total);
-                    }
-                    $fila++;
-                    $hoja->getStyle("D" . $fila.":"."D" . $fila)->getFont()->setBold(true);
-                    $hoja->setCellValue("D" . $fila, "Total: ");
-                    $hoja->setCellValue("E" . $fila, $rowD->consumo_total);
+                        $hoja->getStyle("C" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
 
+                    }
+
+                    $fila++;
+                    $hoja->getStyle("D" . $fila . ":" . "D" . $fila)->getFont()->setBold(true);
+                    $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
+                    $hoja->setCellValue("D" . $fila, "Total: ");
+                    $hoja->setCellValue("E" . $fila, number_format($rowD->consumo_total, 2, '.', ','));
+                    $hoja->getStyle("E" . $fila)->getAlignment()->setHorizontal('right');
 
                     $end = $fila;
 
@@ -518,16 +536,21 @@ class Reporte extends CI_Controller
                         ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                         ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
                 }
+                $fila++;
+                $fila++;
+                $hoja->setCellValue("D" . $fila, "Gran Total: ");
+                $hoja->setCellValue("E" . $fila, number_format($row->granTotal, 2, '.', ','));
+                $hoja->getStyle("D" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
+                $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
+                $fila++;
+                $hoja->setCellValue("B" . $fila, "Total de comensales: ");
+                $hoja->setCellValue("C" . $fila, $row->totalComensales);
 
                 $fila++;
-                $hoja->setCellValue("B".$fila, "Total de comensales: ");
-                $hoja->setCellValue("C".$fila, $row->totalComensales);
-
-                $fila++;
-                $hoja->setCellValue("B".$fila, "Consumo promedio total: ");
-                $hoja->setCellValue("C".$fila, $row->consumo_promedio_total);
+                $hoja->setCellValue("B" . $fila, "Consumo promedio total: ");
+                $hoja->setCellValue("C" . $fila, $row->consumo_promedio_total);
 
             }
 
@@ -544,7 +567,7 @@ class Reporte extends CI_Controller
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
             $writer->save("php://output");
-        }else{
+        } else {
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
                 'format' => 'Legal'
@@ -553,7 +576,6 @@ class Reporte extends CI_Controller
             $mpdf->Output("Reporte de Caja Turno.pdf", "D");
         }
 
-//        $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($json_data));
 
     }
 
