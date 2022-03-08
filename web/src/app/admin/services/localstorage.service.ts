@@ -26,4 +26,13 @@ export class LocalstorageService {
   clear(indice) { localStorage.removeItem(indice); }
 
   clearAll() { localStorage.clear(); }
+
+  clearRTStorage() {
+    const keys = Object.keys(localStorage);
+    for (const key of keys) {
+      if (key.toLowerCase().startsWith('rt')) {
+        localStorage.removeItem(key);
+      }
+    }
+  }
 }
