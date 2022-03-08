@@ -609,7 +609,7 @@ class Reporte extends CI_Controller
 			$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
 		} else {
 			$mpdf = new \Mpdf\Mpdf([
-				// 'tempDir' => sys_get_temp_dir(),
+				'tempDir' => sys_get_temp_dir(),
 				'format' => 'Legal'
 			]);
 			$mpdf->WriteHTML($this->load->view('caja', $data, true));
