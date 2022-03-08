@@ -106,6 +106,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
 
   seleccionarCliente = (cli: (Cliente | ClienteMasterTelefono)) => {
     // console.log(cli);
+    // return;
     if (this.esListaDeFacturacion) {
       const elCliente = cli as Cliente;
       this.clienteMaster.nombre = elCliente.nombre;

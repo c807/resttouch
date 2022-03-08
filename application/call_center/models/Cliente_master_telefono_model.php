@@ -36,7 +36,7 @@ class Cliente_master_telefono_model extends General_model {
 		}
 
 		$telefonos = $this->db
-			->select('a.cliente_master_telefono, b.*, c.*')
+			->select('a.cliente_master_telefono, b.cliente_master, b.nombre, b.correo, b.fecha_nacimiento, c.telefono, c.numero')
 			->join('cliente_master b', 'b.cliente_master = a.cliente_master')
 			->join('telefono c', 'c.telefono = a.telefono')
 			->where('a.desasociado', 0)
@@ -47,6 +47,19 @@ class Cliente_master_telefono_model extends General_model {
 			$this->load->model('Cliente_master_nota_model');
 			foreach ($telefonos as $tel) {
 				$tel->notas = $this->Cliente_master_nota_model->buscar(['cliente_master' => $tel->cliente_master, 'debaja' => 0]);
+			}
+		}
+
+		if(isset($args['_direcciones'])) {
+			$this->load->model('Cliente_master_direccion_model');
+			foreach ($telefonos as $tel) {
+				$tel->direcciones = $this->Cliente_master_direccion_model->buscar(['cliente_master' => $tel->cliente_master, 'debaja' => 0]);
+				if ($tel->direcciones && count($tel->direcciones) > 0) {
+					foreach ($tel->direcciones as $d) {
+						$d->descripcion_tipo_direccion = $this->db->select('descripcion')->where('tipo_direccion', $d->tipo_direccion)->get('tipo_direccion')->row()->descripcion;
+						$d->full_address = $this->Cliente_master_direccion_model->get_full_address($d);
+					}
+				}
 			}
 		}
 
