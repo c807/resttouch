@@ -94,7 +94,7 @@
                     <td style="text-align: left;  padding-left: 5px;"></td>
                     <td style="text-align: right; padding-right: 5px;"></td>
                     <td style="text-align: right; padding-right: 5px; font-weight: bold;"><strong>Total :</strong></td>
-                    <td style="text-align: right; padding-right: 5px;"><?php echo $rowD->consumo_total ?></td>
+                    <td style="text-align: right; font-weight: bold; padding-right: 5px;"><strong><?php echo $rowD->consumo_total ?></strong></td>
                 </tr>
 
                 <!-- GRAN TOTAL -->

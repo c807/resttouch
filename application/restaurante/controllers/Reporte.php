@@ -581,8 +581,10 @@ class Reporte extends CI_Controller
 
     public function caja()
     {
+
         // $data = json_decode(file_get_contents('php://input'), true);
         $data = $this->get_info_corte_caja(json_decode(file_get_contents('php://input'), true));
+        $data['tipo_venta'] = $this->get_por_tipo_venta($data);
 
         if (verDato($data, "_excel")) {
             $fdel = formatoFecha($data['fdel'], 2);
@@ -2047,6 +2049,46 @@ class Reporte extends CI_Controller
         $writer->save("php://output");
 
         // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($comandas));
+    }
+
+    private function get_por_tipo_venta($data)
+    {
+        $tipo_venta = [];
+        $data['domicilio'] = 0;
+        $restaurante = $this->get_info_corte_caja($data);
+
+        $tipo_venta[] = (object)[
+            'tipo_venta' => 'Restaurante',
+            'corte_caja' => (object)[
+                'ingresos' => $restaurante['ingresos'],
+                'facturas_sin_comanda' => $restaurante['facturas_sin_comanda'],
+                'descuentos' => $restaurante['descuentos']
+            ]
+        ];
+
+        $data['domicilio'] = 1;
+        $tipoDomicilio = ordenar_array_objetos($this->Tipo_domicilio_model->buscar(), 'descripcion');
+        foreach ($tipoDomicilio as $row) {
+            $data['tipo_domicilio'] = $row->tipo_domicilio;
+            $domicilio = $this->get_info_corte_caja($data);
+            $tipo_venta[] = (object)[
+                'tipo_venta' => $row->descripcion,
+                'corte_caja' => (object)[
+                    'ingresos' => $domicilio['ingresos'],
+                    'facturas_sin_comanda' => $domicilio['facturas_sin_comanda'],
+                    'descuentos' => $domicilio['descuentos']
+                ]
+            ];
+        }
+
+        if (isset($data['domicilio'])) {
+            unset($data['domicilio']);
+        }
+
+        if (isset($data['tipo_domicilio'])) {
+            unset($data['tipo_domicilio']);
+        }
+        return $tipo_venta;
     }
 }
 
