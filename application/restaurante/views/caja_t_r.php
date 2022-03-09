@@ -83,8 +83,8 @@
                 <?php foreach ($rowD->ingresos as $rowDI) : ?>
                     <tr>
                         <td style="text-align: left;  padding-left: 5px;"><?php echo $rowDI->metodo_pago ?></td>
-                        <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->monto ?></td>
-                        <td style="text-align: right; padding-right: 5px;"><?php echo $rowDI->propina ?></td>
+                        <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->monto, 2, '.', ',') ?></td>
+                        <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->propina, 2, '.', ',') ?></td>
                         <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->total, 2, '.', ',') ?></td>
                     </tr>
                 <?php endforeach ?>
@@ -94,7 +94,7 @@
                     <td style="text-align: left;  padding-left: 5px;"></td>
                     <td style="text-align: right; padding-right: 5px;"></td>
                     <td style="text-align: right; padding-right: 5px; font-weight: bold;"><strong>Total :</strong></td>
-                    <td style="text-align: right; font-weight: bold; padding-right: 5px;"><strong><?php echo $rowD->consumo_total ?></strong></td>
+                    <td style="text-align: right; font-weight: bold; padding-right: 5px;"><strong><?php echo number_format($rowD->consumo_total, 2, '.', ',') ?></strong></td>
                 </tr>
 
                 <!-- GRAN TOTAL -->
@@ -118,8 +118,10 @@
 
 
         <!-- Footer del turno -->
-        <div class="row"><h5>TOTAL DE COMENSALES :<?php echo $row->totalComensales ?></h5></div>
-        <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo $row->consumo_promedio_total ?></h5></div>
+
+        <div class="row"><h5>TOTAL DE COMENSALES :<?php echo number_format($row->totalComensales, 2, '.', ',') ?></h5></div>
+        <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo number_format($row->consumo_promedio_total, 2, '.', ',') ?></h5></div>
+        <div class="row"><h5>CANTIDAD DE MESAS UTILIZADAS :<?php echo number_format($row->cantidadDeMesasUtilizadas, 2, '.', ',') ?></h5></div>
 
     <?php endforeach ?>
 

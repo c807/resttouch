@@ -260,6 +260,7 @@ class Reporte extends CI_Controller
         $ingresos = []; // ARRAY DE LOS METODOS DE PAGO
         $jsonobj->total_comensales = 0;
         $jsonobj->consumo_promedio_total = 0;
+        $jsonobj->cantidadDeMesasUtilizadas = 0;
 
         // Agregando seccion de descuentos para mejorar logica
         $formas_pago = $data['_pagos'];
@@ -281,17 +282,25 @@ class Reporte extends CI_Controller
                     continue;
                 }
 
+
+
                 $json_data = $this->get_info_corte_caja($data);
                 $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
                 $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-                $metodo_pago->monto = number_format((float)$ingresos_mont->monto + (float)$descuentos_mont->monto + (float)$facturas_sin_com->monto, 2, '.', ',');
-                $metodo_pago->propina = number_format((float)$ingresos_mont->propina + (float)$descuentos_mont->propina + (float)$facturas_sin_com->propina, 2, '.', ',');
-                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', '');
+                //Si es ingreso solo en restaurante
+                if($data['domicilio'] === 0){
+                    $jsonobj->cantidadDeMesasUtilizadas = $jsonobj->cantidadDeMesasUtilizadas + $json_data['cantidadMesasUtilizadas'];
+                }
+
+                $metodo_pago->monto = $ingresos_mont->monto + $descuentos_mont->monto + $facturas_sin_com->monto;
+                $metodo_pago->propina = $ingresos_mont->propina + $descuentos_mont->propina + $facturas_sin_com->propina;
+                $metodo_pago->total = $ingresos_mont->monto + $ingresos_mont->propina;
+
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
-                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ''); // se formatea
+                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se formatea
                 $jsonobj->data = json_encode($json_data);
 
             } else {
@@ -304,13 +313,13 @@ class Reporte extends CI_Controller
                 $json_data = $this->get_info_corte_caja($data);
                 $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-                $metodo_pago->monto = number_format($descuentos->monto, 2, '.', ',');
-                $metodo_pago->propina = number_format($descuentos->propina, 2, '.', ',');
-                $metodo_pago->total = number_format((float)$metodo_pago->monto + (float)$metodo_pago->propina, 2, '.', ',');
+                $metodo_pago->monto = $descuentos->monto;
+                $metodo_pago->propina = $descuentos->propina;
+                $metodo_pago->total = $descuentos->monto + $descuentos->propina;
 
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
-                $jsonobj->consumo_total = number_format($jsonobj->consumo_promedio_total + $metodo_pago->total, 2, '.', ','); // se formatea
+                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se formatea
                 $jsonobj->data = json_encode($json_data);
             }
 
@@ -394,6 +403,7 @@ class Reporte extends CI_Controller
             $tipos_domicilio = array_merge($tipos_domicilio, [$descuento]);
 
 
+            $cantidadDeMesasUtilizadas = $ingreso_en_restaurante->cantidadDeMesasUtilizadas;
             $totalComensalesTurno = $ingreso_en_restaurante->total_comensales;
             $consumoPromedioTotal = $ingreso_en_restaurante->consumo_promedio_total;
             $granTotal = $ingreso_en_restaurante->consumo_total;
@@ -420,11 +430,12 @@ class Reporte extends CI_Controller
             }
 
             if ($consumoPromedioTotal > 0 && $totalComensalesTurno > 0) {
-                $consumoPromedioTotal = number_format($totalComensalesTurno, 2, '.', ','); // se formatea
+                $consumoPromedioTotal = $totalComensalesTurno; // se formatea
             } else {
                 $consumoPromedioTotal = 0;
             }
 
+            $turno->cantidadDeMesasUtilizadas = $cantidadDeMesasUtilizadas;
             $turno->granTotal = $granTotal;
             $turno->totalComensales = $totalComensalesTurno;
             $turno->consumo_promedio_total = $consumoPromedioTotal;
@@ -514,9 +525,9 @@ class Reporte extends CI_Controller
                     foreach ($rowD->ingresos as $rowDI) {
                         $fila++;
                         $hoja->setCellValue("B" . $fila, $rowDI->metodo_pago);
-                        $hoja->setCellValue("C" . $fila, $rowDI->monto);
-                        $hoja->setCellValue("D" . $fila, $rowDI->propina);
-                        $hoja->setCellValue("E" . $fila, $rowDI->total);
+                        $hoja->setCellValue("C" . $fila, number_format($rowDI->monto, 2, '.', ','));
+                        $hoja->setCellValue("D" . $fila, number_format($rowDI->propina, 2, '.', ','));
+                        $hoja->setCellValue("E" . $fila, number_format($rowDI->total, 2, '.', ','));
                         $hoja->getStyle("C" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
 
                     }
@@ -547,12 +558,23 @@ class Reporte extends CI_Controller
                 $fila++;
                 $fila++;
                 $hoja->setCellValue("B" . $fila, "Total de comensales: ");
-                $hoja->setCellValue("C" . $fila, $row->totalComensales);
+                $hoja->setCellValue("C" . $fila, number_format($row->totalComensales, 2, '.', ','));
+                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
                 $hoja->setCellValue("B" . $fila, "Consumo promedio total: ");
-                $hoja->setCellValue("C" . $fila, $row->consumo_promedio_total);
+                $hoja->setCellValue("C" . $fila, number_format($row->consumo_promedio_total, 2, '.', ','));
+                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
+                $fila++;
+                $hoja->setCellValue("B" . $fila, "Cantidad de mesas utilizadas: ");
+                $hoja->setCellValue("C" . $fila, number_format($row->cantidadDeMesasUtilizadas, 2, '.', ','));
+                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
+
+                $fila++;
             }
 
 
