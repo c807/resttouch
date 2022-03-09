@@ -215,6 +215,7 @@ class Reporte extends CI_Controller
         $data['fhimpresion'] = date('d/m/Y H:i:s');
 
         $data['totalComensales'] = $this->Reporte_model->get_suma_comensales($listaComandas);
+        $data['cantidadMesasUtilizadas'] = $this->Reporte_model->get_cantidad_mesas($listaComandas);
 
         return $data;
     }

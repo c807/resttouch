@@ -486,6 +486,17 @@ class Reporte_model extends CI_Model
 		}
 		return 0;
 	}
+
+	public function get_cantidad_mesas($comandas = '')
+	{
+		if (trim($comandas) !== '') {
+			$conteo = $this->db->select('COUNT(comanda) AS cantidad')->where("comanda IN({$comandas})")->get('comanda')->row();
+			if ($conteo) {
+				return (int)$conteo->cantidad;
+			}
+		}
+		return 0;
+	}
 }
 
 /* End of file Reporte_model.php */
