@@ -490,7 +490,7 @@ class Reporte_model extends CI_Model
 	public function get_cantidad_mesas($comandas = '')
 	{
 		if (trim($comandas) !== '') {
-			$conteo = $this->db->select('COUNT(comanda) AS cantidad')->where("comanda IN({$comandas})")->get('comanda')->row();
+			$conteo = $this->db->select('COUNT(comanda) AS cantidad')->where("comanda IN({$comandas})")->where('domicilio', 0)->get('comanda')->row();
 			if ($conteo) {
 				return (int)$conteo->cantidad;
 			}
