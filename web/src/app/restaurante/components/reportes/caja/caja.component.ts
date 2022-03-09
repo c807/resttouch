@@ -33,7 +33,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       showPdf: true, showHtml: false, showExcel: true, showImprimir: true,
       isPdfDisabled: deshabilitar,
       isExcelDisabled: deshabilitar,
-      isImprimirDisabled: deshabilitar
+      isImprimirDisabled: (this.params.porTurno) ? this.params.porTurno : deshabilitar
     }
   };
 

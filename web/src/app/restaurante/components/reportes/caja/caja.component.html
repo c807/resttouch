@@ -72,7 +72,7 @@
               </mat-form-field>
             </div>
           </form>
-          <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1, 0)" (pdfClick)="onSubmit()"
+          <app-rpt-botones  [configuracion]="configBotones" (excelClick)="onSubmit(1, 0)" (pdfClick)="onSubmit()"
                            (imprimirClick)="onSubmit(0, 1)" (resetParamsClick)="resetParams()"></app-rpt-botones>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>

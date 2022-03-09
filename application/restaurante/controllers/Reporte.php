@@ -283,14 +283,13 @@ class Reporte extends CI_Controller
                 }
 
 
-
                 $json_data = $this->get_info_corte_caja($data);
                 $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
                 $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
                 //Si es ingreso solo en restaurante
-                if($data['domicilio'] === 0){
+                if ($data['domicilio'] === 0) {
                     $jsonobj->cantidadDeMesasUtilizadas = $jsonobj->cantidadDeMesasUtilizadas + $json_data['cantidadMesasUtilizadas'];
                 }
 
@@ -300,7 +299,7 @@ class Reporte extends CI_Controller
 
                 $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
                 $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
-                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se formatea
+                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se dividira luego
                 $jsonobj->data = json_encode($json_data);
 
             } else {
@@ -345,7 +344,7 @@ class Reporte extends CI_Controller
 
         if (!verDato($data, 'sedeRPT')) {
             $data['sede'] = [$this->data->sede];
-        }else{
+        } else {
             $data['sede'] = [$data['sedeRPT']];// Porque vendra un string pero se procesa como array
         }
 
@@ -437,7 +436,7 @@ class Reporte extends CI_Controller
             }
 
             if ($consumoPromedioTotal > 0 && $totalComensalesTurno > 0) {
-                $consumoPromedioTotal = $totalComensalesTurno; // se formatea
+                $consumoPromedioTotal = $granTotal / $totalComensalesTurno; // se formatea
             } else {
                 $consumoPromedioTotal = 0;
             }
@@ -504,9 +503,9 @@ class Reporte extends CI_Controller
             $fila = 8;
             /// ITEREAMOS POR LOS TURNOS
             foreach ($json_data_turnos as $row) {
-                if(!($row->totalComensales > 0) &&
+                if (!($row->totalComensales > 0) &&
                     !($row->consumo_promedio_total > 0) &&
-                    !($row->cantidadDeMesasUtilizadas > 0)){
+                    !($row->cantidadDeMesasUtilizadas > 0)) {
                     continue;
                 }
                 // NOMBRE DEL TURNO
@@ -569,20 +568,20 @@ class Reporte extends CI_Controller
                 $fila++;
                 $fila++;
                 $hoja->setCellValue("B" . $fila, "Total de comensales: ");
-                $hoja->setCellValue("C" . $fila, number_format($row->totalComensales, 2, '.', ','));
-                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->setCellValue("C" . $fila, $row->totalComensales);
+                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
                 $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
                 $hoja->setCellValue("B" . $fila, "Consumo promedio total: ");
                 $hoja->setCellValue("C" . $fila, number_format($row->consumo_promedio_total, 2, '.', ','));
-                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
                 $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
                 $hoja->setCellValue("B" . $fila, "Cantidad de mesas utilizadas: ");
-                $hoja->setCellValue("C" . $fila, number_format($row->cantidadDeMesasUtilizadas, 2, '.', ','));
-                $hoja->getStyle("B" . $fila )->getFont()->setBold(true);
+                $hoja->setCellValue("C" . $fila, $row->cantidadDeMesasUtilizadas);
+                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
                 $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;

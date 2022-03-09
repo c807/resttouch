@@ -127,9 +127,9 @@
 
         <!-- Footer del turno -->
 
-        <div class="row"><h5>TOTAL DE COMENSALES :<?php echo number_format($row->totalComensales, 2, '.', ',') ?></h5></div>
-        <div class="row"><h5>CONSUMO PROMEDIO TOTAL :<?php echo number_format($row->consumo_promedio_total, 2, '.', ',') ?></h5></div>
-        <div class="row"><h5>CANTIDAD DE MESAS UTILIZADAS :<?php echo number_format($row->cantidadDeMesasUtilizadas, 2, '.', ',') ?></h5></div>
+        <div class="row"><h5>TOTAL DE COMENSALES:&nbsp;<?php echo $row->totalComensales ?></h5></div>
+        <div class="row"><h5>CONSUMO PROMEDIO TOTAL:&nbsp;<?php echo number_format($row->consumo_promedio_total, 2, '.', ',') ?></h5></div>
+        <div class="row"><h5>CANTIDAD DE MESAS UTILIZADAS:&nbsp;<?php echo$row->cantidadDeMesasUtilizadas ?></h5></div>
 
     <?php endforeach ?>
 
