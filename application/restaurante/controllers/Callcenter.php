@@ -19,11 +19,11 @@ class Callcenter extends CI_Controller {
 			'Articulo_model',
 			'Factura_model',
 			'Configuracion_model',
-			'Turno_model'
+			'Turno_model',
+			'Catalogo_model'
 		]);
 
-		$this->output
-		->set_content_type('application/json', 'UTF-8');
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function guardar_pedido($comanda = '')
@@ -94,12 +94,21 @@ class Callcenter extends CI_Controller {
 									);
 	
 									if ($facturar->exito) {
+
+										$sedeDest = $this->Catalogo_model->getSede(['sede' => $req->pedido->sede, '_uno' => true]);
+										$empresa = $this->Catalogo_model->getEmpresa(['empresa' => $sedeDest->empresa, '_uno' => true]);
+										$corporacion = $this->Catalogo_model->getCorporacion(['corporacion' => $empresa->corporacion, '_uno' => true]);
+										$corporacionUUID = "";
+										if ($corporacion) {
+											$corporacionUUID = "/{$corporacion->admin_llave}-{$empresa->empresa}-{$sedeDest->sede}";
+										}
+
 										$datos['exito'] = true;
 										$datos['mensaje'] = 'Datos actualizados con exito';
 										$datos['pedido'] = $com->getPK();
 										$com->db->simple_query("UPDATE detalle_comanda SET impreso = 0 WHERE impreso = 1 AND comanda = {$com->getPK()}");
 										$url_ws = get_url_websocket();
-										$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos", []));
+										$updlst = json_decode(get_request("{$url_ws}/api/updlstpedidos{$corporacionUUID}", []));
 										$updmesas = json_decode(get_request("{$url_ws}/api/updlstareas", []));
 										$updpedidos = json_decode(get_request("{$url_ws}/api/updseguimientocc", []));
 										$datos['msgws'] = [$updlst, $updmesas, $updpedidos];

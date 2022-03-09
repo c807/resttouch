@@ -63,4 +63,5 @@ export interface ImpresionCorteCaja {
 	Ingresos: any[];
 	FacturasSinComanda: any[];
 	Descuentos: any[];
+	TipoVenta: any[];
 }

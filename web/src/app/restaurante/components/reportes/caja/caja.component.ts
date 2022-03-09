@@ -185,7 +185,8 @@ export class CajaComponent implements OnInit, OnDestroy {
       Impresora: this.impresora || null,
       Ingresos: res.ingresos || [],
       FacturasSinComanda: res.facturas_sin_comanda || [],
-      Descuentos: res.descuentos || []
+      Descuentos: res.descuentos || [],
+      TipoVenta: res.tipo_venta || []
     }
 
     const imprimir = new Impresion(this.socket, this.ls);

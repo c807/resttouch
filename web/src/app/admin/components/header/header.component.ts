@@ -133,9 +133,7 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   LogOut() {
     this.ls.clear('ng2Idle.main.expiry');
     this.ls.clear('ng2Idle.main.idling');
-    this.ls.clear(GLOBAL.usrTokenVar);
-    this.ls.clear(GLOBAL.usrUnlockVar);
-    this.ls.clear(GLOBAL.usrLastModuleVar);
+    this.ls.clearRTStorage();
     this.idle.stop();
     this.router.navigate(['/admin/login']);
   }
