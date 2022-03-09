@@ -33,6 +33,14 @@
 
     <!--For de turnos -->
     <?php foreach ($json_data_turnos as $row) : ?>
+
+        <?php
+        if(!($row->totalComensales > 0) &&
+            !($row->consumo_promedio_total > 0) &&
+            !($row->cantidadDeMesasUtilizadas > 0)){
+            continue;
+        }
+        ?>
         <!-- Encabezado nombre del turno -->
         <div class="row">
             <div class="col-sm-12">

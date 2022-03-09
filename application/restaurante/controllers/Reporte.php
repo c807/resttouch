@@ -341,7 +341,14 @@ class Reporte extends CI_Controller
     public function rpt_caja_turno()
     {
         $data = json_decode(file_get_contents('php://input'), true);
-        $data['sede'] = [$data['sede']];// Porque vendra un string pero se procesa como array
+
+
+        if (!verDato($data, 'sedeRPT')) {
+            $data['sede'] = [$this->data->sede];
+        }else{
+            $data['sede'] = [$data['sedeRPT']];// Porque vendra un string pero se procesa como array
+        }
+
         // Decode the JSON file
         ///////////////////// Detalles de la sede
         $sede = $this->Catalogo_model->getSede([
@@ -497,7 +504,11 @@ class Reporte extends CI_Controller
             $fila = 8;
             /// ITEREAMOS POR LOS TURNOS
             foreach ($json_data_turnos as $row) {
-
+                if(!($row->totalComensales > 0) &&
+                    !($row->consumo_promedio_total > 0) &&
+                    !($row->cantidadDeMesasUtilizadas > 0)){
+                    continue;
+                }
                 // NOMBRE DEL TURNO
                 $fila = $fila + 3;
                 $hoja->setCellValue("C" . $fila, $row->name);

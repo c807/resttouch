@@ -26,7 +26,7 @@
           <!-- Selector for Sede only one or multiple -->
           <mat-form-field *ngIf="params.porTurno" class="fullWidth">
             <mat-label>Sede</mat-label>
-            <mat-select  name="sede"  [(ngModel)]="params.sede">
+            <mat-select  name="sedeRPT"  [(ngModel)]="params.sedeRPT">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
                 {{sede.sede.nombre}}
               </mat-option>
@@ -59,7 +59,7 @@
               </mat-checkbox>
             </div>
             <div class="col">
-              <mat-checkbox name="porTurno" class="fullWidth" [(ngModel)]="params.porTurno">Reporte por turno
+              <mat-checkbox (change)="checkValue()" name="porTurno" class="fullWidth" [(ngModel)]="params.porTurno">Reporte por turno
               </mat-checkbox>
             </div>
           </div>
