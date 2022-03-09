@@ -55,7 +55,8 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   public comandasEnLinea: any[] = [];
   public params: any = { de: 0, a: 99 };
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
-
+  public ingresoPedidoNuevo = false;
+  
   private endSubs = new Subscription();
 
   constructor(
@@ -75,9 +76,15 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
       this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
 
       this.socket.on('shopify:updlist', (obj: any = null) => {
+        // console.log(obj);
         if (obj && obj.corporacion) {
-          const suuid = this.ls.get(GLOBAL.usrTokenVar).sede_uuid;
-          if (suuid.indexOf(obj.corporacion) > -1) {
+          const suuid: string = this.ls.get(GLOBAL.usrTokenVar).sede_uuid as string;
+          if (suuid.trim() === (obj.corporacion as string).trim()) {
+            // console.log(`SEDE CORRECTA = ${obj.corporacion}`);
+            this.loadComandasEnLinea();
+            this.notificarUsuario();
+            this.ingresoPedidoNuevo = true;
+          } else if (suuid.indexOf(obj.corporacion) > -1) {
             this.loadComandasEnLinea();
             this.notificarUsuario();
           }
@@ -112,7 +119,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   ngAfterViewInit() {
     // console.log(this.audioNotificacion);
     // this.audioNotificacion.nativeElement.play();
-    console.log(this.audioUrl);
+    // console.log(this.audioUrl);
   }
 
   avisoSocketIOEvent = (aviso: string = '') => {
@@ -134,6 +141,12 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
     // const audio = new Audio(this.audioUrl);
     // audio.play();    
     this.audioNotificacion.nativeElement.play();
+  }
+
+  detenerAudio = () => {
+    this.audioNotificacion.nativeElement.pause();
+    this.audioNotificacion.nativeElement.currentTime = 0;
+    this.ingresoPedidoNuevo = false;
   }
 
   ngOnDestroy() {

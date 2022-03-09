@@ -187,7 +187,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       FacturasSinComanda: res.facturas_sin_comanda || [],
       Descuentos: res.descuentos || [],
       TipoVenta: res.tipo_venta || []
-    } 
+    }
 
     const imprimir = new Impresion(this.socket, this.ls);
     imprimir.imprimirCorteCaja(obj);
