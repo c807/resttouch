@@ -213,6 +213,7 @@ class Reporte extends CI_Controller
 		$data['fhimpresion'] = date('d/m/Y H:i:s');
 
 		$data['totalComensales'] = $this->Reporte_model->get_suma_comensales($listaComandas);
+        $data['cantidadMesasUtilizadas'] = $this->Reporte_model->get_cantidad_mesas($listaComandas);
 		
 		return $data;
 	}
@@ -609,7 +610,7 @@ class Reporte extends CI_Controller
 			$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
 		} else {
 			$mpdf = new \Mpdf\Mpdf([
-				'tempDir' => sys_get_temp_dir(),
+				// 'tempDir' => sys_get_temp_dir(),
 				'format' => 'Legal'
 			]);
 			$mpdf->WriteHTML($this->load->view('caja', $data, true));
