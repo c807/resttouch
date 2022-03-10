@@ -6,11 +6,14 @@ import { LocalstorageService } from '../../../admin/services/localstorage.servic
 
 import { ClienteService } from '../../../admin/services/cliente.service';
 import { Cliente } from '../../../admin/interfaces/cliente';
-// import { FormClienteDialogComponent } from '../../../admin/components/cliente/form-cliente-dialog/form-cliente-dialog.component';
-import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion } from '../../interfaces/cliente-master';
+import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion, ClienteMasterDireccionResponse, ClienteMasterCliente } from '../../interfaces/cliente-master';
 import { ClienteMasterService } from '../../services/cliente-master.service';
 import { ClienteMasterDialogComponent } from '../cliente-master/cliente-master-dialog/cliente-master-dialog.component';
-// import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { TipoDomicilio } from '../../interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '../../services/tipo-domicilio.service';
+
+import { DialogClienteMasterDireccionComponent } from '../cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
+import { DialogClienteMasterClienteComponent } from '../cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
 
 import { Subscription } from 'rxjs';
 
@@ -26,6 +29,13 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public clienteMaster: ClienteMaster;
+  public tiposDomicilio: TipoDomicilio[] = [];
+  public tipoDomicilioSelected: TipoDomicilio = null;
+  public direccionSelected: ClienteMasterDireccionResponse = null;
+  public datosFacturacionSelected: ClienteMasterCliente = null;
+  public varDireccionEntrega = `${GLOBAL.rtDireccionEntrega}_`;
+  public varTipoDomicilio = `${GLOBAL.rtTipoDomicilio}_`;
+  public varClienteFactura = `${GLOBAL.rtClienteFactura}_`;
 
   private esListaDeFacturacion = false;
   private endSubs = new Subscription();
@@ -37,7 +47,8 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     private clienteSrvc: ClienteService,
     public dialog: MatDialog,
     private ls: LocalstorageService,
-    private clienteMasterSrvc: ClienteMasterService
+    private clienteMasterSrvc: ClienteMasterService,
+    private tipoDomicilioSrvc: TipoDomicilioService
   ) { }
 
   ngOnInit(): void {
@@ -45,6 +56,14 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     this.clienteMaster = {
       cliente_master: null, nombre: null, correo: null, fecha_nacimiento: null
     };
+
+    if (this.data.mesa && this.data.mesa.mesa) {
+      this.varDireccionEntrega += `${this.data.mesa.mesa}`;
+      this.varTipoDomicilio += `${this.data.mesa.mesa}`;
+      this.varClienteFactura += `${this.data.mesa.mesa}`;
+    }
+
+    this.loadTiposDomicilio();
   }
 
   ngOnDestroy(): void {
@@ -61,13 +80,15 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  loadTiposDomicilio = () => this.endSubs.add(this.tipoDomicilioSrvc.get().subscribe(res => this.tiposDomicilio = res));
+
   cancelar = () => this.dialogRef.close();
 
   buscar = () => {
     this.telefonoPedido = this.telefonoPedido.trim().toUpperCase().replace(/[^0-9]/gi, '');
     if (this.telefonoPedido && this.telefonoPedido.length >= 8) {
       this.endSubs.add(
-        this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, _notas: 1 }).subscribe((res: ClienteMasterTelefono[]) => {
+        this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, _notas: 1, _direcciones: 1, _facturacion: 1 }).subscribe((res: ClienteMasterTelefono[]) => {
           if (res && res.length > 0) {
             this.clientes = res;
           } else {
@@ -81,15 +102,17 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
                   const cmdRef = this.dialog.open(ClienteMasterDialogComponent, {
                     maxWidth: '100vw', maxHeight: '85vh', width: '99vw', height: '85vh',
                     disableClose: true,
-                    data: { 
+                    data: {
                       clienteMaster: { cliente_master: null, nombre: null, correo: null, fecha_nacimiento: null },
                       numero: this.telefonoPedido
                     }
                   });
-      
+
                   this.endSubs.add(
                     cmdRef.afterClosed().subscribe(async (resDiaCliMas) => {
-                      const cliRet = await this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, cliente_master: resDiaCliMas.cliente_master }).toPromise();
+                      const cliRet = await this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, cliente_master: resDiaCliMas.cliente_master, _direcciones: 1, _facturacion: 1 }).toPromise();
+                      this.addDireccionSeleccionadaToLocalStorage(cliRet[0]);
+                      this.addDatosFacturacionToLocalStorage(cliRet[0]);
                       this.dialogRef.close(cliRet[0]);
                     })
                   );
@@ -138,7 +161,10 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
 
             this.endSubs.add(
               cmdRef.afterClosed().subscribe(async () => {
-                const cliRet = await this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, cliente_master: resCliMast.cliente_master.cliente_master }).toPromise();
+                const cliRet = await this.clienteMasterSrvc.getTelefonosClienteMaster({ numero: this.telefonoPedido, cliente_master: resCliMast.cliente_master.cliente_master, _direcciones: 1, _facturacion: 1 }).toPromise();
+                this.addTipoDomicilioToLocalStorage();
+                this.addDireccionSeleccionadaToLocalStorage(cliRet[0]);
+                this.addDatosFacturacionToLocalStorage(cliRet[0]);
                 this.dialogRef.close(cliRet[0]);
               })
             );
@@ -148,8 +174,62 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
         })
       );
     } else {
+      this.addTipoDomicilioToLocalStorage();
+      this.addDireccionSeleccionadaToLocalStorage(cli);
+      this.addDatosFacturacionToLocalStorage(cli);
       this.dialogRef.close(cli);
     }
   }
 
+  seleccionarDireccion = (cli: (Cliente | ClienteMasterTelefono)) => {    
+    const selectDirRef = this.dialog.open(DialogClienteMasterDireccionComponent, {
+      width: '70vw',
+      disableClose: true,
+      data: cli as ClienteMasterTelefono
+    });
+
+    this.endSubs.add(
+      selectDirRef.afterClosed().subscribe((dirEntSel: ClienteMasterDireccionResponse) => {
+        this.direccionSelected = dirEntSel;        
+      })
+    );
+  }
+
+  selecctionTipoDomicilio = (tipoDom: TipoDomicilio) => this.tipoDomicilioSelected = tipoDom;
+
+  addTipoDomicilioToLocalStorage = () => {
+    if (this.tipoDomicilioSelected) {
+      this.ls.set(this.varTipoDomicilio, this.tipoDomicilioSelected);
+    }
+  }
+
+  addDireccionSeleccionadaToLocalStorage = (cli: (Cliente | ClienteMasterTelefono)) => {
+    const cliSel = cli as ClienteMasterTelefono;
+    if (!this.direccionSelected || (+cliSel.cliente_master !== +this.direccionSelected.cliente_master.cliente_master)) {
+      this.direccionSelected = cliSel.direcciones[0] || null;
+    } 
+    this.ls.set(this.varDireccionEntrega, this.direccionSelected);
+  }
+
+  addDatosFacturacionToLocalStorage = (cli: (Cliente | ClienteMasterTelefono)) => {
+    const cliSel = cli as ClienteMasterTelefono;
+    if (!this.datosFacturacionSelected || (+cliSel.cliente_master !== +this.datosFacturacionSelected.cliente_master)) {
+      this.datosFacturacionSelected = cliSel.datos_facturacion[0] || null;
+    } 
+    this.ls.set(this.varClienteFactura, this.datosFacturacionSelected);
+  }
+
+  seleccionarDatosFacturacion = (cli: (Cliente | ClienteMasterTelefono)) => {
+    const selectDirRef = this.dialog.open(DialogClienteMasterClienteComponent, {
+      width: '70vw',
+      disableClose: true,
+      data: cli as ClienteMasterTelefono
+    });
+
+    this.endSubs.add(
+      selectDirRef.afterClosed().subscribe((factSel: ClienteMasterCliente) => {
+        this.datosFacturacionSelected = factSel;        
+      })
+    );    
+  }
 }

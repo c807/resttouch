@@ -1,0 +1,19 @@
+.contenido {
+    max-height: 73vh !important;
+    height: 100%;
+    overflow-y: auto;
+    /* padding: 0 5px; */
+}
+
+.tblClientes > tr, th, td {
+    padding: 5px !important;    
+    margin: 1px !important;
+    border-top: 0px !important;
+    border-bottom: 0px !important;
+    border-radius: 0px !important;
+}
+
+.lista-notas {
+    padding: 5px !important;    
+    margin: 1px !important;    
+}

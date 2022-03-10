@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>Seleccione dirección de entrega para {{data.nombre}}</h1>
+<div mat-dialog-content class="contenido">
+    <table>
+        <tr *ngFor="let dir of data.direcciones">
+            <td>{{dir.tipo_direccion.descripcion}}</td>
+            <td>{{dir.direccion_completa}}</td>
+            <td>
+                <button mat-raised-button (click)="terminar(dir)" color="accent">
+                    Seleccionar
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="warn">
+        Cancelar
+    </button>
+</div>

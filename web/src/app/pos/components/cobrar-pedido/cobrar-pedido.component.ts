@@ -1,4 +1,4 @@
-import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
@@ -29,7 +29,7 @@ import { ConfiguracionService } from '../../../admin/services/configuracion.serv
 import { Base64 } from 'js-base64';
 import { Subscription } from 'rxjs';
 import { ClienteMasterService } from '../../../callcenter/services/cliente-master.service';
-import { ClienteMasterDireccionResponse } from '../../../callcenter/interfaces/cliente-master';
+import { ClienteMasterDireccionResponse, ClienteMasterCliente } from '../../../callcenter/interfaces/cliente-master';
 import { TiempoEntrega } from '../../../callcenter/interfaces/tiempo-entrega';
 import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entrega.service';
 import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
@@ -53,7 +53,7 @@ interface DatosPedido {
   templateUrl: './cobrar-pedido.component.html',
   styleUrls: ['./cobrar-pedido.component.css']
 })
-export class CobrarPedidoComponent implements OnInit, OnDestroy {
+export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get deshabilitaFormaPagoConAumento() {
     return (opcFp: FormaPago) => {
@@ -111,6 +111,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
   public porcentajePropina = 0;
   public aceptaPropinaEnCallCenter = false;
   public seActualizaronLosPrecios = false;
+  public varDireccionEntrega = `${GLOBAL.rtDireccionEntrega}_`;
+  public varTipoDomicilio = `${GLOBAL.rtTipoDomicilio}_`;
+  public varClienteFactura = `${GLOBAL.rtClienteFactura}_`;
 
   private endSubs = new Subscription();
 
@@ -142,6 +145,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER);
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
+      this.varDireccionEntrega += `${this.data.mesaenuso.mesa.mesa}`;
+      this.varTipoDomicilio += `${this.data.mesaenuso.mesa.mesa}`;
+      this.varClienteFactura += `${this.data.mesaenuso.mesa.mesa}`;
       if (this.aceptaPropinaEnCallCenter) {
         this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
         this.porcentajePropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) || 0;
@@ -169,6 +175,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
+  }
+
+  ngAfterViewInit(): void {
+    if (+this.data.mesaenuso.mesa.escallcenter === 1) {
+      Promise.resolve(null).then(() => this.setDatosPedido());      
+    }
   }
 
   autorizaCambioPropina() {
@@ -761,5 +773,26 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy {
     this.calculaPropina();
     this.actualizaSaldo();
     this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
+  }
+
+  setDatosPedido = () => {
+    // Tipo de domicilio
+    const tipoDomi: TipoDomicilio = this.ls.get(this.varTipoDomicilio) || null;
+    if (tipoDomi) {
+      this.datosPedido.tipo_domicilio = tipoDomi.tipo_domicilio || null;
+    }
+
+    //Dirección de entrega
+    const dirEntrega: ClienteMasterDireccionResponse = this.ls.get(this.varDireccionEntrega) || null;
+    if (dirEntrega) {
+      this.datosPedido.direccion_entrega = dirEntrega.direccion_completa || null;
+      this.datosPedido.sede = dirEntrega.sede.sede || null;
+    }
+
+    //Datos de facturacion
+    const datosFact: ClienteMasterCliente = this.ls.get(this.varClienteFactura) || null;
+    if (datosFact) {
+      this.setClienteFacturar(datosFact.cliente);      
+    }
   }
 }

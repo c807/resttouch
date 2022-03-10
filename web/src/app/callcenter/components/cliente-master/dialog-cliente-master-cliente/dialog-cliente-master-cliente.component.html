@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>Seleccione datos de facturación para {{data.nombre}}</h1>
+<div mat-dialog-content class="contenido">
+    <table>
+        <tr *ngFor="let df of data.datos_facturacion">
+            <td>{{df.cliente.nit}}</td>
+            <td>{{df.cliente.nombre}}</td>
+            <td>
+                <button mat-raised-button (click)="terminar(df)" color="accent">
+                    Seleccionar
+                </button>
+            </td>
+        </tr>
+    </table>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="warn">
+        Cancelar
+    </button>
+</div>
