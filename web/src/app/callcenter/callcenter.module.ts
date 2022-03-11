@@ -32,6 +32,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 import { CallcenterRoutingModule } from './callcenter-routing.module';
 import { PideTelefonoDialogComponent } from './components/pide-telefono-dialog/pide-telefono-dialog.component';
@@ -68,6 +69,8 @@ import { ListaTipoDomicilioComponent } from './components/tipo-domicilio/lista-t
 import { DetalleFormaPagoComponent } from './components/seguimiento-callcenter/detalle-forma-pago/detalle-forma-pago.component';
 import { PideRepartidorDialogComponent } from './components/pide-repartidor-dialog/pide-repartidor-dialog.component';
 import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedidos_sede.component";
+import { DialogClienteMasterDireccionComponent } from './components/cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
+import { DialogClienteMasterClienteComponent } from './components/cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
 
 /**
  * New Components must be added in declarations,
@@ -80,7 +83,7 @@ import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedido
     ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent,
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
     ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent,
-    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent
   ],
   imports: [
     CommonModule,
@@ -113,6 +116,7 @@ import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedido
     MatNativeDateModule,
     DragDropModule,
     MatBadgeModule,
+    MatButtonToggleModule,
     ScrollingModule,
     MatTooltipModule
   ],

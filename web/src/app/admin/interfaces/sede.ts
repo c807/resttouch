@@ -10,6 +10,7 @@ export interface Sede {
     correo?: string;
     codigo?: number;
     cuenta_contable?: string;
+    alias?: string;
 }
 
 export interface Corporacion {

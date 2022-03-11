@@ -117,18 +117,13 @@
         </div>
     </div>
     <div class="row">
-        <div class="col m6 s12 mat-elevation-z3 colProductos">
-            <!--<app-lista-producto (productoClickedEv)="addProductoSelected($event)"></app-lista-producto>-->
+        <div class="col m6 s12 mat-elevation-z3 colProductos">            
             <app-lista-producto-alt #appLstProdAlt (productoClickedEv)="agregarProductos($event)"
                 (categoriasFilledEv)="setListaCategorias($event)" [bloqueoBotones]="bloqueoBotones">
             </app-lista-producto-alt>
         </div>
-        <div class="col m6 s12 mat-elevation-z3 colProductos">
-            <!-- <app-lista-productos-comanda *ngIf="mesaEnUso && cuentaActiva" [listaProductos]="lstProductosDeCuenta"
-                [noCuenta]="cuentaActiva && +cuentaActiva.numero ? +cuentaActiva.numero : 1"
-                [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
-                [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
-            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
+        <div class="col m6 s12 mat-elevation-z3 colProductos">            
+            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event)" [mesaEnUso]="mesaEnUso"></app-lista-productos-comanda-alt>
         </div>
     </div>
 </div>

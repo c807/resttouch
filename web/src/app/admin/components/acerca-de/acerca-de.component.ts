@@ -25,7 +25,8 @@ export class AcercaDeComponent implements OnInit {
   ngOnInit() {
     this.sedeUuid = this.ls.get(GLOBAL.usrTokenVar).sede_uuid || 'No ha iniciado sesión.';
     this.dominio = this.ls.get(GLOBAL.usrTokenVar).dominio || 'No ha iniciado sesión.';
-    this.restaurante = this.ls.get(GLOBAL.usrTokenVar).restaurante?.nombre || 'No ha iniciado sesión.';
+    const nombreRestaurante = `${this.ls.get(GLOBAL.usrTokenVar).restaurante?.nombre || ''} (${this.ls.get(GLOBAL.usrTokenVar).restaurante?.alias || ''})`;
+    this.restaurante = nombreRestaurante || 'No ha iniciado sesión.';
   }
 
   cerrar = () => this.dialogRef.close();

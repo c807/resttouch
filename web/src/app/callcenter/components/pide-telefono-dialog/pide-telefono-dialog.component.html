@@ -1,43 +1,78 @@
 <h1 mat-dialog-title>Teléfono</h1>
-<div mat-dialog-content>
+<div mat-dialog-content class="contenido">
     <mat-form-field class="fullWidth">
-        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
-        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
-    </mat-form-field>    
-    <table *ngIf="clientes.length > 0">
-        <thead>
-            <tr>
-                <td>¿Quién está llamando?</td>
-                <td></td>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngFor="let cli of clientes">
-                <tr>
-                    <td>
-                        {{cli.nombre}}
-                        <small *ngIf="cli.notas && cli.notas.length > 0">
-                            <br/>
-                            <ul>
-                                <li *ngFor="let n of cli.notas">&bull; {{n.nota}}</li>
-                            </ul>
-                        </small>
-                    </td>
-                    <td style="width: 15%;" align="center">
-                        <button mat-raised-button type="button" color="accent" (click)="seleccionarCliente(cli)">
-                            Seleccionar
-                        </button>
-                    </td>
-                </tr>
-            </ng-container>
-        </tbody>
-    </table>
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" (input)="validateKey($event)"
+            (keyup.enter)="buscar()" placeholder="Teléfono" [(ngModel)]="telefonoPedido"
+            [ngModelOptions]="{standalone: true}" minlength="8" maxlength="25" required>
+        <input matInput *ngIf="esMovil" type="text" (keypress)="validateKey($event)" (keyup.enter)="buscar()"
+            placeholder="Teléfono" [(ngModel)]="telefonoPedido" [ngModelOptions]="{standalone: true}" minlength="8"
+            maxlength="25" required>
+    </mat-form-field>
+    <mat-button-toggle-group  *ngIf="clientes.length > 0" name="tipo_domicilio" aria-label="Tipo de domicilio">
+        <mat-button-toggle *ngFor="let td of tiposDomicilio" value="" (click)="selecctionTipoDomicilio(td)">{{td.descripcion}}</mat-button-toggle>
+    </mat-button-toggle-group>
+    <div *ngIf="direccionSelected" style="padding-top: 10px;">
+        <strong>Entregar en:</strong> {{direccionSelected.direccion_completa}}
+    </div>
+    <div *ngIf="datosFacturacionSelected" style="padding-top: 10px;">
+        <strong>Facturar a:</strong> {{datosFacturacionSelected.cliente.nombre}} ({{datosFacturacionSelected.cliente.nit}})
+    </div>
+    <div *ngIf="clientes.length > 0">
+        <h5>¿Quién está llamando?</h5>
+        <ng-container *ngFor="let cli of clientes">
+            <table class="tbl tblClientes">
+                <tbody>
+                    <tr>
+                        <td colspan="2">
+                            {{cli.nombre}}
+                            <small *ngIf="cli.notas && cli.notas.length > 0">
+                                <br />
+                                <ul class="lista-notas">
+                                    <li *ngFor="let n of cli.notas">&bull; {{n.nota}}</li>
+                                </ul>
+                            </small>
+                        </td>
+                        <td style="width: 15%;" align="center">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth"
+                                (click)="seleccionarCliente(cli)">
+                                Seleccionar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="cli.direcciones && cli.direcciones.length > 0">
+                        <td colspan="2">
+                            {{cli.direcciones[0].tipo_direccion.descripcion}}: {{cli.direcciones[0].direccion_completa}}
+                        </td>
+                        <td style="width: 15%;" align="center">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDireccion(cli)" [disabled]="cli.direcciones.length === 1">
+                                Cambiar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="cli.datos_facturacion && cli.datos_facturacion.length > 0">
+                        <td>
+                            {{cli.datos_facturacion[0].cliente.nit}}
+                        </td>
+                        <td>
+                            {{cli.datos_facturacion[0].cliente.nombre}}
+                        </td>
+                        <td style="width: 15%;" align="center">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDatosFacturacion(cli)" [disabled]="cli.datos_facturacion.length === 1">
+                                Cambiar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </ng-container>
+    </div>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-raised-button (click)="cancelar()" color="warn">
         Cancelar
     </button>
-    <button mat-raised-button type="button" color="accent" (click)="buscar()" [disabled]="!(telefonoPedido && telefonoPedido.length >= 8)">
+    <button mat-raised-button type="button" color="accent" (click)="buscar()"
+        [disabled]="!(telefonoPedido && telefonoPedido.length >= 8)">
         Buscar
     </button>
 </div>

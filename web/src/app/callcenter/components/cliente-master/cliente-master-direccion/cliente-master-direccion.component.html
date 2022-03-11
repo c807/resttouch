@@ -1,34 +1,33 @@
-
-
 <div class="direccion-head">
   <h5>Direcciones de entrega</h5>
-  <button mat-raised-button class="button-st" (click)="agregarDireccion()" color="warn" [disabled]="!(+clienteMaster?.cliente_master > 0)">Agregar</button>
+  <button mat-raised-button class="button-st" (click)="agregarDireccion()" color="warn"
+    [disabled]="!(+clienteMaster?.cliente_master > 0)">Agregar</button>
 </div>
 <table>
-
-
   <thead>
-  <tr>
-    <th>Tipo</th>
-    <th>Dirección</th>
-    <th>&nbsp;</th>
-    <th>&nbsp;</th>
-  </tr>
+    <tr>
+      <th>Tipo</th>
+      <th>Dirección</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
   </thead>
   <tbody>
-  <tr *ngFor="let dir of lstDirecciones">
-    <td>{{dir.tipo_direccion.descripcion}}</td>
-    <td><p>{{dir.direccion_completa}}</p></td>
-    <td style="width: 10%;">
-      <button mat-raised-button type="button" color="accent" (click)="editarDireccion(dir)" >
-        Editar
-      </button>
-    </td>
-    <td style="width: 10%;">
-      <button mat-raised-button type="button" color="warn" (click)="eliminarDireccion(dir)" >
-        Eliminar
-      </button>
-    </td>
-  </tr>
+    <tr *ngFor="let dir of lstDirecciones">
+      <td>{{dir.tipo_direccion.descripcion}}</td>
+      <td>
+        <p>{{dir.direccion_completa}}</p>
+      </td>
+      <td style="width: 10%;">
+        <button mat-raised-button type="button" color="accent" (click)="editarDireccion(dir)">
+          Editar
+        </button>
+      </td>
+      <td style="width: 10%;">
+        <button mat-raised-button type="button" color="warn" (click)="eliminarDireccion(dir)">
+          Eliminar
+        </button>
+      </td>
+    </tr>
   </tbody>
 </table>

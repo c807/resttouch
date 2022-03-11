@@ -43,15 +43,7 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     private sedeSrvc: SedeService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-  }
-
-  loadSedes = () => {
-    this.sedeSrvc.get().subscribe(res => {
-      if (res) {
-        this.sedes = res;
-      }
-    });
-  }
+  }  
 
   ngOnInit(): void {
     this.loadSedes();
@@ -80,6 +72,12 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.endSubs.unsubscribe();
+  }
+
+  loadSedes = () => {
+    this.endSubs.add(
+      this.sedeSrvc.get().subscribe(res => this.sedes = res)
+    );
   }
 
   cancelar = () => {

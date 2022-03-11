@@ -18,6 +18,13 @@ class Bodega_model extends General_model {
 		}
 	}
 
+	public function quitar_por_defecto($sede)
+	{
+		$this->db->set('pordefecto', 0);
+		$this->db->where('sede', $sede);
+		$this->db->update('bodega');
+	}
+
 }
 
 /* End of file Bodega_model.php */

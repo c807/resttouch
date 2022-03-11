@@ -3,4 +3,5 @@ export interface Bodega {
     sede: number;
     descripcion: string;
     merma?: number;
+    pordefecto?: number;
 }

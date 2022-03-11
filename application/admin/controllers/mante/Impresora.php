@@ -21,6 +21,11 @@ class Impresora extends CI_Controller {
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$req['sede'] = $data->sede;
+
+			if (isset($req['pordefecto']) && (int)$req['pordefecto'] === 1) {
+				$imp->quitar_por_defecto($req['sede']);
+			}
+
 			$datos['exito'] = $imp->guardar($req);
 
 			if($datos['exito']) {

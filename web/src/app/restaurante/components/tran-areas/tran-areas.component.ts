@@ -174,10 +174,17 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
         this.aperturaCargaMesa(m);
       } else {
         const varCliPedido = `${GLOBAL.rtClientePedido}_${m.mesaSelected.mesa}`;
+        const varDireccionEntrega = `${GLOBAL.rtDireccionEntrega}_${m.mesaSelected.mesa}`;
+        const varTipoDomicilio = `${GLOBAL.rtTipoDomicilio}_${m.mesaSelected.mesa}`;
+        const varClienteFactura = `${GLOBAL.rtClienteFactura}_${m.mesaSelected.mesa}`;
         if (+m.mesaSelected.estatus === 1) {
           this.ls.clear(varCliPedido);
+          this.ls.clear(varDireccionEntrega);
+          this.ls.clear(varTipoDomicilio);
+          this.ls.clear(varClienteFactura);
           const pideTelefonoRef = this.dialog.open(PideTelefonoDialogComponent, {
-            width: '50%',
+            width: '80vw',
+            height: '90vh',
             disableClose: true,
             data: { mesa: m.mesaSelected }
           });

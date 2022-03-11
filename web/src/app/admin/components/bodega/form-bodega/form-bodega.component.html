@@ -10,8 +10,8 @@
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nombre" name="nombre" [(ngModel)]="bodega.descripcion" required>
                 <input matInput *ngIf="esMovil" type="text" placeholder="Nombre" name="nombre" [(ngModel)]="bodega.descripcion" required>
             </mat-form-field>
-            <mat-checkbox name="merma" class="fullWidth" [(ngModel)]="+bodega.merma">¿Es Merma?
-            </mat-checkbox>
+            <mat-checkbox name="pordefecto" class="fullWidth" [(ngModel)]="+bodega.pordefecto">Usar por defecto</mat-checkbox>
+            <mat-checkbox name="merma" class="fullWidth" [(ngModel)]="+bodega.merma">¿Es Merma?</mat-checkbox>
             
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"

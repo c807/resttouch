@@ -26,6 +26,10 @@ class Bodega extends CI_Controller {
 				$req['merma'] = 0;
 			}
 
+			if (isset($req['pordefecto']) && (int)$req['pordefecto'] === 1) {
+				$bod->quitar_por_defecto($req['sede']);
+			}
+
 			$datos['exito'] = $bod->guardar($req);
 
 			if($datos['exito']) {
