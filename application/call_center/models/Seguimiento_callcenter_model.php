@@ -22,7 +22,7 @@ class Seguimiento_callcenter_model extends CI_Model
 			}
 		}
 
-        $campos = 'a.comanda, a.usuario, b.nombres, b.apellidos, a.sede, c.nombre AS sede_atiende, a.comanda_origen_datos, a.fhcreacion, ';
+        $campos = 'a.comanda, a.usuario, b.nombres, b.apellidos, a.sede, IFNULL(c.alias, c.nombre) AS sede_atiende, a.comanda_origen_datos, a.fhcreacion, ';
         $campos.= 'IFNULL(a.notas_generales, "No tiene") AS observaciones, a.cliente_master, d.nombre AS cliente, a.tiempo_entrega, ';
         $campos.= 'e.descripcion AS tiempo_ofrecido, a.estatus_callcenter, f.descripcion AS estatus, f.color AS color_estatus, ';
         $campos.= 'a.tipo_domicilio, g.descripcion AS domicilio_tipo, a.repartidor, IFNULL(h.nombre, "No asignado") AS motorista, a.fhtomapedido, ';

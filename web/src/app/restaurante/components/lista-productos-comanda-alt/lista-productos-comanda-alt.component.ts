@@ -12,6 +12,7 @@ import { Socket } from 'ngx-socket-io';
 import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
 import { DetalleComanda } from '../../interfaces/detalle-comanda';
 import { ComandaService } from '../../services/comanda.service';
+import { ComandaGetResponse } from '../../interfaces/comanda';
 
 import { Subscription } from 'rxjs';
 
@@ -41,14 +42,17 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     }
   }
 
-  get esGerente() {
+  get esGerente() {    
+    if (+this.mesaEnUso.mesa.escallcenter === 1) {
+      return true;
+    }
     return this.rolesUsuario.indexOf('gerente') > -1;
   }
 
   @Input() detalleCuenta: DetalleCuentaSimplified[] = [];
   @Input() listHeight = '450px';
   @Input() bloqueoBotones = false;
-  @Input() mesaEnUso: any = {};
+  @Input() mesaEnUso: ComandaGetResponse = undefined;
   @Input() rolesUsuario = '';
   @Output() productoRemovedEv = new EventEmitter();
 
@@ -179,36 +183,52 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
 
   deleteProductoFromListAfterPrinted = (p: DetalleCuentaSimplified, idx: number) => {
     this.bloqueoBotones = true;
-    const dialogoRef = this.dialog.open(ValidaPwdGerenteTurnoComponent, {
-      width: '40%', disableClose: true
-    });
-
-    this.endSubs.add(
-      dialogoRef.afterClosed().subscribe(res => {
-        // console.log(res);
-        if (res) {
-          if (res.esgerente) {
-            // this.autorizar = true;
-            //this.deleteProductoFromList(p, idx, true);
-            const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
-              width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
-            });
-            this.endSubs.add(
-              dialogDelete.afterClosed().subscribe(resDel => {
-                // console.log(resDel);
-                if (resDel && resDel.respuesta) {
-                  this.removeProducto(p, idx, true, resDel.producto.cantidad, +res.gerente_turno, resDel.retornar_inventario)
-                }
-              })
-            );
-            this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });
-          } else {
-            this.snackBar.open('La contraseña no es correcta', 'Comanda', { duration: 5000 });
+    if (+this.mesaEnUso.mesa.escallcenter === 1) {
+      const idUsr = this.ls.get(GLOBAL.usrTokenVar).idusr || 0;
+      this.executeDelenteAfterPrinted(p, idx, +idUsr);
+    } else {
+      const dialogoRef = this.dialog.open(ValidaPwdGerenteTurnoComponent, {
+        width: '40%', disableClose: true
+      });  
+      this.endSubs.add(
+        dialogoRef.afterClosed().subscribe(res => {        
+          if (res) {
+            if (res.esgerente) {
+              this.executeDelenteAfterPrinted(p, idx, +res.gerente_turno);            
+              // const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
+              //   width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
+              // });
+              // this.endSubs.add(
+              //   dialogDelete.afterClosed().subscribe(resDel => {                
+              //     if (resDel && resDel.respuesta) {
+              //       this.removeProducto(p, idx, true, resDel.producto.cantidad, +res.gerente_turno, resDel.retornar_inventario)
+              //     }
+              //   })
+              // );
+              // this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });
+            } else {
+              this.snackBar.open('La contraseña no es correcta', 'Comanda', { duration: 5000 });
+            }
           }
+          this.bloqueoBotones = false;
+        })
+      );
+    }
+  }
+
+  executeDelenteAfterPrinted = (p: DetalleCuentaSimplified, idx: number, gerente = 0) => {
+    const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
+      width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
+    });
+    this.endSubs.add(
+      dialogDelete.afterClosed().subscribe(resDel => {                
+        if (resDel && resDel.respuesta) {
+          this.removeProducto(p, idx, true, resDel.producto.cantidad, gerente, resDel.retornar_inventario)
         }
         this.bloqueoBotones = false;
       })
     );
+    this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });    
   }
 
 }

@@ -77,7 +77,7 @@ class Usuario_model extends General_model
                     c.nombre as empresa_nombre,
                     c.nit as empresa_nit,
                     c.visa_merchant_id,
-                    CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, a.usatecladovirtual")
+                    CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias")
                 ->from("{$this->tabla} a")
                 ->join("sede b", "b.sede = a.sede")
                 ->join("empresa c", "c.empresa = b.empresa")
@@ -118,7 +118,8 @@ class Usuario_model extends General_model
                         'restaurante' => [
                             "nombre" => $dbusr->sede_nombre,
                             "direccion" => $dbusr->sede_direccion,
-                            "correo" => $dbusr->sede_correo
+                            "correo" => $dbusr->sede_correo,
+                            "alias" => $dbusr->sede_alias
                         ],
                         'empresa' => [
                             "visa_merchant_id" => $dbusr->visa_merchant_id,

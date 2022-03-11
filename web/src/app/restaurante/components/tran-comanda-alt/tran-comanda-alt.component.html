@@ -89,10 +89,7 @@
       </div>
     </div>
     <!-- Finaliza artículos -->
-    <div fxFlex="45%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos">
-      <!-- <app-lista-productos-comanda [listaProductos]="lstProductosDeCuenta" [noCuenta]="+cuentaActiva.numero"
-          [IdComanda]="mesaEnUso.comanda" [IdCuenta]="cuentaActiva.cuenta" [bloqueoBotones]="bloqueoBotones"
-          [mesaEnUso]="mesaEnUso" (productoRemovedEv)="updProductosCuenta($event)"></app-lista-productos-comanda> -->
+    <div fxFlex="45%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos">      
       <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
         <ng-container>
           <span class="bld" *ngIf="ctSlect !== null && ctSlect !== undefined">Cuenta de {{mesaEnUso.cuentas[ctSlect].nombre}}</span>
@@ -101,7 +98,7 @@
       </div>
       <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones"
                                        [rolesUsuario]="rolesUsuario"
-                                       (productoRemovedEv)="setSelectedCuenta($event)"></app-lista-productos-comanda-alt>
+                                       (productoRemovedEv)="setSelectedCuenta($event)" [mesaEnUso]="mesaEnUso"></app-lista-productos-comanda-alt>
     </div>
   </div>
 </div>

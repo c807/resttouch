@@ -14,6 +14,7 @@ class Sede_model extends General_model {
     public $correo;
     public $codigo;
     public $cuenta_contable;
+	public $alias = null;
 
 	public function __construct($id = "")
 	{

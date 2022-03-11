@@ -145,7 +145,7 @@
                 <mat-label>Atiende:</mat-label>
                 <mat-select name="sede" [(ngModel)]="datosPedido.sede" required>
                   <mat-option *ngFor="let s of sedes" [value]="s.sede">
-                    {{s.nombre}}
+                    {{s.alias}}
                   </mat-option>
                 </mat-select>
               </mat-form-field>
