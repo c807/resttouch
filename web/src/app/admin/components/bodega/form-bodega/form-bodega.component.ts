@@ -29,7 +29,7 @@ export class FormBodegaComponent implements OnInit {
   }
 
   resetBodega = () => this.bodega = {
-    bodega: null, descripcion: null,  sede: null, merma: null
+    bodega: null, descripcion: null,  sede: null, merma: null, pordefecto: 0
   }
 
   onSubmit = () => {

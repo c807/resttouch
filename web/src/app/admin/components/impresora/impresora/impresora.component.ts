@@ -15,7 +15,7 @@ export class ImpresoraComponent implements OnInit {
 
   constructor() {
     this.impresora = {
-      impresora: null, nombre: null, direccion_ip: null, ubicacion: null, bluetooth: 0, sede: null
+      impresora: null, nombre: null, direccion_ip: null, ubicacion: null, bluetooth: 0, sede: null, pordefecto: 0
     };
   }
 
