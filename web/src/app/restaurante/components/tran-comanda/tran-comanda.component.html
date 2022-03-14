@@ -123,7 +123,7 @@
             </app-lista-producto-alt>
         </div>
         <div class="col m6 s12 mat-elevation-z3 colProductos">            
-            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event)" [mesaEnUso]="mesaEnUso"></app-lista-productos-comanda-alt>
+            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones" [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event, true)" [mesaEnUso]="mesaEnUso"></app-lista-productos-comanda-alt>
         </div>
     </div>
 </div>

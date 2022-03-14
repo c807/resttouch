@@ -300,12 +300,12 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     indices.forEach(i => this.lstProductosSeleccionados.splice(i, 1));
   }
 
-  setSelectedCuenta(noCuenta: number) {
+  setSelectedCuenta(noCuenta: number, fozarRecarga: boolean = false) {
     this.bloqueoBotones = true;
     const idx = this.mesaEnUso.cuentas.findIndex((c: Cuenta) => +c.numero === +noCuenta);
     // this.cuentaActiva = this.mesaEnUso.cuentas.find((c: Cuenta) => +c.numero === +noCuenta);
     this.cuentaActiva = this.mesaEnUso.cuentas[idx];
-    if (this.cuentaActiva.productos.length === 0) {
+    if (this.cuentaActiva.productos.length === 0 || fozarRecarga) {
       this.endSubs.add(
         // this.comandaSrvc.getDetalleCuenta(this.cuentaActiva.cuenta).subscribe(res => {
         //   this.refreshLstProdSeleccionadosDeCuenta(+this.cuentaActiva.cuenta);
@@ -315,7 +315,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         //   this.bloqueoBotones = false;
         // })
         this.comandaSrvc.obtenerDetalleCuenta({ cuenta: +this.cuentaActiva.cuenta }).subscribe((res: DetalleCuentaSimplified[]) => {
-          this.lstProductosCuentaAlt = res;
+          this.lstProductosCuentaAlt = res;          
           this.bloqueoBotones = false;
         })
       );
@@ -337,7 +337,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   setLstProductosDeCuenta() {
     const noCta = this.cuentaActiva?.numero || 1;
     this.lstProductosDeCuenta = this.lstProductosSeleccionados.filter(p => +p.cuenta === +noCta);
-    // console.log(this.lstProductosDeCuenta);
+    // console.log('CUENTA = ', this.lstProductosDeCuenta);
+    // console.log('SELECCIONADOS = ', this.lstProductosSeleccionados);
   }
 
   agregaCombo = (producto: any, sinInputCantidad = false) => {
@@ -356,7 +357,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           // console.log(res.seleccion); // this.bloqueoBotones = false; resolve(true);
           this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, res.seleccion).subscribe(resSaveDetCmb => {            
             if (resSaveDetCmb.exito) {              
-              this.setSelectedCuenta(+this.cuentaActiva.numero);
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
             } else {
               this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', { duration: 3000 });
             }
@@ -415,7 +416,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             // this.mesaEnUso = res.comanda;
             // this.llenaProductosSeleccionados(this.mesaEnUso);
             // this.actualizaProductosSeleccionados(+res.comanda.cuentas[0].cuenta, res.comanda.cuentas[0].productos[0]);
-            this.setSelectedCuenta(+this.cuentaActiva.numero);
+            this.setSelectedCuenta(+this.cuentaActiva.numero, true);
           } else {
             this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
           }
@@ -434,7 +435,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             // this.mesaEnUso = res.comanda;
             // this.llenaProductosSeleccionados(this.mesaEnUso);
             // this.actualizaProductosSeleccionados(+res.comanda.cuentas[0].cuenta, res.comanda.cuentas[0].productos[0], idx);
-            this.setSelectedCuenta(+this.cuentaActiva.numero);
+            this.setSelectedCuenta(+this.cuentaActiva.numero, true);
           } else {
             this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
           }

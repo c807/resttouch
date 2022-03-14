@@ -185,7 +185,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     this.bloqueoBotones = true;
     if (+this.mesaEnUso.mesa.escallcenter === 1) {
       const idUsr = this.ls.get(GLOBAL.usrTokenVar).idusr || 0;
-      this.executeDelenteAfterPrinted(p, idx, +idUsr);
+      this.executeDeleteAfterPrinted(p, idx, +idUsr);
     } else {
       const dialogoRef = this.dialog.open(ValidaPwdGerenteTurnoComponent, {
         width: '40%', disableClose: true
@@ -194,7 +194,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
         dialogoRef.afterClosed().subscribe(res => {        
           if (res) {
             if (res.esgerente) {
-              this.executeDelenteAfterPrinted(p, idx, +res.gerente_turno);            
+              this.executeDeleteAfterPrinted(p, idx, +res.gerente_turno);            
               // const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
               //   width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
               // });
@@ -216,15 +216,16 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     }
   }
 
-  executeDelenteAfterPrinted = (p: DetalleCuentaSimplified, idx: number, gerente = 0) => {
+  executeDeleteAfterPrinted = (p: DetalleCuentaSimplified, idx: number, gerente = 0) => {
     const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
       width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
     });
     this.endSubs.add(
       dialogDelete.afterClosed().subscribe(resDel => {                
         if (resDel && resDel.respuesta) {
-          this.removeProducto(p, idx, true, resDel.producto.cantidad, gerente, resDel.retornar_inventario)
+          this.removeProducto(p, idx, true, resDel.producto.cantidad, gerente, resDel.retornar_inventario);
         }
+        // this.productoRemovedEv.emit(+p.numero_cuenta);
         this.bloqueoBotones = false;
       })
     );
