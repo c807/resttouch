@@ -259,8 +259,16 @@ class Reporte extends CI_Controller
         $jsonobj->name = $data['tipo_de_ingreso'];
         $ingresos = []; // ARRAY DE LOS METODOS DE PAGO
         $jsonobj->total_comensales = 0;
-        $jsonobj->consumo_promedio_total = 0;
         $jsonobj->cantidadDeMesasUtilizadas = 0;
+        $jsonobj->consumo_total = 0;
+        ///EJECUTANDO EL CORTE DE CAJA
+        $json_data = $this->get_info_corte_caja($data);
+        //Si es ingreso solo en restaurante
+        if (isset($data['domicilio']) && $data['domicilio'] === 0) {
+            $jsonobj->cantidadDeMesasUtilizadas = $json_data['cantidadMesasUtilizadas'];
+        }
+        //total de comensales
+        $jsonobj->total_comensales = $json_data['totalComensales'];
 
         // Agregando seccion de descuentos para mejorar logica
         $formas_pago = $data['_pagos'];
@@ -270,6 +278,7 @@ class Reporte extends CI_Controller
         foreach ($formas_pago as $row) {
             $metodo_pago = new stdClass();
             $metodo_pago->metodo_pago = $row['descripcion'];
+
 
             //calculando_montos
             //ingresos + descuentos + factura sin comanda == sumarlos todos
@@ -283,24 +292,18 @@ class Reporte extends CI_Controller
                 }
 
 
-                $json_data = $this->get_info_corte_caja($data);
-                $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
+                 $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
                 $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
-                //Si es ingreso solo en restaurante
-                if ($data['domicilio'] === 0) {
-                    $jsonobj->cantidadDeMesasUtilizadas = $jsonobj->cantidadDeMesasUtilizadas + $json_data['cantidadMesasUtilizadas'];
-                }
+
 
                 $metodo_pago->monto = $ingresos_mont->monto + $descuentos_mont->monto + $facturas_sin_com->monto;
                 $metodo_pago->propina = $ingresos_mont->propina + $descuentos_mont->propina + $facturas_sin_com->propina;
                 $metodo_pago->total = $ingresos_mont->monto + $ingresos_mont->propina;
 
-                $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
-                $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
-                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se dividira luego
-                $jsonobj->data = json_encode($json_data);
+                $jsonobj->consumo_total = $jsonobj->consumo_total + $metodo_pago->total; // se dividira luego
+                $metodo_pago->data = json_encode($json_data);
 
             } else {
 
@@ -309,17 +312,14 @@ class Reporte extends CI_Controller
                     continue;
                 }
 
-                $json_data = $this->get_info_corte_caja($data);
-                $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
+                 $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
                 $metodo_pago->monto = $descuentos->monto;
                 $metodo_pago->propina = $descuentos->propina;
                 $metodo_pago->total = $descuentos->monto + $descuentos->propina;
 
-                $jsonobj->consumo_promedio_total = $jsonobj->consumo_promedio_total + $metodo_pago->total;
-                $jsonobj->total_comensales = $jsonobj->total_comensales + $json_data['totalComensales'];
-                $jsonobj->consumo_total = $jsonobj->consumo_promedio_total + $metodo_pago->total; // se formatea
-                $jsonobj->data = json_encode($json_data);
+                $jsonobj->consumo_total = $jsonobj->consumo_total + $metodo_pago->total; // se dividira luego
+                $metodo_pago->data = json_encode($json_data);
             }
 
 
@@ -411,7 +411,7 @@ class Reporte extends CI_Controller
 
             $cantidadDeMesasUtilizadas = $ingreso_en_restaurante->cantidadDeMesasUtilizadas;
             $totalComensalesTurno = $ingreso_en_restaurante->total_comensales;
-            $consumoPromedioTotal = $ingreso_en_restaurante->consumo_promedio_total;
+            $consumoPromedioTotal = 0;
             $granTotal = $ingreso_en_restaurante->consumo_total;
 
             foreach ($tipos_domicilio as $row) {
@@ -426,25 +426,28 @@ class Reporte extends CI_Controller
                     unset($data['tipo_domicilio']);
                 }
                 $ingreso_en_restaurante_dom = $this->get_turno_domicilio_info($data);
-                $totalComensalesTurno = $totalComensalesTurno + $ingreso_en_restaurante_dom->total_comensales;
-                $consumoPromedioTotal = $consumoPromedioTotal + $ingreso_en_restaurante_dom->consumo_promedio_total;
-                $granTotal = $granTotal + $ingreso_en_restaurante_dom->consumo_total;
+
+                if($totalComensalesTurno === 0){
+                    $totalComensalesTurno = $ingreso_en_restaurante_dom->total_comensales;
+                }
+
+               $granTotal = $granTotal + $ingreso_en_restaurante_dom->consumo_total;
 
                 if ($ingreso_en_restaurante_dom->consumo_total > 0) {
                     array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
                 }
             }
 
-            if ($consumoPromedioTotal > 0 && $totalComensalesTurno > 0) {
+            if ($granTotal > 0 && $totalComensalesTurno > 0) {
                 $consumoPromedioTotal = $granTotal / $totalComensalesTurno; // se formatea
             } else {
                 $consumoPromedioTotal = 0;
             }
 
             $turno->cantidadDeMesasUtilizadas = $cantidadDeMesasUtilizadas;
+            $turno->consumo_promedio_total = $consumoPromedioTotal;
             $turno->granTotal = $granTotal;
             $turno->totalComensales = $totalComensalesTurno;
-            $turno->consumo_promedio_total = $consumoPromedioTotal;
             $turno->data = $sample_turno_jsonDataAndTipoD;
             array_push($json_data_turnos, $turno);
         }
@@ -504,7 +507,7 @@ class Reporte extends CI_Controller
             /// ITEREAMOS POR LOS TURNOS
             foreach ($json_data_turnos as $row) {
                 if (!($row->totalComensales > 0) &&
-                    !($row->consumo_promedio_total > 0) &&
+                    !($row->granTotal > 0) &&
                     !($row->cantidadDeMesasUtilizadas > 0)) {
                     continue;
                 }
@@ -539,6 +542,9 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("D" . $fila, number_format($rowDI->propina, 2, '.', ','));
                         $hoja->setCellValue("E" . $fila, number_format($rowDI->total, 2, '.', ','));
                         $hoja->getStyle("C" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
+                        //$hoja->setCellValue("F" . $fila, $rowDI->data); //FOR DEBUG
+
+
 
                     }
 
@@ -548,7 +554,6 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("D" . $fila, "Total: ");
                     $hoja->setCellValue("E" . $fila, number_format($rowD->consumo_total, 2, '.', ','));
                     $hoja->getStyle("E" . $fila)->getAlignment()->setHorizontal('right');
-
                     $end = $fila;
 
                     //Set square style
