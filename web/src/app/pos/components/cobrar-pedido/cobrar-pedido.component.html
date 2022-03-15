@@ -62,8 +62,8 @@
 
         <!-- Inicia input de documento -->
         <mat-form-field class="fullWidth" *ngIf="pideDocumento">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento">
-          <input matInput *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento">
+          <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
+          <input matInput type="text" *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">
