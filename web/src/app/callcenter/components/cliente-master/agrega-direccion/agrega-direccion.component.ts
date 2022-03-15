@@ -1,17 +1,17 @@
-import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {GLOBAL} from '../../../../shared/global';
-import {LocalstorageService} from '../../../../admin/services/localstorage.service';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { GLOBAL } from '../../../../shared/global';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
-import {ClienteMaster, ClienteMasterDireccion} from '../../../interfaces/cliente-master';
-import {ClienteMasterService} from '../../../services/cliente-master.service';
+import { ClienteMaster, ClienteMasterDireccion } from '../../../interfaces/cliente-master';
+import { ClienteMasterService } from '../../../services/cliente-master.service';
 
-import {Subscription} from 'rxjs';
-import {TipoDireccionService} from '../../../services/tipo-direccion.service';
+import { Subscription } from 'rxjs';
+import { TipoDireccionService } from '../../../services/tipo-direccion.service';
 import { TipoDireccion } from '../../../interfaces/tipo-direccion';
-import {SedeService} from "../../../../admin/services/sede.service";
-import {Sede} from "../../../../admin/interfaces/sede";
+import { SedeService } from "../../../../admin/services/sede.service";
+import { Sede } from "../../../../admin/interfaces/sede";
 
 @Component({
   selector: 'app-agrega-direccion',
@@ -43,14 +43,14 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
     private sedeSrvc: SedeService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-  }  
+  }
 
   ngOnInit(): void {
     this.loadSedes();
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.isEditing = this.data.isEditing;
     if (this.data.defData) {
-       this.direccion = this.data.defData;
+      this.direccion = this.data.defData;
     } else {
       this.direccion = {
         cliente_master_direccion: null,
@@ -85,16 +85,17 @@ export class AgregaDireccionComponent implements OnInit, OnDestroy {
   }
 
   onDireccionSubmit = () => {
-
-
     this.endSubs.add(
       this.clienteMasterSrvc.saveDireccionClienteMaster(this.direccion).subscribe(res => {
         if (res.exito) {
-          this.dialogRef.close();
-          this.snackBar.open(res.mensaje, 'Direccion asociada', {duration: 3000});
+          if (this.data.returnNewAddress && res.cliente_master_direccion) {
+            this.dialogRef.close(res.cliente_master_direccion);
+          } else {
+            this.dialogRef.close();
+          }
+          this.snackBar.open(res.mensaje, 'Direccion asociada', { duration: 3000 });
         } else {
-          console.log(`ERROR: ${res.mensaje}`, 'Error al agregar direccion)');
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar direccion', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar direccion', { duration: 7000 });
         }
       })
     );

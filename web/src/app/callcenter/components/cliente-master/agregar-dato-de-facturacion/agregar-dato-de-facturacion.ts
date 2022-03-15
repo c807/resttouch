@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { GLOBAL } from '../../../../shared/global';
@@ -20,6 +20,8 @@ import {DialogAgregarClienteComponent} from "../dialog-agregar-cliente/dialog-ag
 export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
 
   @Input() clienteMaster: ClienteMaster;
+  @Input() returnNuevoDatoFactura = false;
+  @Output() returnDatoFacturaEv: EventEmitter<ClienteMasterCliente> = new EventEmitter();
   public lstClmCL: ClienteMasterCliente[] = [];
   public ClientefrmDirC: Cliente;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -75,10 +77,13 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
       disableClose: false,
       data: {clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: this.ClientefrmDirC.nit}
     });
-    cmdRef.afterClosed().subscribe((recargar = true) => {
-      if (recargar) {
+    cmdRef.afterClosed().subscribe((res: any) => {
+      if (res.recargar) {
         this.loadClienteMasterCliente();
         this.ClientefrmDirC.nit = null;
+        if (this.returnNuevoDatoFactura && res.cliente) {          
+          this.returnDatoFacturaEv.emit(res.cliente);
+        }
       }
     });
   }
@@ -94,6 +99,9 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
           this.agregarCliente();
         } else {
           this.ClientefrmDirC.nit = null;
+          if (this.returnNuevoDatoFactura && res.datos_facturacion) {
+            this.returnDatoFacturaEv.emit(res.datos_facturacion);
+          }
         }
         this.cargando = false;
       })

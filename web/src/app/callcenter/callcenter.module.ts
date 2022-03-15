@@ -71,6 +71,7 @@ import { PideRepartidorDialogComponent } from './components/pide-repartidor-dial
 import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedidos_sede.component";
 import { DialogClienteMasterDireccionComponent } from './components/cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
 import { DialogClienteMasterClienteComponent } from './components/cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
+import { DialogAgregarDatoDeFacturacionComponent } from './components/cliente-master/dialog-agregar-dato-de-facturacion/dialog-agregar-dato-de-facturacion.component';
 
 /**
  * New Components must be added in declarations,
@@ -83,7 +84,7 @@ import { DialogClienteMasterClienteComponent } from './components/cliente-master
     ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent,
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
     ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent,
-    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent, DialogAgregarDatoDeFacturacionComponent
   ],
   imports: [
     CommonModule,

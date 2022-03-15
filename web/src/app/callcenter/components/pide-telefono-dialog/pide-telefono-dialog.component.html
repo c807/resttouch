@@ -44,7 +44,7 @@
                             {{cli.direcciones[0].tipo_direccion.descripcion}}: {{cli.direcciones[0].direccion_completa}}
                         </td>
                         <td style="width: 15%;" align="center">
-                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDireccion(cli)" [disabled]="cli.direcciones.length === 1">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDireccion(cli)">
                                 Cambiar
                             </button>
                         </td>
@@ -57,7 +57,7 @@
                             {{cli.datos_facturacion[0].cliente.nombre}}
                         </td>
                         <td style="width: 15%;" align="center">
-                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDatosFacturacion(cli)" [disabled]="cli.datos_facturacion.length === 1">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDatosFacturacion(cli)">
                                 Cambiar
                             </button>
                         </td>

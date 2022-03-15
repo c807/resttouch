@@ -282,6 +282,12 @@ class Cliente_master extends CI_Controller
         if($resultadoNoDbj) {
          // Already exist
             $datos['exito'] = $resultadoNoDbj;
+            $datos['datos_facturacion'] = (object)[
+                'cliente_master_cliente' => $resultadoNoDbj->cliente_master_cliente,
+                'cliente_master' => $resultadoNoDbj->cliente_master,
+                'cliente' => $this->Cliente_model->buscar(['cliente' => $resultadoNoDbj->cliente, '_uno' => true]),
+                'debaja' => $resultadoNoDbj->debaja
+            ];
             $datos['mensaje'] = 'Ya estaba asociado el dato de facturacion.';
 
         }else{
@@ -292,6 +298,8 @@ class Cliente_master extends CI_Controller
                 $cmt = new Cliente_master_cliente_model($resultado->cliente_master_cliente);
                 $datos['exito'] = $cmt->guardar(['debaja' => 0]);
                 if ($datos['exito']) {
+                    $cmt->cliente = $this->Cliente_model->buscar(['cliente' => $cmt->cliente, '_uno' => true]);
+                    $datos['datos_facturacion'] = $cmt;
                     $datos['mensaje'] = 'Datos de facturación asociados con éxito.';
                 } else {
                     $datos['mensaje'] = $cmt->getMensaje();
@@ -309,6 +317,8 @@ class Cliente_master extends CI_Controller
                         'debaja' => 0
                     ]);
                     if ($datos['exito']) {
+                        $cmt->cliente = $this->Cliente_model->buscar(['cliente' => $cmt->cliente, '_uno' => true]);
+                        $datos['datos_facturacion'] = $cmt;
                         $datos['mensaje'] = 'Datos de facturación asociados con éxito.';
                     } else {
                         $datos['mensaje'] = $cmt->getMensaje();

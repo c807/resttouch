@@ -1,14 +1,13 @@
-import {Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {GLOBAL} from '../../../../shared/global';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {Cliente} from "../../../../admin/interfaces/cliente";
-import {MatInput} from "@angular/material/input";
-import {Subscription} from "rxjs";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {ClienteService} from "../../../../admin/services/cliente.service";
-import {LocalstorageService} from "../../../../admin/services/localstorage.service";
-import {ClienteMasterService} from "../../../services/cliente-master.service";
-
+import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { GLOBAL } from '../../../../shared/global';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Cliente } from "../../../../admin/interfaces/cliente";
+import { MatInput } from "@angular/material/input";
+import { Subscription } from "rxjs";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { ClienteService } from "../../../../admin/services/cliente.service";
+import { LocalstorageService } from "../../../../admin/services/localstorage.service";
+import { ClienteMasterService } from "../../../services/cliente-master.service";
 
 @Component({
   selector: 'app-dialog-agregar-cliente',
@@ -60,7 +59,7 @@ export class DialogAgregarClienteComponent implements OnInit {
       if (this.cliente.correo.match(GLOBAL.FORMATO_EMAIL)) {
         this.guardarCliente();
       } else {
-        this.snackBar.open(`El correo '${this.cliente.correo}' no es válido.`, 'Cliente', {duration: 3000});
+        this.snackBar.open(`El correo '${this.cliente.correo}' no es válido.`, 'Cliente', { duration: 3000 });
       }
     } else {
       this.guardarCliente();
@@ -73,11 +72,14 @@ export class DialogAgregarClienteComponent implements OnInit {
   asociarClienteMasterCliente = (client) => {
     this.endSubs.add(
       this.clienteMasterSrvc.asasociarClienteMasterCliente({
-        cliente_master: this.data.clienteMaster.cliente_master, nit: client.cliente.nit }).subscribe(res => {
+        cliente_master: this.data.clienteMaster.cliente_master, nit: client.cliente.nit
+      }).subscribe(res => {
         this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Datos', { duration: 5000 });
+        this.dialogRef.close({ recargar: true, cliente: res.datos_facturacion || null });
       })
     );
-    this.dialogRef.close();
+
+    // this.dialogRef.close({recargar: true, cliente: client.cliente});
   }
 
   guardarCliente = () => {
@@ -86,14 +88,14 @@ export class DialogAgregarClienteComponent implements OnInit {
       if (res.exito) {
         this.clienteSavedEv.emit(res.cliente);
         this.resetCliente();
-        this.snackBar.open(res.mensaje, 'Cliente', {duration: 3000});
+        this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
 
-        if(this.data.fromClienteMaster){
+        if (this.data.fromClienteMaster) {
           this.asociarClienteMasterCliente(res);
         }
 
       } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', {duration: 7000});
+        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
       }
     });
 
@@ -108,7 +110,7 @@ export class DialogAgregarClienteComponent implements OnInit {
           this.cliente.nit = tmpnit;
           this.cliente.direccion = res.contribuyente.direccion;
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
           this.cliente.nombre = null;
           this.cliente.nit = tmpnit;
           this.cliente.direccion = null;
@@ -138,6 +140,6 @@ export class DialogAgregarClienteComponent implements OnInit {
     }
   }
 
-  cancelar = () => this.dialogRef.close(false);
+  cancelar = () => this.dialogRef.close({ recargar: false, cliente: null });
 
 }

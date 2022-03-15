@@ -181,7 +181,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  seleccionarDireccion = (cli: (Cliente | ClienteMasterTelefono)) => {    
+  seleccionarDireccion = (cli: (Cliente | ClienteMasterTelefono)) => {
     const selectDirRef = this.dialog.open(DialogClienteMasterDireccionComponent, {
       width: '70vw',
       disableClose: true,
@@ -190,9 +190,19 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       selectDirRef.afterClosed().subscribe((dirEntSel: ClienteMasterDireccionResponse) => {
-        this.direccionSelected = dirEntSel;        
+        this.direccionSelected = dirEntSel;
+        if (dirEntSel && dirEntSel.cliente_master_direccion) {
+          this.checkDireccionExistsOrAdd(cli as ClienteMasterTelefono, dirEntSel);
+        }
       })
     );
+  }
+
+  checkDireccionExistsOrAdd = (cli: ClienteMasterTelefono, dirNueva: ClienteMasterDireccionResponse) => {
+    const idx = cli.direcciones.findIndex(dir => +dir.cliente_master_direccion === +dirNueva.cliente_master_direccion);
+    if (idx < 0) {
+      cli.direcciones.push(dirNueva);
+    }
   }
 
   selecctionTipoDomicilio = (tipoDom: TipoDomicilio) => this.tipoDomicilioSelected = tipoDom;
@@ -207,7 +217,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     const cliSel = cli as ClienteMasterTelefono;
     if (!this.direccionSelected || (+cliSel.cliente_master !== +this.direccionSelected.cliente_master.cliente_master)) {
       this.direccionSelected = cliSel.direcciones[0] || null;
-    } 
+    }
     this.ls.set(this.varDireccionEntrega, this.direccionSelected);
   }
 
@@ -215,7 +225,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
     const cliSel = cli as ClienteMasterTelefono;
     if (!this.datosFacturacionSelected || (+cliSel.cliente_master !== +this.datosFacturacionSelected.cliente_master)) {
       this.datosFacturacionSelected = cliSel.datos_facturacion[0] || null;
-    } 
+    }
     this.ls.set(this.varClienteFactura, this.datosFacturacionSelected);
   }
 
@@ -228,8 +238,18 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       selectDirRef.afterClosed().subscribe((factSel: ClienteMasterCliente) => {
-        this.datosFacturacionSelected = factSel;        
+        this.datosFacturacionSelected = factSel;
+        if (factSel && factSel.cliente_master_cliente) {
+          this.checkFacturacionExistsOrAdd(cli as ClienteMasterTelefono, factSel);
+        }
       })
-    );    
+    );
+  }
+
+  checkFacturacionExistsOrAdd = (cli: ClienteMasterTelefono, datosFactNuevo: ClienteMasterCliente) => {
+    const idx = cli.datos_facturacion.findIndex(dfact => +dfact.cliente_master_cliente === +datosFactNuevo.cliente_master_cliente);
+    if (idx < 0) {
+      cli.datos_facturacion.push(datosFactNuevo);
+    }
   }
 }

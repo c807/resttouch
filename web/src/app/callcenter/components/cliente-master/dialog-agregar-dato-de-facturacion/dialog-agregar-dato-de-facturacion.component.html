@@ -1,0 +1,9 @@
+<h1 mat-dialog-title></h1>
+<div mat-dialog-content class="contenido">
+    <app-agregar-dato-de-facturacion [clienteMaster]="data" [returnNuevoDatoFactura]="true" (returnDatoFacturaEv)="terminar($event)"></app-agregar-dato-de-facturacion>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="warn">
+        Cancelar
+    </button>
+</div>
