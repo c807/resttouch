@@ -4,14 +4,10 @@ if (!defined( 'BASEPATH')) exit('No direct script access allowed');
 
 class Inicio
 {
-	private $libres;
-
 	public function __construct()
 	{
-		$this->libres = [			
-			'/api/',
-			'/api/index',
-			'/api'
+		$this->libres = [
+			'/api_gk/orden'
 		];		
 	}
 
@@ -19,16 +15,9 @@ class Inicio
     {
     	$this->ci =& get_instance();
     	$this->ci->load->helper(['jwt', 'authorization']);
-    	$continuar = true;
-
-    	foreach ($this->libres as $row) {
-    		if (strpos($_SERVER['PATH_INFO'], $row) !== false) {
-    			$continuar = false;
-    			break;
-    		}
-    	}
     	$this->ci->load->model('Catalogo_model');
-        if($continuar) {
+
+        if(!in_array($_SERVER['PATH_INFO'], $this->libres)) {
         	$headers = $this->ci->input->request_headers();
         	$response = ['mensaje' => '¡Acceso no autorizado!', 'valido' => false];
         	$continuar = true;
@@ -46,8 +35,8 @@ class Inicio
 							$response['mensaje'] = 'El token ya se venció. Debe loggearse de nuevo, por favor.';
 							$continuar = false;
 						} else {
-							$datosDb = $this->ci->Catalogo_model->getCredenciales([ 
-								'dominio' => $data->dominio
+							$datosDb = $this->ci->Catalogo_model->getCredenciales([
+								"dominio" => $data->dominio
 							]);
 				            $conn = [
 				                'host' => $datosDb->db_hostname,
