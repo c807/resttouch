@@ -357,22 +357,36 @@ class Articulo_model extends General_model
 		}
 
 		if ($args['tipo'] == 1) {
+
+			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
+			} else {
+				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+			}
+
 			$ingresos = $this->db
-				->select('
-						 	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')
 				->join('ingreso e', 'e.ingreso = a.ingreso')
 				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 				->join('presentacion p', 'a.presentacion = p.presentacion')
-				->where('a.articulo', $articulo)
-				->where('date(e.fecha) <= ', $args['fecha'])
+				->where('a.articulo', $articulo)				
 				->get('ingreso_detalle a')
 				->row(); //total ingresos
 
 			return $ingresos->total;
 		} else {
+
+			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
+			} else {
+				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+			}
+
 			$egresos = $this->db
 				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
@@ -381,8 +395,7 @@ class Articulo_model extends General_model
 				->join('egreso e', 'e.egreso = a.egreso')
 				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 				->join('presentacion p', 'a.presentacion = p.presentacion')
-				->where('a.articulo', $articulo)
-				->where('date(e.fecha) <= ', $args['fecha'])
+				->where('a.articulo', $articulo)				
 				->get('egreso_detalle a')
 				->row(); //total egresos wms
 
@@ -409,9 +422,18 @@ class Articulo_model extends General_model
 		}
 
 		if ($args['tipo'] == 1) {
-			if (verDato($args, 'fecha')) {
-				$this->db->where('date(e.fhcreacion) <=', $args['fecha']);
-			}
+
+			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+				$this->db->where('date(e.fhcreacion) <', $args['fecha_del']);
+			} else {
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(e.fhcreacion) >=', $args['fecha_del']);
+				}
+	
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(e.fhcreacion) <=', $args['fecha']);
+				}
+			}			
 
 			$comandas = $this->db
 				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
@@ -427,8 +449,17 @@ class Articulo_model extends General_model
 
 			return $comandas->total;
 		} else {
-			if (verDato($args, 'fecha')) {
-				$this->db->where('date(f.fecha_factura) <=', $args['fecha']);
+
+			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+				$this->db->where('date(f.fecha_factura) <', $args['fecha_del']);
+			} else {
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(f.fecha_factura) >=', $args['fecha_del']);
+				}
+
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(f.fecha_factura) <=', $args['fecha']);
+				}
 			}
 
 			$facturas = $this->db
@@ -491,7 +522,8 @@ class Articulo_model extends General_model
 			'comandas' => $comandas,
 			'facturas' => $facturas,
 			'total_egresos' => $comandas + $facturas + $egresos,
-			'existencia' => $this->existencias
+			'existencia' => $this->existencias,
+			'saldo_inicial' => verDato($args, '_saldo_inicial') ? ((float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos))  : 0
 		];
 	}
 

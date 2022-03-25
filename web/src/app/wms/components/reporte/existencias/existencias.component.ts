@@ -38,6 +38,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.params.fecha_del = moment().startOf('week').format(GLOBAL.dbDateFormat);
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
     this.params.solo_bajo_minimo = 0;
     this.getSede();
@@ -65,7 +66,10 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(esExcel = 0) {
-    if (this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 && this.params.fecha && moment(this.params.fecha).isValid()) {
+    if (
+      this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 &&
+      this.params.fecha && moment(this.params.fecha).isValid() && this.params.fecha_del && moment(this.params.fecha_del).isValid()
+    ) {
       this.params.solo_bajo_minimo = this.params.solo_bajo_minimo ? 1 : 0;
       this.params._excel = esExcel;
       this.cargando = true;

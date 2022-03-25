@@ -27,6 +27,11 @@
           </mat-form-field>
 
           <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Del" [(ngModel)]="params.fecha_del"
+              [ngModelOptions]="{standalone: true}" required>
+          </mat-form-field>
+
+          <mat-form-field class="fullWidth">
             <input matInput type="date" placeholder="Al" [(ngModel)]="params.fecha"
               [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>

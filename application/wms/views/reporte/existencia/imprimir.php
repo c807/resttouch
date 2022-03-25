@@ -8,7 +8,7 @@
 	<table class="tabla-contenido">
 		<tr>
 			<td colspan="9" class="text-center"><h1>Reporte de Existencias <?php echo $subtitulo ?></h1></td>
-			<td colspan="2" class="text-center">Fecha <?php echo $fecha?></td>
+			<td colspan="3" class="text-center">Del <?php echo $fecha_del?> al <?php echo $fecha?></td>
 		</tr>
 	
 		<tr>
@@ -17,6 +17,7 @@
 			<td class="titulo">Unidad</td>
 			<td class="titulo">Mínimo</td>
 			<td class="titulo">Máximo</td>
+			<td class="titulo">S. Inicial</td>
 			<td class="titulo">Ingresos</td>
 			<td class="titulo">Egresos</td>
 			<td class="titulo">Comandas</td>
@@ -25,33 +26,33 @@
 			<td class="titulo">Existencia</td>
 		</tr>
 		<?php 
-			$ingresos 	   = 0;
-			$egresos 	   = 0;
-			$existencia     = 0;
-			$comandas      = 0;
-			$facturas      = 0;
-			$total_egreso  = 0;
+			// $ingresos 	   = 0;
+			// $egresos 	   = 0;
+			// $existencia     = 0;
+			// $comandas      = 0;
+			// $facturas      = 0;
+			// $total_egreso  = 0;
 
 			if ($reg): 
 		?>
 			<?php foreach ($sedes as $sede): ?>
 				<?php $obj = new Sede_model($sede); ?>
 				<tr>
-					<td colspan="11" class="titulo"><?php echo $obj->nombre; ?></td>
+					<td colspan="12" class="titulo"><?php echo $obj->nombre; ?></td>
 				</tr>
 				<tr>
-					<td colspan="11" class="titulo"><?php echo $bodegas[$obj->getPK()]; ?></td>
+					<td colspan="12" class="titulo"><?php echo $bodegas[$obj->getPK()]; ?></td>
 				</tr>
 				<?php 
 					foreach ($reg[$sede] as $key => $row): 
 						$art = new Articulo_model($row->articulo->articulo);
-						$rec = $art->getReceta();
-						$ingresos += $row->ingresos;
-						$egresos += $row->egresos;
-						$existencia    += $row->existencia;
-						$comandas      += $row->comandas;
-						$facturas      += $row->facturas;
-						$total_egreso += $row->total_egresos;
+						// $rec = $art->getReceta();
+						// $ingresos += $row->ingresos;
+						// $egresos += $row->egresos;
+						// $existencia    += $row->existencia;
+						// $comandas      += $row->comandas;
+						// $facturas      += $row->facturas;
+						// $total_egreso += $row->total_egresos;
 				?>
 						<tr>
 							<td><?php echo (!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo)?></td>
@@ -67,6 +68,9 @@
 							</td>
 							<td class="text-right">
 								<?php echo number_format($row->articulo->stock_maximo, 2) ?>
+							</td>
+							<td class="text-right">
+								<?php echo number_format($row->saldo_inicial / $row->presentacion->cantidad,2)?>
 							</td>
 							<td class="text-right">
 								<?php echo number_format($row->ingresos / $row->presentacion->cantidad,2)?>

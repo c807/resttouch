@@ -32,8 +32,7 @@ class Reporte extends CI_Controller
 
 	public function existencia()
 	{
-		ini_set("pcre.backtrack_limit", "15000000");
-		// $rpt = new Reporte_model();
+		ini_set('pcre.backtrack_limit', '15000000');		
 		$data = [];
 		$_POST = json_decode(file_get_contents('php://input'), true);
 
@@ -47,11 +46,12 @@ class Reporte extends CI_Controller
 		$data['mostrar_inventario'] = 1;
 		$arts = $this->Catalogo_model->getArticulo($data);
 		$args = [
-			"cliente" => "",
-			"sub_cuenta" => "",
-			"fecha" => formatoFecha($_POST['fecha'], 2),
-			"sedes" => $_POST['sede'],
-			'subtitulo' => (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) ? '(solo bajo mínimo de stock)' : ''
+			'cliente' => '',
+			'sub_cuenta' => '',
+			'fecha' => formatoFecha($_POST['fecha'], 2),
+			'sedes' => $_POST['sede'],
+			'subtitulo' => (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) ? '(solo bajo mínimo de stock)' : '',
+			'fecha_del' => formatoFecha($_POST['fecha_del'], 2)
 		];
 
 		foreach($_POST['sede'] as $s)
@@ -75,6 +75,19 @@ class Reporte extends CI_Controller
 				$args["reg"][$row->sede][] = $art->getExistencias($_POST);
 			}
 		}
+
+		// Inicia calculo de saldo inicial
+		$_POST['_saldo_inicial'] = 1;
+		foreach($args['reg'] as $key => $registro) {
+			foreach($registro as $llave => $value) {
+				$art = new Articulo_model($value->articulo->articulo);
+				$obj = $art->getExistencias($_POST);
+				// $args['reg'][$key][$llave]->saldo_inicial = $obj->saldo_inicial;
+				$value->saldo_inicial = $obj->saldo_inicial;
+				$value->existencia = (float)$obj->saldo_inicial + (float)$value->ingresos - ((float)$value->egresos + (float)$value->comandas + (float)$value->facturas);
+			}				
+		}				
+		// Finaliza calculo de saldo inicial
 
 		if(isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) {
 			foreach($args['reg'] as $key => $registro) {
@@ -102,6 +115,7 @@ class Reporte extends CI_Controller
 				"Unidad",
 				"Mínimo",
 				"Máximo",
+				"S. Inicial",
 				"Ingresos",
 				"Egresos",
 				"Comandas",
@@ -110,14 +124,14 @@ class Reporte extends CI_Controller
 				"Existencia"
 			];
 			/*Encabezado*/
-			$hoja->setCellValue("A1", "Reporte de Existencias {$args['subtitulo']}");
-			$hoja->setCellValue("G1", "Fecha: {$args['fecha']}");
+			$hoja->setCellValue('A1', "Reporte de Existencias {$args['subtitulo']}");
+			$hoja->setCellValue('A2', "Del {$args['fecha_del']} al {$args['fecha']}");			
 
-			$hoja->fromArray($nombres, null, "A3");
-			$hoja->getStyle("A3:K3")->getFont()->setBold(true);
-			$hoja->getStyle('A3:K3')->getAlignment()->setHorizontal('center');
-			$hoja->getStyle("A1")->getFont()->setBold(true);
-			$fila = 4;
+			$hoja->fromArray($nombres, null, 'A4');
+			$hoja->getStyle('A4:L4')->getFont()->setBold(true);
+			$hoja->getStyle('A4:L4')->getAlignment()->setHorizontal('center');
+			$hoja->getStyle('A1:L2')->getFont()->setBold(true);			
+			$fila = 5;
 			foreach ($args['sedes'] as $sede) {
 				$obj = new Sede_model($sede);
 				$hoja->setCellValue("A{$fila}", $obj->nombre);
@@ -136,6 +150,7 @@ class Reporte extends CI_Controller
 						$row->presentacion->descripcion,
 						round((float)$row->articulo->stock_minimo, 2),
 						round((float)$row->articulo->stock_maximo, 2),
+						((float) $row->saldo_inicial != 0) ? round($row->saldo_inicial / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->ingresos != 0) ? round($row->ingresos / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->egresos != 0) ? round($row->egresos / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",
@@ -145,7 +160,7 @@ class Reporte extends CI_Controller
 					];
 
 					$hoja->fromArray($reg, null, "A{$fila}");
-					$hoja->getStyle("D{$fila}:I{$fila}")->getNumberFormat()->setFormatCode('0.00');
+					$hoja->getStyle("D{$fila}:L{$fila}")->getNumberFormat()->setFormatCode('0.00');
 					$fila++;
 				}
 			}
