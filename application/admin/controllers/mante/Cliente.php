@@ -82,24 +82,84 @@ class Cliente extends CI_Controller
 		$nit = strtoupper(trim($nit));
 		$datos = ['exito' => false];
 		if ($nit !== 'CF') {
-			try {
-				$soapClient = new SoapClient('https://www.ingface.net/ServiciosIngface/ingfaceWsServices?wsdl');
-				$resultado = $soapClient->nitContribuyentes(['usuario' => 'DEMO', 'clave' => 'C2FDC80789AFAF22C372965901B16DF533A4FCB19FD9F2FD5CBDA554032983B0', 'nit' => $nit]);
-				if (!strpos($resultado->return->nombre, 'no valido')) {
-					$datos['contribuyente'] = [
-						'nombre' => $this->prettyNombreContribuyente($resultado->return->nombre),
-						// 'direccion' => trim($resultado->return->direccion_completa)
-						'direccion' => 'Ciudad'
-					];
-					$datos['exito'] = true;
-					$datos['mensaje'] = 'Contribuyente encontrado.';
+			$this->load
+			->add_package_path('application/facturacion')
+			->model('Factura_model')
+			->helper(['jwt', 'authorization']);
+
+			$headers = $this->input->request_headers();
+			$data = AUTHORIZATION::validateToken($headers['Authorization']);
+			$sede = $this->Catalogo_model->getSede([
+				'sede' => $data->sede, 
+				'_uno' => true
+			]);
+
+			$tmp = new Factura_model();
+			$tmp->certificador_fel = $sede->certificador_fel;
+			$tmp->cargarCertificadorFel();
+			$cer = $tmp->getCertificador();
+
+			if ($cer->metodo_factura === "enviarInfile") {
+				$dnit = [
+					"emisor_codigo" => $cer->firma_alias,
+					"emisor_clave" => $cer->llave,
+					"nit_consulta" => $nit
+				];
+
+				$ch = curl_init("https://consultareceptores.feel.com.gt/rest/action");
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dnit));
+				$res = curl_exec($ch);
+				$json = json_decode($res);
+				$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				if (is_object($json)) {
+					if (empty($json->mensaje)) {
+						$datos['contribuyente'] = [
+							'nombre' => $this->prettyNombreContribuyente($json->nombre),
+							'direccion' => 'Ciudad'
+						];
+						$datos['exito'] = true;
+						$datos['mensaje'] = 'Contribuyente encontrado.';
+					} else {
+						$datos['mensaje'] = $json->mensaje;
+					}
 				} else {
-					$datos['mensaje'] = 'N.I.T. no válido.';
+					$datos['mensaje'] = 'Unexpected HTTP code: '.$http_code."\n";
 				}
-			} catch(Exception $e) {
-				$datos['exito'] = false;
-				$datos['mensaje'] = 'El servicio ha sido deshabilitado por INFILE. ('.$e->getMessage().')';
-			}
+			} else if ($cer->metodo_factura === "enviarCofidi") {
+				$tmp->sede = $sede->sede;
+				$tmp->cargarEmpresa();
+				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				
+				$url = "https://portal.cofidiguatemala.com/NITFEL/ConsultaNIT.asmx/getNIT?vNIT={$nit}&Entity={$nitEmisor}&Requestor={$cer->llave}";
+
+				$ch = curl_init($url);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_POST, false);
+				$str = curl_exec($ch);
+				$req = simplexml_load_string($str);
+				$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+
+				if (isset($req->Response)) {
+					if ($req->Response->Result) {
+						$datos['contribuyente'] = [
+							'nombre' => $this->prettyNombreContribuyente((string)$req->Response->nombre),
+							'direccion' => 'Ciudad'
+						];
+						$datos['exito'] = true;
+						$datos['mensaje'] = 'Contribuyente encontrado.';
+					} else {
+						$datos['mensaje'] = (string)$req->Response->error;
+					}
+				} else {
+					$datos['mensaje'] = 'Unexpected HTTP code: '.$http_code."\n";
+				}
+			} else {
+				$datos['mensaje'] = 'Servicio no disponible.';
+			}			
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
