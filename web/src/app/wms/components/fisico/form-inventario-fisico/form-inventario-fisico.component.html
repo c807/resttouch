@@ -9,8 +9,8 @@
           </div>
           <div class="col" style="float: right;">
             <button mat-button type="button" color="accent" (click)="showForm = !showForm;">
-              <mat-icon class="iconFontSize" *ngIf="showForm">expand_more</mat-icon>
-              <mat-icon class="iconFontSize" *ngIf="!showForm">expand_less</mat-icon>
+              <mat-icon class="iconFontSize" *ngIf="!showForm">expand_more</mat-icon>
+              <mat-icon class="iconFontSize" *ngIf="showForm">expand_less</mat-icon>
             </button>
           </div>
         </div>
@@ -51,16 +51,8 @@
                   </td>
                   <td class="brdTSingleBSingle">
                     <mat-form-field>
-                      <input 
-                        matInput 
-                        type="number" 
-                        step="0.01" 
-                        placeholder="Existencia Sistema" 
-                        [(ngModel)]="art.existencia_sistema" 
-                        [ngModelOptions]="{standalone: true}" 
-                        disabled
-                        style="color: black;
-                        -webkit-text-fill-color: black">
+                      <input matInput type="number" step="0.01" placeholder="Existencia Sistema" [(ngModel)]="art.existencia_sistema" 
+                        [ngModelOptions]="{standalone: true}" disabled style="color: black; -webkit-text-fill-color: black">
                     </mat-form-field>
                   </td>
                   <td class="brdTSingleBSingle">
