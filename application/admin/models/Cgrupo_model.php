@@ -37,6 +37,24 @@ class Cgrupo_model extends General_model {
 		}		
 	}
 
+	public function get_simple_list($args = [])
+	{
+		if (isset($args['sede'])) {
+			$this->db->where('b.sede', $args['sede']);
+		}
+
+		if (isset($args['debaja'])) {
+			$this->db->where('a.debaja', $args['debaja']);
+		}
+
+		return $this->db
+			->select('a.categoria_grupo, a.descripcion, b.descripcion as categoria')
+			->join('categoria b', 'b.categoria = a.categoria')
+			->order_by('a.descripcion, b.descripcion')
+			->get('categoria_grupo a')
+			->result();
+	}
+
 }
 
 /* End of file Cgrupo_model.php */

@@ -156,6 +156,12 @@ class Cgrupo extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
+	public function simple_search()
+	{
+		$datos = $this->Cgrupo_model->get_simple_list($_GET);
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+	}
+
 
 }
 

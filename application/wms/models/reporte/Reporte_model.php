@@ -411,6 +411,33 @@ EOT;
 
 		return [];
 	}
+
+	function get_info_articulos_inventario($args = [])
+	{
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('c.sede', $args['sede']);
+		}
+
+		if (isset($args['categoria']) && (int)$args['categoria'] > 0) {
+			$this->db->where('c.categoria', $args['categoria']);
+		}
+
+		if (isset($args['categoria_grupo']) && (int)$args['categoria_grupo'] > 0) {
+			$this->db->where('a.categoria_grupo', $args['categoria_grupo']);
+		}
+
+		return $this->db
+			->select('c.sede as idsede, f.nombre as sede, c.categoria as idcategoria, c.descripcion as categoria, a.categoria_grupo as idsubcategoria, b.descripcion as subcategoria, a.articulo, a.descripcion, a.codigo, a.presentacion as idpresentacion, d.descripcion as presentacion, a.presentacion_reporte as idpresentacion_reporte, e.descripcion as presentacion_reporte')
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->join('presentacion d', 'd.presentacion = a.presentacion')
+			->join('presentacion e', 'e.presentacion = a.presentacion_reporte')
+			->join('sede f', 'f.sede = c.sede')
+			->where('mostrar_inventario', 1)
+			->order_by('f.nombre, c.descripcion, b.descripcion, a.descripcion')
+			->get('articulo a')
+			->result();
+	}
 }
 
 /* End of file Reporte_model.php */

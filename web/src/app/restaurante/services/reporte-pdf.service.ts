@@ -123,4 +123,12 @@ export class ReportePdfService {
         this.httpOptions
         ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getReporteConsumos(params: Object) {
+    return this.http.post<string>(
+        `${GLOBAL.urlWms}/reporte/consumos`,
+        params,
+        this.httpOptions
+        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }  
 }

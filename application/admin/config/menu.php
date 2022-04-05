@@ -270,6 +270,10 @@ $config['menu'] = [
 					4 => [
 						'nombre' => 'Ingreso',
 						'link' => '/wms/rptingreso'
+					],
+					5 => [
+						'nombre' => 'Consumos',
+						'link' => '/wms/rptconsumos'
 					]
 				]
 			],

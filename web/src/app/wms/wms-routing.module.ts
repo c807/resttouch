@@ -14,6 +14,7 @@ import { FisicoComponent } from './components/fisico/fisico/fisico.component';
 import { ReplicarASedesComponent } from './components/producto/replicar-a-sedes/replicar-a-sedes.component';
 import { QuickEditProductoComponent } from './components/producto/quick-edit-producto/quick-edit-producto.component';
 import { RepIngresoComponent } from './components/reporte/rep-ingreso/rep-ingreso.component';
+import { ConsumosComponent } from './components/reporte/consumos/consumos.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -28,6 +29,7 @@ const routes: Routes = [
   { path: 'replicar_articulos_sedes', component: ReplicarASedesComponent, canActivate: [AuthGuard] },
   { path: 'qeprod', component: QuickEditProductoComponent, canActivate: [AuthGuard] },
   { path: 'rptingreso', component: RepIngresoComponent, canActivate: [AuthGuard] },
+  { path: 'rptconsumos', component: ConsumosComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

@@ -265,4 +265,10 @@ export class ArticuloService {
   }
   // Fin de métodos para precios por tipo de cliente
 
+  getCategoriasGruposSimple(fltr: any = {}): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${GLOBAL.urlMantenimientos}/${this.categoriaGrupoUrl}/simple_search?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }

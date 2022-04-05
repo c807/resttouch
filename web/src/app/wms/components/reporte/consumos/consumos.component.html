@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col m12 s12">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Consumos</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form novalidate>
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Sede</mat-label>
+                        <mat-select name="sede" [(ngModel)]="params.lasede" (selectionChange)="onSedesSelected($event)"
+                            required>
+                            <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                                {{sede.sede.nombre}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Bodega</mat-label>
+                        <mat-select name="bodega" [(ngModel)]="params.labodega" required>
+                            <mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+                                {{bod.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel"
+                            [ngModelOptions]="{standalone: true}" required>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal"
+                            [ngModelOptions]="{standalone: true}" required>
+                    </mat-form-field>
+
+                    <mat-form-field class="fullWidth" style="margin-top: 10px;">
+                        <mat-label>Sub-categoría</mat-label>
+                        <mat-select name="categoria_grupo" [(ngModel)]="params.categoria_grupo">
+                            <mat-option *ngFor="let sc of lstSubCategorias" [value]="sc.categoria_grupo">
+                                {{sc.descripcion}} ({{sc.categoria}})
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <div align="end">
+                        <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)"
+                            (resetParamsClick)="resetParams()"></app-rpt-botones>
+                    </div>
+                </form>
+                <app-cargando *ngIf="cargando"></app-cargando>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
