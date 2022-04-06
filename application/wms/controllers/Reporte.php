@@ -743,6 +743,90 @@ class Reporte extends CI_Controller
 		$writer->save("php://output");
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
 	}
+
+	public function dump_ingresos()
+	{
+		$params = json_decode(file_get_contents('php://input'), true);
+		$rpt = new Reporte_model();
+		$ingresos = $rpt->get_dump_ingresos($params);
+
+		$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$excel->getProperties()
+			->setCreator("RestTouch")
+			->setTitle("Office 2007 xlsx Ingresos")
+			->setSubject("Office 2007 xlsx Ingresos")
+			->setKeywords("office 2007 openxml php");
+
+
+		$excel->setActiveSheetIndex(0);
+		$hoja = $excel->getActiveSheet();
+
+		$hoja->setCellValue('A1', 'Ingresos');
+		$hoja->setCellValue('A2', 'Del ' . formatoFecha($params['fdel'], 2) . ' al ' . formatoFecha($params['fal'], 2));
+		$hoja->mergeCells('A1:C1');
+		$hoja->mergeCells('A2:C2');
+		$hoja->getStyle("A1:A2")->getFont()->setBold(true);
+
+		$hoja->setCellValue('A4', 'Ingreso');
+		$hoja->setCellValue('B4', 'Fecha');
+		$hoja->setCellValue('C4', 'Tipo');
+		$hoja->setCellValue('D4', 'Bodega');
+		$hoja->setCellValue('E4', 'Usuario');
+		$hoja->setCellValue('F4', 'Bodega origen');
+		$hoja->setCellValue('G4', 'Proveedor');
+		$hoja->setCellValue('H4', 'Artículo');
+		$hoja->setCellValue('I4', 'Presentación');
+		$hoja->setCellValue('J4', 'Cantidad');
+		$hoja->setCellValue('K4', 'Costo Unitario (con IVA)');
+		$hoja->setCellValue('L4', 'Costo Total (con IVA)');
+		$hoja->setCellValue('M4', 'Comentario');
+
+		$fila = 5;
+		
+		foreach ($ingresos as $ingreso) {
+			foreach ($ingreso->detalle as $det) {
+				$hoja->setCellValue("A{$fila}", $ingreso->ingreso);
+				$hoja->setCellValue("B{$fila}", $ingreso->fecha);
+				$hoja->setCellValue("C{$fila}", $ingreso->tipo_movimiento);
+				$hoja->setCellValue("D{$fila}", $ingreso->bodega);
+				$hoja->setCellValue("E{$fila}", $ingreso->usuario);
+				$hoja->setCellValue("F{$fila}", $ingreso->bodega_origen);
+				$hoja->setCellValue("G{$fila}", $ingreso->proveedor);
+				$hoja->setCellValue("H{$fila}", $det->articulo);
+				$hoja->setCellValue("I{$fila}", $det->presentacion);
+				$hoja->setCellValue("J{$fila}", $det->cantidad);
+				$hoja->setCellValue("K{$fila}", $det->costo_unitario_con_iva);				
+				$hoja->setCellValue("L{$fila}", $det->costo_total_con_iva);
+				$hoja->setCellValue("M{$fila}", $ingreso->comentario);				
+				$fila++;
+			}
+		}
+
+		$fila--;
+		$hoja->getStyle("J4:L{$fila}")->getAlignment()->setHorizontal('right');
+		$hoja->getStyle("A4:M4")->getFont()->setBold(true);
+		$hoja->getStyle("J5:L{$fila}")->getNumberFormat()->setFormatCode('0.00');		
+		$hoja->setAutoFilter("A4:I4");
+
+		foreach (range('A', 'M') as $col) {
+			$hoja->getColumnDimension($col)->setAutoSize(true);
+		}
+
+		$hoja->setTitle("Ingresos");
+
+		header("Content-Type: application/vnd.ms-excel");
+		header("Content-Disposition: attachment;filename=Ingresos_" . date('YmdHis') . ".xls");
+		header("Cache-Control: max-age=1");
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+		header("Cache-Control: cache, must-revalidate");
+		header("Pragma: public");
+
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+		$writer->save("php://output");
+
+		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingresos));
+	}
 }
 
 /* End of file Reporte.php */

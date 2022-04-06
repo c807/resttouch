@@ -130,5 +130,13 @@ export class ReportePdfService {
         params,
         this.httpOptions
         ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
-  }  
+  }
+  
+  getDumpIngresos(params: Object) {
+    return this.http.post<string>(
+        `${GLOBAL.urlWms}/reporte/dump_ingresos`,
+        params,
+        this.httpOptions
+        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

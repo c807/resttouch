@@ -1,7 +1,12 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import * as moment from 'moment';
+import { Subscription } from 'rxjs';
+import { saveAs } from 'file-saver';
 
 import { Ingreso } from '../../../interfaces/ingreso';
 import { IngresoService } from '../../../services/ingreso.service';
@@ -11,7 +16,7 @@ import { IngresoService } from '../../../services/ingreso.service';
   templateUrl: './lista-ingreso.component.html',
   styleUrls: ['./lista-ingreso.component.css']
 })
-export class ListaIngresoComponent implements OnInit {
+export class ListaIngresoComponent implements OnInit, OnDestroy {
 
   public lstIngresos: Ingreso[];
   public lstIngresosPaged: Ingreso[];
@@ -29,12 +34,21 @@ export class ListaIngresoComponent implements OnInit {
     _fal: moment().endOf('month').format(GLOBAL.dbDateFormat)
   }
 
+  private endSubs = new Subscription();
+
   constructor(
-    private ingresoSrvc: IngresoService
+    private ingresoSrvc: IngresoService,
+    private pdfServicio: ReportePdfService,
+    private ls: LocalstorageService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
     this.loadIngresos();
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -74,6 +88,32 @@ export class ListaIngresoComponent implements OnInit {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
     this.applyFilter();
+  }
+
+  descargar = () => {
+    const filtros = {
+      sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0),
+      fdel: this.params._fdel,
+      fal: this.params._fal,
+      filtro: null
+    }
+
+    if (this.txtFiltro.length > 0) {
+      filtros.filtro = this.txtFiltro;
+    } else {
+      delete filtros.filtro;
+    }
+
+    this.endSubs.add(
+      this.pdfServicio.getDumpIngresos(filtros).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+          saveAs(blob, `Ingresos_${moment().format(GLOBAL.dateTimeFormatRptName)}.xls`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'Ingresos', { duration: 3000 });
+        }        
+      })
+    );
   }
 
 }

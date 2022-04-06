@@ -6,12 +6,15 @@
         <mat-form-field class="fullWidth">
             <input matInput type="date" placeholder="Al" [(ngModel)]="params._fal" [ngModelOptions]="{standalone: true}">
         </mat-form-field>        
-        <button mat-raised-button type="button" color="accent" (click)="loadIngresos()">
+        <button mat-raised-button type="button" color="accent" style="margin-bottom: 5px;" (click)="loadIngresos()">
             Buscar
-        </button>
-        <mat-form-field class="fullWidth">
+        </button><br/>
+        <mat-form-field style="width: 75%; margin-right: 4px;">
             <input matInput (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
         </mat-form-field>
+        <button mat-raised-button type="button" color="accent" style="width: 23%;" (click)="descargar()">
+            Excel
+        </button>
         <mat-nav-list>
             <mat-list-item *ngFor="let element of lstIngresosPaged" (click)="getIngreso(element)">
                 <mat-icon mat-list-icon>trending_up</mat-icon>

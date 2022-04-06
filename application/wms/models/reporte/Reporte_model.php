@@ -438,6 +438,52 @@ EOT;
 			->get('articulo a')
 			->result();
 	}
+
+	function get_dump_ingresos($args = [])
+	{
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('c.sede', $args['sede']);
+		}
+
+		if (isset($args['fdel'])) {
+			$this->db->where('a.fecha >=', $args['fdel']);
+		}
+
+		if (isset($args['fal'])) {
+			$this->db->where('a.fecha <=', $args['fal']);
+		}
+
+		if (isset($args['filtro']) && !empty(trim($args['filtro']))) {
+			$filtro = str_replace(' ', '%', trim($args['filtro']));
+			$this->db->where("(b.descripcion LIKE '%{$filtro}%' OR c.descripcion LIKE '%{$filtro}%' OR d.usrname LIKE '%{$filtro}%' OR f.descripcion LIKE '%{$filtro}%' OR a.comentario LIKE '%{$filtro}%' OR e.razon_social LIKE '%{$filtro}%')", NULL, FALSE);
+		}
+
+		$ingresos = $this->db
+			->select('a.ingreso, b.descripcion as tipo_movimiento, DATE_FORMAT(a.fecha, "%d/%m/%Y") AS fecha, DATE_FORMAT(a.creacion, "%d/%m/%Y %H:%i:%s") AS creacion, c.descripcion AS bodega, d.usrname AS usuario, f.descripcion as bodega_origen, a.comentario, e.razon_social AS proveedor')
+			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
+			->join('bodega c', 'c.bodega = a.bodega')
+			->join('usuario d', 'd.usuario = a.usuario')
+			->join('proveedor e', 'e.proveedor = a.proveedor')
+			->join('bodega f', 'f.bodega = a.bodega_origen', 'left')
+			->order_by('a.ingreso')
+			->get('ingreso a')
+			->result();
+
+		foreach($ingresos as $ingreso) {
+			$ingreso->detalle = $this->db
+				->select('b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, ROUND((a.precio_total + a.precio_costo_iva) / a.cantidad, 2) AS costo_unitario_con_iva, (a.precio_total + a.precio_costo_iva) AS costo_total_con_iva')
+				->join('articulo b', 'b.articulo = a.articulo')
+				->join('presentacion c', 'c.presentacion = a.presentacion')
+				->where('a.ingreso', $ingreso->ingreso)
+				->order_by('b.descripcion')
+				->get('ingreso_detalle a')				
+				->result();
+		}
+
+		return $ingresos;
+	}
+
+
 }
 
 /* End of file Reporte_model.php */
