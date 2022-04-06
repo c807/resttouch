@@ -139,4 +139,12 @@ export class ReportePdfService {
         this.httpOptions
         ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getDumpEgresos(params: Object) {
+    return this.http.post<string>(
+        `${GLOBAL.urlWms}/reporte/dump_egresos`,
+        params,
+        this.httpOptions
+        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }  
 }

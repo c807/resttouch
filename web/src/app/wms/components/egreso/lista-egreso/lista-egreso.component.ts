@@ -1,8 +1,12 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import * as moment from 'moment';
+import { Subscription } from 'rxjs';
+import { saveAs } from 'file-saver';
 
 import { Egreso } from '../../../interfaces/egreso';
 import { EgresoService } from '../../../services/egreso.service';
@@ -12,7 +16,7 @@ import { EgresoService } from '../../../services/egreso.service';
   templateUrl: './lista-egreso.component.html',
   styleUrls: ['./lista-egreso.component.css']
 })
-export class ListaEgresoComponent implements OnInit {
+export class ListaEgresoComponent implements OnInit, OnDestroy {
 
   public lstEgresos: Egreso[];
   public lstEgresosPaged: Egreso[];
@@ -31,14 +35,22 @@ export class ListaEgresoComponent implements OnInit {
     _fal: moment().endOf('month').format(GLOBAL.dbDateFormat)
   }
 
+  private endSubs = new Subscription();
+
   constructor(
     private egresoSrvc: EgresoService,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private pdfServicio: ReportePdfService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadEgresos();
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -79,4 +91,31 @@ export class ListaEgresoComponent implements OnInit {
     this.pageIndex = e.pageIndex;
     this.applyFilter();
   }
+
+  descargar = () => {
+    const filtros = {
+      sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0),
+      fdel: this.params._fdel,
+      fal: this.params._fal,
+      filtro: null
+    }
+
+    if (this.txtFiltro.length > 0) {
+      filtros.filtro = this.txtFiltro;
+    } else {
+      delete filtros.filtro;
+    }
+
+    this.endSubs.add(
+      this.pdfServicio.getDumpEgresos(filtros).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+          saveAs(blob, `Egresos_${moment().format(GLOBAL.dateTimeFormatRptName)}.xls`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'Egresos', { duration: 3000 });
+        }        
+      })
+    );
+  }
+
 }

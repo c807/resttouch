@@ -827,6 +827,84 @@ class Reporte extends CI_Controller
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingresos));
 	}
+
+	public function dump_egresos()
+	{
+		$params = json_decode(file_get_contents('php://input'), true);
+		$rpt = new Reporte_model();
+		$egresos = $rpt->get_dump_egresos($params);
+
+		$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+		$excel->getProperties()
+			->setCreator("RestTouch")
+			->setTitle("Office 2007 xlsx Egresos")
+			->setSubject("Office 2007 xlsx Egresos")
+			->setKeywords("office 2007 openxml php");
+
+
+		$excel->setActiveSheetIndex(0);
+		$hoja = $excel->getActiveSheet();
+
+		$hoja->setCellValue('A1', 'Egresos');
+		$hoja->setCellValue('A2', 'Del ' . formatoFecha($params['fdel'], 2) . ' al ' . formatoFecha($params['fal'], 2));
+		$hoja->mergeCells('A1:C1');
+		$hoja->mergeCells('A2:C2');
+		$hoja->getStyle("A1:A2")->getFont()->setBold(true);
+
+		$hoja->setCellValue('A4', 'Egreso');
+		$hoja->setCellValue('B4', 'Fecha');
+		$hoja->setCellValue('C4', 'Tipo');
+		$hoja->setCellValue('D4', 'Bodega');
+		$hoja->setCellValue('E4', 'Usuario');		
+		$hoja->setCellValue('F4', 'Artículo');
+		$hoja->setCellValue('G4', 'Presentación');
+		$hoja->setCellValue('H4', 'Cantidad');
+		$hoja->setCellValue('I4', 'Costo Unitario');
+		$hoja->setCellValue('J4', 'Costo Total');		
+
+		$fila = 5;
+		
+		foreach ($egresos as $egreso) {
+			foreach ($egreso->detalle as $det) {
+				$hoja->setCellValue("A{$fila}", $egreso->egreso);
+				$hoja->setCellValue("B{$fila}", $egreso->fecha);
+				$hoja->setCellValue("C{$fila}", $egreso->tipo_movimiento);
+				$hoja->setCellValue("D{$fila}", $egreso->bodega);
+				$hoja->setCellValue("E{$fila}", $egreso->usuario);				
+				$hoja->setCellValue("F{$fila}", $det->articulo);
+				$hoja->setCellValue("G{$fila}", $det->presentacion);
+				$hoja->setCellValue("H{$fila}", $det->cantidad);
+				$hoja->setCellValue("I{$fila}", $det->costo_unitario);				
+				$hoja->setCellValue("J{$fila}", $det->costo_total);				
+				$fila++;
+			}
+		}
+
+		$fila--;
+		$hoja->getStyle("H4:J{$fila}")->getAlignment()->setHorizontal('right');
+		$hoja->getStyle("A4:J4")->getFont()->setBold(true);
+		$hoja->getStyle("H5:J{$fila}")->getNumberFormat()->setFormatCode('0.00');		
+		$hoja->setAutoFilter("A4:G4");
+
+		foreach (range('A', 'J') as $col) {
+			$hoja->getColumnDimension($col)->setAutoSize(true);
+		}
+
+		$hoja->setTitle("Ingresos");
+
+		header("Content-Type: application/vnd.ms-excel");
+		header("Content-Disposition: attachment;filename=Egresos_" . date('YmdHis') . ".xls");
+		header("Cache-Control: max-age=1");
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+		header("Cache-Control: cache, must-revalidate");
+		header("Pragma: public");
+
+		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+		$writer->save("php://output");
+
+		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egresos));
+	}
 }
 
 /* End of file Reporte.php */
