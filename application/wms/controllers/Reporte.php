@@ -43,6 +43,10 @@ class Reporte extends CI_Controller
 			$data['sede'] = $_POST['sede'];
 		}
 
+		if (isset($_POST['categoria_grupo']) && (int)$_POST['categoria_grupo'] > 0) {
+			$data['categoria_grupo'] = $_POST['categoria_grupo'];
+		}
+
 		$data['mostrar_inventario'] = 1;
 		$arts = $this->Catalogo_model->getArticulo($data);
 		$args = [

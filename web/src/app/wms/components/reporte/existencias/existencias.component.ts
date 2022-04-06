@@ -6,6 +6,7 @@ import { Bodega } from '../../../interfaces/bodega';
 import { BodegaService } from '../../../services/bodega.service';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
+import { ArticuloService } from '../../../services/articulo.service';
 import { saveAs } from 'file-saver';
 import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
@@ -27,6 +28,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true
   };
+  public lstSubCategorias: any[] = [];
 
   private endSubs = new Subscription();
 
@@ -34,7 +36,8 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private pdfServicio: ReportePdfService,
     private sedeSrvc: AccesoUsuarioService,
-    private bodegaSrvc: BodegaService
+    private bodegaSrvc: BodegaService,
+    private articuloSrvc: ArticuloService
   ) { }
 
   ngOnInit() {
@@ -65,6 +68,17 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadSubCategorias = (idsede: number) => {
+    this.endSubs.add(      
+      this.articuloSrvc.getCategoriasGruposSimple({ debaja: 0, sede: idsede }).subscribe(res => {
+        this.lstSubCategorias = res.map(r => {
+          r.categoria_grupo = +r.categoria_grupo;
+          return r;
+        });
+      })
+    );
+  }
+
   onSubmit(esExcel = 0) {
     if (
       this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 &&
@@ -91,12 +105,16 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
 
   onSedesSelected = (obj: any) => {
     this.getBodega({ sede: this.params.sede });
+    if (this.params.sede.length > 0) {
+      this.loadSubCategorias(this.params.sede[0]);
+    }
   }
 
   resetParams = () => {
     this.params = {
       fecha: moment().format(GLOBAL.dbDateFormat),
-      solo_bajo_minimo: 0
+      solo_bajo_minimo: 0,
+      categoria_grupo: null
     };
     this.cargando = false;
   }

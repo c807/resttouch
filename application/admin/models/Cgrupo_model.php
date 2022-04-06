@@ -47,9 +47,15 @@ class Cgrupo_model extends General_model {
 			$this->db->where('a.debaja', $args['debaja']);
 		}
 
+		if (!isset($args['_todos'])) {
+			$this->db->where('c.mostrar_inventario', 1);
+		}
+
 		return $this->db
 			->select('a.categoria_grupo, a.descripcion, b.descripcion as categoria')
 			->join('categoria b', 'b.categoria = a.categoria')
+			->join('articulo c', 'a.categoria_grupo = c.categoria_grupo')
+			->group_by('a.categoria_grupo, a.descripcion, b.descripcion')
 			->order_by('a.descripcion, b.descripcion')
 			->get('categoria_grupo a')
 			->result();

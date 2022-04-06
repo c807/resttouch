@@ -36,7 +36,17 @@
               [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>
 
-          <mat-checkbox name="solo_bajo_minimo" [(ngModel)]="+params.solo_bajo_minimo">Ver solo bajo mínimo de stock</mat-checkbox>
+          <mat-form-field class="fullWidth" style="margin-top: 10px;">
+            <mat-label>Sub-categoría</mat-label>
+            <mat-select name="categoria_grupo" [(ngModel)]="params.categoria_grupo">
+              <mat-option *ngFor="let sc of lstSubCategorias" [value]="sc.categoria_grupo">
+                {{sc.descripcion}} ({{sc.categoria}})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-checkbox name="solo_bajo_minimo" [(ngModel)]="+params.solo_bajo_minimo">Ver solo bajo mínimo de stock
+          </mat-checkbox>
 
           <div align="end">
             <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()"
