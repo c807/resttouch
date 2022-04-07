@@ -83,14 +83,14 @@ class Cliente extends CI_Controller
 		$datos = ['exito' => false];
 		if ($nit !== 'CF') {
 			$this->load
-			->add_package_path('application/facturacion')
-			->model('Factura_model')
-			->helper(['jwt', 'authorization']);
+				->add_package_path('application/facturacion')
+				->model('Factura_model')
+				->helper(['jwt', 'authorization', 'api']);
 
 			$headers = $this->input->request_headers();
 			$data = AUTHORIZATION::validateToken($headers['Authorization']);
 			$sede = $this->Catalogo_model->getSede([
-				'sede' => $data->sede, 
+				'sede' => $data->sede,
 				'_uno' => true
 			]);
 
@@ -126,13 +126,13 @@ class Cliente extends CI_Controller
 						$datos['mensaje'] = $json->mensaje;
 					}
 				} else {
-					$datos['mensaje'] = 'Unexpected HTTP code: '.$http_code."\n";
+					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . "\n";
 				}
 			} else if ($cer->metodo_factura === "enviarCofidi") {
 				$tmp->sede = $sede->sede;
 				$tmp->cargarEmpresa();
 				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
-				
+
 				$url = "https://portal.cofidiguatemala.com/NITFEL/ConsultaNIT.asmx/getNIT?vNIT={$nit}&Entity={$nitEmisor}&Requestor={$cer->llave}";
 
 				$ch = curl_init($url);
@@ -155,15 +155,49 @@ class Cliente extends CI_Controller
 						$datos['mensaje'] = (string)$req->Response->error;
 					}
 				} else {
-					$datos['mensaje'] = 'Unexpected HTTP code: '.$http_code."\n";
+					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . "\n";
 				}
+			} else if ($cer->metodo_factura === "enviarDigiFact") {
+				$link = $cer->vinculo_factura;
+				$tmp->sede = $sede->sede;
+				$tmp->cargarEmpresa();				
+				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				$datosDF = array(
+					"Username" => "{$tmp->empresa->pais_iso_dos}.{$nitEmisor}.{$cer->usuario}",
+					"Password" => $cer->llave
+				);
+
+				$jsonToken = json_decode(post_request($link, json_encode($datosDF)));
+
+				if (isset($jsonToken->Token)) {
+					$link = "https://felgtaws.digifact.com.gt/gt.com.fel.api.v3/api/sharedInfo?NIT={$nitEmisor}&DATA1=SHARED_GETINFONITcom&DATA2=NIT|{$nit}&USERNAME={$cer->usuario}";
+					$header = ["Authorization: {$jsonToken->Token}"];
+					$res = json_decode(get_request($link, $header));
+					if (isset($res->RESPONSE) && is_array($res->RESPONSE) && count($res->RESPONSE) > 0) {
+						if (trim((string)$res->RESPONSE[0]->NOMBRE) !== '') {
+							$datos['contribuyente'] = [
+								'nombre' => $this->prettyNombreContribuyente(trim((string)$res->RESPONSE[0]->NOMBRE)),
+								'direccion' => 'Ciudad'
+							];
+							$datos['exito'] = true;
+							$datos['mensaje'] = 'Contribuyente encontrado.';
+						} else {
+							$datos['exito'] = false;
+							$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
+						}
+					} else {
+						$datos['exito'] = false;
+						$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
+					}
+				} else {
+					$datos['mensaje'] = "{$jsonToken->message}. {$jsonToken->description}";
+				}				
 			} else {
 				$datos['mensaje'] = 'Servicio no disponible.';
-			}			
+			}
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
-
 }
 
 /* End of file Cliente.php */
