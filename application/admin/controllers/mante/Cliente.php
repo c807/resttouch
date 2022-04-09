@@ -160,7 +160,7 @@ class Cliente extends CI_Controller
 			} else if ($cer->metodo_factura === "enviarDigiFact") {
 				$link = $cer->vinculo_factura;
 				$tmp->sede = $sede->sede;
-				$tmp->cargarEmpresa();				
+				$tmp->cargarEmpresa();
 				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
 				$datosDF = array(
 					"Username" => "{$tmp->empresa->pais_iso_dos}.{$nitEmisor}.{$cer->usuario}",
@@ -191,7 +191,41 @@ class Cliente extends CI_Controller
 					}
 				} else {
 					$datos['mensaje'] = "{$jsonToken->message}. {$jsonToken->description}";
-				}				
+				}
+			} else if ($cer->metodo_factura === "enviarCCG") {
+				$link = $cer->vinculo_factura;
+				$datosDF = array(
+					'username' => $cer->usuario,
+					'password' => $cer->llave,
+					'grant_type' => 'password',
+				);
+				
+				$header = ['Content-Type: application/x-www-form-urlencoded'];
+				$jsonToken = json_decode(post_request($link, http_build_query($datosDF), $header, false));
+
+				if (isset($jsonToken->access_token)) {
+					$link = 'https://testws.ccgfel.gt/Api/ConsultarNit';
+					$header = ["Authorization: Bearer {$jsonToken->access_token}"];					
+					$res = json_decode(post_request($link, json_encode(['Nit' => $nit]), $header));
+					if (isset($res->Resultado) && $res->Resultado) {
+						if (trim((string)$res->NombreEmisor) !== '') {
+							$datos['contribuyente'] = [
+								'nombre' => trim((string)$res->NombreEmisor),
+								'direccion' => 'Ciudad'
+							];
+							$datos['exito'] = true;
+							$datos['mensaje'] = 'Contribuyente encontrado.';
+						} else {
+							$datos['exito'] = false;
+							$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
+						}
+					} else {
+						$datos['exito'] = false;
+						$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}. {$res->Message}";
+					}
+				} else {
+					$datos['mensaje'] = "{$jsonToken->error}";
+				}
 			} else {
 				$datos['mensaje'] = 'Servicio no disponible.';
 			}

@@ -86,9 +86,9 @@ class Factura_model extends General_model
 		// 	$art->actualizarExistencia();
 		// }
 
-		if (!$vnegativo) {						
+		if (!$vnegativo) {
 			$art->actualizarExistencia();
-		} 
+		}
 
 		if ($vnegativo || isset($args['detalle_cuenta']) || empty($menu) || !$validar || $art->existencias >= $cantidad * $pres->cantidad || $art->mostrar_pos == 0) {
 			$nuevo = ($det->getPK() == null);
@@ -130,11 +130,11 @@ class Factura_model extends General_model
 						"detalle_factura_id" => $idx
 					];
 					$detr->guardar($dato);
-				}				
+				}
 			}
 
 			if ($det->getPK() && $art->combo == 0 && $art->multiple == 0) {
-				$det->actualizarCantidadHijos();				
+				$det->actualizarCantidadHijos();
 			}
 
 
@@ -151,7 +151,7 @@ class Factura_model extends General_model
 				// 	$art->actualizarExistencia();
 				// }
 
-				if (!$vnegativo) {					
+				if (!$vnegativo) {
 					$art->actualizarExistencia();
 				}
 
@@ -162,7 +162,7 @@ class Factura_model extends General_model
 					// 	$oldart->actualizarExistencia();
 					// }
 
-					if (!$vnegativo) {						
+					if (!$vnegativo) {
 						$oldart->actualizarExistencia();
 					}
 				}
@@ -269,7 +269,7 @@ class Factura_model extends General_model
 			$this->db->select('IFNULL(g.etiqueta, g.numero) as mesa');
 		}
 
-		$tmp = $this->db			
+		$tmp = $this->db
 			->join("detalle_factura b", "a.factura = b.factura")
 			->join("detalle_factura_detalle_cuenta c", "c.detalle_factura = b.detalle_factura")
 			->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta")
@@ -363,10 +363,11 @@ class Factura_model extends General_model
 			->row();
 	}
 
-	private function get_tipo_venta_macf($detfact = []) {
+	private function get_tipo_venta_macf($detfact = [])
+	{
 		$cntBien = 0;
 		$cntServ = 0;
-		foreach($detfact as $det) {
+		foreach ($detfact as $det) {
 			if (strtoupper(trim($det->articulo->bien_servicio)) === 'B') {
 				$cntBien++;
 			} else {
@@ -553,7 +554,7 @@ class Factura_model extends General_model
 		$emisor->setAttribute('NombreComercial', $this->sedeFactura->nombre);
 		// $emisor->setAttribute('NombreEmisor', $this->empresa->nombre);
 		$emisor->setAttribute('NombreEmisor', htmlspecialchars($this->empresa->nombre, ENT_XML1));
-		
+
 		$laDireccion = !empty($this->sedeFactura->direccion) ? $this->sedeFactura->direccion : $this->empresa->direccion;
 
 		$direccionEmisor = $this->xml->getElementsByTagName('DireccionEmisor')->item(0);
@@ -680,7 +681,7 @@ class Factura_model extends General_model
 		$detFactura = $this->getDetalle([], $redondeaMontos);
 
 		if ((int)$this->enviar_descripcion_unica === 1 && !is_null($this->descripcion_unica) && trim($this->descripcion_unica) !== '') {
-			
+
 			$row = (object)[
 				'bien_servicio' => 'B',
 				'cantidad' => 1,
@@ -698,7 +699,7 @@ class Factura_model extends General_model
 				'impuesto_especial' => []
 			];
 
-			foreach($detFactura as $det) {
+			foreach ($detFactura as $det) {
 				$row->precio_unitario += $det->subtotal;
 				$row->precio_unitario_ext += $det->subtotal;
 				$row->subtotal += $det->subtotal;
@@ -712,14 +713,14 @@ class Factura_model extends General_model
 				if (!is_null($det->impuesto_especial) && (int)$det->impuesto_especial > 0) {
 					$cntImpEsp = count($row->impuesto_especial);
 					$idx = -1;
-					for($i = 0; $i < $cntImpEsp; $i++) {
+					for ($i = 0; $i < $cntImpEsp; $i++) {
 						if ((int)$row->impuesto_especial[$i]->impuesto_especial === (int)$det->impuesto_especial) {
 							$idx = $i;
 							break;
 						}
 					}
 
-					if($idx < 0) {
+					if ($idx < 0) {
 						$row->impuesto_especial[] = (object)[
 							'impuesto_especial' => $det->impuesto_especial,
 							'valor_impuesto_especial' => (float)$det->valor_impuesto_especial,
@@ -735,9 +736,8 @@ class Factura_model extends General_model
 					}
 				}
 			}
-			
+
 			$this->add_detalle_xml($items, $row, 0, false, $montoIva, $montoTotal, $impuestosEsp);
-			
 		} else {
 			foreach ($detFactura as $key => $row) {
 				if ($row->impuesto_especial) {
@@ -759,20 +759,20 @@ class Factura_model extends General_model
 				// 	'BienOServicio' => $row->bien_servicio,
 				// 	'NumeroLinea'   => $key + 1
 				// ));
-	
+
 				// $item->appendChild($this->crearElemento('dte:Cantidad', $row->cantidad));
 				// $item->appendChild($this->crearElemento('dte:UnidadMedida', 'PZA'));
 				// $item->appendChild($this->crearElemento('dte:Descripcion', $row->articulo->descripcion, array(), true));
 				// $item->appendChild($this->crearElemento('dte:PrecioUnitario', $redondeaMontos ? round(($row->precio_unitario), 6) : $row->precio_unitario_ext));
 				// $item->appendChild($this->crearElemento('dte:Precio', $row->subtotal));
 				// $item->appendChild($this->crearElemento('dte:Descuento', $redondeaMontos ? $row->descuento : $row->descuento_ext));
-	
+
 				// $impuestos = $this->crearElemento('dte:Impuestos');
 				// $impuesto = $this->crearElemento('dte:Impuesto');
 				// $impuesto->appendChild($this->crearElemento('dte:NombreCorto', 'IVA'));
 				// $impuesto->appendChild($this->crearElemento('dte:CodigoUnidadGravable', ($this->exenta == 1 ? 2 : 1)));
-	
-	
+
+
 				// if ($this->exenta) {
 				// 	$valorBase = $row->total;
 				// 	$valorIva = 0;
@@ -780,39 +780,39 @@ class Factura_model extends General_model
 				// 	$valorBase = $redondeaMontos ? $row->monto_base : $row->monto_base_ext;
 				// 	$valorIva = $redondeaMontos ?  $row->monto_iva : $row->monto_iva_ext;
 				// }
-	
+
 				// $montoIva += $valorIva;
-	
+
 				// $impuesto->appendChild($this->crearElemento('dte:MontoGravable', $valorBase));
 				// $impuesto->appendChild($this->crearElemento('dte:MontoImpuesto', $valorIva));
-	
+
 				// $impuestos->appendChild($impuesto);
 				// if ($row->impuesto_especial) {
 				// 	$imp = $this->ImpuestoEspecial_model->buscar([
 				// 		"impuesto_especial" => $row->impuesto_especial,
 				// 		"_uno" => true
 				// 	]);
-	
+
 				// 	$impuesto = $this->crearElemento('dte:Impuesto');
 				// 	$impuesto->appendChild($this->crearElemento('dte:NombreCorto', $imp->descripcion));
 				// 	$impuesto->appendChild($this->crearElemento('dte:CodigoUnidadGravable', ($this->exenta == 1 ? 2 : (isset($imp->codigo_sat) && !empty($imp->codigo_sat) ? $imp->codigo_sat : 1))));
-	
+
 				// 	$valorImp = $redondeaMontos ? $row->valor_impuesto_especial : $row->valor_impuesto_especial_ext;
-	
+
 				// 	if ($this->exenta) {
 				// 		$valorBase = $row->total;
 				// 	} else {
 				// 		$valorBase = $redondeaMontos ? $row->monto_base : $row->monto_base_ext;
 				// 	}
-	
+
 				// 	$row->total += $redondeaMontos ? $row->valor_impuesto_especial : $row->valor_impuesto_especial_ext;
-	
+
 				// 	$impuesto->appendChild($this->crearElemento('dte:MontoGravable', (isset($row->precio_sugerido) && (float)$row->precio_sugerido > 0 ? ($redondeaMontos ? $row->precio_sugerido : $row->precio_sugerido_ext) : $valorBase)));
-	
+
 				// 	if (isset($row->cantidad_gravable) && (float)$row->cantidad_gravable > 0) {
 				// 		$impuesto->appendChild($this->crearElemento('dte:CantidadUnidadesGravables', $row->cantidad_gravable));
 				// 	}
-	
+
 				// 	$impuesto->appendChild($this->crearElemento('dte:MontoImpuesto', $valorImp));
 				// 	$impuestos->appendChild($impuesto);
 				// 	if (isset($impuestosEsp[$row->impuesto_especial])) {
@@ -824,10 +824,10 @@ class Factura_model extends General_model
 				// 		];
 				// 	}
 				// }
-	
-	
+
+
 				// $item->appendChild($impuestos);
-	
+
 				// $item->appendChild($this->crearElemento('dte:Total', $row->total));
 				// $items->appendChild($item);
 				// $montoTotal += $row->total;
@@ -1186,7 +1186,7 @@ class Factura_model extends General_model
 		);
 
 		$client = new SoapClient($link);
-		
+
 		$res = $client->RequestTransaction($datos);
 		$res = $res->RequestTransactionResult;
 
@@ -1217,12 +1217,12 @@ class Factura_model extends General_model
 					$this->numero_factura = $data->serial;
 					$this->serie_factura = $data->batch;
 					$this->fel_uuid = $data->uuid;
-				} 
+				}
 			} else if ($res->Response->Result == 1) {
 				if ($this->esAnulacion === 'N') {
 					$this->numero_factura = $res->Response->Identifier->Serial;
 					$this->serie_factura = $res->Response->Identifier->Batch;
-					$this->fel_uuid = $res->Response->Identifier->DocumentGUID;	
+					$this->fel_uuid = $res->Response->Identifier->DocumentGUID;
 				} else {
 					$this->fel_uuid_anulacion = $this->fel_uuid;
 				}
@@ -1238,6 +1238,84 @@ class Factura_model extends General_model
 		}
 
 		return $res->RequestTransactionResult->Response;
+	}
+
+	private function get_token_CCG() {
+		$link = $this->certificador->vinculo_factura;
+		$datos = array(
+			'username' => $this->certificador->usuario,
+			'password' => $this->certificador->llave,
+			'grant_type' => 'password',
+		);
+
+		$header = ['Content-Type: application/x-www-form-urlencoded'];
+		$jsonToken = json_decode(post_request($link, http_build_query($datos), $header, false));
+		return $jsonToken;
+	}
+
+	public function enviarCCG($args = [])
+	{
+		$this->load->helper('api');
+		$datos = [];
+		$jsonToken = $this->get_token_CCG();
+
+		if (isset($jsonToken->access_token)) {
+			$link = $this->certificador->vinculo_firma;
+			$header = ["Authorization: Bearer {$jsonToken->access_token}"];
+
+			$fact = [
+				'Referencia' => "{$this->serie->tipo}-{$this->factura}",
+				'xmlDte' => base64_encode(html_entity_decode($this->xml->saveXML())),
+			];
+
+			$res = json_decode(post_request($link, json_encode($fact), $header));
+
+			if (isset($res->Resultado) && $res->Resultado) {
+				$this->numero_factura = $res->Numero;
+				$this->serie_factura = $res->Serie;
+				$this->fel_uuid = $res->UUID;
+				$this->guardar();
+			} else if (isset($res->Errores) && is_array($res->Errores) && count($res->Errores) > 0) {
+				foreach ($res->Errores as $error) {
+					$this->setMensaje($error->DescripcionError);
+				}				
+			}
+			return $res;
+		} else {
+			$datos['exito'] = false;
+			$datos['mensaje'] = "{$jsonToken->error}";
+		}
+	}
+
+	public function enviarCCGAnulacion($args = [])
+	{
+		$this->load->helper('api');		
+		$datos = [];
+		$jsonToken = $this->get_token_CCG();
+
+		if (isset($jsonToken->access_token)) {
+			$link = $this->certificador->vinculo_anulacion;
+			$header = ["Authorization: Bearer {$jsonToken->access_token}"];
+
+			$fact = [				
+				'xmlDte' => base64_encode(html_entity_decode($this->xml->saveXML())),
+			];
+
+			$res = json_decode(post_request($link, json_encode($fact), $header));
+
+			if (isset($res->Resultado) && $res->Resultado) {				
+				$this->fel_uuid_anulacion = $res->UUID;
+				$this->guardar();
+			} else if (isset($res->Errores) && is_array($res->Errores) && count($res->Errores) > 0) {
+				foreach ($res->Errores as $error) {
+					$this->setMensaje($error->DescripcionError);
+				}				
+			}
+			return $res;
+		} else {
+			$datos['exito'] = false;
+			$datos['mensaje'] = 'No se logró generar el token para anulación.'.($jsonToken && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
+		}
 	}
 
 	public function pdfInfile()
@@ -1272,7 +1350,7 @@ class Factura_model extends General_model
 			}
 		}
 		return ['documento' => null, 'tipo' => null];
-	}	
+	}
 
 	public function pdfCofidi()
 	{
@@ -1320,16 +1398,15 @@ class Factura_model extends General_model
 		);
 
 		$client = new SoapClient($link);
-		
+
 		$res = $client->RequestTransaction($datos);
 		$res = $res->RequestTransactionResult;
 		if ($res->Response->Result == 1) {
-			
+
 			return [
 				'documento' => $res->ResponseData->ResponseData3,
 				'tipo' => 'pdf'
 			];
-			
 		}
 	}
 
@@ -1363,7 +1440,7 @@ class Factura_model extends General_model
 		foreach ($tmp as $row) {
 			$json = json_decode($row->resultado);
 
-			if ((isset($json->resultado) && $json->resultado) || (isset($json->Codigo) && $json->Codigo == 1)) {
+			if ((isset($json->resultado) && $json->resultado) || (isset($json->Codigo) && $json->Codigo == 1) || (isset($json->Resultado) && $json->Resultado)) {
 				return $json;
 			}
 		}
@@ -1376,6 +1453,8 @@ class Factura_model extends General_model
 		$res = $this->getFelRespuesta();
 		if (!isset($res->xml_certificado) && isset($res->ResponseDATA1)) {
 			$res->xml_certificado = $res->ResponseDATA1;
+		} else if (isset($res->XmlDteCertificado)) { // CCG
+			$res->xml_certificado = $res->XmlDteCertificado;
 		}
 		$xml = new DOMDocument();
 		$xml->validateOnParse = true;
@@ -1457,11 +1536,11 @@ class Factura_model extends General_model
 	public function get_ventas_sin_factura($args = [])
 	{
 		if (isset($args['fdel'])) {
-			$this->db->where('DATE(d.fhcreacion) >=', $args['fdel']);				
+			$this->db->where('DATE(d.fhcreacion) >=', $args['fdel']);
 		}
 
 		if (isset($args['fal'])) {
-			$this->db->where('DATE(d.fhcreacion) <=', $args['fal']);				
+			$this->db->where('DATE(d.fhcreacion) <=', $args['fal']);
 		}
 
 		$ventas = 0;
@@ -1473,7 +1552,7 @@ class Factura_model extends General_model
 			->where('d.razon_anulacion IS NULL')
 			->get('cuenta_forma_pago a')
 			->row();
-		
+
 		if ($mnt) {
 			$ventas = (float)$mnt->monto;
 		}
@@ -1592,7 +1671,7 @@ class Factura_model extends General_model
 			)
 		);
 
-		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);		
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
 
 		$respuesta = curl_exec($ch);
 
