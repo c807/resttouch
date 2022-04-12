@@ -66,7 +66,8 @@ export class Impresion {
                 Total: 0.00,
                 NotasGenerales: obj.notas_generales || '',
                 FormasPago: obj.formas_pago || [],
-                TipoDomicilio: obj.tipo_domicilio?.descripcion || ''
+                TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
+                EsReimpresion: obj.EsReimpresion || false
             };            
             this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
         }
@@ -82,6 +83,8 @@ export class Impresion {
                 Total: 0.00,
                 NotasGenerales: obj.notas_generales || '',
                 FormasPago: obj.formas_pago || [],
+                TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
+                EsReimpresion: obj.EsReimpresion || false
             };
             this.printToBT(JSON.stringify(objToPrint));
         }
@@ -120,7 +123,7 @@ export class Impresion {
             const msgToPrint = {
                 Tipo: 'Cuenta',
                 Nombre: cuentaActiva.nombre,
-                Numero: null,
+                Numero: +cuentaActiva.numero || 0,
                 DetalleCuenta: lstProductosAImprimir,
                 Total: totalCuenta,
                 Empresa: this.ls.get(GLOBAL.usrTokenVar).empresa,
@@ -132,6 +135,9 @@ export class Impresion {
                 DireccionEntrega: obj.origen_datos.direccion_entrega,
                 FormasPago: obj.formas_pago || [],
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
+                IdComanda: +obj.comanda || 0,
+                IdCuenta: +cuentaActiva.cuenta || 0,
+                DatosFacturacion: obj.datos_facturacion || null
             };
 
             // console.log('CUENTA = ', msgToPrint);

@@ -608,6 +608,7 @@ class Comanda_model extends General_Model
         $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
         $tmp->cuentas = $this->getCuentas($args);
         $tmp->factura = $this->getFactura();
+        $tmp->datos_facturacion = ($tmp->factura && isset($tmp->factura->cliente) && (int)$tmp->factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $tmp->factura->cliente)->get('cliente')->row() : null;        
         $tmp->origen_datos = $this->getOrigenDatos();
         $tmp->fhcreacion = empty($tmp->origen_datos['fhcreacion']) ? $this->fhcreacion : $tmp->origen_datos['fhcreacion'];
         $tmp->numero_pedido = $this->numero_pedido;

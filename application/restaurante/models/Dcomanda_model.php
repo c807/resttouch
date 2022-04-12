@@ -117,15 +117,16 @@ class Dcomanda_model extends General_Model
 			$art = new Articulo_model($this->articulo);
 			$rec = $art->getReceta(['articulo' => $row->articulo, '_uno' => true]);
 
-			$args = ['cantidad' => $this->cantidad * $rec[0]->cantidad];
-
-			if ($regresa_inventario) {
-				$args['cantidad_inventario'] = $this->cantidad_inventario * $rec[0]->cantidad;
+			if ($rec && is_array($rec) && is_object($rec[0])) {
+				$args = ['cantidad' => $this->cantidad * $rec[0]->cantidad];
+	
+				if ($regresa_inventario) {
+					$args['cantidad_inventario'] = $this->cantidad_inventario * $rec[0]->cantidad;
+				}
+				
+				$det->guardar($args);
+				$det->actualizarCantidadHijos();
 			}
-			
-			$det->guardar($args);
-
-			$det->actualizarCantidadHijos();
 		}
 	}
 
