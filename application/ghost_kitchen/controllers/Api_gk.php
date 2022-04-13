@@ -91,7 +91,7 @@ class Api_gk extends CI_Controller
                             $datos->mensaje = 'No existe configuración de ruta para número de orden.';
                         }
                     } else {
-                        $datos->mensaje = 'No existe el origen de la orden.';
+                        $datos->mensaje = "No existe el origen ({$req->host}) de la orden.";
                     }                    
                 } else {
                     $datos->mensaje = 'La llave no es válida.';
