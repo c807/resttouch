@@ -598,8 +598,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.endSubs.add(
       this.facturaSrvc.imprimir(+factura.factura).subscribe(res => {
         if (res.factura) {
-
+          // console.log('FACTURA = ', res.factura);
+          // console.log('CUENTA = ', cuenta);
+          // console.log('MESA = ', this.data.mesaenuso);
           const msgToPrint = {
+            IdFactura: +res.factura.factura || 0,
             NombreEmpresa: res.factura.empresa.nombre,
             NitEmpresa: res.factura.empresa.nit,
             SedeEmpresa: res.factura.sedeFactura.nombre,
@@ -619,7 +622,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             FormaDePago: '',
             DetalleFactura: this.procesaDetalleFactura(res.factura.detalle, +res.factura.enviar_descripcion_unica, res.factura.descripcion_unica),
             Impresora: this.data.impresora,
-            ImpuestosAdicionales: (res.factura.impuestos_adicionales || [])
+            ImpuestosAdicionales: (res.factura.impuestos_adicionales || []),
+            EsReimpresion: false,
+            Comanda: +cuenta.comanda || 0,
+            Cuenta: +cuenta.cuenta || 0
           };
 
           if (!!this.data.impresora) {

@@ -137,10 +137,10 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
       body: `Se recibió una nueva orden a las ${moment().format(GLOBAL.dateTimeFormat)}.`,
       dir: 'auto'
     };
-    this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
-    // const audio = new Audio(this.audioUrl);
-    // audio.play();    
-    this.audioNotificacion.nativeElement.play();
+    this.dns.createNotification('Rest-Touch Pro', 10000, opciones);    
+    if(this.audioNotificacion.nativeElement.paused) {
+      this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
+    }
   }
 
   detenerAudio = () => {
@@ -184,7 +184,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   abrirAccionesComandaEnLinea = (obj: any) => {
     const bs = this.bsAccionesCmd.open(AccionesComandaEnLineaComponent, {
       autoFocus: false,
-      data: { comanda: obj, lstEstatus: this.lstEstatusCallCenter }
+      data: { comanda: obj, lstEstatus: this.lstEstatusCallCenter, comandaEnLinea: this }
     });
 
     this.endSubs.add(

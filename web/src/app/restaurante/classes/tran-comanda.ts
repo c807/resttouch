@@ -910,7 +910,8 @@ export class TranComanda {
                     Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
-                    NotasGenerales: (meu.notas_generales || '')
+                    NotasGenerales: (meu.notas_generales || ''),
+                    EsReimpresion: false
                   })}`);
                   this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', {duration: 7000});
                 } else {
@@ -938,7 +939,9 @@ export class TranComanda {
                       Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
                       Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                       Total: null,
-                      NumeroPedido: meu.numero_pedido
+                      NumeroPedido: meu.numero_pedido,
+                      NotasGenerales: (meu.notas_generales || ''),
+                      EsReimpresion: false
                     })
                   );
                 }
@@ -1026,13 +1029,16 @@ export class TranComanda {
       const msgToPrint = {
         Tipo: 'Cuenta',
         Nombre: this.cuentaActiva.nombre,
-        Numero: null,
+        Numero: +this.cuentaActiva.numero || 0,
         DetalleCuenta: this.lstProductosAImprimir,
         Total: totalCuenta,
         Empresa: this.ls.get(GLOBAL.usrTokenVar).empresa,
         Restaurante: this.ls.get(GLOBAL.usrTokenVar).restaurante,
         PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
         Impresora: printerToUse,
+        IdComanda: +this.mesaEnUso.comanda || 0,
+        IdCuenta: +this.cuentaActiva.cuenta || 0,
+        EsReimpresion: true,
         Ubicacion:
           `${this.mesaEnUso.mesa.area.nombre} - Mesa ${this.mesaEnUso.mesa.etiqueta || this.mesaEnUso.mesa.numero
             } - Comanda ${this.mesaEnUso.comanda}`,

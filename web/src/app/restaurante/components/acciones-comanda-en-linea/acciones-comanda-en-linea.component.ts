@@ -14,18 +14,19 @@ import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/comp
 import { PideRepartidorDialogComponent } from '../../../callcenter/components/pide-repartidor-dialog/pide-repartidor-dialog.component';
 
 import { ComandaService } from '../../services/comanda.service';
-// import { ProductoSelected } from '../../../wms/interfaces/articulo';
 import { OrdenGkService } from '../../../ghost-kitchen/services/orden-gk.service';
 import { FacturaService } from '../../../pos/services/factura.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
+import { ComandaEnLineaComponent } from '../comanda-en-linea/comanda-en-linea.component';
 
 import { Subscription } from 'rxjs';
 
 interface IDataAccionesComandaEnLinea {
   comanda: any;
   lstEstatus: EstatusCallcenter[];
+  comandaEnLinea: ComandaEnLineaComponent;
 }
 
 @Component({
@@ -110,72 +111,11 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     );
   }
 
-  // setToPrint = (articulos: any[]) => {
-  //   const lstArticulos: any[] = [];
-  //   articulos.forEach(item => {
-  //     lstArticulos.push({
-  //       id: +item.articulo.articulo,
-  //       nombre: item.articulo.descripcion,
-  //       cantidad: +item.cantidad,
-  //       total: +item.total,
-  //       notas: item.notas || '',
-  //       impresora: {
-  //         bluetooth: +item.articulo.impresora.bluetooth,
-  //         direccion_ip: item.articulo.impresora.direccion_ip || '',
-  //         impresora: +item.articulo.impresora.impresora,
-  //         nombre: item.articulo.impresora.nombre || '',
-  //         sede: +item.articulo.impresora.sede,
-  //         ubicacion: item.articulo.impresora.ubicacion || ''
-  //       },
-  //       detalle: item.detalle
-  //     });
-  //   });
-  //   return lstArticulos;
-  // }
-
   imprimir = (obj: any, idx: number = 0) => {
+    obj.EsReimpresion = true;
     // console.log(obj); // return;
     const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
     objImpresion.imprimir(obj, idx);
-
-    // const listaProductos = this.setToPrint(obj.cuentas[0].productos);
-    // const AImpresoraNormal: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 0);
-    // const AImpresoraBT: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 1);
-
-    // let objToPrint = {};
-
-    // if (AImpresoraNormal.length > 0) {
-    //   // console.log(AImpresoraNormal);
-    //   objToPrint = {
-    //     Indice: (idx + 1),
-    //     Tipo: 'Comanda',
-    //     Nombre: obj.cuentas[0].nombre,
-    //     Numero: obj.comanda,
-    //     NoOrdenEnLinea: obj.origen_datos.numero_orden,
-    //     DireccionEntrega: obj.origen_datos.direccion_entrega,
-    //     DetalleCuenta: AImpresoraNormal,
-    //     Total: 0.00,
-    //     NotasGenerales: obj.notas_generales || ''
-    //   };
-    //   // console.log('STRING (IN) = ', JSON.stringify(objToPrint));
-    //   // console.log('OBJETO (IN) = ', objToPrint);
-    //   this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
-    // }
-
-    // if (AImpresoraBT.length > 0) {
-    //   objToPrint = {
-    //     Tipo: 'Comanda',
-    //     Nombre: obj.cuentas[0].nombre,
-    //     Numero: obj.comanda,
-    //     NoOrdenEnLinea: obj.origen_datos.numero_orden,
-    //     DireccionEntrega: obj.origen_datos.direccion_entrega,
-    //     DetalleCuenta: AImpresoraBT,
-    //     Total: 0.00
-    //   };
-    //   // console.log('STRING (BT) = ', JSON.stringify(objToPrint));
-    //   // console.log('OBJETO (BT) = ', objToPrint);
-    //   this.printToBT(JSON.stringify(objToPrint));
-    // }
 
     if (+obj.orden_gk > 0) {
       const params = {
@@ -186,13 +126,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       };
       this.cambiarEstatusOrdenGK(params);
     }
-  }
-
-  // printToBT = (msgToPrint: string = '') => {
-  //   const AppHref = `com.restouch.impresion://impresion/${msgToPrint}`;
-  //   const wref = window.open(AppHref, 'PrntBT', 'height=200,width=200,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
-  //   setTimeout(() => wref.close(), 1000);
-  // }
+  }  
 
   cambiarEstatusOrdenGK = (params: any) => {
     this.endSubs.add(
@@ -309,7 +243,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
                 const modoFactura = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_MODO_FACTURA) || 1;
                 // console.log(`MODO FACTURA = ${modoFactura}`);
                 if (modoFactura === 1) {
-                  this.printFactura(res.factura, obj.origen_datos);
+                  this.printFactura(res.factura, obj.origen_datos, obj);
                 } else {
                   this.representacionGrafica(+obj.factura.factura);
                 }
@@ -323,8 +257,9 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     );
   }
 
-  printFactura = (fact: any, datosOrigen: any = {}) => {
+  printFactura = (fact: any, datosOrigen: any = {}, comanda: any = {}) => {
     const dataToPrint = {
+      IdFactura: +fact.factura || 0,
       NombreEmpresa: fact.empresa.nombre_comercial,
       NitEmpresa: fact.empresa.nit,
       SedeEmpresa: fact.sedeFactura.nombre,
@@ -342,7 +277,9 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       FechaDeAutorizacion: fact.fecha_autorizacion,
       NoOrdenEnLinea: datosOrigen.numero_orden,
       FormaDePago: (datosOrigen.metodo_pago && datosOrigen.metodo_pago.length > 0) ? datosOrigen.metodo_pago.join(', ') : '',
-      DetalleFactura: []
+      DetalleFactura: [],
+      Comanda: comanda.comanda || 0,
+      Cuenta: comanda.cuentas[0].cuenta || 0,
     };
 
     for (const det of fact.detalle) {
@@ -435,4 +372,6 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  detenerAudio = () => this.data.comandaEnLinea.detenerAudio();
 }
