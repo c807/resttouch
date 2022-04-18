@@ -59,6 +59,8 @@ export class FormFacturaManualComponent implements OnInit {
   public razonAnulacion: RazonAnulacion[] = [];
   public impresoraPorDefecto: Impresora = null;
 
+  private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
+
   constructor(
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
@@ -292,6 +294,7 @@ export class FormFacturaManualComponent implements OnInit {
         // console.log(res.factura);
 
         const datosAImprimir = {
+          IdFactura: +res.factura.factura,
           NombreEmpresa: res.factura.empresa.nombre,
           NitEmpresa: res.factura.empresa.nit,
           SedeEmpresa: res.factura.sedeFactura.nombre,
@@ -310,8 +313,11 @@ export class FormFacturaManualComponent implements OnInit {
           NoOrdenEnLinea: '',
           FormaDePago: '',
           DetalleFactura: this.procesaDetalleFactura(res.factura.detalle, +res.factura.enviar_descripcion_unica, res.factura.descripcion_unica),
+          Impresora: this.impresoraPorDefecto,
           ImpuestosAdicionales: (res.factura.impuestos_adicionales || []),
-          Impresora: this.impresoraPorDefecto
+          EsReimpresion: true,
+          Comanda: res.factura.comanda || 0,
+          Cuenta: res.factura.cuenta || 0
         };
 
         // console.log(`${JSON.stringify(datosAImprimir)}`);
@@ -495,21 +501,30 @@ export class FormFacturaManualComponent implements OnInit {
         switch (res.tipo) {
           case 'link': this.openLinkWindow(res.documento); break;
           case 'pdf': this.openPdfDocument(res.documento); break;
+          case 'xml': this.openXMLDocument(res.documento); break;
         }
       }
     });
   }
 
-  openLinkWindow = (url: string) =>
-    window.open(url, 'winFactPdf', 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no')
+  openLinkWindow = (url: string) => window.open(url, 'winFactPdf', this.WIN_FEATURES);
 
   openPdfDocument = (pdf: string) => {
-    const pdfWindow = window.open('', 'winFactPdf', 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
+    const pdfWindow = window.open('', 'winFactPdf', this.WIN_FEATURES);
     try {
       pdfWindow.document.write(
         '<iframe width="100%" style="margin: -8px;border: none;" height="100%" src="data:application/pdf;base64, ' +
         encodeURI(pdf) +
         '"></iframe>');
+    } catch(e) {
+      this.snackBar.open('No se pudo abrir la ventana emergente para ver la representación gráfica. Revise la configuración de su explorador, por favor.', 'PDF', { duration: 7000 });
+    }
+  }
+
+  openXMLDocument = (xml: string) => {
+    const xmlWindow = window.open('', 'winFactXML', this.WIN_FEATURES);
+    try {
+      xmlWindow.document.write(`<pre lang="xml">${xml}</pre>`);
     } catch(e) {
       this.snackBar.open('No se pudo abrir la ventana emergente para ver la representación gráfica. Revise la configuración de su explorador, por favor.', 'PDF', { duration: 7000 });
     }

@@ -2,9 +2,11 @@
 
 if ( ! function_exists('post_request'))
 {
-	function post_request($url, $params = '', $header=[])
+	function post_request($url, $params = '', $header=[], $esJson = true)
 	{
-		$header[] = 'Content-Type:application/json';
+		if ($esJson) {
+			$header[] = 'Content-Type:application/json';
+		}
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -21,9 +23,11 @@ if ( ! function_exists('post_request'))
 
 if ( ! function_exists('get_request'))
 {
-	function get_request($url, $header=[])
+	function get_request($url, $header=[], $esJson = true)
 	{
-		$header[] = 'Content-Type:application/json';
+		if ($esJson) {
+			$header[] = 'Content-Type:application/json';
+		}
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

@@ -1314,7 +1314,7 @@ class Factura_model extends General_model
 			return $res;
 		} else {
 			$datos['exito'] = false;
-			$datos['mensaje'] = 'No se logró generar el token para anulación.'.($jsonToken && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
+			$datos['mensaje'] = 'No se logró generar el token para anulación.'.(!is_null($jsonToken) && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
 		}
 	}
 
@@ -1408,6 +1408,26 @@ class Factura_model extends General_model
 				'tipo' => 'pdf'
 			];
 		}
+	}
+
+	public function pdfCCG()
+	{
+		$this->load->helper('api');		
+		$jsonToken = $this->get_token_CCG();
+
+		if (isset($jsonToken->access_token)) {
+			$link = $this->certificador->vinculo_grafo;
+			$header = ["Authorization: Bearer {$jsonToken->access_token}"];
+			$fact = ['UUID' => $this->fel_uuid];
+			$res = json_decode(post_request($link, json_encode($fact), $header));
+			if (isset($res->Resultado) && $res->Resultado) {
+				return [
+					'documento' => htmlentities(base64_decode($res->XmlDteCertificado)),
+					'tipo' => 'xml'
+				];
+			}
+		}
+		return ['documento' => null, 'tipo' => null];				
 	}
 
 	public function getRazonAnulacion()
