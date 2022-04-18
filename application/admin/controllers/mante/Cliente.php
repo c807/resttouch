@@ -222,7 +222,7 @@ class Cliente extends CI_Controller
 						}
 					} else {
 						$datos['exito'] = false;
-						$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}. {$res->Message}";
+						$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
 					}
 				} else {
 					$datos['mensaje'] = "{$jsonToken->error}";

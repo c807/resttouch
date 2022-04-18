@@ -893,7 +893,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
                     NotasGenerales: (meu.notas_generales || ''),
-                    EsReimpresion: false
+                    EsReimpresion: true
                   })}`);
                   this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
                 } else {
@@ -923,7 +923,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                       Total: null,
                       NumeroPedido: meu.numero_pedido,
                       NotasGenerales: (meu.notas_generales || ''),
-                      EsReimpresion: false
+                      EsReimpresion: true
                     })
                   );
                 }
