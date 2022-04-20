@@ -31,9 +31,9 @@ export class ConfiguracionService {
     return promise;
   }
 
-  getConfig = (configName: string): any => {
+  getConfig = (configName: string): (number | string | boolean) => {
     const configuraciones: Configuracion[] = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).configuracion : [];
-    let valor: any = null;
+    let valor: (number | string | boolean) = null;
     for (const cnf of configuraciones) {
       if (cnf.campo === configName) {
         switch (+cnf.tipo) {

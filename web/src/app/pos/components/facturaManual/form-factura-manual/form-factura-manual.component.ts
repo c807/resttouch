@@ -534,7 +534,7 @@ export class FormFacturaManualComponent implements OnInit {
     if (+this.factura.enviar_descripcion_unica === 0) {
       this.factura.descripcion_unica = null;
     } else {
-      this.factura.descripcion_unica = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) || 'Por consumo.';
+      this.factura.descripcion_unica = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) as string) || 'Por consumo.';
     }
   }
 }

@@ -77,8 +77,8 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   }
 
   setIdleConfigs = () => {
-    if (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_HABILITA_BLOQUEO_INACTIVIDAD)) {
-      const tiempo = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_SEGUNDOS_INACTIVIDAD);
+    if ((this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_HABILITA_BLOQUEO_INACTIVIDAD) as boolean)) {
+      const tiempo = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_SEGUNDOS_INACTIVIDAD) as number;
       this.idle.setIdle(tiempo);
       this.idle.setTimeout(tiempo);
       this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);

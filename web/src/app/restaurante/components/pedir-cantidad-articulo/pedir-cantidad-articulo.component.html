@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>¿Cuántos artículos agregará?</h1>
+<div mat-dialog-content>
+    <form #frmCantidadArticulos="ngForm" novalidate>
+        <mat-form-field class="fullWidth">
+            <input type="number" matInput placeholder="Cantidad de artículos" name="cantidadArticulos" [(ngModel)]="cantidadArticulos" min="1" required>
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cantidadArticulos = 0; terminar()" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" color="accent" (click)="terminar()" [disabled]="!frmCantidadArticulos.form.valid">
+        Aceptar
+    </button>
+</div>

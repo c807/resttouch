@@ -58,7 +58,7 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
   }
 
   ngOnInit() {
-    this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS);
+    this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS) as boolean;
     this.loadArticulosDePOS();
     this.setDatos();
   }

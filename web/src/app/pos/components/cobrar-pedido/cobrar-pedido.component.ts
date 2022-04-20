@@ -139,25 +139,25 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.SET_PROPINA_AUTOMATICA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) || 0;
-    this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
-    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) || 0;
-    this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER);
+    this.SET_PROPINA_AUTOMATICA = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) as boolean) || false;
+    this.RT_AUTORIZA_CAMBIO_PROPINA = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean) || false;
+    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean) || false;
+    this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER) as boolean;
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
       this.varDireccionEntrega += `${this.data.mesaenuso.mesa.mesa}`;
       this.varTipoDomicilio += `${this.data.mesaenuso.mesa.mesa}`;
       this.varClienteFactura += `${this.data.mesaenuso.mesa.mesa}`;
       if (this.aceptaPropinaEnCallCenter) {
-        this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
-        this.porcentajePropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) || 0;
+        this.porcentajeMaximoPropina = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) as number) || 10;
+        this.porcentajePropina = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) as number) || 0;
       } else {
         this.porcentajeMaximoPropina = 0;
         this.porcentajePropina = 0;
       }
     } else {
-      this.porcentajeMaximoPropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) || 10;
-      this.porcentajePropina = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) || 0;
+      this.porcentajeMaximoPropina = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_MAXIMO_PROPINA) as number) || 10;
+      this.porcentajePropina = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) as number) || 0;
     }
     this.MaxTooltTipMessage = `El monto de propina sobrepasa el máximo sugerido del ${this.porcentajeMaximoPropina}%.`;
     this.keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -718,7 +718,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     if (+this.descripcionUnica.enviar_descripcion_unica === 0) {
       this.descripcionUnica.descripcion_unica = null;
     } else {
-      this.descripcionUnica.descripcion_unica = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) || 'Por consumo.';
+      this.descripcionUnica.descripcion_unica = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) as string) || 'Por consumo.';
     }
   }
 

@@ -90,6 +90,8 @@ import { ComandaComponent } from './components/reportes/comanda/comanda.componen
 import { HistoricoPedidosComponent } from './components/historico-pedidos/historico-pedidos.component';
 import { AccionesComandaEnLineaComponent } from './components/acciones-comanda-en-linea/acciones-comanda-en-linea.component';
 import { CajaCortePreviewComponent } from './components/caja-corte/caja-corte-preview/caja-corte-preview.component';
+import { PedirCantidadArticuloComponent } from './components/pedir-cantidad-articulo/pedir-cantidad-articulo.component';
+import { ArmarComboComponent } from './components/armar-combo/armar-combo.component';
 
 @NgModule({
   declarations: [
@@ -101,7 +103,7 @@ import { CajaCortePreviewComponent } from './components/caja-corte/caja-corte-pr
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
-    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent
+    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent
   ],
   imports: [
     CommonModule,

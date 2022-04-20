@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Seleccione las opciones para {{data.descripcion}}</h1>
+<div mat-dialog-content>
+    <table *ngFor="let opcion of opciones">
+        <caption style="text-align: left;">
+            <strong>{{opcion.descripcion}} - Mín. {{opcion.minimo}} - Máx. {{opcion.maximo}}</strong>
+        </caption>
+        <tbody></tbody>
+    </table>
+</div>
+<div mat-dialog-actions align="end">    
+    <button mat-raised-button (click)="terminar()" color="accent">
+        Terminar        
+    </button>
+</div>

@@ -5,7 +5,7 @@ import { ServiceErrorHandler } from '../../shared/error-handler';
 import { Categoria } from '../interfaces/categoria';
 import { Impresora } from '../interfaces/impresora';
 import { CategoriaGrupo, CategoriaGrupoResponse, CategoriaGrupoImpresora } from '../interfaces/categoria-grupo';
-import { Articulo, ArbolArticulos, NodoProducto, ArbolCategoriaGrupo, ArticuloResponse, ArticuloCodigo, ArticuloFastEdit } from '../interfaces/articulo';
+import { Articulo, ArbolArticulos, NodoProducto, ArbolCategoriaGrupo, ArticuloResponse, ArticuloCodigo, ArticuloFastEdit, ContenidoCombo } from '../interfaces/articulo';
 import { ArticuloDetalle } from '../interfaces/articulo-detalle';
 import { ArticuloTipoCliente } from '../interfaces/articulo-tipo-cliente';
 import { Observable } from 'rxjs';
@@ -268,6 +268,12 @@ export class ArticuloService {
   getCategoriasGruposSimple(fltr: any = {}): Observable<any[]> {
     return this.http.get<any[]>(
       `${GLOBAL.urlMantenimientos}/${this.categoriaGrupoUrl}/simple_search?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getContenidoCombo(idCombo: number): Observable<ContenidoCombo[]> {
+    return this.http.get<ContenidoCombo[]>(
+      `${GLOBAL.urlCatalogos}/get_contenido_combo/${idCombo}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 

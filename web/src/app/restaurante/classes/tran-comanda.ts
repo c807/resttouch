@@ -111,8 +111,8 @@ export class TranComanda {
       this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
       this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
     }
-    this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS);
-    this.imprimeRecetaEnComanda = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_RECETA_EN_COMANDA);
+    this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS) as boolean;
+    this.imprimeRecetaEnComanda = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_RECETA_EN_COMANDA) as boolean;
     // console.log('MESA EN USO = ', this.mesaEnUso);
     this.loadRolesUsuario();
   }
@@ -506,7 +506,7 @@ export class TranComanda {
     // this.mesaEnUso.mesa.esmostrador;
     // console.log(this.mesaEnUso);
     if (+this.mesaEnUso.mesa.esmostrador === 1 && ingresarPedido && !this.mesaEnUso.numero_pedido) {
-      let pedidos = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_TOTAL_NUMEROS_PEDIDO);
+      let pedidos = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_TOTAL_NUMEROS_PEDIDO) as number;
       if (!pedidos || pedidos <= 0) {
         pedidos = 30;
       }
@@ -514,7 +514,7 @@ export class TranComanda {
         maxWidth: '50%',
         data: new ConfirmDialogModel(
           'Numero de Pedido',
-          pedidos,
+          pedidos.toString(),
           'Sí', 'No'
         )
       });

@@ -177,3 +177,19 @@ export interface ArticuloSimplified {
     articulo: number;
     descripcion: string;
 }
+
+export interface ContenidoCombo {
+    articulo: number;
+    presentacion: number;
+    descripcion: string;
+    precio: number;
+    combo: number;
+    multiple: number;
+    cantidad_minima: number;
+    cantidad_maxima: number;
+    esreceta: number;
+    cantidad: number;
+    medida: number;
+    precio_extra: number;
+    opciones: ContenidoCombo[];
+}
