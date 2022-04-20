@@ -659,6 +659,28 @@ class Catalogo_model extends CI_Model
 
 		return $this->getCatalogo($query, []);
 	}
+
+	public function get_contenido_combo($idarticulo)
+	{
+		$articulos = $this->db
+			->select('b.articulo, b.presentacion, b.descripcion, b.precio, b.combo, b.multiple, b.cantidad_minima, b.cantidad_maxima, b.esreceta, a.cantidad, a.medida, a.precio AS precio_extra')
+			->join('articulo b', 'b.articulo = a.articulo')
+			->where('a.anulado', 0)
+			->where('a.receta', $idarticulo)
+			->order_by('b.multiple, b.descripcion')
+			->get('articulo_detalle a')
+			->result();
+
+		foreach($articulos as $art) {
+			$art->opciones = [];
+			if ((int)$art->multiple === 1) {
+				$art->opciones = $this->get_contenido_combo($art->articulo);
+			}
+		}
+
+		return $articulos;
+	}
+
 }
 
 /* End of file Catalogo_model.php */

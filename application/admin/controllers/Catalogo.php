@@ -267,6 +267,12 @@ class Catalogo extends CI_Controller {
 		$datos = ordenar_array_objetos($datos, 'descripcion');
 		$this->output->set_output(json_encode($datos));
 	}
+
+	public function get_contenido_combo($idarticulo)
+	{
+		$datos = $this->Catalogo_model->get_contenido_combo($idarticulo);
+		$this->output->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Catalogo.php */

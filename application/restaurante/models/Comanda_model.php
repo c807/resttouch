@@ -131,8 +131,7 @@ class Comanda_model extends General_Model
             $precioMasAlto = $this->get_highest_price($args['receta']);
         }
 
-        $combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);
-        // $args['cantidad'] = 1;
+        $combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);        
 
         if ($combo) {
             foreach ($args['receta'] as $rec) {
@@ -144,17 +143,14 @@ class Comanda_model extends General_Model
                 $rec['receta'] = get_unicos($rec['receta']);
                 foreach ($rec['receta'] as $seleccion) {
                     $recetaSelec = $artMulti->getReceta(["articulo" => $seleccion['articulo'], "_uno" => true]);
-
-                    // $precio = $recetaSelec[0]->precio * (float)$seleccion['cantidad'];
+                    
                     $precio = $recetaSelec[0]->precio;
-
-                    // setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
+                    
                     $opcSelect = $this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad, $multi->cantidad);
 
                     // Para agregar los extras de cada seleccion
                     if (isset($seleccion['extras']) && count($seleccion['extras']) > 0) {
-                        foreach ($seleccion['extras'] as $extra) {
-                            // $this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad * (float)$recetaSelec[0]->cantidad, $opcSelect->cantidad);
+                        foreach ($seleccion['extras'] as $extra) {                            
                             $this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad, $opcSelect->cantidad);
                         }
                     }
