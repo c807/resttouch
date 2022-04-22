@@ -1,6 +1,5 @@
-
 <div class="row">
-  <div class="col m12 s12">    
+  <div class="col m12 s12">
     <mat-card class="mat-elevation-z4 fullWidth">
       <mat-card-title>
         <div class="row">
@@ -18,7 +17,8 @@
       <mat-card-content *ngIf="showForm">
         <form (ngSubmit)="buscar()" novalidate>
           <mat-form-field class="fullWidth">
-            <input matInput type="number" maxlength="17" max="17" placeholder="Número" name="numero" [(ngModel)]="params.numero" required>
+            <input matInput type="number" maxlength="17" max="17" placeholder="Número" name="numero"
+              [(ngModel)]="params.numero" required>
             <button mat-raised-button matSuffix color="accent" type="submit">Buscar</button>
           </mat-form-field>
         </form>
@@ -30,45 +30,59 @@
 <div class="row" *ngIf="articulos.length > 0">
   <div class="col m12 s12">
     <mat-card class="mat-elevation-z4 fullWidth">
-      <mat-card-title>
-      </mat-card-title>
       <mat-card-content>
-        <form #frmConteoFisico="ngForm" (ngSubmit)="frmConteoFisico.form.valid && actualizar()" novalidate autocomplete="off">
-          <table class="tbl">
-            <ng-container *ngFor="let cat of articulos">
+        <form #frmConteoFisico="ngForm" (ngSubmit)="frmConteoFisico.form.valid && actualizar()" novalidate
+          autocomplete="off">
+
+          <table class="tbl tblInventarioFisico">
+            <thead>
               <tr>
-                <th class="brdTSingleBSingle" colspan="2">
-                  <mat-label>{{ cat.descripcion }}</mat-label>
-                </th>
+                <th>Artículo</th>
+                <th class="rtxt" style="width: 15%;">Existencia sistema</th>
+                <th style="width: 20%;">Cantidad</th>
               </tr>
-              <ng-container *ngFor="let gcat of cat.datos">
+            </thead>
+            <tbody>              
+              <ng-container *ngFor="let cat of articulos">
                 <tr>
-                  <th class="brdTSingleBSingle" colspan="3">{{ gcat.descripcion }}</th>
+                  <th colspan="3">
+                    <mat-label>{{ cat.descripcion }}</mat-label>
+                  </th>
                 </tr>
-                <tr *ngFor="let art of gcat.datos">
-                  <td class="brdTSingleBSingle">
-                    {{ art.narticulo }}
-                  </td>
-                  <td class="brdTSingleBSingle">
-                    <mat-form-field>
-                      <input matInput type="number" step="0.01" placeholder="Existencia Sistema" [(ngModel)]="art.existencia_sistema" 
-                        [ngModelOptions]="{standalone: true}" disabled style="color: black; -webkit-text-fill-color: black">
-                    </mat-form-field>
-                  </td>
-                  <td class="brdTSingleBSingle">
-                    <mat-form-field class="fullWidth">
-                      <input matInput type="number" step="0.01" placeholder="Cantidad" [(ngModel)]="art.existencia_fisica" [ngModelOptions]="{standalone: true}" required>
-                    </mat-form-field>
-                  </td>
-                </tr>
+  
+                <ng-container *ngFor="let gcat of cat.datos">
+                  <tr>
+                    <th colspan="3">{{ gcat.descripcion }}</th>
+                  </tr>
+  
+  
+                  <tr *ngFor="let art of gcat.datos; index as i">
+                    <td>
+                      {{ art.narticulo }}
+                    </td>
+                    <td class="rtxt bld" style="width: 15%; font-style: italic;">                      
+                      {{ art.existencia_sistema | number:'1.2-2' }}
+                    </td>
+                    <td style="width: 20%;">
+                      <mat-form-field class="fullWidth" style="margin-left: 5px;">
+                        <input matInput type="number" step="0.01" placeholder="Cantidad" name="existencia_fisica_{{i}}" [(ngModel)]="art.existencia_fisica" required>
+                      </mat-form-field>
+                    </td>
+                  </tr>
+  
+  
+                </ng-container>
+  
               </ng-container>
-            </ng-container>
+            </tbody>
           </table>
+
           <div align="end">
             <button mat-button color="accent" type="submit" *ngIf="inventario.confirmado == 0">Guardar</button>
             <button mat-button color="accent" type="button" (click)="imprimir()">PDF</button>
             <button mat-button color="accent" type="button" (click)="imprimirXls()">Excel</button>
-            <button mat-button color="accent" type="button" *ngIf="inventario.confirmado == 0" (click)="confirmar()">Confirmar</button>
+            <button mat-button color="accent" type="button" *ngIf="inventario.confirmado == 0"
+              (click)="confirmar()">Confirmar</button>
           </div>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>
