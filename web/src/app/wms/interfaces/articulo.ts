@@ -166,7 +166,7 @@ export interface ArticuloFastEdit {
 export interface ArticuloImpresion {
     Id: number;
     Nombre: string;
-    Cantidad: number;    
+    Cantidad: number;
     Total: number;
     Notas: string;
     Detalle: string[];
@@ -192,4 +192,26 @@ export interface ContenidoCombo {
     medida: number;
     precio_extra: number;
     opciones: ContenidoCombo[];
+}
+
+export interface ISeleccion {
+    cantidad: number;
+    articulo: number;
+    descripcion: string;
+    multiple: number;
+    precio: number;
+    precio_extra: number;
+}
+
+export interface IOpcion {
+    opcion: number;
+    descripcion: string;
+    minimo: number;
+    maximo: number;
+    multiple: number;
+    precio: number;
+    precio_extra: number;
+    cantidad: number;
+    disponibles: ContenidoCombo[];
+    selecciones: ISeleccion[];
 }

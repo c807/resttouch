@@ -1,19 +1,19 @@
-<?php 
+<?php
 
 if (!function_exists('guardar_comanda')) {
-	function guardar_comanda($req=[])
+	function guardar_comanda($req = [])
 	{
 		$datos = ['exito' => false, 'mensaje' => 'Error'];
-		$ci =& get_instance();
+		$ci = &get_instance();
 		$usu = $ci->Usuario_model->find([
-			'usuario' => $req['mesero'], 
+			'usuario' => $req['mesero'],
 			'_uno' => true
 		]);
 
 		if ($usu) {
 			$turno = $ci->Turno_model->getTurno([
 				'sede' => $req['data']->sede,
-				'abierto' => true, 
+				'abierto' => true,
 				'_uno' => true
 			]);
 			$comanda = new Comanda_model($req['comanda']);
@@ -37,7 +37,9 @@ if (!function_exists('guardar_comanda')) {
 					}
 
 					if (count($req['cuentas']) > 0) {
-						if (!isset($req['replaceUnica'])) { $req['replaceUnica'] = true; }
+						if (!isset($req['replaceUnica'])) {
+							$req['replaceUnica'] = true;
+						}
 						foreach ($req['cuentas'] as $row) {
 							$cuenta = new Cuenta_model();
 
@@ -52,7 +54,7 @@ if (!function_exists('guardar_comanda')) {
 
 								if ($tmpCuenta) {
 									$cuenta->cargar($tmpCuenta->cuenta);
-								} else if(count($comanda->getCuentas()) == 1){
+								} else if (count($comanda->getCuentas()) == 1) {
 
 									$tmpCuenta = $ci->Cuenta_model->buscar([
 										'nombre' => $req['replaceUnica'] ? 'Unica' : trim($row['nombre']),
@@ -80,20 +82,19 @@ if (!function_exists('guardar_comanda')) {
 												'notas' => $prod['notas']
 											]);
 										}
-										
 									}
 								}
-							}							
+							}
 						}
 						$datos['exito'] = true;
-					}	
+					}
 
-					if($datos['exito']) {
+					if ($datos['exito']) {
 						$datos['mensaje'] = 'Datos Actualizados con Exito';
 						$datos['comanda'] = !isset($req['_no_get_comanda']) ? $comanda->getComanda() : (object)[];
 					} else {
 						$datos['mensaje'] = implode('<br>', $comanda->getMensaje());
-					}	
+					}
 				} else {
 					$datos['mensaje'] = 'La mesa ya fue abierta en otra estación, por favor actualice la pantalla.';
 				}
@@ -108,60 +109,63 @@ if (!function_exists('guardar_comanda')) {
 	}
 }
 
-if ( ! function_exists('verDato') ) {
+if (!function_exists('verDato')) {
 	/* Verifica que un índice se encuentre dentro de un arreglo. o una propiedad en un objeto */
-	function verDato($arr, $dato, $return=FALSE) {
+	function verDato($arr, $dato, $return = FALSE)
+	{
 		if (is_array($arr) && array_key_exists($dato, $arr) && !empty($arr[$dato])) {
 
 			return $arr[$dato];
 		} else if (is_object($arr) && property_exists($arr, $dato) && !empty($arr->$dato)) {
 
-			return $arr->$dato;	
-		} 
-		
+			return $arr->$dato;
+		}
+
 		return $return;
 	}
 }
 
-if( ! function_exists('suma_field')){
-	function suma_field($datos, $campo, $filtro = []) {
+if (!function_exists('suma_field')) {
+	function suma_field($datos, $campo, $filtro = [])
+	{
 		$suma_campo = 0;
 
 		foreach ($datos as $row) {
 			if (isset($row->$campo) && is_numeric($row->$campo)) {
-				
+
 				$suma_campo += $row->$campo;
 			}
 		}
 
-		return round($suma_campo,2);
+		return round($suma_campo, 2);
 	}
 }
 
-if( ! function_exists('url_base')){
-	function url_base($url) {
+if (!function_exists('url_base')) {
+	function url_base($url)
+	{
 		if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
 			return base_url("resttouch/{$url}");
 		} else if (in_array($_SERVER['HTTP_HOST'], ['192.168.18.241'])) {
 			return ("http://192.168.18.241/api/{$url}");
 		}
-		
+
 		// return base_url($url);
 		return ("http://192.168.168.241/api/{$url}");
 	}
 }
 
-if ( ! function_exists("array_result")) {
+if (!function_exists("array_result")) {
 	function array_result($result, $campo)
 	{
 		$datos = array();
 
 		foreach ($result as $row) {
-			if(is_array($row)){
-				if(isset($row[$campo])){
+			if (is_array($row)) {
+				if (isset($row[$campo])) {
 					$datos[] = $row[$campo];
 				}
-			}else{
+			} else {
 				$datos[] = $row->$campo;
 			}
 		}
@@ -170,14 +174,15 @@ if ( ! function_exists("array_result")) {
 	}
 }
 
-if( ! function_exists('buscar_articulo')){
-	function buscar_articulo($datos, $articulos, $descripcion='', $result=[]) {
+if (!function_exists('buscar_articulo')) {
+	function buscar_articulo($datos, $articulos, $descripcion = '', $result = [])
+	{
 		$cat = [];
 		foreach ($datos as $row) {
-			if (!empty($descripcion)) {				
-				$row->descripcion = $descripcion." - ".$row->descripcion;
+			if (!empty($descripcion)) {
+				$row->descripcion = $descripcion . " - " . $row->descripcion;
 			}
-			
+
 			if (count($row->articulo) > 0) {
 				$art = [];
 				$cantidad = 0;
@@ -192,20 +197,22 @@ if( ! function_exists('buscar_articulo')){
 				foreach ($art as $value) {
 					$value->porcentaje = 0;
 					if ($cantidad > 0) {
-						$value->porcentaje = number_format($value->cantidad*100/$cantidad, 2);
+						$value->porcentaje = number_format($value->cantidad * 100 / $cantidad, 2);
 					}
 					$tmp[] = $value;
 				}
-				usort($tmp, function($a, $b) {return (int)$a->cantidad < (int)$b->cantidad;});
+				usort($tmp, function ($a, $b) {
+					return (int)$a->cantidad < (int)$b->cantidad;
+				});
 				$row->articulo = $tmp;
-				
-				$row->total = suma_field($row->articulo, 'total');	
+
+				$row->total = suma_field($row->articulo, 'total');
 				$result[] = [
-					"articulos" => $row->articulo, 
+					"articulos" => $row->articulo,
 					"descripcion" => $row->descripcion,
 					"total" => $row->total
 				];
-			} 	
+			}
 			$tmp = buscar_articulo($row->categoria_grupo_grupo, $articulos, $row->descripcion);
 			if (count($tmp) > 0) {
 				$result = array_merge($result, $tmp);
@@ -216,49 +223,48 @@ if( ! function_exists('buscar_articulo')){
 	}
 }
 
-if (! function_exists("arrayToXml")) {
-	function arrayToXml($array, $rootElement = null, $xml = null) { 
-	    $_xml = $xml; 
-	      
-	    // If there is no Root Element then insert root 
-	    if ($_xml === null) { 
-	        $_xml = new SimpleXMLElement($rootElement !== null ? $rootElement : '<root/>'); 
-	    } 
-	      
-	    // Visit all key value pair 
-	    foreach ($array as $k => $v) { 
-	          
-	        // If there is nested array then 
-	        if (is_array($v)) {  
-	            if (is_numeric($k)) {
-	            	$k = "cuenta";
-	            }
-	            // Call function for nested array 
-	            arrayToXml($v, $k, $_xml->addChild($k)); 
-	            } 
-	              
-	        else { 
-	            // Simply add child element. 
-	            if (is_numeric($k)) {
-	             	$k = "cuenta";
-	             } 
-	            $_xml->addChild($k, $v); 
-	        } 
-	    } 
-	      
-	    return $_xml->asXML(); 
-	} 
+if (!function_exists("arrayToXml")) {
+	function arrayToXml($array, $rootElement = null, $xml = null)
+	{
+		$_xml = $xml;
+
+		// If there is no Root Element then insert root 
+		if ($_xml === null) {
+			$_xml = new SimpleXMLElement($rootElement !== null ? $rootElement : '<root/>');
+		}
+
+		// Visit all key value pair 
+		foreach ($array as $k => $v) {
+
+			// If there is nested array then 
+			if (is_array($v)) {
+				if (is_numeric($k)) {
+					$k = "cuenta";
+				}
+				// Call function for nested array 
+				arrayToXml($v, $k, $_xml->addChild($k));
+			} else {
+				// Simply add child element. 
+				if (is_numeric($k)) {
+					$k = "cuenta";
+				}
+				$_xml->addChild($k, $v);
+			}
+		}
+
+		return $_xml->asXML();
+	}
 }
 
-if (! function_exists('get_configuracion')) {
-	function get_configuracion($config, $campo, $tipo=0)
+if (!function_exists('get_configuracion')) {
+	function get_configuracion($config, $campo, $tipo = 0)
 	{
 		if (is_array($config)) {
 			foreach ($config as $row) {
 				if (strtolower(trim($row->campo)) == strtolower(trim($campo))) {
 					return $row->valor;
-				}		
-			}	
+				}
+			}
 		}
 
 		switch ($tipo) {
@@ -276,8 +282,9 @@ if (! function_exists('get_configuracion')) {
 	}
 }
 
-if ( ! function_exists('formatoFecha')) {
-	function formatoFecha($fecha = '', $tipo = '') {
+if (!function_exists('formatoFecha')) {
+	function formatoFecha($fecha = '', $tipo = '')
+	{
 
 		if (empty($fecha)) {
 			return $fecha;
@@ -324,14 +331,13 @@ if ( ! function_exists('formatoFecha')) {
 			}
 
 			return $date->format($formato);
-
 		} catch (Exception $e) {
-		    return $fecha;
+			return $fecha;
 		}
 	}
 }
 
-if (! function_exists('conexion_db')) {
+if (!function_exists('conexion_db')) {
 	function conexion_db($args = [])
 	{
 		$db = [
@@ -360,8 +366,9 @@ if (! function_exists('conexion_db')) {
 	}
 }
 
-if ( ! function_exists('enviarCorreo')) {
-	function enviarCorreo(Array $datos) {
+if (!function_exists('enviarCorreo')) {
+	function enviarCorreo(array $datos)
+	{
 		/*
 		$url = "http://intranet.c807.com/grupo_c807/mtm/contactos/index.php/envio/general";
 		$postdata = http_build_query(array('datos' => $datos));
@@ -384,8 +391,9 @@ if ( ! function_exists('enviarCorreo')) {
 	}
 }
 
-if ( ! function_exists('Hoy')) {
-	function Hoy($tipo = '') {
+if (!function_exists('Hoy')) {
+	function Hoy($tipo = '')
+	{
 		switch ($tipo) {
 			case 1:
 				return date('d/m/Y');
@@ -403,7 +411,19 @@ if ( ! function_exists('Hoy')) {
 	}
 }
 
-if ( ! function_exists("validarCantidades")) {
+if (!function_exists("validarCantidadesPorCantidad")) {
+	function validarCantidadesPorCantidad($args = [], $minimo, $maximo)
+	{
+		$cant = 0;
+		foreach ($args['receta'] as $row) {
+			$cant += $row['cantidad'];
+		}
+
+		return ($cant >= $minimo && $cant <= $maximo);
+	}
+}
+
+if (!function_exists("validarCantidades")) {
 	function validarCantidades($args = [])
 	{
 
@@ -419,7 +439,10 @@ if ( ! function_exists("validarCantidades")) {
 			$combo->cantidad_minima = $combo->cantidad_minima * $cant;
 			$combo->cantidad_maxima = $combo->cantidad_maxima * $cant;
 
-			if (count($args['receta']) >= $combo->cantidad_minima  && count($args['receta']) <= $combo->cantidad_maxima) {
+			if (
+				(count($args['receta']) >= $combo->cantidad_minima  && count($args['receta']) <= $combo->cantidad_maxima) ||
+				validarCantidadesPorCantidad($args, $combo->cantidad_minima, $combo->cantidad_maxima)
+			) {
 				foreach ($args['receta'] as $row) {
 					$row['cantidad'] = verDato($args, "cantidad", 1);
 					$dato = validarCantidades($row);
@@ -433,12 +456,12 @@ if ( ! function_exists("validarCantidades")) {
 		} else {
 			$dato['exito'] = true;
 		}
-		
-		return $dato;	
+
+		return $dato;
 	}
 }
 
-if (! function_exists("buscar_propiedad")) {
+if (!function_exists("buscar_propiedad")) {
 	function buscar_propiedad($obj, $ruta)
 	{
 		$dato = null;
@@ -447,11 +470,11 @@ if (! function_exists("buscar_propiedad")) {
 			if (is_object($dato)) {
 				$obj = $dato;
 				$dato = null;
-			} 
+			}
 		}
 
-		if($dato !== null) {
-			$dato = strtoupper(preg_replace("/[^0-9KkCcFf?!]/",'', $dato));
+		if ($dato !== null) {
+			$dato = strtoupper(preg_replace("/[^0-9KkCcFf?!]/", '', $dato));
 			if (validar_nit($dato)) {
 				return $dato;
 			}
@@ -461,10 +484,10 @@ if (! function_exists("buscar_propiedad")) {
 	}
 }
 
-if (! function_exists("validar_nit")) {
+if (!function_exists("validar_nit")) {
 	function validar_nit($nit)
 	{
-		$nit = strtoupper(preg_replace("/[^0-9KkcCfF?!]/",'', $nit));
+		$nit = strtoupper(preg_replace("/[^0-9KkcCfF?!]/", '', $nit));
 		try {
 			$soapClient = new SoapClient('https://www.ingface.net/ServiciosIngface/ingfaceWsServices?wsdl');
 			$resultado = $soapClient->nitContribuyentes(['usuario' => 'DEMO', 'clave' => 'C2FDC80789AFAF22C372965901B16DF533A4FCB19FD9F2FD5CBDA554032983B0', 'nit' => $nit]);
@@ -478,23 +501,23 @@ if (! function_exists("validar_nit")) {
 	}
 }
 
-if(!function_exists('quitar_acentos')) {
-	function quitar_acentos($string) {
+if (!function_exists('quitar_acentos')) {
+	function quitar_acentos($string)
+	{
 		return strtolower(trim(preg_replace('~[^0-9a-z]+~i', '-', preg_replace('~&([a-z]{1,2})(acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', htmlentities($string, ENT_QUOTES, 'UTF-8'))), ' '));
 	}
 }
 
-if (! function_exists("ordenar_array_objetos")) {
+if (!function_exists("ordenar_array_objetos")) {
 	/**
 	 * $tipo = { 1: numero, 2: string }
 	 */
 	function ordenar_array_objetos($data, $campo, $tipo = 2, $direccion = 'asc')
 	{
-		if(is_array($data))
-		{
-			switch($tipo) {			
-				case 2: 
-					usort($data, function ($a, $b) use($campo, $direccion) {
+		if (is_array($data)) {
+			switch ($tipo) {
+				case 2:
+					usort($data, function ($a, $b) use ($campo, $direccion) {
 						if (is_array($a)) {
 							$a = (object)$a;
 						}
@@ -506,7 +529,7 @@ if (! function_exists("ordenar_array_objetos")) {
 					});
 					break;
 				default:
-					usort($data, function ($a, $b) use($campo, $direccion) {
+					usort($data, function ($a, $b) use ($campo, $direccion) {
 						if (is_array($a)) {
 							$a = (object)$a;
 						}
@@ -520,12 +543,12 @@ if (! function_exists("ordenar_array_objetos")) {
 						return $direccion === 'asc' ? $cmp : -$cmp;
 					});
 			}
-		} 
+		}
 		return $data;
 	}
 }
 
-if (! function_exists("get_unicos")) {
+if (!function_exists("get_unicos")) {
 	function get_unicos($args)
 	{
 		$reg = [];
@@ -536,15 +559,15 @@ if (! function_exists("get_unicos")) {
 		foreach ($args as $row) {
 			if (!array_key_exists($row['articulo'], $reg)) {
 				$row['cantidad'] = $val[$row['articulo']];
-		        $reg[$row['articulo']] = $row;
-		    }
+				$reg[$row['articulo']] = $row;
+			}
 		}
 
 		return $reg;
 	}
 }
 
-if ( ! function_exists("randomColor")) {
+if (!function_exists("randomColor")) {
 	function randomColor()
 	{
 		$rand = str_pad(dechex(rand(0x000000, 0xFFFFFF)), 6, 0, STR_PAD_LEFT);
@@ -552,7 +575,7 @@ if ( ! function_exists("randomColor")) {
 	}
 }
 
-if ( ! function_exists("graficaDatasets")) {
+if (!function_exists("graficaDatasets")) {
 	function graficaDatasets($lista, $color = true)
 	{
 		$dataset = new stdClass();
@@ -576,13 +599,14 @@ if ( ! function_exists("graficaDatasets")) {
 	}
 }
 
-if( ! function_exists('get_url_websocket')){
-	function get_url_websocket() {		
+if (!function_exists('get_url_websocket')) {
+	function get_url_websocket()
+	{
 		$url_ws = "{$_SERVER['REQUEST_SCHEME']}://";
 		if (in_array($_SERVER["HTTP_HOST"], ["localhost", "127.0.0.1", "192.168.18.241"])) {
 			$url_ws .= $_SERVER["HTTP_HOST"];
-		} else {			
-			$url_ws .= 'resttouch.c807.com' ;
+		} else {
+			$url_ws .= 'resttouch.c807.com';
 		}
 		$url_ws .= ':8988';
 		return $url_ws;

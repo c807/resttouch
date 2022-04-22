@@ -152,7 +152,8 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
       };
       // console.log(obj); return;
       // console.log(this.cuentaActiva); return;
-      this.agregarProductos(obj);
+      // this.agregarProductos(obj);
+      this.pedirCantidadArticulo(obj);
     }
   }
 }

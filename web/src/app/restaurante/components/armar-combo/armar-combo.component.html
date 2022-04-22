@@ -1,13 +1,55 @@
 <h1 mat-dialog-title>Seleccione las opciones para {{data.descripcion}}</h1>
-<div mat-dialog-content>
-    <table *ngFor="let opcion of opciones">
-        <caption style="text-align: left;">
-            <strong>{{opcion.descripcion}} - Mín. {{opcion.minimo}} - Máx. {{opcion.maximo}}</strong>
-        </caption>
-        <tbody></tbody>
+<div mat-dialog-content class="contenido">
+    <table>
+        <tbody>
+            <ng-container *ngFor="let opcion of opciones; index as i">
+                <tr>
+                    <td colspan="3">
+                        <strong>{{opcion.descripcion}} - Mín. {{opcion.minimo}} - Máx. {{opcion.maximo}}</strong>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ltxt">
+                        <mat-form-field class="fullWidth">                    
+                            <input matInput type="number" placeholder="Cantidad" name="cantidad_{{opcion.opcion}}" [(ngModel)]="seleccionado[i].cantidad" [ngModelOptions]="{standalone: true}" min="1" required>
+                        </mat-form-field>
+                    </td>
+                    <td class="ltxt">
+                        <mat-form-field class="fullWidth" required>
+                            <mat-select name="opc_{{opcion.opcion}}" [(ngModel)]="seleccionado[i].opcion" [ngModelOptions]="{standalone: true}">
+                                <mat-option *ngFor="let disponible of opcion.disponibles" [value]="disponible">
+                                   {{disponible.descripcion}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="accent" (click)="addSeleccion(opcion, seleccionado[i], i)" [disabled]="deshabilitarGuardar(opcion)">
+                            Agregar
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngFor="let selected of opcion.selecciones; index as j">
+                    <td class="ltxt">
+                        <strong>{{selected.cantidad}}</strong>
+                    </td>
+                    <td class="ltxt">
+                        <strong>{{selected.descripcion}}</strong>
+                    </td>
+                    <td class="ctxt">
+                        <button mat-raised-button type="button" color="warn" (click)="removeSeleccion(opcion, i, j)" [disabled]="false">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            </ng-container>
+        </tbody>
     </table>
 </div>
 <div mat-dialog-actions align="end">    
+    <button mat-raised-button (click)="dialogRef.close(null)" color="warn">
+        Cancelar        
+    </button>
     <button mat-raised-button (click)="terminar()" color="accent">
         Terminar        
     </button>

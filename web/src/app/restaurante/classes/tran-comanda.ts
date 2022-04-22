@@ -1,52 +1,45 @@
-import {EventEmitter} from '@angular/core';
-import {WindowConfiguration} from '../../shared/interfaces/window-configuration';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {Socket} from 'ngx-socket-io';
-import {LocalstorageService} from '../../admin/services/localstorage.service';
-import {GLOBAL} from '../../shared/global';
-import {MatInput} from '@angular/material/input';
-import {MatBottomSheet} from '@angular/material/bottom-sheet';
+import { EventEmitter } from '@angular/core';
+import { WindowConfiguration } from '../../shared/interfaces/window-configuration';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Socket } from 'ngx-socket-io';
+import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { GLOBAL } from '../../shared/global';
+import { MatInput } from '@angular/material/input';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
-import {UnirCuentaComponent} from '../components/unir-cuenta/unir-cuenta.component';
-import {TrasladoMesaComponent} from '../components/traslado-mesa/traslado-mesa.component';
-import {CobrarPedidoComponent} from '../../pos/components/cobrar-pedido/cobrar-pedido.component';
-import {ListaProductoAltComponent} from '../../wms/components/producto/lista-producto-alt/lista-producto-alt.component';
-import {ConfirmDialogModel, DialogPedidoComponent} from '../../shared/components/dialog-pedido/dialog-pedido.component';
-import {
-  ConfirmDialogComboModel,
-  DialogComboComponent
-} from '../../shared/components/dialog-combo/dialog-combo.component';
-import {NotasGeneralesComandaComponent} from '../components/notas-generales-comanda/notas-generales-comanda.component';
-import {NuevaCuentaComponent} from '../components/nueva-cuenta/nueva-cuenta.component';
-import {DistribuirProductosCuentasComponent} from '../components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
-import {TranComandaAltComponent} from '../components/tran-comanda-alt/tran-comanda-alt.component';
-import {CantidadCombosDialogComponent} from '../components/cantidad-combos-dialog/cantidad-combos-dialog.component';
-import {HistoricoPedidosComponent} from '../components/historico-pedidos/historico-pedidos.component';
+import { UnirCuentaComponent } from '../components/unir-cuenta/unir-cuenta.component';
+import { TrasladoMesaComponent } from '../components/traslado-mesa/traslado-mesa.component';
+import { CobrarPedidoComponent } from '../../pos/components/cobrar-pedido/cobrar-pedido.component';
+import { ListaProductoAltComponent } from '../../wms/components/producto/lista-producto-alt/lista-producto-alt.component';
+import { ConfirmDialogModel, DialogPedidoComponent } from '../../shared/components/dialog-pedido/dialog-pedido.component';
+import { ConfirmDialogComboModel, DialogComboComponent } from '../../shared/components/dialog-combo/dialog-combo.component';
+import { NotasGeneralesComandaComponent } from '../components/notas-generales-comanda/notas-generales-comanda.component';
+import { NuevaCuentaComponent } from '../components/nueva-cuenta/nueva-cuenta.component';
+import { DistribuirProductosCuentasComponent } from '../components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
+import { TranComandaAltComponent } from '../components/tran-comanda-alt/tran-comanda-alt.component';
+import { CantidadCombosDialogComponent } from '../components/cantidad-combos-dialog/cantidad-combos-dialog.component';
+import { HistoricoPedidosComponent } from '../components/historico-pedidos/historico-pedidos.component';
+import { PedirCantidadArticuloComponent } from '../components/pedir-cantidad-articulo/pedir-cantidad-articulo.component';
+import { ArmarComboComponent } from '../components/armar-combo/armar-combo.component';
 
-import {Cuenta, DetalleCuentaSimplified} from '../interfaces/cuenta';
-import {Comanda, ComandaGetResponse} from '../interfaces/comanda';
-import {DetalleComanda} from '../interfaces/detalle-comanda';
-import {
-  ArbolArticulos,
-  Articulo,
-  ArticuloImpresion,
-  NodoProducto,
-  ProductoSelected
-} from '../../wms/interfaces/articulo';
-import {ArticuloService} from '../../wms/services/articulo.service';
+import { Cuenta, DetalleCuentaSimplified } from '../interfaces/cuenta';
+import { Comanda, ComandaGetResponse } from '../interfaces/comanda';
+import { DetalleComanda } from '../interfaces/detalle-comanda';
+import { ArbolArticulos, Articulo, ArticuloImpresion, NodoProducto, ProductoSelected, ContenidoCombo, IOpcion } from '../../wms/interfaces/articulo';
+import { ArticuloService } from '../../wms/services/articulo.service';
 
-import {ComandaService} from '../services/comanda.service';
-import {ReportePdfService} from '../services/reporte-pdf.service';
-import {ConfiguracionService} from '../../admin/services/configuracion.service';
-import {Cliente} from '../../admin/interfaces/cliente';
-import {ClienteMaster} from '../../callcenter/interfaces/cliente-master';
-import {Categoria} from '../../wms/interfaces/categoria';
-import {UsuarioService} from '../../admin/services/usuario.service';
+import { ComandaService } from '../services/comanda.service';
+import { ReportePdfService } from '../services/reporte-pdf.service';
+import { ConfiguracionService } from '../../admin/services/configuracion.service';
+import { Cliente } from '../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
+import { Categoria } from '../../wms/interfaces/categoria';
+import { UsuarioService } from '../../admin/services/usuario.service';
 
-import {AccionesComandaComponent} from '../components/acciones-comanda/acciones-comanda.component';
-import {Base64} from 'js-base64';
-import {Subscription} from 'rxjs';
+import { AccionesComandaComponent } from '../components/acciones-comanda/acciones-comanda.component';
+import { Base64 } from 'js-base64';
+import { Subscription } from 'rxjs';
 
 export class TranComanda {
 
@@ -82,6 +75,8 @@ export class TranComanda {
   public codigoBarras: string = null;
   public imprimeRecetaEnComanda = true;
   public lstProductosCuentaAlt: DetalleCuentaSimplified[] = [];
+  public pideCantidadArticulo = false;
+  public pantallaTomaCombo = 1;
 
   protected endSubs = new Subscription();
 
@@ -113,6 +108,8 @@ export class TranComanda {
     }
     this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS) as boolean;
     this.imprimeRecetaEnComanda = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_RECETA_EN_COMANDA) as boolean;
+    this.pideCantidadArticulo = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PEDIR_CANTIDAD_ARTICULO) as boolean) || false;
+    this.pantallaTomaCombo = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PANTALLA_TOMA_COMBO) as number) || 1;
     // console.log('MESA EN USO = ', this.mesaEnUso);
     this.loadRolesUsuario();
   }
@@ -124,7 +121,7 @@ export class TranComanda {
     comanda: null, usuario: null, sede: null, estatus: null,
     mesa: {
       mesa: null,
-      area: {area: null, sede: null, area_padre: null, nombre: null},
+      area: { area: null, sede: null, area_padre: null, nombre: null },
       numero: null, posx: null, posy: null, tamanio: null, estatus: null
     },
     numero_pedido: null,
@@ -132,7 +129,7 @@ export class TranComanda {
   }
   resetLstProductosSeleccionados = () => this.lstProductosSeleccionados = [];
   resetLstProductosDeCuenta = () => this.lstProductosDeCuenta = [];
-  resetCuentaActiva = () => this.cuentaActiva = {cuenta: null, numero: null, nombre: null, productos: []};
+  resetCuentaActiva = () => this.cuentaActiva = { cuenta: null, numero: null, nombre: null, productos: [] };
   resetListadoArticulos = () => this.appLstProdAlt.loadArbolArticulos();
 
   setListaCategorias = (cats: ArbolArticulos[] = []) => this.categorias = this.setVerBotones(cats);
@@ -140,15 +137,15 @@ export class TranComanda {
   setVerBotones = (cats: ArbolArticulos[]) => {
     for (const cat of cats) {
       loopSubCategoria:
-        for (const subcat of cat.categoria_grupo) {
-          for (const art of subcat.articulo) {
-            if (+art.mostrar_pos === 1) {
-              subcat.mostrarEnPos = true;
-              cat.mostrarEnPos = true;
-              continue loopSubCategoria;
-            }
+      for (const subcat of cat.categoria_grupo) {
+        for (const art of subcat.articulo) {
+          if (+art.mostrar_pos === 1) {
+            subcat.mostrarEnPos = true;
+            cat.mostrarEnPos = true;
+            continue loopSubCategoria;
           }
         }
+      }
     }
     return cats;
   }
@@ -159,7 +156,7 @@ export class TranComanda {
     // console.log(`CODIGO BARRAS = ${this.codigoBarras}`);
     if (this.codigoBarras && this.codigoBarras.trim().length > 0) {
       this.endSubs.add(
-        this.articuloSrvc.getArticulos({codigo: this.codigoBarras.trim()}).subscribe((arts: Articulo[]) => {
+        this.articuloSrvc.getArticulos({ codigo: this.codigoBarras.trim() }).subscribe((arts: Articulo[]) => {
           if (arts && arts.length > 0) {
             const art = arts[0];
             const obj: NodoProducto = {
@@ -286,14 +283,14 @@ export class TranComanda {
         // console.log('RESPUESTA DE CERRAR MESA = ', res);
         if (res.exito) {
           // console.log('EXITO PARA CERRAR LA MESA...', res);
-          this.snackBar.open(res.mensaje, 'Comanda', {duration: 3000});
+          this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
           this.mesaEnUso.mesa.estatus = 1;
           // this.closeSideNavEv.emit();
           this.mesaSavedEv.emit();
-          this.socket.emit('refrescar:mesa', {mesaenuso: this.mesaEnUso});
+          this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
         } else {
           // console.log('FALLA PARA CERRAR LA MESA...', res);
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
         }
       })
     );
@@ -309,21 +306,14 @@ export class TranComanda {
     indices.forEach(i => this.lstProductosSeleccionados.splice(i, 1));
   }
 
-  setSelectedCuenta(noCuenta: number) {    
+  setSelectedCuenta(noCuenta: number, fozarRecarga: boolean = false) {
     this.bloqueoBotones = true;
     const idx = this.mesaEnUso.cuentas.findIndex((c: Cuenta) => +c.numero === +noCuenta);
     this.ctSlect = idx;
     this.cuentaActiva = this.mesaEnUso.cuentas[idx];
-    if (this.cuentaActiva.productos.length === 0) {
-      this.endSubs.add(
-        // this.comandaSrvc.getDetalleCuenta(this.cuentaActiva.cuenta).subscribe(res => {
-        //     this.refreshLstProdSeleccionadosDeCuenta(+this.cuentaActiva.cuenta);
-        //     this.mesaEnUso.cuentas[idx].productos = res;
-        //     this.mesaEnUso.cuentas[idx].productos.forEach(p => this.actualizaProductosSeleccionados(+this.cuentaActiva.cuenta, p));
-        //     this.setLstProductosDeCuenta();
-        //     this.bloqueoBotones = false;
-        // })
-        this.comandaSrvc.obtenerDetalleCuenta({cuenta: +this.cuentaActiva.cuenta}).subscribe((res: DetalleCuentaSimplified[]) => {
+    if (this.cuentaActiva.productos.length === 0 || fozarRecarga) {
+      this.endSubs.add(        
+        this.comandaSrvc.obtenerDetalleCuenta({ cuenta: +this.cuentaActiva.cuenta }).subscribe((res: DetalleCuentaSimplified[]) => {
           this.lstProductosCuentaAlt = res;
           this.bloqueoBotones = false;
         })
@@ -368,89 +358,172 @@ export class TranComanda {
             if (resSaveDetCmb.exito) {
               this.setSelectedCuenta(+this.cuentaActiva.numero);
             } else {
-              this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', {duration: 3000});
+              this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', { duration: 3000 });
             }
             this.bloqueoBotones = false;
           });
         } else {
           this.bloqueoBotones = false;
-          this.snackBar.open('Error, Debe seleccionar los productos del combo', 'Comanda', {duration: 7000});
+          this.snackBar.open('Error, Debe seleccionar los productos del combo', 'Comanda', { duration: 7000 });
         }
         resolve(true);
       });
     });
   }
 
-  agregarProductos(producto: any) {
+  addCombo = async (producto: any, cantidadCombos = 1) => {
+    // console.log('PRODUCTO = ', producto);
+    // console.log('CANTIDAD COMBOS = ', cantidadCombos);
+    const seleccion: any = {
+      cantidad: cantidadCombos,
+      articulo: producto.id,
+      descripcion: producto.nombre,
+      receta: [],
+      _no_calcula_unicos: true
+    };
+
+    const contenidoCombo: ContenidoCombo[] = await this.articuloSrvc.getContenidoCombo(seleccion.articulo).toPromise();
+    const directos = contenidoCombo.filter(c => +c.multiple === 0);
+    const multiples = contenidoCombo.filter(c => +c.multiple === 1);
+
+    for (const directo of directos) {
+      seleccion.receta.push({
+        articulo: +directo.articulo,
+        descripcion: directo.descripcion,
+        multiple: +directo.multiple,
+        precio: +directo.precio,
+        precio_extra: +directo.precio_extra,
+        receta: []
+      });
+    }
+
+    if (multiples.length > 0) {
+      const armarComboDialog = this.dialog.open(ArmarComboComponent, {
+        width: '65vw', height: '80vh',
+        data: {
+          descripcion: producto.nombre,
+          cantidadCombos,
+          multiples
+        }
+      });
+
+      const armado: IOpcion[] = await armarComboDialog.afterClosed().toPromise();
+      // console.log('ARMADO = ', armado);
+      if (armado !== null && armado !== undefined) {
+        for (const opc of armado) {
+          seleccion.receta.push({
+            articulo: +opc.opcion,
+            descripcion: opc.descripcion,
+            multiple: +opc.multiple,
+            precio: +opc.precio,
+            precio_extra: +opc.precio_extra,
+            cantidad: +opc.cantidad,
+            receta: opc.selecciones
+          });
+        }
+      }
+    }
+
+    // console.log('SELECCION = ', seleccion);
+
+    this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, seleccion).subscribe(resSaveDetCmb => {
+      if (resSaveDetCmb.exito) {
+        this.setSelectedCuenta(+this.cuentaActiva.numero, true);
+      } else {
+        this.snackBar.open(`ERROR:${resSaveDetCmb.mensaje}`, 'Comanda', { duration: 3000 });
+      }
+      this.bloqueoBotones = false;
+    });
+
+    this.bloqueoBotones = false;
+  }
+
+  async agregarProductos(producto: any, cantidadArticulos: number = null) {
     // console.log(producto);
     if (+producto.combo === 1 || +producto.multiple === 1) {
       this.bloqueoBotones = true;
-      const esCiclico = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_COMBOS_CICLICOS);
-      if (esCiclico) {
-        const cantCombosDialog = this.dialog.open(CantidadCombosDialogComponent, {maxWidth: '50%'});
-
-        cantCombosDialog.afterClosed().subscribe(async (cant: number) => {
-          // console.log(cant);
-          if (cant > 0) {
-            for (let i = 0; i < cant; i++) {
+      if (this.pantallaTomaCombo === 1) {
+        const esCiclico = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_COMBOS_CICLICOS);
+        if (esCiclico) {
+          if (cantidadArticulos === null || cantidadArticulos === undefined) {
+            const cantCombosDialog = this.dialog.open(CantidadCombosDialogComponent, { maxWidth: '50%' });
+            cantCombosDialog.afterClosed().subscribe(async (cant: number) => {
+              if (cant > 0) {
+                for (let i = 0; i < cant; i++) {
+                  await this.agregaCombo(producto, true);
+                }
+              }
+            });
+          } else if (+cantidadArticulos > 0) {
+            for (let i = 0; i < +cantidadArticulos; i++) {
               await this.agregaCombo(producto, true);
             }
           }
-        });
-
-        this.bloqueoBotones = false;
-      } else {
-        this.agregaCombo(producto);
+          this.bloqueoBotones = false;
+        } else {
+          this.agregaCombo(producto);
+        }
+      } else if (this.pantallaTomaCombo === 2) {
+        this.addCombo(producto, (cantidadArticulos === null || cantidadArticulos === undefined) ? 1 : +cantidadArticulos);
       }
     } else {
       this.addProductoSelected(producto);
     }
   }
 
-  addProductoSelected(producto: any) {
+  pedirCantidadArticulo = (producto: any) => {
+    if (this.pideCantidadArticulo) {
+      this.bloqueoBotones = true;
+      const cantArticulosDialog = this.dialog.open(PedirCantidadArticuloComponent, { maxWidth: '50%' });
+      this.endSubs.add(
+        cantArticulosDialog.afterClosed().subscribe((cant: number) => {
+          if (cant > 0) {
+            this.agregarProductos(producto, cant);
+          }
+          this.bloqueoBotones = false;
+        })
+      );
+    } else {
+      this.agregarProductos(producto);
+    }
+  }  
+
+  addProductoSelected(producto: any, cantidadArticulos: number = 1) {
     // console.log('PRODUCTO = ', producto); return;
     this.bloqueoBotones = true;
     if (+this.cuentaActiva.numero) {
-      const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
-      // const idx = this.lstProductosSeleccionados.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0);
+      const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));      
       const idx = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0);
 
       if (idx < 0) {
         this.detalleComanda = {
-          articulo: producto.id, cantidad: 1, precio: +producto.precio, total: 1 * +producto.precio, notas: ''
+          articulo: producto.id, cantidad: cantidadArticulos, precio: +producto.precio, total: cantidadArticulos * +producto.precio, notas: ''
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
             // console.log('NUEVO DETALLE COMANDA = ', res);
-            if (res.exito) {
-              // this.mesaEnUso = res.comanda;
-              // this.llenaProductosSeleccionados(this.mesaEnUso);
-              // this.actualizaProductosSeleccionados(+res.comanda.cuentas[0].cuenta, res.comanda.cuentas[0].productos[0]);
-              this.setSelectedCuenta(+this.cuentaActiva.numero);
+            if (res.exito) {              
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
             } else {
-              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', {duration: 3000});
+              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
             }
             this.bloqueoBotones = false;
           })
         );
-      } else {
-        // const tmp: ProductoSelected = this.lstProductosSeleccionados[idx];
+      } else {        
         const tmp: ProductoSelected = prodsSel[idx];
         this.detalleComanda = {
           detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id,
-          cantidad: (+tmp.cantidad) + 1, precio: +tmp.precio, total: ((+tmp.cantidad) + 1) * (+tmp.precio),
+          cantidad: ((+tmp.cantidad) + +cantidadArticulos), precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio),
           notas: tmp.notas
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
             // console.log('UPDATE DETALLE COMANDA = ', res);
-            if (res.exito) {
-              // this.mesaEnUso = res.comanda;
-              // this.llenaProductosSeleccionados(this.mesaEnUso);
-              // this.actualizaProductosSeleccionados(+res.comanda.cuentas[0].cuenta, res.comanda.cuentas[0].productos[0], idx);
-              this.setSelectedCuenta(+this.cuentaActiva.numero);
+            if (res.exito) {              
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
             } else {
-              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', {duration: 3000});
+              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
             }
             this.bloqueoBotones = false;
           })
@@ -527,7 +600,7 @@ export class TranComanda {
             // this.printComanda(toPdf, dialogRef);
             this.prntCmd(dialogRef);
           } else {
-            this.snackBar.open('Error, Debe seleccionar un numero de pedido', 'Comanda', {duration: 7000});
+            this.snackBar.open('Error, Debe seleccionar un numero de pedido', 'Comanda', { duration: 7000 });
           }
         })
       );
@@ -630,7 +703,7 @@ export class TranComanda {
 
                       // this.llenaProductosSeleccionados(resImp.comanda);
                       this.setSelectedCuenta(cuenta.numero);
-                      this.snackBar.open('Cuenta actualizada', `Cuenta #${cuenta.numero}`, {duration: 3000});
+                      this.snackBar.open('Cuenta actualizada', `Cuenta #${cuenta.numero}`, { duration: 3000 });
 
                       // Inicio de impresión de comanda
                       let AImpresoraNormal: ProductoSelected[] = [];
@@ -670,12 +743,12 @@ export class TranComanda {
                               NumeroPedido: meu.numero_pedido,
                               NotasGenerales: (meu.notas_generales || '')
                             })}`);
-                            this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', {duration: 7000});
+                            this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
                           } else {
                             this.snackBar.open(
                               `Comanda #${this.noComanda} enviada a cocina`,
                               'Comanda',
-                              {duration: 7000}
+                              { duration: 7000 }
                             );
                           }
                           this.bloqueoBotones = false;
@@ -712,8 +785,8 @@ export class TranComanda {
                       }
                       if (+this.impreso === meu.cuentas.length) {
                         this.impreso = 0;
-                        this.socket.emit('refrescar:mesa', {mesaenuso: meu});
-                        this.socket.emit('refrescar:listaCocina', {mesaenuso: meu});
+                        this.socket.emit('refrescar:mesa', { mesaenuso: meu });
+                        this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
                         if (+meu.mesa.esmostrador === 0) {
                           if (dialogRef) {
                             dialogRef.close();
@@ -728,7 +801,7 @@ export class TranComanda {
                     })
                   );
                 } else {
-                  this.snackBar.open(`ERROR: ${res.mensaje}`, `Cuenta #${this.cuentaActiva.numero}`, {duration: 3000});
+                  this.snackBar.open(`ERROR: ${res.mensaje}`, `Cuenta #${this.cuentaActiva.numero}`, { duration: 3000 });
                 }
                 this.bloqueoBotones = false;
               })
@@ -866,7 +939,7 @@ export class TranComanda {
     this.noComanda = +meu.comanda;
 
     this.endSubs.add(
-      this.comandaSrvc.obtenerDetalleCuenta({comanda: meu.comanda, impreso: 0}).subscribe(async (res) => {
+      this.comandaSrvc.obtenerDetalleCuenta({ comanda: meu.comanda, impreso: 0 }).subscribe(async (res) => {
         if (res.length > 0) {
           for (const cta of meu.cuentas) {
             const listaProductos = res.filter(r => +r.cuenta_cuenta === +cta.cuenta);
@@ -913,9 +986,9 @@ export class TranComanda {
                     NotasGenerales: (meu.notas_generales || ''),
                     EsReimpresion: true
                   })}`);
-                  this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', {duration: 7000});
+                  this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
                 } else {
-                  this.snackBar.open(`Comanda #${this.noComanda} enviada a cocina`, 'Comanda', {duration: 7000});
+                  this.snackBar.open(`Comanda #${this.noComanda} enviada a cocina`, 'Comanda', { duration: 7000 });
                 }
               }
 
@@ -947,11 +1020,11 @@ export class TranComanda {
                 }
               }
 
-              this.socket.emit('refrescar:listaCocina', {mesaenuso: meu});
+              this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
             }
           }
           this.bloqueoBotones = false;
-          this.socket.emit('refrescar:mesa', {mesaenuso: meu});
+          this.socket.emit('refrescar:mesa', { mesaenuso: meu });
           // this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
           if (+meu.mesa.esmostrador === 0) {
             if (dialogRef) {
@@ -967,7 +1040,7 @@ export class TranComanda {
             this.cobrarCuenta(dialogRef);
           }
         } else {
-          this.snackBar.open('No hay nada pendiente de comandar.', 'Comanda', {duration: 3000});
+          this.snackBar.open('No hay nada pendiente de comandar.', 'Comanda', { duration: 3000 });
         }
       })
     );
@@ -983,7 +1056,7 @@ export class TranComanda {
     try {
       window.location.href = AppHref;
     } catch (error) {
-      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', {duration: 3000});
+      this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', { duration: 3000 });
     }
     this.bloqueoBotones = false;
   }
@@ -993,12 +1066,12 @@ export class TranComanda {
     this.endSubs.add(
       this.pdfServicio.getComanda(noCuenta).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], {type: 'application/pdf'});
+          const blob = new Blob([res], { type: 'application/pdf' });
           const url = window.URL.createObjectURL(blob);
           window.open(url, `cuenta_${noCuenta}`, 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
           // this.closeSideNavEv.emit();
         } else {
-          this.snackBar.open('No se pudo generar la comanda...', 'Comanda', {duration: 3000});
+          this.snackBar.open('No se pudo generar la comanda...', 'Comanda', { duration: 3000 });
         }
       })
     );
@@ -1041,7 +1114,7 @@ export class TranComanda {
         EsReimpresion: true,
         Ubicacion:
           `${this.mesaEnUso.mesa.area.nombre} - Mesa ${this.mesaEnUso.mesa.etiqueta || this.mesaEnUso.mesa.numero
-            } - Comanda ${this.mesaEnUso.comanda}`,
+          } - Comanda ${this.mesaEnUso.comanda}`,
         Mesero: `${this.mesaEnUso.mesero.nombres} ${this.mesaEnUso.mesero.apellidos}`
       };
 
@@ -1050,24 +1123,24 @@ export class TranComanda {
       } else {
         this.printToBT(JSON.stringify(msgToPrint));
       }
-      this.snackBar.open(`Imprimiendo cuenta de ${this.cuentaActiva.nombre}`, 'Cuenta', {duration: 7000});
+      this.snackBar.open(`Imprimiendo cuenta de ${this.cuentaActiva.nombre}`, 'Cuenta', { duration: 7000 });
       if (dialogRef) {
         dialogRef.close();
       } else {
         this.closeSideNavEv.emit();
       }
     } else {
-      this.snackBar.open(`La cuenta de ${this.cuentaActiva.nombre} no tiene ningún artículo.`, 'Cuenta', {duration: 7000});
+      this.snackBar.open(`La cuenta de ${this.cuentaActiva.nombre} no tiene ningún artículo.`, 'Cuenta', { duration: 7000 });
     }
     this.bloqueoBotones = false;
   }
 
   unirCuentas = async (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
-    const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({comanda: this.mesaEnUso.comanda}).toPromise();
+    const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({ comanda: this.mesaEnUso.comanda }).toPromise();
     const lstProdsSel = lstProds.map(p => this.convertToProductoSelected(p));
     const unirCuentaRef = this.dialog.open(UnirCuentaComponent, {
       width: '55%',
-      data: {lstProductosSeleccionados: lstProdsSel, mesaEnUso: this.mesaEnUso}
+      data: { lstProductosSeleccionados: lstProdsSel, mesaEnUso: this.mesaEnUso }
     });
 
     this.endSubs.add(
@@ -1085,9 +1158,9 @@ export class TranComanda {
 
   cobrarCuenta(dialogRef: MatDialogRef<TranComandaAltComponent> = null) {
     this.endSubs.add(
-      this.comandaSrvc.obtenerDetalleCuenta({cuenta: this.cuentaActiva.cuenta, impreso: 0}).subscribe(res => {
+      this.comandaSrvc.obtenerDetalleCuenta({ cuenta: this.cuentaActiva.cuenta, impreso: 0 }).subscribe(res => {
         if (res.length > 0) {
-          this.snackBar.open('Cobro', 'Tiene productos sin comandar', {duration: 3000});
+          this.snackBar.open('Cobro', 'Tiene productos sin comandar', { duration: 3000 });
         } else {
           this.lstProductosDeCuenta = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
           const productosACobrar = this.lstProductosDeCuenta.filter(p => +p.impreso === 1);
@@ -1127,7 +1200,7 @@ export class TranComanda {
               })
             );
           } else {
-            this.snackBar.open('Cobro', 'Sin productos a cobrar.', {duration: 3000});
+            this.snackBar.open('Cobro', 'Sin productos a cobrar.', { duration: 3000 });
           }
         }
       })
@@ -1177,13 +1250,13 @@ export class TranComanda {
   trasladoMesa = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
     const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
       width: '55%',
-      data: {mesaEnUso: this.mesaEnUso}
+      data: { mesaEnUso: this.mesaEnUso }
     });
 
     this.endSubs.add(
       trasladoRef.afterClosed().subscribe(result => {
         if (result) {
-          this.socket.emit('refrescar:mesa', {mesaenuso: this.mesaEnUso});
+          this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
           if (dialogRef) {
             dialogRef.close(this.mesaEnUso);
           } else {
@@ -1197,7 +1270,7 @@ export class TranComanda {
   getNotasGenerales = () => {
     const ngenDialog = this.dialog.open(NotasGeneralesComandaComponent, {
       width: '50%',
-      data: {notasGenerales: (this.mesaEnUso.notas_generales || '')}
+      data: { notasGenerales: (this.mesaEnUso.notas_generales || '') }
     });
     this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
@@ -1210,9 +1283,9 @@ export class TranComanda {
               }).subscribe(res => {
                 if (res.exito) {
                   this.mesaEnUso.notas_generales = notasGen;
-                  this.snackBar.open(res.mensaje, 'Comanda', {duration: 3000});
+                  this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
                 } else {
-                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', {duration: 7000});
+                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
                 }
               })
             );
@@ -1225,7 +1298,7 @@ export class TranComanda {
   nuevaCuenta = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
     const nuevaCuentaRef = this.dialog.open(NuevaCuentaComponent, {
       width: '50%',
-      data: {mesaEnUso: this.mesaEnUso}
+      data: { mesaEnUso: this.mesaEnUso }
     });
 
     this.endSubs.add(
@@ -1242,11 +1315,11 @@ export class TranComanda {
   }
 
   distribuirProductos = async (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
-    const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({comanda: this.mesaEnUso.comanda}).toPromise();
+    const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({ comanda: this.mesaEnUso.comanda }).toPromise();
     const lstProdsSel = lstProds.map(p => this.convertToProductoSelected(p));
     const distProdCtaRef = this.dialog.open(DistribuirProductosCuentasComponent, {
       width: '50%',
-      data: {mesaEnUso: this.mesaEnUso, lstProductos: (lstProdsSel || [])}
+      data: { mesaEnUso: this.mesaEnUso, lstProductos: (lstProdsSel || []) }
     });
     this.endSubs.add(
       distProdCtaRef.afterClosed().subscribe(result => {

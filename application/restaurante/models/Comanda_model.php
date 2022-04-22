@@ -140,7 +140,10 @@ class Comanda_model extends General_Model
                 $artMulti = new Articulo_model($rec['articulo']);
                 $multi = $this->setDetalle($rec['articulo'], $cuenta, $combo->detalle_comanda, $receta[0]->precio, (float)$args['cantidad'] * (float)$receta[0]->cantidad);
 
-                $rec['receta'] = get_unicos($rec['receta']);
+                if (!isset($args['_no_calcula_unicos']) && !array_key_exists('_no_calcula_unicos', $args)) {
+                    $rec['receta'] = get_unicos($rec['receta']);
+                }
+
                 foreach ($rec['receta'] as $seleccion) {
                     $recetaSelec = $artMulti->getReceta(["articulo" => $seleccion['articulo'], "_uno" => true]);
                     
