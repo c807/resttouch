@@ -235,44 +235,50 @@ class Fisico extends CI_Controller {
 
 	public function buscar_detalle($inv)
 	{
-		$fisico = new Fisico_model($inv);
+		$srchInvFisico = $this->Fisico_model->buscar(['inventario_fisico' => $inv, 'sede' => $this->data->sede, '_uno' => true]);
 		$datos = [];
 		$data = ["exito" => 0];
-
-		if ($fisico->getPK()) {
-			foreach ($fisico->getDetalle() as $row) {
-				$art = new Articulo_model($row->articulo);
-				$pres = $art->getPresentacionReporte();
-				$row->existencia_sistema = round($row->existencia_sistema/$pres->cantidad, 2);
-				if (!isset($datos[$row->categoria])) {
-					$datos[$row->categoria] = [
-						"descripcion" => $row->ncategoria,
-						"datos" => []
-					];
-				} 
-
-
-				if (!isset($datos[$row->categoria]['datos'][$row->categoria_grupo])) {
-					$datos[$row->categoria]['datos'][$row->categoria_grupo] = [
-						"descripcion" => $row->ncategoria_grupo,
-						"datos" => []
-					];
+		if ($srchInvFisico) {
+			$fisico = new Fisico_model($inv);	
+			if ($fisico->getPK()) {
+				foreach ($fisico->getDetalle() as $row) {
+					$art = new Articulo_model($row->articulo);
+					$pres = $art->getPresentacionReporte();
+					$row->existencia_sistema = round($row->existencia_sistema/$pres->cantidad, 2);
+					$row->existencia_fisica = (float)$row->existencia_fisica;
+					$row->diferencia = (float)$row->diferencia;
+					if (!isset($datos[$row->categoria])) {
+						$datos[$row->categoria] = [
+							"descripcion" => $row->ncategoria,
+							"datos" => []
+						];
+					} 
+	
+	
+					if (!isset($datos[$row->categoria]['datos'][$row->categoria_grupo])) {
+						$datos[$row->categoria]['datos'][$row->categoria_grupo] = [
+							"descripcion" => $row->ncategoria_grupo,
+							"datos" => []
+						];
+					}
+	
+					$datos[$row->categoria]['datos'][$row->categoria_grupo]['datos'][] = $row;
 				}
-
-				$datos[$row->categoria]['datos'][$row->categoria_grupo]['datos'][] = $row;
+	
+				foreach ($datos as $row) {
+					$row['datos'] = array_values($row['datos']);
+					$data['detalle'][] = $row;
+				}
+	
+				$data['inventario'] = $this->Fisico_model->buscar([
+					"inventario_fisico" => $fisico->getPK(),
+					"_uno" => true
+				]);	
+	
+				$data['exito'] = 1;
+			} else {
+				$data['mensaje'] = "No existe un inventario físico con este número {$inv}";
 			}
-
-			foreach ($datos as $row) {
-				$row['datos'] = array_values($row['datos']);
-				$data['detalle'][] = $row;
-			}
-
-			$data['inventario'] = $this->Fisico_model->buscar([
-				"inventario_fisico" => $fisico->getPK(),
-				"_uno" => true
-			]);	
-
-			$data['exito'] = 1;
 		} else {
 			$data['mensaje'] = "No existe un inventario físico con este número {$inv}";
 		}
