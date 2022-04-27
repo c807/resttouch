@@ -10,20 +10,13 @@ import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 
-import { ComandaGetResponse } from '../../interfaces/comanda';
+import { IDatosTranComanda } from '../../interfaces/comanda';
 import { Articulo, NodoProducto } from '../../../wms/interfaces/articulo';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 
 import { ComandaService } from '../../services/comanda.service';
 import { ArticuloService } from '../../../wms/services/articulo.service';
 import { ReportePdfService } from '../../services/reporte-pdf.service';
 import { UsuarioService } from '../../../admin/services/usuario.service';
-
-interface IDatosTranComanda {
-  mesa: ComandaGetResponse;
-  clientePedido: (Cliente | ClienteMaster);
-}
 
 @Component({
   selector: 'app-tran-comanda-alt',

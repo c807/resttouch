@@ -14,6 +14,7 @@ import { db } from '../../../offline/db';
 import { AbrirMesaComponent } from '../abrir-mesa/abrir-mesa.component';
 import { TranComandaComponent } from '../tran-comanda/tran-comanda.component';
 import { TranComandaAltComponent } from '../tran-comanda-alt/tran-comanda-alt.component';
+import { MTranComandaComponent } from '../mobile/m-tran-comanda/m-tran-comanda.component';
 import { Area } from '../../interfaces/area';
 import { AreaService } from '../../services/area.service';
 import { Comanda, ComandaGetResponse } from '../../interfaces/comanda';
@@ -246,6 +247,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
           switch (this.configTipoPantalla) {
             case 1: this.toggleRightSidenav(); break;
             case 2: this.openTranComandaAlt(); break;
+            case 3: this.openMobileTranComanda(); break;
             default: this.toggleRightSidenav();
           }
         } else {
@@ -429,6 +431,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
             switch (this.configTipoPantalla) {
               case 1: this.toggleRightSidenav(); break;
               case 2: this.openTranComandaAlt(); break;
+              case 3: this.openMobileTranComanda(); break;
               default: this.toggleRightSidenav();
             }
           } else {
@@ -467,6 +470,25 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.endSubs.add(
       seguimientoCallCenterRef.afterClosed().subscribe(() => { })
+    );
+  }
+
+  openMobileTranComanda = () => {
+    const mTranComandaRef = this.dialog.open(MTranComandaComponent, {
+      maxWidth: '100vw', maxHeight: '99vh', width: '99vw', height: '99vh',
+      disableClose: true,
+      data: { mesa: this.mesaSeleccionada, clientePedido: this.clientePedido }
+    });
+
+    this.endSubs.add(
+      mTranComandaRef.afterClosed().subscribe((res: any) => {
+        this.checkEstatusMesa();
+        if (res) {
+          this.loadAreas(true, { mesaenuso: res });
+        } else {
+          this.cargando = false;
+        }
+      })
     );
   }
 }

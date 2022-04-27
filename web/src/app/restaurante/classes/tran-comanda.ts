@@ -17,7 +17,6 @@ import { ConfirmDialogComboModel, DialogComboComponent } from '../../shared/comp
 import { NotasGeneralesComandaComponent } from '../components/notas-generales-comanda/notas-generales-comanda.component';
 import { NuevaCuentaComponent } from '../components/nueva-cuenta/nueva-cuenta.component';
 import { DistribuirProductosCuentasComponent } from '../components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
-import { TranComandaAltComponent } from '../components/tran-comanda-alt/tran-comanda-alt.component';
 import { CantidadCombosDialogComponent } from '../components/cantidad-combos-dialog/cantidad-combos-dialog.component';
 import { HistoricoPedidosComponent } from '../components/historico-pedidos/historico-pedidos.component';
 import { PedirCantidadArticuloComponent } from '../components/pedir-cantidad-articulo/pedir-cantidad-articulo.component';
@@ -574,7 +573,7 @@ export class TranComanda {
     return tmp;
   }
 
-  validarImpresion(toPdf = false, dialogRef: MatDialogRef<TranComandaAltComponent> = null) {
+  validarImpresion<T>(toPdf = false, dialogRef: MatDialogRef<T> = null) {
     const ingresarPedido = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_INGRESO_NUMERO_PEDIDO);
     // this.mesaEnUso.mesa.esmostrador;
     // console.log(this.mesaEnUso);
@@ -652,7 +651,7 @@ export class TranComanda {
     return lista;
   }
 
-  printComanda(toPdf = false, dialogRef: MatDialogRef<TranComandaAltComponent> = null) {
+  printComanda<T>(toPdf = false, dialogRef: MatDialogRef<T> = null) {
     // solicitar numero de pedido
     const meu = JSON.parse(JSON.stringify(this.mesaEnUso));
     const tmpCuentaActiva = JSON.parse(JSON.stringify(this.cuentaActiva));
@@ -928,7 +927,7 @@ export class TranComanda {
     return obj;
   }
 
-  prntCmd = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  prntCmd = <T>(dialogRef: MatDialogRef<T> = null) => {
     const meu: ComandaGetResponse = JSON.parse(JSON.stringify(this.mesaEnUso));
     const tmpCuentaActiva: Cuenta = JSON.parse(JSON.stringify(this.cuentaActiva));
 
@@ -1087,7 +1086,7 @@ export class TranComanda {
     return total;
   }
 
-  printCuenta(dialogRef: MatDialogRef<TranComandaAltComponent> = null) {
+  printCuenta<T>(dialogRef: MatDialogRef<T> = null) {
     this.bloqueoBotones = true;
     this.lstProductosDeCuenta = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
     this.lstProductosAImprimir = this.lstProductosDeCuenta.filter(p => +p.impreso === 1);
@@ -1135,7 +1134,7 @@ export class TranComanda {
     this.bloqueoBotones = false;
   }
 
-  unirCuentas = async (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  unirCuentas = async <T>(dialogRef: MatDialogRef<T> = null) => {
     const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({ comanda: this.mesaEnUso.comanda }).toPromise();
     const lstProdsSel = lstProds.map(p => this.convertToProductoSelected(p));
     const unirCuentaRef = this.dialog.open(UnirCuentaComponent, {
@@ -1156,7 +1155,7 @@ export class TranComanda {
     );
   }
 
-  cobrarCuenta(dialogRef: MatDialogRef<TranComandaAltComponent> = null) {
+  cobrarCuenta<T>(dialogRef: MatDialogRef<T> = null) {
     this.endSubs.add(
       this.comandaSrvc.obtenerDetalleCuenta({ cuenta: this.cuentaActiva.cuenta, impreso: 0 }).subscribe(res => {
         if (res.length > 0) {
@@ -1207,7 +1206,7 @@ export class TranComanda {
     );
   }
 
-  enviarPedido = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  enviarPedido = <T>(dialogRef: MatDialogRef<T> = null) => {
     const cuenta = this.mesaEnUso.cuentas[0];
     this.cuentaActiva = this.mesaEnUso.cuentas.find((c: Cuenta) => +c.numero === +cuenta.numero);
     const lstProductosDeCuenta = this.lstProductosCuentaAlt.map(p => {
@@ -1247,7 +1246,7 @@ export class TranComanda {
     this.mesaEnUso.cuentas[idxCta].cerrada = +obj.cerrada;
   }
 
-  trasladoMesa = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  trasladoMesa = <T>(dialogRef: MatDialogRef<T> = null) => {
     const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
       width: '55%',
       data: { mesaEnUso: this.mesaEnUso }
@@ -1295,7 +1294,7 @@ export class TranComanda {
     );
   }
 
-  nuevaCuenta = (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  nuevaCuenta = <T>(dialogRef: MatDialogRef<T> = null) => {
     const nuevaCuentaRef = this.dialog.open(NuevaCuentaComponent, {
       width: '50%',
       data: { mesaEnUso: this.mesaEnUso }
@@ -1314,7 +1313,7 @@ export class TranComanda {
     );
   }
 
-  distribuirProductos = async (dialogRef: MatDialogRef<TranComandaAltComponent> = null) => {
+  distribuirProductos = async <T>(dialogRef: MatDialogRef<T> = null) => {
     const lstProds = await this.comandaSrvc.obtenerDetalleCuenta({ comanda: this.mesaEnUso.comanda }).toPromise();
     const lstProdsSel = lstProds.map(p => this.convertToProductoSelected(p));
     const distProdCtaRef = this.dialog.open(DistribuirProductosCuentasComponent, {
@@ -1334,7 +1333,7 @@ export class TranComanda {
     );
   }
 
-  abrirAccionesComanda = (dialogRef: MatDialogRef<TranComandaAltComponent>) => {
+  abrirAccionesComanda = <T>(dialogRef: MatDialogRef<T>) => {
     const bs = this.bsAccionesCmd.open(AccionesComandaComponent, {
       autoFocus: false,
       data: {

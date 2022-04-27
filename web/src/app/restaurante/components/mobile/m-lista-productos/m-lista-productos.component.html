@@ -1,0 +1,12 @@
+<mat-tab-group backgroundColor="accent" (selectedTabChange)="changeCategoriaTab($event)">
+    <mat-tab *ngFor="let categoria of categorias" label="{{categoria.descripcion}}">        
+        <ng-container *ngFor="let subcat of listaSubCategorias(categoria.categoria)">
+            <button mat-raised-button color="primary" (click)="listaArticulos(categoria.categoria, subcat.categoria_grupo)">
+                {{subcat.descripcion}}
+            </button>
+        </ng-container>
+        <mat-action-list>
+            <button mat-list-item class="btn-accion-articulo mat-elevation-z4" *ngFor="let articulo of articulosFiltered" (click)="clickEnArticulo(articulo)">{{articulo.descripcion}}</button>
+        </mat-action-list>
+    </mat-tab>
+</mat-tab-group>

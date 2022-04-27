@@ -1,5 +1,7 @@
 import { Cuenta } from './cuenta';
 import { Impresora } from '../../admin/interfaces/impresora';
+import { Cliente } from '../../admin/interfaces/cliente';
+import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
 
 export interface Comanda {
     area: number;
@@ -54,4 +56,9 @@ export interface ComandaGetResponse {
     numero_pedido?: string;
     notas_generales?: string;
     cliente_master?: number;
+}
+
+export interface IDatosTranComanda {
+    mesa: ComandaGetResponse;
+    clientePedido: (Cliente | ClienteMaster);
 }

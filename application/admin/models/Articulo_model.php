@@ -927,7 +927,7 @@ class Articulo_model extends General_model
 		}
 
 		$articulos = $this->db
-			->select('c.descripcion AS descripcionArticulo')
+			->select('c.descripcion AS descripcionArticulo, a.categoria')
 			->join('categoria_grupo b', 'b.categoria_grupo = c.categoria_grupo')
 			->join('categoria a', 'a.categoria = b.categoria')
 			->join('impresora d', 'd.impresora = b.impresora')

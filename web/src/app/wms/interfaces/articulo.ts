@@ -34,6 +34,7 @@ export interface Articulo {
     esextra?: number;
     stock_minimo?: number;
     stock_maximo?: number;
+    categoria?: number;
 }
 
 export interface ArticuloResponse {
