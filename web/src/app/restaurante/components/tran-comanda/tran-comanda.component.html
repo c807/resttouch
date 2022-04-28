@@ -2,7 +2,7 @@
     <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="center start">
         <span class="bld" style="font-size: 16pt; margin-left: 10px;" *ngIf="mesaEnUso">
             {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda
-            {{mesaEnUso.comanda}}
+            {{mesaEnUso.comanda | number:'1.0-0'}}
         </span>
     </div>
     <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">

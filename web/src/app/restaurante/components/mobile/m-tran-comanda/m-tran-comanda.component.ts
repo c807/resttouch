@@ -3,6 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 // import { MatInput } from '@angular/material/input';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSelectChange } from '@angular/material/select';
 // import { GLOBAL } from '../../../../shared/global';
 import { TranComanda } from '../../../classes/tran-comanda';
 import { Socket } from 'ngx-socket-io';
@@ -10,7 +11,7 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 
 import { IDatosTranComanda } from '../../../interfaces/comanda';
-import { Articulo } from '../../../../wms/interfaces/articulo';
+import { Articulo, NodoProducto } from '../../../../wms/interfaces/articulo';
 
 import { ComandaService } from '../../../services/comanda.service';
 import { ArticuloService } from '../../../../wms/services/articulo.service';
@@ -24,13 +25,15 @@ import { UsuarioService } from '../../../../admin/services/usuario.service';
 })
 export class MTranComandaComponent extends TranComanda implements OnInit, OnDestroy {
 
-  // @ViewChild('txtCodigoBarras') txtCodigoBarras: MatInput;
+  // @ViewChild('txtCodigoBarras') txtCodigoBarras: MatInput;  
 
   public categorias: any[] = [];
   public subCategorias: any[] = [];
   public listaSubCategorias: any[] = [];
   public articulos: Articulo[] = [];
   public fullListArticulos: Articulo[] = [];  
+  // public cantidadDeArticulos = 0;
+  // public totalDeCuenta = 0;
 
   constructor(
     public dialogRef: MatDialogRef<MTranComandaComponent>,
@@ -89,5 +92,33 @@ export class MTranComandaComponent extends TranComanda implements OnInit, OnDest
       })
     );
   }
+
+  addArticulo = (art: Articulo) => {    
+    if (!this.bloqueoBotones) {
+      const obj: NodoProducto = {
+        id: +art.articulo,
+        nombre: art.descripcion,
+        precio: +art.precio,
+        impresora: art.impresora,
+        presentacion: art.presentacion,
+        codigo: art.codigo,
+        combo: art.combo,
+        multiple: art.multiple
+      };      
+      this.pedirCantidadArticulo(obj);
+    }
+  }
+
+  msChangeCuenta = (laCuenta: MatSelectChange) => {
+    this.setSelectedCuenta(laCuenta.value.numero);
+  }
+
+  // setCantidadDeArticulos = (cnt: number) => {    
+  //   this.cantidadDeArticulos = cnt;
+  // }
+
+  // setTotalDeCuenta = (tot: number) => {    
+  //   this.totalDeCuenta = tot;
+  // }
 
 }

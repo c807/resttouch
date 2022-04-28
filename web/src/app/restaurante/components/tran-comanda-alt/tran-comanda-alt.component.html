@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayout.xs="column">
   <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="start start">
         <span class="bld" style="font-size: 16pt; margin-left: 10px;">
-            {{mesaEnUso.mesa.area.nombre}} - Mesa{{mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda}}
+            {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda | number:'1.0-0'}}
         </span>
   </div>
   <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">

@@ -33,6 +33,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { LayoutModule } from '@angular/cdk/layout';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 import { EcoFabSpeedDialModule } from '@ecodev/fab-speed-dial';
@@ -94,6 +95,7 @@ import { PedirCantidadArticuloComponent } from './components/pedir-cantidad-arti
 import { ArmarComboComponent } from './components/armar-combo/armar-combo.component';
 import { MTranComandaComponent } from './components/mobile/m-tran-comanda/m-tran-comanda.component';
 import { MListaProductosComponent } from './components/mobile/m-lista-productos/m-lista-productos.component';
+import { MAccionesArticuloComandaComponent } from './components/mobile/m-acciones-articulo-comanda/m-acciones-articulo-comanda.component';
 
 @NgModule({
   declarations: [
@@ -105,7 +107,7 @@ import { MListaProductosComponent } from './components/mobile/m-lista-productos/
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
-    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent
+    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent
   ],
   imports: [
     CommonModule,
@@ -144,7 +146,8 @@ import { MListaProductosComponent } from './components/mobile/m-lista-productos/
     MatBadgeModule,
     MatChipsModule,
     MatBottomSheetModule,
-    MatKeyboardModule
+    MatKeyboardModule,
+    LayoutModule
   ],
   providers: [
     MatNativeDateModule

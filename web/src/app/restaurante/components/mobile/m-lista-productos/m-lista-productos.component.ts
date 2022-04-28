@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Articulo } from '../../../../wms/interfaces/articulo';
 
@@ -19,9 +20,12 @@ export class MListaProductosComponent implements OnInit {
   @Input() categorias: any[] = [];
   @Input() subCategorias: any[] = [];  
   @Input() articulos: Articulo[] = [];
+  @Output() clickEnArticuloEv = new EventEmitter<Articulo>();
   public articulosFiltered: Articulo[] = [];
 
-  constructor() { }
+  constructor(
+    private snackBar: MatSnackBar,
+  ) { }
 
   ngOnInit(): void {
   }
@@ -41,7 +45,7 @@ export class MListaProductosComponent implements OnInit {
   }
 
   clickEnArticulo = (obj: Articulo) => {
-    console.log('ARTICULO = ', obj);
+    this.clickEnArticuloEv.emit(obj);
   }
 
 }

@@ -1,0 +1,14 @@
+<mat-action-list align="right">
+    <button class="mat-elevation-z4 btnAccion" mat-icon-button style="background-color: #F3D852;" (click)="cerrar(1)" *ngIf="+data.p.impreso === 0">
+        <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+    </button>
+    <button class="mat-elevation-z4 btnAccion" mat-icon-button style="background-color: #F3D852;" (click)="cerrar(2)" *ngIf="data.p.detalle.length <= 1 && +data.p.impreso === 0 && +data.p.combo === 0">
+        <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
+    </button>
+    <button class="mat-elevation-z4 btnAccion" mat-icon-button style="background-color: #F3D852;" (click)="cerrar(3)" *ngIf="+data.p.impreso === 0">
+        <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
+    </button>
+    <button class="mat-elevation-z4 btnAccion" mat-icon-button style="background-color: #F3D852;" (click)="cerrar(4)" *ngIf="+data.p.impreso === 1">
+        <mat-icon style="font-size: 16pt !important;">delete_forever</mat-icon>
+    </button>    
+</mat-action-list>

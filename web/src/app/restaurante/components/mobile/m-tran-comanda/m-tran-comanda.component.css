@@ -1,7 +1,6 @@
 .contenido {
-    max-height: 80vh !important;
+    max-height: 66vh !important;
     height: 100%;
     overflow-y: auto;
-    padding: 0 5px;
-    /* border: 1px solid #ccc; */
+    padding: 0 5px;    
 }

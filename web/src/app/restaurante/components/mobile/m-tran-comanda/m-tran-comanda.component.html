@@ -1,10 +1,34 @@
-<h1 mat-dialog-title>Toma de comanda (Mobile)</h1>
+<h1 mat-dialog-title>
+    <small>
+        {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda | number:'1.0-0'}}<br />
+        <mat-form-field>
+            <mat-label>Cuenta</mat-label>
+            <mat-select [(ngModel)]="cuentaActiva" [ngModelOptions]="{ standalone: true }"
+                (selectionChange)="msChangeCuenta($event)" [disabled]="+mesaEnUso.cuentas.length <= 1">
+                <mat-option *ngFor="let cta of mesaEnUso.cuentas" [value]="cta"
+                    [disabled]="+cta.cerrada === 1 || bloqueoBotones">
+                    {{cta.nombre}}
+                </mat-option>
+            </mat-select>            
+        </mat-form-field>        
+        <!-- <span style="margin-left: 5px;">{{cantidadDeArticulos | number:'1.2-2'}}x{{totalDeCuenta | number:'1.2-2'}}</span> -->
+    </small>
+</h1>
 <div mat-dialog-content class="contenido">
     <mat-tab-group mat-align-tabs="center">
         <mat-tab label="Artículos">
-            <app-m-lista-productos [categorias]="categorias" [subCategorias]="subCategorias" [articulos]="articulos"></app-m-lista-productos>
+            <app-m-lista-productos [categorias]="categorias" [subCategorias]="subCategorias" [articulos]="articulos"
+                (clickEnArticuloEv)="addArticulo($event)">
+            </app-m-lista-productos>
         </mat-tab>
-        <mat-tab label="Cuenta"> Aquí van los datos de la cuenta </mat-tab>
+        <mat-tab label="Cuenta">
+            <!-- <ng-template mat-tab-label>
+                <span [matBadge]="cantidadDeArticulos" matBadgeOverlap="false" matBadgeColor="accent" matBadgeSize="large">Cuenta</span>                
+            </ng-template> -->
+            <app-lista-productos-comanda-alt [detalleCuenta]="lstProductosCuentaAlt" [bloqueoBotones]="bloqueoBotones"
+                [rolesUsuario]="rolesUsuario" (productoRemovedEv)="setSelectedCuenta($event)" [mesaEnUso]="mesaEnUso">
+            </app-lista-productos-comanda-alt>
+        </mat-tab>
     </mat-tab-group>
 </div>
 <div mat-dialog-actions align="end">

@@ -1,12 +1,15 @@
 import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { GLOBAL } from '../../../shared/global';
 
 import { ValidaPwdGerenteTurnoComponent } from '../valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
 import { DialogElminarProductoComponent, ElminarProductoModel } from '../../../shared/components/dialog-elminar-producto/dialog-elminar-producto.component';
 import { NotasGeneralesComandaComponent } from '../../components/notas-generales-comanda/notas-generales-comanda.component';
+import { MAccionesArticuloComandaComponent } from '../mobile/m-acciones-articulo-comanda/m-acciones-articulo-comanda.component';
 import { Socket } from 'ngx-socket-io';
 
 import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
@@ -14,7 +17,7 @@ import { DetalleComanda } from '../../interfaces/detalle-comanda';
 import { ComandaService } from '../../services/comanda.service';
 import { ComandaGetResponse } from '../../interfaces/comanda';
 
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-productos-comanda-alt',
@@ -28,6 +31,9 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     for (const p of this.detalleCuenta) {
       cntProd += +p.cantidad;
     }
+    // if (cntProd > 0) {
+    //   this.cantidadCalculadaEv.emit(cntProd);
+    // }    
     return cntProd;
   }
 
@@ -38,6 +44,9 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       for (const p of lst) {          
         totProd += +p.total + this.totalDeProductos(p.detalle);
       }
+      // if (totProd > 0) {
+      //   this.totalCalculadoEv.emit(totProd);
+      // }
       return totProd;
     }
   }
@@ -55,10 +64,14 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
   @Input() mesaEnUso: ComandaGetResponse = undefined;
   @Input() rolesUsuario = '';
   @Output() productoRemovedEv = new EventEmitter();
+  // @Output() cantidadCalculadaEv = new EventEmitter<number>();
+  // @Output() totalCalculadoEv = new EventEmitter<number>();
 
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public detalleComanda: DetalleComanda;
+  public layoutChanges: Observable<BreakpointState>;
+  public isXSmallScreen = false;
 
   private endSubs = new Subscription();
 
@@ -68,10 +81,23 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     private comandaSrvc: ComandaService,
     private socket: Socket,
     public dialog: MatDialog,
+    public breakpointObserver: BreakpointObserver,
+    public bsAccionesArticuloCmd: MatBottomSheet,
   ) { }
 
   ngOnInit(): void {
+    // this.isXSmallScreen = this.breakpointObserver.isMatched('(max-width: 599px)');
+    this.isXSmallScreen = this.breakpointObserver.isMatched(Breakpoints.XSmall);
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+
+
+    this.layoutChanges = this.breakpointObserver.observe([
+      Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge
+    ]);
+
+    this.endSubs.add(
+      this.layoutChanges.subscribe(() => this.isXSmallScreen = this.breakpointObserver.isMatched(Breakpoints.XSmall))
+    );
   }
 
   ngOnDestroy(): void {
@@ -230,6 +256,25 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       })
     );
     this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });    
+  }
+
+  abrirAccionesArticuloComanda = (p: DetalleCuentaSimplified, i: number) => {
+    const bs = this.bsAccionesArticuloCmd.open(MAccionesArticuloComandaComponent, {
+      autoFocus: false,
+      data: { p }
+    });
+
+    this.endSubs.add(
+      bs.afterDismissed().subscribe((res: number) => {        
+        switch(+res) {
+          case 1: this.deleteProductoFromList(p, i); break;
+          case 2: this.removeProducto(p, i); break;
+          case 3: this.toggleShowInputNotas(p); break;
+          case 4: this.deleteProductoFromListAfterPrinted(p, i); break;
+        }
+      })
+    );
+
   }
 
 }
