@@ -92,8 +92,7 @@ export class ComandaComponent implements OnInit, OnDestroy {
   }
 
   excelClick = () => {
-    console.log(this.params);
-    this.cargando = true;    
+    this.cargando = true;
     this.pdfServicio.getReporteComandas(this.params).subscribe(res => {
       this.cargando = false;
       if (res) {
