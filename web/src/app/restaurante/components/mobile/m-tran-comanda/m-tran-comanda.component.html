@@ -1,6 +1,7 @@
 <h1 mat-dialog-title>
     <small>
-        {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda {{mesaEnUso.comanda | number:'1.0-0'}}<br />
+        {{mesaEnUso.mesa.area.nombre}} - Mesa {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda
+        {{mesaEnUso.comanda | number:'1.0-0'}}<br />
         <mat-form-field>
             <mat-label>Cuenta</mat-label>
             <mat-select [(ngModel)]="cuentaActiva" [ngModelOptions]="{ standalone: true }"
@@ -9,14 +10,25 @@
                     [disabled]="+cta.cerrada === 1 || bloqueoBotones">
                     {{cta.nombre}}
                 </mat-option>
-            </mat-select>            
-        </mat-form-field>        
-        <!-- <span style="margin-left: 5px;">{{cantidadDeArticulos | number:'1.2-2'}}x{{totalDeCuenta | number:'1.2-2'}}</span> -->
+            </mat-select>
+        </mat-form-field>
+        <button mat-raised-button type="button" color="accent" style="margin-left: 5px;"
+            (click)="nuevaCuenta(dialogRef)" [disabled]="bloqueoBotones">
+            <mat-icon style="font-size: 16pt !important;">add</mat-icon>
+        </button>
     </small>
 </h1>
-<div mat-dialog-content class="contenido">
+<div mat-dialog-content class="contenido">    
+    <!-- Inicia input para código de barras -->
+    <mat-form-field class="fullWidth" *ngIf="usaCodigoBarras">
+        <input #txtCodigoBarras="matInput" matInput cdkFocusInitial ngxBarCodePut type="text"
+            placeholder="Código" name="codigoBarras" [(ngModel)]="codigoBarras"
+            [ngModelOptions]="{standalone: true}" (onDetected)="buscarArticulo()">
+    </mat-form-field>
+    <br *ngIf="usaCodigoBarras" />
+    <!-- Fin de input para código de barras -->
     <mat-tab-group mat-align-tabs="center">
-        <mat-tab label="Artículos">
+        <mat-tab label="Artículos">            
             <app-m-lista-productos [categorias]="categorias" [subCategorias]="subCategorias" [articulos]="articulos"
                 (clickEnArticuloEv)="addArticulo($event)">
             </app-m-lista-productos>

@@ -5,14 +5,8 @@ import { MatSelectChange } from '@angular/material/select';
 import { GLOBAL } from '../../../shared/global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import * as moment from 'moment';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogModel
-} from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import {
-  CheckPasswordComponent,
-  ConfigCheckPasswordModel
-} from '../../../shared/components/check-password/check-password.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../shared/components/check-password/check-password.component';
 import { Socket } from 'ngx-socket-io';
 
 import { FormaPago } from '../../interfaces/forma-pago';

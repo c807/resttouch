@@ -55,9 +55,10 @@
           <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (input)="calculaVuelto(formaPago)">
           <input matInput *ngIf="esMovil" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (keyup)="calculaVuelto(formaPago)">
         </mat-form-field>
-        <mat-form-field class="fullWidth" *ngIf="esEfectivo">
+        <!-- <mat-form-field class="fullWidth" *ngIf="esEfectivo">
           <input matInput placeholder="Vuelto" name="vuelto" [(ngModel)]="formaPago.vuelto" disabled="true">
-        </mat-form-field>
+        </mat-form-field> -->
+        <span class="vuelto" *ngIf="esEfectivo">Vuelto: {{(formaPago.vuelto || 0) | number:'1.2-2'}}</span>
         <!-- Fin de vuelto para -->
 
         <!-- Inicia input de documento -->
