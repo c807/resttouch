@@ -363,6 +363,12 @@ class Reporte_model extends CI_Model
 			$this->db->where("{$tipoFecha} <=", $args['fal']);
 		}
 
+		if (isset($args['formas_pago']) && is_array($args['formas_pago']) && count($args['formas_pago']) > 0) {
+			$fp = implode(',', $args['formas_pago']);
+			$joinSelect = "(SELECT z.comanda FROM cuenta z INNER JOIN cuenta_forma_pago y ON z.cuenta = y.cuenta WHERE y.forma_pago IN({$fp}) GROUP BY z.comanda)";
+			$this->db->join("{$joinSelect} h", 'a.comanda = h.comanda', 'inner', false);
+		}
+
 		$select = "a.comanda, TRIM(CONCAT(IFNULL(b.nombres, ''), ' ', IFNULL(b.apellidos, ''))) AS usuario, TRIM(d.nombre) AS sede, a.turno, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i:%s') AS fecha_turno, ";
 		$select .= "TRIM(f.descripcion) AS turno_tipo, DATE_FORMAT(e.inicio, '%d/%m/%Y %H:%i:%s') AS inicio_turno, DATE_FORMAT(e.fin, '%d/%m/%Y %H:%i:%s') AS fin_turno, ";
 		$select .= "TRIM(CONCAT(IFNULL(c.nombres, ''), ' ', IFNULL(c.apellidos, ''))) AS mesero, DATE_FORMAT(a.fhcreacion, '%d/%m/%Y %H:%i:%s') AS fecha_comanda, TRIM(a.notas_generales) AS notas_generales, ";
@@ -415,6 +421,10 @@ class Reporte_model extends CI_Model
 	{
 		if (isset($args['comanda'])) {
 			$this->db->where('c.comanda', $args['comanda']);
+		}
+
+		if (isset($args['formas_pago']) && is_array($args['formas_pago']) && count($args['formas_pago']) > 0) {
+			$this->db->where_in('a.forma_pago', $args['formas_pago']);
 		}
 
 		$select = 'a.cuenta_forma_pago, a.cuenta, TRIM(c.nombre) AS nombre_cuenta, c.numero AS numero_cuenta, TRIM(b.descripcion) AS forma_pago, a.monto, a.propina';

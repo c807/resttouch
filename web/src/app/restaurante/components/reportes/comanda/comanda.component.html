@@ -28,13 +28,13 @@
                             </mat-form-field>
                         </div>
                     </div>
-                    <div class="row fullWidth">
-                        <div class="col fullWidth">                            
+                    <div class="row">
+                        <div class="col fullWidth">
                             <mat-form-field class="fullWidth">
                                 <input matInput type="text" placeholder="Comandas (separadas por coma si es más de una)" name="comandas" [(ngModel)]="params.comandas" (keypress)="validateKey($event)">
                             </mat-form-field>
-                        </div>
-                    </div>
+                        </div>                        
+                    </div>                    
                     <div class="row">
                         <div class="col">
                             <mat-checkbox name="ver_detalle_comanda" class="fullWidth" [(ngModel)]="+params.ver_detalle_comanda">Mostrar detalle de comanda</mat-checkbox>
@@ -44,8 +44,18 @@
                         </div>                                                
                     </div>
                     <div class="row">
-                        <div class="col">
-                            <mat-checkbox name="ver_forma_pago" class="fullWidth" [(ngModel)]="+params.ver_forma_pago">Mostrar formas de pago de comanda</mat-checkbox>
+                        <div class="col m6 s12" [ngClass]="{'separaFP': +params.ver_forma_pago === 1}">
+                            <mat-checkbox name="ver_forma_pago" class="fullWidth" [(ngModel)]="+params.ver_forma_pago" (change)="mcbChangeFP()">Mostrar formas de pago de comanda</mat-checkbox>
+                        </div>
+                        <div class="col m6 s12">
+                            <mat-form-field class="fullWidth" *ngIf="+params.ver_forma_pago === 1">
+                                <mat-label>Formas de pago</mat-label>
+                                <mat-select name="formas_pago" [(ngModel)]="params.formas_pago" multiple>
+                                    <mat-option *ngFor="let fp of formasPago" [value]="fp.forma_pago">
+                                        {{fp.descripcion}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
                         </div>
                     </div>
                     <div class="row">

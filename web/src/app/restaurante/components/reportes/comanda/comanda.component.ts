@@ -1,23 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 import { GLOBAL } from '../../../../shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
+
+import { ReportePdfService } from '../../../services/reporte-pdf.service';
+import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
+import { FormaPago } from '../../../../admin/interfaces/forma-pago';
+import { FpagoService } from '../../../../admin/services/fpago.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-comanda',
   templateUrl: './comanda.component.html',
   styleUrls: ['./comanda.component.css']
 })
-export class ComandaComponent implements OnInit {
+export class ComandaComponent implements OnInit, OnDestroy {
 
   public params: any = {};
   public cargando = false;
   public configBotones: ConfiguracionBotones = {
     showPdf: false, showHtml: false, showExcel: true, isExcelDisabled: false
   };
+
+  public formasPago: FormaPago[] = [];
 
   public tiposDeFecha = [
     { tipo_fecha: 1, descripcion: 'Comanda' },
@@ -26,13 +33,21 @@ export class ComandaComponent implements OnInit {
     { tipo_fecha: 4, descripcion: 'Fin de turno' }
   ];
 
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private fPagoSrvc: FpagoService
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
     this.resetParams();
+    this.loadFormasPago();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   resetParams = () => {
@@ -45,7 +60,8 @@ export class ComandaComponent implements OnInit {
       ver_facturas: 1,
       ver_detalle_facturas: 1,
       tipo_fecha: 1,
-      comandas: null
+      comandas: null,
+      formas_pago: []
     };
   }
 
@@ -63,7 +79,20 @@ export class ComandaComponent implements OnInit {
     }
   }
 
+  loadFormasPago = () => {
+    this.endSubs.add(
+      this.fPagoSrvc.get().subscribe(res => this.formasPago = res)
+    );
+  }
+
+  mcbChangeFP = () => {
+    if (+this.params.ver_forma_pago === 0) {
+      this.params.formas_pago = [];
+    }
+  }
+
   excelClick = () => {
+    console.log(this.params);
     this.cargando = true;    
     this.pdfServicio.getReporteComandas(this.params).subscribe(res => {
       this.cargando = false;
