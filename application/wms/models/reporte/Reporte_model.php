@@ -561,8 +561,35 @@ EOT;
 		return $ingreso;
 	}
 
-	function get_egreso($egreso)
+	function get_egreso($idEgreso)
 	{
+		$campos = "a.egreso, b.descripcion AS tipo_movimiento, c.descripcion AS bodega, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
+		$campos.= "d.usrname AS usuario, IF(a.estatus_movimiento = 1, 'NO CONFIRMADO', 'CONFIRMADO') AS estatus_movimiento, IF(a.traslado = 0, 'No', 'Sí') AS traslado, ";
+		$campos.= "IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, e.nombre AS sede, e.alias AS alias_sede, f.nombre AS empresa";
+
+		$egreso = $this->db
+			->select($campos)
+			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
+			->join('bodega c', 'c.bodega = a.bodega')
+			->join('usuario d', 'd.usuario = a.usuario')
+			->join('sede e', 'e.sede = c.sede')
+			->join('empresa f', 'f.empresa = e.empresa')
+			->where('a.egreso', $idEgreso)
+			->get('egreso a')
+			->row();
+		
+		if ($egreso) {
+			$egreso->detalle = $this->db
+				->select('a.egreso_detalle, a.egreso, b.codigo, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, a.precio_unitario AS costo_unitario, a.precio_total AS costo_total')
+				->join('articulo b', 'b.articulo = a.articulo')
+				->join('presentacion c', 'c.presentacion = a.presentacion')
+				->where('a.egreso', $idEgreso)
+				->order_by('b.descripcion')
+				->get('egreso_detalle a')
+				->result();
+		}
+
+		return $egreso;
 	}
 }
 

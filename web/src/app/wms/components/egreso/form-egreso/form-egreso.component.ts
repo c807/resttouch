@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -19,15 +19,17 @@ import { ArticuloService } from '../../../services/articulo.service';
 import { TransformacionService } from '../../../services/transformacion.service';
 import { Presentacion } from '../../../../admin/interfaces/presentacion';
 import { PresentacionService } from '../../../../admin/services/presentacion.service';
-// import { PageEvent } from '@angular/material/paginator';
-// import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { saveAs } from 'file-saver';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-egreso',
   templateUrl: './form-egreso.component.html',
   styleUrls: ['./form-egreso.component.css']
 })
-export class FormEgresoComponent implements OnInit {
+export class FormEgresoComponent implements OnInit, OnDestroy {
 
   @Input() egreso: Egreso;
   @Input() saveToDB = true;
@@ -62,6 +64,8 @@ export class FormEgresoComponent implements OnInit {
   public txtArticuloSelectedM: (Articulo | string) = undefined;
   public txtProveedorSelected: (Proveedor | string) = undefined;
 
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
@@ -71,7 +75,8 @@ export class FormEgresoComponent implements OnInit {
     private articuloSrvc: ArticuloService,
     private proveedorSrvc: ProveedorService,
     private transformacionSrvc: TransformacionService,
-    private presentacionSrvc: PresentacionService
+    private presentacionSrvc: PresentacionService,
+    private pdfServicio: ReportePdfService
   ) { }
 
   ngOnInit() {
@@ -86,6 +91,10 @@ export class FormEgresoComponent implements OnInit {
     if(!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
     }
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   loadTiposMovimiento = (paraEgreso = true) => {
@@ -383,4 +392,18 @@ export class FormEgresoComponent implements OnInit {
   applyFilter = (filter: string) => {
     this.dataSource.filter = filter;
   }
+
+  imprimirEgreso = () => {    
+    this.endSubs.add(
+      this.pdfServicio.getEgreso(+this.egreso.egreso).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: 'application/pdf' });
+          saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'Egreso', { duration: 3000 });
+        }        
+      })
+    );    
+  }
+
 }

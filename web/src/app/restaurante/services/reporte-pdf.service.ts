@@ -154,4 +154,11 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getEgreso(idEgreso: number) {
+    return this.http.get<string>(
+      `${GLOBAL.urlWms}/reporte/egreso/${idEgreso}`,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }
