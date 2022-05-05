@@ -395,14 +395,14 @@ class Factura_model extends General_model
 		$enca->idcontrato = 0;
 		$enca->idcliente = 0;
 		$enca->nit = $this->receptor->nit;
-		$enca->nombre = $this->receptor->nombre;
+		$enca->nombre = str_replace("'", '', $this->receptor->nombre);
 		$enca->serie = $this->serie_factura;
 		$enca->numero = $this->numero_factura;
 		$enca->fechaingreso = $this->fecha_factura;
 		$enca->mesiva = formatoFecha($this->fecha_factura, 4);
 		$enca->fecha = $this->fecha_factura;
 		$enca->idtipoventa = $this->get_tipo_venta_macf($dfac);
-		$enca->conceptomayor = $conceptoMayor;
+		$enca->conceptomayor = str_replace("'", '', $conceptoMayor);
 		$enca->iva = $sumIva;
 		$enca->subtotal = $sumTotal;
 		$enca->total = $sumTotal;
@@ -469,7 +469,7 @@ class Factura_model extends General_model
 		foreach ($tmpTotal as $key => $row) {
 			$cuenta = new stdClass();
 			$cuenta->codigo = $key;
-			$cuenta->conceptomayor = $conceptoMayor;
+			$cuenta->conceptomayor = str_replace("'", '', $conceptoMayor);
 			$cuenta->haber = $row;
 			$cuenta->debe = 0;
 			array_push($det->cuenta, (array)$cuenta);
