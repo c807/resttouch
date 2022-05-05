@@ -69,8 +69,10 @@
                             [disabled]="!frmIngreso.form.valid || bloqueoBotones || +documento.enviado === 1" *ngIf="saveToDB">
                             Guardar
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="resetIngreso()"
-                            *ngIf="ingreso.ingreso">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirIngreso()" *ngIf="ingreso.ingreso">
+                            Imprimir
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetIngreso()" *ngIf="ingreso.ingreso">
                             Nuevo
                         </button>
                     </div>

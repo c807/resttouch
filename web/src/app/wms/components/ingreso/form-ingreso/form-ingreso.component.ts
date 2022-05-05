@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
@@ -25,13 +25,17 @@ import { DocumentoTipoService } from '../../../../admin/services/documento-tipo.
 import { TipoCompraVenta } from '../../../../admin/interfaces/tipo-compra-venta';
 import { TipoCompraVentaService } from '../../../../admin/services/tipo-compra-venta.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { saveAs } from 'file-saver';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-ingreso',
   templateUrl: './form-ingreso.component.html',
   styleUrls: ['./form-ingreso.component.css']
 })
-export class FormIngresoComponent implements OnInit {
+export class FormIngresoComponent implements OnInit, OnDestroy {
 
   @Input() ingreso: Ingreso;
   @Input() saveToDB = true;
@@ -63,6 +67,8 @@ export class FormIngresoComponent implements OnInit {
   public documentosTipo: DocumentoTipo[] = [];
   public tiposCompraVenta: TipoCompraVenta[] = [];
 
+  private endSubs = new Subscription();
+
   constructor(
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -74,7 +80,8 @@ export class FormIngresoComponent implements OnInit {
     private articuloSrvc: ArticuloService,
     private presentacinSrvc: PresentacionService,
     private documentoTipoSrvc: DocumentoTipoService,
-    private tipoCompraVentaSrvc: TipoCompraVentaService
+    private tipoCompraVentaSrvc: TipoCompraVentaService,
+    private pdfServicio: ReportePdfService
   ) { }
 
   ngOnInit() {
@@ -94,6 +101,10 @@ export class FormIngresoComponent implements OnInit {
     if (this.produccion) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'deleteItem'];
     }
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   loadTiposMovimiento = () => {
@@ -426,5 +437,18 @@ export class FormIngresoComponent implements OnInit {
         }
       });
     }
+  }
+
+  imprimirIngreso = () => {    
+    this.endSubs.add(
+      this.pdfServicio.getIngreso(+this.ingreso.ingreso).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: 'application/pdf' });
+          saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'Ingreso', { duration: 3000 });
+        }        
+      })
+    );    
   }
 }

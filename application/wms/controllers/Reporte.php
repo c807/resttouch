@@ -909,6 +909,24 @@ class Reporte extends CI_Controller
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egresos));
 	}
+
+	public function ingreso($id)
+	{
+		$rpt = new Reporte_model();
+		$ingreso = $rpt->get_ingreso($id);
+
+		$vista = $this->load->view('reporte/ingreso/imprimir', $ingreso, true);
+
+		$mpdf = new \Mpdf\Mpdf([
+			'tempDir' => sys_get_temp_dir(), //Produccion
+			'format' => 'Letter'
+		]);
+
+		$mpdf->WriteHTML($vista);
+		$mpdf->Output('Ingreso_'.date('YmdHis').'.pdf', "D");
+
+		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingreso));
+	}
 }
 
 /* End of file Reporte.php */

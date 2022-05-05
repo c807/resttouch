@@ -12,7 +12,7 @@ import { retry, catchError } from 'rxjs/operators';
 export class ReportePdfService {
   private srvcErrHndl: ServiceErrorHandler;
   private usrToken: string = null;
-  private httpOptions: Object = {responseType:'blob'};
+  private httpOptions: Object = { responseType: 'blob' };
 
   constructor(
     private http: HttpClient,
@@ -46,10 +46,10 @@ export class ReportePdfService {
   getReporteExistencia(params: Object) {
 
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/reporte/existencia`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlWms}/reporte/existencia`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteValorizado(params: Object) {
@@ -57,30 +57,30 @@ export class ReportePdfService {
       `${GLOBAL.urlWms}/reporte/valorizado`,
       params,
       this.httpOptions
-      ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  imprimirInventarioFisico(id: number, params?:Object) {
+  imprimirInventarioFisico(id: number, params?: Object) {
     this.httpOptions['params'] = params;
     return this.http.get<string>(
       `${GLOBAL.urlWms}/fisico/imprimir/${id}`,
       this.httpOptions
-      ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   imprimirReceta(id: number) {
     return this.http.get<string>(
       `${GLOBAL.urlMantenimientos}/articulo/imprimir_receta/${id}`,
       this.httpOptions
-      ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteKardex(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/reporte/kardex`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlWms}/reporte/kardex`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteFactura(params: Object) {
@@ -103,48 +103,55 @@ export class ReportePdfService {
 
   getComanda(idcuenta: number) {
     return this.http.get<string>(
-        `${GLOBAL.urlAppRestaurante}/comanda/imprimir/${idcuenta}/1`,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlAppRestaurante}/comanda/imprimir/${idcuenta}/1`,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteIngreso(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/rep/ingreso/generar_detalle`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlWms}/rep/ingreso/generar_detalle`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteComandas(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlAppRestaurante}/reporte/rpt_detalle_comanda`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlAppRestaurante}/reporte/rpt_detalle_comanda`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getReporteConsumos(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/reporte/consumos`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlWms}/reporte/consumos`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
-  
+
   getDumpIngresos(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/reporte/dump_ingresos`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+      `${GLOBAL.urlWms}/reporte/dump_ingresos`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   getDumpEgresos(params: Object) {
     return this.http.post<string>(
-        `${GLOBAL.urlWms}/reporte/dump_egresos`,
-        params,
-        this.httpOptions
-        ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
-  }  
+      `${GLOBAL.urlWms}/reporte/dump_egresos`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getIngreso(idIngreso: number) {
+    return this.http.get<string>(
+      `${GLOBAL.urlWms}/reporte/ingreso/${idIngreso}`,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }
