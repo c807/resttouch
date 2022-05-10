@@ -619,7 +619,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             ImpuestosAdicionales: (res.factura.impuestos_adicionales || []),
             EsReimpresion: false,
             Comanda: +cuenta.comanda || 0,
-            Cuenta: +cuenta.cuenta || 0
+            Cuenta: +cuenta.cuenta || 0,
+            DatosComanda: res.factura.datos_comanda || null
           };
 
           if (!!this.data.impresora) {

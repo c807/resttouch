@@ -230,6 +230,7 @@ class Factura extends CI_Controller
 					$comanda = $fac->getComanda();
 					$fac->origen_datos = ($comanda) ? $comanda->getOrigenDatos() : null;
 					$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
+					$fac->datos_comanda = $fac->get_datos_comanda();
 					$datos['exito'] = true;
 					$datos['factura'] = $fac;
 					$datos['mensaje'] = "Datos actualizados con exito";
@@ -400,6 +401,7 @@ class Factura extends CI_Controller
 
 		$fac->origen_datos = ($comanda) ? $comanda->getOrigenDatos() : null;
 		$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
+		$fac->datos_comanda = $fac->get_datos_comanda();
 
 		$datos['factura'] = $fac;
 		$this->output

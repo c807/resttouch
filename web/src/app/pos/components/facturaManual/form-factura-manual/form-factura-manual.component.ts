@@ -317,7 +317,8 @@ export class FormFacturaManualComponent implements OnInit {
           ImpuestosAdicionales: (res.factura.impuestos_adicionales || []),
           EsReimpresion: true,
           Comanda: res.factura.comanda || 0,
-          Cuenta: res.factura.cuenta || 0
+          Cuenta: res.factura.cuenta || 0,
+          DatosComanda: res.factura.datos_comanda || null
         };
 
         // console.log(`${JSON.stringify(datosAImprimir)}`);

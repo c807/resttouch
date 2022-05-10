@@ -236,6 +236,7 @@ class Factura extends CI_Controller {
 								$datos['mensaje'] = 'Ocurrio un error al enviar la factura, intente nuevamente';			
 							}
 							$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
+							$fac->datos_comanda = $fac->get_datos_comanda();
 							$datos['factura'] = $fac;
 						} else {
 							$datos['exito'] = true;

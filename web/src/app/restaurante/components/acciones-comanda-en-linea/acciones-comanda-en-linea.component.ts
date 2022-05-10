@@ -279,7 +279,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       FormaDePago: (datosOrigen.metodo_pago && datosOrigen.metodo_pago.length > 0) ? datosOrigen.metodo_pago.join(', ') : '',
       DetalleFactura: [],
       Comanda: comanda.comanda || 0,
-      Cuenta: comanda.cuentas[0].cuenta || 0,
+      Cuenta: comanda.cuentas[0].cuenta || 0,      
+      DatosComanda: fact.datos_comanda || null
     };
 
     for (const det of fact.detalle) {

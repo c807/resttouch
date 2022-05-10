@@ -1732,6 +1732,46 @@ class Factura_model extends General_model
 		}
 		return null;
 	}
+
+	public function get_datos_comanda($idFactura = null)
+	{
+		if (is_null($idFactura) || !is_numeric($idFactura)) {
+			$idFactura = $this->factura;
+		}
+
+		$campos = 'a.comanda, g.cuenta, g.numero AS nocuenta, g.nombre AS nombrecuenta, IFNULL(i.etiqueta, i.numero) AS mesa, j.nombre AS area, ';
+		$campos.= 'TRIM(CONCAT(IFNULL(TRIM(k.nombres), ""), " ", IFNULL(TRIM(k.apellidos), ""))) AS cajero, ';
+		$campos.= 'TRIM(CONCAT(IFNULL(TRIM(l.nombres), ""), " ", IFNULL(TRIM(l.apellidos), ""))) AS mesero';
+		
+		$comanda = $this->db
+			->select($campos)
+			->join('detalle_comanda b', 'a.comanda = b.comanda')
+			->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+			->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura')
+			->join('factura f', 'f.factura = e.factura')
+			->join('cuenta g', 'g.cuenta = c.cuenta_cuenta')
+			->join('comanda_has_mesa h', 'a.comanda = h.comanda')
+			->join('mesa i', 'i.mesa = h.mesa')
+			->join('area j', 'j.area = i.area')
+			->join('usuario k', 'k.usuario = f.usuario')
+			->join('usuario l', 'l.usuario = a.mesero')
+			->where('f.factura', $idFactura)
+			->group_by('a.comanda')
+			->get('comanda a')
+			->row();
+
+		if ($comanda) {
+			$comanda->formas_pago = $this->db
+				->select('b.forma_pago, b.descripcion AS descripcion_forma_pago, a.documento, a.monto, a.propina, a.vuelto_para, a.vuelto, ')
+				->join('forma_pago b', 'b.forma_pago = a.forma_pago') 
+				->where('a.cuenta', $comanda->cuenta)
+				->get('cuenta_forma_pago a')
+				->result();
+		}
+
+		return $comanda;
+	}
 }
 
 /* End of file Factura_model.php */
