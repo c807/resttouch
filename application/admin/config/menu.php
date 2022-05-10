@@ -249,6 +249,10 @@ $config['menu'] = [
 					5 => [
 						'nombre' => 'Inventario físico',
 						'link' => '/wms/fisico'
+					],
+					6 => [
+						'nombre' => 'Cuadre diario',
+						'link' => '/wms/cuadre_diario'
 					]
 				]
 			],

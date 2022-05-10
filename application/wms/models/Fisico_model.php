@@ -3,15 +3,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Fisico_model extends General_model {
 
-	public $fecha;
-	public $fhcreacion;
 	public $sede;
 	public $usuario;
 	public $categoria_grupo = null;
+	public $bodega;
+	public $fhcreacion;
+	public $fecha;
 	public $notas;
 	public $confirmado = 0;
 	public $confirmado_fecha;
-	public $bodega;
+	public $escuadrediario = 0;
 
 	public function __construct($id = "")
 	{

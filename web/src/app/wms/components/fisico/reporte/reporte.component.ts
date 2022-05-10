@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 // import { SedeService } from '../../../../admin/services/sede.service';
@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
 })
 export class ReporteComponent implements OnInit, OnDestroy {
 
+  @Input() esCuadreDiario = false;
   public bodegas: Bodega[] = [];
   public sedes: UsuarioSede[] = [];
   public params: any = {};
@@ -115,27 +116,44 @@ export class ReporteComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    this.cargando = true;
-    this.endSubs.add(      
-      this.fisicoSrvc.generarInventarioFisico(this.params).subscribe(res => {
-        this.cargando = false;      
-        if (res.exito) {
-          this.endSubs.add(          
-            this.pdfServicio.imprimirInventarioFisico(res.inventario, this.params).subscribe(resImp => {
-              if (this.params._excel) {
-                const blob = new Blob([resImp], { type: 'application/vnd.ms-excel' });
-                saveAs(blob, `${this.titulo}.xls`);
-              } else {
-                const blob = new Blob([resImp], { type: 'application/pdf' });
-                saveAs(blob, `${this.titulo}.pdf`);
-              }
-            })
-          );
-        } else {
-          this.snackBar.open('No se pudo generar el reporte... ' + res.mensaje, this.titulo, { duration: 3000 });
-        }
-      })
-    );
+    this.params.escuadrediario = this.esCuadreDiario ? 1 : 0;    
+    if (this.validarFecha()) {
+      this.cargando = true;
+      this.endSubs.add(      
+        this.fisicoSrvc.generarInventarioFisico(this.params).subscribe(res => {
+          this.cargando = false;      
+          if (res.exito) {
+            this.endSubs.add(          
+              this.pdfServicio.imprimirInventarioFisico(res.inventario, this.params).subscribe(resImp => {
+                if (this.params._excel) {
+                  const blob = new Blob([resImp], { type: 'application/vnd.ms-excel' });
+                  saveAs(blob, `${this.titulo}.xls`);
+                } else {
+                  const blob = new Blob([resImp], { type: 'application/pdf' });
+                  saveAs(blob, `${this.titulo}.pdf`);
+                }
+              })
+            );
+          } else {
+            this.snackBar.open('No se pudo generar el reporte... ' + res.mensaje, this.titulo, { duration: 3000 });
+          }
+        })
+      );
+    } else {
+      const ayer = moment().subtract(1, 'days').format(GLOBAL.dateFormat);
+      const hoy = moment().format(GLOBAL.dateFormat);
+      this.snackBar.open(`La fecha debe estar entre ${ayer} y ${hoy}`, this.titulo, { duration: 7000 });
+    }
+  }
+
+  validarFecha = (): boolean => {
+    let valida = true;    
+    let momento = moment();
+    const hoy = momento.clone();
+    const fechaIngresada = moment(`${this.params.fecha} ${momento.format(GLOBAL.timeFormatMilli)}`);
+    const fechaLimite = momento.subtract(1, 'days');
+    valida = !(fechaIngresada.isBefore(fechaLimite) || fechaIngresada.isAfter(hoy));    
+    return valida;
   }
 
 }

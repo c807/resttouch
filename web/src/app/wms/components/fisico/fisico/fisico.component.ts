@@ -1,22 +1,39 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormInventarioFisicoComponent } from '../form-inventario-fisico/form-inventario-fisico.component'
-import { ReporteComponent } from '../reporte/reporte.component'
-import { Articulo, ArticuloResponse } from '../../../interfaces/articulo';
-import { ArticuloService } from '../../../services/articulo.service';
+import { ReporteComponent } from '../reporte/reporte.component';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-fisico',
   templateUrl: './fisico.component.html',
   styleUrls: ['./fisico.component.css']
 })
-export class FisicoComponent implements OnInit {
+export class FisicoComponent implements OnInit, OnDestroy {
 
   @ViewChild('rptInventario') rptInventarioComponent: ReporteComponent;
   @ViewChild('frmInventario') frmInventarioComponent: FormInventarioFisicoComponent;
+  public esCuadreDiario = false;
 
-  constructor() { }
+  private endSubs = new Subscription();
+
+  constructor(
+    private route: ActivatedRoute,
+  ) { }
 
   ngOnInit() {
+    this.endSubs.add(
+      this.route.url.subscribe((url: UrlSegment[]) => {
+        if (url[0].path === 'cuadre_diario') {          
+          this.esCuadreDiario = true;
+        }
+      })
+    );    
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
 }

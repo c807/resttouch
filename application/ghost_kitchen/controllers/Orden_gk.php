@@ -227,7 +227,7 @@ class Orden_gk extends CI_Controller
             'cliente' => $cliente->cliente,
             'fecha_factura' => date('Y-m-d'),
             'moneda' => 1,
-            'correo_receptor' => $ordenrt->datos_factura->email
+            'correo_receptor' => filter_var($ordenrt->datos_factura->email, FILTER_VALIDATE_EMAIL) ? $ordenrt->datos_factura->email : null,
         ];
 
         $factura = new Factura_model();

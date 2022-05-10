@@ -4,7 +4,7 @@
       <mat-card-title>
         <div class="row">
           <div class="col">
-            <h4>Ingreso Inventario Físico</h4>
+            <h4>Ingreso {{!esCuadreDiario ? 'Inventario Físico' : 'Cuadre Diario'}}</h4>
           </div>
           <div class="col" style="float: right;">
             <button mat-button type="button" color="accent" (click)="showForm = !showForm;">
@@ -37,7 +37,7 @@
             <thead>
               <tr>
                 <th>Artículo</th>
-                <th class="rtxt" style="width: 15%;">Existencia sistema</th>
+                <th class="rtxt" style="width: 15%;" *ngIf="!esCuadreDiario">Existencia sistema</th>
                 <th style="width: 20%;" [ngClass]="{'rtxt': +inventario.confirmado === 1}">Existencia física</th>
               </tr>
             </thead>
@@ -59,7 +59,7 @@
                     <td>
                       {{ art.narticulo }}
                     </td>
-                    <td class="rtxt bld" style="width: 15%; font-style: italic;">                      
+                    <td class="rtxt bld" style="width: 15%; font-style: italic;" *ngIf="!esCuadreDiario">                      
                       {{ art.existencia_sistema | number:'1.2-2' }}
                     </td>
                     <td style="width: 20%;" [ngClass]="{'rtxt': +inventario.confirmado === 1}">
@@ -80,7 +80,7 @@
           <div align="end">
             <button mat-button color="accent" type="submit" *ngIf="inventario.confirmado == 0">Guardar</button>
             <button mat-button color="accent" type="button" (click)="imprimir()">PDF</button>
-            <button mat-button color="accent" type="button" (click)="imprimirXls()">Excel</button>
+            <button mat-button color="accent" type="button" (click)="imprimirXls()" *ngIf="!esCuadreDiario">Excel</button>
             <button mat-button color="accent" type="button" *ngIf="inventario.confirmado == 0"
               (click)="confirmar()">Confirmar</button>
           </div>

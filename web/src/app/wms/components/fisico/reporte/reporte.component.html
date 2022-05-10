@@ -4,7 +4,7 @@
       <mat-card-title>
         <div class="row">
           <div class="col">
-            <h4>Inventario Físico</h4>
+            <h4>{{!esCuadreDiario ? 'Inventario Físico' : 'Cuadre Diario'}}</h4>
           </div>
           <div class="col" style="float: right;">
             <button mat-button type="button" color="accent" (click)="showReporte = !showReporte;">
@@ -52,10 +52,12 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
+
           <mat-form-field class="fullWidth">
-            <input matInput type="date" placeholder="Fecha" [(ngModel)]="params.fecha" readonly
+            <input matInput type="date" placeholder="Fecha" [(ngModel)]="params.fecha" 
               [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>
+
           <mat-checkbox name="excel" class="fullWidth" [(ngModel)]="+params._excel">Generar en Excel
           </mat-checkbox>
           <div align="end">

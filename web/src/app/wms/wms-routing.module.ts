@@ -30,6 +30,7 @@ const routes: Routes = [
   { path: 'qeprod', component: QuickEditProductoComponent, canActivate: [AuthGuard] },
   { path: 'rptingreso', component: RepIngresoComponent, canActivate: [AuthGuard] },
   { path: 'rptconsumos', component: ConsumosComponent, canActivate: [AuthGuard] },
+  { path: 'cuadre_diario', component: FisicoComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

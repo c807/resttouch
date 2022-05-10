@@ -109,6 +109,8 @@ class Fisico extends CI_Controller {
 				"_uno" => true
 			]);
 
+			$args['esfisico'] = (int)$args['inventario']->escuadrediario === 0;
+
 			foreach ($fisico->getDetalle() as $row) {
 				if (!isset($args['detalle'][$row->categoria])) {
 					$args['detalle'][$row->categoria] = [
@@ -224,18 +226,28 @@ class Fisico extends CI_Controller {
 					"lands"
 				]);
 				$vista = $this->load->view('reporte/fisico/imprimir', $args, true);
-				$rand  = rand();
+				// $rand  = rand();
 				$pdf->AddPage();
 				$pdf->WriteHTML($vista);
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-				$pdf->Output("Fisico_{$rand}.pdf", "D");
+				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_').date('YmdHis').'.pdf';
+				$pdf->Output($nombre, "D");
 			}
 		}
 	}
 
 	public function buscar_detalle($inv)
 	{
-		$srchInvFisico = $this->Fisico_model->buscar(['inventario_fisico' => $inv, 'sede' => $this->data->sede, '_uno' => true]);
+		$queryParams = $_GET;
+		$fltr = ['inventario_fisico' => $inv, 'sede' => $this->data->sede, '_uno' => true];
+
+		$esCuadreDiario = false;
+		if (isset($queryParams['escuadrediario'])) {
+			$esCuadreDiario = (int)$queryParams['escuadrediario'] === 1;
+			$fltr['escuadrediario'] = $queryParams['escuadrediario'];
+		}
+
+		$srchInvFisico = $this->Fisico_model->buscar($fltr);
 		$datos = [];
 		$data = ["exito" => 0];
 		if ($srchInvFisico) {
@@ -277,10 +289,10 @@ class Fisico extends CI_Controller {
 	
 				$data['exito'] = 1;
 			} else {
-				$data['mensaje'] = "No existe un inventario físico con este número {$inv}";
+				$data['mensaje'] = "No existe un ".($esCuadreDiario ? 'cuadre diario' : 'inventario físico')." con este número {$inv}";
 			}
 		} else {
-			$data['mensaje'] = "No existe un inventario físico con este número {$inv}";
+			$data['mensaje'] = "No existe un ".($esCuadreDiario ? 'cuadre diario' : 'inventario físico')." con este número {$inv}";
 		}
 		
 		$this->output
