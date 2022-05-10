@@ -1,3 +1,8 @@
 .tblInventarioFisico > th, td {
-    padding-bottom: 1px !important;
-  }
+  padding-bottom: 1px !important;
+}
+
+.hay-diferencia {
+  color: red;
+  font-style: italic;  
+}

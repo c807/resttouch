@@ -8,7 +8,7 @@
 
 <body>
 	<table class="tabla-contenido">
-		<?php $col = $esfisico ? (((int)$inventario->confirmado === 1) ? '4' : '3') : (((int)$inventario->confirmado === 1) ? '3' : '2'); ?>
+		<?php $col = $esfisico ? (((int)$inventario->confirmado === 1) ? '4' : '3') : (((int)$inventario->confirmado === 1) ? '4' : '2'); ?>
 		<tr>
 			<td colspan="<?php echo $col ?>" class="text-center">
 				<h1><?php echo ($esfisico ? 'Inventario Físico' : 'Cuadre Diario') . ' # ' . $inventario->inventario_fisico ?></h1>
@@ -31,7 +31,7 @@
 			<?php endif ?>
 		</tr>
 		<?php
-		$col = $esfisico ? (((int)$inventario->confirmado === 1) ? '6' : '5') : (((int)$inventario->confirmado === 1) ? '5' : '4');
+		$col = $esfisico ? (((int)$inventario->confirmado === 1) ? '6' : '5') : (((int)$inventario->confirmado === 1) ? '6' : '4');
 		foreach ($detalle as $key => $cat) :
 		?>
 			<tr>

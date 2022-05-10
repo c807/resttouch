@@ -375,6 +375,7 @@ class Fisico extends CI_Controller {
 		if ($this->input->method() == 'post') {
 
 			$inv = new Fisico_model($id);
+			$esFisico = (int)$inv->escuadrediario === 0; 
 			$sede = new Sede_model($this->data->sede);
 			$emp = $sede->getEmpresa();
 
@@ -383,118 +384,113 @@ class Fisico extends CI_Controller {
 				"confirmado" => 1
 			];
 
-			$prov = $this->Proveedor_model->buscar([
-				"razon_social" => "Interno",
-				"_uno" => true
-			]);
-
-			// $mov = $this->Tipo_movimiento_model->buscar([
-			// 	"descripcion" => "Ajuste",
-			// 	"_uno" => true
-			// ]);
-
-			if (!$prov) {
-				$obj = new Proveedor_model();
-				$obj->guardar([
+			if ($esFisico) {
+				$prov = $this->Proveedor_model->buscar([
 					"razon_social" => "Interno",
-					"nit" => "cf",
-					"corporacion" => 1
-				]);
-				$idProv = $obj->getPK();
-			} else {
-				$idProv = $prov->proveedor;
+					"_uno" => true
+				]);			
+	
+				if (!$prov) {
+					$obj = new Proveedor_model();
+					$obj->guardar([
+						"razon_social" => "Interno",
+						"nit" => "cf",
+						"corporacion" => 1
+					]);
+					$idProv = $obj->getPK();
+				} else {
+					$idProv = $prov->proveedor;
+				}
 			}
-
-			// if (!$mov) {
-			// 	$obj = new Tipo_movimiento_model();
-			// 	$obj->guardar([
-			// 		"descripcion" => "Ajuste",
-			// 		"ingreso" => 1,
-			// 		"egreso" => 1
-			// 	]);
-			// 	$tipoMov = $obj->getPK();
-			// } else {
-			// 	$tipoMov = $mov->tipo_movimiento;
-			// }
 			
 			if ($inv->guardar($args)) {
 
+				//Inicia código para actualizar campo diferencia
 				foreach ($inv->getDetalle() as $row) {
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
 					$row->diferencia = round(($row->existencia_sistema/$pres->cantidad), 2) - $row->existencia_fisica;
 
-					if (round($row->diferencia, 2) > 0){
-						$egreso[] = $row;
-					}
-					elseif (round($row->diferencia, 2) < 0){
-						$ingreso[] = $row;
-					}
+					if ($esFisico) {
+						if (round($row->diferencia, 2) > 0){
+							$egreso[] = $row;
+						}
+						elseif (round($row->diferencia, 2) < 0){
+							$ingreso[] = $row;
+						}
+					}					
 				}
+				// Termina código para actualizar campo diferencia
 
-				if (count($egreso) > 0){
-					$gegreso = [
-						"tipo_movimiento" => $this->getMovAjuste(0, 1),
-						"bodega" => $inv->bodega,
-						"fecha" => Hoy(),
-						"usuario" => $inv->usuario,
-						"estatus_movimiento" => 2,
-						"ajuste" => 1
-					];
-					$egr = new Egreso_model();
-					if ($egr->guardar($gegreso)) {
-						foreach ($egreso as $row) {
-							$bac = new BodegaArticuloCosto_model();
-							$art = new Articulo_model($row->articulo);
-							$pres = $art->getPresentacionReporte();
-
-							$costo = $bac->get_costo($egr->bodega, $row->articulo, $pres->presentacion);
-
-							$datos = [
-								"cantidad" => abs($row->diferencia),
-								"articulo" => $row->articulo,
-								"precio_unitario" => $costo,
-								"precio_total" => $costo * abs($row->diferencia),
-								"presentacion" => $pres->presentacion
-							];
-
-							$egr->setDetalle($datos);
+				if ($esFisico) {
+					// Inicia código para generar salidas de ajuste
+					if (count($egreso) > 0){
+						$gegreso = [
+							"tipo_movimiento" => $this->getMovAjuste(0, 1),
+							"bodega" => $inv->bodega,
+							"fecha" => Hoy(),
+							"usuario" => $inv->usuario,
+							"estatus_movimiento" => 2,
+							"ajuste" => 1
+						];
+						$egr = new Egreso_model();
+						if ($egr->guardar($gegreso)) {
+							foreach ($egreso as $row) {
+								$bac = new BodegaArticuloCosto_model();
+								$art = new Articulo_model($row->articulo);
+								$pres = $art->getPresentacionReporte();
+	
+								$costo = $bac->get_costo($egr->bodega, $row->articulo, $pres->presentacion);
+	
+								$datos = [
+									"cantidad" => abs($row->diferencia),
+									"articulo" => $row->articulo,
+									"precio_unitario" => $costo,
+									"precio_total" => $costo * abs($row->diferencia),
+									"presentacion" => $pres->presentacion
+								];
+	
+								$egr->setDetalle($datos);
+							}
 						}
 					}
-				}
-
-				if (count($ingreso) > 0){
-					$gingreso = [
-						"tipo_movimiento" => $this->getMovAjuste(1, 0),
-						"fecha" => Hoy(),
-						"bodega" => $inv->bodega,
-						"usuario" => $inv->usuario,
-						"comentario" => "Ajuste mediante Inventario Físico",
-						"proveedor" => $idProv,
-						"estatus_movimiento" => 2,
-						"ajuste" => 1
-					];
-
-					$ing = new Ingreso_model();
-					if ($ing->guardar($gingreso)) {
-						foreach ($ingreso as $row) {
-							$bac = new BodegaArticuloCosto_model();
-							$articulo = new Articulo_model($row->articulo);
-							$pres = $articulo->getPresentacionReporte();
-							$costo = $bac->get_costo($ing->bodega, $row->articulo, $pres->presentacion);
-
-							$datos = [
-								"articulo" => $row->articulo, 
-								"cantidad" => abs($row->diferencia),
-								"precio_unitario" => $costo,
-								"precio_total" => $costo * abs($row->diferencia),
-								"presentacion" => $pres->presentacion,
-								"precio_costo_iva" => $costo * abs($row->diferencia) * $emp->porcentaje_iva
-							];
-
-							$ing->setDetalle($datos);
+					// Termina código para generar salidas de ajuste
+	
+					// Inicia código para generar ingresos de ajuste
+					if (count($ingreso) > 0){
+						$gingreso = [
+							"tipo_movimiento" => $this->getMovAjuste(1, 0),
+							"fecha" => Hoy(),
+							"bodega" => $inv->bodega,
+							"usuario" => $inv->usuario,
+							"comentario" => "Ajuste mediante Inventario Físico",
+							"proveedor" => $idProv,
+							"estatus_movimiento" => 2,
+							"ajuste" => 1
+						];
+	
+						$ing = new Ingreso_model();
+						if ($ing->guardar($gingreso)) {
+							foreach ($ingreso as $row) {
+								$bac = new BodegaArticuloCosto_model();
+								$articulo = new Articulo_model($row->articulo);
+								$pres = $articulo->getPresentacionReporte();
+								$costo = $bac->get_costo($ing->bodega, $row->articulo, $pres->presentacion);
+	
+								$datos = [
+									"articulo" => $row->articulo, 
+									"cantidad" => abs($row->diferencia),
+									"precio_unitario" => $costo,
+									"precio_total" => $costo * abs($row->diferencia),
+									"presentacion" => $pres->presentacion,
+									"precio_costo_iva" => $costo * abs($row->diferencia) * $emp->porcentaje_iva
+								];
+	
+								$ing->setDetalle($datos);
+							}
 						}
 					}
+					// Termina código para generar ingresos de ajuste
 				}
 
 				$datos['exito'] = true;
@@ -510,8 +506,7 @@ class Fisico extends CI_Controller {
             $datos['mensaje'] = "Parametros invalidos";
         }
 
-        $this->output
-        	 ->set_output(json_encode($datos));
+        $this->output->set_output(json_encode($datos));
 	}
 
 }
