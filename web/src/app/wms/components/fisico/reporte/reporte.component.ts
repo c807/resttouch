@@ -31,7 +31,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
   public categorias: Categoria[] = [];
   public categoriasGruposPadre: CategoriaGrupo[] = [];
   public categoriasGrupos: CategoriaGrupo[] = [];
-  public titulo: string = "Fisico";
+  public titulo: string = "Inventario_Fisico";
   public cargando = false;
   public showReporte = true;
 
@@ -49,6 +49,9 @@ export class ReporteComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.getSede();    
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
+    if (this.esCuadreDiario) {
+      this.titulo = "Cuadre_Diario";
+    }
   }
 
   ngOnDestroy(): void {

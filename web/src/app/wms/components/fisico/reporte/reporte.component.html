@@ -58,7 +58,7 @@
               [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>
 
-          <mat-checkbox name="excel" class="fullWidth" [(ngModel)]="+params._excel">Generar en Excel
+          <mat-checkbox name="excel" class="fullWidth" [(ngModel)]="+params._excel" *ngIf="!esCuadreDiario">Generar en Excel
           </mat-checkbox>
           <div align="end">
             <button mat-raised-button color="accent" type="submit" [disabled]="!frmFisicoReporte.form.valid">GENERAR</button>

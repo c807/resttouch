@@ -23,7 +23,8 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
   public cargando = false;
   public articulos: any[] = [];
   public inventario: any = {};
-  private titulo = "Inventario_Fisico";
+  public queSoy = 'Inventario físico';
+  private titulo = 'Inventario_Fisico';  
 
   private endSubs = new Subscription();
 
@@ -38,6 +39,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
     this.resetDatos();
     if (this.esCuadreDiario)  {
       this.titulo = "Cuadre_Diario";
+      this.queSoy = 'Cuadre diario';
     }
   }
 
@@ -69,12 +71,12 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
             this.articulos = res.detalle;
             this.inventario = res.inventario;
           } else {
-            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Inventario', { duration: 3000 });
+            this.snackBar.open(`ERROR: ${res.mensaje}`, this.queSoy, { duration: 3000 });
           }
         })
       );
     } else {
-      this.snackBar.open(`ERROR: El texto sobrepasa la longitud permitida`, 'Inventario', { duration: 3000 });
+      this.snackBar.open(`ERROR: El texto sobrepasa la longitud permitida`, this.queSoy, { duration: 3000 });
     }
 
   }
@@ -94,7 +96,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
   confirmar = () => {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
-      data: new ConfirmDialogModel('Confirmar Inventario Fisico', 'No podrá modificar los datos ingresados. ¿Desea continuar?', 'Sí', 'No')
+      data: new ConfirmDialogModel(`Confirmar ${this.queSoy}`, 'No podrá modificar los datos ingresados. ¿Desea continuar?', 'Sí', 'No')
     });
 
     this.endSubs.add(
@@ -103,9 +105,9 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
           this.fisicoSrvc.confirmar(this.inventario).subscribe(res => {
             if (res.exito) {
               this.inventario = res.inventario;
-              this.snackBar.open('Inventario confirmado exitosamente', 'Inventario', { duration: 3000 });
+              this.snackBar.open(`${this.queSoy} confirmado exitosamente`, this.queSoy, { duration: 3000 });
             } else {
-              this.snackBar.open(`ERROR: ${res.mensaje}`, 'Inventario', { duration: 3000 });
+              this.snackBar.open(`ERROR: ${res.mensaje}`, this.queSoy, { duration: 3000 });
             }
           })
         }
