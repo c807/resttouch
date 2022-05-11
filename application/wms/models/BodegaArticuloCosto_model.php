@@ -8,7 +8,7 @@ class BodegaArticuloCosto_model extends General_model {
 	public $articulo;
 	public $costo_ultima_compra = 0.00;
 	public $costo_promedio = 0.00;
-    // public $existencia = 0.00;
+    public $existencia = 0.00;
 
 	public function __construct($id = "")
 	{

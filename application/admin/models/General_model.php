@@ -168,12 +168,16 @@ class General_model extends CI_Model
 		return $tmp->result();
 	}
 
-	public function getCampos($asArray = true, $prefijo = '')
+	public function getCampos($asArray = true, $prefijo = '', $tabla = null)
 	{
+		if (is_null($tabla) || !is_string($tabla) || empty(trim($tabla))) {
+			$tabla = $this->_tabla;
+		}
+
 		$campos = $this->db
 			->select('column_name AS campo')
 			->where('table_schema', $this->db->database)
-			->where('table_name', $this->_tabla)
+			->where('table_name', $tabla)
 			->order_by('ordinal_position')
 			->get('information_schema.columns')
 			->result();
