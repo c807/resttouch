@@ -411,7 +411,7 @@ class Reporte extends CI_Controller
 		} else {
 			$vista = $this->load->view('reporte/kardex/imprimir', $args, true);
 			$pdf   = new \Mpdf\Mpdf([
-				// 'tempDir' => sys_get_temp_dir(), //produccion
+				'tempDir' => sys_get_temp_dir(), //produccion
 				"format" => "letter",
 				"lands"
 			]);
