@@ -13,7 +13,8 @@ class Ingreso extends CI_Controller {
         	'Receta_model', 
 			'Presentacion_model',
 			'BodegaArticuloCosto_model',
-			'Bodega_model'
+			'Bodega_model',
+			'Articulo_ultima_compra_model'
         ]);
         $this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -68,6 +69,9 @@ class Ingreso extends CI_Controller {
 				$art = new Articulo_model($req['articulo']);
 				$presArt = $art->getPresentacion();
 				$pres = new Presentacion_model($req['presentacion']);
+
+				$precioUnitarioIngresado = $req['precio_unitario'];
+				
 				$costo = $req['precio_unitario'] / $iva;
 				$req['precio_unitario'] = $costo;
 				$req['precio_total'] = $costo * $req['cantidad'];
@@ -116,6 +120,11 @@ class Ingreso extends CI_Controller {
 
 						$art->guardar(["costo" => $costo]);
 						$bac->guardar();
+
+						if((int)$ing->ajuste === 0) {
+							$this->actualiza_ultima_compra($ing, $det, $precioUnitarioIngresado);
+						}
+
 						$datos['exito'] = true;
 						$datos['mensaje'] = "Datos Actualizados con Exito";
 						$datos['detalle'] = $det;
@@ -239,6 +248,30 @@ class Ingreso extends CI_Controller {
 		}
 
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+	}
+
+	private function actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado)
+	{
+		$aucSrch = $this->Articulo_ultima_compra_model->buscar([
+			'articulo' => $detalle->articulo,
+			'presentacion' => $detalle->presentacion,
+			'ultimo_proveedor' => $ingreso->proveedor,
+			'_uno' => true
+		]);
+		
+		$auc = null;
+		if ($aucSrch) {
+			$auc = new Articulo_ultima_compra_model($aucSrch->articulo_ultima_compra);
+			$auc->ultimo_proveedor = $ingreso->proveedor;
+			$auc->ultimo_costo = $ultimo_costo_ingresado;
+		} else {
+			$auc = new Articulo_ultima_compra_model();
+			$auc->articulo = $detalle->articulo;
+			$auc->presentacion = $detalle->presentacion;
+			$auc->ultimo_proveedor = $ingreso->proveedor;
+			$auc->ultimo_costo = $ultimo_costo_ingresado;
+		}
+		$auc->guardar();
 	}
 }
 
