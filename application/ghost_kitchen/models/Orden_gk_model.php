@@ -82,7 +82,9 @@ class Orden_gk_model extends General_model
 		$ordenrt->datos_entrega->departamento = $rutasEntrega['departamento'] ? get_dato_from_paths($orden_original, $rutasEntrega['departamento']) : null;
 		$ordenrt->datos_entrega->municipio = $rutasEntrega['municipio'] ? get_dato_from_paths($orden_original, $rutasEntrega['municipio']) : null;
 		$ordenrt->datos_entrega->telefono = $rutasEntrega['telefono'] ? get_dato_from_paths($orden_original, $rutasEntrega['telefono']) : null;
+		$ordenrt->datos_entrega->telefono = !empty($ordenrt->datos_entrega->telefono) ? $ordenrt->datos_entrega->telefono : '';
 		$ordenrt->datos_entrega->email = $rutasEntrega['email'] ? get_dato_from_paths($orden_original, $rutasEntrega['email']) : null;
+		$ordenrt->datos_entrega->email = !empty($ordenrt->datos_entrega->email) ? $ordenrt->datos_entrega->email : '';
 
 		$rutasFacturacion = [
 			'nit' => $this->get_ruta(17),
