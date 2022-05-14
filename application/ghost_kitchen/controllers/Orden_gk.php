@@ -511,7 +511,7 @@ class Orden_gk extends CI_Controller
                     }
                 }
                 if ($datos->exito) {
-                    if (count($ordenrt->formas_pago) === 1) {
+                    if (count($ordenrt->formas_pago) >= 1) {
                         $pago = ['forma_pago' => $ordenrt->formas_pago[0]->forma_pago, 'monto' => ($totales->comanda - $totales->descuento)];
                         if ($cuenta->cobrar((object)$pago)) {
                             if ($ordenrt->total_descuento > 0) {
