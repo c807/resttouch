@@ -692,7 +692,7 @@ class Reporte extends CI_Controller
 		$hoja->setCellValue('G4', 'Presentación reporte');
 		$hoja->setCellValue('H4', 'Bodega');
 		$columna = 'I';
-		foreach ($period as $dt) {			
+		foreach ($period as $dt) {
 			$hoja->setCellValue("{$columna}4", $dt->format('D d/m/Y'));
 			$columna++;
 		}
@@ -786,7 +786,7 @@ class Reporte extends CI_Controller
 		$hoja->setCellValue('M4', 'Comentario');
 
 		$fila = 5;
-		
+
 		foreach ($ingresos as $ingreso) {
 			foreach ($ingreso->detalle as $det) {
 				$hoja->setCellValue("A{$fila}", $ingreso->ingreso);
@@ -799,9 +799,9 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("H{$fila}", $det->articulo);
 				$hoja->setCellValue("I{$fila}", $det->presentacion);
 				$hoja->setCellValue("J{$fila}", $det->cantidad);
-				$hoja->setCellValue("K{$fila}", $det->costo_unitario_con_iva);				
+				$hoja->setCellValue("K{$fila}", $det->costo_unitario_con_iva);
 				$hoja->setCellValue("L{$fila}", $det->costo_total_con_iva);
-				$hoja->setCellValue("M{$fila}", $ingreso->comentario);				
+				$hoja->setCellValue("M{$fila}", $ingreso->comentario);
 				$fila++;
 			}
 		}
@@ -809,7 +809,7 @@ class Reporte extends CI_Controller
 		$fila--;
 		$hoja->getStyle("J4:L{$fila}")->getAlignment()->setHorizontal('right');
 		$hoja->getStyle("A4:M4")->getFont()->setBold(true);
-		$hoja->getStyle("J5:L{$fila}")->getNumberFormat()->setFormatCode('0.00');		
+		$hoja->getStyle("J5:L{$fila}")->getNumberFormat()->setFormatCode('0.00');
 		$hoja->setAutoFilter("A4:I4");
 
 		foreach (range('A', 'M') as $col) {
@@ -859,27 +859,27 @@ class Reporte extends CI_Controller
 		$hoja->setCellValue('B4', 'Fecha');
 		$hoja->setCellValue('C4', 'Tipo');
 		$hoja->setCellValue('D4', 'Bodega');
-		$hoja->setCellValue('E4', 'Usuario');		
+		$hoja->setCellValue('E4', 'Usuario');
 		$hoja->setCellValue('F4', 'Artículo');
 		$hoja->setCellValue('G4', 'Presentación');
 		$hoja->setCellValue('H4', 'Cantidad');
 		$hoja->setCellValue('I4', 'Costo Unitario');
-		$hoja->setCellValue('J4', 'Costo Total');		
+		$hoja->setCellValue('J4', 'Costo Total');
 
 		$fila = 5;
-		
+
 		foreach ($egresos as $egreso) {
 			foreach ($egreso->detalle as $det) {
 				$hoja->setCellValue("A{$fila}", $egreso->egreso);
 				$hoja->setCellValue("B{$fila}", $egreso->fecha);
 				$hoja->setCellValue("C{$fila}", $egreso->tipo_movimiento);
 				$hoja->setCellValue("D{$fila}", $egreso->bodega);
-				$hoja->setCellValue("E{$fila}", $egreso->usuario);				
+				$hoja->setCellValue("E{$fila}", $egreso->usuario);
 				$hoja->setCellValue("F{$fila}", $det->articulo);
 				$hoja->setCellValue("G{$fila}", $det->presentacion);
 				$hoja->setCellValue("H{$fila}", $det->cantidad);
-				$hoja->setCellValue("I{$fila}", $det->costo_unitario);				
-				$hoja->setCellValue("J{$fila}", $det->costo_total);				
+				$hoja->setCellValue("I{$fila}", $det->costo_unitario);
+				$hoja->setCellValue("J{$fila}", $det->costo_total);
 				$fila++;
 			}
 		}
@@ -887,7 +887,7 @@ class Reporte extends CI_Controller
 		$fila--;
 		$hoja->getStyle("H4:J{$fila}")->getAlignment()->setHorizontal('right');
 		$hoja->getStyle("A4:J4")->getFont()->setBold(true);
-		$hoja->getStyle("H5:J{$fila}")->getNumberFormat()->setFormatCode('0.00');		
+		$hoja->getStyle("H5:J{$fila}")->getNumberFormat()->setFormatCode('0.00');
 		$hoja->setAutoFilter("A4:G4");
 
 		foreach (range('A', 'J') as $col) {
@@ -923,7 +923,7 @@ class Reporte extends CI_Controller
 		]);
 
 		$mpdf->WriteHTML($vista);
-		$mpdf->Output('Ingreso_'.date('YmdHis').'.pdf', "D");
+		$mpdf->Output('Ingreso_' . date('YmdHis') . '.pdf', "D");
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingreso));
 	}
@@ -941,9 +941,79 @@ class Reporte extends CI_Controller
 		]);
 
 		$mpdf->WriteHTML($vista);
-		$mpdf->Output('Egreso_'.date('YmdHis').'.pdf', "D");
+		$mpdf->Output('Egreso_' . date('YmdHis') . '.pdf', "D");
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egreso));
+	}
+
+	public function lista_pedidos()
+	{
+		set_time_limit(0);
+		$rpt = new Reporte_model();
+		$params = json_decode(file_get_contents('php://input'), true);		
+
+		if (!isset($params['sede']) || empty($params['sede'])) {
+			$params['sede'] = $this->data->sede;
+		}
+
+		$args = [
+			'_saldo_inicial' => 1,
+			'sede' => $params['sede'],
+			'bodega' => $params['bodega'],
+			'fecha_del' => $params['fecha_del']
+		]; 
+
+		$pedidos = $rpt->get_lista_pedido_productos($params);
+
+		foreach ($pedidos as $pedido) {
+			$ultimo_producto = 0;
+			foreach ($pedido->productos as $producto) {
+				if ((int)$producto->articulo !== $ultimo_producto) {
+					// Inicia calculo de existencia
+					$art = new Articulo_model($producto->articulo);
+					$obj = $art->getExistencias($args);
+					// Finaliza calculo de existencia
+				}
+
+				if ((int)$producto->ultima_presentacion > 0) {
+					if ((int)$producto->presentacion === (int)$producto->ultima_presentacion) {						
+						$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_reporte, 2);
+					} else {
+						$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_ultima_compra, 2);
+					}
+				} else {
+					$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_reporte, 2);
+				}
+				
+				$producto->a_pedir = (float)$producto->maximo - (float)$producto->existencia;
+				$producto->mostrar = (float)$producto->existencia >= (float)$producto->maximo ? 0 : 1;
+				$ultimo_producto = (int)$producto->articulo;
+			}
+		}
+
+		$datos = [
+			'empresa' => null,
+			'sede' => $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]),
+			'bodega' => $this->Bodega_model->buscar(['bodega' => $params['bodega'], '_uno' => true]),
+			'fecha' => formatoFecha($params['fecha'], 2),
+			'pedidos' => $pedidos,
+		];
+
+		$datos['empresa'] = $this->Empresa_model->buscar(['empresa' => $datos['sede']->empresa, '_uno' => true]);
+
+		$vista = $this->load->view('reporte/pedidos/imprimir', $datos, true);
+
+		$mpdf = new \Mpdf\Mpdf([
+			'tempDir' => sys_get_temp_dir(), //Produccion
+			'format' => 'Letter',
+			'lands'
+		]);
+
+		$mpdf->AddPage('L');
+		$mpdf->WriteHTML($vista);		
+		$mpdf->Output('Pedido_' . date('YmdHis') . '.pdf', "D");
+
+		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
 	}
 }
 

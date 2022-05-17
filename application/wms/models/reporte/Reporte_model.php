@@ -591,6 +591,45 @@ EOT;
 
 		return $egreso;
 	}
+
+	function get_lista_pedido_productos($args = [])
+	{
+		$queryCompras = 'SELECT a.articulo, a.descripcion AS descripcion_articulo, a.presentacion, b.descripcion AS descripcion_presentacion, ';
+		$queryCompras.= 'IF(a.presentacion = e.presentacion, a.stock_minimo, IF(g.cantidad <> 0, ROUND(a.stock_minimo * b.cantidad / g.cantidad, 2), a.stock_minimo)) AS minimo, ';
+		$queryCompras.= 'IF(a.presentacion = e.presentacion, a.stock_maximo, IF(g.cantidad <> 0, ROUND(a.stock_maximo * b.cantidad / g.cantidad, 2), a.stock_maximo)) AS maximo, ';
+		$queryCompras.= 'IFNULL(e.ultimo_proveedor, 0) AS ultimo_proveedor, IFNULL(f.razon_social, "SIN PROVEEDOR") AS proveedor, IFNULL(e.presentacion, 0) AS ultima_presentacion, ';
+		$queryCompras.= 'g.descripcion AS descripcion_ultima_presentacion, e.ultimo_costo, b.cantidad AS cantidad_presentacion_reporte, ';
+		$queryCompras.= 'IFNULL(g.cantidad, 0) AS cantidad_presentacion_ultima_compra, NULL AS existencia, NULL AS a_pedir, 1 AS mostrar ';
+		$queryCompras.= 'FROM articulo a INNER JOIN presentacion b ON b.presentacion = a.presentacion_reporte INNER JOIN categoria_grupo c ON c.categoria_grupo = a.categoria_grupo ';
+		$queryCompras.= 'INNER JOIN categoria d ON d.categoria = c.categoria LEFT JOIN articulo_ultima_compra e ON a.articulo = e.articulo LEFT JOIN proveedor f ON f.proveedor = e.ultimo_proveedor ';
+		$queryCompras.= 'LEFT JOIN presentacion g ON g.presentacion = e.presentacion ';
+		$queryCompras.= "WHERE a.mostrar_inventario = 1 AND d.sede = {$args['sede']} ";
+		$queryCompras.= 'ORDER BY f.razon_social, a.descripcion';
+
+		$query = "SELECT z.ultimo_proveedor, z.proveedor FROM ({$queryCompras}) z WHERE z.ultimo_proveedor <> 0 GROUP BY z.ultimo_proveedor ";
+		$query.= 'ORDER BY z.proveedor, z.descripcion_articulo, z.descripcion_presentacion, z.descripcion_ultima_presentacion';
+		$conProveedor = $this->db->query($query)->result();
+
+		$query = "SELECT z.ultimo_proveedor, z.proveedor FROM ({$queryCompras}) z WHERE z.ultimo_proveedor = 0 GROUP BY z.ultimo_proveedor ";
+		$query.= 'ORDER BY z.descripcion_articulo, z.descripcion_presentacion';
+		$sinProveedor = $this->db->query($query)->result();
+
+		$proveedores = [];
+		if(count($conProveedor) > 0 && count($sinProveedor) > 0) {
+			$proveedores = array_merge($conProveedor, $sinProveedor);
+		} else if(count($conProveedor) > 0) {
+			$proveedores = $conProveedor;
+		} else if(count($sinProveedor) > 0) {
+			$proveedores = $sinProveedor;
+		}
+
+		foreach($proveedores as $prov) {
+			$query = "SELECT z.* FROM({$queryCompras}) z WHERE z.ultimo_proveedor = $prov->ultimo_proveedor ORDER BY z.descripcion_articulo";
+			$prov->productos = $this->db->query($query)->result();
+		}
+
+		return $proveedores;
+	}
 }
 
 /* End of file Reporte_model.php */

@@ -303,7 +303,16 @@ $config['menu'] = [
 						'link' => '/ordcomp/ordcomp'
 					]
 				]
-			]
+			],
+			2 => [
+				'nombre' => 'Reportes',
+				'opciones' => [
+					1 => [
+						'nombre' => 'Lista de pedidos',
+						'link' => '/ordcomp/rptlistapedido'
+					]
+				]
+			]			
 		]
 	],
 	6 => [

@@ -161,4 +161,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getListaPedidos(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/lista_pedidos`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }
