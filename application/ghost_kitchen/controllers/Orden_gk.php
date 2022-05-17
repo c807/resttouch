@@ -430,7 +430,7 @@ class Orden_gk extends CI_Controller
             'comanda_origen' => $ordenrt->comanda_origen,
             'comanda_origen_datos' => json_encode($ordenrt),
             'mesero' => $sede->turno->mesero->usuario->usuario,
-            'notas_generales' => "Pedido #{$ordenrt->numero_orden}",
+            'notas_generales' => "Pedido #{$ordenrt->numero_orden}".((isset($ordenrt->notas_comanda) && !empty(trim($ordenrt->notas_comanda))) ? ('; '.trim($ordenrt->notas_comanda)) : ''),
             'orden_gk' => $ordenrt->orden_gk
         ];
 

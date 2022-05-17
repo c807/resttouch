@@ -63,6 +63,9 @@ class Orden_gk_model extends General_model
 		$ordenrt->completa = true;
 		$ordenrt->pendiente = '';
 
+		$rutaNotas = $this->get_ruta(31);
+		$ordenrt->notas_comanda = $rutaNotas ? get_dato_from_paths($orden_original, $rutaNotas) : null;
+
 		$rutasEntrega = [
 			'nombre' => $this->get_ruta(9),
 			'direccion1' => $this->get_ruta(10),
