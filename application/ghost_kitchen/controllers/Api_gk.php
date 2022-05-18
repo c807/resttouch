@@ -73,19 +73,26 @@ class Api_gk extends CI_Controller
                             $ordengk->encabezados = $req->encabezados;
                             $ordengk->comanda_origen = $origen->comanda_origen;
                             $ordengk->numero_orden = get_dato_from_object($req->orden, $ruta->ruta);
-                            $ordengk->raw_orden = json_encode($req->orden);
-                            $ordenrt = $ordengk->get_orden_rt();
-                            if ($ordenrt) {
-                                $ordengk->estatus_orden_gk = $ordenrt->completa ? 1 : 3;
-                                $ordengk->orden_rt = json_encode($ordenrt);
-                            }
-                            $datos->exito = $ordengk->guardar();
-                            if ($datos->exito)
-                            {
-                                $datos->mensaje = 'Orden guardada con éxito.';
-                                $datos->orden = $ordengk;
+
+                            $existe = $this->Orden_gk_model->buscar(['numero_orden' => $ordengk->numero_orden, '_uno' => true]);
+                            
+                            if(!$existe) {
+                                $ordengk->raw_orden = json_encode($req->orden);
+                                $ordenrt = $ordengk->get_orden_rt();
+                                if ($ordenrt) {
+                                    $ordengk->estatus_orden_gk = $ordenrt->completa ? 1 : 3;
+                                    $ordengk->orden_rt = json_encode($ordenrt);
+                                }
+                                $datos->exito = $ordengk->guardar();
+                                if ($datos->exito)
+                                {
+                                    $datos->mensaje = 'Orden guardada con éxito.';
+                                    $datos->orden = $ordengk;
+                                } else {
+                                    $datos->mensaje = $ordengk->getMensaje();
+                                }
                             } else {
-                                $datos->mensaje = $ordengk->getMensaje();
+                                $datos->mensaje = "La orden {$ordengk->numero_orden} ya existe.";
                             }
                         } else {
                             $datos->mensaje = 'No existe configuración de ruta para número de orden.';
