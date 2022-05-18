@@ -10,13 +10,14 @@ import { DetalleOrdenCompra } from '../../../interfaces/detalle-orden-compra';
 import { OrdenCompraService } from '../../../services/orden-compra.service';
 import { Proveedor } from '../../../../wms/interfaces/proveedor';
 import { ProveedorService } from '../../../../wms/services/proveedor.service';
-import { ArticuloService } from '../../../../wms/services/articulo.service';
 import { TipoMovimiento } from '../../../../wms/interfaces/tipo-movimiento';
 import { TipoMovimientoService } from '../../../../wms/services/tipo-movimiento.service';
 import { Bodega } from '../../../../wms/interfaces/bodega';
 import { BodegaService } from '../../../../wms/services/bodega.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import * as moment from 'moment';
+import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
 import { MatSelectChange } from '@angular/material/select';
@@ -38,8 +39,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public detalleOrdenCompra: DetalleOrdenCompra;
   public displayedColumns: string[] = ['articulo', 'cantidad', 'monto', 'total', 'editItem'];
   public dataSource: MatTableDataSource<DetalleOrdenCompra>;
-  public proveedores: Proveedor[] = [];
-  // public articulos: Articulo[] = [];
+  public proveedores: Proveedor[] = [];  
   public articulos: any[] = [];
   public tiposMovimiento: TipoMovimiento[] = [];
   public bodegas: Bodega[] = [];
@@ -54,18 +54,17 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
     private ordenCompraSrvc: OrdenCompraService,
-    private proveedorSrvc: ProveedorService,
-    private articuloSrvc: ArticuloService,
+    private proveedorSrvc: ProveedorService,    
     private tipoMovimientoSrvc: TipoMovimientoService,
     private bodegaSrvc: BodegaService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private pdfServicio: ReportePdfService
   ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.resetOrdenCompra();
-    this.loadProveedores();
-    // this.loadArticulos();
+    this.loadProveedores();    
     this.loadBodegas();
     this.loadTiposMovimiento();
   }
@@ -256,4 +255,16 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   presentacionSelected = (obj: MatSelectChange) => this.loadUltimoCostoPresentacion(+obj.value);
 
+  imprimirOC = () => {
+    this.endSubs.add(
+      this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: 'application/pdf' });
+          saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', 'OC', { duration: 3000 });
+        }        
+      })
+    );    
+  }
 }

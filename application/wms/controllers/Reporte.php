@@ -1015,6 +1015,24 @@ class Reporte extends CI_Controller
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
 	}
+
+	public function orden_compra($id)
+	{
+		$rpt = new Reporte_model();
+		$oc = $rpt->get_compra($id);
+
+		$vista = $this->load->view('reporte/orden_compra/imprimir', $oc, true);
+
+		$mpdf = new \Mpdf\Mpdf([
+			'tempDir' => sys_get_temp_dir(), //Produccion
+			'format' => 'Letter'
+		]);
+
+		$mpdf->WriteHTML($vista);
+		$mpdf->Output('OC_' . date('YmdHis') . '.pdf', "D");
+
+		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egreso));
+	}	
 }
 
 /* End of file Reporte.php */

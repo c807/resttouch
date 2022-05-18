@@ -630,6 +630,35 @@ EOT;
 
 		return $proveedores;
 	}
+
+	function get_compra($idCompra)
+	{
+		$campos = 'a.orden_compra, c.nombre AS empresa, b.nombre AS sede, d.razon_social AS proveedor, DATE_FORMAT(a.fecha_orden, "%d/%m/%Y") AS fecha_orden, ';
+		$campos.= 'DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") AS fhcreacion, e.usrname AS usuario, a.notas, f.descripcion AS estatus, g.ingreso, b.alias AS alias_sede';
+		$oc = $this->db
+			->select($campos)
+			->join('sede b', 'b.sede = a.sede')
+			->join('empresa c', 'c.empresa = b.empresa')
+			->join('proveedor d', 'd.proveedor = a.proveedor')
+			->join('usuario e', 'e.usuario = a.usuario')
+			->join('estatus_movimiento f', 'f.estatus_movimiento = a.estatus_movimiento')
+			->join('ingreso_has_orden_compra g', 'a.orden_compra = g.orden_compra', 'left')
+			->where('a.orden_compra', $idCompra)
+			->get('orden_compra a')
+			->row();
+
+		if($oc) {
+			$campos = 'b.codigo, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, a.monto, a.total';
+			$oc->detalle = $this->db
+				->select($campos)
+				->join('articulo b', 'b.articulo = a.articulo')
+				->join('presentacion c', 'c.presentacion = a.presentacion')
+				->where('a.orden_compra', $idCompra)
+				->get('orden_compra_detalle a')
+				->result();
+		}
+		return $oc;
+	}
 }
 
 /* End of file Reporte_model.php */

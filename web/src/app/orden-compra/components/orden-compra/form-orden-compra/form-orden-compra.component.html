@@ -53,6 +53,9 @@
                     [disabled]="!frmOrdenCompra.form.valid || [2, 3].indexOf(+ordenCompra.estatus_movimiento) >= 0">
                     Guardar
                 </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirOC()" *ngIf="ordenCompra.orden_compra && detallesOrdenCompra.length > 0">
+                    PDF
+                </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="generarIngreso()"
                     *ngIf="ordenCompra.orden_compra && detallesOrdenCompra.length > 0"
                     [disabled]="!frmOrdenCompra.form.valid || [2, 3].indexOf(+ordenCompra.estatus_movimiento) >= 0 || !ordenCompra.bodega || !ordenCompra.tipo_movimiento">
