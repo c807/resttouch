@@ -13,7 +13,12 @@
         </h4>
     </mat-card-title>
     <mat-card-content>
-        <form #frmOrdenCompra="ngForm" *ngIf="showOrdenCompraForm" (ngSubmit)="frmOrdenCompra.form.valid && onSubmit()" novalidate>
+        <form #frmOrdenCompra="ngForm" *ngIf="showOrdenCompraForm" (ngSubmit)="frmOrdenCompra.form.valid && onSubmit()"
+            novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput type="date" placeholder="Fecha" name="fecha" [(ngModel)]="ordenCompra.fecha_orden"
+                    required>
+            </mat-form-field>
             <mat-form-field class="fullWidth">
                 <mat-label>Proveedor</mat-label>
                 <mat-select name="proveedor" [(ngModel)]="ordenCompra.proveedor" required>
@@ -23,7 +28,8 @@
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="fullWidth" *ngIf="esMovil">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas" name="notas" [(ngModel)]="ordenCompra.notas">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas" name="notas"
+                    [(ngModel)]="ordenCompra.notas">
                 <input matInput *ngIf="esMovil" placeholder="Notas" name="notas" [(ngModel)]="ordenCompra.notas">
             </mat-form-field>
             <mat-form-field class="fullWidth">
@@ -76,23 +82,41 @@
         </h4>
     </mat-card-title>
     <mat-card-content>
-        <form #frmDetalleOrdenCompra="ngForm" *ngIf="showDetalleOrdenCompraForm" (ngSubmit)="frmDetalleOrdenCompra.form.valid && onSubmitDetail()" novalidate>
+        <form #frmDetalleOrdenCompra="ngForm" *ngIf="showDetalleOrdenCompraForm"
+            (ngSubmit)="frmDetalleOrdenCompra.form.valid && onSubmitDetail()" novalidate>
             <mat-form-field class="fullWidth">
                 <mat-label>Artículo</mat-label>
-                <mat-select name="articulo" [(ngModel)]="detalleOrdenCompra.articulo" required>
-                    <mat-option *ngFor="let a of articulos" [value]="a.articulo">
-                        {{a.descripcion}}
+                <mat-select name="articulo" [(ngModel)]="detalleOrdenCompra.articulo" (selectionChange)="articuloSelected($event)" required>
+                    <mat-optgroup *ngFor="let group of articulos" [label]="group.razon_social">
+                        <mat-option *ngFor="let a of group.articulos" [value]="a.articulo">
+                            {{a.descripcion}}
+                        </mat-option>
+                    </mat-optgroup>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth">
+                <mat-label>Presentación</mat-label>
+                <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" required>
+                    <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
+                        {{p.descripcion_presentacion}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+
             <mat-form-field class="fullWidth" *ngIf="esMovil">
-                <input matInput type="number" placeholder="Cantidad" name="cantidad" [(ngModel)]="detalleOrdenCompra.cantidad" (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad" required>
+                <input matInput type="number" placeholder="Cantidad" name="cantidad"
+                    [(ngModel)]="detalleOrdenCompra.cantidad"
+                    (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
+                    required>
             </mat-form-field>
 
             <mat-form-field class="fullWidth" *ngIf="esMovil">
-                <input matInput type="number" placeholder="Monto" name="monto" [(ngModel)]="detalleOrdenCompra.monto" (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad" required>
+                <input matInput type="number" placeholder="Monto" name="monto" [(ngModel)]="detalleOrdenCompra.monto"
+                    (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
+                    required>
             </mat-form-field>
-            
+
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"
                     [disabled]="!frmDetalleOrdenCompra.form.valid || [2, 3].indexOf(+ordenCompra.estatus_movimiento) >= 0">

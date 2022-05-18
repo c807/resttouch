@@ -4,16 +4,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Compra_model extends General_Model {
 
 	public $orden_compra;
+	public $sede;
 	public $proveedor;
+	public $fecha_orden;
 	public $fecha;
 	public $usuario;
 	public $estatus_movimiento;
-	public $notas;
+	public $notas = null;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("orden_compra");
+		$this->setTabla('orden_compra');
 
 		if(!empty($id)) {
 			$this->cargar($id);
@@ -23,12 +25,12 @@ class Compra_model extends General_Model {
 	public function getProveedor()
 	{
 		return $this->db
-					->where("proveedor", $this->proveedor)
-					->get("proveedor")
+					->where('proveedor', $this->proveedor)
+					->get('proveedor')
 					->row();
 	}
 
-	public function setDetalle(Array $args, $id = "")
+	public function setDetalle(Array $args, $id = '')
 	{
 		$det = new CDetalle_Model($id);
 		$args['orden_compra'] = $this->orden_compra;
@@ -52,11 +54,13 @@ class Compra_model extends General_Model {
 			foreach ($det as $row) {
 				$detalle = new CDetalle_Model($row->orden_compra_detalle);
 				$row->articulo = $detalle->getArticulo();
+				$row->presentacion = $detalle->getPresentacion();
 				$datos[] = $row;
 			}
 		} else if($det) {
 			$detalle = new CDetalle_Model($det->orden_compra_detalle);
 			$det->articulo = $detalle->getArticulo();
+			$det->presentacion = $detalle->getPresentacion();
 			$datos[] = $det;
 		}
 
@@ -84,9 +88,9 @@ class Compra_model extends General_Model {
 				$det = $ing->setDetalle((array) $row);				
 			}
 			$this->db
-				 ->set("ingreso", $ing->ingreso)
-				 ->set("orden_compra", $this->orden_compra)
-				 ->insert("ingreso_has_orden_compra");
+				 ->set('ingreso', $ing->ingreso)
+				 ->set('orden_compra', $this->orden_compra)
+				 ->insert('ingreso_has_orden_compra');
 			return $ing;
 		} else {
 			$this->mensaje = $det->getMensaje();

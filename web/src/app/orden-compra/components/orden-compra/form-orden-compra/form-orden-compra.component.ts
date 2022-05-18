@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -15,13 +15,17 @@ import { TipoMovimiento } from '../../../../wms/interfaces/tipo-movimiento';
 import { TipoMovimientoService } from '../../../../wms/services/tipo-movimiento.service';
 import { Bodega } from '../../../../wms/interfaces/bodega';
 import { BodegaService } from '../../../../wms/services/bodega.service';
+import * as moment from 'moment';
+
+import { Subscription } from 'rxjs';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-form-orden-compra',
   templateUrl: './form-orden-compra.component.html',
   styleUrls: ['./form-orden-compra.component.css']
 })
-export class FormOrdenCompraComponent implements OnInit {
+export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   @Input() ordenCompra: OrdenCompra;
   @Output() ordenCompraSavedEv = new EventEmitter();
@@ -34,11 +38,15 @@ export class FormOrdenCompraComponent implements OnInit {
   public displayedColumns: string[] = ['articulo', 'cantidad', 'monto', 'total', 'editItem'];
   public dataSource: MatTableDataSource<DetalleOrdenCompra>;
   public proveedores: Proveedor[] = [];
-  public articulos: Articulo[] = [];
+  // public articulos: Articulo[] = [];
+  public articulos: any[] = [];
   public tiposMovimiento: TipoMovimiento[] = [];
   public bodegas: Bodega[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public presentaciones: any[] = [];
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -54,39 +62,44 @@ export class FormOrdenCompraComponent implements OnInit {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.resetOrdenCompra();
     this.loadProveedores();
-    this.loadArticulos();
+    // this.loadArticulos();
     this.loadBodegas();
     this.loadTiposMovimiento();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadProveedores = () => {
-    this.proveedorSrvc.get().subscribe(res => {
-      if (res) {
-        this.proveedores = res;
-      }
-    });
+    this.endSubs.add(
+      this.proveedorSrvc.get().subscribe(res => {
+        this.proveedores = res;      
+      })
+    );
   }
 
   loadTiposMovimiento = () => {
-    this.tipoMovimientoSrvc.get().subscribe(res => {
-      if (res) {
-        this.tiposMovimiento = res;
-      }
-    });
+    this.endSubs.add(      
+      this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
+        this.tiposMovimiento = res;      
+      })
+    );
   }
 
   loadBodegas = () => {
-    this.bodegaSrvc.get().subscribe(res => {
-      if (res) {
-        this.bodegas = res;
-      }
-    });
+    this.endSubs.add(      
+      this.bodegaSrvc.get({ sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0 }).subscribe(res => {
+        this.bodegas = res;      
+      })
+    );
   }
 
   resetOrdenCompra = () => {
     this.ordenCompra = {
       orden_compra: null, proveedor: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), notas: null,
-      estatus_movimiento: 1, bodega: null, tipo_movimiento: null
+      estatus_movimiento: 1, bodega: null, tipo_movimiento: null, fecha_orden: moment().format(GLOBAL.dbDateFormat),
+      sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0)
     };
     this.resetDetalleOrdenCompra();
   }
@@ -99,11 +112,13 @@ export class FormOrdenCompraComponent implements OnInit {
         this.resetOrdenCompra();
         this.ordenCompra = {
           orden_compra: +res.compra.orden_compra,
+          sede: res.compra.sede,
           proveedor: res.compra.proveedor,
+          fecha_orden: res.compra.fecha_orden,
           fecha: res.compra.fecha,
           usuario: res.compra.usuario,
           notas: res.compra.notas,
-          estatus_movimiento: 1
+          estatus_movimiento: +res.compra.estatus_movimiento
         };
         this.loadDetalleOrdenCompra(this.ordenCompra.orden_compra);
       }
@@ -111,26 +126,32 @@ export class FormOrdenCompraComponent implements OnInit {
   }
 
   loadArticulos = () => {
-    this.articuloSrvc.getArticulos().subscribe(res => {
-      if (res) {
+    // console.log(this.ordenCompra);
+    const params = {
+      sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0,
+      proveedor: this.ordenCompra.proveedor || 0
+    };
+
+    this.endSubs.add(
+      this.ordenCompraSrvc.getArticulosPorProveedor(params).subscribe(res => {
         this.articulos = res;
-      }
-    });
+      })
+    );
   }
 
   resetDetalleOrdenCompra = () => this.detalleOrdenCompra = {
     orden_compra_detalle: null, orden_compra: (!!this.ordenCompra.orden_compra ? this.ordenCompra.orden_compra : null), articulo: null,
-    cantidad: null, monto: null, total: null
+    cantidad: null, monto: null, total: null, presentacion: null
   }
 
   loadDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra) => {
-    this.ordenCompraSrvc.getDetalle(idoc, { orden_compra: idoc }).subscribe(res => {
-      // console.log(res);
-      if (res) {
+    this.loadArticulos();
+    this.endSubs.add(      
+      this.ordenCompraSrvc.getDetalle(idoc, { orden_compra: idoc }).subscribe(res => {
         this.detallesOrdenCompra = res;
-        this.updateTableDataSource();
-      }
-    });
+        this.updateTableDataSource();      
+      })
+    );
   }
 
   getDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra, iddetalle: number) => {
@@ -141,6 +162,7 @@ export class FormOrdenCompraComponent implements OnInit {
           orden_compra_detalle: res[0].orden_compra_detalle,
           orden_compra: res[0].orden_compra,
           articulo: res[0].articulo.articulo,
+          presentacion: res[0].presentacion.presentacion,
           cantidad: +res[0].cantidad,
           monto: +res[0].monto,
           total: +res[0].total
@@ -166,5 +188,18 @@ export class FormOrdenCompraComponent implements OnInit {
   generarIngreso = () => {
     this.ordenCompra.estatus_movimiento = 2;
     this.onSubmit();
+  }
+
+  articuloSelected = (obj: MatSelectChange) => {
+    // console.log(obj);
+    for(const prov of this.articulos) {
+      for(const art of prov.articulos) {
+        if (+obj.value === +art.articulo) {
+          this.presentaciones = art.presentaciones;
+          break;
+        }
+      }      
+    }
+
   }
 }

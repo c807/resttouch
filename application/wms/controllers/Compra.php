@@ -10,10 +10,17 @@ class Compra extends CI_Controller {
         	'Compra_model',
         	'CDetalle_model',
         	'Ingreso_model',
-        	'IDetalle_Model'
+        	'IDetalle_Model',
+			'Articulo_ultima_compra_model'
         ]);
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+
+		$this->load->helper(['jwt', 'authorization']);
+		$headers = $this->input->request_headers();
+		if (isset($headers['Authorization'])) {
+			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
+		}
+
+        $this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function guardar($id = ''){
@@ -33,16 +40,16 @@ class Compra extends CI_Controller {
 					}
 				}
 				if($datos['exito']) {
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['compra'] = $ocs;
 				} else {
-					$datos['mensaje'] = implode("<br>", $ocs->getMensaje());
+					$datos['mensaje'] = implode('<br>', $ocs->getMensaje());
 				}		
 			} else {
-				$datos['mensaje'] = "Solo se pueden modificar ordenes en estatus abierto";
+				$datos['mensaje'] = 'Solo se pueden modificar órdenes en estatus abierto.';
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 
@@ -59,14 +66,14 @@ class Compra extends CI_Controller {
 
 			if($det) {
 				$datos['exito'] = true;
-				$datos['mensaje'] = "Datos Actualizados con Exito";		
+				$datos['mensaje'] = 'Datos actualizados con éxito.';		
 				$datos['detalle'] = $det;		
 			} else {
-				$datos['mensaje'] = implode("<br>", $ocs->getMensaje());
+				$datos['mensaje'] = implode('<br>', $ocs->getMensaje());
 			}	
 
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -87,20 +94,28 @@ class Compra extends CI_Controller {
 			$datos[] = $compras;
 		}
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function buscar_detalle($compra)
 	{
 		$compra = new Compra_model($compra);
-
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($compra->getDetalle($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($compra->getDetalle($_GET)));
 	}
 
+	public function get_articulos_proveedor()
+	{
+		if(!isset($_GET['sede'])) {
+			$_GET['sede'] = $this->data->sede;
+		}
+
+		if(!isset($_GET['proveedor'])) {
+			$_GET['proveedor'] = 0;
+		}
+
+		$articulos = $this->Articulo_ultima_compra_model->get_articulos_proveedor($_GET['sede'], $_GET['proveedor']);
+		$this->output->set_content_type('application/json')->set_output(json_encode($articulos));
+	}
 }
 
 /* End of file Compra.php */
