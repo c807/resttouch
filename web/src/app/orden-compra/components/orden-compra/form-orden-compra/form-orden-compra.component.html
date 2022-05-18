@@ -97,25 +97,29 @@
 
             <mat-form-field class="fullWidth">
                 <mat-label>Presentación</mat-label>
-                <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" required>
+                <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" (selectionChange)="presentacionSelected($event)" required>
                     <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
                         {{p.descripcion_presentacion}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field class="fullWidth" *ngIf="esMovil">
+            <mat-form-field class="fullWidth" *ngIf="esMovil">  
                 <input matInput type="number" placeholder="Cantidad" name="cantidad"
                     [(ngModel)]="detalleOrdenCompra.cantidad"
-                    (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
+                    (keyup)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"                    
                     required>
             </mat-form-field>
 
             <mat-form-field class="fullWidth" *ngIf="esMovil">
-                <input matInput type="number" placeholder="Monto" name="monto" [(ngModel)]="detalleOrdenCompra.monto"
-                    (change)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
+                <input matInput type="number" placeholder="Costo unitario" name="monto" [(ngModel)]="detalleOrdenCompra.monto"
+                    (keyup)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
+                    [disabled]="bloqueoMonto"
                     required>
             </mat-form-field>
+            <span class="bld" style="font-size: medium;" *ngIf="+detalleOrdenCompra.total !== 0">
+                Total: {{(detalleOrdenCompra.total | number:'1.2-2') || '0.00'}}
+            </span>
 
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"

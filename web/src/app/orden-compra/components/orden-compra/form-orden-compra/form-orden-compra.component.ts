@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 import { GLOBAL } from '../../../../shared/global';
 
@@ -9,12 +10,12 @@ import { DetalleOrdenCompra } from '../../../interfaces/detalle-orden-compra';
 import { OrdenCompraService } from '../../../services/orden-compra.service';
 import { Proveedor } from '../../../../wms/interfaces/proveedor';
 import { ProveedorService } from '../../../../wms/services/proveedor.service';
-import { Articulo } from '../../../../wms/interfaces/articulo';
 import { ArticuloService } from '../../../../wms/services/articulo.service';
 import { TipoMovimiento } from '../../../../wms/interfaces/tipo-movimiento';
 import { TipoMovimientoService } from '../../../../wms/services/tipo-movimiento.service';
 import { Bodega } from '../../../../wms/interfaces/bodega';
 import { BodegaService } from '../../../../wms/services/bodega.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import * as moment from 'moment';
 
 import { Subscription } from 'rxjs';
@@ -45,6 +46,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public presentaciones: any[] = [];
+  public bloqueoMonto = false;
 
   private endSubs = new Subscription();
 
@@ -55,7 +57,8 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     private proveedorSrvc: ProveedorService,
     private articuloSrvc: ArticuloService,
     private tipoMovimientoSrvc: TipoMovimientoService,
-    private bodegaSrvc: BodegaService
+    private bodegaSrvc: BodegaService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -74,23 +77,23 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   loadProveedores = () => {
     this.endSubs.add(
       this.proveedorSrvc.get().subscribe(res => {
-        this.proveedores = res;      
+        this.proveedores = res;
       })
     );
   }
 
   loadTiposMovimiento = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
-        this.tiposMovimiento = res;      
+        this.tiposMovimiento = res;
       })
     );
   }
 
   loadBodegas = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.bodegaSrvc.get({ sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0 }).subscribe(res => {
-        this.bodegas = res;      
+        this.bodegas = res;
       })
     );
   }
@@ -146,10 +149,10 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   loadDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra) => {
     this.loadArticulos();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.ordenCompraSrvc.getDetalle(idoc, { orden_compra: idoc }).subscribe(res => {
         this.detallesOrdenCompra = res;
-        this.updateTableDataSource();      
+        this.updateTableDataSource();
       })
     );
   }
@@ -162,11 +165,15 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
           orden_compra_detalle: res[0].orden_compra_detalle,
           orden_compra: res[0].orden_compra,
           articulo: res[0].articulo.articulo,
-          presentacion: res[0].presentacion.presentacion,
+          presentacion: null,
           cantidad: +res[0].cantidad,
           monto: +res[0].monto,
           total: +res[0].total
         };
+
+        this.loadPresentacionesArticulo(+this.detalleOrdenCompra.articulo);
+        this.detalleOrdenCompra.presentacion = res[0].presentacion.presentacion;
+        this.loadUltimoCostoPresentacion(+this.detalleOrdenCompra.presentacion, false);
         this.showDetalleOrdenCompraForm = true;
       }
     });
@@ -174,32 +181,79 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   onSubmitDetail = () => {
     this.detalleOrdenCompra.orden_compra = this.ordenCompra.orden_compra;
-    this.ordenCompraSrvc.saveDetalle(this.detalleOrdenCompra).subscribe(res => {
-      // console.log(res);
-      if (res) {
-        this.loadDetalleOrdenCompra();
-        this.resetDetalleOrdenCompra();
-      }
-    });
+    // console.log('DET = ', this.detalleOrdenCompra); return;
+    this.endSubs.add(
+      this.ordenCompraSrvc.saveDetalle(this.detalleOrdenCompra).subscribe(res => {
+        // console.log(res);
+        if (res) {
+          this.loadDetalleOrdenCompra();
+          this.resetDetalleOrdenCompra();
+          this.presentaciones = [];
+        }
+      })
+    );
   }
 
   updateTableDataSource = () => this.dataSource = new MatTableDataSource(this.detallesOrdenCompra);
 
   generarIngreso = () => {
-    this.ordenCompra.estatus_movimiento = 2;
-    this.onSubmit();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Generar Ingreso',
+        'Luego de generar el ingreso, no podrá modificar la orden de compra. ¿Desea continuar?',
+        'Sí', 'No'
+      )
+    });
+
+    this.endSubs.add(
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {
+          this.ordenCompra.estatus_movimiento = 2;
+          this.onSubmit();
+        }
+      })
+    );
   }
 
-  articuloSelected = (obj: MatSelectChange) => {
-    // console.log(obj);
-    for(const prov of this.articulos) {
-      for(const art of prov.articulos) {
-        if (+obj.value === +art.articulo) {
+  loadPresentacionesArticulo = (idArticulo: number) => {
+    for (const prov of this.articulos) {
+      for (const art of prov.articulos) {
+        if (+idArticulo === +art.articulo) {
           this.presentaciones = art.presentaciones;
           break;
         }
-      }      
+      }
     }
-
   }
+
+  articuloSelected = (obj: MatSelectChange) => this.loadPresentacionesArticulo(+obj.value);
+
+  loadUltimoCostoPresentacion = (idPresentacion: number, changeMonto: boolean = true) => {
+    for (const prov of this.articulos) {
+      for (const art of prov.articulos) {
+        if (+this.detalleOrdenCompra.articulo === +art.articulo) {
+          for (const pres of art.presentaciones) {
+            if (+idPresentacion === +pres.presentacion) {
+              if (pres.ultimo_costo !== null && pres.ultimo_costo !== undefined) {
+                this.bloqueoMonto = true;
+                if (changeMonto) {
+                  this.detalleOrdenCompra.monto = +pres.ultimo_costo;
+                  if (+this.detalleOrdenCompra.cantidad > 0) {
+                    this.detalleOrdenCompra.total = +pres.ultimo_costo * +this.detalleOrdenCompra.cantidad;
+                  }
+                }
+              } else {
+                this.bloqueoMonto = false;
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  presentacionSelected = (obj: MatSelectChange) => this.loadUltimoCostoPresentacion(+obj.value);
+
 }

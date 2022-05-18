@@ -80,12 +80,81 @@ class Compra_model extends General_Model {
 			'estatus_movimiento' => 2
 		];
 
+		$this->load->model([
+			'BodegaArticuloCosto_model', 
+			'Bodega_model', 
+			'Presentacion_model', 
+			'Articulo_model', 
+			'Sede_model', 
+			'Receta_model'
+		]);
+		$sede = new Sede_model($this->data->sede);
+		$emp = $sede->getEmpresa();
+		$iva = 1 + $emp->porcentaje_iva;
+
 		if($ing->guardar($datos)) {
+			$bac = new BodegaArticuloCosto_model();
+			$bod = new Bodega_model($ing->bodega);
 			foreach ($this->getDetalle() as $row) {
+
+				$costo = $row->monto / $iva;
 				$row->articulo = $row->articulo->articulo;
-				$row->precio_unitario = $row->monto;
-				$row->precio_total = $row->total;
-				$det = $ing->setDetalle((array) $row);				
+				$row->presentacion = $row->presentacion->presentacion;
+				$row->precio_unitario = $costo;
+				$row->precio_total = $costo * $row->cantidad;
+				$row->precio_costo_iva = $row->precio_total * $emp->porcentaje_iva;
+				$pres = new Presentacion_model($row->presentacion);
+
+				$det = $ing->setDetalle((array) $row);
+				if($det) {
+					$art = new Articulo_model($row->articulo);
+					$art->actualizarExistencia([
+						"bodega" => $ing->bodega,
+						"sede" => $bod->sede
+					]);
+
+					$bcosto = $this->BodegaArticuloCosto_model->buscar([
+						'bodega' => $ing->bodega, 
+						'articulo' => $art->getPK(), 
+						'_uno' => true
+					]);
+
+					$costo = $art->getCosto(["bodega" => $ing->bodega]);
+
+					if ($bcosto) {
+						$bac->cargar($bcosto->bodega_articulo_costo);
+						/*Ultima compra*/
+						$costo_uc = $art->getCosto([
+							"bodega" => $ing->bodega, 
+							"metodo_costeo" => 1
+						]);
+						$bac->costo_ultima_compra = $costo_uc;
+
+						/*Costo promedio*/
+						$costo = $bcosto->costo_promedio * $art->existencias + $row->precio_total;
+						$existencia = $art->existencias + $row->cantidad * $pres->cantidad;
+						if ($existencia != 0) {
+							$costo = $costo / $existencia;
+						} 
+
+						$bac->costo_promedio = $costo;
+						
+					} else {
+						$bac->bodega = $ing->bodega;
+						$bac->articulo = $art->getPK();
+						$bac->costo_ultima_compra = $costo;
+						$bac->costo_promedio = $costo;
+					}
+
+					$art->guardar(["costo" => $costo]);
+					$bac->guardar();
+
+					if((int)$ing->ajuste === 0) {						
+						$this->Ingreso_model->actualiza_ultima_compra($ing, $det, $row->monto);
+					}
+				} else {
+					$this->mensaje = $ing->getMensaje();
+				}
 			}
 			$this->db
 				 ->set('ingreso', $ing->ingreso)
@@ -93,7 +162,7 @@ class Compra_model extends General_Model {
 				 ->insert('ingreso_has_orden_compra');
 			return $ing;
 		} else {
-			$this->mensaje = $det->getMensaje();
+			$this->mensaje = $ing->getMensaje();
 		}
 
 		return false;

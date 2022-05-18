@@ -318,6 +318,31 @@ class Ingreso_model extends General_Model
 		return array_merge($arts_ing, $arts_noc);
 	}
 
+	public function actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado)
+	{
+		$this->load->model(['Articulo_ultima_compra_model']);
+		$aucSrch = $this->Articulo_ultima_compra_model->buscar([
+			'articulo' => $detalle->articulo,
+			'presentacion' => $detalle->presentacion,
+			'ultimo_proveedor' => $ingreso->proveedor,
+			'_uno' => true
+		]);
+		
+		$auc = null;
+		if ($aucSrch) {
+			$auc = new Articulo_ultima_compra_model($aucSrch->articulo_ultima_compra);
+			$auc->ultimo_proveedor = $ingreso->proveedor;
+			$auc->ultimo_costo = $ultimo_costo_ingresado;
+		} else {
+			$auc = new Articulo_ultima_compra_model();
+			$auc->articulo = $detalle->articulo;
+			$auc->presentacion = $detalle->presentacion;
+			$auc->ultimo_proveedor = $ingreso->proveedor;
+			$auc->ultimo_costo = $ultimo_costo_ingresado;
+		}
+		$auc->guardar();
+	}
+
 }
 
 /* End of file Ingreso_model.php */
