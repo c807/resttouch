@@ -43,8 +43,7 @@ class Orden_gk extends CI_Controller
     private function getOrdenesGk($args = [])
     {
 
-        if(!isset($args['orden_gk']) && !isset($args['estatus_orden_gk']))
-        {
+        if (!isset($args['orden_gk']) && !isset($args['estatus_orden_gk'])) {
             $args['_not_in'] = [
                 'estatus_orden_gk' => [2, 6]
             ];
@@ -72,7 +71,7 @@ class Orden_gk extends CI_Controller
     }
 
     public function seguimiento()
-    {        
+    {
         $this->output->set_output(json_encode($this->getOrdenesGk($_GET)));
     }
 
@@ -179,7 +178,7 @@ class Orden_gk extends CI_Controller
         ]);
 
         if (!$fp_descuento) {
-            $fp_descuento = new Factura_model();
+            $fp_descuento = new Fpago_model();
             $fp_descuento->descripcion = 'Descuento';
             $fp_descuento->activo = 1;
             $fp_descuento->descuento = 1;
@@ -275,19 +274,15 @@ class Orden_gk extends CI_Controller
     {
         $idArticulo = 0;
         $endpoint = $this->Catalogo_model->getComandaOrigenEndpoint(['comanda_origen' => $ordenrt->comanda_origen, 'tipo_endpoint' => 1, '_uno' => true]);
-        if($endpoint && $endpoint->verbo && $endpoint->endpoint && $articulo->atiende && isset($articulo->atiende->sede))
-        {
+        if ($endpoint && $endpoint->verbo && $endpoint->endpoint && $articulo->atiende && isset($articulo->atiende->sede)) {
             $url = $endpoint->endpoint;
-            foreach($reemplazos as $key => $value)
-            {                
-                $url = str_replace(('{{'.$key.'}}'), $value, $url);
+            foreach ($reemplazos as $key => $value) {
+                $url = str_replace(('{{' . $key . '}}'), $value, $url);
             }
 
-            if (strtoupper(trim($endpoint->verbo)) === 'GET')
-            {
+            if (strtoupper(trim($endpoint->verbo)) === 'GET') {
                 $respuesta = json_decode(get_request($url));
-                if ($respuesta)
-                {
+                if ($respuesta) {
                     $sede = $articulo->atiende;
                     $ordenGk = new Orden_gk_model($ordenrt->orden_gk);
 
@@ -301,24 +296,18 @@ class Orden_gk extends CI_Controller
                         'precio_variante' => $ordenGk->get_ruta(29)
                     ];
                     $infoArticulo = [];
-                    foreach($rutasArticulo as $key => $value)
-                    {
-                        if (!in_array($key, array('id_variante', 'descripcion_variante', 'precio_variante')))
-                        {
+                    foreach ($rutasArticulo as $key => $value) {
+                        if (!in_array($key, array('id_variante', 'descripcion_variante', 'precio_variante'))) {
                             $infoArticulo[$key] = $value ? get_dato_from_paths($respuesta, $value) : null;
                         }
                     }
 
-                    if ($infoArticulo['variantes'] && count($infoArticulo['variantes']) > 0)
-                    {
-                        foreach($infoArticulo['variantes'] as $variante)
-                        {
+                    if ($infoArticulo['variantes'] && count($infoArticulo['variantes']) > 0) {
+                        foreach ($infoArticulo['variantes'] as $variante) {
                             $idVariante = $rutasArticulo['id_variante'] ? get_dato_from_paths($variante, $rutasArticulo['id_variante']) : null;
-                            if ($idVariante && trim($idVariante) === trim($articulo->id_tercero))
-                            {
+                            if ($idVariante && trim($idVariante) === trim($articulo->id_tercero)) {
                                 $infoArticulo['descripcion_variante'] = $rutasArticulo['descripcion_variante'] ? get_dato_from_paths($variante, $rutasArticulo['descripcion_variante']) : 0.00;
-                                if($infoArticulo['descripcion_variante'] && strtoupper(trim($infoArticulo['descripcion_variante'])) === 'DEFAULT TITLE') 
-                                {
+                                if ($infoArticulo['descripcion_variante'] && strtoupper(trim($infoArticulo['descripcion_variante'])) === 'DEFAULT TITLE') {
                                     $infoArticulo['descripcion_variante'] = null;
                                 }
                                 $infoArticulo['precio_variante'] = $rutasArticulo['precio_variante'] ? get_dato_from_paths($variante, $rutasArticulo['precio_variante']) : 0.00;
@@ -327,24 +316,21 @@ class Orden_gk extends CI_Controller
                     }
                     $infoArticulo = (object)$infoArticulo;
 
-                    $infoArticulo->categoria = !empty($infoArticulo->categoria) ? $infoArticulo->categoria : 'Otros';                    
+                    $infoArticulo->categoria = !empty($infoArticulo->categoria) ? $infoArticulo->categoria : 'Otros';
                     $categoria = $this->Categoria_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($infoArticulo->categoria)), 'sede' => $sede->sede, '_uno' => true]);
 
-                    if (!$categoria)
-                    {
+                    if (!$categoria) {
                         $categoria = new Categoria_model();
                         $categoria->descripcion = trim($infoArticulo->categoria);
                         $categoria->sede = $sede->sede;
                         $categoria->guardar();
                     }
 
-                    if ($categoria && $categoria->categoria)
-                    {
+                    if ($categoria && $categoria->categoria) {
                         $infoArticulo->subcategoria = !empty($infoArticulo->subcategoria) ? $infoArticulo->subcategoria : 'Otros';
                         $subcategoria = $this->Cgrupo_model->buscar(['categoria' => $categoria->categoria, 'UPPER(TRIM(descripcion))' => strtoupper(trim($infoArticulo->subcategoria)), '_uno' => true]);
 
-                        if (!$subcategoria)
-                        {
+                        if (!$subcategoria) {
                             $impresora = $this->Impresora_model->buscar(['sede' => $sede->sede, 'pordefecto' => 1, '_uno' => true]);
                             $bodega = $this->Bodega_model->buscar(['sede' => $sede->sede, 'pordefecto' => 1, '_uno' => true]);
                             $subcategoria = new Cgrupo_model();
@@ -355,12 +341,11 @@ class Orden_gk extends CI_Controller
                             $subcategoria->guardar();
                         }
 
-                        if ($subcategoria && $subcategoria->categoria_grupo)
-                        {
+                        if ($subcategoria && $subcategoria->categoria_grupo) {
                             $art = new Articulo_model();
                             $art->categoria_grupo = $subcategoria->categoria_grupo;
                             $art->presentacion = 1;
-                            $art->descripcion = trim($infoArticulo->descripcion_producto).($infoArticulo->descripcion_variante ? (' / '.trim($infoArticulo->descripcion_variante)) : '');
+                            $art->descripcion = trim($infoArticulo->descripcion_producto) . ($infoArticulo->descripcion_variante ? (' / ' . trim($infoArticulo->descripcion_variante)) : '');
                             $art->precio = (float)$infoArticulo->precio_variante;
                             $art->bien_servicio = 'B';
                             $art->shopify_id = trim($articulo->id_tercero);
@@ -369,8 +354,7 @@ class Orden_gk extends CI_Controller
                             $art->mostrar_pos = 1;
                             $art->guardar();
 
-                            if ($art && $art->articulo)
-                            {
+                            if ($art && $art->articulo) {
                                 $idArticulo = $art->articulo;
                                 $this->Articulo_vendor_tercero_model->get_articulo_vendor($articulo->vendor->vendor_tercero, $articulo->id_tercero);
                             }
@@ -385,16 +369,15 @@ class Orden_gk extends CI_Controller
     private function existen_articulos($ordenrt)
     {
         $datos = new stdClass();
-        $datos->exito = true;        
+        $datos->exito = true;
         $datos->articulosFaltantes = '';
         foreach ($ordenrt->articulos as $articulo) {
-            $idArticulo = $this->Articulo_vendor_tercero_model->get_articulo_vendor($articulo->vendor->vendor_tercero, $articulo->id_tercero);                
+            $idArticulo = $this->Articulo_vendor_tercero_model->get_articulo_vendor($articulo->vendor->vendor_tercero, $articulo->id_tercero);
             if ($idArticulo <= 0) {
                 $idArticulo = $this->agregar_articulo_tercero($ordenrt, $articulo, [
                     'articulo' => (!empty($articulo->id_padre_tercero) ? $articulo->id_padre_tercero : $articulo->id_tercero)
                 ]);
-                if ($idArticulo <= 0)
-                {
+                if ($idArticulo <= 0) {
                     $datos->exito = false;
                     if ($datos->articulosFaltantes !== '') {
                         $datos->articulosFaltantes .= ', ';
@@ -412,14 +395,14 @@ class Orden_gk extends CI_Controller
         $ordenrt = $ordengk->get_orden_rt();
         $ordenrt->orden_gk = $ordengk->orden_gk;
         $datos = $this->existen_articulos($ordenrt);
-        $this->output->set_output(json_encode($datos));        
+        $this->output->set_output(json_encode($datos));
     }
 
     private function genera_comanda_sede($sede, $ordenrt)
     {
         $datos = new stdClass();
         $datos->exito = false;
-        $datos->mensaje = '';
+        $datos->mensaje = '';        
 
         $comandaHeader = [
             'usuario' => $sede->turno->mesero->usuario->usuario,
@@ -430,7 +413,7 @@ class Orden_gk extends CI_Controller
             'comanda_origen' => $ordenrt->comanda_origen,
             'comanda_origen_datos' => json_encode($ordenrt),
             'mesero' => $sede->turno->mesero->usuario->usuario,
-            'notas_generales' => "Pedido #{$ordenrt->numero_orden}".((isset($ordenrt->notas_comanda) && !empty(trim($ordenrt->notas_comanda))) ? ('; '.trim($ordenrt->notas_comanda)) : ''),
+            'notas_generales' => "Pedido #{$ordenrt->numero_orden}" . ((isset($ordenrt->notas_comanda) && !empty(trim($ordenrt->notas_comanda))) ? ('; ' . trim($ordenrt->notas_comanda)) : ''),
             'orden_gk' => $ordenrt->orden_gk
         ];
 
@@ -470,7 +453,7 @@ class Orden_gk extends CI_Controller
                     $datos->articulosFaltantes .= "{$articulo->descripcion} de {$articulo->vendor->nombre}";
                 }
             }
-        }
+        }        
 
         if ($datos->articulosFaltantes !== '') {
             $datos->exito = false;
@@ -483,7 +466,6 @@ class Orden_gk extends CI_Controller
 
             return $datos;
         }
-
 
         $comanda = new Comanda_model();
 
@@ -630,19 +612,17 @@ class Orden_gk extends CI_Controller
             $ordengk = new Orden_gk_model($idOrdenGk);
             $ordenrt = json_decode($ordengk->orden_rt);
 
-            foreach($ordenrt->articulos as $articulo)
-            {
+            foreach ($ordenrt->articulos as $articulo) {
                 $articulo->estatus_sede = $this->Estatus_orden_gk_sede_model->ultimo_estatus_sede($ordengk->orden_gk, $articulo->atiende->sede);
             }
             $ordengk->orden_rt = json_encode($ordenrt);
             $datos->exito = $ordengk->guardar();
             $datos->orden = null;
-            if($datos->exito)
-            {
+            if ($datos->exito) {
                 $datos->orden = $this->getOrdenesGk(['orden_gk' => $idOrdenGk, '_uno' => true]);
                 $datos->mensaje = 'Se actualizó el estatus de cada sede con éxito.';
             } else {
-                $datos->mensaje = implode('. ', $ordengk->getMensaje());                
+                $datos->mensaje = implode('. ', $ordengk->getMensaje());
             }
         } else {
             $datos->mensaje = "El #{$idOrdenGk} no es válido.";
@@ -674,14 +654,14 @@ class Orden_gk extends CI_Controller
                     $estatus_sede->guardar();
                 }
 
-                $estatus = $ordenGk->actualiza_estatus($req->estatus_orden_gk);                
+                $estatus = $ordenGk->actualiza_estatus($req->estatus_orden_gk);
 
                 $datos->exito = true;
                 $datos->mensaje = "Se actualizó el estatus de la orden #{$ordenGk->orden_gk} de Ghost Kitchen.";
                 $datos->estatus_orden_gk = $this->Estatus_orden_gk_model->buscar([
                     'estatus_orden_gk' => $estatus ? $estatus : $ordenGk->estatus_orden_gk,
                     '_uno' => true
-                ]);                
+                ]);
             } else {
                 $datos->mensaje = "Faltan datos para cambiar el estatus de la orden #{$req->orden_gk} de Ghost Kitchen.";
             }
@@ -705,13 +685,11 @@ class Orden_gk extends CI_Controller
                 $ordengk->orden_rt = json_encode($ordenrt);
             }
             $datos->exito = $ordengk->guardar();
-            if ($datos->exito)
-            {
+            if ($datos->exito) {
                 $ogk = $this->getOrdenesGk(['orden_gk' => $idOrdenGk, '_uno' => true]);
                 $datos->orden = $ogk;
                 $datos->mensaje = 'Datos actualizados con éxito.';
-            } else 
-            {
+            } else {
                 $datos->mensaje = $ordengk->getMensaje();
             }
         } else {
@@ -724,6 +702,6 @@ class Orden_gk extends CI_Controller
     public function actualiza_estatus_sede($idOrdenGk = null)
     {
         $datos = $this->update_status_branch($idOrdenGk);
-        $this->output->set_output(json_encode($datos));        
+        $this->output->set_output(json_encode($datos));
     }
 }

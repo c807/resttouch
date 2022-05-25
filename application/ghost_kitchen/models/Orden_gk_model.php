@@ -32,7 +32,8 @@ class Orden_gk_model extends General_model
 			'Articulo_model',
 			'Sede_model',
 			'Articulo_vendor_tercero_model',
-			'Forma_pago_comanda_origen_model'
+			'Forma_pago_comanda_origen_model', 
+			'Configuracion_model'
 		]);
 	}
 
@@ -59,6 +60,7 @@ class Orden_gk_model extends General_model
 		$ordenrt->total_descuento = 0.00;
 		$ordenrt->comanda_origen = $this->comanda_origen;
 		$ordenrt->total_propina = 0.00;
+		$ordenrt->total_entrega = 0.00;
 		$orden_original = json_decode($this->raw_orden);
 		$ordenrt->completa = true;
 		$ordenrt->pendiente = '';
@@ -144,12 +146,16 @@ class Orden_gk_model extends General_model
 		}
 		$ordenrt->datos_factura->email = $rutasFacturacion['email'] ? get_dato_from_paths($orden_original, $rutasFacturacion['email']) : null;
 
+		$rutaDelivery = $this->get_ruta(32);
+		$ordenrt->total_entrega = (float)($rutaDelivery ? get_dato_from_paths($orden_original, $rutaDelivery) : 0.00);
+
 		$descripcionesPropina = $this->get_ruta(30);
 		if (!$descripcionesPropina || strlen(trim($descripcionesPropina)) == 0)
 		{
 			$descripcionesPropina = 'tip,propina';
 		}
 
+		$hayDescuentosPorArticulo = false;
 		$ordenrt->articulos = [];
 		$rutaArticulos = $this->get_ruta(2);
 		if ($rutaArticulos) {
@@ -166,6 +172,7 @@ class Orden_gk_model extends General_model
 				];
 				$rutas = (object)$rutas;
 				$sedesNoEncontradas = [];
+				$config = $this->Configuracion_model->buscar(); // JA: Agregado para la propina. 24/05/2022.
 				foreach ($listaArticulos as $art) {
 					$descripcionArticulo = $rutas->descripcion ? get_dato_from_paths($art, $rutas->descripcion) : '';
 					$pos = stripos($descripcionesPropina, $descripcionArticulo);
@@ -215,6 +222,11 @@ class Orden_gk_model extends General_model
 						$obj->precio = $rutas->precio ? get_dato_from_paths($art, $rutas->precio) : null;
 						$obj->cantidad = $rutas->cantidad ? get_dato_from_paths($art, $rutas->cantidad) : null;
 						$obj->descuento = $rutas->descuento ? get_dato_from_paths($art, $rutas->descuento) : 0.00;
+
+						if ((float)$obj->descuento > 0 && !$hayDescuentosPorArticulo) {
+							$hayDescuentosPorArticulo = true;
+						}
+
 						$obj->total = 0.00;
 	
 						if ($obj->precio && $obj->cantidad) {
@@ -235,8 +247,142 @@ class Orden_gk_model extends General_model
 					} else {
 						$montoPropina = $rutas->precio ? get_dato_from_paths($art, $rutas->precio) : 0.00;
 						$ordenrt->total_propina += (float)$montoPropina;
+
+						// JA: Agregado para la propina. 24/05/2022.						
+        				$sedeCobraPropina = (int)get_configuracion($config, 'RT_GK_SEDE_COBRA_PROPINA', 1);
+						$articuloPropina = $this->Articulo_model->buscarArticulo(['sede' => $sedeCobraPropina, 'descripcion' => 'Propina']);
+
+						if ($articuloPropina) {
+							$obj = new stdClass();							
+
+							$vendor = $this->db
+								->select('a.*')
+								->join('sede_vendor_tercero b', 'a.vendor_tercero = b.vendor_tercero')
+								->join('articulo_vendor_tercero c', 'a.vendor_tercero = c.vendor_tercero')
+								->where('b.sede', $sedeCobraPropina)
+								->where('c.articulo', $articuloPropina->articulo)
+								->get('vendor_tercero a')
+								->row();
+
+							$sede = $this->Sede_model->buscar(['sede' => $sedeCobraPropina, '_uno' => true]);
+
+							$obj->id_tercero = 'Propina';
+							$obj->id_padre_tercero = null;
+							$obj->descripcion = 'Propina';
+							$obj->vendor = $vendor;
+							$obj->atiende = $sede;
+							$obj->precio = (float)$montoPropina;
+							$obj->cantidad = 1;
+							$obj->descuento = 0.00;
+							$obj->total = (float)$montoPropina;
+	
+							$ordenrt->total_orden += $obj->total;
+		
+							$ordenrt->articulos[] = $obj;
+							$obj = null;
+						}
 					}					
 				}
+
+				// JA: Agregado para la entrega. 24/05/2022.
+				if ($ordenrt->total_entrega > 0) {
+					$sedeCobraEntrega = (int)get_configuracion($config, 'RT_GK_SEDE_COBRA_ENTREGA', 1);
+					$articuloEntrega = $this->Articulo_model->buscarArticulo(['sede' => $sedeCobraEntrega, 'descripcion' => 'Entrega']);
+
+					if ($articuloEntrega) {
+						$obj = new stdClass();
+
+						$vendor = $this->db
+							->select('a.*')
+							->join('sede_vendor_tercero b', 'a.vendor_tercero = b.vendor_tercero')
+							->join('articulo_vendor_tercero c', 'a.vendor_tercero = c.vendor_tercero')
+							->where('b.sede', $sedeCobraEntrega)
+							->where('c.articulo', $articuloEntrega->articulo)
+							->get('vendor_tercero a')
+							->row();
+
+						$sede = $this->Sede_model->buscar(['sede' => $sedeCobraEntrega, '_uno' => true]);
+
+						$obj->id_tercero = 'Entrega';
+						$obj->id_padre_tercero = null;
+						$obj->descripcion = 'Entrega';
+						$obj->vendor = $vendor;
+						$obj->atiende = $sede;
+						$obj->precio = $ordenrt->total_entrega;
+						$obj->cantidad = 1;
+						$obj->descuento = 0.00;
+						$obj->total = $ordenrt->total_entrega;
+
+						$ordenrt->total_orden += $obj->total;
+	
+						$ordenrt->articulos[] = $obj;
+						$obj = null;
+					}					
+				}
+
+				if (!$hayDescuentosPorArticulo) {
+					$discount_applications = get_dato_from_paths($orden_original, 'discount_applications');
+					$porcentajeDescuento = 0.00;
+					if ($discount_applications && is_array($discount_applications)) {
+						if (count($discount_applications) > 0) {
+							foreach ($discount_applications as $desc) {
+								$targetType = get_dato_from_paths($desc, 'target_type');
+								$targetType = $targetType ? strtolower($targetType) : '';
+								$valueType = get_dato_from_paths($desc, 'value_type');
+								$valueType = $valueType ? strtolower($valueType) : '';
+								if ($valueType == 'percentage' && $targetType !== 'shipping_line') {
+									$value = get_dato_from_paths($desc, 'value');
+									$value = $value ? (float)$value : 0.00;
+									$porcentajeDescuento += round(($value / 100), 2);
+								}
+							}
+
+							//Inicia descuentos que son por monto fijo.
+							$descuentoMontoFijo = 0.00;
+							$discount_codes = get_dato_from_paths($orden_original, 'discount_codes');
+							if ($discount_codes && is_array($discount_codes)) {
+								foreach ($discount_codes as $desc) {
+									$tipos = ['fixed_amount', 'shipping'];
+									$tipo = get_dato_from_paths($desc, 'type');
+									$tipo = $tipo ? strtolower($tipo) : '';
+									if (in_array($tipo, $tipos)) {
+										$monto = get_dato_from_paths($desc, 'amount');
+										$monto = $monto ? (float)$monto : 0.00;
+										$descuentoMontoFijo += $monto;
+									}
+								}
+							}
+
+							if($descuentoMontoFijo > 0) {
+								$totalDePedido = (float)$ordenrt->total_orden - ((float)$ordenrt->total_propina + (float)$ordenrt->total_entrega);
+								$porcentajeDescuento += round((($descuentoMontoFijo * 100) / $totalDePedido) / 100, 2);
+							}							
+							//Fin de descuentos que son por monto fijo.
+						}
+					}
+
+					if ($porcentajeDescuento > 0) {
+						$ordenrt->total_orden = 0.00;
+						foreach ($ordenrt->articulos as $obj) {
+							if(!in_array(trim(strtolower($obj->descripcion)), ['entrega', 'propina'])) {
+								if ($obj->precio && $obj->cantidad) {
+									$obj->descuento = round((float)$obj->precio * (float)$obj->cantidad * $porcentajeDescuento, 2);
+									$obj->total = (float)$obj->precio * (float)$obj->cantidad;
+									if ($obj->descuento) {
+										$obj->total -= $obj->descuento;
+									}
+								}
+			
+								if ($obj->descuento && (float)$obj->descuento > 0) {
+									$ordenrt->total_descuento += (float)$obj->descuento;
+								}		
+								$ordenrt->total_orden += $obj->total;
+							}
+						}
+					}
+				}
+
+				$ordenrt->total_orden += (float)$ordenrt->total_propina + (float)$ordenrt->total_entrega;
 
 				if (count($sedesNoEncontradas) > 0) {
 					$ordenrt->completa = false;
