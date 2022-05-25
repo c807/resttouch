@@ -87,16 +87,17 @@ class Dcomanda_model extends General_Model
 	{
 		$montoExtra = 0.00;
 		$tmp = $this->db
-			->select("a.detalle_comanda, a.precio, a.cantidad")
+			->select("a.detalle_comanda, a.precio, a.cantidad, b.multiple, b.combo, a.detalle_comanda_id")
 			->join("articulo b", "a.articulo = b.articulo")
 			->where("a.detalle_comanda_id", $this->getPK())
 			->get("detalle_comanda a")
-			->result();
+			->result();		
 
 		foreach ($tmp as $row) {
+			$esHijoNoMultipleCobrable = (int)$row->multiple === 0 && (int)$row->combo === 0 && $row->detalle_comanda_id !== null && $row->precio !== null;
 			$det = new Dcomanda_model($row->detalle_comanda);
 			// $montoExtra += $row->precio ? (float)$row->precio * $row->cantidad : 0.00;
-			$montoExtra += $row->precio ? (float)$row->precio * (float)$this->cantidad : 0.00;
+			$montoExtra += $row->precio ? (float)$row->precio * ($esHijoNoMultipleCobrable ? (float)$row->cantidad : (float)$this->cantidad) : 0.00;
 			$montoExtra += $det->getPrecioExtraCombo();
 		}
 

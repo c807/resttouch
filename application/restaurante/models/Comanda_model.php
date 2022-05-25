@@ -76,16 +76,18 @@ class Comanda_model extends General_Model
     public function setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
     {
         $cuenta = new Cuenta_model($idcta);
-        $combo = new Articulo_model($articulo);
+        $combo = new Articulo_model($articulo);        
         $precio = ($precio !== null) ? $precio : $combo->precio;
         $bodega = $combo->getBodega();
+
+        $esHijoNoMultipleCobrable = (int)$combo->multiple === 0 && (int)$combo->combo === 0 && $padre !== null && $precio !== null;
 
         $args = [
             "articulo" => $combo->getPK(),
             "cantidad" => $cantidad,
             "notas" => "",
             "precio" => $precio,
-            "total" => is_null($cantidadPadre) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
+            "total" => (is_null($cantidadPadre) || $esHijoNoMultipleCobrable) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
             "detalle_comanda_id" => $padre,
             "bodega" => $bodega ? $bodega->bodega : null
         ];

@@ -82,18 +82,6 @@ class Comanda extends CI_Controller
 
 	public function cerrar_estacion($comanda)
 	{
-		/*
-		$datos = ['exito' => false];		
-		$com = new Comanda_model($comanda);
-		$com->comandaenuso = 0;
-		if ($com->guardar()) {
-			$datos['exito'] = true;
-			$datos['mensaje'] = 'Datos actualizados con exito';
-		} else {			
-			$datos['mensaje'] = $com->getMensaje();
-		}
-		*/
-
 		$datos = ['exito' => false];
 		$com = new Comanda_model($comanda);
 		if ($com->cierra_estacion($comanda)) {
@@ -103,8 +91,7 @@ class Comanda extends CI_Controller
 			$datos['mensaje'] = "No se pudo habilitar la comanda $comanda. Por favor comuníquese con el administrador del sistema.";
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function unir_cuentas($cuentaDe, $cuentaA)
@@ -201,8 +188,7 @@ class Comanda extends CI_Controller
 			$datos['mensaje'] = 'Parametros Invalidos';
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function guardar_receta_en_comanda($id_comanda, $detalle_comanda_id, $id_articulo, $regresa_inventario)

@@ -107,7 +107,7 @@
       <table class="table table-sm table-borderless">
         <tbody>
         <!-- Inicia fila para descripción única -->
-        <tr>
+        <tr *ngIf="permiteDetalleFacturaPersonalizado">
           <td>
             <mat-checkbox name="enviar_descripcion_unica" [(ngModel)]="+descripcionUnica.enviar_descripcion_unica"
                           [ngModelOptions]="{standalone: true}" (change)="vaciaDescripcionUnica()">

@@ -108,6 +108,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public varDireccionEntrega = `${GLOBAL.rtDireccionEntrega}_`;
   public varTipoDomicilio = `${GLOBAL.rtTipoDomicilio}_`;
   public varClienteFactura = `${GLOBAL.rtClienteFactura}_`;
+  public permiteDetalleFacturaPersonalizado = true;
 
   private endSubs = new Subscription();
 
@@ -133,10 +134,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.SET_PROPINA_AUTOMATICA = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) as boolean) || false;
-    this.RT_AUTORIZA_CAMBIO_PROPINA = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean) || false;
-    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean) || false;
+    this.SET_PROPINA_AUTOMATICA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_AUTOMATICA) as boolean;
+    this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean;
+    this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean;
     this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER) as boolean;
+    this.permiteDetalleFacturaPersonalizado = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PERMITE_DETALLE_FACTURA_PERSONALIZADO) as boolean;    
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
       this.varDireccionEntrega += `${this.data.mesaenuso.mesa.mesa}`;
@@ -697,6 +699,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
       this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
+        this.porcentajeAumento = 1;
         this.porcentajeAumento += +this.lstFormasPago[idx].aumento_porcentaje / 100;
         this.bloqueaMonto = true;
       } else {
