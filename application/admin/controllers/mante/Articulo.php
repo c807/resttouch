@@ -189,8 +189,8 @@ class Articulo extends CI_Controller
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
 			$costo = $rec->getCostoReceta(["_presentacion" => true]);
-			$pres = new Presentacion_model($costo->presentacion);
-			$row->costo = $costo->costo * ($row->cantidad / $pres->cantidad);
+			$pres = new Presentacion_model($rec->presentacion_reporte);			
+			$row->costo = $costo * ($row->cantidad / $pres->cantidad);
 			$datos["receta"][] = $row;
 		}
 
@@ -203,14 +203,16 @@ class Articulo extends CI_Controller
 				$datos['empresa'] = $emp;
 				$datos['nsede'] = $sede->nombre;
 			}
-		}
+		}	
+
+		$vista = $this->load->view('reporte/receta', $datos, true);
 
 		$mpdf = new \Mpdf\Mpdf([
 			'tempDir' => sys_get_temp_dir(),
-			'format' => 'Legal'
+			'format' => 'Letter'
 		]);
 
-		$mpdf->WriteHTML($this->load->view('reporte/receta', $datos, true));
+		$mpdf->WriteHTML($vista);
 		$mpdf->Output("Receta.pdf", "D");
 	}
 
