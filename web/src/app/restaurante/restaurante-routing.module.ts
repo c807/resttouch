@@ -18,6 +18,7 @@ import { CajacorteComponent } from './components/caja-corte/cajacorte/cajacorte.
 import { TranCocinaComponent } from './components/tran-cocina/tran-cocina.component';
 import { TranAnulaComandaComponent } from './components/tran-anula-comanda/tran-anula-comanda.component';
 import { ComandaComponent } from './components/reportes/comanda/comanda.component';
+import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-admin.component';
 
 const routes: Routes = [
   { path: 'mantareas', component: AreaComponent, canActivate: [AuthGuard] },
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'trancocina', component: TranCocinaComponent, canActivate: [AuthGuard] },
   { path: 'anulacomanda', component: TranAnulaComandaComponent, canActivate: [AuthGuard] },
   { path: 'rptcomanda', component: ComandaComponent, canActivate: [AuthGuard] },
+  { path: 'rptvtasadm', component: VentasAdminComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

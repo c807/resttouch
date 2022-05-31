@@ -175,4 +175,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }  
+
+  ventas_admin(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlAppRestaurante}/reporte/ventas_administrativo`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
 }

@@ -29,7 +29,7 @@
                 <mat-label>Sede</mat-label>
                 <mat-select name="sede" [(ngModel)]="usuario.sede" [disabled]="disableSede" required>
                     <mat-option *ngFor="let s of sedes" [value]="s.sede">
-                        {{s.nombre}}
+                        {{s.nombre}} ({{s.alias}})
                     </mat-option>
                 </mat-select>
             </mat-form-field>

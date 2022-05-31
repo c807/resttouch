@@ -192,6 +192,10 @@ $config['menu'] = [
 					7 => [
 						'nombre' => 'Comandas',
 						'link' => '/restaurante/rptcomanda'
+					],
+					8 => [
+						'nombre' => 'Ventas administrativo',
+						'link' => '/restaurante/rptvtasadm'
 					]
 				]
 			],

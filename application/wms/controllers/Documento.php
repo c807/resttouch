@@ -67,7 +67,7 @@ class Documento extends CI_Controller {
 					if (strtolower(trim($webhook->tipo_llamada)) == "soap") {
 						$req = "";
 					} else if(strtolower(trim($webhook->tipo_llamada)) == "json") {
-						$req = json_encode($datos['data_contable']);
+						$req = $datos['data_contable'];
 					}
 					
 					$this->load->helper('api');

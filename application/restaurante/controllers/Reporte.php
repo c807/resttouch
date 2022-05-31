@@ -2128,6 +2128,117 @@ class Reporte extends CI_Controller
         }
         return $tipo_venta;
     }
+
+    public function ventas_administrativo()
+    {
+        $params = json_decode(file_get_contents('php://input'), true);        
+        $datos = $this->Reporte_model->get_ventas_administrativo($params);
+        $formas_pago = $datos['formas_pago'];
+        $facturas = $datos['facturas'];
+
+        $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+        \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+        $excel->getProperties()
+            ->setCreator("Restouch")
+            ->setTitle("Office 2007 xlsx Ventas_Administrativo")
+            ->setSubject("Office 2007 xlsx Ventas_Administrativo")
+            ->setKeywords("office 2007 openxml php");
+
+        $excel->setActiveSheetIndex(0);
+        $hoja = $excel->getActiveSheet();
+
+        $hoja->setCellValue('A1', 'VENTAS ADMINISTRATIVO');
+        $hoja->setCellValue('A2', 'Del ' . formatoFecha($params['fdel'], 2) . ' al ' . formatoFecha($params['fal'], 2));
+
+        $hoja->mergeCells('A1:M1');
+        $hoja->mergeCells('A2:M2');
+        $hoja->getStyle('A1:A2')->getFont()->setBold(true);
+
+        if(isset($params['sede']) && !empty($params['sede'])){
+            $this->load->model('Sede_model');
+            $sede = $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]);
+            $hoja->setCellValue('A3', "Sede: {$sede->nombre} ({$sede->alias})");
+            $hoja->mergeCells('A3:M3');
+            $hoja->getStyle('A3')->getFont()->setBold(true);
+        }
+
+        $fila = 5;
+
+        $hoja->setCellValue("A{$fila}", 'Empresa');
+        $hoja->setCellValue("B{$fila}", 'Sede');        
+        $hoja->setCellValue("C{$fila}", 'Serie');
+        $hoja->setCellValue("D{$fila}", 'Numero');
+        $hoja->setCellValue("E{$fila}", 'Fecha');
+        $hoja->setCellValue("F{$fila}", 'NIT');
+        $hoja->setCellValue("G{$fila}", 'Cliente');
+        $hoja->setCellValue("H{$fila}", 'Anulada');
+        $hoja->setCellValue("I{$fila}", 'Mesero/Agente');
+        $hoja->setCellValue("J{$fila}", 'Mesa');
+        $hoja->setCellValue("K{$fila}", 'Tipo');
+        $hoja->setCellValue("L{$fila}", 'Razón de anulación');
+        $hoja->setCellValue("M{$fila}", 'Comentario de anulación');
+
+        $columna = 'N';
+        $fps = [];
+        foreach ($formas_pago as $fp) {
+            $fps[(int)$fp->forma_pago] = $columna;
+            $hoja->setCellValue($columna.$fila, $fp->descripcion);
+            $hoja->getStyle($columna.$fila)->getAlignment()->setHorizontal('right');
+            $columna++;
+        }
+
+        $columna--;
+        $hoja->getStyle("A{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
+
+        $fila++;
+        foreach($facturas as $factura){
+            foreach ($factura->formas_pago as $ffp) {
+                $hoja->setCellValue("A{$fila}", $factura->empresa);
+                $hoja->setCellValue("B{$fila}", "{$factura->sede} ({$factura->alias_sede})");
+                $hoja->setCellValue("C{$fila}", $factura->serie);
+                $hoja->setCellValue("D{$fila}", $factura->numero);
+                $hoja->setCellValue("E{$fila}", $factura->fecha_factura);
+                $hoja->setCellValue("F{$fila}", $factura->nit);
+                $hoja->setCellValue("G{$fila}", $factura->cliente);
+                $hoja->setCellValue("H{$fila}", $factura->anulada);
+                $hoja->setCellValue("I{$fila}", $factura->mesero);
+                $hoja->setCellValue("J{$fila}", $factura->mesa);
+                $hoja->setCellValue("K{$fila}", $factura->tipo);
+                $hoja->setCellValue("L{$fila}", is_null($factura->razon_anulacion) ? '' : $factura->razon_anulacion);
+                $hoja->setCellValue("M{$fila}", is_null($factura->comentario_anulacion) ? '' : $factura->comentario_anulacion);
+                foreach($fps as $fp => $col){
+                    $hoja->setCellValue($col.$fila, (float)0.00);
+                    $hoja->getStyle($col.$fila)->getNumberFormat()->setFormatCode('0.00');
+                }
+                $hoja->setCellValue($fps[(int)$ffp->forma_pago].$fila, (float)$ffp->monto);
+                // $hoja->getStyle($fps[(int)$ffp->forma_pago].$fila)->getNumberFormat()->setFormatCode('0.00');
+                $fila++;
+            }
+        }
+
+        foreach (range('A', 'K') as $col) {
+            $hoja->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        foreach($fps as $fp => $col){
+            // $hoja->getStyle($col)->getNumberFormat()->setFormatCode('0.00');
+            $hoja->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $hoja->setTitle("Ventas Administrativo");
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment;filename=Ventas_Administrativo_" . date('YmdHis') . ".xlsx");
+        header("Cache-Control: max-age=1");
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+        header("Cache-Control: cache, must-revalidate");
+        header("Pragma: public");
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+        $writer->save("php://output");
+
+        // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+    }
 }
 
 /* End of file Reporte.php */

@@ -28,7 +28,7 @@
             <mat-label>Sede</mat-label>
             <mat-select  name="sedeRPT"  [(ngModel)]="params.sedeRPT">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                {{sede.sede.nombre}}
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -36,7 +36,7 @@
             <mat-label>Sede</mat-label>
             <mat-select  name="sede" multiple [(ngModel)]="params.sede">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                {{sede.sede.nombre}}
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
               </mat-option>
             </mat-select>
           </mat-form-field>

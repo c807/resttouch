@@ -507,6 +507,61 @@ class Reporte_model extends CI_Model
 		}
 		return 0;
 	}
+
+	public function get_ventas_administrativo($args = [])
+	{
+		if (isset($args['fdel'])) {
+			$this->db->where('a.fecha_factura >=', $args['fdel']);
+		}				
+
+		if (isset($args['fal'])) {
+			$this->db->where('a.fecha_factura <=', $args['fal']);
+		}
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('a.sede =', $args['sede']);
+		}
+		
+		$campos = 'a.factura, f.nombre AS empresa, e.nombre AS sede, e.alias AS alias_sede, a.serie_factura AS serie, a.numero_factura AS numero, DATE_FORMAT(a.fecha_factura, "%d/%m/%Y") AS fecha_factura, ';
+		$campos.= 'g.nit, g.nombre AS cliente, d.cuenta_cuenta AS cuenta, IF(a.fel_uuid_anulacion IS NULL, "No", "Sí") AS anulada, TRIM(CONCAT(IFNULL(h.nombres, ""), " ", IFNULL(h.apellidos, ""))) AS usuario, ';
+		$campos.= 'TRIM(CONCAT(IFNULL(k.nombres, ""), " ", IFNULL(k.apellidos, ""))) AS mesero, IFNULL(m.etiqueta, m.numero) AS mesa, IFNULL(n.descripcion, "Restaurante") AS tipo, ';
+		$campos.= 'o.descripcion AS razon_anulacion, a.comentario_anulacion';
+
+		$facturas = $this->db
+			->select($campos, FALSE)
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'b.detalle_factura = c.detalle_factura')
+			->join('detalle_cuenta d', 'd.detalle_cuenta = c.detalle_cuenta')
+			->join('sede e', 'e.sede = a.sede')
+			->join('empresa f', 'f.empresa = e.empresa')
+			->join('cliente g', 'g.cliente = a.cliente')
+			->join('usuario h', 'h.usuario = a.usuario')
+			->join('detalle_comanda i', 'i.detalle_comanda = d.detalle_comanda')
+			->join('comanda j', 'j.comanda = i.comanda')
+			->join('usuario k', 'k.usuario = j.mesero')
+			->join('comanda_has_mesa l', 'j.comanda = l.comanda')
+			->join('mesa m', 'm.mesa = l.mesa')
+			->join('tipo_domicilio n', 'n.tipo_domicilio = j.tipo_domicilio', 'left')
+			->join('razon_anulacion o', 'o.razon_anulacion = a.razon_anulacion', 'left')
+			->not_like('a.serie_factura', 'cancela')
+			->group_by('a.factura')
+			->order_by('f.nombre, e.nombre, a.fecha_factura')
+			->get('factura a')
+			->result();
+		
+		foreach($facturas as $factura) {
+			$factura->formas_pago = $this->db
+				->select('b.forma_pago, b.descripcion AS descripcion_forma_pago, IF(b.descuento = 0, a.monto, a.monto * -1) AS monto, a.propina', FALSE)
+				->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+				->where('a.cuenta', $factura->cuenta)
+				->get('cuenta_forma_pago a')
+				->result();
+		}
+
+		$formas_pago = $this->db->select('forma_pago, descripcion, descuento')->order_by('descripcion')->get('forma_pago')->result();
+
+		return ['formas_pago' => $formas_pago, 'facturas' => $facturas];
+	}
 }
 
 /* End of file Reporte_model.php */
