@@ -950,7 +950,7 @@ class Reporte extends CI_Controller
 	{
 		set_time_limit(0);
 		$rpt = new Reporte_model();
-		$params = json_decode(file_get_contents('php://input'), true);		
+		$params = json_decode(file_get_contents('php://input'), true);
 
 		if (!isset($params['sede']) || empty($params['sede'])) {
 			$params['sede'] = $this->data->sede;
@@ -961,7 +961,7 @@ class Reporte extends CI_Controller
 			'sede' => $params['sede'],
 			'bodega' => $params['bodega'],
 			'fecha_del' => $params['fecha_del']
-		]; 
+		];
 
 		$pedidos = $rpt->get_lista_pedido_productos($params);
 
@@ -976,7 +976,7 @@ class Reporte extends CI_Controller
 				}
 
 				if ((int)$producto->ultima_presentacion > 0) {
-					if ((int)$producto->presentacion === (int)$producto->ultima_presentacion) {						
+					if ((int)$producto->presentacion === (int)$producto->ultima_presentacion) {
 						$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_reporte, 2);
 					} else {
 						$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_ultima_compra, 2);
@@ -984,7 +984,7 @@ class Reporte extends CI_Controller
 				} else {
 					$producto->existencia = round($obj->saldo_inicial / $producto->cantidad_presentacion_reporte, 2);
 				}
-				
+
 				$producto->a_pedir = (float)$producto->maximo - (float)$producto->existencia;
 				$producto->mostrar = (float)$producto->existencia >= (float)$producto->maximo ? 0 : 1;
 				$ultimo_producto = (int)$producto->articulo;
@@ -1010,17 +1010,21 @@ class Reporte extends CI_Controller
 		]);
 
 		$mpdf->AddPage('L');
-		$mpdf->WriteHTML($vista);		
+		$mpdf->WriteHTML($vista);
 		$mpdf->Output('Pedido_' . date('YmdHis') . '.pdf', "D");
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
 	}
 
-	public function orden_compra($id)
+	private function get_data_oc($idOC)
 	{
 		$rpt = new Reporte_model();
-		$oc = $rpt->get_compra($id);
+		return $rpt->get_compra($idOC);
+	}
 
+	public function orden_compra($id)
+	{
+		$oc = $this->get_data_oc($id);
 		$vista = $this->load->view('reporte/orden_compra/imprimir', $oc, true);
 
 		$mpdf = new \Mpdf\Mpdf([
@@ -1032,7 +1036,25 @@ class Reporte extends CI_Controller
 		$mpdf->Output('OC_' . date('YmdHis') . '.pdf', "D");
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egreso));
-	}	
+	}
+
+	public function lista_ordenes_compra()
+	{
+		$params = json_decode(file_get_contents('php://input'), true);
+		$ordenes = [];
+
+		if (isset($params['lista']) && is_array($params['lista'])) {
+			sort($params['lista']);
+			foreach ($params['lista'] as $idOC) {
+				$oc = $this->get_data_oc($idOC);
+				if ($oc) {
+					$ordenes[] = $oc;
+				}
+			}
+		}
+		
+		$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ordenes));		
+	}
 }
 
 /* End of file Reporte.php */
