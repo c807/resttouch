@@ -256,7 +256,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.inputData.totalDeCuenta = 0.00;
     this.inputData.productosACobrar.forEach((item: any) => {
       let tdc = ((item.precio * item.cantidad) + (item.monto_extra)) * this.porcentajeAumento;
-      this.inputData.totalDeCuenta += Math.round(tdc * 100) / 100
+      this.inputData.totalDeCuenta += Math.round((tdc + Number.EPSILON) * 100) / 100;
     });
   }
 
