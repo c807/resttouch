@@ -344,7 +344,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       });
 
       confirmRef.afterClosed().subscribe((res: any) => {
-        console.log(res);
+        // console.log(res);
         if (res && res.respuesta && res.seleccion.receta.length > 0) {
           // console.log(res.seleccion); // this.bloqueoBotones = false; resolve(true);
           this.comandaSrvc.saveDetalleCombo(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, res.seleccion).subscribe(resSaveDetCmb => {
