@@ -40,7 +40,6 @@ class Comanda_model extends General_Model
         }
 
         $this->load->library('AsyncTasks');
-
     }
 
     public function getMesas()
@@ -76,7 +75,7 @@ class Comanda_model extends General_Model
     public function setDetalle($articulo, $idcta, $padre = null, $precio = null, $cantidad = 1, $cantidadPadre = null)
     {
         $cuenta = new Cuenta_model($idcta);
-        $combo = new Articulo_model($articulo);        
+        $combo = new Articulo_model($articulo);
         $precio = ($precio !== null) ? $precio : $combo->precio;
         $bodega = $combo->getBodega();
 
@@ -133,7 +132,7 @@ class Comanda_model extends General_Model
             $precioMasAlto = $this->get_highest_price($args['receta']);
         }
 
-        $combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);        
+        $combo = $this->setDetalle($args['articulo'], $cuenta, null, $precioMasAlto, (float)$args['cantidad']);
 
         if ($combo) {
             foreach ($args['receta'] as $rec) {
@@ -148,14 +147,14 @@ class Comanda_model extends General_Model
 
                 foreach ($rec['receta'] as $seleccion) {
                     $recetaSelec = $artMulti->getReceta(["articulo" => $seleccion['articulo'], "_uno" => true]);
-                    
+
                     $precio = $recetaSelec[0]->precio;
-                    
+
                     $opcSelect = $this->setDetalle($seleccion['articulo'], $cuenta, $multi->detalle_comanda, $precio, (float)$seleccion['cantidad'] * (float)$recetaSelec[0]->cantidad, $multi->cantidad);
 
                     // Para agregar los extras de cada seleccion
                     if (isset($seleccion['extras']) && count($seleccion['extras']) > 0) {
-                        foreach ($seleccion['extras'] as $extra) {                            
+                        foreach ($seleccion['extras'] as $extra) {
                             $this->setDetalle($extra['articulo'], $cuenta, $opcSelect->detalle_comanda, $extra['precio'], (float)$opcSelect->cantidad, $opcSelect->cantidad);
                         }
                     }
@@ -609,7 +608,7 @@ class Comanda_model extends General_Model
         $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
         $tmp->cuentas = $this->getCuentas($args);
         $tmp->factura = $this->getFactura();
-        $tmp->datos_facturacion = ($tmp->factura && isset($tmp->factura->cliente) && (int)$tmp->factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $tmp->factura->cliente)->get('cliente')->row() : null;        
+        $tmp->datos_facturacion = ($tmp->factura && isset($tmp->factura->cliente) && (int)$tmp->factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $tmp->factura->cliente)->get('cliente')->row() : null;
         $tmp->origen_datos = $this->getOrigenDatos();
         $tmp->fhcreacion = empty($tmp->origen_datos['fhcreacion']) ? $this->fhcreacion : $tmp->origen_datos['fhcreacion'];
         $tmp->numero_pedido = $this->numero_pedido;
@@ -1083,7 +1082,7 @@ class Comanda_model extends General_Model
         }
 
         return $this->db
-            ->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento, c.vuelto_para, c.vuelto')
+            ->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento, c.vuelto_para, c.vuelto, c.cuenta_forma_pago')
             ->join('cuenta b', 'a.comanda = b.comanda')
             ->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
             ->join('forma_pago d', 'd.forma_pago = c.forma_pago')
@@ -1093,7 +1092,7 @@ class Comanda_model extends General_Model
     }
 
     public function get_as_pedidos($fdel, $al, $tipoD = null, $sedeN = null)
-    {        
+    {
         if ($tipoD !== null) {
             $this->db->where('a.tipo_domicilio', "$tipoD");
         }
@@ -1113,9 +1112,47 @@ class Comanda_model extends General_Model
             ->having('SUM(c.total + c.aumento) <> 0')
             ->order_by("b.nombre, a.comanda")
             ->get()
-            ->result();            
+            ->result();
     }
 
+    public function traslado_comanda_domicilio($args)
+    {
+        $formas_pago = $this->get_forma_pago();
+        if ($formas_pago) {
+            foreach ($formas_pago as $fp) {
+                $this->db->delete('cuenta_forma_pago', array('cuenta_forma_pago' => $fp->cuenta_forma_pago));
+            }
+        }
+
+        $factura = $this->getFactura();
+        if ($factura && is_null($factura->fel_uuid)) {
+            $fac = new Factura_model($factura->factura);
+            $fac->serie_factura = '*** ANULACIÓN INTERNA ***';
+            $fac->numero_factura = $fac->getPK();
+            $fac->fel_uuid = '*** ANULACIÓN INTERNA ***';
+            $fac->fel_uuid_anulacion = '*** ANULACIÓN INTERNA ***';
+            $fac->razon_anulacion = $args['razon_anulacion'];
+            $fac->comentario_anulacion = 'Por traslado de comanda de domicilio a mesa de restaurante para modificación.';
+            $fac->guardar();
+
+            $this->load->model(['Accion_model', 'Bitacora_model', 'Usuario_model']);
+
+            $usr = $this->Usuario_model->buscar(['usuario' => $args['usuario'], '_uno' => true]);
+
+            $bit = new Bitacora_model();
+            $acc = $this->Accion_model->buscar(['descripcion' => 'Modificacion', '_uno' => true]);
+
+            $comentario = "Anulación interna de factura sin firma electrónica con correlativo interno {$fac->factura}. Usuario: {$usr->nombres} {$usr->apellidos}. Motivo: {$fac->comentario_anulacion}";
+
+            $bit->guardar([
+                'accion' => $acc->accion,
+                'usuario' => $usr->usuario,
+                'tabla' => 'factura',
+                'registro' => $fac->getPK(),
+                'comentario' => $comentario
+            ]);
+        }
+    }
 }
 
 /* End of file Comanda_model.php */

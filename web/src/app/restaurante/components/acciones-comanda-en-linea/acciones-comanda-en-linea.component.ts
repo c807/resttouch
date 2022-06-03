@@ -21,6 +21,10 @@ import { EstatusCallcenterService } from '../../../callcenter/services/estatus-c
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
 import { ComandaEnLineaComponent } from '../comanda-en-linea/comanda-en-linea.component';
 
+import { RazonAnulacion } from '../../../admin/interfaces/razon-anulacion';
+import { AnulacionService } from '../../../admin/services/anulacion.service';
+import { TrasladoMesaComponent } from '../traslado-mesa/traslado-mesa.component';
+
 import { Subscription } from 'rxjs';
 
 interface IDataAccionesComandaEnLinea {
@@ -49,6 +53,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
+  public razonAnulacion: RazonAnulacion[] = [];
 
   private endSubs = new Subscription();
 
@@ -63,8 +68,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     private ordenGkSrvc: OrdenGkService,
     private facturaSrvc: FacturaService,
     private configSrvc: ConfiguracionService,
-    private estatusCallcenterSrvc: EstatusCallcenterService
-
+    private estatusCallcenterSrvc: EstatusCallcenterService,
+    private anulacionSrvc: AnulacionService,
   ) { }
 
   ngOnInit(): void {
@@ -75,6 +80,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         this.loadEstatusCallCenter();
       }
     }
+    this.loadRazonAnulacion();
   }
 
   ngOnDestroy(): void {
@@ -82,6 +88,14 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
+
+  loadRazonAnulacion = () => {
+    this.endSubs.add(
+      this.anulacionSrvc.get().subscribe(res => {
+        this.razonAnulacion = res;
+      })
+    );
+  }
 
   cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
 
@@ -126,7 +140,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       };
       this.cambiarEstatusOrdenGK(params);
     }
-  }  
+  }
 
   cambiarEstatusOrdenGK = (params: any) => {
     this.endSubs.add(
@@ -279,7 +293,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       FormaDePago: (datosOrigen.metodo_pago && datosOrigen.metodo_pago.length > 0) ? datosOrigen.metodo_pago.join(', ') : '',
       DetalleFactura: [],
       Comanda: comanda.comanda || 0,
-      Cuenta: comanda.cuentas[0].cuenta || 0,      
+      Cuenta: comanda.cuentas[0].cuenta || 0,
       DatosComanda: fact.datos_comanda || null
     };
 
@@ -375,4 +389,62 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   detenerAudio = () => this.data.comandaEnLinea.detenerAudio();
+
+  trasladarAMesa = (cmd: any) => {
+
+    const obj = {
+      mesaEnUso: {
+        comanda: cmd.comanda || 0,
+        mesa: {
+          mesa: cmd.mesa.mesa || 0
+        }
+      },
+      razon_anulacion: null,
+      solo_disponibles: 1
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Trasladar a mesa',
+        'Esto eliminará las formas de pago y reversará la factura creada (no firmada) asociada a esta comanda. Deberá terminar el proceso desde la mesa que seleccione. ¿Desea continuar?',
+        'Sí',
+        'No',
+        {
+          input: [
+            {
+              select: true,
+              label: 'Motivo',
+              datos: this.razonAnulacion,
+              valor: null,
+              id: 'razon_anulacion',
+              descripcion: 'descripcion',
+              requerido: true
+            }
+          ]
+        }
+      )
+    });
+
+    dialogRef.afterClosed().subscribe(res => {
+      if (res.resultado) {
+        if(res.config?.input[0]?.valor) {
+          obj.razon_anulacion = +res.config.input[0].valor;
+          const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
+            width: '55%',
+            data: obj
+          });
+      
+          trasladoRef.afterClosed().subscribe(result => {
+            if (result) {
+              this.cerrar(true);                            
+            }
+          });
+
+        } else {
+          this.snackBar.open('Debe seleccionar un motivo para proceder.', 'Trasladar a mesa', { duration: 3000 });          
+        }
+      }
+    });
+  }
 }

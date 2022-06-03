@@ -51,11 +51,14 @@ class Mesa_model extends General_Model {
 		->row();
 	}
 
-	public function getDisponibles($sede) {
+	public function getDisponibles($sede, $soloDisponibles = false) {
+		if ($soloDisponibles) {
+			$this->db->where('a.estatus', 1);
+		}
+
 		return $this->db
 		->select('a.*')
-		->join('area b', 'b.area = a.area')
-		// ->where('a.estatus', 1)
+		->join('area b', 'b.area = a.area')		
 		->where('a.esmostrador', 0)
 		->where('a.escallcenter', 0)
 		->where('b.sede', $sede)

@@ -130,9 +130,16 @@ class Comanda extends CI_Controller
 
 		$datos = ['exito' => true, 'mensaje' => 'Mesa trasladada con éxito.'];
 		if ((int)$mesaDestino->estatus === 1) {
-			$mesaDestino->guardar(['estatus' => 2]);
-			$cmd->trasladar_mesa($destino, $comanda);
-			$mesaOrigen->guardar(['estatus' => 1]);
+			$continuar = true;
+			if ((int)$cmd->domicilio === 1 && $cmd->tipo_domicilio && (int)$cmd->tipo_domicilio > 0) {
+				$cmd->traslado_comanda_domicilio($_GET);
+			}
+
+			if ($continuar) {
+				$mesaDestino->guardar(['estatus' => 2]);
+				$cmd->trasladar_mesa($destino, $comanda);
+				$mesaOrigen->guardar(['estatus' => 1]);
+			}
 		} else {
 			$cmdDestino = $mesaDestino->get_comanda(['estatus' => 1, 'sede' => $this->data->sede]);
 			if ($cmdDestino) {

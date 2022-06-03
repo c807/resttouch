@@ -34,9 +34,9 @@ export class MesaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getDisponibles(): Observable<MesaDisponible[]> {
+  getDisponibles(fltr: any = {}): Observable<MesaDisponible[]> {
     return this.http.get<MesaDisponible[]>(
-      `${GLOBAL.urlMantenimientos}/area/get_mesas_disponibles?`
+      `${GLOBAL.urlMantenimientos}/area/get_mesas_disponibles?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }
