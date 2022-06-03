@@ -32,8 +32,7 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 
-  ngOnInit() {
-    console.log(this.data);
+  ngOnInit() {   
     this.loadMesasDisponibles();
   }
 

@@ -1082,7 +1082,7 @@ class Comanda_model extends General_Model
         }
 
         return $this->db
-            ->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento, c.vuelto_para, c.vuelto, c.cuenta_forma_pago')
+            ->select('d.forma_pago, d.descripcion AS descripcion_forma_pago, c.monto, c.propina, c.documento, c.vuelto_para, c.vuelto, c.cuenta_forma_pago, b.cuenta')
             ->join('cuenta b', 'a.comanda = b.comanda')
             ->join('cuenta_forma_pago c', 'b.cuenta = c.cuenta')
             ->join('forma_pago d', 'd.forma_pago = c.forma_pago')
@@ -1121,6 +1121,7 @@ class Comanda_model extends General_Model
         if ($formas_pago) {
             foreach ($formas_pago as $fp) {
                 $this->db->delete('cuenta_forma_pago', array('cuenta_forma_pago' => $fp->cuenta_forma_pago));
+                $this->db->where('cuenta', $fp->cuenta)->update('cuenta', array('cerrada' => 0));
             }
         }
 
