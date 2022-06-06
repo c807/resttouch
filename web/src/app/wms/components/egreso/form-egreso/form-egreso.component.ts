@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
@@ -20,6 +21,7 @@ import { TransformacionService } from '../../../services/transformacion.service'
 import { Presentacion } from '../../../../admin/interfaces/presentacion';
 import { PresentacionService } from '../../../../admin/services/presentacion.service';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
@@ -76,7 +78,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     private proveedorSrvc: ProveedorService,
     private transformacionSrvc: TransformacionService,
     private presentacionSrvc: PresentacionService,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -405,5 +408,25 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       })
     );    
   }
+
+  eliminarDetalle = (idDetalle: number) => {    
+    const delRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    delRef.afterClosed().subscribe((confirma: boolean) => {
+      if (confirma) {
+        this.egresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
+          if (res.exito) {
+            this.loadDetalleEgreso(+this.egreso.egreso);
+            this.snackBar.open(res.mensaje, 'Egreso', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 7000 });
+          }
+        });
+      }
+    });
+  }  
 
 }

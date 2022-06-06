@@ -99,7 +99,7 @@ class Ingreso_model extends General_Model
 
 				if (verDato($args, "_costo")) {
 					$row->precio_total = round($row->precio_total + $row->precio_costo_iva, 2);
-					$row->precio_unitario = round((float)$row->cantidad === 0.00 ? 0.00 : ($row->precio_total / $row->cantidad), 2);
+					$row->precio_unitario = round((float)$row->cantidad === 0.00 ? 0.00 : ($row->precio_total / $row->cantidad), 4);
 				}
 				$datos[] = $row;
 				// }

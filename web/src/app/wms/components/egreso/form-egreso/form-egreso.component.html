@@ -185,6 +185,11 @@
                         *ngIf="!saveToDB">
                         Eliminar
                     </button>
+                    <button mat-raised-button type="button" color="accent" class="btnAccion"
+                        (click)="eliminarDetalle(element.egreso_detalle)"
+                        [disabled]="[2, 3].indexOf(+egreso.estatus_movimiento) >= 0 || bloqueoBotones" *ngIf="saveToDB">
+                        Eliminar
+                    </button>
                 </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

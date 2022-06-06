@@ -74,8 +74,8 @@
         <div class="col m12 s12">
           <mat-form-field hintLabel="Notas" appearance="fill" class="notes-st">
             <mat-label>Alguna nota de la dirección</mat-label>
-            <input [(ngModel)]="direccion.notas" name="notes"  matInput #input maxlength="50" placeholder="Ej. Sobre la Calzada Roosevelt">
-            <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+            <input [(ngModel)]="direccion.notas" name="notes"  matInput #input maxlength="1000" placeholder="Ej. Sobre la Calzada Roosevelt">
+            <mat-hint align="end">{{input.value?.length || 0}}/1000</mat-hint>
           </mat-form-field>
         </div>
       </div>

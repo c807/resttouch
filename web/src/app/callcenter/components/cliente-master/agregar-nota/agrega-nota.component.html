@@ -7,8 +7,8 @@
 
     <mat-form-field hintLabel="Notas" appearance="fill" class="notes-st">
       <mat-label>Alguna nota</mat-label>
-      <input [(ngModel)]="nota.nota" name="notes"  matInput #input maxlength="50" required placeholder="Cliente responsable">
-      <mat-hint align="end">{{input.value?.length || 0}}/50</mat-hint>
+      <input [(ngModel)]="nota.nota" name="notes"  matInput #input maxlength="1000" required placeholder="Cliente responsable">
+      <mat-hint align="end">{{input.value?.length || 0}}/1000</mat-hint>
     </mat-form-field>
 
     <div mat-dialog-actions align="end">

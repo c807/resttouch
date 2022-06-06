@@ -550,7 +550,7 @@ EOT;
 				->row();
 
 			$ingreso->detalle = $this->db
-				->select('a.ingreso_detalle, a.ingreso, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, round((a.precio_total + a.precio_costo_iva) / a.cantidad, 2) as costo_unitario_con_iva, (a.precio_total + a.precio_costo_iva) AS costo_total_con_iva, b.codigo')
+				->select('a.ingreso_detalle, a.ingreso, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, round((a.precio_total + a.precio_costo_iva) / a.cantidad, 4) as costo_unitario_con_iva, (a.precio_total + a.precio_costo_iva) AS costo_total_con_iva, b.codigo')
 				->join('articulo b', 'b.articulo = a.articulo')
 				->join('presentacion c', 'c.presentacion = a.presentacion')
 				->where('a.ingreso', $idIngreso)

@@ -88,7 +88,7 @@
                     <td><?php echo $det->articulo; ?></td>
                     <td><?php echo $det->presentacion; ?></td>
                     <td class="text-right"><?php echo number_format((float)$det->cantidad, 2); ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->costo_unitario_con_iva, 2); ?></td>
+                    <td class="text-right"><?php echo number_format((float)$det->costo_unitario_con_iva, 4); ?></td>
                     <td class="text-right"><?php echo number_format((float)$det->costo_total_con_iva, 2); ?></td>
                 </tr>
                 <?php $montoTotal += (float)$det->costo_total_con_iva; ?>

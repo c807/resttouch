@@ -11,12 +11,12 @@
     <mat-button-toggle-group  *ngIf="clientes.length > 0" name="tipo_domicilio" aria-label="Tipo de domicilio">
         <mat-button-toggle *ngFor="let td of tiposDomicilio" value="" (click)="selecctionTipoDomicilio(td)">{{td.descripcion}}</mat-button-toggle>
     </mat-button-toggle-group>
-    <div *ngIf="direccionSelected" style="padding-top: 10px;">
+    <!-- <div *ngIf="direccionSelected" style="padding-top: 10px;">
         <strong>Entregar en:</strong> {{direccionSelected.direccion_completa}}
-    </div>
-    <div *ngIf="datosFacturacionSelected" style="padding-top: 10px;">
+    </div> -->
+    <!-- <div *ngIf="datosFacturacionSelected" style="padding-top: 10px;">
         <strong>Facturar a:</strong> {{datosFacturacionSelected.cliente.nombre}} ({{datosFacturacionSelected.cliente.nit}})
-    </div>
+    </div> -->
     <div *ngIf="clientes.length > 0">
         <h5>¿Quién está llamando?</h5>
         <ng-container *ngFor="let cli of clientes">
@@ -40,8 +40,11 @@
                         </td>
                     </tr>
                     <tr *ngIf="cli.direcciones && cli.direcciones.length > 0">
-                        <td colspan="2">
+                        <td colspan="2" *ngIf="!direccionSelected">
                             {{cli.direcciones[0].tipo_direccion.descripcion}}: {{cli.direcciones[0].direccion_completa}}
+                        </td>
+                        <td colspan="2" *ngIf="direccionSelected">
+                            {{direccionSelected.tipo_direccion.descripcion}} {{direccionSelected.direccion_completa}}
                         </td>
                         <td style="width: 15%;" align="center">
                             <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDireccion(cli)">
@@ -49,12 +52,25 @@
                             </button>
                         </td>
                     </tr>
-                    <tr *ngIf="cli.datos_facturacion && cli.datos_facturacion.length > 0">
+                    <tr *ngIf="cli.datos_facturacion && cli.datos_facturacion.length > 0 && !datosFacturacionSelected">
                         <td>
                             {{cli.datos_facturacion[0].cliente.nit}}
                         </td>
                         <td>
                             {{cli.datos_facturacion[0].cliente.nombre}}
+                        </td>
+                        <td style="width: 15%;" align="center">
+                            <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDatosFacturacion(cli)">
+                                Cambiar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="datosFacturacionSelected">
+                        <td>
+                            {{datosFacturacionSelected.cliente.nit}}
+                        </td>
+                        <td>
+                            {{datosFacturacionSelected.cliente.nombre}}
                         </td>
                         <td style="width: 15%;" align="center">
                             <button mat-raised-button type="button" color="accent" class="fullWidth" (click)="seleccionarDatosFacturacion(cli)">

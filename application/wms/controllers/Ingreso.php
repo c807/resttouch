@@ -143,8 +143,7 @@ class Ingreso extends CI_Controller {
 			$datos['mensaje'] = "Parametros Invalidos";
 		}
 
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar_ingreso(){
@@ -273,6 +272,26 @@ class Ingreso extends CI_Controller {
 		// 	$auc->ultimo_costo = $ultimo_costo_ingresado;
 		// }
 		// $auc->guardar();
+	}
+
+	public function eliminar_detalle($id)
+	{
+		$detalle = new IDetalle_Model($id);
+		$ingreso = new Ingreso_model($detalle->ingreso);
+		$datos = ['exito' => false];
+
+		if((int)$ingreso->estatus_movimiento === 1) {
+			$datos['exito'] = $detalle->eliminar();
+			if ($datos['exito']) {
+				$datos['mensaje'] = "Detalle eliminado con éxito.";
+			} else {
+				$datos['mensaje'] = "Error al eliminar el detalle.";
+			}
+		} else {
+			$datos['mensaje'] = "El ingreso {$ingreso->ingreso} ya fue confirmado. No se puede modificar.";
+		}
+
+		$this->output->set_output(json_encode($datos));
 	}
 }
 

@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL, redondear } from '../../../../shared/global';
 import * as moment from 'moment';
 
 import { Ingreso } from '../../../interfaces/ingreso';
@@ -184,6 +184,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       if (res.exito) {
         this.ingreso = res.ingreso;
         this.setProveedor(+this.ingreso.proveedor);
+        this.loadDetalleIngreso(+this.ingreso.ingreso);
       }
       this.ingresoSavedEv.emit();
       this.bloqueoBotones = false;
@@ -307,7 +308,6 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     //this.showDetalleIngresoForm = true;
     //
   }
-
 
   getDescripcionArticulo = (idarticulo: number) => this.articulos.find(art => +art.articulo === +idarticulo).descripcion || '';
 
@@ -439,7 +439,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     }
   }
 
-  imprimirIngreso = () => {    
+  imprimirIngreso = () => {
     this.endSubs.add(
       this.pdfServicio.getIngreso(+this.ingreso.ingreso).subscribe(res => {
         if (res) {
@@ -447,8 +447,38 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
           saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ingreso', { duration: 3000 });
-        }        
+        }
       })
-    );    
+    );
+  }
+
+  eliminarDetalle = (idDetalle: number) => {
+    const delRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    delRef.afterClosed().subscribe((confirma: boolean) => {
+      if (confirma) {
+        this.ingresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
+          if (res.exito) {
+            this.loadDetalleIngreso(+this.ingreso.ingreso);
+            this.snackBar.open(res.mensaje, 'Ingreso', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
+          }
+        });
+      }
+    });
+  }
+
+  confirmarIngreso = () => {
+    this.ingreso.estatus_movimiento = 2;
+    this.onSubmit();
+  }
+
+  calculaCostoUnitario = () => {
+    const pu: number = +this.detalleIngreso.cantidad !== 0 ? (+this.detalleIngreso.precio_total / +this.detalleIngreso.cantidad) : 0;
+    this.detalleIngreso.precio_unitario = redondear(pu, 4);
   }
 }

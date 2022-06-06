@@ -5,7 +5,7 @@ const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ?
 import * as moment from 'moment';
 
 export const GLOBAL = {
-  rtVersion: '2022.06.01.09.29.25',
+  rtVersion: '2022.06.06.17.49.01',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -161,3 +161,8 @@ export const OrdenarArrayObjetos = (objs: any[], campo: string, tipo = 2) => {
 };
 
 export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export const redondear = (numero: number, decimalPlaces: number) => {
+  const factor = Math.pow(10, decimalPlaces);
+  return Math.round((numero + Number.EPSILON) * factor) / factor;
+}
