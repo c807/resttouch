@@ -29,7 +29,7 @@
                         <input matInput type="date" placeholder="Fecha" name="fecha" [(ngModel)]="ingreso.fecha"
                             required>
                     </mat-form-field>
-                    <mat-form-field class="fullWidth" *ngIf = "bodega">
+                    <mat-form-field class="fullWidth" *ngIf="bodega">
                         <mat-label>Bodega</mat-label>
                         <mat-select name="bodega" [(ngModel)]="ingreso.bodega" required>
                             <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
@@ -50,7 +50,7 @@
                         </button>
                     </mat-form-field>
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
-                        <mat-label>Proveedor</mat-label>                        
+                        <mat-label>Proveedor</mat-label>
                         <input type="text" [(ngModel)]="txtProveedorSelected" [ngModelOptions]="{standalone: true}"
                             placeholder="Proveedor" matInput [matAutocomplete]="autoProveedores"
                             (keyup)="filtrarProveedores(txtProveedorSelected)" required>
@@ -63,16 +63,24 @@
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
                         <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="ingreso.comentario">
-                    </mat-form-field>                    
+                    </mat-form-field>
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                            [disabled]="!frmIngreso.form.valid || bloqueoBotones || +documento.enviado === 1" *ngIf="saveToDB">
+                            [disabled]="!frmIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0"
+                            *ngIf="saveToDB">
                             Guardar
                         </button>
-                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirIngreso()" *ngIf="ingreso.ingreso">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion"
+                            (click)="confirmarIngreso()" *ngIf="ingreso.ingreso && detallesIngreso.length > 0"
+                            [disabled]="!frmIngreso.form.valid || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0">
+                            Confirmar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" class="btnAccion"
+                            (click)="imprimirIngreso()" *ngIf="ingreso.ingreso">
                             PDF
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="resetIngreso()" *ngIf="ingreso.ingreso">
+                        <button mat-raised-button type="button" color="accent" (click)="resetIngreso()"
+                            *ngIf="ingreso.ingreso">
                             Nuevo
                         </button>
                     </div>
@@ -96,7 +104,7 @@
             </mat-card-title>
             <mat-card-content>
                 <form #frmDetalleIngreso="ngForm" *ngIf="showDetalleIngresoForm"
-                    (ngSubmit)="frmDetalleIngreso.form.valid && onSubmitDetail()" novalidate>                    
+                    (ngSubmit)="frmDetalleIngreso.form.valid && onSubmitDetail()" novalidate>
                     <mat-form-field class="fullWidth">
                         <mat-label>Artículo</mat-label>
                         <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}"
@@ -117,26 +125,39 @@
                             </mat-option>
                         </mat-select>
                     </mat-form-field>
-                    
-                    <mat-form-field class="fullWidth" *ngIf = "!bodega">
-                        <input matInput placeholder="Cantidad a Utilizar" name="cantidad_utilizada" [(ngModel)]="detalleIngreso.cantidad_utilizada"
-                            required>
-                    </mat-form-field>  
+
+                    <mat-form-field class="fullWidth" *ngIf="!bodega">
+                        <input matInput placeholder="Cantidad a Utilizar" name="cantidad_utilizada"
+                            [(ngModel)]="detalleIngreso.cantidad_utilizada" required>
+                    </mat-form-field>
+
                     <mat-form-field class="fullWidth">
-                        <input matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" min="1" [(ngModel)]="detalleIngreso.cantidad"
-                            (change)="detalleIngreso.precio_total = +detalleIngreso.precio_unitario * +detalleIngreso.cantidad"
+                        <input matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" min="1"
+                            [(ngModel)]="detalleIngreso.cantidad"
+                            (change)="calculaCostoUnitario()"
                             required>
-                    </mat-form-field>                    
+                    </mat-form-field>
+
+                    <!-- <mat-form-field class="fullWidth" *ngIf="saveToDB">
+                        <input matInput placeholder="Costo unitario Con IVA" name="precio_unitario" type="number"
+                            step="0.01" [(ngModel)]="detalleIngreso.precio_unitario">
+                    </mat-form-field> -->
+
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
-                        <input matInput placeholder="Costo unitario Con IVA" name="precio_unitario"
-                            type="number" step="0.01"
-                            [(ngModel)]="detalleIngreso.precio_unitario"
-                            (change)="detalleIngreso.precio_total = +detalleIngreso.precio_unitario * +detalleIngreso.cantidad"
+                        <input matInput placeholder="Costo Total Con IVA" name="precio_total" type="number"
+                            step="0.01" [(ngModel)]="detalleIngreso.precio_total"
+                            (change)="calculaCostoUnitario()"
                             required>
-                    </mat-form-field>                    
+                    </mat-form-field>
+
+                    <span class="bld" style="font-size: medium;" *ngIf="+detalleIngreso.precio_unitario !== 0">
+                        Costo unitario con IVA: {{(detalleIngreso.precio_unitario | number:'1.4-4') || '0.0000'}}
+                    </span>
+
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                            [disabled]="!frmDetalleIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || +detalleIngreso.cantidad < 1" *ngIf="saveToDB">
+                            [disabled]="!frmDetalleIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || +detalleIngreso.cantidad < 1"
+                            *ngIf="saveToDB">
                             Guardar
                         </button>
                         <button mat-raised-button type="button" color="accent" (click)="addToDetail()"
@@ -170,7 +191,8 @@
                     </ng-container>
                     <ng-container matColumnDef="cantidad_utilizada">
                         <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad a Utilizar</th>
-                        <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad_utilizada | number:'1.2-2'}}
+                        <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad_utilizada |
+                            number:'1.2-2'}}
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="cantidad">
@@ -181,7 +203,7 @@
                     <ng-container matColumnDef="costo_unitario">
                         <th mat-header-cell *matHeaderCellDef class="text-right">Costo Unitario Con IVA</th>
                         <td mat-cell *matCellDef="let element" class="text-right">{{element.precio_unitario |
-                            number:'1.2-2'}}
+                            number:'1.4-4'}}
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="costo_total">
@@ -194,7 +216,7 @@
                         <td mat-cell *matCellDef="let element" class="text-wrap">
                             <button mat-raised-button type="button" color="accent"
                                 (click)="getDetalleIngreso(element.ingreso, element.ingreso_detalle)" *ngIf="saveToDB"
-                                [disabled]="bloqueoBotones || +documento.enviado === 1">
+                                [disabled]="[2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || bloqueoBotones || +documento.enviado === 1">
                                 Editar
                             </button>
                             <button mat-raised-button type="button" color="accent"
@@ -203,14 +225,22 @@
                                 *ngIf="!saveToDB">
                                 Editar
                             </button>
-                            <button mat-raised-button type="button" color="accent" (click)="removeFromDetail(element.articulo)"
+                            <button mat-raised-button type="button" color="accent"
+                                (click)="removeFromDetail(element.articulo)"
                                 [disabled]="[2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || bloqueoBotones"
                                 *ngIf="!saveToDB">
                                 Eliminar
                             </button>
+
+                            <button mat-raised-button type="button" color="accent"
+                                (click)="eliminarDetalle(element.ingreso_detalle)"
+                                [disabled]="[2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || bloqueoBotones || +documento.enviado === 1"
+                                *ngIf="saveToDB">
+                                Eliminar
+                            </button>
                         </td>
                         <td mat-cell *matCellDef="let element" class="text-wrap">
-                            
+
                         </td>
                     </ng-container>
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -261,7 +291,8 @@
                     </mat-form-field>
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <mat-label>Tipo de compra</mat-label>
-                        <mat-select name="tipo_compra_venta" [(ngModel)]="documento.tipo_compra_venta" required [disabled]="+documento.enviado === 1">
+                        <mat-select name="tipo_compra_venta" [(ngModel)]="documento.tipo_compra_venta" required
+                            [disabled]="+documento.enviado === 1">
                             <mat-option *ngFor="let tcv of tiposCompraVenta" [value]="tcv.tipo_compra_venta">
                                 {{tcv.descripcion}}
                             </mat-option>

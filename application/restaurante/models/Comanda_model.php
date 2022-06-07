@@ -1121,6 +1121,7 @@ class Comanda_model extends General_Model
         if ($formas_pago) {
             foreach ($formas_pago as $fp) {
                 $this->db->delete('cuenta_forma_pago', array('cuenta_forma_pago' => $fp->cuenta_forma_pago));
+                $this->db->where('comanda', $this->getPK())->update('detalle_comanda', array('aumento_porcentaje' => 0, 'aumento' => 0));
                 $this->db->where('cuenta', $fp->cuenta)->update('cuenta', array('cerrada' => 0));
             }
         }

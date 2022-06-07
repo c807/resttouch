@@ -69,4 +69,10 @@ export class IngresoService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  eliminarDetalle(idDetalle: number) {
+    return this.http.get<any>(
+      `${GLOBAL.urlWms}/${this.ingresoUrl}/eliminar_detalle/${idDetalle}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
 }

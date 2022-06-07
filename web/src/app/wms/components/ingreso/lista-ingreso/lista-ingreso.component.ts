@@ -80,7 +80,8 @@ export class ListaIngresoComponent implements OnInit, OnDestroy {
       bodega: obj.bodega.bodega,
       usuario: obj.usuario.usuario,
       comentario: obj.comentario,
-      proveedor: obj.proveedor.proveedor
+      proveedor: obj.proveedor.proveedor,
+      estatus_movimiento: obj.estatus_movimiento
     });
   }
 

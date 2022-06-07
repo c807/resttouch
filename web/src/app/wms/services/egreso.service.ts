@@ -47,4 +47,10 @@ export class EgresoService {
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  eliminarDetalle(idDetalle: number) {
+    return this.http.get<any>(
+      `${GLOBAL.urlWms}/${this.egresoUrl}/eliminar_detalle/${idDetalle}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
 }

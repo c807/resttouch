@@ -216,6 +216,11 @@ class General_model extends CI_Model
 
 		return '';
 	}
+
+	public function eliminar()
+	{
+		return $this->db->delete($this->_tabla, array($this->_llave => $this->_pk));
+	}
 }
 
 /* End of file General_model.php */

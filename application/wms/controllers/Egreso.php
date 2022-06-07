@@ -146,6 +146,26 @@ class Egreso extends CI_Controller {
 		->set_output(json_encode($egreso->getDetalle($_GET)));
 	}
 
+	public function eliminar_detalle($id)
+	{
+		$detalle = new EDetalle_Model($id);
+		$egreso = new Egreso_model($detalle->egreso);
+		$datos = ['exito' => false];
+
+		if((int)$egreso->estatus_movimiento === 1) {
+			$datos['exito'] = $detalle->eliminar();
+			if ($datos['exito']) {
+				$datos['mensaje'] = "Detalle eliminado con éxito.";
+			} else {
+				$datos['mensaje'] = "Error al eliminar el detalle.";
+			}
+		} else {
+			$datos['mensaje'] = "La salida {$egreso->ingreso} ya fue confirmada. No se puede modificar.";
+		}
+
+		$this->output->set_output(json_encode($datos));
+	}	
+
 }
 
 /* End of file Egreso.php */
