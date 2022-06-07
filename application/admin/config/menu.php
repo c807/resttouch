@@ -366,6 +366,10 @@ $config['menu'] = [
 					1 => [
 						'nombre' => 'Pedidos por sede',
 						'link' => '/callcenter/rpt_pedidos_sede'
+					],
+					2 => [
+						'nombre' => 'Ventas callcenter',
+						'link' => '/callcenter/venta_callcenter'
 					]
 				]
 			]

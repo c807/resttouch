@@ -72,6 +72,7 @@ import {RtpPedidosComponent} from "./components/reportes/pedidos-sede/rpt_pedido
 import { DialogClienteMasterDireccionComponent } from './components/cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
 import { DialogClienteMasterClienteComponent } from './components/cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
 import { DialogAgregarDatoDeFacturacionComponent } from './components/cliente-master/dialog-agregar-dato-de-facturacion/dialog-agregar-dato-de-facturacion.component';
+import { VentaCallcenterComponent } from './components/reportes/venta-callcenter/venta-callcenter.component';
 
 /**
  * New Components must be added in declarations,
@@ -84,7 +85,7 @@ import { DialogAgregarDatoDeFacturacionComponent } from './components/cliente-ma
     ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent,
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
     ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent,
-    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent, DialogAgregarDatoDeFacturacionComponent
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent, DialogAgregarDatoDeFacturacionComponent, VentaCallcenterComponent
   ],
   imports: [
     CommonModule,

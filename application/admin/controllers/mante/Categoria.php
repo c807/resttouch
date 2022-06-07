@@ -41,7 +41,11 @@ class Categoria extends CI_Controller {
 
 	public function buscar()
 	{
-		$_GET['sede'] = $this->data->sede;
+		if (isset($_GET["_todos"])) {
+			unset($_GET["_todos"]);
+		} else {
+			$_GET['sede'] = $_GET['sede'] ?? $this->data->sede;
+		}
 
 		if(!isset($_GET['_activos'])) { $_GET['debaja'] = 0; }
 
