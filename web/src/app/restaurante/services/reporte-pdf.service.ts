@@ -183,4 +183,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
+
+  generar_archivo_pedidos_proveedor(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/lista_ordenes_compra`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

@@ -31,10 +31,11 @@ import { OrdenCompraComponent } from './components/orden-compra/orden-compra/ord
 import { ListaOrdenCompraComponent } from './components/orden-compra/lista-orden-compra/lista-orden-compra.component';
 import { FormOrdenCompraComponent } from './components/orden-compra/form-orden-compra/form-orden-compra.component';
 import { RptListaPedidosComponent } from './components/reporte/rpt-lista-pedidos/rpt-lista-pedidos.component';
+import { ResumenPedidosProveedorComponent } from './components/reporte/resumen-pedidos-proveedor/resumen-pedidos-proveedor.component';
 
 
 @NgModule({
-  declarations: [OrdenCompraComponent, ListaOrdenCompraComponent, FormOrdenCompraComponent, RptListaPedidosComponent],
+  declarations: [OrdenCompraComponent, ListaOrdenCompraComponent, FormOrdenCompraComponent, RptListaPedidosComponent, ResumenPedidosProveedorComponent],
   imports: [
     CommonModule,
     OrdenCompraRoutingModule,

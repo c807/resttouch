@@ -314,6 +314,10 @@ $config['menu'] = [
 					1 => [
 						'nombre' => 'Lista de pedidos',
 						'link' => '/ordcomp/rptlistapedido'
+					],
+					2 => [
+						'nombre' => 'Resumen de pedidos por proveedor',
+						'link' => '/ordcomp/resumen_pedidos_proveedor'
 					]
 				]
 			]			

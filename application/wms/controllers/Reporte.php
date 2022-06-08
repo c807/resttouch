@@ -1040,20 +1040,134 @@ class Reporte extends CI_Controller
 
 	public function lista_ordenes_compra()
 	{
-		$params = json_decode(file_get_contents('php://input'), true);
-		$ordenes = [];
+		$params = json_decode(file_get_contents("php://input"), true);
 
-		if (isset($params['lista']) && is_array($params['lista'])) {
-			sort($params['lista']);
-			foreach ($params['lista'] as $idOC) {
-				$oc = $this->get_data_oc($idOC);
-				if ($oc) {
-					$ordenes[] = $oc;
+		if (verDato($params, "fal") &&
+			verDato($params, "fdel")
+		) {
+			$params["sede"]    = $params["sede"] ?? $this->data->sede;
+			$params["_select"] = ["orden_compra"];
+
+			$lista = $this->Reporte_model->get_lista_compra($params);
+
+			if ($lista) {
+				$data = [];
+				$nombreArchivo = "resumen_pedidos_proveedor_".rand();
+				
+				foreach ($lista as $key => $row) {
+					$tmp = new Reporte_model();
+					$data[] = $tmp->get_compra($row->orden_compra);
+				}
+				
+				if (verDato($params, "_excel")) {
+					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+					$excel->setActiveSheetIndex(0);
+					$hoja = $excel->getActiveSheet();
+					$hoja->setTitle("Reporte");
+
+					$hoja->setCellValue("A1", "Resumen de pedidos por proveedor")->mergeCells("A1:D1");
+					$hoja->setCellValue("A3", "Del: ");
+					$hoja->setCellValue("A4", "Al: ");
+					$hoja->getStyle("A1:A4")->getFont()->setBold(true);
+
+					$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
+					$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
+					
+					$pos   = 6;
+					$total = 0;
+					
+					foreach ($data as $key => $row) {
+						$hoja->setCellValue("A{$pos}", $row->orden_compra);
+						$hoja->setCellValue("B{$pos}", $row->fhcreacion);
+						$hoja->setCellValue("C{$pos}", $row->usuario);
+						$hoja->setCellValue("D{$pos}", $row->proveedor);
+						$hoja->setCellValue("E{$pos}", $row->estatus);
+						$hoja->setCellValue("F{$pos}", $row->ingreso);
+						
+						$pos++;
+						
+						$hoja->setCellValue("A{$pos}", $row->notas)->mergeCells("A{$pos}:F{$pos}");
+						
+						$pos++;
+						$hoja->setCellValue("B{$pos}", "Codigo");
+						$hoja->setCellValue("C{$pos}", "Descripcion");
+						$hoja->setCellValue("D{$pos}", "Presentacion");
+						$hoja->setCellValue("E{$pos}", "Cantidad");
+						$hoja->setCellValue("F{$pos}", "Costo U.");
+						$hoja->setCellValue("G{$pos}", "Total");
+						$hoja->getStyle("B{$pos}:G{$pos}")->getFont()->setBold(true);
+						$hoja->getStyle("E{$pos}:G{$pos}")->getAlignment()->setHorizontal("right");
+						
+						$pos++;
+
+						$tmpTotal = 0;
+						foreach ($row->detalle as $llave => $fila) {
+							$hoja->setCellValue("B{$pos}", $fila->codigo);
+							$hoja->setCellValue("C{$pos}", $fila->articulo);
+							$hoja->setCellValue("D{$pos}", $fila->presentacion);
+							$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
+							$hoja->setCellValue("F{$pos}", number_format((float)$fila->monto, 2, ".", ""));
+							$hoja->setCellValue("G{$pos}", number_format((float)$fila->total, 2, ".", ""));
+							$hoja->getStyle("E{$pos}:G{$pos}")
+							->getNumberFormat()
+							->setFormatCode("0.00");
+
+							$tmpTotal += $fila->total;
+							$pos++;
+						}
+						
+						$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:F{$pos}");
+						$hoja->setCellValue("G{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
+						$hoja->getStyle("A{$pos}:G{$pos}")->getFont()->setBold(true);
+						$hoja->getStyle("A{$pos}:G{$pos}")
+						->getNumberFormat()
+						->setFormatCode("0.00");
+						
+						$pos+=2;
+						$total+= $tmpTotal;
+					}
+
+					$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:F{$pos}");
+					$hoja->setCellValue("G{$pos}", number_format((float)$total, 2, ".", ""));
+					
+					$hoja->getStyle("A{$pos}:G{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
+
+					$hoja->getStyle("A{$pos}:G{$pos}")->applyFromArray([
+						"font"    => ["bold" => true],
+						"borders" => [
+							"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+							"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+						]
+					]);
+
+					for ($i=1; $i <= 6; $i++) {
+						$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+					}
+
+					header("Content-Type: application/vnd.ms-excel");
+					header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+					header("Cache-Control: max-age=1");
+					header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+					header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+					header("Cache-Control: cache, must-revalidate");
+					header("Pragma: public");
+					
+					$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+					$writer->save("php://output");
+				} else {
+					$pdf = new \Mpdf\Mpdf([
+						"tempDir" => sys_get_temp_dir(),
+						"format"  => "Letter"
+					]);
+
+					$pdf->WriteHTML($this->load->view("reporte/orden_compra/imprimir_pedidos_proveedor", ["data" => $data, "params" => $params], true));
+					$pdf->Output("{$nombreArchivo}.pdf", "D");
 				}
 			}
 		}
-		
-		$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ordenes));		
 	}
 }
 
