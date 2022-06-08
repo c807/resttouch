@@ -104,11 +104,11 @@
 					?>
 					<td><?php echo $val; ?></td>
 					<td class="text-right"><?php echo number_format($row->cantidad, 2); ?></td>
-					<td class="text-right"><?php echo number_format($row->costo, 2); ?></td>
-					<td class="text-right"><?php echo number_format($row->cantidad * $row->costo, 2); ?></td>
+					<td class="text-right"><?php echo number_format($row->costo, 4); ?></td>
+					<td class="text-right"><?php echo number_format($row->costo_total, 2); ?></td>
 				</tr>
 				<?php 
-					$total += $row->cantidad * $row->costo;
+					$total += $row->costo_total;
 					$tcantidad += $row->cantidad;
 				?>
 			<?php endforeach ?>

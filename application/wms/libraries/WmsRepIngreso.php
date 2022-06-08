@@ -192,8 +192,8 @@ class WmsRepIngreso
 
 				$hoja->setCellValue("D{$fila}", $t);
 				$hoja->setCellValue("E{$fila}", number_format($row->cantidad, 2));
-				$hoja->setCellValue("F{$fila}", number_format($row->costo, 2));
-				$hoja->setCellValue("G{$fila}", number_format($row->cantidad * $row->costo, 2));
+				$hoja->setCellValue("F{$fila}", number_format($row->costo, 4));
+				$hoja->setCellValue("G{$fila}", number_format($row->costo_total, 2));
 
 				$total += $row->cantidad * $row->costo;
 				$tcantidad += $row->cantidad;
