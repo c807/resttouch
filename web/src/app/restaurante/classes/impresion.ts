@@ -4,6 +4,7 @@ import { LocalstorageService } from '../../admin/services/localstorage.service';
 import { ComandaService } from '../services/comanda.service';
 import { ConfiguracionService } from '../../admin/services/configuracion.service';
 import { GLOBAL } from '../../shared/global';
+import { Base64 } from 'js-base64';
 
 export class Impresion {
 
@@ -24,12 +25,13 @@ export class Impresion {
                 total: +item.total,
                 notas: item.notas || '',
                 impresora: {
-                    bluetooth: +item.articulo.impresora.bluetooth,
-                    direccion_ip: item.articulo.impresora.direccion_ip || '',
                     impresora: +item.articulo.impresora.impresora,
-                    nombre: item.articulo.impresora.nombre || '',
                     sede: +item.articulo.impresora.sede,
-                    ubicacion: item.articulo.impresora.ubicacion || ''
+                    nombre: item.articulo.impresora.nombre || '',
+                    direccion_ip: item.articulo.impresora.direccion_ip || '',
+                    ubicacion: item.articulo.impresora.ubicacion || '',
+                    bluetooth: +item.articulo.impresora.bluetooth,
+                    bluetooth_mac_address: item.articulo.impresora.bluetooth_mac_address || ''
                 },
                 detalle: item.detalle
             });
@@ -37,10 +39,16 @@ export class Impresion {
         return lstArticulos;
     }
 
-    private printToBT = (msgToPrint: string = '') => {
-        const AppHref = `com.restouch.impresion://impresion/${msgToPrint}`;
-        const wref = window.open(AppHref, 'PrntBT', 'height=200,width=200,menubar=no,location=no,resizable=no,scrollbars=no,status=no');
-        setTimeout(() => wref.close(), 1000);
+    private printToBT = (msgToPrint: string = '') => {        
+        const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);
+        const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;
+        const AppHref = GLOBAL.DEEP_LINK_ANDROID.replace('__INFOBASE64__', data);
+        
+        try {
+            window.location.href = AppHref;
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     marcarComoImpresa = async (obj: any) => {
@@ -68,7 +76,7 @@ export class Impresion {
                 FormasPago: obj.formas_pago || [],
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
                 EsReimpresion: obj.EsReimpresion || false
-            };            
+            };
             this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
         }
 
@@ -103,7 +111,7 @@ export class Impresion {
         return total;
     }
 
-    imprimirCuenta = (obj: any) => {        
+    imprimirCuenta = (obj: any) => {
         const cuentaActiva = obj.cuentas[0];
         // console.log('CUENTA = ', cuentaActiva);
         const lstProductosDeCuenta = cuentaActiva.productos;
@@ -158,5 +166,7 @@ export class Impresion {
             this.printToBT(JSON.stringify(obj));
         }
     }
+
+    public imprimirABT = (msgToPrint: string = '') => this.printToBT(msgToPrint);
 
 }

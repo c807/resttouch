@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-// import { SedeService } from '../../../../admin/services/sede.service';
 import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
 import { Bodega } from '../../../interfaces/bodega';
 import { BodegaService } from '../../../services/bodega.service';
@@ -9,12 +8,13 @@ import { Categoria } from '../../../interfaces/categoria';
 import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
 import { ArticuloService } from '../../../services/articulo.service';
 import { FisicoService } from '../../../services/fisico.service';
-// import { Sede } from '../../../../admin/interfaces/sede';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 import { saveAs } from 'file-saver';
 import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
 import { MatSelectChange } from '@angular/material/select';
+import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -34,6 +34,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
   public titulo: string = "Inventario_Fisico";
   public cargando = false;
   public showReporte = true;
+  public maxDiasAntiguedadInventarioFisico = 1;
 
   private endSubs = new Subscription();
 
@@ -43,10 +44,12 @@ export class ReporteComponent implements OnInit, OnDestroy {
     private sedeSrvc: AccesoUsuarioService,
     private bodegaSrvc: BodegaService,
     private articuloSrvc: ArticuloService,
-    private fisicoSrvc: FisicoService    
+    private fisicoSrvc: FisicoService,
+    private configSrvc: ConfiguracionService,
   ) { }
 
   ngOnInit() {
+    this.maxDiasAntiguedadInventarioFisico = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_MAX_DIAS_ANTIGUEDAD_INVENTARIO_FISICO) as number) || 1;
     this.getSede();    
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
     if (this.esCuadreDiario) {
@@ -119,7 +122,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    this.params.escuadrediario = this.esCuadreDiario ? 1 : 0;    
+    this.params.escuadrediario = this.esCuadreDiario ? 1 : 0;        
     if (this.validarFecha()) {
       this.cargando = true;
       this.endSubs.add(      
@@ -154,8 +157,12 @@ export class ReporteComponent implements OnInit, OnDestroy {
     let momento = moment();
     const hoy = momento.clone();
     const fechaIngresada = moment(`${this.params.fecha} ${momento.format(GLOBAL.timeFormatMilli)}`);
-    const fechaLimite = momento.subtract(1, 'days');
-    valida = !(fechaIngresada.isBefore(fechaLimite) || fechaIngresada.isAfter(hoy));    
+    const fechaLimite = momento.subtract(this.maxDiasAntiguedadInventarioFisico, 'days');
+    // console.log(`MAX DIAS = ${this.maxDiasAntiguedadInventarioFisico}`);
+    // console.log(`HOY = ${hoy.format(GLOBAL.dateTimeFormat)}`);
+    // console.log(`INGRESADA = ${fechaIngresada.format(GLOBAL.dateTimeFormat)}`);
+    // console.log(`LIMITE = ${fechaLimite.format(GLOBAL.dateTimeFormat)}`);
+    valida = !(fechaIngresada.isBefore(fechaLimite) || fechaIngresada.isAfter(hoy));
     return valida;
   }
 
