@@ -20,6 +20,8 @@ import { ConfiguracionService } from '../../../admin/services/configuracion.serv
 import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
 import { ComandaEnLineaComponent } from '../comanda-en-linea/comanda-en-linea.component';
+import { Impresora } from '../../../admin/interfaces/impresora';
+import { ImpresoraService } from '../../../admin/services/impresora.service';
 
 import { RazonAnulacion } from '../../../admin/interfaces/razon-anulacion';
 import { AnulacionService } from '../../../admin/services/anulacion.service';
@@ -54,6 +56,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
 
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
   public razonAnulacion: RazonAnulacion[] = [];
+  public impresoraPorDefecto: Impresora = null;
 
   private endSubs = new Subscription();
 
@@ -70,6 +73,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private estatusCallcenterSrvc: EstatusCallcenterService,
     private anulacionSrvc: AnulacionService,
+    private impresoraSrvc: ImpresoraService
   ) { }
 
   ngOnInit(): void {
@@ -81,6 +85,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       }
     }
     this.loadRazonAnulacion();
+    this.loadImpresoraDefecto();
   }
 
   ngOnDestroy(): void {
@@ -95,6 +100,16 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         this.razonAnulacion = res;
       })
     );
+  }
+
+  loadImpresoraDefecto = () => {
+    this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
+      if (res && res.length > 0) {
+        this.impresoraPorDefecto = res[0];
+      } else {
+        this.impresoraPorDefecto = null;
+      }
+    });
   }
 
   cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
@@ -294,7 +309,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       DetalleFactura: [],
       Comanda: comanda.comanda || 0,
       Cuenta: comanda.cuentas[0].cuenta || 0,
-      DatosComanda: fact.datos_comanda || null
+      DatosComanda: fact.datos_comanda || null,
+      Impresora: null
     };
 
     for (const det of fact.detalle) {
@@ -307,7 +323,17 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       dataToPrint.Total += parseFloat(det.total);
     }
 
-    this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+    if (this.impresoraPorDefecto) {
+      dataToPrint.Impresora = this.impresoraPorDefecto;
+      if (+this.impresoraPorDefecto.bluetooth === 0) {
+        this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+      } else {
+        const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+        objImpresion.imprimirABT(JSON.stringify(dataToPrint));
+      }
+    } else {
+      this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+    }
   }
 
   representacionGrafica = (idfactura: number) => {
@@ -428,21 +454,21 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(res => {
       if (res.resultado) {
-        if(res.config?.input[0]?.valor) {
+        if (res.config?.input[0]?.valor) {
           obj.razon_anulacion = +res.config.input[0].valor;
           const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
             width: '55%',
             data: obj
           });
-      
+
           trasladoRef.afterClosed().subscribe(result => {
             if (result) {
-              this.cerrar(true);                            
+              this.cerrar(true);
             }
           });
 
         } else {
-          this.snackBar.open('Debe seleccionar un motivo para proceder.', 'Trasladar a mesa', { duration: 3000 });          
+          this.snackBar.open('Debe seleccionar un motivo para proceder.', 'Trasladar a mesa', { duration: 3000 });
         }
       }
     });

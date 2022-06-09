@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -29,12 +29,14 @@ import { ImpresoraService } from '../../../../admin/services/impresora.service';
 import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 import { Base64 } from 'js-base64';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-form-factura-manual',
   templateUrl: './form-factura-manual.component.html',
   styleUrls: ['./form-factura-manual.component.css']
 })
-export class FormFacturaManualComponent implements OnInit {
+export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
   @Input() factura: Factura;
   @Output() facturaSavedEv = new EventEmitter();
@@ -60,6 +62,8 @@ export class FormFacturaManualComponent implements OnInit {
   public impresoraPorDefecto: Impresora = null;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -92,10 +96,16 @@ export class FormFacturaManualComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
+  }
+
   getRazonAnulacion = () => {
-    this.anulacionSrvc.get().subscribe(res => {
-      this.razonAnulacion = res;
-    })
+    this.endSubs.add(
+      this.anulacionSrvc.get().subscribe(res => {
+        this.razonAnulacion = res;
+      })
+    );
   }
 
   filtrar = (value: (Cliente | string)) => {
@@ -110,40 +120,57 @@ export class FormFacturaManualComponent implements OnInit {
 
   loadImpresoraDefecto = () => {
     const idImpresoraDefecto: number = +this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRESORA_DEFECTO) || 0;
-    if (idImpresoraDefecto > 0) {
-      this.impresoraSrvc.get({ impresora: idImpresoraDefecto }).subscribe((res: Impresora[]) => {
+
+    this.endSubs.add(            
+      this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
         if (res && res.length > 0) {
           this.impresoraPorDefecto = res[0];
         } else {
-          this.impresoraPorDefecto = null;
+          if (idImpresoraDefecto > 0) {
+            this.endSubs.add(              
+              this.impresoraSrvc.get({ impresora: idImpresoraDefecto }).subscribe((res: Impresora[]) => {
+                if (res && res.length > 0) {
+                  this.impresoraPorDefecto = res[0];
+                } else {
+                  this.impresoraPorDefecto = null;
+                }
+              })
+            );
+          }        
         }
-      });
-    }
+      })
+    );
   }
 
   loadFacturaSeries = () => {
-    this.facturaSerieSrvc.get().subscribe(res => {
-      if (res) {
-        this.facturaSeries = res;
-      }
-    });
+    this.endSubs.add(      
+      this.facturaSerieSrvc.get().subscribe(res => {
+        if (res) {
+          this.facturaSeries = res;
+        }
+      })
+    );
   }
 
   loadClientes = () => {
-    this.clienteSrvc.get().subscribe(res => {
-      if (res) {
-        this.clientes = res;
-        this.filteredClientes = this.clientes;
-      }
-    });
+    this.endSubs.add(      
+      this.clienteSrvc.get().subscribe(res => {
+        if (res) {
+          this.clientes = res;
+          this.filteredClientes = this.clientes;
+        }
+      })
+    );
   }
 
   loadMonedas = () => {
-    this.monedaSrvc.get().subscribe(res => {
-      if (res) {
-        this.monedas = res;
-      }
-    });
+    this.endSubs.add(      
+      this.monedaSrvc.get().subscribe(res => {
+        if (res) {
+          this.monedas = res;
+        }
+      })
+    );
   }
 
   refacturar = () => {
@@ -319,9 +346,7 @@ export class FormFacturaManualComponent implements OnInit {
           Comanda: res.factura.comanda || 0,
           Cuenta: res.factura.cuenta || 0,
           DatosComanda: res.factura.datos_comanda || null
-        };
-
-        // console.log(`${JSON.stringify(datosAImprimir)}`);
+        };        
 
         if (this.impresoraPorDefecto) {
           if (+this.impresoraPorDefecto.bluetooth === 0) {

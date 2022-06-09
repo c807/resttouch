@@ -384,7 +384,8 @@ EOT;
 				d.descripcion as producto,
 				a.cantidad, 
 				a.precio_unitario as costo,
-				e.razon_social as nproveedor
+				e.razon_social as nproveedor,
+				a.precio_total as costo_total
 			");
 		}
 
