@@ -20,6 +20,8 @@ import { ConfiguracionService } from '../../../admin/services/configuracion.serv
 import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
 import { ComandaEnLineaComponent } from '../comanda-en-linea/comanda-en-linea.component';
+import { Impresora } from '../../../admin/interfaces/impresora';
+import { ImpresoraService } from '../../../admin/services/impresora.service';
 
 import { Subscription } from 'rxjs';
 
@@ -49,6 +51,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
+  public impresoraPorDefecto: Impresora = null;
 
   private endSubs = new Subscription();
 
@@ -63,8 +66,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     private ordenGkSrvc: OrdenGkService,
     private facturaSrvc: FacturaService,
     private configSrvc: ConfiguracionService,
-    private estatusCallcenterSrvc: EstatusCallcenterService
-
+    private estatusCallcenterSrvc: EstatusCallcenterService,
+    private impresoraSrvc: ImpresoraService
   ) { }
 
   ngOnInit(): void {
@@ -75,6 +78,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         this.loadEstatusCallCenter();
       }
     }
+    this.loadImpresoraDefecto();
   }
 
   ngOnDestroy(): void {
@@ -82,6 +86,16 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
+
+  loadImpresoraDefecto = () => {
+    this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
+      if (res && res.length > 0) {
+        this.impresoraPorDefecto = res[0];
+      } else {
+        this.impresoraPorDefecto = null;
+      }
+    });
+  }
 
   cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
 
@@ -126,7 +140,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       };
       this.cambiarEstatusOrdenGK(params);
     }
-  }  
+  }
 
   cambiarEstatusOrdenGK = (params: any) => {
     this.endSubs.add(
@@ -279,8 +293,9 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       FormaDePago: (datosOrigen.metodo_pago && datosOrigen.metodo_pago.length > 0) ? datosOrigen.metodo_pago.join(', ') : '',
       DetalleFactura: [],
       Comanda: comanda.comanda || 0,
-      Cuenta: comanda.cuentas[0].cuenta || 0,      
-      DatosComanda: fact.datos_comanda || null
+      Cuenta: comanda.cuentas[0].cuenta || 0,
+      DatosComanda: fact.datos_comanda || null,
+      Impresora: null
     };
 
     for (const det of fact.detalle) {
@@ -292,8 +307,18 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       });
       dataToPrint.Total += parseFloat(det.total);
     }
-
-    this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+    
+    if (this.impresoraPorDefecto) {
+      dataToPrint.Impresora = this.impresoraPorDefecto;
+      if(+this.impresoraPorDefecto.bluetooth === 0) {
+        this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+      } else {
+        const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+        objImpresion.imprimirABT(JSON.stringify(dataToPrint));
+      }
+    } else {
+      this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+    }
   }
 
   representacionGrafica = (idfactura: number) => {

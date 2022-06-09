@@ -1030,23 +1030,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
 
   printToBT = (msgToPrint: string = '') => {
     const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);
-    const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;
-    // const AppHref = `${GLOBAL.DEEP_LINK_ANDROID}${data}`;
+    const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;    
     const AppHref = GLOBAL.DEEP_LINK_ANDROID.replace('__INFOBASE64__', data);
 
     try {
       window.location.href = AppHref;
     } catch (error) {
       this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', { duration: 3000 });
-    }
-
-    // const a = document.createElement('a');
-    // document.body.appendChild(a);
-    // a.href = AppHref;
-    // a.click();
-    // document.body.removeChild(a);
-
-    // setTimeout(() => wref.close(), 3000);
+    }    
     this.bloqueoBotones = false;
   }
 
