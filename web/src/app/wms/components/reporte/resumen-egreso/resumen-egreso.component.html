@@ -1,0 +1,44 @@
+<div class="row">
+	<div class="col m12 s12">
+		<mat-card class="mat-elevation-z4 fullWidth">
+			<mat-card-title>
+				<h4>Resumen de egresos</h4>
+			</mat-card-title>
+			<mat-card-content>
+				<form novalidate>
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel"
+						[ngModelOptions]="{standalone: true}" required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}"
+						required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Bodega</mat-label>
+						<mat-select name="bodega" [(ngModel)]="params.bodega">
+							<mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+								{{bod.descripcion}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Tipo de ingreso</mat-label>
+						<mat-select name="tipo_egreso" [(ngModel)]="params.tipo_egreso">
+							<mat-option *ngFor="let ti of tiposMovimiento" [value]="ti.tipo_movimiento">
+								{{ti.descripcion}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+
+					<app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+				</form>
+				<app-cargando *ngIf="cargando"></app-cargando>
+			</mat-card-content>
+		</mat-card>
+	</div>
+</div>

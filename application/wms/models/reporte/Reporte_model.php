@@ -684,6 +684,53 @@ EOT;
 		->get()
 		->result();
 	}
+
+	public function getResumenEgreso($args = [])
+	{
+		if (verDato($args, "fdel")) {
+			$this->db->where("date(d.fecha) >=", $args["fdel"]);
+		}
+
+		if (verDato($args, "fal")) {
+			$this->db->where("date(d.fecha) <=", $args["fal"]);
+		}
+
+		if (verDato($args, "bodega")) {
+			$this->db->where("d.bodega", $args["bodega"]);
+		}
+
+		if (verDato($args, "tipo_egreso")) {
+			$this->db->where("d.tipo_movimiento", $args["tipo_egreso"]);
+		}
+
+		return $this->db
+		->select("
+			d.fecha,
+			d.egreso,
+			e.descripcion as nmovimiento,
+			c.descripcion as npresentacion,
+			l.descripcion as nbodega,
+			b.codigo as carticulo,
+			b.descripcion as narticulo,
+			a.cantidad,
+			a.precio_total
+		")
+		->from("egreso_detalle a")
+		->join("articulo b", "b.articulo = a.articulo")
+		->join("presentacion c", "c.presentacion = a.presentacion")
+		->join("egreso d", "d.egreso = a.egreso")
+		->join("tipo_movimiento e", "e.tipo_movimiento = d.tipo_movimiento")
+		->join("bodega f", "f.bodega = d.bodega")
+		->join("estatus_movimiento g", "g.estatus_movimiento = d.estatus_movimiento")
+		->join("usuario h", "h.usuario = d.usuario")
+		->join("traslado_detalle i", "i.egreso_detalle = a.egreso_detalle", "left")
+		->join("ingreso_detalle j", "j.ingreso_detalle = i.ingreso_detalle", "left")
+		->join("ingreso k", "k.ingreso = j.ingreso", "left")
+		->join("bodega l", "l.bodega = k.bodega", "left")
+		->order_by("d.fecha, d.egreso")
+		->get()
+		->result();
+	}
 }
 
 /* End of file Reporte_model.php */

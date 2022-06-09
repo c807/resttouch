@@ -1169,6 +1169,132 @@ class Reporte extends CI_Controller
 			}
 		}
 	}
+	
+	public function resumen_egreso()
+	{
+		$params = json_decode(file_get_contents("php://input"), true);
+
+		if (verDato($params, "fal") &&
+			verDato($params, "fdel") &&
+			verDato($params, "bodega")
+		) {
+			$lista = $this->Reporte_model->getResumenEgreso($params);
+
+			if ($lista) {
+				$data = [];
+				$nombreArchivo = "resumen_egreso_".rand();
+				
+				foreach ($lista as $key => $row) {
+					if (!isset($data[$row->egreso])) {
+						$data[$row->egreso] = [
+							"fecha"       => $row->fecha,
+							"egreso"      => $row->egreso,
+							"nmovimiento" => $row->nmovimiento,
+							"nbodega"     => $row->nbodega,
+							"detalle"     => []
+						];
+					}
+
+					$data[$row->egreso]["detalle"][] = $row;
+				}
+				
+				if (verDato($params, "_excel")) {
+					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+					$excel->setActiveSheetIndex(0);
+					$hoja = $excel->getActiveSheet();
+					$hoja->setTitle("Reporte");
+
+					$hoja->setCellValue("A1", "Resumen de egresos")->mergeCells("A1:D1");
+					$hoja->setCellValue("A3", "Del: ");
+					$hoja->setCellValue("A4", "Al: ");
+					$hoja->setCellValue("A5", "Bodega: ");
+					$hoja->getStyle("A1:A5")->getFont()->setBold(true);
+
+					$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
+					$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
+					$hoja->setCellValue("B5", $params["bodega_nombre"]);
+					
+					$pos   = 7;
+					$total = 0;
+					
+					foreach ($data as $key => $row) {
+						$hoja->setCellValue("A{$pos}", formatoFecha($row["fecha"], 2));
+						$hoja->setCellValue("B{$pos}", $row["egreso"]);
+						$hoja->setCellValue("C{$pos}", $row["nmovimiento"]);
+						$hoja->setCellValue("D{$pos}", $row["nbodega"]);
+						
+						$pos++;
+
+						$tmpTotal = 0;
+						foreach ($row["detalle"] as $llave => $fila) {
+							$hoja->setCellValue("B{$pos}", $fila->carticulo);
+							$hoja->setCellValue("C{$pos}", $fila->narticulo);
+							$hoja->setCellValue("D{$pos}", $fila->npresentacion);
+							$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
+							$hoja->setCellValue("F{$pos}", number_format((float)$fila->precio_total, 2, ".", ""));
+							$hoja->getStyle("E{$pos}:F{$pos}")
+							->getNumberFormat()
+							->setFormatCode("0.00");
+
+							$tmpTotal += $fila->precio_total;
+							$pos++;
+						}
+						
+						$hoja->setCellValue("A{$pos}", "Total Documento:")->mergeCells("A{$pos}:E{$pos}");
+						$hoja->setCellValue("F{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
+						$hoja->getStyle("A{$pos}:E{$pos}")->getAlignment()->setHorizontal("right");
+						$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
+						$hoja->getStyle("F{$pos}")
+						->getNumberFormat()
+						->setFormatCode("0.00");
+						
+						$pos+=2;
+						$total+= $tmpTotal;
+					}
+
+					$hoja->setCellValue("A{$pos}", "GRAN TOTAL")->mergeCells("A{$pos}:E{$pos}");
+					$hoja->setCellValue("F{$pos}", number_format((float)$total, 2, ".", ""));
+					$hoja->getStyle("A{$pos}:E{$pos}")->getAlignment()->setHorizontal("right");
+					$hoja->getStyle("F{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
+
+					$hoja->getStyle("A{$pos}:F{$pos}")->applyFromArray([
+						"font"    => ["bold" => true],
+						"borders" => [
+							"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+							"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+						]
+					]);
+
+					for ($i=1; $i <= 6; $i++) {
+						$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+					}
+
+					header("Content-Type: application/vnd.ms-excel");
+					header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+					header("Cache-Control: max-age=1");
+					header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+					header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+					header("Cache-Control: cache, must-revalidate");
+					header("Pragma: public");
+					
+					$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+					$writer->save("php://output");
+				} else {
+					$pdf = new \Mpdf\Mpdf([
+						"tempDir" => sys_get_temp_dir(),
+						"format"  => "Letter"
+					]);
+
+					$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+					$pdf->WriteHTML($this->load->view("reporte/egreso/resumen_imprimir", ["data" => $data, "params" => $params], true));
+					$pdf->Output("{$nombreArchivo}.pdf", "D");
+				}
+			}
+		}
+	}
 }
 
 /* End of file Reporte.php */

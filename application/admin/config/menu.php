@@ -282,6 +282,10 @@ $config['menu'] = [
 					5 => [
 						'nombre' => 'Consumos',
 						'link' => '/wms/rptconsumos'
+					],
+					6 => [
+						'nombre' => 'Resumen egresos',
+						'link' => '/wms/resumen_egreso'
 					]
 				]
 			],
