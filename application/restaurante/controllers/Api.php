@@ -25,7 +25,9 @@ class Api extends CI_Controller
 			"Dfactura_model",
 			"Cliente_model",
 			"Receta_model",
-			"Sede_model"
+			"Sede_model",
+			"Sede_vendor_tercero_model",
+			"Vendor_tercero_model",
 		]);
 
 		$this->output->set_content_type("application/json", "UTF-8");
@@ -1195,6 +1197,7 @@ class Api extends CI_Controller
 
 		if (isset($_GET['key'])) {
 			if ($this->input->method() == 'post') {
+				$esGK = isset($_GET['gk']) && (int)$_GET['gk'] === 1;
 
 				$req = json_decode(file_get_contents('php://input'), true);
 				$cat = new Categoria_model();
@@ -1215,12 +1218,20 @@ class Api extends CI_Controller
 				$this->db = $this->load->database($db, true);
 
 				$sede = $this->Catalogo_model->getSede([
-					"admin_llave" => $_GET['key'],
-					"_uno" => true
+					'admin_llave' => $_GET['key'],
+					'_uno' => true
 				]);
 
+				if($esGK) {
+					$vt = $this->Vendor_tercero_model->buscar(['TRIM(nombre)' => trim($req['vendor']), '_uno' => true]);
+					if($vt) {
+						$svt = $this->Sede_vendor_tercero_model->buscar(['vendor_tercero' => $vt->vendor_tercero, '_uno' => true]);
+						$sede = $this->Catalogo_model->getSede(['sede' => $svt->sede, '_uno' => true]);
+					}
+				}
+
 				$tmpcat = $this->Categoria_model->buscar([
-					'descripcion' => $req['vendor'],
+					'descripcion' => $esGK ? $req['product_type'] : $req['vendor'],
 					'sede' => $sede->sede,
 					'_uno' => true
 				]);
@@ -1229,8 +1240,8 @@ class Api extends CI_Controller
 					$cat->cargar($tmpcat->categoria);
 				} else {
 					$cat->guardar([
-						"descripcion" => $req['vendor'],
-						"sede" => $sede->sede,
+						'descripcion' => $esGK ? $req['product_type'] : $req['vendor'],
+						'sede' => $sede->sede,
 					]);
 				}
 
