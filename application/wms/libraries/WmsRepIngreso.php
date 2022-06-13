@@ -50,10 +50,30 @@ class WmsRepIngreso
 	public function generarPdf()
 	{
 		$rep = $this->getReporte($this->args->reporte);
+		$tmp = "rep/ingreso/imprimir";
+		$data = [];
+		
+		if ($this->args->reporte == 1) {
+			$tmp = "rep/ingreso/imprimir_proveedor";
+			
+			foreach ($this->lista as $key => $row) {
+				if (!isset($data[$row->nproveedor])) {
+					$data[$row->nproveedor] = [];
+				}
 
-		$vista = $this->ci->load->view('rep/ingreso/imprimir', [
+				if (!isset($data[$row->nproveedor][$row->num_documento])) {
+					$data[$row->nproveedor][$row->num_documento] = [];
+				}
+
+				$data[$row->nproveedor][$row->num_documento][] = $row;
+			}
+		} else {
+			$data = $this->lista;
+		}
+
+		$vista = $this->ci->load->view($tmp, [
 			"args"  => $this->args,
-			"lista" => $this->lista,
+			"lista" => $data,
 			"reporte" => $rep
 		], true);
 
@@ -151,6 +171,86 @@ class WmsRepIngreso
 				$hoja->setCellValue("D{$fila}", number_format($row->desviacion, 5));
 				$fila++;
 			}
+
+		} elseif ($this->lista && $this->args->reporte == 1) {
+			$data = [];
+			
+			foreach ($this->lista as $key => $row) {
+				if (!isset($data[$row->nproveedor])) {
+					$data[$row->nproveedor] = [];
+				}
+
+				if (!isset($data[$row->nproveedor][$row->num_documento])) {
+					$data[$row->nproveedor][$row->num_documento] = [];
+				}
+
+				$data[$row->nproveedor][$row->num_documento][] = $row;
+			}
+
+			$total = 0;
+			foreach ($data as $proveedor => $documento) {
+				$provTotal = 0;
+				$provCant  = 0;
+				
+				$hoja->mergeCells("A{$fila}:G{$fila}");
+				$hoja->setCellValue("A{$fila}", $proveedor);
+				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+				$fila++;
+				
+				foreach ($documento as $llave => $producto) {
+					$docTotal = 0;
+					$docCant  = 0;
+					
+					foreach ($producto as $key => $row) {
+
+
+
+						$tmpCosto =  $this->args->iva == 1 ? $row->costo + ($row->costo * 0.12) : $row->costo;
+						$tmpCant  = $row->cantidad;
+						$tmpTot   = $tmpCosto * $row->cantidad;
+
+						$hoja->setCellValue("A{$fila}", formatoFecha($row->fecha, 2));
+						$hoja->setCellValue("B{$fila}", $row->num_documento);
+						$hoja->setCellValue("C{$fila}", $row->bodega);
+						$hoja->setCellValue("D{$fila}", $row->producto);
+						$hoja->setCellValue("E{$fila}", number_format($row->cantidad, 2));
+						$hoja->setCellValue("F{$fila}", number_format($tmpCosto, 2));
+						$hoja->setCellValue("G{$fila}", number_format($tmpTot, 2));
+
+						$provTotal += $tmpTot;
+						$provCant  += $tmpCant;
+						$docTotal  += $tmpTot;
+						$docCant   += $tmpCant;
+						$fila++;
+					}
+					
+					$hoja->mergeCells("A{$fila}:D{$fila}");
+					$hoja->getStyle("A{$fila}:D{$fila}")->getAlignment()->setHorizontal("right");
+					$hoja->setCellValue("A{$fila}", "Total documento: ");
+					$hoja->setCellValue("E{$fila}", number_format($docCant, 2));
+					$hoja->setCellValue("G{$fila}", number_format($docTotal, 2));
+					$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+					$fila++;
+				}
+				
+				$hoja->mergeCells("A{$fila}:D{$fila}");
+				$hoja->getStyle("A{$fila}:D{$fila}")->getAlignment()->setHorizontal("right");
+				$hoja->setCellValue("A{$fila}", "Total proveedor: ");
+				$hoja->setCellValue("E{$fila}", number_format($provCant, 2));
+				$hoja->setCellValue("G{$fila}", number_format($provTotal, 2));
+				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+
+				$total += $provTotal;
+				$fila++;
+			}
+
+			$hoja->mergeCells("A{$fila}:D{$fila}");
+			$hoja->setCellValue("A{$fila}", "Total");
+			$hoja->setCellValue("G{$fila}", number_format($total, 2));
+			$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+			$hoja->getStyle("A{$fila}:F{$fila}")->getAlignment()->setHorizontal("center");
+			$hoja->getStyle("G{$fila}")->getAlignment()->setHorizontal("right");
+
 
 		} else if ($this->lista) {
 			$total = 0;

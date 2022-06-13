@@ -732,6 +732,31 @@ EOT;
 		->get()
 		->result();
 	}
+
+	public function get_lista_ingreso($args = [])
+	{
+		if (verDato($args, "fdel")) {
+			$this->db->where("date(fecha) >= ", $args["fdel"]);
+		}
+
+		if (verDato($args, "fal")) {
+			$this->db->where("date(fecha) <= ", $args["fal"]);
+		}
+
+		if (verDato($args, "tipo_ingreso")) {
+			$this->db->where("tipo_movimiento", $args["tipo_ingreso"]);
+		}
+
+		if (isset($args["_select"])) {
+			$this->db->select($args["_select"]);
+		}
+
+		return $this->db
+		->from("ingreso")
+		->order_by("fecha")
+		->get()
+		->result();
+	}
 }
 
 /* End of file Reporte_model.php */

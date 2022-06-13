@@ -81,6 +81,15 @@
                         <input matInput type="number" step="0.00001" placeholder="Variacion" name="variacion" [(ngModel)]="params.variacion">
                     </mat-form-field>
 
+                    <mat-form-field class="fullWidth">
+						<mat-label>Ver</mat-label>
+						<mat-select name="iva" [(ngModel)]="params.iva" required>
+							<mat-option *ngFor="let i of iva" [value]="i.id">
+								{{ i.descripcion }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
 					<div align="end">
 						<app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()"
 						(resetParamsClick)="resetParams()"></app-rpt-botones>

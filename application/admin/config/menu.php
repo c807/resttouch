@@ -286,6 +286,10 @@ $config['menu'] = [
 					6 => [
 						'nombre' => 'Resumen egresos',
 						'link' => '/wms/resumen_egreso'
+					],
+					7 => [
+						'nombre' => 'Resumen ingresos',
+						'link' => '/wms/resumen_ingreso'
 					]
 				]
 			],

@@ -199,4 +199,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  generar_resumen_ingreso(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/rep/ingreso/generar_resumen`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

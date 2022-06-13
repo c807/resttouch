@@ -60,13 +60,14 @@ import { RepIngresoComponent } from './components/reporte/rep-ingreso/rep-ingres
 import { ListaPreciosTipoClienteComponent } from './components/producto/lista-precios-tipo-cliente/lista-precios-tipo-cliente.component';
 import { ConsumosComponent } from './components/reporte/consumos/consumos.component';
 import { ResumenEgresoComponent } from './components/reporte/resumen-egreso/resumen-egreso.component';
+import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/resumen-ingreso.component';
 
 @NgModule({
   declarations: [
     ListaProductoComponent, ListaIngresoComponent, FormIngresoComponent, IngresoComponent, ProductoComponent, FormProductoComponent,
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
-    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent
+    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent
   ],
   imports: [
     CommonModule,

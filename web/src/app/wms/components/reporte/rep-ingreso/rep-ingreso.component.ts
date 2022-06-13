@@ -42,6 +42,11 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     {id: 3, descripcion: "Variación de precio"}
   ];
 
+  public iva = [
+    {id: 1, descripcion: "Con IVA"},
+    {id: 2, descripcion: "Sin IVA"}
+  ];
+
   private endSubs = new Subscription();
   public proveedores: Proveedor[] = [];
   public filteredProveedores: Proveedor[] = [];
@@ -68,6 +73,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     this.txtArticuloSelected = undefined;
     this.params.fdel = moment().startOf('month').format(GLOBAL.dbDateFormat);
     this.params.fal = moment().format(GLOBAL.dbDateFormat);
+    this.params.iva = 1;
   }
 
   ngOnDestroy(): void {
@@ -197,7 +203,8 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
       tipo_ingreso: undefined,
       variacion: undefined,
       proveedor: undefined,
-      articulo: undefined
+      articulo: undefined,
+      iva: 1
     };
     this.txtArticuloSelected = undefined;
     this.filteredArticulos = [];

@@ -16,6 +16,7 @@ import { QuickEditProductoComponent } from './components/producto/quick-edit-pro
 import { RepIngresoComponent } from './components/reporte/rep-ingreso/rep-ingreso.component';
 import { ConsumosComponent } from './components/reporte/consumos/consumos.component';
 import { ResumenEgresoComponent } from './components/reporte/resumen-egreso/resumen-egreso.component';
+import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/resumen-ingreso.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: 'rptconsumos', component: ConsumosComponent, canActivate: [AuthGuard] },
   { path: 'cuadre_diario', component: FisicoComponent, canActivate: [AuthGuard] },
   { path: 'resumen_egreso', component: ResumenEgresoComponent, canActivate: [AuthGuard] },
+  { path: 'resumen_ingreso', component: ResumenIngresoComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
