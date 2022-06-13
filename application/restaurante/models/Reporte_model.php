@@ -148,68 +148,72 @@ class Reporte_model extends CI_Model
 
 	public function get_ingresos_sin_comanda($args = [])
 	{
-		if (isset($args['fdel'])) {
-			$this->db->where('a.fecha_factura >=', $args['fdel']);
-		}
-
-		if (!isset($args['_fecha_caja'])) {
-			if (isset($args['fal'])) {
-				$this->db->where('a.fecha_factura <=', $args['fal']);
-			}
-		} else {
-			$this->db->where("a.fecha_factura <= DATE('{$args['_fecha_caja']}')", NULL, FALSE);
-		}
-
-		if (isset($args['factura'])) {
-			$this->db->where('a.factura', $args['factura']);
-		}
-
-		if (!isset($args['propina'])) {
-			$this->db->where("c.descripcion NOT LIKE '%propina%'");
-		} else {
-			$this->db->where("c.descripcion LIKE '%propina%'");
-		}
-
-		if (isset($args['sede'])) {
-			if (is_array($args['sede'])) {
-				$this->db->where_in("a.sede", $args['sede']);
-			} else {
-				$this->db->where("a.sede", $args['sede']);
-			}
-		}
-
-		$query = $this->db
-			->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
-			->join('detalle_factura b', 'a.factura = b.factura')
-			->join('articulo c', 'c.articulo = b.articulo')
-			->join('detalle_factura_detalle_cuenta d', 'b.detalle_factura = d.detalle_factura', 'left')
-			->where('a.fel_uuid IS NOT NULL')
-			->where('a.fel_uuid_anulacion IS NULL')
-			->where('d.detalle_factura_detalle_cuenta IS NULL')
-			->get('factura a');
-
 		$facturas = [];
-		if (!isset($args['propina'])) {
-			$resultado = $query->result();
-			foreach ($resultado as $fact) {
-				if ((int)$fact->factura > 0) {
-					$fact->propina = $this->get_ingresos_sin_comanda([
-						'fdel' => $args['fdel'],
-						'fal' => $args['fal'],
-						'factura' => $fact->factura,
-						'propina' => TRUE,
-						'_fecha_caja' => !isset($args['_fecha_caja']) ? null : $args['_fecha_caja']
-					]);
-					$facturas[] = $fact;
+		if (!isset($args['tipo_domicilio']))
+		{
+			if (isset($args['fdel'])) {
+				$this->db->where('a.fecha_factura >=', $args['fdel']);
+			}
+	
+			if (!isset($args['_fecha_caja'])) {
+				if (isset($args['fal'])) {
+					$this->db->where('a.fecha_factura <=', $args['fal']);
+				}
+			} else {
+				$this->db->where("a.fecha_factura <= DATE('{$args['_fecha_caja']}')", NULL, FALSE);
+			}
+	
+			if (isset($args['factura'])) {
+				$this->db->where('a.factura', $args['factura']);
+			}
+	
+			if (!isset($args['propina'])) {
+				$this->db->where("c.descripcion NOT LIKE '%propina%'");
+			} else {
+				$this->db->where("c.descripcion LIKE '%propina%'");
+			}
+	
+			if (isset($args['sede'])) {
+				if (is_array($args['sede'])) {
+					$this->db->where_in("a.sede", $args['sede']);
+				} else {
+					$this->db->where("a.sede", $args['sede']);
 				}
 			}
-		} else {
-			$propina = $query->row();
-			if ($propina) {
-				return (float)$propina->monto;
+	
+			$query = $this->db
+				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
+				->join('detalle_factura b', 'a.factura = b.factura')
+				->join('articulo c', 'c.articulo = b.articulo')
+				->join('detalle_factura_detalle_cuenta d', 'b.detalle_factura = d.detalle_factura', 'left')
+				->where('a.fel_uuid IS NOT NULL')
+				->where('a.fel_uuid_anulacion IS NULL')
+				->where('d.detalle_factura_detalle_cuenta IS NULL')
+				->get('factura a');
+			
+			if (!isset($args['propina'])) {
+				$resultado = $query->result();
+				foreach ($resultado as $fact) {
+					if ((int)$fact->factura > 0) {
+						$fact->propina = $this->get_ingresos_sin_comanda([
+							'fdel' => $args['fdel'],
+							'fal' => $args['fal'],
+							'factura' => $fact->factura,
+							'propina' => TRUE,
+							'_fecha_caja' => !isset($args['_fecha_caja']) ? null : $args['_fecha_caja']
+						]);
+						$facturas[] = $fact;
+					}
+				}
+			} else {
+				$propina = $query->row();
+				if ($propina) {
+					return (float)$propina->monto;
+				}
+				return 0;
 			}
-			return 0;
 		}
+
 		return $facturas;
 	}
 

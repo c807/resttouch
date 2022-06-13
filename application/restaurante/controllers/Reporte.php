@@ -2105,6 +2105,7 @@ class Reporte extends CI_Controller
         ];
 
         $data['domicilio'] = 1;
+        $data['comandas'] = true;
         $tipoDomicilio = ordenar_array_objetos($this->Tipo_domicilio_model->buscar(), 'descripcion');
         foreach ($tipoDomicilio as $row) {
             $data['tipo_domicilio'] = $row->tipo_domicilio;
@@ -2113,7 +2114,7 @@ class Reporte extends CI_Controller
                 'tipo_venta' => $row->descripcion,
                 'corte_caja' => (object)[
                     'ingresos' => $domicilio['ingresos'],
-                    'facturas_sin_comanda' => $domicilio['facturas_sin_comanda'],
+                    'facturas_sin_comanda' => [],
                     'descuentos' => $domicilio['descuentos']
                 ]
             ];
