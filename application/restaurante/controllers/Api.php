@@ -51,443 +51,458 @@ class Api extends CI_Controller
 				];
 				$db = conexion_db($conn);
 				$this->db = $this->load->database($db, true);
+
 				$config = $this->Configuracion_model->buscar();
 
-				$sede = $this->Catalogo_model->getSedeForAPI([
-					"admin_llave" => $_GET['key'],
-					"_uno" => true
-				]);
+				$paso = true;
+				$mustCheckFinancialStatus = get_configuracion($config, 'RT_SHOPIFY_CHECK_FINANCIAL_STATUS', 3);
 
-				$datosCliente = false;
-				$idCliente = false;
-
-				$rutas = get_configuracion($config, "RT_CAMPO_NIT", 2);
-				if ($rutas) {
-					foreach (explode("|", $rutas) as $row) {
-						$dato = buscar_propiedad($obj, $row);
-						if ($dato) {
-							break;
-						}
-					}
-				}
-
-				if (isset($req['billing_address'])) {
-					$datosCliente = $req['billing_address'];
-				} else if ($req['source_name'] == 'pos') {
-					$datosCliente = $req['customer']['default_address'];
-				}
-
-				if ($datosCliente) {
-
-					if ($rutas) {
-						if ($dato) {
-							$nit = $dato;
-						} else {
-							$nit = "CF";
-						}
+				if ((int)$mustCheckFinancialStatus === 1) {
+					if (isset($req['financial_status']) && strtolower(trim($req['financial_status'])) === 'paid') {
+						$paso = true;
 					} else {
-						if (validar_nit($datosCliente['zip'])) {
-							$nit = $datosCliente['zip']; //Para cambios.	
-						} else {
-							$nit = "CF";
-						}
+						$paso = false;
 					}
+				}
 
-					$nit = strtoupper(preg_replace("/[^0-9Kk?!]/", '', $nit));
-
-					if (empty($nit)) {
-						$nit = "CF";
-					}
-
-					$cliente = $this->Cliente_model->buscar([
-						"nit" => $nit,
+				if ($paso) {
+					$sede = $this->Catalogo_model->getSedeForAPI([
+						"admin_llave" => $_GET['key'],
 						"_uno" => true
 					]);
-
-					$origen = $this->Catalogo_model->getComandaOrigen([
-						"_uno" => true,
-						"descripcion" => "Shopify"
+	
+					$datosCliente = false;
+					$idCliente = false;
+	
+					$rutas = get_configuracion($config, "RT_CAMPO_NIT", 2);
+					if ($rutas) {
+						foreach (explode("|", $rutas) as $row) {
+							$dato = buscar_propiedad($obj, $row);
+							if ($dato) {
+								break;
+							}
+						}
+					}
+	
+					if (isset($req['billing_address'])) {
+						$datosCliente = $req['billing_address'];
+					} else if ($req['source_name'] == 'pos') {
+						$datosCliente = $req['customer']['default_address'];
+					}
+	
+					if ($datosCliente) {
+	
+						if ($rutas) {
+							if ($dato) {
+								$nit = $dato;
+							} else {
+								$nit = "CF";
+							}
+						} else {
+							if (validar_nit($datosCliente['zip'])) {
+								$nit = $datosCliente['zip']; //Para cambios.	
+							} else {
+								$nit = "CF";
+							}
+						}
+	
+						$nit = strtoupper(preg_replace("/[^0-9Kk?!]/", '', $nit));
+	
+						if (empty($nit)) {
+							$nit = "CF";
+						}
+	
+						$cliente = $this->Cliente_model->buscar([
+							"nit" => $nit,
+							"_uno" => true
+						]);
+	
+						$origen = $this->Catalogo_model->getComandaOrigen([
+							"_uno" => true,
+							"descripcion" => "Shopify"
+						]);
+	
+						$clt = new Cliente_model();
+						$guardar = [
+							"direccion" => $datosCliente['address1'],
+							"correo" => $req['email']
+						];
+						if (!$cliente) {
+							$guardar['nombre'] = $datosCliente['name'];
+							$guardar['nit'] = $nit;
+						} else {
+							$clt->cargar($cliente->cliente);
+						}
+	
+						if (strtolower(trim($clt->nit)) != "cf" || get_configuracion($config, "RT_ACTUALIZA_CORREO_CF", 3)) {
+							$clt->guardar($guardar);
+						}
+						$idCliente = $clt->getPK();
+					}
+	
+					$cuenta = ["nombre" => "Unica"];
+					if (isset($req['shipping_address'])) {
+						$cuenta['nombre'] = $req['shipping_address']['name'];
+					} else if (isset($req['customer'])) {
+						$cuenta['nombre'] = "{$req['customer']['first_name']} {$req['customer']['last_name']}";
+					}
+	
+					$datosCta = ['nombre' => $cuenta['nombre'], 'numero' => $req['order_number']];
+					$usu = $this->Usuario_model->find([
+						'usuario' => 1,
+						"_uno" => true
 					]);
-
-					$clt = new Cliente_model();
-					$guardar = [
-						"direccion" => $datosCliente['address1'],
-						"correo" => $req['email']
-					];
-					if (!$cliente) {
-						$guardar['nombre'] = $datosCliente['name'];
-						$guardar['nit'] = $nit;
-					} else {
-						$clt->cargar($cliente->cliente);
-					}
-
-					if (strtolower(trim($clt->nit)) != "cf" || get_configuracion($config, "RT_ACTUALIZA_CORREO_CF", 3)) {
-						$clt->guardar($guardar);
-					}
-					$idCliente = $clt->getPK();
-				}
-
-				$cuenta = ["nombre" => "Unica"];
-				if (isset($req['shipping_address'])) {
-					$cuenta['nombre'] = $req['shipping_address']['name'];
-				} else if (isset($req['customer'])) {
-					$cuenta['nombre'] = "{$req['customer']['first_name']} {$req['customer']['last_name']}";
-				}
-
-				$datosCta = ['nombre' => $cuenta['nombre'], 'numero' => $req['order_number']];
-				$usu = $this->Usuario_model->find([
-					'usuario' => 1,
-					"_uno" => true
-				]);
-				if ($sede) {
-					if ($origen) {
-						if ($usu) {
-
-							$datosFac = [
-								"usuario" => 1,
-								"factura_serie" => 1,
-								"sede" => $sede->sede,
-								"certificador_fel" => $sede->certificador_fel,
-								"cliente" => $idCliente,
-								"fecha_factura" => date('Y-m-d'),
-								"moneda" => 1,
-								"correo_receptor" => $req['email']
-							];
-
-							$turno = $this->Turno_model->getTurno([
-								"sede" => $sede->sede,
-								'abierto' => true,
-								"_uno" => true
-							]);
-							$comanda = new Comanda_model();
-							$datosComanda = [
-								'usuario' => $usu->usuario,
-								'sede' => $sede->sede,
-								'estatus' => 1,
-								'domicilio' => 1,
-								'comanda_origen' => $origen->comanda_origen,
-								'comanda_origen_datos' => json_encode($req),
-								'notas_generales' => isset($req['note']) && !empty(trim($req['note'])) ? trim($req['note']) : null,
-								'comensales' => 1
-							];
-
-							$propina = false;
-							$insert = false;
-							$propinaMonto = 0;
-
-							$lineItems = $req['line_items'];
-							if (get_configuracion($config, 'RT_ORDER_ITEMS_FULLFILLED', 3)) {
-								if (is_array($req['fulfillments'])) {
-									if (count($req['fulfillments']) > 0) {
-										$lineItems = $req['fulfillments'][0]['line_items'];
+					if ($sede) {
+						if ($origen) {
+							if ($usu) {
+	
+								$datosFac = [
+									"usuario" => 1,
+									"factura_serie" => 1,
+									"sede" => $sede->sede,
+									"certificador_fel" => $sede->certificador_fel,
+									"cliente" => $idCliente,
+									"fecha_factura" => date('Y-m-d'),
+									"moneda" => 1,
+									"correo_receptor" => $req['email']
+								];
+	
+								$turno = $this->Turno_model->getTurno([
+									"sede" => $sede->sede,
+									'abierto' => true,
+									"_uno" => true
+								]);
+								$comanda = new Comanda_model();
+								$datosComanda = [
+									'usuario' => $usu->usuario,
+									'sede' => $sede->sede,
+									'estatus' => 1,
+									'domicilio' => 1,
+									'comanda_origen' => $origen->comanda_origen,
+									'comanda_origen_datos' => json_encode($req),
+									'notas_generales' => isset($req['note']) && !empty(trim($req['note'])) ? trim($req['note']) : null,
+									'comensales' => 1
+								];
+	
+								$propina = false;
+								$insert = false;
+								$propinaMonto = 0;
+	
+								$lineItems = $req['line_items'];
+								if (get_configuracion($config, 'RT_ORDER_ITEMS_FULLFILLED', 3)) {
+									if (is_array($req['fulfillments'])) {
+										if (count($req['fulfillments']) > 0) {
+											$lineItems = $req['fulfillments'][0]['line_items'];
+										}
 									}
 								}
-							}
-
-							foreach ($lineItems as $row) {
-								if (strtolower($row['title']) != 'tip') {
-									$art = $this->Articulo_model->buscar([
-										'shopify_id' => $row['variant_id'],
-										'_uno' => true
-									]);
-
-									if ($art) {
-										$insert = true;
-									}
-								}
-							}
-							if ($insert) {
-								if ($turno) {
-									$datosComanda['turno'] = $turno->turno;
-									$datos['exito'] = $comanda->guardar($datosComanda);
-
-									$cuenta = new Cuenta_model();
-
-									if ($cuenta->cerrada == 0) {
-										$datosCta['comanda'] = $comanda->comanda;
-										$cuenta->guardar($datosCta);
-									}
-									$total = 0;
-									$exito = true;
-									$descuentoArticulo = [];
-									foreach ($lineItems as $row) {
+	
+								foreach ($lineItems as $row) {
+									if (strtolower($row['title']) != 'tip') {
 										$art = $this->Articulo_model->buscar([
 											'shopify_id' => $row['variant_id'],
 											'_uno' => true
 										]);
-										if (strtolower($row['title']) != 'tip') {
-											if ($art) {
-												$shop_money = $row['total_discount_set']['shop_money'];
-
-												// JA: Extraccion de campo 'properties' para las notas. 08/02/2022
-												$notas_producto = '';
-												if (isset($row['properties']) && is_array($row['properties']) && count($row['properties']) > 0) {
-													foreach ($row['properties'] as $property) {
-														if ($notas_producto !== '') {
-															$notas_producto .= '; ';
+	
+										if ($art) {
+											$insert = true;
+										}
+									}
+								}
+								if ($insert) {
+									if ($turno) {
+										$datosComanda['turno'] = $turno->turno;
+										$datos['exito'] = $comanda->guardar($datosComanda);
+	
+										$cuenta = new Cuenta_model();
+	
+										if ($cuenta->cerrada == 0) {
+											$datosCta['comanda'] = $comanda->comanda;
+											$cuenta->guardar($datosCta);
+										}
+										$total = 0;
+										$exito = true;
+										$descuentoArticulo = [];
+										foreach ($lineItems as $row) {
+											$art = $this->Articulo_model->buscar([
+												'shopify_id' => $row['variant_id'],
+												'_uno' => true
+											]);
+											if (strtolower($row['title']) != 'tip') {
+												if ($art) {
+													$shop_money = $row['total_discount_set']['shop_money'];
+	
+													// JA: Extraccion de campo 'properties' para las notas. 08/02/2022
+													$notas_producto = '';
+													if (isset($row['properties']) && is_array($row['properties']) && count($row['properties']) > 0) {
+														foreach ($row['properties'] as $property) {
+															if ($notas_producto !== '') {
+																$notas_producto .= '; ';
+															}
+															$pos = strpos($property['name'], ':');
+															$notas_producto .= trim($property['name']) . ($pos === false ? ': ' : '') . trim($property['value']);
 														}
-														$pos = strpos($property['name'], ':');
-														$notas_producto .= trim($property['name']) . ($pos === false ? ': ' : '') . trim($property['value']);
 													}
-												}
-												// JA: Fin de Extraccion de campo 'properties' para las notas. 08/02/2022
-
-												$datosDcomanda = [
-													'articulo' => $art->articulo, 'cantidad' => $row['quantity'], 'precio' => $row['price'], 'impreso' => 0, 'total' => $row['price'] * $row['quantity'], 'notas' => $notas_producto
-												];
-												$total += ($row['price'] * $row['quantity']);
-												$det = $comanda->guardarDetalle($datosDcomanda);
-												$id = '';
-												if ($det) {
-													if ((float)$shop_money['amount'] > 0) {
-														$descuentoArticulo[] = [
-															"detalle" => $det->detalle_comanda,
-															"descuento" => (float)$shop_money['amount']
-														];
+													// JA: Fin de Extraccion de campo 'properties' para las notas. 08/02/2022
+	
+													$datosDcomanda = [
+														'articulo' => $art->articulo, 'cantidad' => $row['quantity'], 'precio' => $row['price'], 'impreso' => 0, 'total' => $row['price'] * $row['quantity'], 'notas' => $notas_producto
+													];
+													$total += ($row['price'] * $row['quantity']);
+													$det = $comanda->guardarDetalle($datosDcomanda);
+													$id = '';
+													if ($det) {
+														if ((float)$shop_money['amount'] > 0) {
+															$descuentoArticulo[] = [
+																"detalle" => $det->detalle_comanda,
+																"descuento" => (float)$shop_money['amount']
+															];
+														}
+														$cuenta->guardarDetalle([
+															'detalle_comanda' => $det->detalle_comanda
+														]);
+													} else {
+														$exito = false;
+														$datos['mensaje'] .= implode("\n", $comanda->getMensaje());
 													}
-													$cuenta->guardarDetalle([
-														'detalle_comanda' => $det->detalle_comanda
-													]);
 												} else {
 													$exito = false;
-													$datos['mensaje'] .= implode("\n", $comanda->getMensaje());
+													$datos['mensaje'] .= "\nOcurrio un error al guardar el articulo {$row['title']} Id {$row['variant_id']}";
 												}
+											} else {
+												$propina = true;
+												$propinaMonto = $row['price'];
+												$cuenta->guardar([
+													"propina_monto" => $row['price']
+												]);
+											}
+										}
+	
+										if ($propina) {
+											$art = $this->Articulo_model->buscar([
+												'descripcion' => 'Propina',
+												'_uno' => true
+											]);
+											$datosDcomanda = [
+												'articulo' => $art->articulo, 'cantidad' => 1, 'precio' => $propinaMonto, 'impreso' => 0, 'total' => $propinaMonto, 'notas' => ''
+											];
+											$total += $propinaMonto;
+											$det = $comanda->guardarDetalle($datosDcomanda);
+											$id = '';
+											if ($det) {
+												$cuenta->guardarDetalle([
+													'detalle_comanda' => $det->detalle_comanda
+												]);
 											} else {
 												$exito = false;
-												$datos['mensaje'] .= "\nOcurrio un error al guardar el articulo {$row['title']} Id {$row['variant_id']}";
+												$datos['mensaje'] .= "\nOcurrio un error al guardar la propina";
 											}
-										} else {
-											$propina = true;
-											$propinaMonto = $row['price'];
-											$cuenta->guardar([
-												"propina_monto" => $row['price']
+										}
+	
+										if (isset($req['total_shipping_price_set']) && isset($req['total_shipping_price_set']['shop_money']) && $req['source_name'] != "pos") {
+											$row = $req['total_shipping_price_set']['shop_money'];
+											$art = $this->Articulo_model->buscar([
+												'descripcion' => 'Entrega',
+												'_uno' => true
 											]);
-										}
-									}
-
-									if ($propina) {
-										$art = $this->Articulo_model->buscar([
-											'descripcion' => 'Propina',
-											'_uno' => true
-										]);
-										$datosDcomanda = [
-											'articulo' => $art->articulo, 'cantidad' => 1, 'precio' => $propinaMonto, 'impreso' => 0, 'total' => $propinaMonto, 'notas' => ''
-										];
-										$total += $propinaMonto;
-										$det = $comanda->guardarDetalle($datosDcomanda);
-										$id = '';
-										if ($det) {
-											$cuenta->guardarDetalle([
-												'detalle_comanda' => $det->detalle_comanda
-											]);
-										} else {
-											$exito = false;
-											$datos['mensaje'] .= "\nOcurrio un error al guardar la propina";
-										}
-									}
-
-									if (isset($req['total_shipping_price_set']) && isset($req['total_shipping_price_set']['shop_money']) && $req['source_name'] != "pos") {
-										$row = $req['total_shipping_price_set']['shop_money'];
-										$art = $this->Articulo_model->buscar([
-											'descripcion' => 'Entrega',
-											'_uno' => true
-										]);
-
-										$datosDcomanda = [
-											'articulo' => $art->articulo, 'cantidad' => 1, 'precio' => $row['amount'], 'impreso' => 0, 'total' => $row['amount'], 'notas' => ''
-										];
-										$total += ($row['amount']);
-										$det = $comanda->guardarDetalle($datosDcomanda);
-										$id = '';
-										if ($det) {
-											$cuenta->guardarDetalle([
-												'detalle_comanda' => $det->detalle_comanda
-											]);
-											$datos['exito'] = true;
-										} else {
-											$datos['exito'] = false;
-										}
-									}
-
-									$datos['exito'] = $exito;
-									if ($datos['exito']) {
-										$pagos = [];
-										$descuento = 0;
-										$pdescuento = 0;
-
-										if (count($descuentoArticulo) == 0) {
-											if (isset($req['discount_applications']) && is_array($req['discount_applications'])) {
-												$totalProd = $total - $propinaMonto;
-												if (count($req['discount_applications']) > 0) {
-													foreach ($req['discount_applications'] as $desc) {
-														$targetType = isset($desc['target_type']) ? strtolower($desc['target_type']) : '';
-														if (strtolower($desc['value_type']) == 'percentage' && $targetType !== 'shipping_line') {
-															$descuento += ($totalProd * $desc['value'] / 100);
-															$pdescuento += $desc['value'];
-														}
-													}
-
-													//Inicia fix para los descuentos que son por monto fijo. JA 20/08/2020.
-													if (isset($req['discount_codes']) && is_array($req['discount_codes'])) {
-														foreach ($req['discount_codes'] as $desc) {
-															$tipos = ['fixed_amount', 'shipping'];
-															if (in_array(strtolower($desc['type']), $tipos)) {
-																$descuento += $desc['amount'];
-																//$pdescuento += $desc['amount'];
-															}
-														}
-													}
-
-													$pdescuento = (float)$totalProd !== 0 ? ($descuento / $totalProd) : 0.00;
-													//Fin del fix para los descuentos que son por monto fijo. JA 20/08/2020.
-												}
-											}
-										} else {
-											$shop_money = $req['total_discounts_set']['shop_money'];
-											$descuento = (float) $shop_money['amount'];
-										}
-
-										if ((float) $descuento > 0) {
-											$pagos[] = [
-												"forma_pago" => 3,
-												"monto" => $descuento
+	
+											$datosDcomanda = [
+												'articulo' => $art->articulo, 'cantidad' => 1, 'precio' => $row['amount'], 'impreso' => 0, 'total' => $row['amount'], 'notas' => ''
 											];
+											$total += ($row['amount']);
+											$det = $comanda->guardarDetalle($datosDcomanda);
+											$id = '';
+											if ($det) {
+												$cuenta->guardarDetalle([
+													'detalle_comanda' => $det->detalle_comanda
+												]);
+												$datos['exito'] = true;
+											} else {
+												$datos['exito'] = false;
+											}
 										}
-
-
-										array_push($pagos, [
-											"forma_pago" => 1,
-											"monto" => $total - $descuento
-										]);
-
-										foreach ($pagos as $pago) {
-											$exito = $cuenta->cobrar((object) $pago);
-										}
-
-										if ($exito) {
-											$cuenta->guardar(["cerrada" => 1]);
-											if ($idCliente) {
-												$fac = new Factura_model();
-												$fac->guardar($datosFac);
-												$fac->cargarEmpresa();
-												$pimpuesto = $fac->empresa->porcentaje_iva + 1;
-												foreach ($cuenta->getDetalle() as $det) {
-													$det->bien_servicio = $det->articulo->bien_servicio;
-													$det->articulo = $det->articulo->articulo;
-													$artTmp = new Articulo_model($det->articulo);
-													$det->total_ext = $det->total;
-
-													if (count($descuentoArticulo) == 0) {
-														$det->descuento = $det->total * $pdescuento;
-														$det->descuento_ext = $det->total_ext * $pdescuento;
-													} else {
-														$det->descuento = 0;
-														foreach ($descuentoArticulo as $desc) {
-															if ($det->detalle_comanda == $desc["detalle"]) {
-																$det->descuento += $desc["descuento"];
-																$det->descuento_ext += $desc["descuento"];
+	
+										$datos['exito'] = $exito;
+										if ($datos['exito']) {
+											$pagos = [];
+											$descuento = 0;
+											$pdescuento = 0;
+	
+											if (count($descuentoArticulo) == 0) {
+												if (isset($req['discount_applications']) && is_array($req['discount_applications'])) {
+													$totalProd = $total - $propinaMonto;
+													if (count($req['discount_applications']) > 0) {
+														foreach ($req['discount_applications'] as $desc) {
+															$targetType = isset($desc['target_type']) ? strtolower($desc['target_type']) : '';
+															if (strtolower($desc['value_type']) == 'percentage' && $targetType !== 'shipping_line') {
+																$descuento += ($totalProd * $desc['value'] / 100);
+																$pdescuento += $desc['value'];
 															}
 														}
-													}
-
-													$det->precio_unitario = $det->precio;
-													$det->precio_unitario_ext = $det->precio;
-													$total = $det->total - $det->descuento;
-													$total_ext = $det->total_ext - $det->descuento_ext;
-													if ($fac->exenta) {
-														$det->monto_base = $total;
-														$det->monto_base_ext = $total_ext;
-													} else {
-														$det->monto_base = $total / $pimpuesto;
-														$det->monto_base_ext = $total_ext / $pimpuesto;
-													}
-
-													$impuesto_especial = $artTmp->getImpuestoEspecial();
-													$desctEspecial = 0;
-													$desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
-													if ($impuesto_especial) {
-														$det->impuesto_especial = $impuesto_especial->impuesto_especial;
-														$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
-
-														if ((float)$artTmp->cantidad_gravable > 0 && (float)$artTmp->precio_sugerido > 0) {
-															$det->cantidad_gravable = (float)$artTmp->cantidad_gravable * (float)$det->cantidad;
-															$det->precio_sugerido = $artTmp->precio_sugerido;
-															$det->precio_sugerido_ext = $artTmp->precio_sugerido;
-															$det->valor_impuesto_especial = $det->cantidad_gravable * (float)$artTmp->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
-															$det->valor_impuesto_especial_ext = $det->cantidad_gravable * (float)$artTmp->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
-
-															$det->precio_unitario = (float)$det->precio_unitario - ((float)$det->valor_impuesto_especial / (float)$det->cantidad);
-															$det->precio_unitario_ext = $det->precio_unitario;
-
-															$det->total = $det->precio_unitario * (float)$det->cantidad;
-															$det->total_ext = $det->total;
-															$total = $det->total;
-															$total_ext = $det->total_ext;
-
-															$desctEspecial = $det->descuento;
-															$desctEspecial_ext = $det->descuento_ext;
-
-															$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
-															$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
-														} else {
-															$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
-															$det->valor_impuesto_especial_ext = $det->monto_base_ext * ((float)$impuesto_especial->porcentaje / 100);
+	
+														//Inicia fix para los descuentos que son por monto fijo. JA 20/08/2020.
+														if (isset($req['discount_codes']) && is_array($req['discount_codes'])) {
+															foreach ($req['discount_codes'] as $desc) {
+																$tipos = ['fixed_amount', 'shipping'];
+																if (in_array(strtolower($desc['type']), $tipos)) {
+																	$descuento += $desc['amount'];
+																	//$pdescuento += $desc['amount'];
+																}
+															}
 														}
-													}
-
-													$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;
-													$det->monto_iva_ext = ($total_ext - $desctEspecial_ext) - $det->monto_base_ext;
-													$fac->setDetalle((array) $det);
-												}
-												if (get_configuracion($config, "RT_FIRMA_DTE_AUTOMATICA", 3)) {
-													$facturaRedondeaMontos = get_configuracion($config, "RT_FACTURA_REDONDEA_MONTOS", 3);
-													$fac->firmar($facturaRedondeaMontos);
-													if (!empty($fac->numero_factura)) {
-														$fact = new Factura_model($fac->factura);
-														$fact->guardar([
-															"numero_factura" => $fac->numero_factura,
-															"serie_factura" => $fac->serie_factura,
-															"fel_uuid" => $fac->fel_uuid
-														]);
+	
+														$pdescuento = (float)$totalProd !== 0 ? ($descuento / $totalProd) : 0.00;
+														//Fin del fix para los descuentos que son por monto fijo. JA 20/08/2020.
 													}
 												}
 											} else {
-												$datos['exito'] = false;
-												$datos['mensaje'] .= "\nHacen falta datos para facturacion";
+												$shop_money = $req['total_discounts_set']['shop_money'];
+												$descuento = (float) $shop_money['amount'];
 											}
+	
+											if ((float) $descuento > 0) {
+												$pagos[] = [
+													"forma_pago" => 3,
+													"monto" => $descuento
+												];
+											}
+	
+	
+											array_push($pagos, [
+												"forma_pago" => 1,
+												"monto" => $total - $descuento
+											]);
+	
+											foreach ($pagos as $pago) {
+												$exito = $cuenta->cobrar((object) $pago);
+											}
+	
+											if ($exito) {
+												$cuenta->guardar(["cerrada" => 1]);
+												if ($idCliente) {
+													$fac = new Factura_model();
+													$fac->guardar($datosFac);
+													$fac->cargarEmpresa();
+													$pimpuesto = $fac->empresa->porcentaje_iva + 1;
+													foreach ($cuenta->getDetalle() as $det) {
+														$det->bien_servicio = $det->articulo->bien_servicio;
+														$det->articulo = $det->articulo->articulo;
+														$artTmp = new Articulo_model($det->articulo);
+														$det->total_ext = $det->total;
+	
+														if (count($descuentoArticulo) == 0) {
+															$det->descuento = $det->total * $pdescuento;
+															$det->descuento_ext = $det->total_ext * $pdescuento;
+														} else {
+															$det->descuento = 0;
+															foreach ($descuentoArticulo as $desc) {
+																if ($det->detalle_comanda == $desc["detalle"]) {
+																	$det->descuento += $desc["descuento"];
+																	$det->descuento_ext += $desc["descuento"];
+																}
+															}
+														}
+	
+														$det->precio_unitario = $det->precio;
+														$det->precio_unitario_ext = $det->precio;
+														$total = $det->total - $det->descuento;
+														$total_ext = $det->total_ext - $det->descuento_ext;
+														if ($fac->exenta) {
+															$det->monto_base = $total;
+															$det->monto_base_ext = $total_ext;
+														} else {
+															$det->monto_base = $total / $pimpuesto;
+															$det->monto_base_ext = $total_ext / $pimpuesto;
+														}
+	
+														$impuesto_especial = $artTmp->getImpuestoEspecial();
+														$desctEspecial = 0;
+														$desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
+														if ($impuesto_especial) {
+															$det->impuesto_especial = $impuesto_especial->impuesto_especial;
+															$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
+	
+															if ((float)$artTmp->cantidad_gravable > 0 && (float)$artTmp->precio_sugerido > 0) {
+																$det->cantidad_gravable = (float)$artTmp->cantidad_gravable * (float)$det->cantidad;
+																$det->precio_sugerido = $artTmp->precio_sugerido;
+																$det->precio_sugerido_ext = $artTmp->precio_sugerido;
+																$det->valor_impuesto_especial = $det->cantidad_gravable * (float)$artTmp->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
+																$det->valor_impuesto_especial_ext = $det->cantidad_gravable * (float)$artTmp->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
+	
+																$det->precio_unitario = (float)$det->precio_unitario - ((float)$det->valor_impuesto_especial / (float)$det->cantidad);
+																$det->precio_unitario_ext = $det->precio_unitario;
+	
+																$det->total = $det->precio_unitario * (float)$det->cantidad;
+																$det->total_ext = $det->total;
+																$total = $det->total;
+																$total_ext = $det->total_ext;
+	
+																$desctEspecial = $det->descuento;
+																$desctEspecial_ext = $det->descuento_ext;
+	
+																$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
+																$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
+															} else {
+																$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
+																$det->valor_impuesto_especial_ext = $det->monto_base_ext * ((float)$impuesto_especial->porcentaje / 100);
+															}
+														}
+	
+														$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;
+														$det->monto_iva_ext = ($total_ext - $desctEspecial_ext) - $det->monto_base_ext;
+														$fac->setDetalle((array) $det);
+													}
+													if (get_configuracion($config, "RT_FIRMA_DTE_AUTOMATICA", 3)) {
+														$facturaRedondeaMontos = get_configuracion($config, "RT_FACTURA_REDONDEA_MONTOS", 3);
+														$fac->firmar($facturaRedondeaMontos);
+														if (!empty($fac->numero_factura)) {
+															$fact = new Factura_model($fac->factura);
+															$fact->guardar([
+																"numero_factura" => $fac->numero_factura,
+																"serie_factura" => $fac->serie_factura,
+																"fel_uuid" => $fac->fel_uuid
+															]);
+														}
+													}
+												} else {
+													$datos['exito'] = false;
+													$datos['mensaje'] .= "\nHacen falta datos para facturacion";
+												}
+											}
+											$datos['comanda'] = $comanda->getComanda();
 										}
-										$datos['comanda'] = $comanda->getComanda();
-									}
-
-									if ($datos['exito']) {
-										$datos['mensaje'] = "Datos Actualizados con Exito";
-										$datos['comanda'] = $comanda->getComanda();
-										$comanda->envioMail();
+	
+										if ($datos['exito']) {
+											$datos['mensaje'] = "Datos Actualizados con Exito";
+											$datos['comanda'] = $comanda->getComanda();
+											$comanda->envioMail();
+										}
+									} else {
+										$datos['mensaje'] = "No existe ningun turno abierto";
 									}
 								} else {
-									$datos['mensaje'] = "No existe ningun turno abierto";
+									$datos['mensaje'] = "No existen productos";
 								}
 							} else {
-								$datos['mensaje'] = "No existen productos";
+								$datos['mensaje'] = "Mesero Invalido";
 							}
 						} else {
-							$datos['mensaje'] = "Mesero Invalido";
+							$datos['mensaje'] = "Origen desconocido";
 						}
 					} else {
-						$datos['mensaje'] = "Origen desconocido";
+						$datos['mensaje'] = "Llave inválida.";
 					}
 				} else {
-					$datos['mensaje'] = "Llave invalida";
+					$datos['mensaje'] = "La orden no ha sido pagada.";
 				}
 			} else {
-				$datos['mensaje'] = "Parametros Invalidos";
+				$datos['mensaje'] = "Parámetros inválidos.";
 			}
 		} else {
-			$datos['mensaje'] = "Hacen falta datos obligatorios para continuar";
+			$datos['mensaje'] = "Hacen falta datos obligatorios para continuar.";
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function guardar_comanda()
