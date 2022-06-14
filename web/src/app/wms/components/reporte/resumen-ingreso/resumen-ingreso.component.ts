@@ -7,7 +7,9 @@ import { Subscription } from "rxjs";
 import { saveAs } from "file-saver";
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
+import { BodegaService } from '../../../services/bodega.service';
 import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
+import { Bodega } from '../../../interfaces/bodega';
 
 @Component({
 	selector: 'app-resumen-ingreso',
@@ -31,6 +33,7 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 	public cargando = false;
 	private endSubs = new Subscription();
 	public tiposMovimiento: TipoMovimiento[] = [];
+	public bodegas: Bodega[] = [];
 	public iva = [
 		{id: 1, descripcion: "Con IVA"},
 		{id: 2, descripcion: "Sin IVA"}
@@ -39,11 +42,13 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 	constructor(
 		private snackBar: MatSnackBar,
 		private pdfServicio: ReportePdfService,
-		private tipoMovimientoSrvc: TipoMovimientoService
+		private tipoMovimientoSrvc: TipoMovimientoService,
+		private bodegaSrvc: BodegaService
 	) { }
 
 	ngOnInit() {
 		this.getTipoMovimiento()
+		this.getBodega()
 		this.resetParams()
 	}
 
@@ -56,6 +61,7 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			tipo_egreso: null,
+			bodega: null,
 			iva: 1
 		}
 	}
@@ -66,6 +72,14 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 				this.tiposMovimiento = res;
 			}
 		});
+	}
+
+	getBodega = () => {
+		this.endSubs.add(
+			this.bodegaSrvc.get({}).subscribe(res => {
+				this.bodegas = res;
+			})
+		);
 	}
 
 	requestPDF = (esExcel = 0) => {

@@ -1295,6 +1295,70 @@ class Reporte extends CI_Controller
 			}
 		}
 	}
+
+	public function generar_catalogo_articulo()
+	{
+		$lista = $this->Reporte_model->getCatalogoArticulo();
+
+		if ($lista) {
+			$nombreArchivo = "Catalogo_articulo".rand()."xls";
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
+			$hoja->setTitle("Articulo");
+
+			$nombres = [
+				"Sede",
+				"Sede Alias",
+				"Id Categoria",
+				"Categoria",
+				"Id Subcategoria",
+				"Sub Categoria",
+				"Id Articulo",
+				"Articulo",
+				"Id Presentacion",
+				"Presentacion",
+				"Id Presentacion Reporte",
+				"Presentacion Reporte",
+				"Es Produccion",
+				"Codigo",
+				"Es de Inventario",
+				"Es de POS",
+				"Es Receta",
+				"Es Extra",
+				"Stock Minimo",
+				"Stock Maximo",
+				"Descripcion Interna Impuesto Especial",
+				"Descripcion Impuesto Especial SAT",
+				"Codigo SAT Impuesto Especial",
+				"Porcentaje Impuesto Especial"
+			];
+
+			$hoja->fromArray($nombres, null, "A1");
+			$hoja->setAutoFilter("A1:X1");
+
+			$pos = 2;
+			foreach ($lista as $key => $row) {
+				$hoja->fromArray((array) $row, null, "A{$pos}");
+				$pos++;
+			}
+
+			for ($i=0; $i <= 24 ; $i++) { 
+				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+			$writer->save("php://output");
+		}
+	}
 }
 
 /* End of file Reporte.php */

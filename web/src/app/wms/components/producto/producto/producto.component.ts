@@ -9,6 +9,8 @@ import { Categoria } from '../../../interfaces/categoria';
 import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
 import { ArticuloService } from '../../../services/articulo.service';
 import { Subscription } from 'rxjs';
+import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { saveAs } from "file-saver";
 
 @Component({
   selector: 'app-producto',
@@ -36,7 +38,8 @@ export class ProductoComponent implements OnInit, OnDestroy {
 
   constructor(
     private articuloSrvc: ArticuloService,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private pdfServicio: ReportePdfService
   ) {
     this.articulo = {
       articulo: null, categoria_grupo: null, presentacion: null, descripcion: null, precio: null, bien_servicio: 'B',
@@ -214,5 +217,16 @@ export class ProductoComponent implements OnInit, OnDestroy {
   selectSubcat = (subcat: CategoriaGrupo) => {
     this.categoriaGrupo = subcat;
     this.loadSubCategorias(this.categoria.categoria, subcat.categoria_grupo);
+  }
+
+  generarRepArticulo() {
+    this.endSubs.add(
+      this.pdfServicio.generar_catalogo_articulo({}).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: "application/vnd.ms-excel" });
+          saveAs(blob, `Catalogo_articulo.xls`);
+        }
+      })
+    );
   }
 }

@@ -17,6 +17,15 @@
 					</mat-form-field>
 
 					<mat-form-field class="fullWidth">
+						<mat-label>Bodega</mat-label>
+						<mat-select name="bodega" [(ngModel)]="params.bodega">
+							<mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+								{{bod.descripcion}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
 						<mat-label>Tipo de ingreso</mat-label>
 						<mat-select name="tipo_ingreso" [(ngModel)]="params.tipo_ingreso">
 							<mat-option *ngFor="let ti of tiposMovimiento" [value]="ti.tipo_movimiento">

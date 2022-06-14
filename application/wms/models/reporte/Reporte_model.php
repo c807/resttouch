@@ -747,6 +747,10 @@ EOT;
 			$this->db->where("tipo_movimiento", $args["tipo_ingreso"]);
 		}
 
+		if (verDato($args, "bodega")) {
+			$this->db->where("bodega", $args["bodega"]);
+		}
+
 		if (isset($args["_select"])) {
 			$this->db->select($args["_select"]);
 		}
@@ -754,6 +758,48 @@ EOT;
 		return $this->db
 		->from("ingreso")
 		->order_by("fecha")
+		->get()
+		->result();
+	}
+
+	public function getCatalogoArticulo($args=[])
+	{
+		return $this->db
+		->select("
+			f.nombre as sede,
+			f.alias as sede_alias,
+			c.categoria as IdCategoria,
+			c.descripcion as Categoria,
+			b.categoria_grupo as IdSubCategoria,
+			b.descripcion as SubCategoria,
+			a.articulo as IdArticulo,
+			a.descripcion as Articulo,
+			d.presentacion as IdPresentacion,
+			d.descripcion as presentacion,
+			e.presentacion as IdPresentacionReporte,
+			e.descripcion as PresentacionReporte,
+			IF(a.produccion = 0, 'No', 'Sí') as EsProduccion,
+			a.codigo as Codigo,
+			IF(a.mostrar_inventario = 0, 'No', 'Sí') as EsDeInventario,
+			IF(a.mostrar_pos = 0, 'No', 'Sí') as EsDePOS,
+			a.rendimiento,
+			IF(a.esreceta = 0, 'No', 'Sí') as EsReceta,
+			IF(a.esextra = 0, 'No', 'Sí') as EsExtra,
+			a.stock_minimo as StockMinimo,
+			a.stock_maximo as StockMaximo,
+			g.descripcion_interna as DescripcionInternaImpuestoEspecial,
+			g.descripcion as DescripcionImpuestoEspecialSAT,
+			g.codigo_sat as CodigoSATImpuestoEspecial,
+			g.porcentaje as PorcentajeImpuestoEspecial
+		")
+		->from("articulo a")
+		->join("categoria_grupo b", "b.categoria_grupo = a.categoria_grupo")
+		->join("categoria c", "c.categoria = b.categoria")
+		->join("presentacion d", "d.presentacion = a.presentacion")
+		->join("presentacion e", "e.presentacion = a.presentacion_reporte")
+		->join("sede f", "f.sede = c.sede")
+		->join("impuesto_especial g", "g.impuesto_especial = a.impuesto_especial", "left")
+		->order_by("f.nombre , f.alias , c.descripcion , b.descripcion , a.descripcion")
 		->get()
 		->result();
 	}
