@@ -11,6 +11,7 @@ import { ArticuloService } from '../../../services/articulo.service';
 import { Subscription } from 'rxjs';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { saveAs } from "file-saver";
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-producto',
@@ -224,7 +225,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
       this.pdfServicio.generar_catalogo_articulo({}).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: "application/vnd.ms-excel" });
-          saveAs(blob, `Catalogo_articulo.xls`);
+          saveAs(blob, `Catalogo_articulo_${moment().format(GLOBAL.dateTimeFormatRptName)}.xls`);
         }
       })
     );
