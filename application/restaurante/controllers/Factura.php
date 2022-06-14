@@ -20,7 +20,8 @@ class Factura extends CI_Controller {
 			'Receta_model',
 			'Configuracion_model',
 			'Webhook_model',
-			'ImpuestoEspecial_model'
+			'ImpuestoEspecial_model',
+			'Cgrupo_model'
 		]);
         $this->output->set_content_type("application/json", "UTF-8");
 	}	
@@ -147,15 +148,22 @@ class Factura extends CI_Controller {
 							$prop = $fac->getPropina();
 
 							if (!$art) {
+								$cg = 1;
+								$subcat = $this->Cgrupo_model->get_simple_list(['sede' => $data->sede, '_todos' => true]);
+								if ($subcat && count($subcat) > 0) {
+									$cg = $subcat[0]->categoria_grupo;
+								}
+
 								$art = new Articulo_model();
 								$art->guardar([
-									'categoria_grupo' => 1,
+									'categoria_grupo' => $cg,
 									'presentacion' => 1,
 									'descripcion' => 'Propina',
 									'mostrar_pos' => 0,
 									'bien_servicio' => 'B',
 									'precio' => 0,
-									'existencias' => 0
+									'existencias' => 0,
+									'presentacion_reporte' => 1
 								]);
 							}
 
@@ -329,23 +337,32 @@ class Factura extends CI_Controller {
 						}
 						if ($config && $config->valor == 1) {
 							#Facturar Propina;
-							$art = $this->Articulo_model->buscar([
-								"descripcion" => "Propina",
-								"_uno" => true
+							// $art = $this->Articulo_model->buscar(["descripcion" => "Propina", "_uno" => true]);
+
+							$art = $this->Articulo_model->buscarArticulo([
+								'descripcion' => 'Propina',
+								'sede' => $data->sede
 							]);
 
 							$prop = $fac->getPropina();
 
 							if (!$art) {
+								$cg = 1;
+								$subcat = $this->Cgrupo_model->get_simple_list(['sede' => $data->sede, '_todos' => true]);
+								if ($subcat && count($subcat) > 0) {
+									$cg = $subcat[0]->categoria_grupo;
+								}
+
 								$art = new Articulo_model();
 								$art->guardar([
-									"categoria_grupo" => 1,
+									"categoria_grupo" => $cg,
 									"presentacion" => 1,
 									"descripcion" => "Propina",
 									"mostrar_pos" => 0,
 									"bien_servicio" => "B",
 									"precio" => 0,
-									"existencias" => 0
+									"existencias" => 0,
+									'presentacion_reporte' => 1
 								]);
 							}
 
