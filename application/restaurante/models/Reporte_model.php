@@ -549,7 +549,7 @@ class Reporte_model extends CI_Model
 			->join('razon_anulacion o', 'o.razon_anulacion = a.razon_anulacion', 'left')
 			->not_like('a.serie_factura', 'cancela')
 			->group_by('a.factura')
-			->order_by('f.nombre, e.nombre, a.fecha_factura')
+			->order_by('f.nombre, e.nombre, a.fecha_factura, a.factura, a.serie_factura, a.numero_factura')
 			->get('factura a')
 			->result();
 		

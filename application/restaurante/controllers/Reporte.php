@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -292,7 +292,7 @@ class Reporte extends CI_Controller
                 }
 
 
-                 $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
+                $ingresos_mont = $this->inner_search_montos($json_data, 'ingresos', $row['forma_pago']);
                 $descuentos_mont = $this->inner_search_montos($json_data, 'facturas_sin_comanda', $row['forma_pago']);
                 $facturas_sin_com = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
@@ -304,7 +304,6 @@ class Reporte extends CI_Controller
 
                 $jsonobj->consumo_total = $jsonobj->consumo_total + $metodo_pago->total; // se dividira luego
                 $metodo_pago->data = json_encode($json_data);
-
             } else {
 
                 //Si no es descuentos que haga skip
@@ -312,7 +311,7 @@ class Reporte extends CI_Controller
                     continue;
                 }
 
-                 $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
+                $descuentos = $this->inner_search_montos($json_data, 'descuentos', $row['forma_pago']);
 
                 $metodo_pago->monto = $descuentos->monto;
                 $metodo_pago->propina = $descuentos->propina;
@@ -345,7 +344,7 @@ class Reporte extends CI_Controller
         if (!verDato($data, 'sedeRPT')) {
             $data['sede'] = [$this->data->sede];
         } else {
-            $data['sede'] = [$data['sedeRPT']];// Porque vendra un string pero se procesa como array
+            $data['sede'] = [$data['sedeRPT']]; // Porque vendra un string pero se procesa como array
         }
 
         // Decode the JSON file
@@ -427,11 +426,11 @@ class Reporte extends CI_Controller
                 }
                 $ingreso_en_restaurante_dom = $this->get_turno_domicilio_info($data);
 
-                if($totalComensalesTurno === 0){
+                if ($totalComensalesTurno === 0) {
                     $totalComensalesTurno = $ingreso_en_restaurante_dom->total_comensales;
                 }
 
-               $granTotal = $granTotal + $ingreso_en_restaurante_dom->consumo_total;
+                $granTotal = $granTotal + $ingreso_en_restaurante_dom->consumo_total;
 
                 if ($ingreso_en_restaurante_dom->consumo_total > 0) {
                     array_push($sample_turno_jsonDataAndTipoD, $ingreso_en_restaurante_dom);
@@ -506,9 +505,11 @@ class Reporte extends CI_Controller
             $fila = 8;
             /// ITEREAMOS POR LOS TURNOS
             foreach ($json_data_turnos as $row) {
-                if (!($row->totalComensales > 0) &&
+                if (
+                    !($row->totalComensales > 0) &&
                     !($row->granTotal > 0) &&
-                    !($row->cantidadDeMesasUtilizadas > 0)) {
+                    !($row->cantidadDeMesasUtilizadas > 0)
+                ) {
                     continue;
                 }
                 // NOMBRE DEL TURNO
@@ -613,8 +614,6 @@ class Reporte extends CI_Controller
             $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
             $mpdf->Output("Reporte de Caja Turno.pdf", "D");
         }
-
-
     }
 
     public function caja()
@@ -1260,7 +1259,7 @@ class Reporte extends CI_Controller
                             $det->articulo->descripcion, //Nombre del articulo, Col D
                             $det->cantidad, // Alado cantidad del articulo, Col E
                             round($det->total, 2), // Col F
-                            $det->descuento// Col Descuento G
+                            $det->descuento // Col Descuento G
                         ];
                         $hoja->fromArray($reg, null, "A{$fila}");
                         $fila++;
@@ -2132,7 +2131,7 @@ class Reporte extends CI_Controller
 
     public function ventas_administrativo()
     {
-        $params = json_decode(file_get_contents('php://input'), true);        
+        $params = json_decode(file_get_contents('php://input'), true);
         $datos = $this->Reporte_model->get_ventas_administrativo($params);
         $formas_pago = $datos['formas_pago'];
         $facturas = $datos['facturas'];
@@ -2155,7 +2154,7 @@ class Reporte extends CI_Controller
         $hoja->mergeCells('A2:M2');
         $hoja->getStyle('A1:A2')->getFont()->setBold(true);
 
-        if(isset($params['sede']) && !empty($params['sede'])){
+        if (isset($params['sede']) && !empty($params['sede'])) {
             $this->load->model('Sede_model');
             $sede = $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]);
             $hoja->setCellValue('A3', "Sede: {$sede->nombre} ({$sede->alias})");
@@ -2166,7 +2165,7 @@ class Reporte extends CI_Controller
         $fila = 5;
 
         $hoja->setCellValue("A{$fila}", 'Empresa');
-        $hoja->setCellValue("B{$fila}", 'Sede');        
+        $hoja->setCellValue("B{$fila}", 'Sede');
         $hoja->setCellValue("C{$fila}", 'Serie');
         $hoja->setCellValue("D{$fila}", 'Numero');
         $hoja->setCellValue("E{$fila}", 'Fecha');
@@ -2178,13 +2177,21 @@ class Reporte extends CI_Controller
         $hoja->setCellValue("K{$fila}", 'Tipo');
         $hoja->setCellValue("L{$fila}", 'Razón de anulación');
         $hoja->setCellValue("M{$fila}", 'Comentario de anulación');
+        $hoja->setCellValue("N{$fila}", 'Total');
+        $hoja->setCellValue("O{$fila}", 'Base venta');
+        $hoja->setCellValue("P{$fila}", 'Débito fiscal');
 
-        $columna = 'N';
+        $columna = 'Q';
         $fps = [];
+        $propfps = [];
         foreach ($formas_pago as $fp) {
             $fps[(int)$fp->forma_pago] = $columna;
-            $hoja->setCellValue($columna.$fila, $fp->descripcion);
-            $hoja->getStyle($columna.$fila)->getAlignment()->setHorizontal('right');
+            $hoja->setCellValue($columna . $fila, $fp->descripcion);
+            $hoja->getStyle($columna . $fila)->getAlignment()->setHorizontal('right');
+            $columna++;
+            $propfps[(int)$fp->forma_pago] = $columna;
+            $hoja->setCellValue($columna . $fila, "Propina {$fp->descripcion}");
+            $hoja->getStyle($columna . $fila)->getAlignment()->setHorizontal('right');
             $columna++;
         }
 
@@ -2192,7 +2199,7 @@ class Reporte extends CI_Controller
         $hoja->getStyle("A{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 
         $fila++;
-        foreach($facturas as $factura){
+        foreach ($facturas as $factura) {
             foreach ($factura->formas_pago as $ffp) {
                 $hoja->setCellValue("A{$fila}", $factura->empresa);
                 $hoja->setCellValue("B{$fila}", "{$factura->sede} ({$factura->alias_sede})");
@@ -2206,13 +2213,25 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("J{$fila}", $factura->mesa);
                 $hoja->setCellValue("K{$fila}", $factura->tipo);
                 $hoja->setCellValue("L{$fila}", is_null($factura->razon_anulacion) ? '' : $factura->razon_anulacion);
-                $hoja->setCellValue("M{$fila}", is_null($factura->comentario_anulacion) ? '' : $factura->comentario_anulacion);
-                foreach($fps as $fp => $col){
-                    $hoja->setCellValue($col.$fila, (float)0.00);
-                    $hoja->getStyle($col.$fila)->getNumberFormat()->setFormatCode('0.00');
+                $hoja->setCellValue("M{$fila}", is_null($factura->comentario_anulacion) ? '' : $factura->comentario_anulacion);                
+                foreach ($fps as $fp => $col) {
+                    $hoja->setCellValue($col . $fila, (float)0.00);
+                    $hoja->getStyle($col . $fila)->getNumberFormat()->setFormatCode('0.00');
                 }
-                $hoja->setCellValue($fps[(int)$ffp->forma_pago].$fila, (float)$ffp->monto);
-                // $hoja->getStyle($fps[(int)$ffp->forma_pago].$fila)->getNumberFormat()->setFormatCode('0.00');
+                foreach ($propfps as $fp => $col) {
+                    $hoja->setCellValue($col . $fila, (float)0.00);
+                    $hoja->getStyle($col . $fila)->getNumberFormat()->setFormatCode('0.00');
+                }
+                $hoja->setCellValue($fps[(int)$ffp->forma_pago] . $fila, (float)$ffp->monto);
+                $hoja->setCellValue($propfps[(int)$ffp->forma_pago] . $fila, (float)$ffp->propina);
+                
+                $total = (float)$ffp->monto + (float)$ffp->propina;
+                $hoja->setCellValue("N{$fila}", round($total, 2));
+                $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                $hoja->setCellValue("O{$fila}", round($total / 1.12, 2));
+                $hoja->getStyle("O{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                $hoja->setCellValue("P{$fila}", round(($total / 1.12) * 0.12, 2));
+                $hoja->getStyle("P{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
             }
         }
@@ -2221,8 +2240,15 @@ class Reporte extends CI_Controller
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
-        foreach($fps as $fp => $col){
-            // $hoja->getStyle($col)->getNumberFormat()->setFormatCode('0.00');
+        foreach (range('N', 'P') as $col) {
+            $hoja->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        foreach ($fps as $fp => $col) {            
+            $hoja->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        foreach ($propfps as $fp => $col) {
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
