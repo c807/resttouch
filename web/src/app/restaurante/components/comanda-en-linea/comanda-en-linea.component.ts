@@ -45,7 +45,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
     const nombreAudio = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUDIO_NOTIFICACION) || 'notificacion.wav';
     const urlAudio = `${GLOBAL.sonidos_rt}/${nombreAudio}`;    
     return urlAudio;
-  }
+  }  
 
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
   @ViewChild('audioNotificacion') audioNotificacion: ElementRef;
@@ -132,14 +132,19 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   notificarUsuario = () => {
-    const opciones: NotificationOptions = {
-      icon: 'assets/img/minilogo.png',
-      body: `Se recibió una nueva orden a las ${moment().format(GLOBAL.dateTimeFormat)}.`,
-      dir: 'auto'
-    };
-    this.dns.createNotification('Rest-Touch Pro', 10000, opciones);    
-    if(this.audioNotificacion.nativeElement.paused) {
-      this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
+    try {
+      const opciones: NotificationOptions = {
+        icon: 'assets/img/minilogo.png',
+        body: `Se recibió una nueva orden a las ${moment().format(GLOBAL.dateTimeFormat)}.`,
+        dir: 'auto'
+      };
+      this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
+    } catch(e) {      
+      console.log(e);
+    } finally {
+      if(this.audioNotificacion.nativeElement.paused) {
+        this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
+      }
     }
   }
 
