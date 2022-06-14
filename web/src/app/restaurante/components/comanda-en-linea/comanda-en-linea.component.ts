@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -31,7 +31,7 @@ import { Subscription } from 'rxjs';
     ])
   ]
 })
-export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
   get montoPropina() {
     return (formas_pago: any = []) => {
@@ -114,13 +114,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.loadEstatusCallCenter();
     this.loadComandasEnLinea();
-  }
-
-  ngAfterViewInit() {
-    // console.log(this.audioNotificacion);
-    // this.audioNotificacion.nativeElement.play();
-    // console.log(this.audioUrl);
-  }
+  }  
 
   avisoSocketIOEvent = (aviso: string = '') => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {

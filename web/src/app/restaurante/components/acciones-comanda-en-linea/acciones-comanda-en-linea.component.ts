@@ -473,4 +473,24 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  confirmarReimpresionSiFacturada = (obj: any, idx: number = 0) => {
+    if(!this.estaFirmada) {
+      this.imprimir(obj, idx);
+    } else {
+      const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+        maxWidth: '400px',
+        data: new ConfirmDialogModel('Imprimir comanda', 'Este pedido ya está facturado. ¿Seguro(a) que desea volver a imprimir la comanda?', 'Sí', 'No')
+      });
+
+      this.endSubs.add(
+        confirmRef.afterClosed().subscribe((confirma: boolean) => {
+          if (confirma) {
+            this.imprimir(obj, idx);
+          }          
+        })
+      );
+    }
+  }
+
 }
