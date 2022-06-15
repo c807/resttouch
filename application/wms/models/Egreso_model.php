@@ -15,6 +15,7 @@ class Egreso_model extends General_Model
 	public $idcomandafox = null;
 	public $ajuste = 0;
 	public $raw_egreso = null;
+	public $bodega_destino = null;
 
 	public function __construct($id = "")
 	{

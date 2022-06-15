@@ -29,7 +29,7 @@ export class EgresoComponent implements OnInit {
   ngOnInit() {
   }
 
-  setEgreso = (egr: Egreso) => {
+  setEgreso = (egr: Egreso) => {    
     this.egreso = egr;
     this.frmEgreso.resetDetalleEgreso();
     this.frmEgreso.loadDetalleEgreso(+this.egreso.egreso);
