@@ -34,8 +34,7 @@
 					<td class="cuerpo text-center" colspan="2"><?php echo formatoFecha($row["fecha"], 2)?></td>
 					<td class="cuerpo text-left" colspan="2"><?php echo $row["egreso"]?></td>
 					<td class="cuerpo text-center" colspan="2"><?php echo $row["nmovimiento"]?></td>
-					<td class="cuerpo text-center"><?php echo $row["nbodega"]?></td>
-					<td class="cuerpo text-right"></td>
+					<td class="cuerpo text-center" colspan="2"><?php echo $row["nbodega"]?></td>					
 				</tr>
 				<?php $tmpTotal = 0; foreach ($row["detalle"] as $llave => $fila): $tmpTotal+=$fila->precio_total; $total+=$fila->precio_total; ?>
 					<tr>
@@ -71,7 +70,7 @@
 	th {vertical-align: bottom; border-bottom: 1px solid black;}
 	.encabezado { font-family: Arial, Helvetica, sans-serif; }
 	.cuerpo { font-family: Arial, Helvetica, sans-serif; font-size: 11px;}
-	.totales { vertical-align: middle; font-family: Arial, Helvetica, sans-serif; font-size: 11px;}
+	.totales { vertical-align: middle; font-family: Arial, Helvetica, sans-serif; font-size: 11px; margin-bottom: 15px;}
 	.gtotal { vertical-align: middle; border-top: 1px solid black; font-family: Arial, Helvetica, sans-serif; font-size: 11px;}
 	.text-center {text-align: center;}
 	.text-left {text-align: left;}

@@ -73,7 +73,7 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
     });
   }
 
-  getEgreso = (obj: any) => {
+  getEgreso = (obj: any) => {    
     this.getEgresoEv.emit({
       egreso: obj.egreso,
       tipo_movimiento: obj.tipo_movimiento.tipo_movimiento,
@@ -82,7 +82,8 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
       usuario: obj.usuario.usuario,
       estatus_movimiento: obj.estatus_movimiento || 1,
       traslado: obj.traslado || 0,
-      idcomandafox: obj.idcomandafox
+      idcomandafox: obj.idcomandafox,
+      bodega_destino: obj.bodega_destino,
     });
   }
 
