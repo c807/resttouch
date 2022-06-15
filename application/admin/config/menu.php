@@ -290,6 +290,10 @@ $config['menu'] = [
 					7 => [
 						'nombre' => 'Resumen ingresos',
 						'link' => '/wms/resumen_ingreso'
+					],
+					8 => [
+						'nombre' => 'Uso de ingrediente',
+						'link' => '/wms/uso_ingrediente'
 					]
 				]
 			],

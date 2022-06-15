@@ -1298,7 +1298,8 @@ class Reporte extends CI_Controller
 
 	public function generar_catalogo_articulo()
 	{
-		$lista = $this->Reporte_model->getCatalogoArticulo();
+		$datos = json_decode(file_get_contents("php://input"), true);
+		$lista = $this->Reporte_model->getCatalogoArticulo($datos);
 
 		if ($lista) {
 			$nombreArchivo = "Catalogo_articulo".rand()."xls";
@@ -1324,6 +1325,7 @@ class Reporte extends CI_Controller
 				"Codigo",
 				"Es de Inventario",
 				"Es de POS",
+				"Rendimiento",
 				"Es Receta",
 				"Es Extra",
 				"Stock Minimo",
@@ -1334,8 +1336,14 @@ class Reporte extends CI_Controller
 				"Porcentaje Impuesto Especial"
 			];
 
+			if (verDato($datos, "_ucompra") == 1) {
+				$nombres[] = "Ultimo Proveedor Compra";
+				$nombres[] = "Ultima Presentacion Compra";
+				$nombres[] = "Ultimo Costo";
+			}
+
 			$hoja->fromArray($nombres, null, "A1");
-			$hoja->setAutoFilter("A1:X1");
+			$hoja->setAutoFilter("A1:AB1");
 
 			$pos = 2;
 			foreach ($lista as $key => $row) {
@@ -1343,7 +1351,7 @@ class Reporte extends CI_Controller
 				$pos++;
 			}
 
-			for ($i=0; $i <= 24 ; $i++) { 
+			for ($i=0; $i <= 28; $i++) { 
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 			}
 
@@ -1357,6 +1365,75 @@ class Reporte extends CI_Controller
 			
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save("php://output");
+		}
+	}
+
+	public function generar_uso_ingrediente()
+	{
+		$datos = json_decode(file_get_contents("php://input"), true);
+
+		if (verDato($datos, "articulo")) {
+			$nombreArchivo = "Uso_ingrediente_".rand().".xls";
+			$lista         = $this->Reporte_model->getUsoIngrediente($datos);
+
+			if (verDato($datos, "_excel")) {
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+				$hoja->setTitle("Ingrediente");
+
+				$hoja->setCellValue("A1", "Uso de Ingrediente")->mergeCells("A1:D1");
+				$hoja->setCellValue("A3", "Nombre:");
+				$hoja->getStyle("A1:A3")->getFont()->setBold(true);
+				$hoja->getStyle("A1")->getAlignment()->setHorizontal("center");
+				$hoja->setCellValue("B3", $datos["articulo_nombre"])->mergeCells("B3:D3");
+
+				$hoja->getStyle("A3:D3")->applyFromArray([
+					"borders" => [
+						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+					]
+				]);
+
+				$nombres = [
+					"Código",
+					"Receta",
+					"Cantidad uso",
+					"Medida"
+				];
+
+				$hoja->fromArray($nombres, null, "A5");
+				$hoja->getStyle("A5:D5")->getFont()->setBold(true);
+				
+				$pos = 6;
+				foreach ($lista as $key => $row) {
+					$hoja->fromArray((array) $row, null, "A{$pos}");
+					$pos++;
+				}
+
+				for ($i=0; $i <= 4; $i++) { 
+					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+				}
+
+				header("Content-Type: application/vnd.ms-excel");
+				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+				header("Cache-Control: max-age=1");
+				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+				header("Cache-Control: cache, must-revalidate");
+				header("Pragma: public");
+				
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save("php://output");
+			} else {
+				$pdf = new \Mpdf\Mpdf([
+					"tempDir" => sys_get_temp_dir(),
+					"format"  => "Letter"
+				]);
+
+				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+				$pdf->WriteHTML($this->load->view("reporte/articulo/Uso_ingrediente", ["data" => $lista, "params" => $datos], true));
+				$pdf->Output("{$nombreArchivo}.pdf", "D");
+			}
 		}
 	}
 }

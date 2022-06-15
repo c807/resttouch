@@ -764,7 +764,11 @@ EOT;
 
 	public function getCatalogoArticulo($args=[])
 	{
-		return $this->db
+		if (verDato($args, "categoria_grupo")) {
+			$this->db->where("a.categoria_grupo", $args["categoria_grupo"]);
+		}
+
+		$this->db
 		->select("
 			f.nombre as sede,
 			f.alias as sede_alias,
@@ -798,8 +802,48 @@ EOT;
 		->join("presentacion d", "d.presentacion = a.presentacion")
 		->join("presentacion e", "e.presentacion = a.presentacion_reporte")
 		->join("sede f", "f.sede = c.sede")
-		->join("impuesto_especial g", "g.impuesto_especial = a.impuesto_especial", "left")
+		->join("impuesto_especial g", "g.impuesto_especial = a.impuesto_especial", "left");
+		
+
+		if (verDato($args, "_ucompra") == 1) {
+			$this->db->select("
+				i.razon_social AS UltimoProveedorCompra, 
+				j.descripcion AS UltimaPresentacionCompra, 
+				h.ultimo_costo
+			");
+
+			$this->db
+			->join("articulo_ultima_compra h", "h.articulo = a.articulo", "left")
+			->join("proveedor i", "i.proveedor = h.ultimo_proveedor", "left")
+			->join("presentacion j", "j.presentacion = h.presentacion", "left");
+
+			$this->db->where("a.mostrar_inventario", 1);
+		}
+
+
+		return $this->db
 		->order_by("f.nombre , f.alias , c.descripcion , b.descripcion , a.descripcion")
+		->get()
+		->result();
+	}
+
+	public function getUsoIngrediente($args=[])
+	{
+		if (verDato($args, "articulo")) {
+			$this->db->where("a.articulo", $args["articulo"]);
+		}
+
+		return $this->db
+		->select("
+			b.codigo,
+			b.descripcion as narticulo,
+			a.cantidad as cantidad_uso,
+			c.descripcion as nmedida
+		")
+		->from("articulo_detalle a")
+		->join("articulo b", "b.articulo = a.receta")
+		->join("medida c", "c.medida = a.medida")
+		->order_by("b.descripcion")
 		->get()
 		->result();
 	}

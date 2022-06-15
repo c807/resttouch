@@ -6,7 +6,7 @@ import { LocalstorageService } from '../../../../admin/services/localstorage.ser
 import { GLOBAL, MultiFiltro } from '../../../../shared/global';
 import { Articulo, ArticuloResponse } from '../../../interfaces/articulo';
 import { Categoria } from '../../../interfaces/categoria';
-import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
+import { CategoriaGrupo, CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
 import { ArticuloService } from '../../../services/articulo.service';
 import { Subscription } from 'rxjs';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
@@ -25,10 +25,12 @@ export class ProductoComponent implements OnInit, OnDestroy {
   public categoriaGrupo: CategoriaGrupo;
   public categoriasGrupos: CategoriaGrupo[] = [];
   public listasCategoriasGrupo: any[] = [];
+  public lstSubCategorias: CategoriaGrupoResponse[] = [];
 
   public articulo: Articulo;
   public articulos: Articulo[] = [];
   public articulosFull: Articulo[] = [];
+  public paramsRep: any = {};
   public txtFiltro = '';
   public cargando = false;
   // @ViewChild('lstProducto') lstProductoComponent: ListaProductoComponent;
@@ -51,6 +53,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadCategorias();
     this.loadArticulos();
+    this.getSubCategorias();
   }
 
   ngOnDestroy() {
@@ -220,13 +223,26 @@ export class ProductoComponent implements OnInit, OnDestroy {
     this.loadSubCategorias(this.categoria.categoria, subcat.categoria_grupo);
   }
 
-  generarRepArticulo() {
+  generarRepArticulo(ucompra = 0) {
+    this.paramsRep._ucompra = ucompra
+    
     this.endSubs.add(
-      this.pdfServicio.generar_catalogo_articulo({}).subscribe(res => {
+      this.pdfServicio.generar_catalogo_articulo(this.paramsRep).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: "application/vnd.ms-excel" });
           saveAs(blob, `Catalogo_articulo_${moment().format(GLOBAL.dateTimeFormatRptName)}.xls`);
         }
+      })
+    );
+  }
+
+  getSubCategorias = () => {
+    this.endSubs.add(      
+      this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
+        this.lstSubCategorias = res.map(r => {
+          r.categoria_grupo = +r.categoria_grupo;
+          return r;
+        });
       })
     );
   }

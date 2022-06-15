@@ -215,4 +215,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  generar_uso_ingrediente(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/generar_uso_ingrediente`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

@@ -17,6 +17,7 @@ import { RepIngresoComponent } from './components/reporte/rep-ingreso/rep-ingres
 import { ConsumosComponent } from './components/reporte/consumos/consumos.component';
 import { ResumenEgresoComponent } from './components/reporte/resumen-egreso/resumen-egreso.component';
 import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/resumen-ingreso.component';
+import { UsoIngredienteComponent } from './components/reporte/uso-ingrediente/uso-ingrediente.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'cuadre_diario', component: FisicoComponent, canActivate: [AuthGuard] },
   { path: 'resumen_egreso', component: ResumenEgresoComponent, canActivate: [AuthGuard] },
   { path: 'resumen_ingreso', component: ResumenIngresoComponent, canActivate: [AuthGuard] },
+  { path: 'uso_ingrediente', component: UsoIngredienteComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
