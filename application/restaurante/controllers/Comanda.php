@@ -237,7 +237,7 @@ class Comanda extends CI_Controller
 				'cantidad_inventario' => $rec->cantidad
 			];
 			$detr->guardar($dato);
-		}		
+		}
 
 		$det = new Dcomanda_model($detalle_comanda_id);
 		$det->actualizarCantidadHijos((int)$regresa_inventario === 1);
@@ -272,13 +272,13 @@ class Comanda extends CI_Controller
 		$mesa = $comanda->getMesas();
 		$cuenta = new Cuenta_model($cuenta);
 		$req = json_decode(file_get_contents('php://input'), true);
-		// $menu = $this->Catalogo_model->getModulo(['modulo' => 4, '_uno' => true]);
 		$datos = ['exito' => false];
 
 		if ($this->input->method() == 'post') {
 			if ((int)$mesa->estatus === 2) {
 				if ((int)$cuenta->cerrada === 0) {
 					$datos['exito'] = true;
+					$dcom = null;
 					if (isset($req['detalle_comanda'])) {
 						$dcom = new Dcomanda_model($req['detalle_comanda']);
 						$datos['exito'] = $dcom->impreso == 0;
@@ -296,14 +296,7 @@ class Comanda extends CI_Controller
 					}
 
 					if ($datos['exito']) {
-						// $det = $comanda->guardarDetalle($req);
-						// $inicia = time();
 						$det = $comanda->guardarDetalleMejorado($req);
-						// $finaliza = time();
-
-						// $datos['inicia'] = $inicia;
-						// $datos['finaliza'] = $finaliza;
-						// $datos['segundos'] = $finaliza - $inicia;
 
 						$id = isset($req['detalle_cuenta']) ? $req['detalle_cuenta'] : '';
 						if ($det) {
@@ -316,6 +309,17 @@ class Comanda extends CI_Controller
 						}
 
 						if ($datos['exito']) {
+							if ($dcom && (int)$dcom->impreso === 1) {
+								$dcomupd = new Dcomanda_model($dcom->detalle_comanda);
+								if ((float)$dcomupd->cantidad < (float)$dcom->cantidad) {
+									$articulo = new Articulo_model($dcomupd->articulo);
+									$datos['anulacion'] = (object)[
+										'articulo' => $articulo->descripcion,
+										'cantidad' => round((float)$dcom->cantidad - (float)$dcomupd->cantidad, 2),
+										'impresora' => $articulo->getImpresora(),
+									];
+								}
+							}
 							$datos['comanda'] = $comanda->getComanda([
 								'_cuenta' => $cuenta->cuenta, 'articulo' => $det->articulo, 'detalle_comanda' => $det->detalle_comanda
 							]);
@@ -462,7 +466,6 @@ class Comanda extends CI_Controller
 				$comanda = new Comanda_model($row->comanda);
 				$datos[] = $comanda->getComanda(['_usuario' => $data->idusuario]);
 			}
-			
 		} else {
 			$mesa = new Mesa_model($mesa);
 			$tmp = $mesa->get_comanda(['estatus' => 1, 'sede' => $data->sede]);
@@ -753,17 +756,17 @@ class Comanda extends CI_Controller
 				$usu = new Usuario_model($this->data->idusuario);
 				if ($com->getPK()) {
 					$req = json_decode(file_get_contents('php://input'), true);
-					
+
 					$params = ["estatus" => 2];
-					
-					if($com->estatus_callcenter) {
+
+					if ($com->estatus_callcenter) {
 						$params['estatus_callcenter'] = 10;
 					}
 
 					$com->guardar($params);
 
 					$reversaInventario = isset($req['reversa_inventario']) && (int)$req['reversa_inventario'] === 1;
-					if($reversaInventario){
+					if ($reversaInventario) {
 						$detalle = $this->Dcomanda_model->get_detalle_comanda_and_childs(['comanda' => $com->getPK()]);
 						foreach ($detalle as $det) {
 							$dc = new Dcomanda_model($det->detalle_comanda);
@@ -949,10 +952,6 @@ class Comanda extends CI_Controller
 					if (!$exito) {
 						$errores[] = implode('; ', $dc->getMensaje());
 					}
-
-					// if((int)$det->combo === 0 && (int)$det->multiple === 0) {
-					// 	$dc->actualizarCantidadHijos($req['regresa_inventario']);						
-					// }
 				}
 			}
 		} else {
@@ -960,6 +959,16 @@ class Comanda extends CI_Controller
 		}
 
 		if (count($errores) === 0) {
+			$articulo = new Articulo_model($detalle[0]->articulo);
+			$datos['anulacion'] = (object)[
+				'articulo' => $articulo->descripcion,
+				'cantidad' => round((float)$detalle[0]->cantidad, 2),
+				'impresora' => $articulo->getImpresora(),
+			];
+			$comanda = new Comanda_model($detalle[0]->comanda);
+			$datos['comanda'] = $comanda->getComanda([
+				'_cuenta' => $req['cuenta'], 'articulo' => $detalle[0]->articulo, 'detalle_comanda' => $detalle[0]->detalle_comanda
+			]);
 			$datos['exito'] = true;
 			$datos['mensaje'] = 'Producto eliminado con éxito.';
 		} else {
@@ -1054,13 +1063,13 @@ class Comanda extends CI_Controller
 			$this->load->helper(['jwt', 'authorization']);
 			$headers = $this->input->request_headers();
 			$data = AUTHORIZATION::validateToken($headers['Authorization']);
-			
+
 			$req = json_decode(file_get_contents('php://input'));
 			$cmd = new Comanda_model($req->comanda);
 
 			$params = ['estatus_callcenter' => $req->estatus_callcenter];
 
-			if(isset($req->repartidor) && !empty($req->repartidor) && (int)$req->repartidor > 0) {
+			if (isset($req->repartidor) && !empty($req->repartidor) && (int)$req->repartidor > 0) {
 				$params['repartidor'] = $req->repartidor;
 			}
 
@@ -1073,8 +1082,7 @@ class Comanda extends CI_Controller
 				$url_ws = get_url_websocket();
 				$idPedido = (int)$datos['comanda']->comanda;
 				$idEstatusCC = (int)$datos['comanda']->estatus_callcenter->estatus_callcenter;
-				get_request("{$url_ws}/api/updpedidocc/{$idPedido}/{$idEstatusCC}".(!isset($params['repartidor']) ? '' : "/{$params['repartidor']}"), []);
-
+				get_request("{$url_ws}/api/updpedidocc/{$idPedido}/{$idEstatusCC}" . (!isset($params['repartidor']) ? '' : "/{$params['repartidor']}"), []);
 			} else {
 				$datos['mensaje'] = implode('; ', $cmd->getMensaje());
 			}

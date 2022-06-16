@@ -17,6 +17,8 @@ import { DetalleComanda } from '../../interfaces/detalle-comanda';
 import { ComandaService } from '../../services/comanda.service';
 import { ComandaGetResponse } from '../../interfaces/comanda';
 
+import { Impresion } from '../../classes/impresion';
+
 import { Observable, Subscription } from 'rxjs';
 
 @Component({
@@ -30,10 +32,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     let cntProd = 0;
     for (const p of this.detalleCuenta) {
       cntProd += +p.cantidad;
-    }
-    // if (cntProd > 0) {
-    //   this.cantidadCalculadaEv.emit(cntProd);
-    // }    
+    }    
     return cntProd;
   }
 
@@ -43,10 +42,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       let lst: DetalleCuentaSimplified[] = lista || this.detalleCuenta;      
       for (const p of lst) {          
         totProd += +p.total + this.totalDeProductos(p.detalle);
-      }
-      // if (totProd > 0) {
-      //   this.totalCalculadoEv.emit(totProd);
-      // }
+      }      
       return totProd;
     }
   }
@@ -63,9 +59,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
   @Input() bloqueoBotones = false;
   @Input() mesaEnUso: ComandaGetResponse = undefined;
   @Input() rolesUsuario = '';
-  @Output() productoRemovedEv = new EventEmitter();
-  // @Output() cantidadCalculadaEv = new EventEmitter<number>();
-  // @Output() totalCalculadoEv = new EventEmitter<number>();
+  @Output() productoRemovedEv = new EventEmitter();  
 
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -85,8 +79,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     public bsAccionesArticuloCmd: MatBottomSheet,
   ) { }
 
-  ngOnInit(): void {
-    // this.isXSmallScreen = this.breakpointObserver.isMatched('(max-width: 599px)');
+  ngOnInit(): void {    
     this.isXSmallScreen = this.breakpointObserver.isMatched(Breakpoints.XSmall);
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
 
@@ -160,15 +153,18 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       total: +p.cantidad > 1 ? ((+p.cantidad) - 1) * (+p.precio) : 0,
       autorizado: estaAutorizado,
       gerente,
-      regresa_inventario
+      regresa_inventario,
+      cuenta: +p.cuenta_cuenta
     };
 
     if (+p.combo === 0) {
       this.endSubs.add(
-        this.comandaSrvc.saveDetalle(p.comanda, p.cuenta_cuenta, this.detalleComanda).subscribe(res => {
+        this.comandaSrvc.saveDetalle(p.comanda, p.cuenta_cuenta, this.detalleComanda).subscribe(res => {          
           if (res.exito) {
-            p.cantidad = this.detalleComanda.cantidad;
-            // this.productoRemovedEv.emit({ listaProductos: this.detalleCuenta, comanda: res.comanda });
+            if (res.anulacion) {
+              this.imprimirAnulacionDeProducto(res.comanda, res.anulacion);
+            }
+            p.cantidad = this.detalleComanda.cantidad;            
             this.productoRemovedEv.emit(+p.numero_cuenta);
             if (+p.cantidad === 0) {
               this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
@@ -186,8 +182,9 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       this.endSubs.add(
         this.comandaSrvc.eliminarDetalleComanda(params).subscribe(res => {
           if (res.exito) {
-            // p.cantidad = this.detalleComanda.cantidad;
-            // this.productoRemovedEv.emit({ listaProductos: this.detalleCuenta, comanda: res.comanda });
+            if (res.anulacion) {
+              this.imprimirAnulacionDeProducto(res.comanda, res.anulacion);
+            }
             this.productoRemovedEv.emit(+p.numero_cuenta);
             if (+p.cantidad === 0) {
               this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
@@ -220,18 +217,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
         dialogoRef.afterClosed().subscribe(res => {        
           if (res) {
             if (res.esgerente) {
-              this.executeDeleteAfterPrinted(p, idx, +res.gerente_turno);            
-              // const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
-              //   width: '50%', disableClose: true, data: new ElminarProductoModel(JSON.parse(JSON.stringify(p)))
-              // });
-              // this.endSubs.add(
-              //   dialogDelete.afterClosed().subscribe(resDel => {                
-              //     if (resDel && resDel.respuesta) {
-              //       this.removeProducto(p, idx, true, resDel.producto.cantidad, +res.gerente_turno, resDel.retornar_inventario)
-              //     }
-              //   })
-              // );
-              // this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });
+              this.executeDeleteAfterPrinted(p, idx, +res.gerente_turno);                          
             } else {
               this.snackBar.open('La contraseña no es correcta', 'Comanda', { duration: 5000 });
             }
@@ -277,4 +263,20 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
 
   }
 
+  imprimirAnulacionDeProducto = (comanda: any, anulacion: any) => {
+    const obj = {
+      ubicacion: `${this.mesaEnUso.mesa.area.nombre} - Mesa ${this.mesaEnUso.mesa.etiqueta || this.mesaEnUso.mesa.numero}`,
+      atiende: `${this.mesaEnUso.mesero.nombres} ${this.mesaEnUso.mesero.apellidos}`,
+      comanda: +comanda.comanda,
+      cuenta: +comanda.cuentas[0].numero,
+      nombre: comanda.cuentas[0].nombre,
+      usuario_cancela: `${this.ls.get(GLOBAL.usrTokenVar).nombres} ${this.ls.get(GLOBAL.usrTokenVar).apellidos}`,
+      articulo: anulacion.articulo,
+      cantidad: +anulacion.cantidad,
+      impresora: anulacion.impresora
+    }
+
+    const objImpresion = new Impresion(this.socket);
+    objImpresion.imprimirAnulacionProducto(obj);
+  }
 }
