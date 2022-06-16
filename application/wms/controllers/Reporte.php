@@ -1348,6 +1348,13 @@ class Reporte extends CI_Controller
 			$pos = 2;
 			foreach ($lista as $key => $row) {
 				$hoja->fromArray((array) $row, null, "A{$pos}");
+
+				if (isset($row->ultimo_costo)) {
+					$hoja->getStyle("AB{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
+				}
+
 				$pos++;
 			}
 
