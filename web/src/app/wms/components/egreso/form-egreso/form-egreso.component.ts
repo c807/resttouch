@@ -162,7 +162,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
           creacion: res.egreso.creacion,
           usuario: res.egreso.usuario,
           estatus_movimiento: res.egreso.estatus_movimiento,
-          traslado: res.egreso.traslado
+          traslado: res.egreso.traslado,
+          bodega_destino: res.egreso.bodega_destino
         };
         this.loadDetalleEgreso(this.egreso.egreso);
       }

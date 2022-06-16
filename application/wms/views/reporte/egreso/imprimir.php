@@ -50,7 +50,9 @@
         </tr>
         <tr>
             <th class="text-right">Estatus:</th>
-            <td><?php echo $estatus_movimiento; ?></td>            
+            <td><?php echo $estatus_movimiento; ?></td>
+            <th class="text-right">Destino:</th>
+            <td><?php echo $bodega_destino; ?></td>            
         </tr>        
     </table>
     <br />

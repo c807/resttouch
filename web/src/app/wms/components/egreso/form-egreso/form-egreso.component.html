@@ -33,17 +33,16 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?
-            </mat-checkbox>
-            <mat-form-field class="fullWidth" *ngIf="+egreso.traslado == 1 && ([2, 3].indexOf(+egreso.estatus_movimiento) < 0)">
+            <mat-form-field class="fullWidth">
                 <mat-label>Bodega destino</mat-label>
-                <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino"
-                    [required]="+egreso.traslado == 1">
+                <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino" [required]="+egreso.traslado == 1">
                     <mat-option *ngFor="let bodeDest of bodegas" [value]="bodeDest.bodega">
                         {{bodeDest.descripcion}}
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?
+            </mat-checkbox>
             <mat-form-field class="fullWidth" *ngIf="+egreso.traslado == 1 && ([2, 3].indexOf(+egreso.estatus_movimiento) < 0)">
                 <mat-label>Tipo de movimiento destino</mat-label>
                 <mat-select name="tipo_movimiento_destino" [(ngModel)]="egreso.tipo_movimiento_destino"
