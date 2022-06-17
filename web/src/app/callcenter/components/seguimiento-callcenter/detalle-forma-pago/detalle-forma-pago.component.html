@@ -1,5 +1,24 @@
 <h1 mat-dialog-title>Formas de pago de pedido #{{data.pedido.comanda | number:'1.0-0'}}</h1>
 <div mat-dialog-content>
+    <table *ngIf="data.pedido.datos_facturacion">        
+        <tbody>
+            <tr>
+                <th colspan="2">Datos de facturación</th>
+            </tr>
+            <tr>
+                <th style="width: 15%;">Nombre:</th>
+                <td>{{data.pedido.datos_facturacion.nombre}}</td>
+            </tr>
+            <tr>
+                <th style="width: 15%;">NIT:</th>
+                <td>{{data.pedido.datos_facturacion.nit}}</td>
+            </tr>
+            <tr>
+                <th style="width: 15%;">Dirección:</th>
+                <td>{{data.pedido.datos_facturacion.direccion}}</td>
+            </tr>
+        </tbody>
+    </table>
     <table>
         <thead>
             <tr>

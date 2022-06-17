@@ -5,7 +5,7 @@ class Seguimiento_callcenter_model extends CI_Model
 {
     public function get_pedidos($args = [])
     {
-        $this->load->model('Comanda_model');
+        $this->load->model(['Comanda_model', 'Factura_model']);
         if (isset($args["_fdel"])) {
             $this->db->where('DATE(a.fhcreacion) >=', $args["_fdel"]);
 		}
@@ -48,6 +48,10 @@ class Seguimiento_callcenter_model extends CI_Model
             $cmdHisto = $this->Cliente_master_model->get_historico(['comanda' => $pedido->comanda], false, false);
             $pedido->detalle = $cmdHisto && count($cmdHisto) > 0 ? $cmdHisto[0]->detalle : [];
             $pedido->forma_pago = $this->Comanda_model->get_forma_pago($pedido->comanda);
+            $cmd = new Comanda_model($pedido->comanda);
+            $factura = $cmd->getFactura();
+            $pedido->datos_facturacion = ($factura && isset($factura->cliente) && (int)$factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $factura->cliente)->get('cliente')->row() : null;
+
             $formas_pago = [];
             if (count($pedido->forma_pago) > 0) {
                 foreach($pedido->forma_pago as $fp) {
