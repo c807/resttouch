@@ -356,6 +356,11 @@ class Factura extends CI_Controller
 						$datos['exito'] = true;
 						$datos['factura'] = $fac;
 						$datos['mensaje'] = "Datos actualizados con exito";
+						$datos['anulacion'] = (object)[
+							'cliente' => $this->Cliente_model->buscar(['cliente' => $fac->cliente, '_uno' => true]),
+							'comentario' => $comentario,
+							'fecha' => date('d/m/Y H:i:s')
+						];
 					} else {
 						$datos['mensaje'] = implode(". ", $fac->getMensaje());
 					}

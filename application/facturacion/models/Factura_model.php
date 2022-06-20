@@ -1559,7 +1559,7 @@ class Factura_model extends General_model
 				->group_by("a.factura");
 		}
 
-		$this->db->order_by('a.fecha_factura DESC');
+		$this->db->order_by('a.fecha_factura DESC, a.fel_uuid_anulacion, a.factura DESC');
 
 		$tmp = $this->db->get('factura a');
 

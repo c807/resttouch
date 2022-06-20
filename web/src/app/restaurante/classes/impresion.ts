@@ -5,8 +5,12 @@ import { ComandaService } from '../services/comanda.service';
 import { ConfiguracionService } from '../../admin/services/configuracion.service';
 import { GLOBAL } from '../../shared/global';
 import { Base64 } from 'js-base64';
+import * as moment from 'moment';
+import { Impresora } from '../../admin/interfaces/impresora';
 
 export class Impresion {
+
+    public impresoraPorDefecto: Impresora = null;
 
     constructor(
         private socket: Socket,
@@ -169,9 +173,28 @@ export class Impresion {
 
     imprimirABT = (msgToPrint: string = '') => this.printToBT(msgToPrint);
 
-    imprimirAnulacionProducto = (obj: any) => {        
+    imprimirAnulacionProducto = (obj: any) => {
         if (+obj.impresora.bluetooth === 0) {
             this.socket.emit(`print:anulacion_producto`, `${JSON.stringify(obj)}`);
+        } else {
+            this.printToBT(JSON.stringify(obj));
+        }
+    }
+
+    anulacionDeFactura = (factura: any, anulacion: any) => {
+        const obj = {
+            Serie: factura.serie_factura,
+            Numero: factura.numero_factura,
+            FechaFactura: moment(factura.fecha_factura).format(GLOBAL.dateFormat),
+            Cliente: anulacion.cliente.nombre,
+            NIT: anulacion.cliente.nit,
+            FechaAnulacion: anulacion.fecha,
+            Comentario: anulacion.comentario,
+            Impresora: (factura.impresora as Impresora) || this.impresoraPorDefecto
+        }        
+
+        if (+obj.Impresora.bluetooth === 0) {
+            this.socket.emit(`print:anulacion_factura`, `${JSON.stringify(obj)}`);
         } else {
             this.printToBT(JSON.stringify(obj));
         }
