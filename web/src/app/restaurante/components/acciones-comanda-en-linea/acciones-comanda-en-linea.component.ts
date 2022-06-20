@@ -57,6 +57,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
   public razonAnulacion: RazonAnulacion[] = [];
   public impresoraPorDefecto: Impresora = null;
+  public impresoraPorDefectoFactura: Impresora = null;
 
   private endSubs = new Subscription();
 
@@ -103,13 +104,21 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   loadImpresoraDefecto = () => {
-    this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
-      if (res && res.length > 0) {
-        this.impresoraPorDefecto = res[0];
-      } else {
-        this.impresoraPorDefecto = null;
-      }
-    });
+    this.endSubs.add(
+      this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
+        if (res && res.length > 0) {
+          this.impresoraPorDefecto = res[0];
+        }
+      })
+    );
+
+    this.endSubs.add(
+      this.impresoraSrvc.get({ pordefectofactura: 1 }).subscribe((res: Impresora[]) => {
+        if (res && res.length > 0) {
+          this.impresoraPorDefectoFactura = res[0];
+        }
+      })
+    );
   }
 
   cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
@@ -323,9 +332,9 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       dataToPrint.Total += parseFloat(det.total);
     }
 
-    if (this.impresoraPorDefecto) {
-      dataToPrint.Impresora = this.impresoraPorDefecto;
-      if (+this.impresoraPorDefecto.bluetooth === 0) {
+    if (this.impresoraPorDefectoFactura || this.impresoraPorDefecto) {
+      dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;
+      if (+dataToPrint.Impresora === 0) {
         this.socket.emit('print:factura', JSON.stringify(dataToPrint));
       } else {
         const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
@@ -475,7 +484,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   }
 
   confirmarReimpresionSiFacturada = (obj: any, idx: number = 0) => {
-    if(!this.estaFirmada) {
+    if (!this.estaFirmada) {
       this.imprimir(obj, idx);
     } else {
       const confirmRef = this.dialog.open(ConfirmDialogComponent, {
@@ -487,7 +496,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         confirmRef.afterClosed().subscribe((confirma: boolean) => {
           if (confirma) {
             this.imprimir(obj, idx);
-          }          
+          }
         })
       );
     }

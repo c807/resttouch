@@ -123,7 +123,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     const idImpresoraDefecto: number = +this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRESORA_DEFECTO) || 0;
 
     this.endSubs.add(            
-      this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
+      this.impresoraSrvc.get({ pordefectofactura: 1 }).subscribe((res: Impresora[]) => {
         if (res && res.length > 0) {
           this.impresoraPorDefecto = res[0];
         } else {

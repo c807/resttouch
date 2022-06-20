@@ -27,6 +27,7 @@ class Comanda_model extends General_Model
     public $repartidor = null;
     public $fhtomapedido = null;
     public $comensales = 0;
+    public $esevento = 0;
 
     public function __construct($id = '')
     {
@@ -605,6 +606,8 @@ class Comanda_model extends General_Model
         }
 
         $tmp->impresora_defecto = $this->db->where('sede', $this->sede)->where('pordefecto', 1)->get('impresora')->row();
+        $tmp->impresora_defecto_cuenta = $this->db->where('sede', $this->sede)->where('pordefectocuenta', 1)->get('impresora')->row();
+        $tmp->impresora_defecto_factura = $this->db->where('sede', $this->sede)->where('pordefectofactura', 1)->get('impresora')->row();
         $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
         $tmp->cuentas = $this->getCuentas($args);
         $tmp->factura = $this->getFactura();

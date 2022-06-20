@@ -129,7 +129,7 @@ export class Impresion {
 
         if (lstProductosAImprimir.length > 0) {
             const totalCuenta = this.sumaDetalle(lstProductosAImprimir);
-            const printerToUse = obj.impresora_defecto;
+            const printerToUse = obj.impresora_defecto_cuenta || obj.impresora_defecto;
             const imprimePropSugerida = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_PROPINA_SUGERIDA);
 
             const msgToPrint = {
