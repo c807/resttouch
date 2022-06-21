@@ -131,7 +131,7 @@ class Usuario_model extends General_model
                             "nit" => $dbusr->empresa_nit
                         ],
                         'dominio' => $credenciales['dominio'],
-                        'wms' => [
+                        'wms' => (object)[
                             'confirmar_ingreso' => $dbusr->confirmar_ingreso,
                             'confirmar_egreso' => $dbusr->confirmar_egreso
                         ]
@@ -248,7 +248,7 @@ class Usuario_model extends General_model
         }
 
         return $this->db
-            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual')
+            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
             ->from($this->tabla)
             ->where("sede", $data->sede)
             ->get()
@@ -266,7 +266,7 @@ class Usuario_model extends General_model
         }
 
         $tmp = $this->db
-            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual')
+            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
             ->from($this->tabla)
             ->get();
 

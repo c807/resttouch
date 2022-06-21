@@ -35,6 +35,8 @@
             </mat-form-field>
             <mat-checkbox name="esmesero" [(ngModel)]="+usuario.esmesero" class="fontFamily">Es mesero</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <mat-checkbox name="usatecladovirtual" [(ngModel)]="+usuario.usatecladovirtual" class="fontFamily">Usa teclado virtual</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <mat-checkbox name="confirmar_ingreso" [(ngModel)]="+usuario.confirmar_ingreso" class="fontFamily">Puede confirmar ingresos</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <mat-checkbox name="confirmar_egreso" [(ngModel)]="+usuario.confirmar_egreso" class="fontFamily">Puede confirmar egresos</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <mat-checkbox name="debaja" [(ngModel)]="+usuario.debaja" class="fontFamily">De baja</mat-checkbox>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmUsuario.form.valid">

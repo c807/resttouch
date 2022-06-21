@@ -66,6 +66,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public documento: Documento;
   public documentosTipo: DocumentoTipo[] = [];
   public tiposCompraVenta: TipoCompraVenta[] = [];
+  public usuarioConfirmaIngresos = false;
 
   private endSubs = new Subscription();
 
@@ -86,6 +87,8 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+    this.usuarioConfirmaIngresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_ingreso || 0) === 1;
+    console.log('CONF ING = ', this.usuarioConfirmaIngresos);
     this.resetIngreso();
     this.loadTiposMovimiento();
     this.loadProveedores();

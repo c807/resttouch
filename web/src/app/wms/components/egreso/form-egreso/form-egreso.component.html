@@ -60,7 +60,7 @@
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarEgreso()"
-                    *ngIf="egreso.egreso && detallesEgreso.length > 0"
+                    *ngIf="egreso.egreso && detallesEgreso.length > 0 && usuarioConfirmaEgresos"
                     [disabled]="!frmEgreso.form.valid || [2, 3].indexOf(+egreso.estatus_movimiento) >= 0">
                     Confirmar
                 </button>

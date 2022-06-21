@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
@@ -6,12 +6,14 @@ import { LocalstorageService } from '../../../services/localstorage.service';
 import { Usuario } from '../../../models/usuario';
 import { UsuarioService } from '../../../services/usuario.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-lista-usuario',
   templateUrl: './lista-usuario.component.html',
   styleUrls: ['./lista-usuario.component.css']
 })
-export class ListaUsuarioComponent implements OnInit {
+export class ListaUsuarioComponent implements OnInit, OnDestroy {
 
   public lstUsuarios: Usuario[];
   public lstUsuariosPaged: Usuario[];
@@ -27,6 +29,8 @@ export class ListaUsuarioComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  public endSubs = new Subscription();
+
   constructor(
     private usuarioSrvc: UsuarioService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaUsuarioComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadUsuarios();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,24 +60,28 @@ export class ListaUsuarioComponent implements OnInit {
   }
 
   loadUsuarios() {
-    this.usuarioSrvc.getAll(3).subscribe((lst) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstUsuarios = lst;
-          this.applyFilter();
+    this.endSubs.add(
+      this.usuarioSrvc.getAll(3).subscribe((lst) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstUsuarios = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getUsuario(id: number) {
-    this.usuarioSrvc.get({ usuario: id }).subscribe((lst) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.getUsuarioEv.emit(lst[0]);
+    this.endSubs.add(      
+      this.usuarioSrvc.get({ usuario: id }).subscribe((lst) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.getUsuarioEv.emit(lst[0]);
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   pageChange = (e: PageEvent) => {
