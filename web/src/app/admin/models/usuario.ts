@@ -19,7 +19,8 @@ export class usrLogInResponse {
         public empresa: any,
         public restaurante: any,
         public usatecladovirtual: number,
-        public dominio: string
+        public dominio: string,
+        public wms: any
     ) { }
 }
 
