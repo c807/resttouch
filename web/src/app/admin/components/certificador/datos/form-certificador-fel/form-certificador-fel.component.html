@@ -5,30 +5,30 @@
 	<mat-card-content>
 		<form #frmCertificadorFel="ngForm" (ngSubmit)="frmCertificadorFel.form.valid && onSubmit()" novalidate>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Token" name="token" [(ngModel)]="registro.llave" minlength="1" maxlength="75" required>
+                <input matInput type="text" placeholder="Token" name="token" [(ngModel)]="registro.llave" minlength="1" maxlength="75">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Usuario" name="usuario" [(ngModel)]="registro.usuario" minlength="1" maxlength="25" required>
+                <input matInput type="text" placeholder="Usuario" name="usuario" [(ngModel)]="registro.usuario" minlength="1" maxlength="25">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Llave de firma" name="firma_llave" [(ngModel)]="registro.firma_llave" minlength="1" maxlength="75" required>
+                <input matInput type="text" placeholder="Llave de firma" name="firma_llave" [(ngModel)]="registro.firma_llave" minlength="1" maxlength="75">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Código de firma" name="firma_codigo" [(ngModel)]="registro.firma_codigo" minlength="1" maxlength="25" required>
+                <input matInput type="text" placeholder="Código de firma" name="firma_codigo" [(ngModel)]="registro.firma_codigo" minlength="1" maxlength="25">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Alias de firma" name="firma_alias" [(ngModel)]="registro.firma_alias" minlength="1" maxlength="25" required>
+                <input matInput type="text" placeholder="Alias de firma" name="firma_alias" [(ngModel)]="registro.firma_alias" minlength="1" maxlength="25">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="N.I.T." name="nit" [(ngModel)]="registro.nit" minlength="1" maxlength="25" required>
+                <input matInput type="text" placeholder="N.I.T. del Certificador" name="nit" [(ngModel)]="registro.nit" minlength="1" maxlength="25">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="email" placeholder="Correo del emisor" name="correo_emisor" [(ngModel)]="registro.correo_emisor" minlength="1" maxlength="75" required>
+                <input matInput type="email" placeholder="Correo del emisor" name="correo_emisor" [(ngModel)]="registro.correo_emisor" minlength="1" maxlength="75">
             </mat-form-field>
             
             <mat-form-field class="fullWidth">
 				<mat-label>Frase de retención de I.S.R.</mat-label>
-				<mat-select name="isr" [(ngModel)]="registro.frase_retencion_isr" required>
+				<mat-select name="isr" [(ngModel)]="registro.frase_retencion_isr">
 					<mat-option></mat-option>
 					<mat-option *ngFor="let isr of fraseIsr" [value]="isr.id">
 						{{ isr.descripcion }}
@@ -37,7 +37,7 @@
             </mat-form-field>
             <mat-form-field class="fullWidth">
 				<mat-label>Frase de retención de I.V.A.</mat-label>
-				<mat-select name="iva" [(ngModel)]="registro.frase_retencion_iva" required>
+				<mat-select name="iva" [(ngModel)]="registro.frase_retencion_iva">
 					<mat-option></mat-option>
 					<mat-option *ngFor="let iva of fraseIva" [value]="iva.id">
 						{{ iva.descripcion }}
