@@ -26,16 +26,24 @@ class Impresora extends CI_Controller {
 				$imp->quitar_por_defecto($req['sede']);
 			}
 
+			if (isset($req['pordefectocuenta']) && (int)$req['pordefectocuenta'] === 1) {
+				$imp->quitar_por_defecto($req['sede'], 'pordefectocuenta');
+			}
+
+			if (isset($req['pordefectofactura']) && (int)$req['pordefectofactura'] === 1) {
+				$imp->quitar_por_defecto($req['sede'], 'pordefectofactura');
+			}
+
 			$datos['exito'] = $imp->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito";
 				$datos['impresora'] = $imp;
 			} else {
 				$datos['mensaje'] = $imp->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos";
 		}
 		
 		$this->output

@@ -28,6 +28,7 @@ import { Impresora } from '../../../../admin/interfaces/impresora';
 import { ImpresoraService } from '../../../../admin/services/impresora.service';
 import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 import { Base64 } from 'js-base64';
+import { Impresion } from '../../../../restaurante/classes/impresion';
 
 import { Subscription } from 'rxjs';
 
@@ -122,7 +123,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     const idImpresoraDefecto: number = +this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRESORA_DEFECTO) || 0;
 
     this.endSubs.add(            
-      this.impresoraSrvc.get({ pordefecto: 1 }).subscribe((res: Impresora[]) => {
+      this.impresoraSrvc.get({ pordefectofactura: 1 }).subscribe((res: Impresora[]) => {
         if (res && res.length > 0) {
           this.impresoraPorDefecto = res[0];
         } else {
@@ -423,6 +424,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
         this.facturaSrvc.anular(+this.factura.factura, params).subscribe(resAnula => {
           if (resAnula.exito) {
             this.factura.fel_uuid_anulacion = resAnula.factura.fel_uuid_anulacion;
+            this.imprimirCodoAnulacion(this.factura, resAnula.anulacion);
             this.facturaSavedEv.emit();
             this.snackBar.open('Factura anulada con éxito...', 'Firmar', { duration: 3000 });
           } else {
@@ -562,5 +564,11 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     } else {
       this.factura.descripcion_unica = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_DETALLE_FACTURA_PERSONALIZADO) as string) || 'Por consumo.';
     }
+  }
+
+  imprimirCodoAnulacion = (fact: Factura, anulacion: any) => {
+    const objImpresion = new Impresion(this.socket);
+    objImpresion.impresoraPorDefecto = this.impresoraPorDefecto;
+    objImpresion.anulacionDeFactura(fact, anulacion);
   }
 }

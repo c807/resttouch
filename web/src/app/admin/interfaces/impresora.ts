@@ -8,4 +8,6 @@ export interface Impresora {
     bluetooth_mac_address?: string;
     modelo?: string;
     pordefecto?: number;
+    pordefectocuenta?: number;
+    pordefectofactura?: number;
 }

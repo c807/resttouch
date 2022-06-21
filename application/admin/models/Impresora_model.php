@@ -12,6 +12,8 @@ class Impresora_model extends General_model {
 	public $bluetooth_mac_address;
 	public $modelo;
 	public $pordefecto = 0;
+	public $pordefectocuenta = 0;
+	public $pordefectofactura = 0;
 
 	public function __construct($id = "")
 	{
@@ -23,9 +25,9 @@ class Impresora_model extends General_model {
 		}
 	}
 
-	public function quitar_por_defecto($sede)
+	public function quitar_por_defecto($sede, $campo = 'pordefecto')
 	{
-		$this->db->set('pordefecto', 0);
+		$this->db->set($campo, 0);
 		$this->db->where('sede', $sede);
 		$this->db->update('impresora');
 	}

@@ -20,6 +20,7 @@
         <mat-nav-list>
             <mat-list-item *ngFor="let element of lstFacturasPaged" (click)="getFactura(element)">
                 <mat-icon mat-list-icon>receipt</mat-icon>
+                <span mat-line *ngIf="!!element.fel_uuid_anulacion" style="background-color: lightcoral;">ANULADA</span>
                 <h5 mat-line>{{element.serie_factura}}&nbsp;{{element.numero_factura}}</h5>
                 <span mat-line>Fecha: {{element.fecha_factura | date:'dd/MM/yyyy'}}</span>
                 <span mat-line>Cliente: {{element.cliente.nombre}}</span>

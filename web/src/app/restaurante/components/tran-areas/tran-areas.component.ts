@@ -268,7 +268,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
       mesero: '',
       comensales: '1',
       comanda: 0,
-      esEvento: false,
+      esevento: 0,
       dividirCuentasPorSillas: false,
       estatus: 1,
       clientePedido: this.clientePedido || null,

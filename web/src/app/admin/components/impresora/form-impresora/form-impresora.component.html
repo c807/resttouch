@@ -21,6 +21,8 @@
                 <input matInput *ngIf="esMovil" type="text" placeholder="Ubicación" name="ubicacion" [(ngModel)]="impresora.ubicacion" minlength="1" maxlength="150">
             </mat-form-field>
             <mat-checkbox name="pordefecto" class="fullWidth" [(ngModel)]="+impresora.pordefecto">Usar por defecto</mat-checkbox>
+            <mat-checkbox name="pordefectocuenta" class="fullWidth" [(ngModel)]="+impresora.pordefectocuenta">Usar por defecto para cuentas</mat-checkbox>
+            <mat-checkbox name="pordefectofactura" class="fullWidth" [(ngModel)]="+impresora.pordefectofactura">Usar por defecto para facturas</mat-checkbox>
             <mat-checkbox name="traslado" class="fullWidth" [(ngModel)]="+impresora.bluetooth">¿Es bluetooth?</mat-checkbox>            
             <mat-form-field class="fullWidth separacionPorHint" *ngIf="+impresora.bluetooth === 1">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Bluetooth MAC Address" name="bluetooth_mac_address" [(ngModel)]="impresora.bluetooth_mac_address" minlength="1" maxlength="40" [required]="+impresora.bluetooth === 1">

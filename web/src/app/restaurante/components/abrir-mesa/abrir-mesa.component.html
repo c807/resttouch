@@ -13,7 +13,7 @@
             <input type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" matInput placeholder="# Comensales" name="comensales" [(ngModel)]="data.comensales" required>
             <input type="text" *ngIf="esMovil" matInput placeholder="# Comensales" name="comensales" [(ngModel)]="data.comensales" required>
         </mat-form-field>
-        <mat-checkbox name="esEvento" class="separatorMargin" [(ngModel)]="+data.esEvento">¿Es evento?</mat-checkbox>
+        <mat-checkbox name="esevento" class="separatorMargin" [(ngModel)]="+data.esevento">¿Es evento?</mat-checkbox>
         <mat-checkbox name="dividirCuentasPorSillas" class="separatorMargin" [(ngModel)]="+data.dividirCuentasPorSillas"
             [disabled]="+data.comensales <= 1">¿Dividir cuentas?</mat-checkbox>
     </form>
