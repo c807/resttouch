@@ -849,6 +849,41 @@ EOT;
 		->get()
 		->result();
 	}
+
+	public function getResumenConsumo($args=[])
+	{
+		if (verDato($args, "fdel")) {
+			$this->db->where("date(b.fhcreacion) >=", $args["fdel"]);
+		}
+
+		if (verDato($args, "fal")) {
+			$this->db->where("date(b.fhcreacion) <=", $args["fal"]);
+		}
+
+		if (verDato($args, "sede")) {
+			$this->db->where("b.sede", $args["sede"]);
+		}
+
+		if (verDato($args, "categoria_grupo")) {
+			$this->db->where("c.categoria_grupo", $args["categoria_grupo"]);
+		}
+
+		return $this->db
+		->select("
+			a.articulo,
+			sum(ifnull(a.cantidad, 0)) as cantidad,
+			c.codigo,c.descripcion as narticulo,
+			d.descripcion as ndescripcion
+		")
+		->from("detalle_comanda a")
+		->join("comanda b", "b.comanda = a.comanda")
+		->join("articulo c", "c.articulo = a.articulo")
+		->join("presentacion d", "d.presentacion = c.presentacion")
+		->group_by("a.articulo")
+		->order_by("c.descripcion")
+		->get()
+		->result();
+	}
 }
 
 /* End of file Reporte_model.php */

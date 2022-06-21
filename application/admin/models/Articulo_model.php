@@ -1122,6 +1122,38 @@ class Articulo_model extends General_model
 		}
 		return (object)['existencia' => '0'];
 	}
+
+	public function _get_costo($args=[])
+	{
+		$this->actualizarExistencia();
+		$receta = $this->getReceta();
+		$costo  = 0;
+
+		if (count($receta) === 0) {
+			if (isset($args["bodega"]) && isset($args["presentacion"])) {
+				$tmp = $this->BodegaArticuloCosto_model->buscar([
+					"articulo" => $this->getPK(),
+					"bodega"   => $args["bodega"],
+					"_uno"     => true
+				]);
+				
+				$bodega = new BodegaArticuloCosto_model($tmp->bodega_articulo_costo);
+				$costo  = $bodega->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
+			} else {
+				$costo = $this->getCosto($args);
+			}
+		} else {			
+			foreach ($receta as $row) {
+				$art = new Articulo_model($row->articulo->articulo);
+				$tmp = $art->getCosto($args);
+				$val = is_object($tmp) ? $tmp->costo : $tmp;
+				
+				$costo += ($val * $row->cantidad);
+			}
+		}
+
+		return $costo;
+	}
 }
 
 /* End of file Articulo_model.php */

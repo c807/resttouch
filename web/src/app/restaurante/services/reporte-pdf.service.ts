@@ -223,4 +223,20 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  generar_margen_receta(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/margen_receta`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  generar_consumo_articulo(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/consumo_articulo`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

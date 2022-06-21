@@ -1443,6 +1443,222 @@ class Reporte extends CI_Controller
 			}
 		}
 	}
+
+	public function margen_receta()
+	{
+		ini_set("pcre.backtrack_limit", "15000000");
+		
+		$datos = json_decode(file_get_contents("php://input"), true);
+
+		$datos["sede"] = $datos["sede"] ?? $this->data->sede;
+		$enExcel       = verDato($datos, "_excel");
+		unset($datos["_excel"]);
+		
+		$nombreArchivo = "Margen_receta_".rand().".xls";
+		$lista         = $this->Catalogo_model->getArticulo($datos);
+		$data          = [];
+		
+		foreach ($lista as $key => $row) {
+			$tmp    = new Articulo_model($row->articulo);
+			$costo  = $tmp->getCosto();
+			$margen = ($row->precio > 0 && $costo > 0) ? ((($row->precio / $costo)-1)*100) : 0;
+			
+			$data[] = [
+				"codigo"       => $row->codigo,
+				"descripcion"  => $row->descripcion,
+				"presentacion" => $row->presentacion->descripcion,
+				"precio"       => round($row->precio, 2),
+				"costo"        => round($costo, 2),
+				"margen"       => round($margen, 2)
+			];
+		}
+
+		if ($enExcel) {
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
+			$hoja->setTitle("Margen");
+
+			$hoja->setCellValue("A1", "Margen de receta")->mergeCells("A1:F1");
+
+			$nombres = [
+				"Código",
+				"Receta",
+				"Presentación",
+				"Precio venta",
+				"Costo",
+				"Margen"
+			];
+
+			$hoja->fromArray($nombres, null, "A4");
+			$hoja->getStyle("A4:F4")->getFont()->setBold(true);
+			$hoja->getStyle("D4:F4")->getAlignment()->setHorizontal("right");
+			
+			$pos = 5;
+			foreach ($data as $key => $row) {
+				
+				$hoja->fromArray($row, null, "A{$pos}");
+				$hoja->getStyle("D{$pos}:F{$pos}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
+				
+				$pos++;
+			}
+
+			for ($i=0; $i <= 6; $i++) { 
+				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+			$writer->save("php://output");
+		} else {
+			$pdf = new \Mpdf\Mpdf([
+				"tempDir" => sys_get_temp_dir(),
+				"format"  => "Letter"
+			]);
+
+			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+			$pdf->WriteHTML($this->load->view("reporte/articulo/margen_receta", ["data" => $data, "params" => $datos], true));
+			$pdf->Output("{$nombreArchivo}.pdf", "D");
+		}
+	}
+
+	public function consumo_articulo()
+	{
+		ini_set("pcre.backtrack_limit", "15000000");
+		
+		$datos = json_decode(file_get_contents("php://input"), true);
+
+		$datos["sede"] = $datos["sede"] ?? $this->data->sede;
+
+		if (verDato($datos, "fdel") && verDato($datos, "fal")) {
+			$lista = $this->Reporte_model->getResumenConsumo($datos);
+			$sede  = new Sede_model($datos["sede"]);
+			$data  = [];
+
+			foreach ($lista as $key => $row) {
+				$tmp   = new Articulo_model($row->articulo);
+				$costo = $tmp->getCosto();
+				$total = round(($row->cantidad * $costo), 2);
+				
+				$data[] = [
+					"codigo"   => $row->codigo,
+					"articulo" => $row->narticulo,
+					"cantidad" => $row->cantidad,
+					"unidad"   => $row->ndescripcion,
+					"costo"    => $costo,
+					"total"    => $total
+				];
+			}
+
+			$nombreArchivo = "Consumo_articulo_".rand().".xls";
+			
+			if (verDato($datos, "_excel")) {
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+				$hoja->setTitle("Reporte de consumos");
+
+				$hoja->setCellValue("A1", "Del: ")->mergeCells("A1:C1");
+				$hoja->setCellValue("A2", "Al: ")->mergeCells("A2:C2");
+				$hoja->setCellValue("A3", "Sede: ")->mergeCells("A3:C3");
+
+				$hoja->setCellValue("D1", formatoFecha($datos["fdel"], 2))->mergeCells("D1:F1");
+				$hoja->setCellValue("D2", formatoFecha($datos["fal"], 2))->mergeCells("D2:F2");
+				$hoja->setCellValue("D3", "{$sede->nombre} - {$sede->alias}")->mergeCells("D3:F3");
+
+				if (verDato($datos, "grupo_nombre")) {
+					$hoja->setCellValue("A4", "Subcategoría: ")->mergeCells("A4:C4");
+					$hoja->setCellValue("D4", $datos["grupo_nombre"])->mergeCells("D4:F4");
+				}
+
+				$hoja->getStyle("A1:A4")->getFont()->setBold(true);
+
+				$nombres = [
+					"Código",
+					"Articulo",
+					"Cantidad",
+					"Unidad",
+					"Costo",
+					"Total"
+				];
+
+				$hoja->fromArray($nombres, null, "A6");
+				$hoja->getStyle("A6:F6")->getFont()->setBold(true);
+				$hoja->getStyle("C6")->getAlignment()->setHorizontal("right");
+				$hoja->getStyle("E6:F6")->getAlignment()->setHorizontal("right");
+				
+				$pos = 7;
+				$tot = 0;
+				foreach ($data as $key => $row) {
+					
+					$hoja->fromArray($row, null, "A{$pos}");
+					
+					$hoja->getStyle("C{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
+
+					$hoja->getStyle("E{$pos}:F{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
+					
+					$tot+= $row["total"];
+					$pos++;
+				}
+
+				$hoja->setCellValue("A{$pos}", "Total:")->mergeCells("A{$pos}:E{$pos}");
+				$hoja->setCellValue("F{$pos}", $tot);
+
+				$hoja->getStyle("F{$pos}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
+
+				$hoja->getStyle("A{$pos}:F{$pos}")->applyFromArray([
+					"font"    => ["bold" => true],
+					"borders" => [
+						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+					]
+				]);
+
+				for ($i=0; $i <= 6; $i++) { 
+					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+				}
+
+				header("Content-Type: application/vnd.ms-excel");
+				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+				header("Cache-Control: max-age=1");
+				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+				header("Cache-Control: cache, must-revalidate");
+				header("Pragma: public");
+				
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save("php://output");
+			} else {
+				$pdf = new \Mpdf\Mpdf([
+				"tempDir" => sys_get_temp_dir(),
+				"format"  => "Letter"
+			]);
+
+			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+			$pdf->WriteHTML($this->load->view("reporte/articulo/consumo_articulo", [
+				"data"   => $data,
+				"params" => $datos,
+				"sede"   => $sede
+			], true));
+			$pdf->Output("{$nombreArchivo}.pdf", "D");
+			}
+		}
+	}
 }
 
 /* End of file Reporte.php */

@@ -184,13 +184,16 @@ class Articulo extends CI_Controller
 			"_uno" => true
 		]);
 
-		$datos["articulo"] = $art;
-		$datos["costo"] = $art->getCostoReceta();
+		$datos["articulo"]       = $art;
+		$datos["articulo_grupo"] = $art->getCategoriaGrupo();
+		$datos["costo"]          = $art->_get_costo();
+
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
-			$costo = $rec->getCostoReceta(["_presentacion" => true]);
+			$costo = $rec->_get_costo(["_presentacion" => true]);
 			$pres = new Presentacion_model($rec->presentacion_reporte);			
-			$row->costo = $costo * ($row->cantidad / $pres->cantidad);
+			$tmpCosto = is_object($costo) ? $costo->costo : $costo;
+			$row->costo = $tmpCosto * ($row->cantidad / $pres->cantidad);
 			$datos["receta"][] = $row;
 		}
 
@@ -211,7 +214,7 @@ class Articulo extends CI_Controller
 			'tempDir' => sys_get_temp_dir(),
 			'format' => 'Letter'
 		]);
-
+		$mpdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 		$mpdf->WriteHTML($vista);
 		$mpdf->Output("Receta.pdf", "D");
 	}
