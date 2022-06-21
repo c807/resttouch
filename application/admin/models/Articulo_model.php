@@ -1154,6 +1154,20 @@ class Articulo_model extends General_model
 
 		return $costo;
 	}
+
+	public function getImpresora($idArticulo = null)
+	{
+		if (empty($idArticulo)) {
+			$idArticulo = $this->articulo;
+		}
+
+		return $this->db->select('c.*')
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->join('impresora c', 'c.impresora = b.impresora')
+			->where('a.articulo', $idArticulo)
+			->get('articulo a')
+			->row();
+	}
 }
 
 /* End of file Articulo_model.php */

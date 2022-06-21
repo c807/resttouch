@@ -10,7 +10,7 @@ export class Impresion {
 
     constructor(
         private socket: Socket,
-        private ls: LocalstorageService,
+        private ls?: LocalstorageService,
         private comandaSrvc?: ComandaService,
         private configSrvc?: ConfiguracionService
     ) { }
@@ -167,6 +167,13 @@ export class Impresion {
         }
     }
 
-    public imprimirABT = (msgToPrint: string = '') => this.printToBT(msgToPrint);
+    imprimirABT = (msgToPrint: string = '') => this.printToBT(msgToPrint);
 
+    imprimirAnulacionProducto = (obj: any) => {        
+        if (+obj.impresora.bluetooth === 0) {
+            this.socket.emit(`print:anulacion_producto`, `${JSON.stringify(obj)}`);
+        } else {
+            this.printToBT(JSON.stringify(obj));
+        }
+    }
 }
