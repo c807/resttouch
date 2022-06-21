@@ -319,7 +319,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       Comanda: comanda.comanda || 0,
       Cuenta: comanda.cuentas[0].cuenta || 0,
       DatosComanda: fact.datos_comanda || null,
-      Impresora: null
+      Impresora: (null as Impresora)
     };
 
     for (const det of fact.detalle) {
@@ -333,8 +333,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     }
 
     if (this.impresoraPorDefectoFactura || this.impresoraPorDefecto) {
-      dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;
-      if (+dataToPrint.Impresora === 0) {
+      dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;      
+      if (+dataToPrint.Impresora.bluetooth === 0) {
         this.socket.emit('print:factura', JSON.stringify(dataToPrint));
       } else {
         const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
