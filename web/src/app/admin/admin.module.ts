@@ -122,6 +122,7 @@ import { ReporteBitacoraComponent } from './components/bitacora/reporte-bitacora
 import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tipo-cliente.component';
 import { FormTipoClienteComponent } from './components/tipo-cliente/form-tipo-cliente/form-tipo-cliente.component';
 import { ListaTipoClienteComponent } from './components/tipo-cliente/lista-tipo-cliente/lista-tipo-cliente.component';
+import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
 
 @NgModule({
   declarations: [
@@ -143,7 +144,7 @@ import { ListaTipoClienteComponent } from './components/tipo-cliente/lista-tipo-
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

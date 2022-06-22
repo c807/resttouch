@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { LocalstorageService } from './admin/services/localstorage.service';
-import { GLOBAL } from './shared/global';
+import { GLOBAL, isAllowedUrl } from './shared/global';
 import { UsuarioService } from './admin/services/usuario.service';
 import { Router } from '@angular/router';
 import { AccesoUsuario } from './admin/interfaces/acceso-usuario';
@@ -19,13 +19,12 @@ export class AppComponent implements OnInit{
   isLogged: boolean = false;
   opened: boolean;
 
-  public usrAppMenu: AccesoUsuario[] = [];
+  public usrAppMenu: AccesoUsuario[] = []; 
 
   constructor(
     private ls: LocalstorageService,
     private usrSrvc: UsuarioService,
-    private router: Router,
-    // private appMenuSrvc: AppMenuService,
+    private router: Router,    
     private onlineSrvc: OnlineService
   ) { }
 
@@ -44,7 +43,10 @@ export class AppComponent implements OnInit{
     this.ls.clear(GLOBAL.usrLastModuleVar);
 
     this.usrAppMenu = [];
-    this.router.navigate(['/admin/login']);        
+
+    if(!isAllowedUrl(this.router.url)) {
+      this.router.navigate(['/admin/login']);
+    }
   }
 
   async checkIfUserIsLogged() {

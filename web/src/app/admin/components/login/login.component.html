@@ -15,8 +15,9 @@
                 </form>
             </mat-card-content>
             <mat-card-actions align="end">
-                <button id="btnLogin" mat-flat-button type="button" color="accent" class="fullWidth" (click)="doLogin()" [disabled]="!frmLogIn.form.valid || !isOnline">Ingresar</button>
-            </mat-card-actions>
+                <button mat-flat-button type="button" color="accent" (click)="registrarse()" [disabled]="!isOnline" style="margin-right: 8px !important;">Solicitar registrarse</button>
+                <button id="btnLogin" mat-flat-button type="button" color="accent" (click)="doLogin()" [disabled]="!frmLogIn.form.valid || !isOnline">Ingresar</button>
+            </mat-card-actions>            
         </mat-card>
     </div>
     <div class="col m3 s1"></div>

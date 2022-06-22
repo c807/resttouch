@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { usrLogin, Usuario, usrLogInResponse } from '../../models/usuario';
 import { UsuarioService } from '../../services/usuario.service';
 import { LocalstorageService } from '../../services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { GLOBAL, isAllowedUrl } from '../../../shared/global';
 import { OnlineService } from '../../../shared/services/online.service';
 
 @Component({
@@ -33,7 +33,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.checkIfLogged();
+    if(!isAllowedUrl(this.router.url)) {
+      this.checkIfLogged();
+    }
   }
 
   checkIfLogged = async () => {
@@ -71,5 +73,9 @@ export class LoginComponent implements OnInit {
     }, (error) => {
       console.log(error);
     });
+  }
+
+  registrarse = () => {
+    this.router.navigate(['/admin/solicitud_registro']);
   }
 }

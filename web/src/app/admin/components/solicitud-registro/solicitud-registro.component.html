@@ -1,0 +1,58 @@
+<div class="row">
+    <div class="col m3 s1"></div>
+    <div class="col m6 s10 topMargin">
+        <mat-card class="example-card">
+            <img id="imgLogo" mat-card-image src="/assets/img/logo.svg" alt="Rest-Touch">
+            <mat-card-content>
+                <h5>Registrarse</h5>
+                <form #frmRegistro="ngForm" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Corporación" name="corporacion" [(ngModel)]="solicitudRegistro.corporacion" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Empresa" name="empresa" [(ngModel)]="solicitudRegistro.empresa" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="N.I.T." name="nit" [(ngModel)]="solicitudRegistro.nit" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Dirección" name="direccion" [(ngModel)]="solicitudRegistro.direccion" required>
+                    </mat-form-field>                    
+                    <mat-form-field class="fullWidth">
+                        <mat-label>País</mat-label>
+                        <mat-select name="pais" [(ngModel)]="solicitudRegistro.pais" required>
+                            <mat-option value="GT">Guatemala</mat-option>
+                            <mat-option value="SV">El Salvador</mat-option>
+                            <mat-option value="HN">Honduras</mat-option>
+                            <mat-option value="NI">Nicaragua</mat-option>
+                            <mat-option value="CR">Costa Rica</mat-option>
+                            <mat-option value="PA">Panamá</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Departamento" name="departamento" [(ngModel)]="solicitudRegistro.departamento" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Municipio" name="municipio" [(ngModel)]="solicitudRegistro.municipio" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Código Postal" name="codigo_postal" [(ngModel)]="solicitudRegistro.codigo_postal" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="solicitudRegistro.nombre" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="solicitudRegistro.telefono" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="text" placeholder="E-mail" name="correo_electronico" [(ngModel)]="solicitudRegistro.correo_electronico" required>
+                    </mat-form-field>
+                </form>
+            </mat-card-content>
+            <mat-card-actions align="end">
+                <button id="btnLogin" mat-flat-button type="button" color="accent" class="fullWidth" (click)="doRegistro()" [disabled]="!frmRegistro.form.valid">Enviar solicitud</button>
+            </mat-card-actions>            
+        </mat-card>
+    </div>
+    <div class="col m3 s1"></div>
+</div>
