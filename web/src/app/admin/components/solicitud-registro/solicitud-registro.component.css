@@ -1,0 +1,25 @@
+.topMargin { margin-top: 10px; }
+#imgLogo {
+    width: 385px;
+    height: 150px;
+    /*padding-top: 10px !important;*/
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.example-card {
+    max-width: 400px;
+}
+
+@media (max-width: 400px) {
+    #imgLogo {
+        width: 275px;
+        height: 100px;        
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}

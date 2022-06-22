@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { usrLogin, Usuario, usrLogInResponse } from '../../models/usuario';
 import { UsuarioService } from '../../services/usuario.service';
 import { LocalstorageService } from '../../services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { GLOBAL, isAllowedUrl } from '../../../shared/global';
 import { OnlineService } from '../../../shared/services/online.service';
 
 @Component({
@@ -33,7 +33,9 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.checkIfLogged();
+    if(!isAllowedUrl(this.router.url)) {
+      this.checkIfLogged();
+    }
   }
 
   checkIfLogged = async () => {
@@ -61,7 +63,8 @@ export class LoginComponent implements OnInit {
         this.ls.set(GLOBAL.usrTokenVar, {
           token: res.token, usuario: res.usrname, nombres: res.nombres, apellidos: res.apellidos, sede: +res.sede,
           idusr: +res.idusr, enmovil: this.esMovil(+res.usatecladovirtual), acceso: res.acceso, sede_uuid: res.sede_uuid,
-          empresa: res.empresa, restaurante: res.restaurante, configuracion: [], usatecladovirtual: res.usatecladovirtual, dominio: res.dominio
+          empresa: res.empresa, restaurante: res.restaurante, configuracion: [], usatecladovirtual: res.usatecladovirtual, dominio: res.dominio,
+          wms: res.wms
         });
         this.router.navigate(['/admin/dashboard']);
       } else {
@@ -70,5 +73,9 @@ export class LoginComponent implements OnInit {
     }, (error) => {
       console.log(error);
     });
+  }
+
+  registrarse = () => {
+    this.router.navigate(['/admin/solicitud_registro']);
   }
 }

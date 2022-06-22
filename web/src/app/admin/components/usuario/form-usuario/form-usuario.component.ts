@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { GLOBAL } from '../../../../shared/global';
@@ -11,12 +11,14 @@ import { SedeService } from '../../../services/sede.service';
 import { ConfiguracionService } from '../../../services/configuracion.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-form-usuario',
   templateUrl: './form-usuario.component.html',
   styleUrls: ['./form-usuario.component.css']
 })
-export class FormUsuarioComponent implements OnInit {
+export class FormUsuarioComponent implements OnInit, OnDestroy {
 
   get disableSede() {
     return (+this.ls.get(GLOBAL.usrTokenVar).idusr === +this.usuario.usuario);
@@ -28,6 +30,8 @@ export class FormUsuarioComponent implements OnInit {
   public habilitaBloqueo = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -44,16 +48,20 @@ export class FormUsuarioComponent implements OnInit {
     this.habilitaBloqueo = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_HABILITA_BLOQUEO_INACTIVIDAD) as boolean;
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadSedes = () => {
-    this.sedeSrvc.get().subscribe(res => {
-      if (res) {
-        this.sedes = res;
-      }
-    });
+    this.endSubs.add(
+      this.sedeSrvc.get().subscribe(res => {
+        this.sedes = res;        
+      })
+    );
   }
 
   resetUsuario() {
-    this.usuario = new Usuario(null, null, null, null, null, null, 0, null, 0, 0);
+    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0);    
   }
 
   onSubmit() {
@@ -66,26 +74,24 @@ export class FormUsuarioComponent implements OnInit {
           'De baja', `¿Está seguro(a) de dar de baja a ${this.usuario.nombres + ' ' + this.usuario.apellidos}?`, 'Sí', 'No'
         )
       });
-      dialogRef.afterClosed().subscribe(cnf => {
-        if (cnf) {
-          this.guardarUsuario();
-        }
-      });
+      this.endSubs.add(        
+        dialogRef.afterClosed().subscribe(cnf => {
+          if (cnf) {
+            this.guardarUsuario();
+          }
+        })
+      );
     }
   }
 
   guardarUsuario = () => {
-    this.usuarioSrvc.save(this.usuario).subscribe((res) => {
-      if (res && res.usuario) {
-        this.resetUsuario();
-        this.usrSavedEv.emit();
-        this.snackBar.open('Grabado con éxito.', 'Usuario', { duration: 5000 });
-      } else {
+    this.endSubs.add(      
+      this.usuarioSrvc.save(this.usuario).subscribe((res) => {
         this.resetUsuario();
         this.usrSavedEv.emit();
         this.snackBar.open(res.mensaje, 'Usuario', { duration: 5000 });
-      }
-    });
+      })
+    );
   }
 
 }

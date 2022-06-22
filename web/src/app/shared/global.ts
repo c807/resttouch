@@ -5,7 +5,7 @@ const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ?
 import * as moment from 'moment';
 
 export const GLOBAL = {
-  rtVersion: '2022.06.21.07.57.42',
+  rtVersion: '2022.06.21.14.29.11',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -107,7 +107,8 @@ export const GLOBAL = {
       id: 1,
       descripcion: 'Agente de retención del I.V.A.'
     }
-  ]
+  ],
+  ALLOWED_URLS: ['/admin/solicitud_registro']
 };
 
 export const PaginarArray = (array: any[], pageSize: number, pageNumber: number) =>
@@ -167,3 +168,5 @@ export const redondear = (numero: number, decimalPlaces: number) => {
   const factor = Math.pow(10, decimalPlaces);
   return Math.round((numero + Number.EPSILON) * factor) / factor;
 }
+
+export const isAllowedUrl = (url: string): boolean => GLOBAL.ALLOWED_URLS.indexOf(url) > -1;

@@ -19,21 +19,24 @@ export class usrLogInResponse {
         public empresa: any,
         public restaurante: any,
         public usatecladovirtual: number,
-        public dominio: string
+        public dominio: string,
+        public wms: any
     ) { }
 }
 
 export class Usuario {
     constructor(
         public usuario: number,
+        public sede: number,
         public nombres: string,
         public apellidos: string,
         public usrname: string,
         public contrasenia: string,
-        public sede: number,
+        public debaja: number,
         public esmesero: number,
         public pindesbloqueo: number,
         public usatecladovirtual: number,
-        public debaja: number
+        public confirmar_ingreso?: number,
+        public confirmar_egreso?: number,
     ) { }
 }

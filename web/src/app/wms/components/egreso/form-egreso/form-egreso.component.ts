@@ -65,6 +65,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public txtArticuloSelected: (Articulo | string) = undefined;
   public txtArticuloSelectedM: (Articulo | string) = undefined;
   public txtProveedorSelected: (Proveedor | string) = undefined;
+  public usuarioConfirmaEgresos = false;
 
   private endSubs = new Subscription();
 
@@ -84,6 +85,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+    this.usuarioConfirmaEgresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1;
     this.resetEgreso();
     this.loadTiposMovimiento();
     this.loadTiposMovimiento(false);

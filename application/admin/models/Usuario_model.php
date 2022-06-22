@@ -13,6 +13,8 @@ class Usuario_model extends General_model
     public $esmesero = 0;
     public $pindesbloqueo = null;
     public $usatecladovirtual = 0;
+    public $confirmar_ingreso = 0;
+    public $confirmar_egreso = 0;
 
     public function __construct($id = '')
     {
@@ -77,7 +79,9 @@ class Usuario_model extends General_model
                     c.nombre as empresa_nombre,
                     c.nit as empresa_nit,
                     c.visa_merchant_id,
-                    CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias")
+                    CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, 
+                    a.usatecladovirtual, 
+                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso")
                 ->from("{$this->tabla} a")
                 ->join("sede b", "b.sede = a.sede")
                 ->join("empresa c", "c.empresa = b.empresa")
@@ -126,7 +130,11 @@ class Usuario_model extends General_model
                             "nombre" => $dbusr->empresa_nombre,
                             "nit" => $dbusr->empresa_nit
                         ],
-                        'dominio' => $credenciales['dominio']
+                        'dominio' => $credenciales['dominio'],
+                        'wms' => (object)[
+                            'confirmar_ingreso' => $dbusr->confirmar_ingreso,
+                            'confirmar_egreso' => $dbusr->confirmar_egreso
+                        ]
                     );
                 } else {
                     return array(
@@ -240,7 +248,7 @@ class Usuario_model extends General_model
         }
 
         return $this->db
-            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual')
+            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
             ->from($this->tabla)
             ->where("sede", $data->sede)
             ->get()
@@ -258,7 +266,7 @@ class Usuario_model extends General_model
         }
 
         $tmp = $this->db
-            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual')
+            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
             ->from($this->tabla)
             ->get();
 
