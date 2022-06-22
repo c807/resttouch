@@ -9,7 +9,7 @@ class Inicio
     	$this->ci =& get_instance();
     	$this->ci->load->helper(['jwt', 'authorization']);
     	$this->ci->load->model('Catalogo_model');
-    	$this->libres = ['/usuario/login'];
+    	$this->libres = ['/usuario/login', '/solicitud_registro/guardar'];
  
         if(!in_array($_SERVER['PATH_INFO'], $this->libres)) {
         	$headers = $this->ci->input->request_headers();
