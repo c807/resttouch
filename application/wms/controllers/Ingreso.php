@@ -32,10 +32,13 @@ class Ingreso extends CI_Controller {
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
-			if (empty($id) || $ing->estatus_movimiento == 1) {				
-				$datos['exito'] = $ing->guardar($req);
+			if (empty($id) || $ing->estatus_movimiento == 1) {
+				$datos['exito'] = $ing->guardar($req);			
 
 				if($datos['exito']) {
+					if ((int)$req['estatus_movimiento'] === 2) {
+						$this->actualiza_costo_ingreso_confirmado($ing->getPK());
+					}
 					$datos['mensaje'] = "Datos Actualizados con Exito";
 					$datos['ingreso'] = $ing;
 				} else {
@@ -85,41 +88,41 @@ class Ingreso extends CI_Controller {
 					]);
 					$det = $ing->setDetalle($req, $id);
 					if($det) {
-						$bcosto = $this->BodegaArticuloCosto_model->buscar([
-							'bodega' => $ing->bodega, 
-							'articulo' => $art->getPK(), 
-							'_uno' => true
-						]);
+						// $bcosto = $this->BodegaArticuloCosto_model->buscar([
+						// 	'bodega' => $ing->bodega, 
+						// 	'articulo' => $art->getPK(), 
+						// 	'_uno' => true
+						// ]);
 
-						$costo = $art->getCosto(["bodega" => $ing->bodega]);
+						// $costo = $art->getCosto(["bodega" => $ing->bodega]);
 
-						if ($bcosto) {
-							$bac->cargar($bcosto->bodega_articulo_costo);
-							/*Ultima compra*/
-							$costo_uc = $art->getCosto([
-								"bodega" => $ing->bodega, 
-								"metodo_costeo" => 1
-							]);
-							$bac->costo_ultima_compra = $costo_uc;
+						// if ($bcosto) {
+						// 	$bac->cargar($bcosto->bodega_articulo_costo);
+						// 	/*Ultima compra*/
+						// 	$costo_uc = $art->getCosto([
+						// 		"bodega" => $ing->bodega, 
+						// 		"metodo_costeo" => 1
+						// 	]);
+						// 	$bac->costo_ultima_compra = $costo_uc;
 
-							/*Costo promedio*/
-							$costo = $bcosto->costo_promedio * $art->existencias + $req['precio_total'];
-							$existencia = $art->existencias + $req['cantidad']*$pres->cantidad;
-							if ($existencia != 0) {
-								$costo = $costo / $existencia;
-							} 
+						// 	/*Costo promedio*/
+						// 	$costo = $bcosto->costo_promedio * $art->existencias + $req['precio_total'];
+						// 	$existencia = $art->existencias + $req['cantidad']*$pres->cantidad;
+						// 	if ($existencia != 0) {
+						// 		$costo = $costo / $existencia;
+						// 	} 
 
-							$bac->costo_promedio = $costo;
+						// 	$bac->costo_promedio = $costo;
 							
-						} else {
-							$bac->bodega = $ing->bodega;
-							$bac->articulo = $art->getPK();
-							$bac->costo_ultima_compra = $costo;
-							$bac->costo_promedio = $costo;
-						}
+						// } else {
+						// 	$bac->bodega = $ing->bodega;
+						// 	$bac->articulo = $art->getPK();
+						// 	$bac->costo_ultima_compra = $costo;
+						// 	$bac->costo_promedio = $costo;
+						// }
 
-						$art->guardar(["costo" => $costo]);
-						$bac->guardar();
+						// $art->guardar(["costo" => $costo]);
+						// $bac->guardar();
 
 						if((int)$ing->ajuste === 0) {
 							$this->actualiza_ultima_compra($ing, $det, $precioUnitarioIngresado);
@@ -292,6 +295,65 @@ class Ingreso extends CI_Controller {
 		}
 
 		$this->output->set_output(json_encode($datos));
+	}
+
+	public function actualiza_costo_ingreso_confirmado($idIngreso)
+	{
+		$ing = new Ingreso_model($idIngreso);
+		if ((int)$ing->estatus_movimiento === 2) {			
+			$bac = new BodegaArticuloCosto_model();
+			$bod = new Bodega_model($ing->bodega);
+
+			$detalle = $ing->getDetalle();
+			foreach($detalle as $det) {
+				$art = new Articulo_model($det->articulo->articulo);
+				$presArt = $art->getPresentacion();
+				$pres = new Presentacion_model($det->presentacion->presentacion);
+				
+				$precio_total = $det->precio_unitario * $det->cantidad;
+
+				if ($pres->medida == $presArt->medida) {
+					$art->actualizarExistencia([
+						'bodega' => $ing->bodega,
+						'sede' => $bod->sede
+					]);
+					$bcosto = $this->BodegaArticuloCosto_model->buscar([
+						'bodega' => $ing->bodega, 
+						'articulo' => $art->getPK(), 
+						'_uno' => true
+					]);
+					$costo = $art->getCosto(['bodega' => $ing->bodega]);
+
+					if ($bcosto) {
+						$bac->cargar($bcosto->bodega_articulo_costo);
+						/*Ultima compra*/
+						$costo_uc = $art->getCosto([
+							'bodega' => $ing->bodega, 
+							'metodo_costeo' => 1
+						]);
+						$bac->costo_ultima_compra = $costo_uc;
+
+						/*Costo promedio*/
+						$costo = $bcosto->costo_promedio * $art->existencias + $precio_total;
+						$existencia = $art->existencias + $det->cantidad * $pres->cantidad;
+						if ($existencia != 0) {
+							$costo = $costo / $existencia;
+						} 
+
+						$bac->costo_promedio = $costo;
+						
+					} else {
+						$bac->bodega = $ing->bodega;
+						$bac->articulo = $art->getPK();
+						$bac->costo_ultima_compra = $costo;
+						$bac->costo_promedio = $costo;
+					}
+
+					$art->guardar(['costo' => $costo]);
+					$bac->guardar();					
+				}	
+			}
+		}
 	}
 }
 

@@ -287,6 +287,7 @@ class Articulo_model extends General_model
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
 			->where('a.articulo', $articulo)
+			->where('e.estatus_movimiento', 2)
 			->get('ingreso_detalle a')
 			->row(); //total ingresos
 
@@ -322,6 +323,7 @@ class Articulo_model extends General_model
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
 			->where('a.articulo', $articulo)
+			->where('e.estatus_movimiento', 2)
 			->get('egreso_detalle a')
 			->row(); //total egresos wms
 
@@ -373,7 +375,8 @@ class Articulo_model extends General_model
 				->join('ingreso e', 'e.ingreso = a.ingreso')
 				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 				->join('presentacion p', 'a.presentacion = p.presentacion')
-				->where('a.articulo', $articulo)				
+				->where('a.articulo', $articulo)
+				->where('e.estatus_movimiento', 2)
 				->get('ingreso_detalle a')
 				->row(); //total ingresos
 
@@ -395,7 +398,8 @@ class Articulo_model extends General_model
 				->join('egreso e', 'e.egreso = a.egreso')
 				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 				->join('presentacion p', 'a.presentacion = p.presentacion')
-				->where('a.articulo', $articulo)				
+				->where('a.articulo', $articulo)
+				->where('e.estatus_movimiento', 2)
 				->get('egreso_detalle a')
 				->row(); //total egresos wms
 
@@ -616,6 +620,7 @@ class Articulo_model extends General_model
 				->where('c.articulo', $this->getPK())
 				->where('b.sede', $sede->getPK())
 				->where('a.ajuste', 0)
+				->where('a.estatus_movimiento', 2)
 				->group_by('c.articulo')
 				->get('ingreso a')
 				->row();
@@ -633,6 +638,7 @@ class Articulo_model extends General_model
 					->where('c.articulo', $this->getPK())
 					->where('b.sede', $sede->getPK())
 					->where('c.ingreso_detalle', $det->id)
+					->where('a.estatus_movimiento', 2)
 					->group_by('c.articulo')
 					->get('ingreso a')
 					->row();
@@ -651,6 +657,7 @@ class Articulo_model extends General_model
 				->join('presentacion d', 'c.presentacion = d.presentacion')
 				->where('c.articulo', $this->getPK())
 				->where('a.ajuste', 0)
+				->where('a.estatus_movimiento', 2)
 				->group_by('c.articulo')
 				->get('ingreso a')
 				->row();
