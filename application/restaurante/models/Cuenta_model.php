@@ -122,15 +122,26 @@ class Cuenta_model extends General_Model
 
 	public function facturada()
 	{
-		$tmp = $this->db
-			->select("count(a.detalle_cuenta) det, count(b.detalle_cuenta) fact")
-			->from("detalle_cuenta a")
-			->join("detalle_factura_detalle_cuenta b", "a.detalle_cuenta = b.detalle_cuenta", "left")
-			->where("cuenta_cuenta", $this->getPK())
+		$tmp1 = $this->db
+			->select('count(a.detalle_cuenta) det, count(b.detalle_cuenta) fact')
+			->from('detalle_cuenta a')
+			->join('detalle_factura_detalle_cuenta b', 'a.detalle_cuenta = b.detalle_cuenta', 'left')			
+			->where('cuenta_cuenta', $this->getPK())
 			->get()
 			->row();
 
-		return $tmp->det == $tmp->fact;
+		$tmp2 = $this->db
+			->select('count(a.detalle_cuenta) det, count(b.detalle_cuenta) fact')
+			->from('detalle_cuenta a')
+			->join('detalle_factura_detalle_cuenta b', 'a.detalle_cuenta = b.detalle_cuenta', 'left')
+			->join('detalle_factura c', 'c.detalle_factura = b.detalle_factura', 'left')
+			->join('factura d', 'd.factura = c.factura', 'left')
+			->where('d.fel_uuid_anulacion IS NULL')
+			->where('cuenta_cuenta', $this->getPK())
+			->get()
+			->row();
+
+		return $tmp1->det == $tmp2->fact;
 	}
 
 	public function getDetalle($args = [])
