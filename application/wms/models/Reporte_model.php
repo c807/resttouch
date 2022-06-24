@@ -25,7 +25,7 @@ class Reporte_model extends CI_Model {
 
 	function consultaIngresos($args = [])
 	{
-		$where = 'where b.mostrar_inventario = 1 and e.estatus_movimiento = 2 ';
+		$where = 'where b.mostrar_inventario = 1 and ';
 		$group = " group by ";
 		$select = "";
 
@@ -79,7 +79,7 @@ EOT;
 
 	function consultaEgresos($args = [])
 	{
-		$where = 'where b.mostrar_inventario = 1 and e.estatus_movimiento = 2 ';
+		$where = 'where b.mostrar_inventario = 1 and';
 		$group = 'group by ';
 		$select = "";
 
