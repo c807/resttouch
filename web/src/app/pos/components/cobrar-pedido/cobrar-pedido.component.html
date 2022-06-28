@@ -14,10 +14,11 @@
     <div class="col m3 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
       <table class="table table-sm table-borderless table-striped">
         <tbody>
-        <tr *ngFor="let p of inputData.productosACobrar; let i = index;">
-          <td>{{p.cantidad}}&nbsp;{{p.nombre || p.articulo.descripcion}}</td>
-          <td class="text-right">{{((p.cantidad * p.precio) + (p.monto_extra)) * porcentajeAumento | number: '1.2-2'}}</td>
-        </tr>
+          <tr *ngFor="let p of inputData.productosACobrar; let i = index;">
+            <td>{{p.cantidad}}&nbsp;{{p.nombre || p.articulo.descripcion}}</td>
+            <td class="text-right">{{((p.cantidad * p.precio) + (p.monto_extra)) * porcentajeAumento | number: '1.2-2'}}
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -25,35 +26,49 @@
       <form #frmFormasPago="ngForm" novalidate>
         <mat-form-field class="fullWidth">
           <mat-label>Forma de pago</mat-label>
-          <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial (selectionChange)="onSelectionChangeFP($event)" required>
-            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago" [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento">
+          <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial
+            (selectionChange)="onSelectionChangeFP($event)" required>
+            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago"
+              [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento">
               {{mofp.descripcion}}
             </mat-option>
           </mat-select>
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
-          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto"
+            [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
+          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto"
+            [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina"
-                 [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
-          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina"
-                 [(ngModel)]="formaPago.propina">
+          <input
+            [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)"
+            matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina"
+            [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
+          <input
+            [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)"
+            matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina"
+            [(ngModel)]="formaPago.propina">
           <!-- Warning Icon ,Tip Quantity Exceed -->
 
-          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
-          <mat-icon (click)="autorizaCambioPropina()" *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip" matTooltipPosition="left" style="color:orange;" matSuffix>lock</mat-icon>
+          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
+            [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
+          <mat-icon (click)="autorizaCambioPropina()" *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip"
+            matTooltipPosition="left" style="color:orange;" matSuffix>lock</mat-icon>
         </mat-form-field>
         <!--Fin de input de propina por forma de pago-->
 
         <!-- Inicia vuelto para -->
         <mat-form-field class="fullWidth" *ngIf="esEfectivo">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (input)="calculaVuelto(formaPago)">
-          <input matInput *ngIf="esMovil" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (keyup)="calculaVuelto(formaPago)">
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Vuelto para" name="vuelto_para"
+            [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0"
+            (input)="calculaVuelto(formaPago)">
+          <input matInput *ngIf="esMovil" placeholder="Vuelto para" name="vuelto_para"
+            [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0"
+            (keyup)="calculaVuelto(formaPago)">
         </mat-form-field>
         <!-- <mat-form-field class="fullWidth" *ngIf="esEfectivo">
           <input matInput placeholder="Vuelto" name="vuelto" [(ngModel)]="formaPago.vuelto" disabled="true">
@@ -63,41 +78,45 @@
 
         <!-- Inicia input de documento -->
         <mat-form-field class="fullWidth" *ngIf="pideDocumento">
-          <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
-          <input matInput type="text" *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
+          <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento"
+            name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1"
+            maxlength="1000">
+          <input matInput type="text" *ngIf="esMovil" placeholder="Documento" name="documento"
+            [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">
-          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()" [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0">
+          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()"
+            [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0">
             Agregar
           </button>
         </div>
       </form>
-      <hr/>
+      <hr />
       <table class="table table-sm">
         <thead>
-        <tr>
-          <th class="text-left">FP</th>
-          <th class="text-right">Mon</th>
-          <th class="text-right">Prop
-            <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
-                      [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning
-            </mat-icon>
+          <tr>
+            <th class="text-left">FP</th>
+            <th class="text-right">Mon</th>
+            <th class="text-right">Prop
+              <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
+                [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning
+              </mat-icon>
 
-          </th>
-        </tr>
+            </th>
+          </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let fpCta of formasPagoDeCuenta; let i = index">
-          <td>{{fpCta.forma_pago.descripcion}}</td>
-          <td class="text-right">{{fpCta.monto | number:'1.2-2'}}</td>
-          <td class="text-right">{{fpCta.propina | number:'1.2-2'}}</td>
-          <td class="text-center">
-            <button mat-icon-button type="button" color="warn" (click)="delFormaPago(i)">
-              <mat-icon>delete_forever</mat-icon>
-            </button>
-          </td>
-        </tr>
+          <tr *ngFor="let fpCta of formasPagoDeCuenta; let i = index">
+            <td>{{fpCta.forma_pago.descripcion}}</td>
+            <td class="text-right">{{fpCta.monto | number:'1.2-2'}}</td>
+            <td class="text-right">{{fpCta.propina | number:'1.2-2'}}</td>
+            <td class="text-center">
+              <button mat-icon-button type="button" color="warn" (click)="delFormaPago(i)">
+                <mat-icon>delete_forever</mat-icon>
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -106,108 +125,123 @@
     <div class="col m8 s8">
       <table class="table table-sm table-borderless">
         <tbody>
-        <!-- Inicia fila para descripción única -->
-        <tr *ngIf="permiteDetalleFacturaPersonalizado">
-          <td>
-            <mat-checkbox name="enviar_descripcion_unica" [(ngModel)]="+descripcionUnica.enviar_descripcion_unica"
-                          [ngModelOptions]="{standalone: true}" (change)="vaciaDescripcionUnica()">
-              Personalizar descripción
-            </mat-checkbox>
-          </td>
-          <td>
-            <mat-form-field class="fullWidth">
-              <input matInput placeholder="Descripción" [(ngModel)]="descripcionUnica.descripcion_unica"
-                     [ngModelOptions]="{standalone: true}" minlength="1" maxlength="5000"
-                     [disabled]="+descripcionUnica.enviar_descripcion_unica === 0"
-                     [required]="+descripcionUnica.enviar_descripcion_unica === 1"/>
-            </mat-form-field>
-          </td>
-        </tr>
-        <!-- Finaliza fila para descripción única -->
-        <ng-container *ngIf="+data.mesaenuso.mesa.escallcenter === 1">
-          <tr>
-            <td colspan="2" align="center">
-              <strong>Datos de envío</strong>
+          <!-- Inicia fila para correo de envío de factura electrónica -->
+          <tr>            
+            <td colspan="2">
+              <mat-form-field class="fullWidth">
+                <input matInput type="email" placeholder="Enviar factura al correo" [(ngModel)]="factReq.correo_receptor"/>
+                <mat-hint align="start"><strong>NOTA: El correo se enviará solamente si su certificador de facturas tiene habilitada esta opción.</strong></mat-hint>
+              </mat-form-field>
+              <span class="error-message" *ngIf="factReq.correo_receptor !== null && factReq.correo_receptor !== undefined && factReq.correo_receptor.length > 0 && !esCorreoElectronico(factReq.correo_receptor)">
+                <small>Por favor ingrese un correo válido si desea que la factura se envíe por correo.</small>
+              </span>
             </td>
           </tr>
-          <tr>
+          <!-- Finaliza fila para correo de envío de factura electrónica -->
+          <!-- Inicia fila para descripción única -->
+          <tr *ngIf="permiteDetalleFacturaPersonalizado">
             <td>
-              <mat-form-field class="fullWidth">
-                <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega" name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
-                <mat-autocomplete #autoDirEntr="matAutocomplete" (optionSelected)="setSedeAtiende($event.option.value)">
-                  <mat-option *ngFor="let dirEnt of direccionesDeEntrega" [value]="dirEnt.direccion_completa">
-                    {{dirEnt.direccion_completa}}
-                  </mat-option>
-                </mat-autocomplete>
-              </mat-form-field>
+              <mat-checkbox name="enviar_descripcion_unica" [(ngModel)]="+descripcionUnica.enviar_descripcion_unica"
+                [ngModelOptions]="{standalone: true}" (change)="vaciaDescripcionUnica()">
+                Personalizar descripción
+              </mat-checkbox>
             </td>
             <td>
               <mat-form-field class="fullWidth">
-                <mat-label>Atiende:</mat-label>
-                <mat-select name="sede" [(ngModel)]="datosPedido.sede" required>
-                  <mat-option *ngFor="let s of sedes" [value]="s.sede">
-                    {{s.alias}}
-                  </mat-option>
-                </mat-select>
+                <input matInput placeholder="Descripción" [(ngModel)]="descripcionUnica.descripcion_unica"
+                  [ngModelOptions]="{standalone: true}" minlength="1" maxlength="5000"
+                  [disabled]="+descripcionUnica.enviar_descripcion_unica === 0"
+                  [required]="+descripcionUnica.enviar_descripcion_unica === 1" />
               </mat-form-field>
             </td>
           </tr>
-          <tr>
-            <td>
-              <mat-form-field class="fullWidth">
-                <mat-label>Tiempo ofrecido:</mat-label>
-                <mat-select name="tiempo_entrega" [(ngModel)]="datosPedido.tiempo_entrega" required>
-                  <mat-option *ngFor="let te of tiemposEntrega" [value]="te.tiempo_entrega">
-                    {{te.descripcion}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </td>
-            <td>
-              <mat-form-field class="fullWidth">
-                <mat-label>Tipo domicilio:</mat-label>
-                <mat-select name="tipo_domicilio" [(ngModel)]="datosPedido.tipo_domicilio" required>
-                  <mat-option *ngFor="let tdom of tiposDomicilio" [value]="tdom.tipo_domicilio">
-                    {{tdom.descripcion}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre"
-                       maxlength="1000">
-              </mat-form-field>
-            </td>
-            <td>
-              <mat-form-field class="fullWidth">
-                <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono"
-                       maxlength="1000">
-              </mat-form-field>
-            </td>
-          </tr>
-        </ng-container>
+          <!-- Finaliza fila para descripción única -->
+          <ng-container *ngIf="+data.mesaenuso.mesa.escallcenter === 1">
+            <tr>
+              <td colspan="2" align="center">
+                <strong>Datos de envío</strong>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <input matInput [matAutocomplete]="autoDirEntr" type="text" placeholder="Dirección de entrega"
+                    name="direccion_entrega" [(ngModel)]="datosPedido.direccion_entrega" maxlength="1000" required>
+                  <mat-autocomplete #autoDirEntr="matAutocomplete"
+                    (optionSelected)="setSedeAtiende($event.option.value)">
+                    <mat-option *ngFor="let dirEnt of direccionesDeEntrega" [value]="dirEnt.direccion_completa">
+                      {{dirEnt.direccion_completa}}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <mat-label>Atiende:</mat-label>
+                  <mat-select name="sede" [(ngModel)]="datosPedido.sede" required>
+                    <mat-option *ngFor="let s of sedes" [value]="s.sede">
+                      {{s.alias}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <mat-label>Tiempo ofrecido:</mat-label>
+                  <mat-select name="tiempo_entrega" [(ngModel)]="datosPedido.tiempo_entrega" required>
+                    <mat-option *ngFor="let te of tiemposEntrega" [value]="te.tiempo_entrega">
+                      {{te.descripcion}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <mat-label>Tipo domicilio:</mat-label>
+                  <mat-select name="tipo_domicilio" [(ngModel)]="datosPedido.tipo_domicilio" required>
+                    <mat-option *ngFor="let tdom of tiposDomicilio" [value]="tdom.tipo_domicilio">
+                      {{tdom.descripcion}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <input matInput type="text" placeholder="Nombre" name="nombre" [(ngModel)]="datosPedido.nombre"
+                    maxlength="1000">
+                </mat-form-field>
+              </td>
+              <td>
+                <mat-form-field class="fullWidth">
+                  <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="datosPedido.telefono"
+                    maxlength="1000">
+                </mat-form-field>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
     <div class="col m4 s4">
       <table class="table table-sm table-borderless">
         <tbody>
-        <tr>
-          <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
-          <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta |
-            number:'1.2-2'}}</td>
-        </tr>
-        <tr>
-          <td class="text-right font-weight-bold">PENDIENTE:</td>
-          <td class="text-right font-weight-bold" style="max-width: 15%;">
+          <tr>
+            <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
+            <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta |
+              number:'1.2-2'}}</td>
+          </tr>
+          <tr>
+            <td class="text-right font-weight-bold">PENDIENTE:</td>
+            <td class="text-right font-weight-bold" style="max-width: 15%;">
               <span
                 [ngClass]="{'saldo-pendiente': +inputData.saldo > 0, 'saldo-exacto': +inputData.saldo == 0, 'saldo-extra': +inputData.saldo < 0 }">{{inputData.saldo
                 | number:'1.2-2'}}</span>
-          </td>
-        </tr>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -217,11 +251,11 @@
   <app-cargando *ngIf="facturando" [configuracion]="cargandoConf"></app-cargando>
   <button mat-raised-button color="accent" (click)="cancelar()" [disabled]="facturando">Cancelar</button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 0"
-          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
+    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
     Facturar
   </button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 1"
-          [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || !this.datosPedido.tiempo_entrega || !this.datosPedido.tipo_domicilio">
+    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || !this.datosPedido.tiempo_entrega || !this.datosPedido.tipo_domicilio">
     Enviar
   </button>
 </div>
