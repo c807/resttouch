@@ -76,7 +76,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
 
       this.socket.on('shopify:updlist', (obj: any = null) => {
-        // console.log(obj);
+        // console.log('OBJECT RECIEVED = ', obj);
         if (obj && obj.corporacion) {
           const suuid: string = this.ls.get(GLOBAL.usrTokenVar).sede_uuid as string;
           if (suuid.trim() === (obj.corporacion as string).trim()) {
