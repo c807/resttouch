@@ -443,7 +443,7 @@ class Orden_gk extends CI_Controller
                         'precio' => $articulo->precio,
                         'impreso' => 0,
                         'total' => (float)$articulo->precio * (float)$articulo->cantidad,
-                        'notas' => '',
+                        'notas' => isset($articulo->notas_producto) && !empty($articulo->notas_producto) ? $articulo->notas_producto : '',
                         'bodega' => $art->getBodega(),
                         'descuento' => (float)$articulo->descuento
                     ];

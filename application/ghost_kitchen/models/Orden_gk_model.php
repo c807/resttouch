@@ -168,7 +168,8 @@ class Orden_gk_model extends General_model
 					'precio' => $this->get_ruta(6),
 					'cantidad' => $this->get_ruta(7),
 					'descuento' => $this->get_ruta(8),
-					'id_padre_tercero' => $this->get_ruta(22)
+					'id_padre_tercero' => $this->get_ruta(22),
+					'notas' => $this->get_ruta(33)
 				];
 				$rutas = (object)$rutas;
 				$sedesNoEncontradas = [];
@@ -239,6 +240,21 @@ class Orden_gk_model extends General_model
 						if ($obj->descuento && (float)$obj->descuento > 0) {
 							$ordenrt->total_descuento += (float)$obj->descuento;
 						}
+
+						// Inicia notas de producto. 29/06/2022
+						$dataNotasProducto = $rutas->notas ? get_dato_from_paths($art, $rutas->notas) : null;
+						$notas_producto = '';
+						if ($dataNotasProducto && is_array($dataNotasProducto)) {
+							foreach ($dataNotasProducto as $property) {
+								if ($notas_producto !== '') {
+									$notas_producto .= '; ';
+								}
+								$pos = strpos($property->name, ':');
+								$notas_producto .= trim($property->name) . ($pos === false ? ': ' : '') . trim($property->value);
+							}
+						}
+						$obj->notas_producto = $notas_producto;
+						// Finaliza notas de producto. 29/06/2022
 	
 						$ordenrt->total_orden += $obj->total;
 	
