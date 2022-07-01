@@ -151,6 +151,7 @@ class Ingreso_model extends General_Model
 			->join("presentacion e", "c.presentacion = e.presentacion")
 			->where("date(a.fecha) <= '{$args['fecha']}'")
 			->where("d.mostrar_inventario", 1)
+			->where('a.estatus_movimiento', 2)
 			->group_by("c.articulo")
 			->get("ingreso a")
 			->result();
@@ -186,6 +187,7 @@ class Ingreso_model extends General_Model
 			->join("presentacion e", "c.presentacion = e.presentacion")
 			->where("date(a.fecha) <= '{$args['fecha']}'")
 			->where("d.mostrar_inventario", 1)
+			->where('a.estatus_movimiento', 2)
 			->group_by("c.articulo")
 			->get("ingreso a")
 			->result();
