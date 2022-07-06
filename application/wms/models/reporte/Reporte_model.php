@@ -738,27 +738,32 @@ EOT;
 	public function get_lista_ingreso($args = [])
 	{
 		if (verDato($args, "fdel")) {
-			$this->db->where("date(fecha) >= ", $args["fdel"]);
+			$this->db->where("date(ingreso.fecha) >= ", $args["fdel"]);
 		}
 
 		if (verDato($args, "fal")) {
-			$this->db->where("date(fecha) <= ", $args["fal"]);
+			$this->db->where("date(ingreso.fecha) <= ", $args["fal"]);
 		}
 
 		if (verDato($args, "tipo_ingreso")) {
-			$this->db->where("tipo_movimiento", $args["tipo_ingreso"]);
+			$this->db->where("ingreso.tipo_movimiento", $args["tipo_ingreso"]);
 		}
 
 		if (verDato($args, "bodega")) {
-			$this->db->where("bodega", $args["bodega"]);
+			$this->db->where("ingreso.bodega", $args["bodega"]);
 		}
 
 		if (isset($args["_select"])) {
 			$this->db->select($args["_select"]);
 		}
 
+		if (isset($args['sede'])) {
+			$this->db->where('bodega.sede', $args['sede']);
+		}
+
 		return $this->db
 		->from("ingreso")
+		->join('bodega', 'bodega.bodega = ingreso.bodega')
 		->order_by("fecha")
 		->get()
 		->result();

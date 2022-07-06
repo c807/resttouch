@@ -11,6 +11,12 @@ class Ingreso extends CI_Controller {
 		parent::__construct();
 		$this->load->model('reporte/Reporte_model');
 		$this->load->library('WmsRepIngreso');
+
+		$this->load->helper(['jwt', 'authorization']);
+		$headers = $this->input->request_headers();
+		if (isset($headers['Authorization'])) {
+			$this->dataToken = AUTHORIZATION::validateToken($headers['Authorization']);
+		}
 	}
 
 	public function generar_detalle()
@@ -65,6 +71,8 @@ class Ingreso extends CI_Controller {
 	{
 		$datos = json_decode(file_get_contents("php://input"), true);
 		$datos["_select"] = ["ingreso"];
+
+		if (!isset($datos['sede'])) { $datos['sede'] = $this->dataToken->sede; }
 		
 		$lista = $this->Reporte_model->get_lista_ingreso($datos);
 
