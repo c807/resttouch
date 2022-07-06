@@ -97,9 +97,12 @@ class Ingreso extends CI_Controller {
 					"serie"     => $tmp->documento->serie ?? "",
 					"documento" => $tmp->documento->numero ?? "",
 					"fecha_doc" => $tmp->documento->fecha ?? "",
-					"total"     => round($total, 2)
+					"total"     => round($total, 2),
+					'ordenar' => "{$tmp->proveedor}-{$tmp->fecha}"
 				];
 			}
+
+			$data = ordenar_array_objetos($data, 'ordenar');
 
 			if (verDato($datos, "_excel")) {
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
