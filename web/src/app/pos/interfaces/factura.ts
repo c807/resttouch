@@ -28,4 +28,5 @@ export interface FacturaRequest {
     moneda?: number;
     enviar_descripcion_unica?: number;
     descripcion_unica?: string;
+    correo_receptor?: string;
 }

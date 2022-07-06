@@ -58,7 +58,13 @@ class Factura extends CI_Controller {
 				$req['usuario'] = $data->idusuario;
 				$req['sede'] = $data->sede;
 				$req['certificador_fel'] = $sede->certificador_fel;
-				$req['correo_receptor'] = $clt->correo;
+
+				if (isset($req['correo_receptor']) && !empty(trim($req['correo_receptor'])) && filter_var(trim($req['correo_receptor']), FILTER_VALIDATE_EMAIL)) {
+					$req['correo_receptor'] = trim($req['correo_receptor']);
+					$clt->guardar(['correo' => $req['correo_receptor']]);
+				} else {
+					$req['correo_receptor'] = $clt->correo;
+				}
 				
 				if($continuar){
 					$fac = new Factura_model();

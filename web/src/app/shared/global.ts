@@ -170,3 +170,5 @@ export const redondear = (numero: number, decimalPlaces: number) => {
 }
 
 export const isAllowedUrl = (url: string): boolean => GLOBAL.ALLOWED_URLS.indexOf(url) > -1;
+
+export const isEmail = (correo: string): boolean => correo.match(GLOBAL.FORMATO_EMAIL) !== null && correo.match(GLOBAL.FORMATO_EMAIL) !== undefined;

@@ -2,7 +2,7 @@ import { Component, Inject, Input, OnDestroy, OnInit, AfterViewInit } from '@ang
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL } from '../../../shared/global';
+import { GLOBAL, isEmail } from '../../../shared/global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import * as moment from 'moment';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -64,6 +64,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     return deshabilitar;
+  }
+
+  get esCorreoElectronico() {
+    return (correo: string) => isEmail(correo);
   }
 
   @Input() inputData: any = {};
@@ -384,6 +388,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     if (obj && +obj.cliente > 0) {
       this.clienteSelected = obj;
       this.factReq.cliente = +obj.cliente;
+      this.factReq.correo_receptor = obj.correo || null;
 
       if (obj.tipo_cliente && +obj.tipo_cliente > 0) {
         this.recalculaPrecios(obj);

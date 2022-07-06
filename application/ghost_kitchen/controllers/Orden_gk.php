@@ -30,7 +30,8 @@ class Orden_gk extends CI_Controller
             'Categoria_model',
             'Cgrupo_model',
             'Bodega_model',
-            'Impresora_model'
+            'Impresora_model',
+            'Sede_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -442,7 +443,7 @@ class Orden_gk extends CI_Controller
                         'precio' => $articulo->precio,
                         'impreso' => 0,
                         'total' => (float)$articulo->precio * (float)$articulo->cantidad,
-                        'notas' => '',
+                        'notas' => isset($articulo->notas_producto) && !empty($articulo->notas_producto) ? $articulo->notas_producto : '',
                         'bodega' => $art->getBodega(),
                         'descuento' => (float)$articulo->descuento
                     ];
@@ -546,6 +547,7 @@ class Orden_gk extends CI_Controller
                                 if ($existenTodosLosArticulos->exito) {
                                     $sedes = $dataMeseros->sedes;
                                     $datos->sedes = $sedes;
+                                    $sedesANotificar = [];
                                     foreach ($sedes as $sede) {
                                         $cmdGenerada = $this->genera_comanda_sede($sede, $ordenrt);
                                         $datos->exito = $cmdGenerada->exito;
@@ -563,6 +565,10 @@ class Orden_gk extends CI_Controller
                                             $estatus_sede->estatus_orden_gk = 4;
                                             $estatus_sede->comentario = $cmdGenerada->mensaje;
                                             $estatus_sede->guardar();
+
+                                            $laSede = new Sede_model($sede->sede);
+                                            $empresa = $laSede->getEmpresa();
+                                            $sedesANotificar[] = '-'.$empresa->getPK().'-'.$laSede->getPK();
                                         }
                                     }
                                     if ($datos->exito) {
@@ -574,7 +580,9 @@ class Orden_gk extends CI_Controller
                                         if ($corporacion) {
                                             $urlWs .= "/{$corporacion->admin_llave}";
                                         }
-                                        get_request($urlWs, []);
+                                        foreach($sedesANotificar as $san) {
+                                            get_request($urlWs.$san, []);
+                                        }
                                     }
                                 } else {
                                     $datos->mensaje = "No se encontraron los siguientes artículos: {$existenTodosLosArticulos->articulosFaltantes}.";
