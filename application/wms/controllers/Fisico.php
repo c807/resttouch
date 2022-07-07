@@ -431,7 +431,8 @@ class Fisico extends CI_Controller {
 							"fecha" => Hoy(),
 							"usuario" => $inv->usuario,
 							"estatus_movimiento" => 2,
-							"ajuste" => 1
+							"ajuste" => 1,
+							"comentario" => "Ajuste mediante Inventario Físico"
 						];
 						$egr = new Egreso_model();
 						if ($egr->guardar($gegreso)) {

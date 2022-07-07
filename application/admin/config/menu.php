@@ -294,6 +294,14 @@ $config['menu'] = [
 					8 => [
 						'nombre' => 'Uso de ingrediente',
 						'link' => '/wms/uso_ingrediente'
+					],
+					9 => [
+						'nombre' => 'Margen de receta',
+						'link' => '/wms/margen_receta'
+					],
+					10 => [
+						'nombre' => 'Consumo de articulo',
+						'link' => '/wms/consumo_articulo'
 					]
 				]
 			],

@@ -53,6 +53,12 @@
             <td><?php echo $estatus_movimiento; ?></td>
             <th class="text-right">Destino:</th>
             <td><?php echo $bodega_destino; ?></td>            
+        </tr>
+        <tr>
+            <th class="text-right">Comentario:</th>
+            <td colspan="5">
+                <p><?php echo $comentario; ?></p>
+            </td>
         </tr>        
     </table>
     <br />

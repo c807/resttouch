@@ -11,4 +11,5 @@ export interface Egreso {
     proveedor?: number;
     tipo_movimiento_destino?: number;
     idcomandafox?: string;
+    comentario?: string;
 }

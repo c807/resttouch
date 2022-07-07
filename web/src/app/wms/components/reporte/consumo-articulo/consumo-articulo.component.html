@@ -1,0 +1,42 @@
+<div class="row">
+	<div class="col m12 s12">
+		<mat-card class="mat-elevation-z4 fullWidth">
+			<mat-card-title>
+				<h4>Resumen de consumos por articulo</h4>
+			</mat-card-title>
+			<mat-card-content>
+				<form novalidate>
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel" [ngModelOptions]="{standalone: true}" required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}" required>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Sede</mat-label>
+						<mat-select name="sede" [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)">
+							<mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+								{{sede.sede.nombre}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Sub-categoría</mat-label>
+						<mat-select name="categoria_grupo" [(ngModel)]="params.categoria_grupo">
+							<mat-option *ngFor="let sc of subCategorias" [value]="sc.categoria_grupo">
+								{{sc.descripcion}} ({{sc.categoria}})
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+
+					<app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+				</form>
+				<app-cargando *ngIf="cargando"></app-cargando>
+			</mat-card-content>
+		</mat-card>
+	</div>
+</div>

@@ -10,6 +10,18 @@
                 <input matInput type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="turno.descripcion" minlength="1" maxlength="45" required>
             </mat-form-field>
             <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+turno.activo">Activo</mat-checkbox>
+            <mat-checkbox name="enviar_reporte" class="fullWidth" [(ngModel)]="+turno.enviar_reporte">Enviar reportes al terminar el turno</mat-checkbox>
+            <mat-form-field class="fullWidth" *ngIf="turno.enviar_reporte == 1">
+                <input matInput type="text" placeholder="correo1@mail, correo2@mail, ..." name="correo_cierre" [(ngModel)]="turno.correo_cierre" minlength="1" maxlength="150" required>
+            </mat-form-field>
+            <mat-form-field class="fullWidth" *ngIf="turno.enviar_reporte == 1">
+                <mat-label>Bodega</mat-label>
+                <mat-select name="bodega" [(ngModel)]="turno.bodega" required>
+                    <mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+                        {{bod.descripcion}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid">
                     Guardar

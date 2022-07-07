@@ -385,7 +385,8 @@ EOT;
 				a.cantidad, 
 				a.precio_unitario as costo,
 				e.razon_social as nproveedor,
-				a.precio_total as costo_total
+				a.precio_total as costo_total,
+				h.descripcion as ntipo_movimiento
 			");
 		}
 
@@ -396,7 +397,8 @@ EOT;
 			->join("articulo d", "d.articulo = a.articulo")
 			->join("proveedor e", "e.proveedor = b.proveedor")
 			->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
-			->join("categoria g", "g.categoria = f.categoria");
+			->join("categoria g", "g.categoria = f.categoria")
+			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento");
 
 		$this->db->order_by("b.fecha", "asc")
 			->order_by("b.ingreso", "desc");
@@ -566,7 +568,7 @@ EOT;
 	{
 		$campos = "a.egreso, b.descripcion AS tipo_movimiento, c.descripcion AS bodega, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
 		$campos.= "d.usrname AS usuario, IF(a.estatus_movimiento = 1, 'NO CONFIRMADO', 'CONFIRMADO') AS estatus_movimiento, IF(a.traslado = 0, 'No', 'Sí') AS traslado, ";
-		$campos.= "IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, e.nombre AS sede, e.alias AS alias_sede, f.nombre AS empresa, g.descripcion AS bodega_destino";
+		$campos.= "IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, e.nombre AS sede, e.alias AS alias_sede, f.nombre AS empresa, g.descripcion AS bodega_destino, a.comentario";
 
 		$egreso = $this->db
 			->select($campos)
@@ -715,7 +717,8 @@ EOT;
 			b.codigo as carticulo,
 			b.descripcion as narticulo,
 			a.cantidad,
-			a.precio_total
+			a.precio_total,
+			d.comentario
 		")
 		->from("egreso_detalle a")
 		->join("articulo b", "b.articulo = a.articulo")
@@ -851,6 +854,41 @@ EOT;
 		->join("articulo b", "b.articulo = a.receta")
 		->join("medida c", "c.medida = a.medida")
 		->order_by("b.descripcion")
+		->get()
+		->result();
+	}
+
+	public function getResumenConsumo($args=[])
+	{
+		if (verDato($args, "fdel")) {
+			$this->db->where("date(b.fhcreacion) >=", $args["fdel"]);
+		}
+
+		if (verDato($args, "fal")) {
+			$this->db->where("date(b.fhcreacion) <=", $args["fal"]);
+		}
+
+		if (verDato($args, "sede")) {
+			$this->db->where("b.sede", $args["sede"]);
+		}
+
+		if (verDato($args, "categoria_grupo")) {
+			$this->db->where("c.categoria_grupo", $args["categoria_grupo"]);
+		}
+
+		return $this->db
+		->select("
+			a.articulo,
+			sum(ifnull(a.cantidad, 0)) as cantidad,
+			c.codigo,c.descripcion as narticulo,
+			d.descripcion as ndescripcion
+		")
+		->from("detalle_comanda a")
+		->join("comanda b", "b.comanda = a.comanda")
+		->join("articulo c", "c.articulo = a.articulo")
+		->join("presentacion d", "d.presentacion = c.presentacion")
+		->group_by("a.articulo")
+		->order_by("c.descripcion")
 		->get()
 		->result();
 	}

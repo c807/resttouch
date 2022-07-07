@@ -18,6 +18,8 @@ import { ConsumosComponent } from './components/reporte/consumos/consumos.compon
 import { ResumenEgresoComponent } from './components/reporte/resumen-egreso/resumen-egreso.component';
 import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/resumen-ingreso.component';
 import { UsoIngredienteComponent } from './components/reporte/uso-ingrediente/uso-ingrediente.component';
+import { MargenRecetaComponent } from './components/reporte/margen-receta/margen-receta.component';
+import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -37,6 +39,8 @@ const routes: Routes = [
   { path: 'resumen_egreso', component: ResumenEgresoComponent, canActivate: [AuthGuard] },
   { path: 'resumen_ingreso', component: ResumenIngresoComponent, canActivate: [AuthGuard] },
   { path: 'uso_ingrediente', component: UsoIngredienteComponent, canActivate: [AuthGuard] },
+  { path: 'margen_receta', component: MargenRecetaComponent, canActivate: [AuthGuard] },
+  { path: 'consumo_articulo', component: ConsumoArticuloComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

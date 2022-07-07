@@ -84,6 +84,7 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
       traslado: obj.traslado || 0,
       idcomandafox: obj.idcomandafox,
       bodega_destino: obj.bodega_destino,
+      comentario: obj.comentario
     });
   }
 
