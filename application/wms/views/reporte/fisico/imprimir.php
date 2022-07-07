@@ -45,11 +45,19 @@
 						<?php echo $gcat['descripcion'] ?>
 					</td>
 				</tr>
-				<?php foreach ($gcat['datos'] as $art) : ?>
-					<?php
+				<?php foreach ($gcat['datos'] as $art) :
+
 					$articulo = new Articulo_model($art->articulo);
-					$pres = $articulo->getPresentacionReporte();
-					?>
+					$pres     = $articulo->getPresentacionReporte();
+
+					if ($inventario->confirmado && !$esfisico) {
+						$diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
+
+						if ($diferencia == 0) {
+							continue;
+						}
+					}
+				?>
 					<tr>
 						<td>
 							<?php echo $art->narticulo ?>

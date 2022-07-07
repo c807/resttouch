@@ -41,6 +41,9 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="egreso.comentario" maxlength="500">
+            </mat-form-field>
             <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?
             </mat-checkbox>
             <mat-form-field class="fullWidth" *ngIf="+egreso.traslado == 1 && ([2, 3].indexOf(+egreso.estatus_movimiento) < 0)">

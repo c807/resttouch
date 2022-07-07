@@ -142,7 +142,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   resetEgreso = () => {
     this.egreso = {
       egreso: null, tipo_movimiento: null, bodega: null, fecha: moment().format(GLOBAL.dbDateFormat),
-      usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), estatus_movimiento: 1, traslado: 0
+      usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), estatus_movimiento: 1, traslado: 0, comentario: null
     };
     this.resetDetalleEgreso();
     this.updateTableDataSource();
@@ -165,7 +165,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
           usuario: res.egreso.usuario,
           estatus_movimiento: res.egreso.estatus_movimiento,
           traslado: res.egreso.traslado,
-          bodega_destino: res.egreso.bodega_destino
+          bodega_destino: res.egreso.bodega_destino,
+          comentario: res.egreso.comentario
         };
         this.loadDetalleEgreso(this.egreso.egreso);
       }
