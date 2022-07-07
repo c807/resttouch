@@ -15,7 +15,12 @@ export class TurnoTipoComponent implements OnInit {
 
   constructor() {
     this.turno = { 
-      turno_tipo: null, descripcion: null, activo: 1
+      turno_tipo: null,
+      descripcion: null,
+      activo:1,
+      enviar_reporte: 0,
+      correo_cierre: null,
+      bodega: null
     };
   }
 

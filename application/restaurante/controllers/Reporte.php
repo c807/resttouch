@@ -1009,12 +1009,26 @@ class Reporte extends CI_Controller
         } else if (verDato($data, "_encomandera")) {
             $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
         } else {
+
+            $tmp = sys_get_temp_dir();
             $mpdf = new \Mpdf\Mpdf([
-                'tempDir' => sys_get_temp_dir(),
+                'tempDir' => $tmp, //sys_get_temp_dir(),
                 'format' => 'Legal'
             ]);
             $mpdf->WriteHTML($this->load->view('caja', $data, true));
-            $mpdf->Output("Reporte de Caja.pdf", "D");
+            
+            if (verDato($data, "_rturno")) {
+
+                $ruta = $tmp."/reporte_caja_".rand().".pdf";
+                $mpdf->Output($ruta, "F");
+
+                $this->output
+                ->set_content_type("application/json")
+                ->set_output(json_encode(["ruta" => $ruta]));
+
+            } else {
+                $mpdf->Output("Reporte de Caja.pdf", "D");
+            }
 
             // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
         }

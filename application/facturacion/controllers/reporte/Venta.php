@@ -491,14 +491,24 @@ class Venta extends CI_Controller
 			$writer->save('php://output');
 		} else {
 			$vista = $this->load->view('reporte/venta/categoria', array_merge($data, $req), true);
-
+			$tmp = sys_get_temp_dir();
 			$mpdf = new \Mpdf\Mpdf([
-				'tempDir' => sys_get_temp_dir(), //Produccion
+				'tempDir' => $tmp, //Produccion
 				'format' => 'Legal'
 			]);
 
 			$mpdf->WriteHTML($vista);
-			$mpdf->Output('Ventas_categoria.pdf', 'D');
+
+			if (verDato($req, "_rturno")) {
+				$ruta = $tmp."/ventas_categoria_".rand().".pdf";
+				$mpdf->Output($ruta, "F");
+
+				$this->output
+				->set_content_type("application/json")
+				->set_output(json_encode(["ruta" => $ruta]));
+			} else {
+				$mpdf->Output('Ventas_categoria.pdf', 'D');
+			}
 
 			// $this->output->set_content_type("application/json")->set_output(json_encode(['data' => $data, 'req' => $req]));
 		}

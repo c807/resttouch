@@ -1191,6 +1191,7 @@ class Reporte extends CI_Controller
 							"egreso"      => $row->egreso,
 							"nmovimiento" => $row->nmovimiento,
 							"nbodega"     => $row->nbodega,
+							"comentario"     => $row->comentario,
 							"detalle"     => []
 						];
 					}
@@ -1223,6 +1224,11 @@ class Reporte extends CI_Controller
 						$hoja->setCellValue("B{$pos}", $row["egreso"]);
 						$hoja->setCellValue("C{$pos}", $row["nmovimiento"]);
 						$hoja->setCellValue("D{$pos}", $row["nbodega"]);
+						$hoja->setCellValue("G{$pos}", $row["comentario"]);
+
+						$hoja->getStyle("G{$pos}")
+						->getAlignment()
+						->setWrapText(true);
 						
 						$pos++;
 
@@ -1271,6 +1277,7 @@ class Reporte extends CI_Controller
 					for ($i=1; $i <= 6; $i++) {
 						$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 					}
+					$hoja->getColumnDimension("G")->setWidth(30);
 
 					header("Content-Type: application/vnd.ms-excel");
 					header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
@@ -1283,14 +1290,25 @@ class Reporte extends CI_Controller
 					$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 					$writer->save("php://output");
 				} else {
+					$tmp = sys_get_temp_dir();
 					$pdf = new \Mpdf\Mpdf([
-						"tempDir" => sys_get_temp_dir(),
+						"tempDir" => $tmp,
 						"format"  => "Letter"
 					]);
 
 					$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 					$pdf->WriteHTML($this->load->view("reporte/egreso/resumen_imprimir", ["data" => $data, "params" => $params], true));
-					$pdf->Output("{$nombreArchivo}.pdf", "D");
+					
+					if (verDato($params, "_rturno")) {
+						$ruta = "{$tmp}/{$nombreArchivo}.pdf";
+						$pdf->Output($ruta, "F");
+
+						$this->output
+						->set_content_type("application/json")
+						->set_output(json_encode(["ruta" => $ruta]));
+					} else {
+						$pdf->Output("{$nombreArchivo}.pdf", "D");
+					}
 				}
 			}
 		}

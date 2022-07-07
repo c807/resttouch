@@ -45,8 +45,17 @@ class Ingreso extends CI_Controller {
 					die;
 				} else {
 					$pdf = $lib->generarPdf();
-					$pdf->Output("Detalle de ingreso.pdf", "D");
-					die;
+
+					if (verPropiedad($args, "_rturno")) {
+						$tmp  = sys_get_temp_dir();
+						$ruta = "{$tmp}/detalle_ingreso_".rand().".pdf";
+						
+						$pdf->Output($ruta, "F");
+
+						$data["ruta"] = $ruta;
+					} else {
+						$pdf->Output("Detalle de ingreso.pdf", "D");
+					}
 				}
 			}else{
 				$data["exito"] = true;
@@ -166,8 +175,9 @@ class Ingreso extends CI_Controller {
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 				$writer->save("php://output");
 			} else {
+				$tmp  = sys_get_temp_dir();
 				$pdf = new \Mpdf\Mpdf([
-					"tempDir" => sys_get_temp_dir(),
+					"tempDir" => $tmp,
 					"format" => "letter",
 					"lands"
 				]);
@@ -181,7 +191,18 @@ class Ingreso extends CI_Controller {
 
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 				$pdf->WriteHTML($vista);
-				$pdf->Output("{$nombreArchivo}.pdf", "D");
+
+				if (verDato($datos, "_rturno")) {
+					$ruta = "{$tmp}/{$nombreArchivo}.pdf";
+					$pdf->Output($ruta, "F");
+
+					$this->output
+					->set_content_type("application/json")
+					->set_output(json_encode(["ruta" => $ruta]));
+				} else {
+					$pdf->Output("{$nombreArchivo}.pdf", "D");
+				}
+
 			}
 		}
 	}

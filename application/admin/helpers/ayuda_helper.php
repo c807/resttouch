@@ -612,3 +612,16 @@ if (!function_exists('get_url_websocket')) {
 		return $url_ws;
 	}
 }
+
+if (!function_exists('verPropiedad')) {
+	function verPropiedad($clase, $propiedad, $return=false)
+	{
+		if (property_exists($clase, $propiedad) && 
+			!empty($clase->$propiedad)) {
+			
+			return $clase->$propiedad;
+		}
+
+		return $return;
+	}
+}

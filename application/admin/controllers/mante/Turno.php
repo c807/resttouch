@@ -102,6 +102,46 @@ class Turno extends CI_Controller {
 					}
 					$datos['mensaje'] = "Datos Actualizados con Exito";
 					$datos['turno'] = $turno;
+
+					if (!empty($turno->fin)) {
+						$turnotipo = new TurnoTipo_model($turno->turno_tipo);# $turno->getTurnoTipo();
+
+						if ($turnotipo->enviar_reporte == 1 && !empty($turnotipo->correo_cierre)) {
+							$this->load->library([
+								"Mail",
+								"Rturno"
+							]);
+							
+							$lib = new Rturno();
+							$lib->set_token($headers["Authorization"]);
+							$lib->set_turno($turno);
+							$lib->set_bodega($turnotipo->getBodega());
+
+							$archivos = $lib->get_archivos();
+
+							if (!empty($archivos)) {
+								$texto = "Se informa que se ha realizado el cierre de turno";
+								$para  = explode(",", trim($turnotipo->correo_cierre));
+								
+								$correo = new Mail();
+								$correo->from("noreply@c807.com", "RTT");
+								$correo->subject("Cierre de turno");
+								$correo->message($texto);
+								$correo->to($para);
+
+								foreach ($archivos as $ruta) {
+									$correo->attach(
+										$ruta,
+										"attachment",
+										basename($ruta)
+									);
+								}
+								
+								$correo->send();
+							}
+						}
+					}
+
 				} else {
 					$datos['mensaje'] = implode("<br>", $turno->getMensaje());
 				}
