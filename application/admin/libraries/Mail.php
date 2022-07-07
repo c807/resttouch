@@ -17,7 +17,13 @@ class Mail extends CI_Email
         parent::__construct();
 	}
 
-	
+	public function get_error_messages()
+	{
+		if ($this->_debug_msg && is_array($this->_debug_msg) && count($this->_debug_msg) > 0) {
+			return join('. ', $this->_debug_msg);
+		}
+		return '';
+	}	
 
 }
 

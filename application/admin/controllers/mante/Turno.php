@@ -137,7 +137,10 @@ class Turno extends CI_Controller {
 									);
 								}
 								
-								$correo->send();
+								$datos['exito_correo'] = $correo->send();
+								if (!$datos['exito_correo']) {
+									$datos['mensaje_correo'] = $correo->get_error_messages();
+								}
 							}
 						}
 					}
