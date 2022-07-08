@@ -76,11 +76,15 @@ class Factura extends CI_Controller {
 
 								$factorAumento = 1 + (float)$det->aumento_porcentaje / 100;								
 								
-								$det->precio_unitario = (float)$det->precio * $factorAumento;
-								$det->precio_unitario_ext = (float)$det->precio * $factorAumento;
-								$det->total = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
-								$det->total_ext = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
-								// $det->total = ($det->precio_unitario * $det->cantidad);
+								// $det->precio_unitario = (float)$det->precio * $factorAumento;
+								// $det->precio_unitario_ext = (float)$det->precio * $factorAumento;
+								// $det->total = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
+
+								$det->total = (((float)$det->precio * $det->cantidad + (float)$det->monto_extra)) * $factorAumento;
+
+								// $det->total_ext = (($det->precio_unitario * $det->cantidad) + (float)$det->monto_extra);
+								$det->total_ext = $det->total;
+								
 								$det->precio_unitario = round($det->total / $det->cantidad, 2);
 								$det->precio_unitario_ext = $det->total_ext / $det->cantidad;
 

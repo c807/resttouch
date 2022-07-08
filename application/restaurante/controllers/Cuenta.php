@@ -58,7 +58,7 @@ class Cuenta extends CI_Controller
 			$cntDetalles = count($detalleComanda);
 			for ($i = 0; $i < $cntDetalles; $i++) {
 				$dc = new Dcomanda_model($detalleComanda[$i]->detalle_comanda);
-				$aumento = round($porcentajeAumento * (float)$detalleComanda[$i]->total / 100, 2);
+				$aumento = round($porcentajeAumento * ((float)$detalleComanda[$i]->total + (float)$detalleComanda[$i]->monto_extra) / 100, 2);
 				$dc->guardar([
 					'aumento_porcentaje' => $porcentajeAumento,
 					'aumento' => $aumento
