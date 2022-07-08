@@ -960,11 +960,13 @@ class Comanda extends CI_Controller
 
 		if (count($errores) === 0) {
 			$articulo = new Articulo_model($detalle[0]->articulo);
-			$datos['anulacion'] = (object)[
-				'articulo' => $articulo->descripcion,
-				'cantidad' => round((float)$detalle[0]->cantidad, 2),
-				'impresora' => $articulo->getImpresora(),
-			];
+			if ((int)$detalle[0]->impreso === 1) {
+				$datos['anulacion'] = (object)[
+					'articulo' => $articulo->descripcion,
+					'cantidad' => round((float)$detalle[0]->cantidad, 2),
+					'impresora' => $articulo->getImpresora()
+				];
+			}
 			$comanda = new Comanda_model($detalle[0]->comanda);
 			$datos['comanda'] = $comanda->getComanda([
 				'_cuenta' => $req['cuenta'], 'articulo' => $detalle[0]->articulo, 'detalle_comanda' => $detalle[0]->detalle_comanda
