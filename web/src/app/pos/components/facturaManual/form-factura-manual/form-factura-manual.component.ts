@@ -181,6 +181,9 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       fel_uuid: null, fel_uuid_anulacion: null
     };
     this.refacturacion = true;
+    this.clienteSelected = undefined;
+    this.resetDetalleFactura();
+    this.detallesFactura = [];
   }
 
   resetFactura = () => {
