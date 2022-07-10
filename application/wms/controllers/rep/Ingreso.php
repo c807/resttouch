@@ -92,7 +92,9 @@ class Ingreso extends CI_Controller {
 				$data[] = (object) [
 					"fecha"     => $tmp->fecha,
 					"numero"    => $tmp->ingreso,
+					"estatus"   => $tmp->nestatus,
 					"tipo"      => $tmp->tipo_movimiento,
+					"sede"      => "{$tmp->sede} ({$tmp->alias_sede})",
 					"bodega"    => $tmp->bodega,
 					"proveedor" => $tmp->proveedor,
 					"serie"     => $tmp->documento->serie ?? "",
@@ -108,56 +110,73 @@ class Ingreso extends CI_Controller {
 				$hoja = $excel->getActiveSheet();
 				$hoja->setTitle("Resumen de ingresos");
 
-				$hoja->getStyle("A1:I2")->getFont()->setBold(true);
-				$hoja->getStyle("A1:I2")->getAlignment()->setHorizontal("center");
-				$hoja->mergeCells("A1:I1");
-				$hoja->mergeCells("A2:I2");
+				$hoja->getStyle("A1:K2")->getFont()->setBold(true);
+				$hoja->getStyle("A1:K2")->getAlignment()->setHorizontal("center");
+				$hoja->mergeCells("A1:K1");
+				$hoja->mergeCells("A2:K2");
 
 				$hoja->setCellValue("A1", "Resumen de ingresos");
 				$hoja->setCellValue("A2", "Del ".formatoFecha($datos["fdel"], 2)." al ".formatoFecha($datos["fal"], 2));
-
-				$hoja->setCellValue("A4", "Fecha");
-				$hoja->setCellValue("B4", "Numero");
-				$hoja->setCellValue("C4", "Tipo");
-				$hoja->setCellValue("D4", "Bodega");
-				$hoja->setCellValue("E4", "Proveedor");
-				$hoja->setCellValue("F4", "Serie");
-				$hoja->setCellValue("G4", "Documento");
-				$hoja->setCellValue("H4", "Fecha");
-				$hoja->setCellValue("I4", "Total");
-				$hoja->getStyle("I4")->getAlignment()->setHorizontal("right");
-				$hoja->getStyle("A4:I4")->getFont()->setBold(true);
+				$titulo =  [
+					"Fecha",
+					"Número",
+					"Estatus ingreso",
+					"Tipo",
+					"Sede",
+					"Bodega",
+					"Proveedor",
+					"Serie",
+					"Documento",
+					"Fecha",
+					"Total"
+				];
+				$hoja->fromArray($titulo, null, "A4");
+				$hoja->getStyle("K4")->getAlignment()->setHorizontal("right");
+				$hoja->getStyle("A4:K4")->getFont()->setBold(true);
 
 				$pos   = 5;
 				$total = 0;
 				
 				foreach ($data as $key => $row) {
-					$hoja->setCellValue("A{$pos}", $row->fecha);
-					$hoja->setCellValue("B{$pos}", $row->numero);
-					$hoja->setCellValue("C{$pos}", $row->tipo);
-					$hoja->setCellValue("D{$pos}", $row->bodega);
-					$hoja->setCellValue("E{$pos}", $row->proveedor);
-					$hoja->setCellValue("F{$pos}", $row->serie);
-					$hoja->setCellValue("G{$pos}", $row->documento);
-					$hoja->setCellValue("H{$pos}", formatoFecha($row->fecha_doc, 2));
-					$hoja->setCellValue("I{$pos}", number_format($row->total, 2));
-					$hoja->getStyle("I{$pos}")->getAlignment()->setHorizontal("right");
+					$tmpData = [
+						$row->fecha,
+						$row->numero,
+						$row->estatus,
+						$row->tipo,
+						$row->sede,
+						$row->bodega,
+						$row->proveedor,
+						$row->serie,
+						$row->documento,
+						formatoFecha($row->fecha_doc, 2),
+						number_format((float)$row->total, 2, ".", "")
+					];
+
+					$hoja->fromArray($tmpData, null, "A{$pos}");
+					$hoja->getStyle("J{$pos}")->getAlignment()->setHorizontal("right");
+					$hoja->getStyle("J{$pos}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
 
 					$total += $row->total;
 					$pos++;
 				}
 
-				for ($i=1; $i <= 9; $i++) {
+				for ($i=1; $i <= 11; $i++) {
 					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 				}
 
-				$hoja->getStyle("A{$pos}:I{$pos}")->getFont()->setBold(true);
-				$hoja->getStyle("A{$pos}:I{$pos}")->getAlignment()->setHorizontal("right");
-				$hoja->mergeCells("A{$pos}:H{$pos}");
+				$hoja->getStyle("A{$pos}:K{$pos}")->getFont()->setBold(true);
+				$hoja->getStyle("A{$pos}:K{$pos}")->getAlignment()->setHorizontal("right");
+				$hoja->mergeCells("A{$pos}:J{$pos}");
 				$hoja->setCellValue("A{$pos}", "Total");
-				$hoja->setCellValue("I{$pos}", number_format($total));
+				$hoja->setCellValue("K{$pos}", number_format((float)$total, 2, ".", ""));
+				
+				$hoja->getStyle("K{$pos}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
 
-				$hoja->getStyle("A{$pos}:I{$pos}")->applyFromArray([
+				$hoja->getStyle("A{$pos}:K{$pos}")->applyFromArray([
 					"borders" => [
 						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
 						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]

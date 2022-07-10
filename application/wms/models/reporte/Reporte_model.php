@@ -354,6 +354,10 @@ EOT;
 			$this->db->where_in("e.proveedor", $args->proveedor);
 		}
 
+		if (verPropiedad($args, "estatus_movimiento")) {
+			$this->db->where("b.estatus_movimiento", $args->estatus_movimiento);
+		}
+
 		if ($args->reporte == 1) {
 			$this->db->order_by("e.razon_social", "asc");
 		} else if ($args->reporte == 2) {
@@ -386,7 +390,8 @@ EOT;
 				a.precio_unitario as costo,
 				e.razon_social as nproveedor,
 				a.precio_total as costo_total,
-				h.descripcion as ntipo_movimiento
+				h.descripcion as ntipo_movimiento,
+				i.descripcion as nestatus
 			");
 		}
 
@@ -398,7 +403,8 @@ EOT;
 			->join("proveedor e", "e.proveedor = b.proveedor")
 			->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
 			->join("categoria g", "g.categoria = f.categoria")
-			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento");
+			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento")
+			->join("estatus_movimiento i", "i.estatus_movimiento = b.estatus_movimiento");
 
 		$this->db->order_by("b.fecha", "asc")
 			->order_by("b.ingreso", "desc");
@@ -529,7 +535,7 @@ EOT;
 	{
 		$campos = "a.ingreso, b.descripcion AS tipo_movimiento, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, c.descripcion AS bodega, ";
 		$campos.= "c.merma, d.usrname AS usuario, h.descripcion as bodega_origen, a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
-		$campos.= "f.alias AS alias_sede, g.nombre AS empresa";
+		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus";
 		$ingreso = $this->db		
 			->select($campos)
 			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
@@ -538,6 +544,7 @@ EOT;
 			->join('proveedor e', 'e.proveedor = a.proveedor')
 			->join('sede f', 'f.sede = c.sede')
 			->join('empresa g', 'g.empresa = f.empresa')
+			->join('estatus_movimiento i', 'i.estatus_movimiento = a.estatus_movimiento')
 			->join('bodega h', 'h.bodega = a.bodega_origen', 'left')
 			->where('a.ingreso', $idIngreso)
 			->get('ingreso a')
@@ -707,6 +714,10 @@ EOT;
 			$this->db->where("d.tipo_movimiento", $args["tipo_egreso"]);
 		}
 
+		if (verDato($args, "estatus_movimiento")) {
+			$this->db->where("d.estatus_movimiento", $args["estatus_movimiento"]);
+		}
+
 		return $this->db
 		->select("
 			d.fecha,
@@ -718,7 +729,8 @@ EOT;
 			b.descripcion as narticulo,
 			a.cantidad,
 			a.precio_total,
-			d.comentario
+			d.comentario,
+			g.descripcion as nestatus
 		")
 		->from("egreso_detalle a")
 		->join("articulo b", "b.articulo = a.articulo")
@@ -741,19 +753,31 @@ EOT;
 	public function get_lista_ingreso($args = [])
 	{
 		if (verDato($args, "fdel")) {
-			$this->db->where("date(fecha) >= ", $args["fdel"]);
+			$this->db->where("date(a.fecha) >= ", $args["fdel"]);
 		}
 
 		if (verDato($args, "fal")) {
-			$this->db->where("date(fecha) <= ", $args["fal"]);
+			$this->db->where("date(a.fecha) <= ", $args["fal"]);
 		}
 
 		if (verDato($args, "tipo_ingreso")) {
-			$this->db->where("tipo_movimiento", $args["tipo_ingreso"]);
+			$this->db->where("a.tipo_movimiento", $args["tipo_ingreso"]);
 		}
 
 		if (verDato($args, "bodega")) {
-			$this->db->where("bodega", $args["bodega"]);
+			$this->db->where("a.bodega", $args["bodega"]);
+		}
+
+		if (verDato($args, "estatus_movimiento")) {
+			$this->db->where("a.estatus_movimiento", $args["estatus_movimiento"]);
+		}
+
+		if (verDato($args, "sede")) {
+			if (is_array($args["sede"])) {
+				$this->db->where_in("b.sede", $args["sede"]);
+			} else {
+				$this->db->where("b.sede", $args["sede"]);
+			}
 		}
 
 		if (isset($args["_select"])) {
@@ -761,7 +785,8 @@ EOT;
 		}
 
 		return $this->db
-		->from("ingreso")
+		->from("ingreso a")
+		->join("bodega b", "b.bodega = a.bodega")
 		->order_by("fecha")
 		->get()
 		->result();

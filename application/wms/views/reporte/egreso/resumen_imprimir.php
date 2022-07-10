@@ -12,10 +12,13 @@
 				<th colspan="8" class="encabezado text-center sborder"><h2>Resumen de egresos</h2></th>
 			</tr>
 			<tr>
-				<th colspan="8" class="encabezado text-center sborder"><h3><?php echo $params["bodega_nombre"]?></h3></th>
+				<th colspan="8" class="encabezado text-center sborder">Del: <?php echo formatoFecha($params["fdel"], 2)?> Al: <?php echo formatoFecha($params["fal"], 2)?></th>
 			</tr>
 			<tr>
-				<th colspan="8" class="encabezado text-center sborder">Del: <?php echo formatoFecha($params["fdel"], 2)?> Al: <?php echo formatoFecha($params["fal"], 2)?></th>
+				<th colspan="8" class="encabezado text-left sborder"><small>Bodega: <?php echo $params["bodega_nombre"]?></small></th>
+			</tr>
+			<tr>
+				<th colspan="8" class="encabezado text-left sborder"><small>Sede: <?php echo "{$params['sede']->nombre} ({$params['sede']->alias})"?></small></th>
 			</tr>
 			<tr>
 				<td colspan="8"><br></td>
@@ -23,9 +26,11 @@
 			<tr>
 				<th class="encabezado text-center" colspan="2">Fecha</th>
 				<th class="encabezado text-left" colspan="2">Documento</th>
-				<th class="encabezado text-center" colspan="2">Tipo</th>
+				<th class="encabezado text-center" colspan="1">Estatus egreso</th>
+				<th class="encabezado text-center" colspan="1">Tipo</th>
 				<th class="encabezado text-center">Bodega</th>
-				<th class="encabezado text-right">Total</th>
+				<th class="encabezado text-center"></th>
+				<!-- <th class="encabezado text-right">Total</th> -->
 			</tr>
 		</thead>
 		<tbody>
@@ -33,8 +38,17 @@
 				<tr>
 					<td class="cuerpo text-center" colspan="2"><?php echo formatoFecha($row["fecha"], 2)?></td>
 					<td class="cuerpo text-left" colspan="2"><?php echo $row["egreso"]?></td>
-					<td class="cuerpo text-center" colspan="2"><?php echo $row["nmovimiento"]?></td>
+					<td class="cuerpo text-center" colspan="1"><?php echo $row["estatus"]?></td>
+					<td class="cuerpo text-center" colspan="1"><?php echo $row["nmovimiento"]?></td>
 					<td class="cuerpo text-center" colspan="2"><?php echo $row["nbodega"]?></td>					
+				</tr>
+				<tr>
+					<td class="encabezado cuerpo text-center"></td>
+					<td class="encabezado cuerpo text-center"><b>Código</b></td>
+					<td class="encabezado cuerpo text-left" colspan="2"><b>Articulo</b></td>
+					<td class="encabezado cuerpo text-left" colspan="2"><b>Presentación</b></td>
+					<td class="encabezado cuerpo text-right"><b>Cantidad</b></td>
+					<td class="encabezado cuerpo text-right"><b>Total</b></td>
 				</tr>
 				<?php $tmpTotal = 0; foreach ($row["detalle"] as $llave => $fila): $tmpTotal+=$fila->precio_total; $total+=$fila->precio_total; ?>
 					<tr>

@@ -8,8 +8,10 @@ import { saveAs } from "file-saver";
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
 import { BodegaService } from '../../../services/bodega.service';
+import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
 import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
 import { Bodega } from '../../../interfaces/bodega';
+import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 
 @Component({
 	selector: 'app-resumen-ingreso',
@@ -34,21 +36,28 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 	private endSubs = new Subscription();
 	public tiposMovimiento: TipoMovimiento[] = [];
 	public bodegas: Bodega[] = [];
+	public sedes: UsuarioSede[] = [];
 	public iva = [
 		{id: 1, descripcion: "Con IVA"},
 		{id: 2, descripcion: "Sin IVA"}
+	];
+	public estatus = [
+		{id: 1, descripcion: "Abierto"},
+		{id: 2, descripcion: "Confirmado"}
 	];
 
 	constructor(
 		private snackBar: MatSnackBar,
 		private pdfServicio: ReportePdfService,
 		private tipoMovimientoSrvc: TipoMovimientoService,
-		private bodegaSrvc: BodegaService
+		private bodegaSrvc: BodegaService,
+		private sedeSrvc: AccesoUsuarioService
 	) { }
 
 	ngOnInit() {
 		this.getTipoMovimiento()
-		this.getBodega()
+		//this.getBodega()
+		this.getSede()
 		this.resetParams()
 	}
 
@@ -61,7 +70,9 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			tipo_egreso: null,
+			estatus_movimiento: null,
 			bodega: null,
+			sede: null,
 			iva: 1
 		}
 	}
@@ -74,12 +85,25 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	getBodega = () => {
+	getBodega = (params: any = {}) => {
 		this.endSubs.add(
-			this.bodegaSrvc.get({}).subscribe(res => {
+			this.bodegaSrvc.get(params).subscribe(res => {
 				this.bodegas = res;
 			})
 		);
+	}
+
+	getSede = () => {
+		this.endSubs.add(
+			this.sedeSrvc.getSedes({}).subscribe(res => {
+				this.sedes = res;
+			})
+		);
+	}
+
+	onSedesSelected = (obj: any) => {
+		this.getBodega({ sede: this.params.sede });
+		this.params.bodega = null
 	}
 
 	requestPDF = (esExcel = 0) => {

@@ -173,6 +173,12 @@ class Fisico extends CI_Controller {
 							$articulo = new Articulo_model($art->articulo);
 							$pres = $articulo->getPresentacionReporte();
 							$existencias = $art->existencia_sistema/$pres->cantidad;
+							$diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
+
+							if (round($diferencia, 2) == 0) {
+								continue;
+							}
+							
 							$reg = [
 								$art->narticulo,
 								empty($art->codigo) ? $art->articulo : $art->codigo,

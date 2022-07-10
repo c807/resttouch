@@ -17,6 +17,16 @@
 					</mat-form-field>
 
 					<mat-form-field class="fullWidth">
+						<mat-label>Sede</mat-label>
+						<mat-select name="sede" multiple [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)"
+						required>
+							<mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+								{{sede.sede.nombre}}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
 						<mat-label>Bodega</mat-label>
 						<mat-select name="bodega" [(ngModel)]="params.bodega">
 							<mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
@@ -38,6 +48,15 @@
 						<mat-label>Ver</mat-label>
 						<mat-select name="iva" [(ngModel)]="params.iva" required>
 							<mat-option *ngFor="let i of iva" [value]="i.id">
+								{{ i.descripcion }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="fullWidth">
+						<mat-label>Estatus</mat-label>
+						<mat-select name="iva" [(ngModel)]="params.estatus_movimiento">
+							<mat-option *ngFor="let i of estatus" [value]="i.id">
 								{{ i.descripcion }}
 							</mat-option>
 						</mat-select>
