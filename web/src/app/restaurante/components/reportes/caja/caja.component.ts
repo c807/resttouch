@@ -15,6 +15,7 @@ import {ImpresionCorteCaja} from '../../../interfaces/cajacorte';
 import {Impresora} from '../../../../admin/interfaces/impresora';
 import {ImpresoraService} from '../../../../admin/services/impresora.service';
 import {Impresion} from '../../../classes/impresion';
+import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 import * as moment from 'moment';
 
 import {Subscription} from 'rxjs';
@@ -62,7 +63,8 @@ export class CajaComponent implements OnInit, OnDestroy {
     private sedeSrvc: AccesoUsuarioService,
     private socket: Socket,
     private ls: LocalstorageService,
-    private impresoraSrvc: ImpresoraService
+    private impresoraSrvc: ImpresoraService,
+    private configSrvc: ConfiguracionService
   ) {
   }
 
@@ -200,7 +202,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       TipoVenta: res.tipo_venta || []
     }
 
-    const imprimir = new Impresion(this.socket, this.ls);
+    const imprimir = new Impresion(this.socket, this.ls, null, this.configSrvc);
     imprimir.imprimirCorteCaja(obj);
   }
 

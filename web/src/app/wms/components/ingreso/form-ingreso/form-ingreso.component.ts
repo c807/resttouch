@@ -88,7 +88,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.usuarioConfirmaIngresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_ingreso || 0) === 1;
-    console.log('CONF ING = ', this.usuarioConfirmaIngresos);
+    // console.log('CONF ING = ', this.usuarioConfirmaIngresos);
     this.resetIngreso();
     this.loadTiposMovimiento();
     this.loadProveedores();
