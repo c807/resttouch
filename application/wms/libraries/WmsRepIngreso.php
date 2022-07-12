@@ -29,14 +29,14 @@ class WmsRepIngreso
 		$this->reportes = [
 			1 => (object)[
 				"titulo" => "Ingresos por proveedor",
-				"ultcol" => "G"
+				"ultcol" => "I"
 			],
 			2 => (object)[
 				"titulo" => "Ingresos por producto",
-				"ultcol" => "G"
+				"ultcol" => "H"
 			],
 			3 => (object)[
-				"titulo" => "Variacion de precios",
+				"titulo" => "Variación de precios",
 				"ultcol" => "D"
 			]
 		];
@@ -118,22 +118,30 @@ class WmsRepIngreso
 		$fila = 4;
 		if ($this->args->reporte == 3) {
 			$hoja->setCellValue("A{$fila}", "Producto");
-			$hoja->setCellValue("B{$fila}", "Ultimo costo");
+			$hoja->setCellValue("B{$fila}", "Último costo");
 			$hoja->setCellValue("C{$fila}", "Costo promedio");
-			$hoja->setCellValue("D{$fila}", "Desviación estandar");
+			$hoja->setCellValue("D{$fila}", "Desviación estándar");
+			$hoja->getStyle("B{$fila}:D{$fila}")->getAlignment()->setHorizontal("right");
 		} elseif ($this->args->reporte == 1) {
-			$hoja->setCellValue("A{$fila}", "Fecha");
-			$hoja->setCellValue("B{$fila}", "# Documento");
-			$hoja->setCellValue("C{$fila}", "Tipo movimiento");
-			$hoja->setCellValue("D{$fila}", "Bodega");
-			$hoja->setCellValue("E{$fila}", "Producto");
-			$hoja->setCellValue("F{$fila}", "Cantidad");
-			$hoja->setCellValue("G{$fila}", "Costo");
-			$hoja->setCellValue("H{$fila}", "Total");
+			$titulo = [
+				"Fecha",
+				"# Documento",
+				"Estatus ingreso",
+				"Tipo movimiento",
+				"Bodega",
+				"Producto",
+				"Cantidad",
+				"Costo",
+				"Total"
+			];
+
+			$hoja->fromArray($titulo, null, "A{$fila}");
+			$hoja->getStyle("G{$fila}:I{$fila}")->getAlignment()->setHorizontal("right");
 		} else {
 			$hoja->setCellValue("A{$fila}", "Fecha");
 			$hoja->setCellValue("B{$fila}", "# Documento");
-			$hoja->setCellValue("C{$fila}", "Bodega");
+			$hoja->setCellValue("C{$fila}", "Estatus ingreso");
+			$hoja->setCellValue("D{$fila}", "Bodega");
 
 			$t = "Producto";
 			
@@ -141,13 +149,14 @@ class WmsRepIngreso
 				$t = "Proveedor";
 			}
 
-			$hoja->setCellValue("D{$fila}", $t);
-			$hoja->setCellValue("E{$fila}", "Cantidad");
-			$hoja->setCellValue("F{$fila}", "Costo");
-			$hoja->setCellValue("G{$fila}", "Total");
+			$hoja->setCellValue("E{$fila}", $t);
+			$hoja->setCellValue("F{$fila}", "Cantidad");
+			$hoja->setCellValue("G{$fila}", "Costo");
+			$hoja->setCellValue("H{$fila}", "Total");
+			$hoja->getStyle("F{$fila}:H{$fila}")->getAlignment()->setHorizontal("right");
 		}
 
-		$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+		$hoja->getStyle("A{$fila}:I{$fila}")->getFont()->setBold(true);
 
 		$fila++;
 		if ($this->lista && $this->args->reporte == 3) {
@@ -175,9 +184,12 @@ class WmsRepIngreso
 				}
 
 				$hoja->setCellValue("A{$fila}", $row->producto);
-				$hoja->setCellValue("B{$fila}", number_format($row->ultimo_costo, 2));
-				$hoja->setCellValue("C{$fila}", number_format($row->costo_promedio, 2));
-				$hoja->setCellValue("D{$fila}", number_format($row->desviacion, 5));
+				$hoja->setCellValue("B{$fila}", number_format((float)$row->ultimo_costo, 2, ".", ""));
+				$hoja->setCellValue("C{$fila}", number_format((float)$row->costo_promedio, 2, ".", ""));
+				$hoja->setCellValue("D{$fila}", number_format((float)$row->desviacion, 2, ".", ""));
+				$hoja->getStyle("B{$fila}:D{$fila}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
 				$fila++;
 			}
 
@@ -201,9 +213,9 @@ class WmsRepIngreso
 				$provTotal = 0;
 				$provCant  = 0;
 				
-				$hoja->mergeCells("A{$fila}:G{$fila}");
+				$hoja->mergeCells("A{$fila}:I{$fila}");
 				$hoja->setCellValue("A{$fila}", $proveedor);
-				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+				$hoja->getStyle("A{$fila}:I{$fila}")->getFont()->setBold(true);
 				$fila++;
 				
 				foreach ($documento as $llave => $producto) {
@@ -218,14 +230,23 @@ class WmsRepIngreso
 						$tmpCant  = $row->cantidad;
 						$tmpTot   = $tmpCosto * $row->cantidad;
 
-						$hoja->setCellValue("A{$fila}", formatoFecha($row->fecha, 2));
-						$hoja->setCellValue("B{$fila}", $row->num_documento);
-						$hoja->setCellValue("C{$fila}", $row->ntipo_movimiento);
-						$hoja->setCellValue("D{$fila}", $row->bodega);
-						$hoja->setCellValue("E{$fila}", $row->producto);
-						$hoja->setCellValue("F{$fila}", number_format($row->cantidad, 2));
-						$hoja->setCellValue("G{$fila}", number_format($tmpCosto, 2));
-						$hoja->setCellValue("H{$fila}", number_format($tmpTot, 2));
+						$tmpData = [
+							formatoFecha($row->fecha, 2),
+							$row->num_documento,
+							$row->nestatus,
+							$row->ntipo_movimiento,
+							$row->bodega,
+							$row->producto,
+							number_format((float)$row->cantidad, 2, ".", ""),
+							number_format((float)$tmpCosto, 2, ".", ""),
+							number_format((float)$tmpTot, 2, ".", "")
+						];
+
+						$hoja->fromArray($tmpData, null, "A{$fila}");
+
+						$hoja->getStyle("G{$fila}:I{$fila}")
+						->getNumberFormat()
+						->setFormatCode("0.00");
 
 						$provTotal += $tmpTot;
 						$provCant  += $tmpCant;
@@ -234,32 +255,41 @@ class WmsRepIngreso
 						$fila++;
 					}
 					
-					$hoja->mergeCells("A{$fila}:E{$fila}");
-					$hoja->getStyle("A{$fila}:E{$fila}")->getAlignment()->setHorizontal("right");
+					$hoja->mergeCells("A{$fila}:F{$fila}");
+					$hoja->getStyle("A{$fila}:F{$fila}")->getAlignment()->setHorizontal("right");
 					$hoja->setCellValue("A{$fila}", "Total documento: ");
-					$hoja->setCellValue("F{$fila}", number_format($docCant, 2));
-					$hoja->setCellValue("H{$fila}", number_format($docTotal, 2));
-					$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("G{$fila}", number_format((float)$docCant, 2, ".", ""));
+					$hoja->setCellValue("I{$fila}", number_format((float)$docTotal, 2, ".", ""));
+					$hoja->getStyle("A{$fila}:I{$fila}")->getFont()->setBold(true);
+					$hoja->getStyle("G{$fila}:I{$fila}")
+					->getNumberFormat()
+					->setFormatCode("0.00");
 					$fila++;
 				}
 				
-				$hoja->mergeCells("A{$fila}:E{$fila}");
-				$hoja->getStyle("A{$fila}:E{$fila}")->getAlignment()->setHorizontal("right");
+				$hoja->mergeCells("A{$fila}:F{$fila}");
+				$hoja->getStyle("A{$fila}:F{$fila}")->getAlignment()->setHorizontal("right");
 				$hoja->setCellValue("A{$fila}", "Total proveedor: ");
-				$hoja->setCellValue("F{$fila}", number_format($provCant, 2));
-				$hoja->setCellValue("H{$fila}", number_format($provTotal, 2));
-				$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
+				$hoja->setCellValue("G{$fila}", number_format((float)$provCant, 2, ".", ""));
+				$hoja->setCellValue("I{$fila}", number_format((float)$provTotal, 2, ".", ""));
+				$hoja->getStyle("A{$fila}:I{$fila}")->getFont()->setBold(true);
+				$hoja->getStyle("G{$fila}:I{$fila}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
 
 				$total += $provTotal;
 				$fila++;
 			}
 
-			$hoja->mergeCells("A{$fila}:E{$fila}");
+			$hoja->mergeCells("A{$fila}:F{$fila}");
 			$hoja->setCellValue("A{$fila}", "Total");
-			$hoja->setCellValue("H{$fila}", number_format($total, 2));
-			$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
-			$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal("center");
-			$hoja->getStyle("H{$fila}")->getAlignment()->setHorizontal("right");
+			$hoja->setCellValue("I{$fila}", number_format((float)$total, 2, ".", ""));
+			$hoja->getStyle("A{$fila}:I{$fila}")->getFont()->setBold(true);
+			$hoja->getStyle("A{$fila}:F{$fila}")->getAlignment()->setHorizontal("center");
+			$hoja->getStyle("I{$fila}")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("I{$fila}")
+			->getNumberFormat()
+			->setFormatCode("0.00");
 
 
 		} else if ($this->lista) {
@@ -274,25 +304,26 @@ class WmsRepIngreso
 				if ($this->args->reporte == 1) {
 					if ($row->nproveedor != $proveedor) {
 						$proveedor = $row->nproveedor;
-						$hoja->mergeCells("A{$fila}:G{$fila}");
+						$hoja->mergeCells("A{$fila}:H{$fila}");
 						$hoja->setCellValue("A{$fila}", $proveedor);
-						$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+						$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 						$fila++;
 					}
 				}
 				if ($this->args->reporte == 2) {
 					if ($row->producto != $producto) {
 						$producto = $row->producto;
-						$hoja->mergeCells("A{$fila}:G{$fila}");
+						$hoja->mergeCells("A{$fila}:H{$fila}");
 						$hoja->setCellValue("A{$fila}", $producto);
-						$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+						$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 						$fila++;
 					}
 				}
 
 				$hoja->setCellValue("A{$fila}", formatoFecha($row->fecha, 2));
 				$hoja->setCellValue("B{$fila}", $row->num_documento);
-				$hoja->setCellValue("C{$fila}", $row->bodega);
+				$hoja->setCellValue("C{$fila}", $row->nestatus);
+				$hoja->setCellValue("D{$fila}", $row->bodega);
 
 				$t = $row->producto;
 		
@@ -300,26 +331,32 @@ class WmsRepIngreso
 					$t = $row->nproveedor;
 				}
 
-				$hoja->setCellValue("D{$fila}", $t);
-				$hoja->setCellValue("E{$fila}", number_format($row->cantidad, 2));
-				$hoja->setCellValue("F{$fila}", number_format($row->costo, 4));
-				$hoja->setCellValue("G{$fila}", number_format($row->costo_total, 2));
+				$hoja->setCellValue("E{$fila}", $t);
+				$hoja->setCellValue("F{$fila}", number_format((float)$row->cantidad, 2, ".", ""));
+				$hoja->setCellValue("G{$fila}", number_format((float)$row->costo, 4, ".", ""));
+				$hoja->setCellValue("H{$fila}", number_format((float)$row->costo_total, 2, ".", ""));
+				$hoja->getStyle("F{$fila}:H{$fila}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
 
 				$total += $row->cantidad * $row->costo;
 				$tcantidad += $row->cantidad;
 				$fila++;
 			}
 
-			$hoja->mergeCells("A{$fila}:D{$fila}");
+			$hoja->mergeCells("A{$fila}:E{$fila}");
 			$hoja->setCellValue("A{$fila}", "Total");
 			if ($this->args->reporte == 2) {
-				$hoja->setCellValue("E{$fila}", number_format($tcantidad, 2));
+				$hoja->setCellValue("F{$fila}", number_format((float)$tcantidad, 2, ".", ""));
 			}
-			$hoja->setCellValue("G{$fila}", number_format($total, 2));
+			$hoja->setCellValue("H{$fila}", number_format((float)$total, 2, ".", ""));
 
-			$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
-			$hoja->getStyle("A{$fila}:F{$fila}")->getAlignment()->setHorizontal("center");
-			$hoja->getStyle("G{$fila}")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
+			$hoja->getStyle("A{$fila}:E{$fila}")->getAlignment()->setHorizontal("center");
+			$hoja->getStyle("H{$fila}")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("F{$fila}:H{$fila}")
+			->getNumberFormat()
+			->setFormatCode("0.00");
 		}
 
 		foreach (range('A', $rep->ultcol) as $col) {

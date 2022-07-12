@@ -35,6 +35,10 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 
 	public tiposMovimiento: TipoMovimiento[] = [];
 	public bodegas: Bodega[] = [];
+	public estatus = [
+		{id: 1, descripcion: "Abierto"},
+		{id: 2, descripcion: "Confirmado"}
+	];
 
 	constructor(
 		private snackBar: MatSnackBar,
@@ -58,6 +62,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat), //moment().format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			tipo_egreso: null,
+			estatus_movimiento: null,
 			bodega: null
 		}
 	}

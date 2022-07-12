@@ -47,6 +47,11 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     {id: 2, descripcion: "Sin IVA"}
   ];
 
+  public estatus = [
+    {id: 1, descripcion: "Abierto"},
+    {id: 2, descripcion: "Confirmado"}
+  ];
+
   private endSubs = new Subscription();
   public proveedores: Proveedor[] = [];
   public filteredProveedores: Proveedor[] = [];

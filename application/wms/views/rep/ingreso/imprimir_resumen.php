@@ -11,7 +11,7 @@
 		.text-left {text-align: left;}
 		.text-right {text-align: right;}
 		.text-center {text-align: center;}
-		.tabla-contenido {font-size: 0.65em;}
+		.tabla-contenido {font-size: 0.55em;}
 		.titulo {text-align: center; vertical-align: middle; background-color: #E5E5E5; font-weight: bold;}
 		.totales {text-align: right; background-color: #E5E5E5; }
 		.subtitulo {text-align: left; vertical-align: middle; background-color: #E5E5E5; font-weight: bold;}
@@ -24,8 +24,10 @@
 	<table class="tabla-contenido">
 		<tr>
 			<td class="titulo">Fecha</td>
-			<td class="titulo">Numero</td>
+			<td class="titulo">Número</td>
+			<td class="titulo">Estatus ingreso</td>
 			<td class="titulo">Tipo</td>
+			<td class="titulo">Sede</td>
 			<td class="titulo">Bodega</td>
 			<td class="titulo">Proveedor</td>
 			<td class="titulo">Serie</td>
@@ -37,7 +39,9 @@
 			<tr>
 				<td><?php echo $row->fecha?></td>
 				<td><?php echo $row->numero?></td>
+				<td><?php echo $row->estatus?></td>
 				<td><?php echo $row->tipo?></td>
+				<td><?php echo $row->sede?></td>
 				<td><?php echo $row->bodega?></td>
 				<td><?php echo $row->proveedor?></td>
 				<td><?php echo $row->serie?></td>
@@ -47,7 +51,7 @@
 			</tr>
 		<?php endforeach ?>
 		<tr>
-			<td class="totales text-right" colspan="8"><b>Total</b></td>
+			<td class="totales text-right" colspan="9"><b>Total</b></td>
 			<td class="totales text-right"><b><?php echo number_format($total, 2); ?></b></td>
 		</tr>
 	</table>

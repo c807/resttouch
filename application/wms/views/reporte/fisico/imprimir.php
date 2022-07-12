@@ -50,10 +50,10 @@
 					$articulo = new Articulo_model($art->articulo);
 					$pres     = $articulo->getPresentacionReporte();
 
-					if ($inventario->confirmado && !$esfisico) {
+					if ($inventario->confirmado) {
 						$diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
 
-						if ($diferencia == 0) {
+						if (round($diferencia, 2) == 0) {
 							continue;
 						}
 					}

@@ -25,6 +25,7 @@
 		<tr>
 			<td class="titulo">Fecha</td>
 			<td class="titulo"># Documento</td>
+			<td class="titulo">Estatus ingreso</td>
 			<td class="titulo">Tipo movimiento</td>
 			<td class="titulo">Bodega </td>
 			<td class="titulo">Producto</td>
@@ -37,7 +38,7 @@
 				$provTotal = 0;
 				$provCant  = 0; ?>
 			<tr>
-				<td colspan="8" class="titulo text-left"><?php echo $proveedor?></td>
+				<td colspan="9" class="titulo text-left"><?php echo $proveedor?></td>
 			</tr>
 			<?php foreach ($documento as $llave => $producto): 
 					$docTotal = 0;
@@ -51,6 +52,7 @@
 					<tr>
 						<td><?php echo formatoFecha($row->fecha, 2); ?></td>
 						<td><?php echo $row->num_documento; ?></td>
+						<td><?php echo $row->nestatus; ?></td>
 						<td><?php echo $row->ntipo_movimiento; ?></td>
 						<td><?php echo $row->bodega; ?> </td>
 						<td><?php echo $row->producto; ?></td>
@@ -67,21 +69,21 @@
 					$cantidad  += $tmpCant;
 					endforeach ?>
 				<tr>
-					<td class="totales text-right" colspan="5"><b>Total documento: </b></td>
+					<td class="totales text-right" colspan="6"><b>Total documento: </b></td>
 					<td class="totales text-right"><?php echo number_format($docCant, 2)?></td>
 					<td class="totales text-right"></td>
 					<td class="totales text-right"><?php echo number_format($docTotal, 2)?></td>
 				</tr>
 			<?php endforeach ?>
 			<tr>
-				<td class="totales text-right" colspan="5"><b>Total Proveedor: </b></td>
+				<td class="totales text-right" colspan="6"><b>Total Proveedor: </b></td>
 				<td class="totales text-right"><?php echo number_format($provCant, 2)?></td>
 				<td class="totales text-right"></td>
 				<td class="totales text-right"><?php echo number_format($provTotal, 2)?></td>
 			</tr>
 		<?php endforeach ?>
 		<tr>
-			<td class="totales text-right" colspan="5"><b>Total</b></td>
+			<td class="totales text-right" colspan="6"><b>Total</b></td>
 			<td class="totales text-right"><?php echo number_format($cantidad, 2)?></td>
 			<td class="totales text-right"></td>
 			<td class="totales text-right"><b><?php echo number_format($total, 2); ?></b></td>

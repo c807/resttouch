@@ -1191,13 +1191,16 @@ class Reporte extends CI_Controller
 							"egreso"      => $row->egreso,
 							"nmovimiento" => $row->nmovimiento,
 							"nbodega"     => $row->nbodega,
-							"comentario"     => $row->comentario,
+							"comentario"  => $row->comentario,
+							"estatus"     => $row->nestatus,
 							"detalle"     => []
 						];
 					}
 
 					$data[$row->egreso]["detalle"][] = $row;
 				}
+
+				$params["sede"] = $this->Sede_model->buscar(["sede" => $this->data->sede, "_uno" => true]);
 				
 				if (verDato($params, "_excel")) {
 					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1209,22 +1212,45 @@ class Reporte extends CI_Controller
 					$hoja->setCellValue("A1", "Resumen de egresos")->mergeCells("A1:D1");
 					$hoja->setCellValue("A3", "Del: ");
 					$hoja->setCellValue("A4", "Al: ");
-					$hoja->setCellValue("A5", "Bodega: ");
-					$hoja->getStyle("A1:A5")->getFont()->setBold(true);
+					$hoja->setCellValue("A5", "Sede: ");
+					$hoja->setCellValue("A6", "Bodega: ");
+					$hoja->getStyle("A1:A6")->getFont()->setBold(true);
 
 					$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
 					$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
-					$hoja->setCellValue("B5", $params["bodega_nombre"]);
+					$hoja->setCellValue("B5", "{$params['sede']->nombre} ({$params['sede']->alias})");
+					$hoja->setCellValue("B6", $params["bodega_nombre"]);
 					
-					$pos   = 7;
+					$pos   = 8;
 					$total = 0;
+
+					$titulo = [
+						"Fecha",
+						"Documento",
+						"Estatus egreso",
+						"Tipo",
+						"Bodega",
+						"",
+						"Comentario"
+					];
+
+					$hoja->fromArray($titulo, null, "A{$pos}");
+					$hoja->getStyle("A{$pos}:G{$pos}")->getFont()->setBold(true);
+					$pos++;
 					
 					foreach ($data as $key => $row) {
-						$hoja->setCellValue("A{$pos}", formatoFecha($row["fecha"], 2));
-						$hoja->setCellValue("B{$pos}", $row["egreso"]);
-						$hoja->setCellValue("C{$pos}", $row["nmovimiento"]);
-						$hoja->setCellValue("D{$pos}", $row["nbodega"]);
-						$hoja->setCellValue("G{$pos}", $row["comentario"]);
+
+						$tmpData = [
+							formatoFecha($row["fecha"], 2),
+							$row["egreso"],
+							$row["estatus"],
+							$row["nmovimiento"],
+							$row["nbodega"],
+							"",
+							$row["comentario"]
+						];
+
+						$hoja->fromArray($tmpData, null, "A{$pos}");
 
 						$hoja->getStyle("G{$pos}")
 						->getAlignment()
@@ -1233,7 +1259,21 @@ class Reporte extends CI_Controller
 						$pos++;
 
 						$tmpTotal = 0;
+						$tmpTitulo = [
+							"Código",
+							"Articulo",
+							"Presentación",
+							"Cantidad",
+							"Total"
+						];
+
+						$hoja->fromArray($tmpTitulo, null, "B{$pos}");
+						$hoja->getStyle("E{$pos}:F{$pos}")->getAlignment()->setHorizontal("right");
+						$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
+						$pos++;
+						
 						foreach ($row["detalle"] as $llave => $fila) {
+
 							$hoja->setCellValue("B{$pos}", $fila->carticulo);
 							$hoja->setCellValue("C{$pos}", $fila->narticulo);
 							$hoja->setCellValue("D{$pos}", $fila->npresentacion);

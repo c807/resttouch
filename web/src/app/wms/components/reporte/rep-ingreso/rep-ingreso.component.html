@@ -90,6 +90,15 @@
 						</mat-select>
 					</mat-form-field>
 
+					<mat-form-field class="fullWidth">
+						<mat-label>Estatus</mat-label>
+						<mat-select name="iva" [(ngModel)]="params.estatus_movimiento">
+							<mat-option *ngFor="let i of estatus" [value]="i.id">
+								{{ i.descripcion }}
+							</mat-option>
+						</mat-select>
+					</mat-form-field>
+
 					<div align="end">
 						<app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()"
 						(resetParamsClick)="resetParams()"></app-rpt-botones>

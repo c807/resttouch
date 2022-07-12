@@ -24,9 +24,9 @@
 		<?php if ($args->reporte == 3): ?>
 			<tr>
 				<td class="titulo">Producto</td>
-				<td class="titulo">Ultimo costo</td>
+				<td class="titulo">Último costo</td>
 				<td class="titulo">Costo promedio</td>
-				<td class="titulo">Desviación estandar</td>
+				<td class="titulo">Desviación estándar</td>
 			</tr>
 		<?php else: ?>
 			<?php
@@ -39,6 +39,7 @@
 			<tr>
 				<td class="titulo">Fecha</td>
 				<td class="titulo"># Documento</td>
+				<td class="titulo">Estatus ingreso</td>
 				<td class="titulo">Bodega </td>
 				<td class="titulo"><?php echo $col ?></td>
 				<td class="titulo">Cantidad</td>
@@ -79,7 +80,7 @@
 					<?php if ($row->nproveedor != $proveedor): ?>
 						<?php $proveedor = $row->nproveedor; ?>
 						<tr>
-							<td colspan="7" class="titulo text-left"><?php echo $proveedor ?></td>
+							<td colspan="8" class="titulo text-left"><?php echo $proveedor ?></td>
 						</tr>
 					<?php endif ?>
 				<?php endif ?>
@@ -87,13 +88,14 @@
 					<?php if ($row->producto != $producto): ?>
 						<?php $producto = $row->producto; ?>
 						<tr>
-							<td colspan="7" class="titulo text-left"><?php echo $producto ?></td>
+							<td colspan="8" class="titulo text-left"><?php echo $producto ?></td>
 						</tr>
 					<?php endif ?>
 				<?php endif ?>
 				<tr>
 					<td><?php echo formatoFecha($row->fecha, 2); ?></td>
 					<td><?php echo $row->num_documento; ?></td>
+					<td><?php echo $row->nestatus?></td>
 					<td><?php echo $row->bodega; ?> </td>
 					<?php
 						$val = $row->producto;
