@@ -124,7 +124,6 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   cerrar = (refrescar = false, comanda: any = null) => this.bsAccionesComanda.dismiss({ refrescar, comanda });
 
   getNotasGenerales = (obj: any) => {
-    // console.log(obj); return;
     const ngenDialog = this.dialog.open(NotasGeneralesComandaComponent, {
       width: '50%',
       data: { notasGenerales: (obj.notas_generales || '') }
@@ -132,18 +131,16 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
         if (notasGen !== null) {
-          if (notasGen.trim().length > 0) {
-            this.endSubs.add(
-              this.comandaSrvc.saveNotasGenerales({ comanda: obj.comanda, notas_generales: notasGen }).subscribe(res => {
-                if (res.exito) {
-                  obj.notas_generales = notasGen;
-                  this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
-                } else {
-                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
-                }
-              })
-            );
-          }
+          this.endSubs.add(
+            this.comandaSrvc.saveNotasGenerales({ comanda: obj.comanda, notas_generales: notasGen }).subscribe(res => {
+              if (res.exito) {
+                obj.notas_generales = notasGen;
+                this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
+              }
+            })
+          );
         }
       })
     );
@@ -333,7 +330,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     }
 
     if (this.impresoraPorDefectoFactura || this.impresoraPorDefecto) {
-      dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;      
+      dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;
       if (+dataToPrint.Impresora.bluetooth === 0) {
         this.socket.emit('print:factura', JSON.stringify(dataToPrint));
       } else {

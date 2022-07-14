@@ -31,3 +31,31 @@
   text-align: right;
   margin-right: 5px;
 }
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  /* border-bottom: 1px dotted black; */
+}
+
+.tooltip .tooltiptext {
+  max-width: 100%;
+  padding: 7px;
+  min-height: 30px;
+  background: #fff;
+  visibility: hidden;
+  border: 1px solid black;
+  color: #000;
+  text-align: left;
+  border-radius: 7px;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  word-wrap: break-word;
+  opacity: 0.85;
+  margin-left: 3px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}

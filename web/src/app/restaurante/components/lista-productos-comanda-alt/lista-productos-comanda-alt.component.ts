@@ -109,18 +109,16 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
         if (notasGen !== null) {
-          if (notasGen.trim().length > 0) {
-            this.endSubs.add(
-              this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: notasGen.trim() }).subscribe(res => {
-                if (res.exito) {
-                  p.notas = notasGen.trim();
-                  this.snackBar.open(res.mensaje, 'Artículo', { duration: 3000 });
-                } else {
-                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 7000 });
-                }
-              })
-            );
-          }
+          this.endSubs.add(
+            this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: notasGen.trim() }).subscribe(res => {
+              if (res.exito) {
+                p.notas = notasGen.trim();
+                this.snackBar.open(res.mensaje, 'Artículo', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 7000 });
+              }
+            })
+          );          
         }
       })
     );

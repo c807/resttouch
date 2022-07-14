@@ -6,12 +6,12 @@
         </span>
     </div>
     <mat-divider></mat-divider>
-    <ng-container *ngFor="let p of detalleCuenta; let i = index;">
-        <!-- <div>{{p | json}}</div> -->
+    <ng-container *ngFor="let p of detalleCuenta; let i = index;">        
         <div class="wrapper" [ngClass]="{'noImpreso': +p.impreso === 0}">
-            <div class="first product-margin" *ngIf="+p.cantidad > 0">
+            <div class="first product-margin tooltip" *ngIf="+p.cantidad > 0">
                 <span>{{p.cantidad | number: '1.0-0'}} {{p.descripcion}}</span>                
-                <br *ngIf="p.detalle.length > 0" />
+                <br *ngIf="p.detalle.length > 0 || (p.notas && p.notas.length > 0)" />
+                <span class="tooltiptext" *ngIf="p.notas && p.notas.length > 0">{{p.notas}}</span>
                 <app-producto-comanda-alt *ngIf="p.detalle.length > 0" [detalle]="p.detalle"></app-producto-comanda-alt>
             </div>
             <div class="second product-margin" align="right">

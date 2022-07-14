@@ -1229,16 +1229,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     });
     ngenDialog.afterClosed().subscribe((notasGen: string) => {
       if (notasGen !== null) {
-        if (notasGen.trim().length > 0) {
-          this.comandaSrvc.saveNotasGenerales({ comanda: this.mesaEnUso.comanda, notas_generales: notasGen }).subscribe(res => {
-            if (res.exito) {
-              this.mesaEnUso.notas_generales = notasGen;
-              this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
-            } else {
-              this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
-            }
-          });
-        }
+        this.comandaSrvc.saveNotasGenerales({ comanda: this.mesaEnUso.comanda, notas_generales: notasGen }).subscribe(res => {
+          if (res.exito) {
+            this.mesaEnUso.notas_generales = notasGen;
+            this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
+          }
+        });        
       }
     });
   }

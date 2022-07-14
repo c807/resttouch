@@ -34,6 +34,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { LayoutModule } from '@angular/cdk/layout';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 import { EcoFabSpeedDialModule } from '@ecodev/fab-speed-dial';
@@ -148,7 +149,8 @@ import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-
     MatChipsModule,
     MatBottomSheetModule,
     MatKeyboardModule,
-    LayoutModule
+    LayoutModule,
+    MatTooltipModule
   ],
   providers: [
     MatNativeDateModule

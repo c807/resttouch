@@ -1274,21 +1274,19 @@ export class TranComanda {
     this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
         if (notasGen !== null) {
-          if (notasGen.trim().length > 0) {
-            this.endSubs.add(
-              this.comandaSrvc.saveNotasGenerales({
-                comanda: this.mesaEnUso.comanda,
-                notas_generales: notasGen
-              }).subscribe(res => {
-                if (res.exito) {
-                  this.mesaEnUso.notas_generales = notasGen;
-                  this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
-                } else {
-                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
-                }
-              })
-            );
-          }
+          this.endSubs.add(
+            this.comandaSrvc.saveNotasGenerales({
+              comanda: this.mesaEnUso.comanda,
+              notas_generales: notasGen
+            }).subscribe(res => {
+              if (res.exito) {
+                this.mesaEnUso.notas_generales = notasGen;
+                this.snackBar.open(res.mensaje, 'Comanda', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
+              }
+            })
+          );          
         }
       })
     );

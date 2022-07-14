@@ -67,13 +67,16 @@ class Comanda extends CI_Controller
 			$req = json_decode(file_get_contents('php://input'), true);
 			if (isset($req['notas_generales'])) {
 				if (trim($req['notas_generales']) !== '') {
-					$com = new Comanda_model($comanda);
-					$datos['exito'] = $com->guardar($req);
-					if ($datos['exito']) {
-						$datos['mensaje'] = 'Notas generales actualizadas con éxito.';
-					} else {
-						$datos['mensaje'] = implode('<br>', $com->getMensaje());;
-					}
+					$req['notas_generales'] = trim($req['notas_generales']);
+				} else {
+					$req['notas_generales'] = null;
+				}
+				$com = new Comanda_model($comanda);
+				$datos['exito'] = $com->guardar($req);
+				if ($datos['exito']) {
+					$datos['mensaje'] = 'Notas generales actualizadas con éxito.';
+				} else {
+					$datos['mensaje'] = implode('<br>', $com->getMensaje());;
 				}
 			}
 		}
