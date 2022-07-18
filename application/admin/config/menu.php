@@ -430,6 +430,10 @@ $config['menu'] = [
 					1 => [
 						'nombre' => 'Distribución de propinas',
 						'link' => '/gk/repdistprop'
+					],
+					2 => [
+						'nombre' => 'Ventas por marca',
+						'link' => '/gk/rep_venta_marca'
 					]
 				]
 			]

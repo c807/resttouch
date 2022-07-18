@@ -34,4 +34,10 @@ export class ReporteGkService {
       `${GLOBAL.urlGhostKitchen}/${this.moduleUrl}/propinas`, params, this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  generaVentaMarca(params: any): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlGhostKitchen}/${this.moduleUrl}/venta_marca`, params, this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

@@ -223,4 +223,177 @@ class Reporte_gk extends CI_Controller
             $writer->save("php://output");            
         }
     }
+
+    public function venta_marca()
+    {
+        set_time_limit(0);
+        $this->load
+        ->add_package_path("application/restaurante")
+        ->model([
+            "Comanda_model",
+            "Factura_model",
+            "Dfactura_model"
+        ]);
+        
+        $datos = json_decode(file_get_contents("php://input"), true);
+        $data  = [];
+        
+        $datos["_vivas"] = true;
+
+        foreach ($this->Factura_model->get_facturas($datos) as $row) {
+            $factura = new Factura_model($row->factura);
+
+            foreach ($factura->getDetalle() as $det) {
+                $articulo  = new Articulo_model($det->articulo->articulo);
+                $categoria = $articulo->getCategoriaGrupo();
+
+                if (!isset($data[$row->sede])) {
+                    $data[$row->sede] = [];
+                }
+
+                if (!isset($data[$row->sede][$categoria->categoria])) {
+                    $data[$row->sede][$categoria->categoria] = [
+                        "nombre" => $categoria->ncategoria,
+                        "total"  => 0
+                    ];
+                }
+
+                $data[$row->sede][$categoria->categoria]["total"] += $det->total;
+            }
+        }
+
+        foreach ($this->Comanda_model->get_sin_factura($datos) as $row) {
+            $comanda = new Comanda_model($row->comanda);
+
+            foreach ($comanda->getDetalle() as $det) {
+
+                $articulo  = new Articulo_model($det->articulo->articulo);
+                $categoria = $articulo->getCategoriaGrupo();
+
+                if (!isset($data[$row->sede])) {
+                    $data[$row->sede] = [];
+                }
+
+                if (!isset($data[$row->sede][$categoria->categoria])) {
+                    $data[$row->sede][$categoria->categoria] = [
+                        "nombre" => $categoria->ncategoria,
+                        "total"  => 0
+                    ];
+                }
+
+                $data[$row->sede][$categoria->categoria]["total"] += $det->total;
+            }
+        }
+
+        if ($data) {
+            $nombreArchivo = "Ventas_marca_".rand();
+
+            if (verDato($datos, "_excel")) {
+                $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+                $excel->setActiveSheetIndex(0);
+                $hoja = $excel->getActiveSheet();
+                $hoja->setTitle("Ventas por Marca");
+
+                $pos = 2;
+                $hoja->setCellValue("A{$pos}", "Ventas por Marca");
+                $hoja->getStyle("A{$pos}")->getFont()->setBold(true);
+                $hoja->getStyle("A{$pos}")->getAlignment()->setHorizontal("center");
+                $hoja->mergeCells("A{$pos}:B{$pos}");
+                $pos+=2;
+
+                $hoja->setCellValue("A{$pos}", "Del");
+                $hoja->setCellValue("B{$pos}", formatoFecha($datos["fdel"], 2));
+                $pos++;
+
+                $hoja->setCellValue("A{$pos}", "Al");
+                $hoja->setCellValue("B{$pos}", formatoFecha($datos["fal"], 2));
+                $hoja->getStyle("A4:A5")->getFont()->setBold(true);
+                $pos+=2;
+
+                $hoja->setCellValue("A{$pos}", "Marca");
+                $hoja->setCellValue("B{$pos}", "Total");
+                $hoja->getStyle("A{$pos}:B{$pos}")->getFont()->setBold(true);
+                $hoja->getStyle("B{$pos}")->getAlignment()->setHorizontal("right");
+                $pos++;
+
+                $total = 0;
+                foreach ($data as $key => $row) {
+                    $tmpSede  = new Sede_model($key);
+                    $tmpTotal = 0;
+
+                    usort($row, function($a, $b) {
+                        return $a["total"] - $b["total"];
+                    });
+
+                    $hoja->setCellValue("A{$pos}", "{$tmpSede->nombre}\n({$tmpSede->alias})");
+                    $hoja->getStyle("A{$pos}:B{$pos}")->getAlignment()->setWrapText(true);
+                    $hoja->getStyle("A{$pos}:B{$pos}")->getFont()->setBold(true);
+                    $pos++;
+
+                    foreach ($row as $llave => $fila) {
+
+                        $hoja->setCellValue("A{$pos}", $fila["nombre"]);
+                        $hoja->setCellValue("B{$pos}", (float) $fila["total"]);
+
+                        $hoja->getStyle("B{$pos}")
+                        ->getNumberFormat()
+                        ->setFormatCode("0.00");
+
+                        $tmpTotal += $fila["total"];
+                        $total    += $fila["total"];
+
+                        $pos++;
+                    }
+
+                    $hoja->setCellValue("A{$pos}", "Total");
+                    $hoja->setCellValue("B{$pos}", (float) $tmpTotal);
+                    $hoja->getStyle("A{$pos}:B{$pos}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$pos}")
+                    ->getNumberFormat()
+                    ->setFormatCode("0.00");
+
+                    $pos+=2;
+                }
+
+                $hoja->setCellValue("A{$pos}", "Gran Total");
+
+                $hoja->setCellValue("B{$pos}", (float) $total);
+                $hoja->getStyle("B{$pos}")
+                ->getNumberFormat()
+                ->setFormatCode("0.00");
+
+                $hoja->getStyle("A{$pos}:B{$pos}")->applyFromArray([
+                    "font"    => ["bold" => true],
+                    "borders" => [
+                        "top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+                        "bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+                    ]
+                ]);
+                
+                $hoja->getColumnDimension("A")->setAutoSize(1);
+                $hoja->getColumnDimension("B")->setAutoSize(1);
+
+                header("Content-Type: application/vnd.ms-excel");
+                header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+                header("Cache-Control: max-age=1");
+                header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+                header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+                header("Cache-Control: cache, must-revalidate");
+                header("Pragma: public");
+                
+                $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+                $writer->save("php://output");
+            } else {
+                
+                ini_set("pcre.backtrack_limit", "5000000");
+                $pdf = new \Mpdf\Mpdf([
+                    "tempDir" => sys_get_temp_dir(),
+                    "format"  => "Legal"
+                ]);
+                $pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+                $pdf->WriteHTML($this->load->view("reporte/venta_marca/imprimir", ["data" => $data, "params" => $datos], true));
+                $pdf->Output("{$nombreArchivo}.pdf", "D");
+            }
+        }
+    }
 }
