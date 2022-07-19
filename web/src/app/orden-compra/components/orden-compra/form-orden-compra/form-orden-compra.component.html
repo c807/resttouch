@@ -91,7 +91,7 @@
                 <mat-label>Artículo</mat-label>
                 <mat-select name="articulo" [(ngModel)]="detalleOrdenCompra.articulo" (selectionChange)="articuloSelected($event)" required>
                     <mat-optgroup *ngFor="let group of articulos" [label]="group.razon_social">
-                        <mat-option *ngFor="let a of group.articulos" [value]="a.articulo">
+                        <mat-option *ngFor="let a of group.articulos" [value]="a.articulo" [disabled]="+a.debaja === 1">
                             {{a.descripcion}}
                         </mat-option>
                     </mat-optgroup>
@@ -101,7 +101,7 @@
             <mat-form-field class="fullWidth">
                 <mat-label>Presentación</mat-label>
                 <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" (selectionChange)="presentacionSelected($event)" required>
-                    <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
+                    <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                         {{p.descripcion_presentacion}}
                     </mat-option>
                 </mat-select>

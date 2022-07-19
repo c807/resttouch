@@ -50,7 +50,8 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         (+artSel.multiple === 1 && +this.articulo.multiple === 1) || 
         (+artSel.combo === 1 && +this.articulo.combo === 1) ||
         (+artSel.combo === 1 && +this.articulo.multiple === 1) ||
-        (+this.articulo.cobro_mas_caro === 1 && +artSel.multiple === 1 && (+artSel.cantidad_minima !== 2 || +artSel.cantidad_maxima !== 2))
+        (+this.articulo.cobro_mas_caro === 1 && +artSel.multiple === 1 && (+artSel.cantidad_minima !== 2 || +artSel.cantidad_maxima !== 2)) ||
+        +artSel.debaja === 1
         )
       {
         dar = true;
@@ -199,10 +200,8 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   loadPresentaciones = () => {
     this.endSubs.add(      
       this.presentacionSrvc.get().subscribe(res => {
-        if (res) {
-          this.presentaciones = res;
-          this.filtrarPresentaciones();
-        }
+        this.presentaciones = res || [];
+        this.filtrarPresentaciones();        
       })
     );
   }
@@ -220,14 +219,12 @@ export class FormProductoComponent implements OnInit, OnDestroy {
 
   filtrarPresentaciones = (art: Articulo = null) => {
     if (this.presentaciones && this.presentaciones.length > 0) {
-      if (art?.articulo) {
-        // console.log('ARTICULO = ', art);
+      if (art?.articulo) {        
         this.endSubs.add(          
           this.articuloSrvc.tieneMovimientos(art.articulo).subscribe(res => {
             if (res.exito) {
               if (res.tiene_movimientos) {
-                const presReporte = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);
-                // console.log('PRES REPORTE = ', presReporte);
+                const presReporte = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);                
                 this.presentacionesFiltered = this.presentaciones.filter(p => +p.medida.medida === +presReporte.medida.medida);
               } else {
                 this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));              

@@ -1,6 +1,5 @@
 <mat-tab-group>
-    <mat-tab label="Categorías">
-        <!-- <app-categoria-producto (categoriaGrupoSvd)="reloadCategoriasInSubcategoriasArticulos()" (onChangeSubCategoriaEv)="setArticuloCategoriaGrupo($event)"></app-categoria-producto> -->
+    <mat-tab label="Categorías">        
         <app-categoria-producto (categoriaGrupoSvd)="reloadCategoriasInSubcategoriasArticulos()"></app-categoria-producto>
     </mat-tab>
     <mat-tab label="Sub-categorías">
@@ -11,7 +10,28 @@
             <div fxFlex="100%">
                 <mat-chip-list>
                     <mat-chip color="primary" (click)="verTodos()" selected>
-                        Ver todos
+                        Todos
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('mostrar_pos', 1)" selected>
+                        De POS
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('mostrar_inventario', 1)" selected>
+                        De inventario
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('combo', 1)" selected>
+                        Combos
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('multiple', 1)" selected>
+                        Opción múltiple
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('produccion', 1)" selected>
+                        Producción
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('esreceta', 1)" selected>
+                        Es receta
+                    </mat-chip>
+                    <mat-chip color="primary" (click)="verTodos('esextra', 1)" selected>
+                        Usar como extra
                     </mat-chip>
                     <mat-chip color="accent" *ngFor="let cat of categorias" (click)="!cargando && selectCategoria(cat)"
                         selected>

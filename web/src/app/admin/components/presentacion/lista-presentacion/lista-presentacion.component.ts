@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
@@ -6,12 +6,14 @@ import { LocalstorageService } from '../../../services/localstorage.service';
 import { Presentacion } from '../../../interfaces/presentacion';
 import { PresentacionService } from '../../../services/presentacion.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-lista-presentacion',
   templateUrl: './lista-presentacion.component.html',
   styleUrls: ['./lista-presentacion.component.css']
 })
-export class ListaPresentacionComponent implements OnInit {
+export class ListaPresentacionComponent implements OnInit, OnDestroy {
 
   public lstPresentacion: Presentacion[];
   public lstPresentacionPaged: Presentacion[];
@@ -27,6 +29,8 @@ export class ListaPresentacionComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private presentacionSrvc: PresentacionService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaPresentacionComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadPresentaciones();
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,12 @@ export class ListaPresentacionComponent implements OnInit {
   }
 
   loadPresentaciones = () => {
-    this.presentacionSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstPresentacion = lst;
-          this.applyFilter();
-        }
-      }
-    });
+    this.endSubs.add(
+      this.presentacionSrvc.get().subscribe(lst => {
+        this.lstPresentacion = lst || [];
+        this.applyFilter();
+      })
+    );
   }
 
   getPresentacion = (obj: Presentacion) => {

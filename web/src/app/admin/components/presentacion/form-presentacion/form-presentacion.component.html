@@ -22,11 +22,13 @@
                 <input matInput type="number" placeholder="Cantidad" name="cantidad" [(ngModel)]="presentacion.cantidad" step="0.01" maxlength="10" required>
             </mat-form-field>
             <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmMedida.form.valid">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmMedida.form.valid || +presentacion.debaja === 1">
                     Guardar
                 </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetPresentacion()"
-                    *ngIf="presentacion.presentacion">
+                <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+presentacion.debaja === 1" *ngIf="+presentacion.presentacion > 0">
+                    Dar de baja
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetPresentacion()" *ngIf="presentacion.presentacion">
                     Nueva
                 </button>
             </div>

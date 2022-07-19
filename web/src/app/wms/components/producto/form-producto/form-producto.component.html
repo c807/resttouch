@@ -53,7 +53,7 @@
                     <mat-form-field class="fullWidth">
                         <mat-label>Presentación Venta</mat-label>
                         <mat-select name="presentacion" [(ngModel)]="articulo.presentacion" required>
-                            <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion">
+                            <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
@@ -61,7 +61,7 @@
                     <mat-form-field class="fullWidth">
                         <mat-label>Presentación Reportes</mat-label>
                         <mat-select name="presentacion_reporte" [(ngModel)]="articulo.presentacion_reporte" required>
-                            <mat-option *ngFor="let p of presentacionesFiltered" [value]="p.presentacion">
+                            <mat-option *ngFor="let p of presentacionesFiltered" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
@@ -177,9 +177,9 @@
                             (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
                             Replicar a sedes
                         </button>
-                        <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
+                        <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
                             Dar de baja
-                        </button> -->
+                        </button>
                         <button mat-raised-button type="button" color="accent" (click)="resetArticulo()"
                             *ngIf="articulo.articulo">
                             Nuevo

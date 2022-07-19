@@ -59,7 +59,7 @@ class Articulo_ultima_compra_model extends General_model
         if ((int)$idProveedor > 0) {
             $prov = $this->db->select('proveedor, razon_social')->where('proveedor', $idProveedor)->get('proveedor')->row();
             $articulosConProveedor = $this->db
-                ->select('a.articulo, a.descripcion')
+                ->select('a.articulo, a.descripcion, a.debaja')
                 ->join('articulo_ultima_compra b', 'a.articulo = b.articulo')
                 ->join('categoria_grupo c', 'c.categoria_grupo = a.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
@@ -72,7 +72,7 @@ class Articulo_ultima_compra_model extends General_model
 
             foreach ($articulosConProveedor as $articulo) {
                 $articulo->presentaciones = $this->db
-                    ->select('a.presentacion, b.descripcion AS descripcion_presentacion, MAX(a.ultimo_costo) AS ultimo_costo')
+                    ->select('a.presentacion, b.descripcion AS descripcion_presentacion, MAX(a.ultimo_costo) AS ultimo_costo, b.debaja')
                     ->join('presentacion b', 'b.presentacion = a.presentacion')
                     ->where('a.articulo', $articulo->articulo)
                     ->where('a.ultimo_proveedor', $idProveedor)
@@ -91,7 +91,7 @@ class Articulo_ultima_compra_model extends General_model
 
         // Artículos sin proveedor
         $articulosSinProveedor = $this->db
-            ->select('a.articulo, a.descripcion, d.presentacion, d.descripcion AS descripcion_presentacion')
+            ->select('a.articulo, a.descripcion, d.presentacion, d.descripcion AS descripcion_presentacion, a.debaja')
             ->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
             ->join('categoria c', 'c.categoria = b.categoria')
             ->join('presentacion d', 'd.presentacion = a.presentacion')

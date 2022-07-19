@@ -7,6 +7,9 @@ class Presentacion_model extends General_model {
 	public $medida;
 	public $descripcion;
 	public $cantidad;
+	public $debaja = 0;
+	public $fechabaja = null;
+	public $usuariobaja = null;
 
 	public function __construct($id = "")
 	{

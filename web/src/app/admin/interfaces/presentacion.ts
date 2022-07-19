@@ -3,4 +3,7 @@ export interface Presentacion {
     medida: any;
     descripcion: string;
     cantidad: number;
+    debaja?: number;
+    fechabaja?: string;
+    usuariobaja?: number;
 }

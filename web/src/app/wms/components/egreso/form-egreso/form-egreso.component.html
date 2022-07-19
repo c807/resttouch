@@ -99,7 +99,7 @@
                 <mat-label>Artículo</mat-label>                    
                 <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
                 <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo" (optionSelected)="setPresentaciones()">
-                    <mat-option *ngFor="let a of filteredArticulos" [value]="a">
+                    <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="+a.debaja === 1">
                         {{a.descripcion}}
                     </mat-option>
                 </mat-autocomplete>
@@ -108,7 +108,7 @@
             <mat-form-field class="fullWidth">
                 <mat-label>Presentación</mat-label>
                 <mat-select name="presentacion" [(ngModel)]="detalleEgreso.presentacion" required>
-                    <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion">
+                    <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                         {{p.descripcion}}
                     </mat-option>
                 </mat-select>
@@ -222,7 +222,7 @@
                 <mat-label>Artículo</mat-label>                    
                 <input type="text" [(ngModel)]="txtArticuloSelectedM" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelectedM)" required>
                 <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticuloMerma" (optionSelected)="setPresentacionesMerma()">
-                    <mat-option *ngFor="let a of filteredArticulos" [value]="a">
+                    <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="+a.debaja === 1">
                         {{a.descripcion}}
                     </mat-option>
                 </mat-autocomplete>

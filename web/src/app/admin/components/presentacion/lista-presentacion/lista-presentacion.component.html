@@ -9,6 +9,7 @@
                 <mat-icon mat-list-icon>card_membership</mat-icon>
                 <h5 mat-line>{{element.descripcion}}</h5>
                 <span mat-line>{{element.cantidad | number:'1.2-2'}} {{element.medida.descripcion}}</span>
+                <span mat-line *ngIf="+element.debaja === 1"><strong>De baja desde: {{element.fechabaja | date:'dd/MM/yyyy HH:mm:ss'}}</strong></span>
             </mat-list-item>            
         </mat-nav-list>
         <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>

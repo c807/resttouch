@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-// import { ListaProductoComponent } from '../lista-producto/lista-producto.component';
 import { FormProductoComponent } from '../form-producto/form-producto.component';
 import { SubCategoriaProductoComponent } from '../sub-categoria-producto/sub-categoria-producto.component';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -32,8 +31,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   public articulosFull: Articulo[] = [];
   public paramsRep: any = {};
   public txtFiltro = '';
-  public cargando = false;
-  // @ViewChild('lstProducto') lstProductoComponent: ListaProductoComponent;
+  public cargando = false;  
   @ViewChild('frmProducto') frmProductoComponent: FormProductoComponent;
   @ViewChild('frmSubcategoria') frmSubcategoria: SubCategoriaProductoComponent;
 
@@ -174,7 +172,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadArticulos = (idsubcat: number = null) => {
+  loadArticulos = (idsubcat: number = null, filtro: any = null, valor: any = null) => {
 
     const fltr: any = { categoria_grupo: null, _activos: true };
 
@@ -182,6 +180,10 @@ export class ProductoComponent implements OnInit, OnDestroy {
       fltr.categoria_grupo = idsubcat;
     } else {
       delete fltr.categoria_grupo;
+    }
+
+    if (filtro && valor) {
+      fltr[filtro] = valor;
     }
 
     this.endSubs.add(
@@ -200,14 +202,14 @@ export class ProductoComponent implements OnInit, OnDestroy {
     this.frmSubcategoria.loadCategorias();
   }
 
-  verTodos = () => {
+  verTodos = (filtro: any = null, valor: any = null) => {
     this.categoria = null;
     this.categoriaGrupo = null;
     this.frmProductoComponent.resetArticulo();
     this.frmProductoComponent.articulo.categoria_grupo = null;
     this.categoriasGrupos = [];
     this.listasCategoriasGrupo = [];
-    this.loadArticulos();
+    this.loadArticulos(null, filtro, valor);
   }
 
   selectCategoria = (cat: Categoria) => {
@@ -245,5 +247,5 @@ export class ProductoComponent implements OnInit, OnDestroy {
         });
       })
     );
-  }
+  }  
 }

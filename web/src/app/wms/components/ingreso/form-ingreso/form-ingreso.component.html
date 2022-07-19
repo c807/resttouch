@@ -112,7 +112,7 @@
                             (keyup)="filtrarArticulos(txtArticuloSelected)" required>
                         <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo"
                             (optionSelected)="setPresentaciones()">
-                            <mat-option *ngFor="let a of filteredArticulos" [value]="a">
+                            <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="+a.debaja === 1">
                                 {{a.descripcion}}
                             </mat-option>
                         </mat-autocomplete>
@@ -120,7 +120,7 @@
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <mat-label>Presentación</mat-label>
                         <mat-select name="presentacion" [(ngModel)]="detalleIngreso.presentacion" required>
-                            <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion">
+                            <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>

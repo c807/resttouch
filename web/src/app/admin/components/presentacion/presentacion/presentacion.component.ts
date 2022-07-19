@@ -15,7 +15,7 @@ export class PresentacionComponent implements OnInit {
 
   constructor() {
     this.presentacion = {
-      presentacion: null, medida: null, descripcion: null, cantidad: null
+      presentacion: null, medida: null, descripcion: null, cantidad: null, debaja: 0, fechabaja: null, usuariobaja: null
     };
   }
 
@@ -26,7 +26,10 @@ export class PresentacionComponent implements OnInit {
     presentacion: pres.presentacion,
     medida: pres.medida.medida,
     descripcion: pres.descripcion,
-    cantidad: pres.cantidad
+    cantidad: pres.cantidad,
+    debaja: pres.debaja,
+    fechabaja: pres.fechabaja,
+    usuariobaja: pres.usuariobaja
   };
 
   refreshPresentacionList = () => this.lstMedidaComponent.loadPresentaciones();

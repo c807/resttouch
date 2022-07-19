@@ -7,8 +7,10 @@ class Presentacion extends CI_Controller {
 	{
         parent::__construct();
         $this->load->model('Presentacion_model');
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type("application/json", "UTF-8");
+		$this->load->helper(['jwt', 'authorization']);
+		$headers = $this->input->request_headers();
+		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 	}
 
 	public function guardar($id = "") 
@@ -19,7 +21,13 @@ class Presentacion extends CI_Controller {
 		if ($this->input->method() == 'post') {
 
 			$existe = $this->Presentacion_model->buscar(['TRIM(UPPER(descripcion))' => trim(strtoupper($req['descripcion']))]);
-			if (!$existe || !empty($id)) {				
+			if (!$existe || !empty($id)) {
+
+				if ((int)$req['debaja'] === 1) {
+					$req['fechabaja'] = date('Y-m-d H:i:s');
+					$req['usuariobaja'] = $this->data->idusuario;
+				}
+
 				$datos['exito'] = $presentacion->guardar($req);
 	
 				if($datos['exito']) {
@@ -35,8 +43,7 @@ class Presentacion extends CI_Controller {
 			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar()
