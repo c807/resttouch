@@ -351,8 +351,19 @@ class Articulo extends CI_Controller
 		$datos->exito = false;
 
 		$articulo = new Articulo_model($id);
+		$noHayExistencias = true;
+		if ((int)$articulo->mostrar_inventario === 1) {
+			$articulo->actualizarExistencia(['sede' => $this->data->sede, 'fecha' => date('Y-m-d')]);
+			if ((float)$articulo->existencias !== (float)0) {
+				$noHayExistencias = false;
+			}
+		}
 
-		$datos = $articulo->dar_de_baja($this->data->idusuario);
+		if($noHayExistencias) {
+			$datos = $articulo->dar_de_baja($this->data->idusuario);
+		} else {
+			$datos->mensaje = 'Las existencias del artículo no están a cero (0). No se puede dar de baja.';
+		}
 
 		$this->output->set_output(json_encode($datos));
 	}

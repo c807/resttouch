@@ -1068,6 +1068,7 @@ class Articulo_model extends General_model
 				$esUnicoDetalle = count($opciones) === 1;
 				if ($esUnicoDetalle && $esCombo) {
 					$cmb->mostrar_pos = 0;
+					$cmb->debaja = 1;
 					$cmb->guardar();
 				}
 				foreach ($opciones as $opc) {
