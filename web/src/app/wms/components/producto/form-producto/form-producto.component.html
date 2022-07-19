@@ -177,9 +177,9 @@
                             (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
                             Replicar a sedes
                         </button>
-                        <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
+                        <!-- <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
                             Dar de baja
-                        </button>
+                        </button> -->
                         <button mat-raised-button type="button" color="accent" (click)="resetArticulo()"
                             *ngIf="articulo.articulo">
                             Nuevo
