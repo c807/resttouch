@@ -17,3 +17,12 @@ export interface InitialSetup {
     apellidos: string;
     usuario: string;
 }
+
+export interface EsquemasClientes {
+    id: number;
+    nombre: string;
+    idclientecorporacion: number;
+    llave: string;
+    dominio: string;
+    db_database: string;
+}

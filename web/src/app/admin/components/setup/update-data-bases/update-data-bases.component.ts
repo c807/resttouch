@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { SetupService } from '../../../services/setup.service';
@@ -23,8 +21,7 @@ export class UpdateDataBasesComponent implements OnInit, OnDestroy {
 
   constructor(
     public dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private ls: LocalstorageService,
+    private snackBar: MatSnackBar,    
     private setupSrvc: SetupService
   ) { }
 

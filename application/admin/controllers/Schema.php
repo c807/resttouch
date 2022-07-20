@@ -26,6 +26,21 @@ class Schema extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
+    public function buscar_esquemas_clientes()
+    {
+        $datos = $this->Cliente_rt_model->get_esquemas_clientes($_GET);
+        $this->output->set_output(json_encode($datos));
+    }
+
+    public function buscar_configuracion_corporacion()
+    {
+        $datos = [];
+        if (isset($_GET['esquema']) && !empty($_GET['esquema']) && !(strpos($_GET['esquema'], 'rt_') === false)) {
+            $datos = $this->Cliente_rt_model->get_configuracion_corporacion($_GET['esquema']);
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
     public function nuevo()
     {
         set_time_limit(0);
@@ -91,12 +106,29 @@ class Schema extends CI_Controller
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
             $req = json_decode(file_get_contents('php://input'), true);
-            if(strpos($req['sql'], 'RT_DATABASE_NAME') === false) {
+            if (strpos($req['sql'], 'RT_DATABASE_NAME') === false) {
                 $datos['mensaje'] = 'Por favor envíe el string de las actualizaciones en el formato requerido.';
             } else {
                 $datos['exito'] = true;
                 $datos['mensaje'] = 'Por favor revisar los resultados de las actualizaciones.';
                 $datos['resultados'] = $this->Schema_model->actualiza_esquemas($req['sql']);
+            }
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
+    public function guardar_configuracion_corporacion()
+    {
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
+            $datos['exito'] = $this->Cliente_rt_model->guardar_configuracion_corporacion($req);
+            if ($datos['exito']) {
+                $datos['mensaje'] = 'Configuración guardada correctamente.';
+            } else {
+                $datos['mensaje'] = 'Error al actualizar la configuración.';
             }
         } else {
             $datos['mensaje'] = 'Parámetros inválidos.';

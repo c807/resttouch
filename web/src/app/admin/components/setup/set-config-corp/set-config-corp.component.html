@@ -1,1 +1,53 @@
-<p>set-config-corp works!</p>
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+            Configuraciones a nivel corporativo
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <table>
+            <tr>
+                <td colspan="3">
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Cliente</mat-label>
+                        <mat-select name="tipo_cliente" [ngModelOptions]="{standalone: true}"
+                            [(ngModel)]="esquemaCliente" (selectionChange)="esquemaSelected($event)">
+                            <mat-option *ngFor="let ec of esquemasClientes" [value]="ec">
+                                {{ec.nombre}} - {{ec.dominio}} ({{ec.db_database}})
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </td>
+            </tr>
+            <tr *ngFor="let conf of configuracionCorporacion">
+                <td>
+                    <p>
+                        <strong>{{conf.campo}}:</strong> {{conf.descripcion}}
+                    </p>
+                </td>
+                <td>
+                    <mat-form-field class="fullWidth" *ngIf="+conf.tipo === 1">
+                        <input matInput type="number" name="valor" [(ngModel)]="conf.valor" min="0"
+                            (keypress)="validarSoloNumeros($event)">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="+conf.tipo === 2">
+                        <input matInput type="text" name="valor" [(ngModel)]="conf.valor" maxlength="150">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" *ngIf="+conf.tipo === 3">
+                        <mat-select name="valor" [(ngModel)]="conf.valor">
+                            <mat-option value="0">Deshabilitar</mat-option>
+                            <mat-option value="1">Habilitar</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </td>
+                <td>
+                    <button mat-raised-button type="button" color="accent" (click)="guardarConfig(conf)"
+                        [disabled]="cargando">
+                        Guardar
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-card-content>
+</mat-card>

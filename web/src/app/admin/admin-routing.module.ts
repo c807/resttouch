@@ -57,7 +57,7 @@ const routes: Routes = [
   { path: 'vdt', component: VendorTerceroComponent, canActivate: [AuthGuard] },
   { path: 'rptbitacora', component: ReporteBitacoraComponent, canActivate: [AuthGuard] },
   { path: 'tipo_cliente', component: TipoClienteComponent, canActivate: [AuthGuard] },
-  { path: 'setup', component: SetupComponent, canActivate: [AuthGuard] },
+  { path: 's2h8NZ73K', component: SetupComponent, canActivate: [AuthGuard] },
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }
 ];

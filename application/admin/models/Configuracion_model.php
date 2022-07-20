@@ -7,6 +7,7 @@ class Configuracion_model extends General_model {
 	public $tipo;
 	public $valor;
 	public $fhcreacion;
+	public $descripcion = null;
 
 	public function __construct($id = "")
 	{

@@ -7,7 +7,7 @@ class Schema_model extends General_model
 	public function __construct($id = "")
 	{
 		parent::__construct();
-		$this->setTabla('information_schema.schemata');		
+		$this->setTabla('information_schema.schemata');
 		$this->setLlave('schema_name');
 
 		if (!empty($id)) {
@@ -32,7 +32,7 @@ class Schema_model extends General_model
 		if (isset($args['_uno'])) {
 			return $tmp->row();
 		}
-		
+
 		return $tmp->result();
 	}
 
@@ -57,9 +57,16 @@ class Schema_model extends General_model
 			$line = trim($query);
 			if (substr($line, 0, 2) == '--' || $line == '')
 				continue;
-			if (!$this->db->query($line)) {
-				$fallos[] = $line;
+
+			try {
+				$this->db->query($line);
+			} catch (\Exception $e) {
+				$fallos[] = "{$line}. {$e->getMessage()}";
 			}
+
+			// if (!$this->db->query($line)) {
+			// 	$fallos[] = $line;
+			// }
 		}
 
 		if (count($fallos) === 0) {
@@ -93,13 +100,12 @@ class Schema_model extends General_model
 		$esquemas = $this->get_schemas();
 		$resultados = [];
 
-		foreach($esquemas as $schema) 
-        {            
-            $query = str_replace('RT_DATABASE_NAME', $schema->SCHEMA_NAME, $sql);
-            $resultado = $this->ejecuta_sql($query);
-            $resultados[] = ['esquema' => $schema->SCHEMA_NAME, 'resultado' => $resultado];
-        }
+		foreach ($esquemas as $schema) {
+			$query = str_replace('RT_DATABASE_NAME', $schema->SCHEMA_NAME, $sql);
+			$resultado = $this->ejecuta_sql($query);
+			$resultados[] = ['esquema' => $schema->SCHEMA_NAME, 'resultado' => $resultado];
+		}
 
-        return $resultados;
+		return $resultados;
 	}
 }

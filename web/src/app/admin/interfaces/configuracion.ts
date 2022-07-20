@@ -4,4 +4,5 @@ export interface Configuracion {
     tipo: number;
     valor: string;
     fhcreacion: string;
+    descripcion?: string;
 }
