@@ -83,4 +83,24 @@ class Schema extends CI_Controller
         }
         $this->output->set_output(json_encode($datos));
     }
+
+    public function actualizar()
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
+            if(strpos($req['sql'], 'RT_DATABASE_NAME') === false) {
+                $datos['mensaje'] = 'Por favor envíe el string de las actualizaciones en el formato requerido.';
+            } else {
+                $datos['exito'] = true;
+                $datos['mensaje'] = 'Por favor revisar los resultados de las actualizaciones.';
+                $datos['resultados'] = $this->Schema_model->actualiza_esquemas($req['sql']);
+            }
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
 }

@@ -123,6 +123,10 @@ import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tip
 import { FormTipoClienteComponent } from './components/tipo-cliente/form-tipo-cliente/form-tipo-cliente.component';
 import { ListaTipoClienteComponent } from './components/tipo-cliente/lista-tipo-cliente/lista-tipo-cliente.component';
 import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
+import { InitialSetupComponent } from './components/setup/initial-setup/initial-setup.component';
+import { UpdateDataBasesComponent } from './components/setup/update-data-bases/update-data-bases.component';
+import { SetConfigCorpComponent } from './components/setup/set-config-corp/set-config-corp.component';
+import { SetupComponent } from './components/setup/setup/setup.component';
 
 @NgModule({
   declarations: [
@@ -144,7 +148,7 @@ import { SolicitudRegistroComponent } from './components/solicitud-registro/soli
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

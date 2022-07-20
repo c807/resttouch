@@ -28,6 +28,7 @@ import { VendorTerceroComponent } from './components/vendor-tercero/vendor-terce
 import { ReporteBitacoraComponent } from './components/bitacora/reporte-bitacora/reporte-bitacora.component';
 import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tipo-cliente.component';
 import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
+import { SetupComponent } from './components/setup/setup/setup.component';
 
 
 const routes: Routes = [
@@ -56,6 +57,7 @@ const routes: Routes = [
   { path: 'vdt', component: VendorTerceroComponent, canActivate: [AuthGuard] },
   { path: 'rptbitacora', component: ReporteBitacoraComponent, canActivate: [AuthGuard] },
   { path: 'tipo_cliente', component: TipoClienteComponent, canActivate: [AuthGuard] },
+  { path: 'setup', component: SetupComponent, canActivate: [AuthGuard] },
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }
 ];

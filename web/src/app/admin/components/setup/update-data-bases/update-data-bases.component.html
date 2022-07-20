@@ -1,0 +1,23 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+            Actualizar esquemas de bases de datos existentes
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmUpdEsquemas="ngForm" (ngSubmit)="frmUpdEsquemas.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">                
+                <textarea matInput placeholder="Ej.: ALTER TABLE RT_DATABASE_NAME.[tabla] ADD COLUMN [nombre de columna] INT NOT NULL DEFAULT 0;" name="sql" [(ngModel)]="instrucciones.sql" rows="15" required></textarea>
+            </mat-form-field>                        
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmUpdEsquemas.form.valid || cargando">
+                    Actualizar
+                </button>                
+                <button mat-raised-button type="button" color="accent" (click)="instrucciones.sql = null" [disabled]="cargando">
+                    Reset
+                </button>
+            </div>
+        </form>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-card-content>
+</mat-card>

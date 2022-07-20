@@ -87,4 +87,19 @@ class Schema_model extends General_model
 			return ['exito' => false, 'mensaje' => $e->getMessage()];
 		}
 	}
+
+	public function actualiza_esquemas($sql)
+	{
+		$esquemas = $this->get_schemas();
+		$resultados = [];
+
+		foreach($esquemas as $schema) 
+        {            
+            $query = str_replace('RT_DATABASE_NAME', $schema->SCHEMA_NAME, $sql);
+            $resultado = $this->ejecuta_sql($query);
+            $resultados[] = ['esquema' => $schema->SCHEMA_NAME, 'resultado' => $resultado];
+        }
+
+        return $resultados;
+	}
 }

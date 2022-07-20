@@ -1,0 +1,65 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+            Configuración inicial de nueva Corporación/Cliente
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmConfigInicial="ngForm" (ngSubmit)="frmConfigInicial.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Esquema" name="esquema" [(ngModel)]="configInicial.esquema" minlength="1" required maxlength="50" (keypress)="validateChars($event)">
+                <input matInput *ngIf="esMovil" type="text" placeholder="Esquema" name="esquema" [(ngModel)]="configInicial.esquema" required minlength="1" maxlength="50" (keypress)="validateChars($event)">
+            </mat-form-field>
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Dominio" name="dominio" [(ngModel)]="configInicial.dominio" required minlength="1" maxlength="25" (keypress)="validateChars($event)">
+                <input matInput *ngIf="esMovil" type="text" placeholder="Dominio" name="dominio" [(ngModel)]="configInicial.dominio" required minlength="1" maxlength="25" (keypress)="validateChars($event)">
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nombre de cliente" name="nombre_cliente" [(ngModel)]="configInicial.nombre_cliente" required minlength="1" maxlength="75">
+                <input matInput *ngIf="esMovil" type="text" placeholder="Nombre de cliente" name="nombre_cliente" [(ngModel)]="configInicial.nombre_cliente" required minlength="1" maxlength="75">
+            </mat-form-field>            
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Corporación" name="corporacion" [(ngModel)]="configInicial.corporacion" minlength="1" maxlength="100" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Corporación" name="corporacion" [(ngModel)]="configInicial.corporacion" minlength="1" maxlength="100" required>
+            </mat-form-field>
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Empresa" name="empresa" [(ngModel)]="configInicial.empresa" minlength="1" maxlength="100" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Empresa" name="empresa" [(ngModel)]="configInicial.empresa" minlength="1" maxlength="100" required>
+            </mat-form-field>            
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Sede" name="sede" minlength="1" maxlength="100" [(ngModel)]="configInicial.sede" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Sede" name="sede" minlength="1" maxlength="25" [(ngModel)]="configInicial.sede" required>
+            </mat-form-field>            
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Nombre(s)" name="nombres" [(ngModel)]="configInicial.nombres" minlength="1" maxlength="255" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Nombre(s)" name="nombres" [(ngModel)]="configInicial.nombres" minlength="1" maxlength="255" required>
+            </mat-form-field>
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Apellidos" name="apellidos" [(ngModel)]="configInicial.apellidos" minlength="1" maxlength="255" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Apellidos" name="apellidos" [(ngModel)]="configInicial.apellidos" minlength="1" maxlength="255" required>
+            </mat-form-field>            
+            
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" maxlength="2" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
+                <input matInput *ngIf="esMovil" type="text" maxlength="2" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
+            </mat-form-field>
+                        
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmConfigInicial.form.valid || cargando">
+                    Crear
+                </button>                
+                <button mat-raised-button type="button" color="accent" (click)="resetConfigInicial()" [disabled]="cargando">
+                    Reset
+                </button>
+            </div>
+        </form>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-card-content>
+</mat-card>
