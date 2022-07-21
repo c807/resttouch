@@ -1672,7 +1672,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_PROPINA_EN_CALLCENTER', '3', '0', 'Habilita/Deshabilita si se pude ingresar propina desde call center.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUDIO_NOTIFICACION', '2', 'notificacion.mp3', 'Nombre del archivo de audio de notificación de recepción de pedido en comanda en línea.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_PEDIR_CANTIDAD_ARTICULO', '3', '0', 'Habilita/Deshabilita solicitar cantidad de artículos en POS.');
-INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_PANTALLA_TOMA_COMBO', '1', '1', 'UI/UX para la pantalla de toma de combos. 1 = Normal; 2 = Mejorada.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_PANTALLA_TOMA_COMBO', '1', '1', 'UI/UX para la pantalla de toma de combos. 1 = Normal, 2 = Mejorada.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_GK_SEDE_COBRA_PROPINA', '1', '0', 'ID único de la sede que cobra la propina en el modelo de Ghost Kitchen.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_GK_SEDE_COBRA_ENTREGA', '1', '0', 'ID único de la sede que cobra la entrega en el modelo de Ghost Kitchen.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_PERMITE_DETALLE_FACTURA_PERSONALIZADO', '3', '1', 'Habilita/Deshabilita si una corporación puede o no generar facturas con detalle personalizado.');

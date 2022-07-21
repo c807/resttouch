@@ -32,7 +32,8 @@ import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tip
 import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
 import { SetupComponent } from './components/setup/setup/setup.component';
 
-const cnfRoute: string = (JSON.parse(localStorage.getItem(GLOBAL.usrTokenVar)).cnf || moment().format('YYYYMMDD')) as string;
+const dataTokenVar = localStorage.getItem(GLOBAL.usrTokenVar) || '{}';
+const cnfRoute: string = (JSON.parse(dataTokenVar)?.cnf || moment().format('YYYYMMDD')) as string;
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
