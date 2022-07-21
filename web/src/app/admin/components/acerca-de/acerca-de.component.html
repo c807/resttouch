@@ -9,8 +9,13 @@
         <strong>UUID:</strong> {{sedeUuid}}
     </p>    
 </div>
-<div mat-dialog-actions align="end">
-    <button mat-raised-button type="button" color="accent" (click)="cerrar()">
-        <span>Cerrar</span>
-    </button>
+<div mat-dialog-actions>
+    <div align="start" style="width: 10%;">
+        <small align="left"><span>{{cnfRoute}}</span></small>
+    </div>
+    <div align="end" style="width: 90%;">
+        <button mat-raised-button type="button" color="accent" (click)="cerrar()">
+            <span>Cerrar</span>
+        </button>
+    </div>
 </div>

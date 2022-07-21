@@ -64,7 +64,7 @@ export class LoginComponent implements OnInit {
           token: res.token, usuario: res.usrname, nombres: res.nombres, apellidos: res.apellidos, sede: +res.sede,
           idusr: +res.idusr, enmovil: this.esMovil(+res.usatecladovirtual), acceso: res.acceso, sede_uuid: res.sede_uuid,
           empresa: res.empresa, restaurante: res.restaurante, configuracion: [], usatecladovirtual: res.usatecladovirtual, dominio: res.dominio,
-          wms: res.wms
+          wms: res.wms, cnf: Math.random().toString(36).substring(2, 10)
         });
         this.router.navigate(['/admin/dashboard']);
       } else {

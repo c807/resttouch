@@ -15,6 +15,7 @@ export class AcercaDeComponent implements OnInit {
   public rtVersion: string = GLOBAL.rtVersion;
   public dominio: string = null;
   public restaurante: string = null;
+  public cnfRoute: string = null;
 
   constructor(
     public dialogRef: MatDialogRef<AcercaDeComponent>,
@@ -27,6 +28,7 @@ export class AcercaDeComponent implements OnInit {
     this.dominio = this.ls.get(GLOBAL.usrTokenVar).dominio || 'No ha iniciado sesión.';
     const nombreRestaurante = `${this.ls.get(GLOBAL.usrTokenVar).restaurante?.nombre || ''} (${this.ls.get(GLOBAL.usrTokenVar).restaurante?.alias || ''})`;
     this.restaurante = nombreRestaurante || 'No ha iniciado sesión.';
+    this.cnfRoute = this.ls.get(GLOBAL.usrTokenVar).cnf || 'No ha iniciado sesión.';
   }
 
   cerrar = () => this.dialogRef.close();

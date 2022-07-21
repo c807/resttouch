@@ -174,7 +174,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
 
   loadArticulos = (idsubcat: number = null, filtro: any = null, valor: any = null) => {
 
-    const fltr: any = { categoria_grupo: null, _activos: true };
+    const fltr: any = { categoria_grupo: null, _activos: true, sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) };
 
     if (idsubcat) {
       fltr.categoria_grupo = idsubcat;

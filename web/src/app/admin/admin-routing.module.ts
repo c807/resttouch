@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthguardService as AuthGuard } from './services/authguard.service';
+import { GLOBAL } from '../shared/global';
+import * as moment from 'moment';
 
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
@@ -30,6 +32,7 @@ import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tip
 import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
 import { SetupComponent } from './components/setup/setup/setup.component';
 
+const cnfRoute: string = (JSON.parse(localStorage.getItem(GLOBAL.usrTokenVar)).cnf || moment().format('YYYYMMDD')) as string;
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -57,7 +60,7 @@ const routes: Routes = [
   { path: 'vdt', component: VendorTerceroComponent, canActivate: [AuthGuard] },
   { path: 'rptbitacora', component: ReporteBitacoraComponent, canActivate: [AuthGuard] },
   { path: 'tipo_cliente', component: TipoClienteComponent, canActivate: [AuthGuard] },
-  { path: 's2h8NZ73K', component: SetupComponent, canActivate: [AuthGuard] },
+  { path: `cnf${cnfRoute}`, component: SetupComponent, canActivate: [AuthGuard] },
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
