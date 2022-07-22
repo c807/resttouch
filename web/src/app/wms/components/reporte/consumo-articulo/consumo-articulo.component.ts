@@ -30,7 +30,7 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 
 	public params: any = {};
 	public paramsToSend: any = {};
-	public titulo: string = "Margen_receta";
+	public titulo: string = "Consumo_articulo";
 	public subCategorias: CategoriaGrupoResponse[] = [];
 	public sedes: UsuarioSede[] = [];
 	public cargando = false;

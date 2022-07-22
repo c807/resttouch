@@ -1506,25 +1506,28 @@ class Reporte extends CI_Controller
 	{
 		ini_set("pcre.backtrack_limit", "15000000");
 		
-		$datos = json_decode(file_get_contents("php://input"), true);
+		$datos   = json_decode(file_get_contents("php://input"), true);
+		$enExcel = verDato($datos, "_excel");
 
-		$datos["sede"] = $datos["sede"] ?? $this->data->sede;
-		$enExcel       = verDato($datos, "_excel");
+		$datos["sede"]   = $datos["sede"] ?? $this->data->sede;
+		$datos["_todos"] = true;
 		unset($datos["_excel"]);
 		
 		$nombreArchivo = "Margen_receta_".rand().".xls";
-		$lista         = $this->Catalogo_model->getArticulo($datos);
+		$lista         = $this->Articulo_model->buscarArticulo($datos);
 		$data          = [];
 		
 		foreach ($lista as $key => $row) {
-			$tmp    = new Articulo_model($row->articulo);
-			$costo  = $tmp->getCosto();
+			$tmp = new Articulo_model($row->articulo);
+			$pre = $tmp->getPresentacion();
+
+			$costo = $tmp->_getCosto();
 			$margen = ($row->precio > 0 && $costo > 0) ? ((($row->precio / $costo)-1)*100) : 0;
 			
 			$data[] = [
 				"codigo"       => $row->codigo,
 				"descripcion"  => $row->descripcion,
-				"presentacion" => $row->presentacion->descripcion,
+				"presentacion" => $pre->descripcion,
 				"precio"       => round($row->precio, 2),
 				"costo"        => round($costo, 2),
 				"margen"       => round($margen, 2)
@@ -1604,7 +1607,7 @@ class Reporte extends CI_Controller
 
 			foreach ($lista as $key => $row) {
 				$tmp   = new Articulo_model($row->articulo);
-				$costo = $tmp->getCosto();
+				$costo = $tmp->_getCosto();
 				$total = round(($row->cantidad * $costo), 2);
 				
 				$data[] = [
@@ -1716,6 +1719,46 @@ class Reporte extends CI_Controller
 			$pdf->Output("{$nombreArchivo}.pdf", "D");
 			}
 		}
+	}
+
+	public function generar_receta_costo()
+	{
+		$lista = $this->Articulo_model->buscarArticulo([
+			"esreceta" => 1,
+			"_todos"   => true
+		]);
+
+		$data = [];
+
+		$nombreArchivo = "Recetas_".rand().".xls";
+
+		foreach ($lista as $llave => $fila) {
+			$art = new Articulo_model($fila->articulo);
+			$tmp = [];
+
+			$tmp["articulo"]       = $art;
+			$tmp["articulo_grupo"] = $art->getCategoriaGrupo();
+
+			foreach ($art->getReceta() as $row) {
+				$rec                  = new Articulo_model($row->articulo->articulo);
+				$costo                = $rec->_getCosto();
+				$tmpCosto             = $costo * $row->cantidad;
+				$row->costo           = round($tmpCosto, 2);
+				$row->articulo->costo = $costo;
+				$tmp["receta"][]      = $row;
+			}
+
+			$data[] = $tmp;
+		}
+
+		$pdf = new \Mpdf\Mpdf([
+			"tempDir" => sys_get_temp_dir(),
+			"format"  => "Letter"
+		]);
+
+		$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+		$pdf->WriteHTML($this->load->view("reporte/articulo/receta_costo", ["data" => $data], true));
+		$pdf->Output("{$nombreArchivo}.pdf", "D");
 	}
 }
 

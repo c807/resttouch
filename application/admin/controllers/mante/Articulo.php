@@ -186,14 +186,15 @@ class Articulo extends CI_Controller
 
 		$datos["articulo"]       = $art;
 		$datos["articulo_grupo"] = $art->getCategoriaGrupo();
-		$datos["costo"]          = $art->_get_costo();
+		$datos["costo"]          = $art->_getCosto();
 
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
-			$costo = $rec->_get_costo(["_presentacion" => true]);
+			$costo = $rec->_getCosto();
 			$pres = new Presentacion_model($rec->presentacion_reporte);			
-			$tmpCosto = is_object($costo) ? $costo->costo : $costo;
-			$row->costo = $tmpCosto * ($row->cantidad / $pres->cantidad);
+			$tmpCosto = $costo * $row->cantidad;
+			$row->costo = round($tmpCosto, 2);
+			$row->articulo->costo = $costo;
 			$datos["receta"][] = $row;
 		}
 

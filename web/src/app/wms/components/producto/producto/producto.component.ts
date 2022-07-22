@@ -238,6 +238,17 @@ export class ProductoComponent implements OnInit, OnDestroy {
     );
   }
 
+  generarRepReceta() {
+    this.endSubs.add(
+      this.pdfServicio.generar_receta_costo(this.paramsRep).subscribe(res => {
+        if (res) {
+          const blob = new Blob([res], { type: "application/pdf" });
+          saveAs(blob, `Recetas_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        }
+      })
+    );
+  }
+
   getSubCategorias = () => {
     this.endSubs.add(      
       this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {

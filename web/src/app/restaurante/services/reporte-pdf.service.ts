@@ -239,4 +239,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  generar_receta_costo(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/generar_receta_costo`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

@@ -565,6 +565,10 @@ class Articulo_model extends General_model
 			$this->db->where('a.mostrar_pos', $args['mostrar_pos']);
 		}
 
+		if (isset($args['esreceta'])) {
+			$this->db->where('a.esreceta', $args['esreceta']);
+		}
+
 		$tmp = $this->db
 			->select('a.*')
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
@@ -1175,6 +1179,22 @@ class Articulo_model extends General_model
 			->where('a.articulo', $idArticulo)
 			->get('articulo a')
 			->row();
+	}
+	public function _getCosto()
+	{
+		$costo = 0;
+
+		if ($this->esreceta == 1) {
+			foreach ($this->getReceta() as $key => $row) {
+				$articulo = new Articulo_model($row->articulo->articulo);
+				$tmp      = $row->cantidad * $articulo->_getCosto();
+				$costo    += round($tmp, 2);
+			}
+		} else {
+			$costo = $this->getCosto();
+		}
+
+		return $costo;
 	}
 }
 
