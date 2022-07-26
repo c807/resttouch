@@ -129,8 +129,10 @@ export class ReporteComponent implements OnInit, OnDestroy {
         this.fisicoSrvc.generarInventarioFisico(this.params).subscribe(res => {
           this.cargando = false;      
           if (res.exito) {
+            this.cargando = true;
             this.endSubs.add(          
               this.pdfServicio.imprimirInventarioFisico(res.inventario, this.params).subscribe(resImp => {
+                this.cargando = false;
                 if (this.params._excel) {
                   const blob = new Blob([resImp], { type: 'application/vnd.ms-excel' });
                   saveAs(blob, `${this.titulo}.xls`);
