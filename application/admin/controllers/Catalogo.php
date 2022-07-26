@@ -63,6 +63,8 @@ class Catalogo extends CI_Controller {
 
 	public function get_articulo()
 	{
+		set_time_limit(0);
+		ini_set('memory_limit', '-1');
 		$_GET['sede'] = $this->data->sede;
 		// $datos = ordenar_array_objetos($this->Catalogo_model->getArticulo($_GET), 'descripcion');
 		$datos = $this->Catalogo_model->getArticulo($_GET);

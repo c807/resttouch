@@ -60,6 +60,8 @@ class Cgrupo extends CI_Controller
 
 	public function buscar()
 	{
+		set_time_limit(0);
+		ini_set('memory_limit', '-1');
 		$datos = [];
 		if (count($_GET) == 0) {
 			$_GET['categoria_grupo_grupo'] = null;
