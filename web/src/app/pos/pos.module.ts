@@ -37,12 +37,13 @@ import { FacturaManualComponent } from './components/facturaManual/factura-manua
 import { ListaFacturaManualComponent } from './components/facturaManual/lista-factura-manual/lista-factura-manual.component';
 import { FormFacturaManualComponent } from './components/facturaManual/form-factura-manual/form-factura-manual.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { FacturaMigrarComponent } from './components/factura-migrar/factura-migrar.component';
 
 
 @NgModule({
   declarations: [
     CobrarPedidoComponent, FormaPagoComponent, ListaFormaPagoComponent, FormFormaPagoComponent, FacturaManualComponent,
-    ListaFacturaManualComponent, FormFacturaManualComponent
+    ListaFacturaManualComponent, FormFacturaManualComponent, FacturaMigrarComponent
   ],
   imports: [
     CommonModule,

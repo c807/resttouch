@@ -1696,6 +1696,39 @@ class Factura_model extends General_model
 
 		return $comanda;
 	}
+
+	public function getFacturas($args=[])
+	{
+		if (verDato($args, "fdel")) {
+			$this->db->where("date(a.fecha_factura) >=", $args["fdel"]);
+		}
+
+		if (verDato($args, "fal")) {
+			$this->db->where("date(a.fecha_factura) <=", $args["fal"]);
+		}
+
+		if (verDato($args, "sede")) {
+			$this->db->where("a.sede", $args["sede"]);
+		}
+
+		$tmp = $this->db
+		->select("
+			a.factura,
+			a.fecha_factura,
+			b.nombre as ncliente,
+			a.serie_factura,
+			a.numero_factura,
+			sum(c.total) as total
+		")
+		->from("factura a")
+		->join("cliente b", "b.cliente = a.cliente")
+		->join("detalle_factura c", "c.factura = a.factura", "left")
+		->group_by("a.factura")
+		->order_by("a.fecha_factura, ncliente")
+		->get();
+
+		return isset($args["_uno"]) ? $tmp->row() : $tmp->result();
+	}
 }
 
 /* End of file Factura_model.php */

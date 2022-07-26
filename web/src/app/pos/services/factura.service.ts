@@ -86,4 +86,17 @@ export class FacturaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getListaFactura(params:any={}): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/buscar`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  enviarFacturaConta(params:any={}): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/migrar_factura`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

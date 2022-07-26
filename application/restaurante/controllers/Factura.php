@@ -521,6 +521,103 @@ class Factura extends CI_Controller {
 
 		// echo "<pre>NO PASARON: ";implode(", ", $noPasaron);echo "</pre>";
 	}
+
+	public function buscar()
+	{
+		$datos = json_decode(file_get_contents("php://input"), true);
+		$res   = ["exito" => false];
+
+		if (verDato($datos, "fdel") &&
+			verDato($datos, "fal") &&
+			verDato($datos, "sede")
+		) {
+			$lista = $this->Factura_model->getFacturas($datos);
+			
+			if ($lista) {
+				$res["exito"] = true;
+				$data = [];
+
+				foreach ($lista as $key => $row) {
+					$row->fecha   = formatoFecha($row->fecha_factura, 2);
+					$row->total   = number_format($row->total, 2);
+					$row->checked = false;
+
+					$data[] = $row;
+				}
+				$res["items"] = $data;
+			} else {
+				$res["mensaje"] = "Sin registros";
+			}
+		} else {
+			$res["mensaje"] = "Por favor ingrese todos los parámetros";
+		}
+
+		$this->output->set_output(json_encode($res));
+	}
+
+	public function migrar_factura()
+	{
+		set_time_limit(0);
+		$res = ["exito" => false];
+		
+		if ($this->input->method() === "post") {
+
+			$datos = json_decode(file_get_contents("php://input"), true);
+
+			if (verDato($datos, "facturas")) {
+				
+				$this->load->library("Webhook");
+				$this->load->helper("api");
+
+				$cant    = count($datos["facturas"]);
+				$cont    = 0;
+				$fallo   = [];
+				$webhook = $this->Webhook_model->buscar([
+					"evento" => "RTEV_FIRMA_FACTURA",
+					"_uno"   => true
+				]);
+
+				foreach ($datos["facturas"] as $factura) {
+					try {
+						$fac = new Factura_model($factura);
+						$fac->cargarFacturaSerie();
+						$fac->cargarEmpresa();
+						$fac->cargarMoneda();
+						$fac->cargarReceptor();
+						$fac->cargarSede();
+
+						$req = $fac->getXmlWebhook(true);
+						$web = new Webhook($webhook);
+						$web->setRequest($req);
+						$ret = $web->setEvento();
+						$ret = json_decode($ret);
+						
+						if ($ret && verPropiedad($ret, "exito")) {
+							$cont++;
+						} else {
+							$fallo[] = verPropiedad($ret, "mensaje", "Error al migrar");
+						}
+						
+						unset($web);
+						unset($ret);
+						unset($fac);
+					} catch(Exception $error) {
+						$fallo[] = $e->getMessage();
+					}
+				}
+
+				$res["exito"]   = true;
+				$res["mensaje"] = "Se migraron {$cont} de {$cant} facturas";
+				$res["errores"] = $fallo;
+			} else {
+				$res["mensaje"] = "Debe seleccionar una factura";
+			}
+		} else {
+			$res["mensaje"] = "Acceso no autorizado";
+		}
+
+		$this->output->set_output(json_encode($res));
+	}
 }
 
 /* End of file Factura.php */

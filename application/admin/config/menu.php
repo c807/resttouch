@@ -159,6 +159,10 @@ $config['menu'] = [
 					6 => [
 						'nombre' => 'Cocina',
 						'link' => '/restaurante/trancocina'
+					],
+					7 => [
+						'nombre' => 'Migrar facturas a contabilidad',
+						'link' => '/pos/factura_migrar'
 					]
 				]
 			],
