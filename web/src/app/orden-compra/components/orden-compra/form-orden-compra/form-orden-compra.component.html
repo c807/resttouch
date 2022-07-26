@@ -141,18 +141,22 @@
             <ng-container matColumnDef="articulo">
                 <th mat-header-cell *matHeaderCellDef>Artículo</th>
                 <td mat-cell *matCellDef="let element" class="text-wrap">{{element.articulo.descripcion}}</td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="monto">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Monto</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.monto | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">Total</td>
             </ng-container>
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.total | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">{{(getTotal() || 0) | number: '1.2-2'}}</td>
             </ng-container>
             <ng-container matColumnDef="editItem">
                 <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
@@ -163,10 +167,11 @@
                         Editar
                     </button>
                 </td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;">
-            </tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>            
         </table>
     </mat-card-content>
 </mat-card>

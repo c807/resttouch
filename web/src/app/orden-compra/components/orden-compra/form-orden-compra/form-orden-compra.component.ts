@@ -267,4 +267,6 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
       })
     );    
   }
+
+  getTotal =  () => this.detallesOrdenCompra.map(d => +d.total).reduce((acc, curr) => acc + curr, 0);
 }

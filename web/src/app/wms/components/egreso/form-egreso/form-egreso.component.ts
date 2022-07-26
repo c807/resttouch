@@ -433,4 +433,6 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     });
   }  
 
+  getPrecioTotal =  () => this.detallesEgreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+
 }

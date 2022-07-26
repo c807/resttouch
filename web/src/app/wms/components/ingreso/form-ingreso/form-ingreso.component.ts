@@ -484,4 +484,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     const pu: number = +this.detalleIngreso.cantidad !== 0 ? (+this.detalleIngreso.precio_total / +this.detalleIngreso.cantidad) : 0;
     this.detalleIngreso.precio_unitario = redondear(pu, 4);
   }
+
+  getPrecioTotal =  () => this.detallesIngreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+  
 }

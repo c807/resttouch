@@ -1,7 +1,11 @@
 .full-width {
-    width: 100%;
+  width: 100%;
 }
 
 .iconFontSize {
-    font-size: 24pt;
+  font-size: 24pt;
+}
+
+tr.mat-footer-row {
+  font-weight: bold;
 }
