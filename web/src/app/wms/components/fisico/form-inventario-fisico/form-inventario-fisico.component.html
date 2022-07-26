@@ -19,7 +19,7 @@
           <mat-form-field class="fullWidth">
             <input matInput type="number" maxlength="17" max="17" placeholder="Número" name="numero"
               [(ngModel)]="params.numero" required>
-            <button mat-raised-button matSuffix color="accent" type="submit">Buscar</button>
+            <button mat-raised-button matSuffix color="accent" type="submit" [disabled]="cargando">Buscar</button>
           </mat-form-field>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>
@@ -82,11 +82,10 @@
           </table>
 
           <div align="end">
-            <button mat-button color="accent" type="submit" *ngIf="inventario.confirmado == 0">Guardar</button>
-            <button mat-button color="accent" type="button" (click)="imprimir()">PDF</button>
-            <button mat-button color="accent" type="button" (click)="imprimirXls()" *ngIf="!esCuadreDiario">Excel</button>
-            <button mat-button color="accent" type="button" *ngIf="inventario.confirmado == 0"
-              (click)="confirmar()">Confirmar</button>
+            <button mat-button color="accent" type="submit" *ngIf="inventario.confirmado == 0" [disabled]="cargando">Guardar</button>
+            <button mat-button color="accent" type="button" (click)="imprimir()" [disabled]="cargando">PDF</button>
+            <button mat-button color="accent" type="button" (click)="imprimirXls()" *ngIf="!esCuadreDiario" [disabled]="cargando">Excel</button>
+            <button mat-button color="accent" type="button" *ngIf="inventario.confirmado == 0" (click)="confirmar()" [disabled]="cargando">Confirmar</button>
           </div>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>

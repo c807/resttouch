@@ -34,6 +34,8 @@ class Fisico extends CI_Controller {
 
 	public function generar()
 	{
+		set_time_limit(0);
+		ini_set('memory_limit', '-1');
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		$arts = [];

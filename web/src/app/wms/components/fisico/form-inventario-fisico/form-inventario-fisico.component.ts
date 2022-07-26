@@ -64,7 +64,8 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
   buscar = () => {
     let numero = "" + this.params.numero;
     if (numero.length < 19) {
-      this.resetDatos();      
+      this.resetDatos();
+      this.cargando = true;
       this.endSubs.add(
         this.fisicoSrvc.getDetalle(this.params.numero, { escuadrediario: this.esCuadreDiario ? 1 : 0 }).subscribe(res => {
           if (res && res.exito) {
@@ -73,6 +74,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
           } else {
             this.snackBar.open(`ERROR: ${res.mensaje}`, this.queSoy, { duration: 3000 });
           }
+          this.cargando = false;
         })
       );
     } else {
@@ -82,6 +84,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
   }
 
   actualizar = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.fisicoSrvc.saveDetalle(this.articulos).subscribe(res => {
         if (res.exito) {
@@ -89,6 +92,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Inventario', { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }
@@ -102,6 +106,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       dialogRef.afterClosed().subscribe(res => {
         if (res) {
+          this.cargando = true;
           this.fisicoSrvc.confirmar(this.inventario).subscribe(res => {
             if (res.exito) {
               this.inventario = res.inventario;
@@ -109,6 +114,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
             } else {
               this.snackBar.open(`ERROR: ${res.mensaje}`, this.queSoy, { duration: 3000 });
             }
+            this.cargando = false;
           })
         }
       })
@@ -116,20 +122,24 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
   }
 
   imprimir = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.pdfServicio.imprimirInventarioFisico(this.inventario.inventario_fisico, { existencia_fisica: true }).subscribe(resImp => {
         const blob = new Blob([resImp], { type: 'application/pdf' });
         saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        this.cargando = false;
       })
     );
   }
 
   imprimirXls = () => {
+    this.cargando = true;
     let params = { existencia_fisica: true, "_excel": true };
     this.endSubs.add(
       this.pdfServicio.imprimirInventarioFisico(this.inventario.inventario_fisico, params).subscribe(resImp => {
         const blob = new Blob([resImp], { type: 'application/vnd.ms-excel' });
         saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.xls`);
+        this.cargando = false;
       })
     );
   }
