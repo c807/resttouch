@@ -416,7 +416,7 @@ if (!function_exists("validarCantidadesPorCantidad")) {
 	{
 		$cant = 0;
 		foreach ($args['receta'] as $row) {
-			$cant += $row['cantidad'];
+			$cant += isset($row['cantidad']) ? $row['cantidad'] : 0;
 		}
 
 		return ($cant >= $minimo && $cant <= $maximo);
