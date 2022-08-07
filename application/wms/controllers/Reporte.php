@@ -1496,7 +1496,7 @@ class Reporte extends CI_Controller
 				]);
 
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-				$pdf->WriteHTML($this->load->view("reporte/articulo/Uso_ingrediente", ["data" => $lista, "params" => $datos], true));
+				$pdf->WriteHTML($this->load->view("reporte/articulo/uso_ingrediente", ["data" => $lista, "params" => $datos], true));
 				$pdf->Output("{$nombreArchivo}.pdf", "D");
 			}
 		}

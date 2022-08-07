@@ -625,6 +625,7 @@ class Articulo_model extends General_model
 				->where('b.sede', $sede->getPK())
 				->where('a.ajuste', 0)
 				->where('a.estatus_movimiento', 2)
+				->where("c.precio_total > 0")
 				->group_by('c.articulo')
 				->get('ingreso a')
 				->row();
