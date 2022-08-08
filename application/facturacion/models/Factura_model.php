@@ -541,7 +541,12 @@ class Factura_model extends General_model
 	public function set_emisor($args = array())
 	{
 		$emisor = $this->xml->getElementsByTagName('Emisor')->item(0);
-		$emisor->setAttribute('AfiliacionIVA', 'GEN');
+
+		if ($this->serie->pequenio_contribuyente == 1) {
+			$emisor->setAttribute('AfiliacionIVA', 'PEQ');
+		} else {
+			$emisor->setAttribute('AfiliacionIVA', 'GEN');
+		}
 
 		$emisor->setAttribute('CodigoEstablecimiento', $this->sedeFactura->fel_establecimiento);
 
@@ -757,17 +762,20 @@ class Factura_model extends General_model
 				$this->add_detalle_xml($items, $row, $key, $redondeaMontos, $montoIva, $montoTotal, $impuestosEsp);
 			} // Fin de for de detalle cuando sí es detallada la factura.
 		}
-
-		$totalImpuestos = $this->xml->getElementsByTagName('TotalImpuestos')->item(0);
-		$totalIva = $this->xml->getElementsByTagName('TotalImpuesto')->item(0);
-		$totalIva->setAttribute('NombreCorto', 'IVA');
-		$totalIva->setAttribute('TotalMontoImpuesto', ($this->exenta ? '0.00' : round($montoIva, 10)));
-		foreach ($impuestosEsp as $row) {
-			$totalImp = $this->crearElemento('dte:TotalImpuesto');
-			$totalImp->setAttribute('NombreCorto', $row['descripcion']);
-			$totalImp->setAttribute('TotalMontoImpuesto', round($row['monto'], 10));
-			$totalImpuestos->appendChild($totalImp);
+		
+		if ($this->serie->pequenio_contribuyente == 0) {
+			$totalImpuestos = $this->xml->getElementsByTagName('TotalImpuestos')->item(0);
+			$totalIva = $this->xml->getElementsByTagName('TotalImpuesto')->item(0);
+			$totalIva->setAttribute('NombreCorto', 'IVA');
+			$totalIva->setAttribute('TotalMontoImpuesto', ($this->exenta ? '0.00' : round($montoIva, 10)));
+			foreach ($impuestosEsp as $row) {
+				$totalImp = $this->crearElemento('dte:TotalImpuesto');
+				$totalImp->setAttribute('NombreCorto', $row['descripcion']);
+				$totalImp->setAttribute('TotalMontoImpuesto', round($row['monto'], 10));
+				$totalImpuestos->appendChild($totalImp);
+			}
 		}
+
 		$granTotal = $this->xml->getElementsByTagName('GranTotal')->item(0);
 		$granTotal->nodeValue = round($montoTotal, 10);
 	}
@@ -785,18 +793,25 @@ class Factura_model extends General_model
 				)));
 			}
 
-			if ($this->empresa->agente_retenedor == 1) {
+			if ($this->serie->pequenio_contribuyente == 1) {
 				$frases->appendChild($this->crearElemento('dte:Frase', '', array(
-					'TipoFrase'       => 2,
-					'CodigoEscenario' => $this->certificador->frase_retencion_iva
+					'TipoFrase'       => 3,
+					'CodigoEscenario' => 1
 				)));
-			}
+			} else {
+				if ($this->empresa->agente_retenedor == 1) {
+					$frases->appendChild($this->crearElemento('dte:Frase', '', array(
+						'TipoFrase'       => 2,
+						'CodigoEscenario' => $this->certificador->frase_retencion_iva
+					)));
+				}
 
-			if (in_array($this->serie->tipo, array('FCAM', 'FACT'))) {
-				$frases->appendChild($this->crearElemento('dte:Frase', '', array(
-					'TipoFrase'       => 1,
-					'CodigoEscenario' => $this->certificador->frase_retencion_isr
-				)));
+				if (in_array($this->serie->tipo, array('FCAM', 'FACT'))) {
+					$frases->appendChild($this->crearElemento('dte:Frase', '', array(
+						'TipoFrase'       => 1,
+						'CodigoEscenario' => $this->certificador->frase_retencion_isr
+					)));
+				}
 			}
 		}
 	}
