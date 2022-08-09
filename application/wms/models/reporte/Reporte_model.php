@@ -873,6 +873,7 @@ EOT;
 		->from("articulo_detalle a")
 		->join("articulo b", "b.articulo = a.receta")
 		->join("medida c", "c.medida = a.medida")
+		->where("a.anulado", 0)
 		->order_by("b.descripcion")
 		->get()
 		->result();
