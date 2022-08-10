@@ -98,8 +98,7 @@ class Factura extends CI_Controller
 					$req['impuesto_especial'] = $impuesto_especial->impuesto_especial;
 					$req['porcentaje_impuesto_especial'] = $impuesto_especial->porcentaje;
 
-					if ((float)$art->cantidad_gravable > 0 && (float)$art->precio_sugerido > 0) 
-					{
+					if ((float)$art->cantidad_gravable > 0 && (float)$art->precio_sugerido > 0) {
 						$req['cantidad_gravable'] = (float)$art->cantidad_gravable * (float)$req['cantidad'];
 						$req['precio_sugerido'] = $art->precio_sugerido;
 						$req['precio_sugerido_ext'] = $art->precio_sugerido;
@@ -114,7 +113,6 @@ class Factura extends CI_Controller
 
 						$req['monto_base'] = $req['total'] / $pimpuesto;
 						$req['monto_base_ext'] = $req['total_ext'] / $pimpuesto;
-
 					} else {
 						$req['valor_impuesto_especial'] = $req['monto_base'] * ((float)$impuesto_especial->porcentaje / 100);
 						$req['valor_impuesto_especial_ext'] = $req['monto_base_ext'] * ((float)$impuesto_especial->porcentaje / 100);
@@ -224,7 +222,7 @@ class Factura extends CI_Controller
 
 				if (!empty($fac->numero_factura)) {
 					$fac->certificador_fel = $cer;
-					$fac->detalle = $fac->getDetalle();					
+					$fac->detalle = $fac->getDetalle();
 					$fac->fecha_autorizacion = isset($resp->fecha) ? $resp->fecha : $resp->Fecha_DTE;
 
 					$comanda = $fac->getComanda();
@@ -249,7 +247,7 @@ class Factura extends CI_Controller
 	}
 
 	public function get_grafo_factura($factura)
-	{		
+	{
 		$datos = ['exito' => false, 'mensaje' => 'No se pudo recuperar la factura.'];
 		$fac = new Factura_model($factura);
 		//var_dump($fac);
@@ -257,9 +255,9 @@ class Factura extends CI_Controller
 			$fac->cargarEmpresa();
 			$fac->cargarCertificadorFel();
 			$cer = $fac->getCertificador();
-			$funcion = $cer->metodo_grafo;			
+			$funcion = $cer->metodo_grafo;
 			$resp = $fac->$funcion();
-			if($resp['tipo'] && $resp['documento']) {
+			if ($resp['tipo'] && $resp['documento']) {
 				$datos['exito'] = true;
 				$datos['mensaje'] = 'Documento recuperado con éxito.';
 				$datos['tipo'] = $resp['tipo'];
@@ -317,7 +315,7 @@ class Factura extends CI_Controller
 		if ($this->input->method() == 'post') {
 			$fac = new Factura_model($factura);
 			$req = json_decode(file_get_contents('php://input'), true);
-			
+
 			$usu = new Usuario_model($data->idusuario);
 			if (empty($fac->fel_uuid_anulacion)) {
 				if (verDato($req, "razon_anulacion")) {
@@ -343,7 +341,7 @@ class Factura extends CI_Controller
 							"descripcion" => "Modificacion",
 							"_uno" => true
 						]);
-						
+
 						$comentario = "Anulación: El usuario {$usu->nombres} {$usu->apellidos} anuló la factura {$fac->numero_factura} Serie {$fac->serie_factura} Motivo: {$motivo->descripcion}";
 
 						$bit->guardar([
@@ -373,9 +371,7 @@ class Factura extends CI_Controller
 		} else {
 			$datos['mensaje'] = "Parametros Invalidos";
 		}
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function imprimir($factura)
@@ -429,6 +425,139 @@ class Factura extends CI_Controller
 		$fac->procesar_factura($facturaRedondeaMontos && (int)$facturaRedondeaMontos->valor === 0 ? false : true);
 
 		echo $fac->getXml();
+	}
+
+	public function fix_facturas_id_duplicado()
+	{
+		set_time_limit(0);
+		$datos = ['exito' => false];
+		$headers = $this->input->request_headers();
+		$tokenData = AUTHORIZATION::validateToken($headers['Authorization']);
+
+		$errores = [];
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'), true);
+			if (isset($req['lista']) && !empty($req['lista'])) {
+				$lista = explode(',', $req['lista']);
+				$campos = $this->Factura_model->getCampos(true, '', 'factura');
+				$facturaRedondeaMontos = $this->Configuracion_model->buscar(["campo" => "RT_FACTURA_REDONDEA_MONTOS", "_uno" => true]);
+				foreach ($lista as $idFactura) {
+					$headerOrigen = new Factura_model($idFactura);
+					if (!is_null($headerOrigen->fel_uuid) && is_null($headerOrigen->fel_uuid_anulacion)) {
+						$headerDestino = new Factura_model();
+						foreach ($campos as $campo) {
+							$headerDestino->{$campo->campo} = $headerOrigen->{$campo->campo};
+						}
+
+						$headerDestino->factura = null;
+						if (dias_transcurridos($headerDestino->fecha_factura) > 5) {
+							$headerDestino->fecha_factura = date('Y-m-d', strtotime(' - 5 days'));
+						}
+						$headerDestino->serie_factura = null;
+						$headerDestino->numero_factura = null;
+						$headerDestino->fel_uuid = null;
+						$exito = $headerDestino->guardar();
+						if ($exito) {
+							$headerOrigen->copiarDetalle($headerDestino->getPK());
+							try {
+								$resp = facturar($headerDestino, $facturaRedondeaMontos && (int)$facturaRedondeaMontos->valor === 0 ? false : true);
+							} catch (Exception $e) {
+								$resp = [
+									'exito' => false,
+									'mensaje' => $e->getMessage()
+								];
+							}
+							if (!$resp['exito']) {
+								$errores[] = "{$resp['mensaje']}. Origen: {$headerOrigen->factura}. Destino: {$headerDestino->factura}.";
+							} else {
+								$headerOrigen->fel_uuid_anulacion = '*** ANULACIÓN INTERNA ***';
+								$headerOrigen->comentario_anulacion = 'Por corrección en la firma del DTE.';
+								$headerOrigen->razon_anulacion = isset($req['razon_anulacion']) && (int)$req['razon_anulacion'] > 0 ? (int)$req['razon_anulacion'] : null;
+								$headerOrigen->guardar();
+
+								$bit = new Bitacora_model();
+								$acc = $this->Accion_model->buscar([
+									"descripcion" => "Modificacion",
+									"_uno" => true
+								]);
+
+								$comentario = "Anulación interna de la factura {$headerOrigen->numero_factura} Serie {$headerOrigen->serie_factura} Motivo: {$headerOrigen->comentario_anulacion}";
+
+								$bit->guardar([
+									"accion" => $acc->accion,
+									"usuario" => $tokenData->idusuario,
+									"tabla" => 'factura',
+									"registro" => $headerOrigen->getPK(),
+									"comentario" => $comentario
+								]);
+							}
+						} else {
+							$fail = $headerDestino->getMensaje();
+							$errores[] = implode('. ', $fail);
+						}
+						sleep(10);
+					} else {
+						$errores[] = "La factura {$idFactura} no está firmada o ya está anulada.";
+					}
+				}
+				if (count($errores) > 0) {
+					$datos['mensaje'] = implode('. ', $errores);
+				} else {
+					$datos['exito'] = true;
+					$datos['mensaje'] = 'Se corrigieron las facturas solicitadas.';
+				}
+			} else {
+				$datos['mensaje'] = 'Favor enviar una lista separada por coma de los ids de las facturas a corregir.';
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+	}
+
+	public function firmar_dte_batch()
+	{
+		set_time_limit(0);
+		$datos = ['exito' => false];
+		$errores = [];
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'), true);
+			if (isset($req['lista']) && !empty($req['lista'])) {
+				$facturaRedondeaMontos = $this->Configuracion_model->buscar(["campo" => "RT_FACTURA_REDONDEA_MONTOS", "_uno" => true]);
+				$lista = explode(',', $req['lista']);
+				foreach ($lista as $idFactura) {
+					$fact = new Factura_model($idFactura);
+					if (empty($fact->fel_uuid) && empty($fact->fel_uuid_anulacion)) {
+						try {
+							$resp = facturar($fact, $facturaRedondeaMontos && (int)$facturaRedondeaMontos->valor === 0 ? false : true);
+						} catch (Exception $e) {
+							$resp = [
+								'exito' => false,
+								'mensaje' => $e->getMessage()
+							];
+						}
+						if (!$resp['exito']) {
+							$errores[] = "{$resp['mensaje']}. Factura: {$fact->factura}";
+						}
+						sleep(15);
+					} else {
+						$errores[] = "La factura {$idFactura} ya está firmada o ya está anulada.";
+					}
+				}
+
+				if (count($errores) > 0) {
+					$datos['mensaje'] = implode('. ', $errores);
+				} else {
+					$datos['exito'] = true;
+					$datos['mensaje'] = 'Se firmaron las facturas solicitadas.';
+				}
+			} else {
+				$datos['mensaje'] = 'Favor enviar una lista separada por coma de los ids de las facturas a firmar.';
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 }
 

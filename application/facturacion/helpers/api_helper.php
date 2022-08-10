@@ -41,7 +41,7 @@ if ( ! function_exists('get_request'))
 }
 
 if (! function_exists('facturar')) {
-	function facturar($fac)
+	function facturar($fac, $facturaRedondeaMontos = true)
 	{
 		$datos = ["exito" => false];
 		$fac->cargarFacturaSerie();
@@ -50,7 +50,7 @@ if (! function_exists('facturar')) {
 		$fac->cargarReceptor();
 		$fac->cargarSede();
 		$fac->cargarCertificadorFel();
-		$fac->procesar_factura();
+		$fac->procesar_factura($facturaRedondeaMontos);
 		$cer = $fac->getCertificador();
 
 		$funcion = $cer->metodo_factura;

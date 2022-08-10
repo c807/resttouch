@@ -625,3 +625,23 @@ if (!function_exists('verPropiedad')) {
 		return $return;
 	}
 }
+
+if (!function_exists('dias_transcurridos')) {
+	function dias_transcurridos($fecha1, $fecha2 = '')
+	{
+		if(empty($fecha1)) {
+			return null;
+		} else {
+			$f1 = strtotime($fecha1);
+		}
+
+		if(empty($fecha2)) {
+			$f2 = time();
+		} else {
+			$f2 = strtotime($fecha2);
+		}
+
+		$datediff = $f2 - $f1;
+		return abs(round($datediff / 86400));
+	}
+}
