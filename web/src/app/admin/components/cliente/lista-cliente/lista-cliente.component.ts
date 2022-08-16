@@ -12,7 +12,7 @@ import { FormClienteDialogComponent } from '../form-cliente-dialog/form-cliente-
 @Component({
   selector: 'app-lista-cliente',
   templateUrl: './lista-cliente.component.html',
-  styleUrls: ['./lista-cliente.component.css']
+  styleUrls: ['./lista-cliente.component.css'],  
 })
 export class ListaClienteComponent implements OnInit {
 
@@ -20,7 +20,7 @@ export class ListaClienteComponent implements OnInit {
   public lstClientesPaged: Cliente[];
   @Input() showAddButton = false;
   @Output() getClienteEv = new EventEmitter();
-  @ViewChild('paginador') paginador: MatPaginator;
+  // @ViewChild('paginador') paginador: MatPaginator;
 
   public length = 0;
   public pageSize = 5;
@@ -47,14 +47,16 @@ export class ListaClienteComponent implements OnInit {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstClientes, this.txtFiltro);
       this.length = tmpList.length;
-      this.lstClientesPaged = PaginarArray(tmpList, this.pageSize, this.pageIndex + 1);
+      // this.lstClientesPaged = PaginarArray(tmpList, this.pageSize, this.pageIndex + 1);
+      this.lstClientesPaged = JSON.parse(JSON.stringify(tmpList));
     } else {
       this.length = this.lstClientes.length;
-      this.lstClientesPaged = PaginarArray(this.lstClientes, this.pageSize, this.pageIndex + 1);
+      // this.lstClientesPaged = PaginarArray(this.lstClientes, this.pageSize, this.pageIndex + 1);
+      this.lstClientesPaged = JSON.parse(JSON.stringify(this.lstClientes));;
     }
-    if (!cambioPagina) {
-      this.paginador.firstPage();
-    }
+    // if (!cambioPagina) {
+    //   this.paginador.firstPage();
+    // }
   }
 
   validateKey = (e: any) => {

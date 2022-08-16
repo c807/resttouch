@@ -25,6 +25,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { SidebarDirective } from './directives/sidebar.directive';
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
@@ -155,7 +156,7 @@ import { SetupComponent } from './components/setup/setup/setup.component';
     MatInputModule, MatCardModule, MatDividerModule, MatTabsModule, MatTableModule, MatSelectModule, MatCheckboxModule, MatButtonModule,
     MatSnackBarModule, MatToolbarModule, MatMenuModule, MatGridListModule, MatPaginatorModule, MatTreeModule, MatDialogModule,
     MatProgressBarModule, PivotViewAllModule, PivotFieldListAllModule, FlexLayoutModule, ChartModule, NgIdleKeepaliveModule.forRoot(),
-    MatAutocompleteModule, ChartsModule, MatKeyboardModule
+    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,
