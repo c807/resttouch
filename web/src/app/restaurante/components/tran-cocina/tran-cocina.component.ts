@@ -1,25 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import { GLOBAL, OrdenarArrayObjetos } from '../../../shared/global';
-// import { DialogCocina } from '../../../shared/interfaces/config-reportes';
 import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
-// import { ConfirmDialogModel, DialogCocinaComponent } from '../../../shared/components/dialog-cocina/dialog-cocina.component';
 import * as moment from 'moment';
 
 import { ComandaService } from '../../services/comanda.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tran-cocina',
   templateUrl: './tran-cocina.component.html',
   styleUrls: ['./tran-cocina.component.css']
 })
-export class TranCocinaComponent implements OnInit {
+export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChild('divContenedorPedidos') divContenedorPedidos: ElementRef;
 
   get sumaCantidadProductos() {
-    return (obj: any) => {      
+    return (obj: any) => {
       let cantProd = 0;
       obj.cuentas.forEach(cta => cantProd += cta.productos.length);
       return cantProd;
@@ -27,7 +29,9 @@ export class TranCocinaComponent implements OnInit {
   }
 
   public lstComandasCocina: any[] = [];
-  public lstComandasCocinaEnProceso: any[] = [];
+  public lstComandasCocinaEnProceso: any[] = [];  
+
+  private endSubs: Subscription = new Subscription();
 
   constructor(
     private ls: LocalstorageService,
@@ -59,6 +63,17 @@ export class TranCocinaComponent implements OnInit {
     this.loadComandasCocina();
   }
 
+  ngAfterViewInit() {
+    Promise.resolve(null).then(() => {      
+      console.log('Elemento = ', this.divContenedorPedidos);
+      // console.log('ScrollHeight = ', this.divContenedorPedidos);
+    });
+  }
+
+  ngOnDestroy() {
+    this.endSubs.unsubscribe();
+  }
+
   notificarUsuario = () => {
     const opciones: NotificationOptions = {
       icon: 'assets/img/minilogo.png',
@@ -75,19 +90,21 @@ export class TranCocinaComponent implements OnInit {
       fltr.comanda = +idcomanda;
     }
 
-    this.comandaSrvc.getComandasCocina(fltr).subscribe(res => {
-      if (+idcomanda > 0) {
-        this.lstComandasCocina = this.lstComandasCocina.filter(c => +c.comanda !== +idcomanda);
-        this.lstComandasCocinaEnProceso = this.lstComandasCocinaEnProceso.filter(c => +c.comanda !== +idcomanda);
-        res.pendientes.forEach(p => this.lstComandasCocina.push(p));        
-        res.enproceso.forEach(p => this.lstComandasCocinaEnProceso.push(p));
-        this.lstComandasCocinaEnProceso = OrdenarArrayObjetos(this.lstComandasCocinaEnProceso, 'fecha_proceso', 3);
-      } else {
-        this.lstComandasCocina = res.pendientes;
-        this.lstComandasCocinaEnProceso = res.enproceso;
-      }
-      this.setTiempo();
-    });
+    this.endSubs.add(
+      this.comandaSrvc.getComandasCocina(fltr).subscribe(res => {
+        if (+idcomanda > 0) {
+          this.lstComandasCocina = this.lstComandasCocina.filter(c => +c.comanda !== +idcomanda);
+          this.lstComandasCocinaEnProceso = this.lstComandasCocinaEnProceso.filter(c => +c.comanda !== +idcomanda);
+          res.pendientes.forEach(p => this.lstComandasCocina.push(p));
+          res.enproceso.forEach(p => this.lstComandasCocinaEnProceso.push(p));
+          this.lstComandasCocinaEnProceso = OrdenarArrayObjetos(this.lstComandasCocinaEnProceso, 'fecha_proceso', 3);
+        } else {
+          this.lstComandasCocina = res.pendientes;
+          this.lstComandasCocinaEnProceso = res.enproceso;
+        }
+        this.setTiempo();
+      })
+    );
   }
 
   setTiempo = () => {
@@ -149,7 +166,7 @@ export class TranCocinaComponent implements OnInit {
     return date > cmd.fin_proceso;
   }
 
-  setCocinado = (cmd: any, estatus = 2, idx: number) => {    
+  setCocinado = (cmd: any, estatus = 2, idx: number) => {
     const datos: any = {
       numero: +cmd.numero,
       estatus: estatus,
@@ -164,10 +181,17 @@ export class TranCocinaComponent implements OnInit {
       this.lstComandasCocina.splice(idx, 1);
       this.setTiempo();
     } else if (estatus === 2) {
-      this.lstComandasCocinaEnProceso.splice(idx, 1);      
+      this.lstComandasCocinaEnProceso.splice(idx, 1);
     }
 
-    this.comandaSrvc.setComandaCocinada(+cmd.comanda, datos).subscribe((respuesta: any) => this.snackBar.open('Datos actualizados con éxito.', 'Cocina', { duration: 3000 }));
+    this.endSubs.add(
+      this.comandaSrvc.setComandaCocinada(+cmd.comanda, datos).subscribe((respuesta: any) => this.snackBar.open('Datos actualizados con éxito.', 'Cocina', { duration: 3000 }))
+    );
+  }
+
+  bajarPantalla = () => {
+    // this.divContenedorPedidos.nativeElement.scrollTop = this.divContenedorPedidos.nativeElement.scrollHeight;
+    // console.log('bajarPantalla a ', this.divContenedorPedidos.nativeElement.scrollTop);
   }
 
 }

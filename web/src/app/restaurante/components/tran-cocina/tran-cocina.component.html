@@ -1,8 +1,11 @@
-<div fxLayout="row" fxLayout.xs="column" fxFlexFill>
+<div #divContenedorPedidos fxLayout="row" fxLayout.xs="column" fxFlexFill>
     <div fxFlex="50%" fxFlex.xs="100%" class="bordeRght">
         <div class="divContenedor" fxLayout="row wrap" fxLayoutGap="10px grid" fxFlexFill fxLayoutAlign="start start">
             <div fxFlex="100%" fxLayoutAlign="center start">
                 <h4>Pendientes</h4>
+                <button type="button" mat-fab color="accent" style="margin-left: 30px;" (click)="bajarPantalla()">
+                    <mat-icon class="btnScrollDown">vertical_align_bottom</mat-icon>
+                </button>
             </div>
             <ng-container *ngFor="let cmd of lstComandasCocina; index as i">                
                 <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%" *ngIf="sumaCantidadProductos(cmd) > 0">
@@ -19,7 +22,7 @@
                                 <table *ngIf="cta.productos.length > 0">
                                     <tr *ngFor="let prod of cta.productos">
                                         <td>
-                                            {{prod.cantidad}} {{prod.articulo.descripcion}}
+                                            <span [ngClass]="{'bld': prod.detalle.length > 0}">{{prod.cantidad}} {{prod.articulo.descripcion}}</span>
                                             <br *ngIf="prod.detalle.length > 0" />
                                             <ng-container *ngFor="let specs of prod.detalle">                                            
                                                 <span>{{specs.trim()}}</span><br/>
@@ -46,6 +49,9 @@
         <div class="divContenedor" fxLayout="row wrap" fxLayoutGap="10px grid" fxFlexFill fxLayoutAlign="start start">
             <div fxFlex="100%" fxLayoutAlign="center start">
                 <h4>En Proceso</h4>
+                <button type="button" mat-fab color="accent" style="margin-left: 30px;" (click)="bajarPantalla()">
+                    <mat-icon class="btnScrollDown">vertical_align_bottom</mat-icon>
+                </button>
             </div>
             <ng-container *ngFor="let cmdEnProceso of lstComandasCocinaEnProceso; index as j">
                 <div fxFlex="33%" fxFlex.xs="100%" fxFlex.sm="100%" fxFlex.md="50%" *ngIf="sumaCantidadProductos(cmdEnProceso) > 0">
@@ -65,7 +71,7 @@
                                 <table *ngIf="cta.productos.length > 0">
                                     <tr *ngFor="let prod of cta.productos">
                                         <td>
-                                            {{prod.cantidad}} {{prod.articulo.descripcion}}
+                                            <span [ngClass]="{'bld': prod.detalle.length > 0}">{{prod.cantidad}} {{prod.articulo.descripcion}}</span>
                                             <br *ngIf="prod.detalle.length > 0" />
                                             <ng-container *ngFor="let specs of prod.detalle">                                            
                                                 <span>{{specs.trim()}}</span><br/>

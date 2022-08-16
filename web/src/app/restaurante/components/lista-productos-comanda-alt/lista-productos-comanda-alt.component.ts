@@ -184,7 +184,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
               this.imprimirAnulacionDeProducto(res.comanda, res.anulacion);
             }
             this.productoRemovedEv.emit(+p.numero_cuenta);
-            if (+p.cantidad === 0) {
+            if (+params.cantidad === 0) {
               this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
               this.socket.emit('refrescar:listaCocina', { mesaenuso: this.mesaEnUso });
             }
