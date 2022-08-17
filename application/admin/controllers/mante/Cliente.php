@@ -8,8 +8,7 @@ class Cliente extends CI_Controller
 	{
 		parent::__construct();
 		$this->load->model('Cliente_model');
-		$this->output
-			->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = "")
@@ -53,11 +52,10 @@ class Cliente extends CI_Controller
 
 	public function buscar()
 	{
-		$datos = $this->Cliente_model->buscar($_GET);
-
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		// $datos = $this->Cliente_model->buscar($_GET);
+		$cli = new Cliente_model();
+		$datos = $cli->get_lista($_GET);
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function prettyNombreContribuyente($fullname)
@@ -232,7 +230,7 @@ class Cliente extends CI_Controller
 			}
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
-	}
+	}	
 }
 
 /* End of file Cliente.php */

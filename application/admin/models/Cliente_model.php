@@ -19,7 +19,7 @@ class Cliente_model extends General_model {
 	public function __construct($id = "")
 	{
 		parent::__construct();
-		$this->setTabla("cliente");
+		$this->setTabla("cliente");		
 
 		if(!empty($id)) {
 			$this->cargar($id);
@@ -36,6 +36,22 @@ class Cliente_model extends General_model {
         return $this->db->get()->result();
     }
 
+	public function get_lista($args = [], $rowno = 0, $rowperpage = 5, $search='')
+	{
+		$campos = $this->getCamposTabla(false);
+		$this->db->select($campos);
+		if (count($args) > 0) {
+			foreach ($args as $key => $row) {
+				if (substr($key, 0, 1) != "_") {
+					$this->db->where($key, $row);
+				}
+			}
+		}		
+		$this->db->order_by('nombre');
+		// $this->db->limit($rowperpage, $rowno);
+		$query = $this->db->get('cliente');
+		return $query->result();
+	}	
 }
 
 /* End of file Cliente_model.php */

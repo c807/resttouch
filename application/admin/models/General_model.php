@@ -8,11 +8,12 @@ class General_model extends CI_Model
 	protected $_llave = "id";
 	protected $_pk = null;
 	protected $mensaje = [];
+	protected $_lista_campos = [];
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->_tabla = $this->getTabla();
+		$this->_tabla = $this->getTabla();		
 	}
 
 	public function getPK()
@@ -38,6 +39,8 @@ class General_model extends CI_Model
 		$tmp = explode(".", $nombre);
 
 		$this->_llave = count($tmp) > 1 ? $tmp[1] : $nombre;
+
+		$this->setCampos();
 	}
 
 	public function setLlave($nombre)
@@ -220,6 +223,16 @@ class General_model extends CI_Model
 	public function eliminar()
 	{
 		return $this->db->delete($this->_tabla, array($this->_llave => $this->_pk));
+	}
+
+	public function setCampos()
+	{
+		$this->_lista_campos = $this->getCampos();
+	}
+
+	public function getCamposTabla($asArray = true)
+	{		
+		return $asArray ? array_column($this->_lista_campos, 'campo') : implode(',', array_column($this->_lista_campos, 'campo'));
 	}
 }
 
