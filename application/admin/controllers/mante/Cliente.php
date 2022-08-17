@@ -118,8 +118,13 @@ class Cliente extends CI_Controller
 							'nombre' => $this->prettyNombreContribuyente($json->nombre),
 							'direccion' => 'Ciudad'
 						];
-						$datos['exito'] = true;
-						$datos['mensaje'] = 'Contribuyente encontrado.';
+
+						if (is_string($datos['contribuyente']['nombre']) && !empty(trim($datos['contribuyente']['nombre']))) {
+							$datos['exito'] = true;
+							$datos['mensaje'] = 'Contribuyente encontrado.';
+						} else {
+							$datos['mensaje'] = 'El certificador devolvió un nombre inválido. Por favor comuníquese con su certificador para validar el NIT.';
+						}
 					} else {
 						$datos['mensaje'] = $json->mensaje;
 					}
@@ -147,8 +152,13 @@ class Cliente extends CI_Controller
 							'nombre' => $this->prettyNombreContribuyente((string)$req->Response->nombre),
 							'direccion' => 'Ciudad'
 						];
-						$datos['exito'] = true;
-						$datos['mensaje'] = 'Contribuyente encontrado.';
+
+						if (is_string($datos['contribuyente']['nombre']) && !empty(trim($datos['contribuyente']['nombre']))) {
+							$datos['exito'] = true;
+							$datos['mensaje'] = 'Contribuyente encontrado.';
+						} else {
+							$datos['mensaje'] = 'El certificador devolvió un nombre inválido. Por favor comuníquese con su certificador para validar el NIT.';
+						}
 					} else {
 						$datos['mensaje'] = (string)$req->Response->error;
 					}
@@ -177,8 +187,12 @@ class Cliente extends CI_Controller
 								'nombre' => $this->prettyNombreContribuyente(trim((string)$res->RESPONSE[0]->NOMBRE)),
 								'direccion' => 'Ciudad'
 							];
-							$datos['exito'] = true;
-							$datos['mensaje'] = 'Contribuyente encontrado.';
+							if (is_string($datos['contribuyente']['nombre']) && !empty(trim($datos['contribuyente']['nombre']))) {
+								$datos['exito'] = true;
+								$datos['mensaje'] = 'Contribuyente encontrado.';
+							} else {
+								$datos['mensaje'] = 'El certificador devolvió un nombre inválido. Por favor comuníquese con su certificador para validar el NIT.';
+							}
 						} else {
 							$datos['exito'] = false;
 							$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
@@ -197,14 +211,14 @@ class Cliente extends CI_Controller
 					'password' => $cer->llave,
 					'grant_type' => 'password',
 				);
-				
+
 				$header = ['Content-Type: application/x-www-form-urlencoded'];
 				$jsonToken = json_decode(post_request($link, http_build_query($datosDF), $header, false));
 
 				if (isset($jsonToken->access_token)) {
 					$esPruebas = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', '192.168.18.241']);
-					$link = 'https://'.(!$esPruebas ? '' : 'test').'ws.ccgfel.gt/Api/ConsultarNit';
-					$header = ["Authorization: Bearer {$jsonToken->access_token}"];					
+					$link = 'https://' . (!$esPruebas ? '' : 'test') . 'ws.ccgfel.gt/Api/ConsultarNit';
+					$header = ["Authorization: Bearer {$jsonToken->access_token}"];
 					$res = json_decode(post_request($link, json_encode(['Nit' => $nit]), $header));
 					if (isset($res->Resultado) && $res->Resultado) {
 						if (trim((string)$res->NombreEmisor) !== '') {
@@ -212,8 +226,12 @@ class Cliente extends CI_Controller
 								'nombre' => trim((string)$res->NombreEmisor),
 								'direccion' => 'Ciudad'
 							];
-							$datos['exito'] = true;
-							$datos['mensaje'] = 'Contribuyente encontrado.';
+							if (is_string($datos['contribuyente']['nombre']) && !empty(trim($datos['contribuyente']['nombre']))) {
+								$datos['exito'] = true;
+								$datos['mensaje'] = 'Contribuyente encontrado.';
+							} else {
+								$datos['mensaje'] = 'El certificador devolvió un nombre inválido. Por favor comuníquese con su certificador para validar el NIT.';
+							}
 						} else {
 							$datos['exito'] = false;
 							$datos['mensaje'] = "No se encontró la información del contribuyente {$nit}.";
@@ -230,7 +248,7 @@ class Cliente extends CI_Controller
 			}
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
-	}	
+	}
 }
 
 /* End of file Cliente.php */
