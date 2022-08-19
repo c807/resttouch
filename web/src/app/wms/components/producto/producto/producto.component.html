@@ -50,13 +50,13 @@
                     <input matInput (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro"
                         [ngModelOptions]="{standalone: true}">
                 </mat-form-field>
-                <!-- <cdk-virtual-scroll-viewport [itemSize]="20"> -->
+                <cdk-virtual-scroll-viewport itemSize="48" minBufferPx="384" maxBufferPx="768">
                     <mat-action-list class="fullWidth">
-                        <button mat-list-item class="accion-comanda mat-elevation-z4"
-                            *ngFor="let producto of articulos"
-                            (click)="setArticulo(producto)">{{producto.descripcion | truncar:35}}</button>
+                        <ng-container *cdkVirtualFor="let producto of articulos">
+                            <button mat-list-item class="accion-comanda mat-elevation-z4" (click)="setArticulo(producto)">{{producto.descripcion | truncar:35}}</button>
+                        </ng-container>
                     </mat-action-list>
-                <!-- </cdk-virtual-scroll-viewport> -->
+                </cdk-virtual-scroll-viewport>
             </div>
             <div class="divArticulos" fxFlex="60%" fxFlex.xs="100%" fxFlex.sm="100%">
                 <!-- <app-form-producto #frmProducto [categoria]="categoria" [subcategoria]="categoriaGrupo" [articulo]="articulo" (articuloSvd)="refreshArticuloList($event)"></app-form-producto> -->

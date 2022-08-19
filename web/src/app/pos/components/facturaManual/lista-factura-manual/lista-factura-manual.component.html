@@ -25,6 +25,7 @@
                 <span mat-line>Fecha: {{element.fecha_factura | date:'dd/MM/yyyy'}}</span>
                 <span mat-line>Cliente: {{element.cliente.nombre}}</span>
                 <span mat-line>NIT: {{element.cliente.nit}}</span>
+                <span mat-line *ngIf="+element.comanda > 0">Comanda: {{element.comanda}}</span>
             </mat-list-item>
         </mat-nav-list>
         <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"

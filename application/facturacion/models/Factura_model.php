@@ -284,7 +284,7 @@ class Factura_model extends General_model
 		return false;
 	}
 
-	public function getComanda()
+	public function getComanda($completo = true)
 	{
 		$tmp = $this->db
 			->select("e.comanda")
@@ -299,10 +299,10 @@ class Factura_model extends General_model
 			->row();
 
 		if ($tmp) {
-			return new Comanda_model($tmp->comanda);
+			return $completo ? new Comanda_model($tmp->comanda) : (int)$tmp->comanda;
 		}
 
-		return new Comanda_model();
+		return $completo ? new Comanda_model() : 0;
 	}
 
 	public function cargarCertificadorFel()

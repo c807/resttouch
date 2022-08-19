@@ -14,6 +14,7 @@ export interface Factura {
     notas: string;
     enviar_descripcion_unica?: number;
     descripcion_unica?: string;
+    comanda?: number;
 }
 
 interface ctaFactReq {

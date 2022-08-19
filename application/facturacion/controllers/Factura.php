@@ -166,10 +166,10 @@ class Factura extends CI_Controller
 				$row->usuario = $this->Usuario_model->find([
 					'usuario' => $tmp->usuario, "_uno" => true
 				]);
+				$row->comanda = $tmp->getComanda(false);
 				$datos[] = $row;
 			}
-		} else if ($facturas) {
-			$tmp = new Factura_model($facturas->factura);
+		} else if ($facturas) {			
 			$tmp = new Factura_model($facturas->factura);
 			$tmp->cargarReceptor();
 			$tmp->cargarMoneda();
@@ -181,12 +181,11 @@ class Factura extends CI_Controller
 			$facturas->usuario = $this->Usuario_model->find([
 				'usuario' => $tmp->usuario, "_uno" => true
 			]);
+			$facturas->comanda = $tmp->getComanda(false);
 			$datos[] = $facturas;
 		}
 
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function buscar_detalle($factura)
