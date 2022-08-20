@@ -148,13 +148,23 @@ class Articulo extends CI_Controller
 					if ($art->combo == 1 && $rec->combo == 1) {
 						$datos['mensaje'] = "No es posible agregar un combo a un combo como detalle.";
 					} else {
-						$det = $art->guardarReceta($req, $id);
-						if ($det) {
-							$datos['exito'] = true;
-							$datos['mensaje'] = "Datos Actualizados con Exito";
-							$datos['detalle'] = $det;							
-						} else {
-							$datos['mensaje'] = implode("<br>", $art->getMensaje());
+						$continuar = true;						
+						if ((int)$art->multiple === 1) {
+							$presArtRec = $rec->getPresentacion();
+							if ((float)$presArtRec->cantidad !== (float)1) {
+								$continuar = false;
+								$datos['mensaje'] = 'Este artículo no aplica para opción múltiple.';
+							}							
+						}
+						if ($continuar) {
+							$det = $art->guardarReceta($req, $id);
+							if ($det) {
+								$datos['exito'] = true;
+								$datos['mensaje'] = "Datos Actualizados con Exito";
+								$datos['detalle'] = $det;							
+							} else {
+								$datos['mensaje'] = implode("<br>", $art->getMensaje());
+							}
 						}
 					}
 				} else {
@@ -164,11 +174,10 @@ class Articulo extends CI_Controller
 				$datos['mensaje'] = "La cantidad debe ser mayor a cero.";
 			}
 		} else {
-			$datos['mensaje'] = "Parametros invalidos.";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function imprimir_receta($articulo)
