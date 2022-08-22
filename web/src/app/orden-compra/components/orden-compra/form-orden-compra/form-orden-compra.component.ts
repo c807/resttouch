@@ -1,26 +1,29 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatTableDataSource} from '@angular/material/table';
+import {MatDialog} from '@angular/material/dialog';
+import {LocalstorageService} from '../../../../admin/services/localstorage.service';
+import {GLOBAL} from '../../../../shared/global';
 
-import { OrdenCompra } from '../../../interfaces/orden-compra';
-import { DetalleOrdenCompra } from '../../../interfaces/detalle-orden-compra';
-import { OrdenCompraService } from '../../../services/orden-compra.service';
-import { Proveedor } from '../../../../wms/interfaces/proveedor';
-import { ProveedorService } from '../../../../wms/services/proveedor.service';
-import { TipoMovimiento } from '../../../../wms/interfaces/tipo-movimiento';
-import { TipoMovimientoService } from '../../../../wms/services/tipo-movimiento.service';
-import { Bodega } from '../../../../wms/interfaces/bodega';
-import { BodegaService } from '../../../../wms/services/bodega.service';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import {OrdenCompra} from '../../../interfaces/orden-compra';
+import {DetalleOrdenCompra} from '../../../interfaces/detalle-orden-compra';
+import {OrdenCompraService} from '../../../services/orden-compra.service';
+import {Proveedor} from '../../../../wms/interfaces/proveedor';
+import {ProveedorService} from '../../../../wms/services/proveedor.service';
+import {TipoMovimiento} from '../../../../wms/interfaces/tipo-movimiento';
+import {TipoMovimientoService} from '../../../../wms/services/tipo-movimiento.service';
+import {Bodega} from '../../../../wms/interfaces/bodega';
+import {BodegaService} from '../../../../wms/services/bodega.service';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogModel
+} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import {ReportePdfService} from '../../../../restaurante/services/reporte-pdf.service';
 import * as moment from 'moment';
-import { saveAs } from 'file-saver';
+import {saveAs} from 'file-saver';
 
-import { Subscription } from 'rxjs';
-import { MatSelectChange } from '@angular/material/select';
+import {Subscription} from 'rxjs';
+import {MatSelectChange} from '@angular/material/select';
 
 @Component({
   selector: 'app-form-orden-compra',
@@ -32,6 +35,8 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   @Input() ordenCompra: OrdenCompra;
   @Output() ordenCompraSavedEv = new EventEmitter();
 
+  public txtProveedorSelected: (Proveedor | string) = undefined;
+
   public showOrdenCompraForm = true;
   public showDetalleOrdenCompraForm = true;
 
@@ -39,7 +44,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public detalleOrdenCompra: DetalleOrdenCompra;
   public displayedColumns: string[] = ['articulo', 'cantidad', 'monto', 'total', 'editItem'];
   public dataSource: MatTableDataSource<DetalleOrdenCompra>;
-  public proveedores: Proveedor[] = [];  
+  public proveedores: Proveedor[] = [];
   public articulos: any[] = [];
   public tiposMovimiento: TipoMovimiento[] = [];
   public bodegas: Bodega[] = [];
@@ -48,26 +53,62 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public presentaciones: any[] = [];
   public bloqueoMonto = false;
 
+  public filteredProveedores: Proveedor[] = [];
+
   private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
     private ordenCompraSrvc: OrdenCompraService,
-    private proveedorSrvc: ProveedorService,    
+    private proveedorSrvc: ProveedorService,
     private tipoMovimientoSrvc: TipoMovimientoService,
     private bodegaSrvc: BodegaService,
     public dialog: MatDialog,
     private pdfServicio: ReportePdfService
-  ) { }
+  ) {
+  }
+
+  setProviderName(){
+    const filteredProveedores =
+      this.proveedores.filter(a => a.proveedor === this.ordenCompra.proveedor);
+
+  //  this.txtProveedorSelected = this.displayProveedor(filteredProveedores[0]);
+    this.txtProveedorSelected = filteredProveedores[0];
+  }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.resetOrdenCompra();
-    this.loadProveedores();    
+    this.loadProveedores();
     this.loadBodegas();
     this.loadTiposMovimiento();
   }
+
+  /**
+   * This is for filtering data in the Proveedr filed
+   * @param value
+   */
+
+  filtrarProveedores = (value) => {
+    if (value && (typeof value === 'string')) {
+      const filterValue = value.toLowerCase();
+      this.filteredProveedores =
+        this.proveedores.filter(a => a.razon_social.toLowerCase().includes(filterValue) || a.nit.toLowerCase().includes(filterValue));
+    } else {
+      this.filteredProveedores = this.proveedores;
+    }
+  }
+
+  //HERE THE PROVEED IS SET , TO THE OBJECT
+  displayProveedor = (p: Proveedor) => {
+    if (p) {
+      this.ordenCompra.proveedor = p.proveedor;
+      return `(${p.nit}) ${p.razon_social}`;
+    }
+    return undefined;
+  }
+
 
   ngOnDestroy(): void {
     this.endSubs.unsubscribe();
@@ -83,7 +124,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   loadTiposMovimiento = () => {
     this.endSubs.add(
-      this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
+      this.tipoMovimientoSrvc.get({ingreso: 1}).subscribe(res => {
         this.tiposMovimiento = res;
       })
     );
@@ -91,7 +132,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   loadBodegas = () => {
     this.endSubs.add(
-      this.bodegaSrvc.get({ sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0 }).subscribe(res => {
+      this.bodegaSrvc.get({sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0}).subscribe(res => {
         this.bodegas = res;
       })
     );
@@ -99,11 +140,13 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   resetOrdenCompra = () => {
     this.ordenCompra = {
-      orden_compra: null, proveedor: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), notas: null,
+      orden_compra: null,
+      proveedor: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), notas: null,
       estatus_movimiento: 1, bodega: null, tipo_movimiento: null, fecha_orden: moment().format(GLOBAL.dbDateFormat),
       sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0)
     };
     this.resetDetalleOrdenCompra();
+    this.txtProveedorSelected = undefined;
   }
 
   onSubmit = () => {
@@ -142,14 +185,19 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   }
 
   resetDetalleOrdenCompra = () => this.detalleOrdenCompra = {
-    orden_compra_detalle: null, orden_compra: (!!this.ordenCompra.orden_compra ? this.ordenCompra.orden_compra : null), articulo: null,
-    cantidad: null, monto: null, total: null, presentacion: null
+    orden_compra_detalle: null,
+    orden_compra: (!!this.ordenCompra.orden_compra ? this.ordenCompra.orden_compra : null),
+    articulo: null,
+    cantidad: null,
+    monto: null,
+    total: null,
+    presentacion: null
   }
 
   loadDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra) => {
     this.loadArticulos();
     this.endSubs.add(
-      this.ordenCompraSrvc.getDetalle(idoc, { orden_compra: idoc }).subscribe(res => {
+      this.ordenCompraSrvc.getDetalle(idoc, {orden_compra: idoc}).subscribe(res => {
         this.detallesOrdenCompra = res;
         this.updateTableDataSource();
       })
@@ -157,7 +205,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   }
 
   getDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra, iddetalle: number) => {
-    this.ordenCompraSrvc.getDetalle(idoc, { orden_compra_detalle: iddetalle }).subscribe((res: any[]) => {
+    this.ordenCompraSrvc.getDetalle(idoc, {orden_compra_detalle: iddetalle}).subscribe((res: any[]) => {
       // console.log(res);
       if (res) {
         this.detalleOrdenCompra = {
@@ -259,14 +307,14 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
+          const blob = new Blob([res], {type: 'application/pdf'});
           saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
         } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'OC', { duration: 3000 });
-        }        
+          this.snackBar.open('No se pudo generar el reporte...', 'OC', {duration: 3000});
+        }
       })
-    );    
+    );
   }
 
-  getTotal =  () => this.detallesOrdenCompra.map(d => +d.total).reduce((acc, curr) => acc + curr, 0);
+  getTotal = () => this.detallesOrdenCompra.map(d => +d.total).reduce((acc, curr) => acc + curr, 0);
 }
