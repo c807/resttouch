@@ -16,6 +16,7 @@ class Dcomanda_model extends General_Model
 	public $notas;
 	public $cocinado = 0;
 	public $presentacion;
+	public $presentacion_bck = null;
 	public $numero;
 	public $fecha;
 	public $tiempo_preparacion;
