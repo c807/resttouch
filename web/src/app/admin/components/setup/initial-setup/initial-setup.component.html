@@ -33,7 +33,7 @@
             
             <mat-form-field class="fullWidth">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Sede" name="sede" minlength="1" maxlength="100" [(ngModel)]="configInicial.sede" required>
-                <input matInput *ngIf="esMovil" type="text" placeholder="Sede" name="sede" minlength="1" maxlength="25" [(ngModel)]="configInicial.sede" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Sede" name="sede" minlength="1" maxlength="100" [(ngModel)]="configInicial.sede" required>
             </mat-form-field>            
             
             <mat-form-field class="fullWidth">
@@ -47,8 +47,8 @@
             </mat-form-field>            
             
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" maxlength="2" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
-                <input matInput *ngIf="esMovil" type="text" maxlength="2" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
+                <input matInput *ngIf="esMovil" type="text" placeholder="Usuario" name="usuario" [(ngModel)]="configInicial.usuario" minlength="5" maxlength="15" required (keypress)="validateChars($event)">
             </mat-form-field>
                         
             <div align="end">

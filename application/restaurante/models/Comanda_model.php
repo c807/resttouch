@@ -1158,6 +1158,63 @@ class Comanda_model extends General_Model
             ]);
         }
     }
+
+    public function fix_detcom_presentacion_pasado_opcion_multiple()
+    {
+        $resultados = [];
+        $qry = 'SELECT detalle_comanda, articulo, presentacion, detalle_comanda_id FROM detalle_comanda WHERE detalle_comanda_id IS NOT NULL AND articulo IN(';
+        $qry .= 'SELECT articulo FROM articulo WHERE articulo IN(';
+        $qry .= 'SELECT articulo FROM articulo_detalle WHERE receta IN(';
+        $qry .= 'SELECT articulo FROM articulo WHERE multiple = 1) ';
+        $qry .= 'GROUP BY articulo))';
+
+        $detalles_comanda = $this->db->query($qry)->result();
+
+        foreach ($detalles_comanda as $detcom) {
+            // Ver si su padre es opción múltiple
+            $qry = 'SELECT b.multiple FROM detalle_comanda a INNER JOIN articulo b ON b.articulo = a.articulo ';
+            $qry .= "WHERE detalle_comanda = {$detcom->detalle_comanda_id}";
+            $padre = $this->db->query($qry)->row();
+            if (isset($padre)) {
+                // Si padre es opción múltiple
+                if ((int)$padre->multiple === 1) {
+                    // Revisar si la cantidad de la presentación del artículo de detalle no es igual a (float)1
+                    $qry = 'SELECT b.cantidad, b.medida, c.descripcion AS nombre_medida FROM articulo a INNER JOIN presentacion b ON b.presentacion = a.presentacion_reporte ';
+                    $qry .= 'INNER JOIN medida c ON c.medida = b.medida ';
+                    $qry .= "WHERE articulo = {$detcom->articulo}";
+                    $cantPresArtDet = $this->db->query($qry)->row();
+                    if (isset($cantPresArtDet)) {
+                        if ((float)$cantPresArtDet->cantidad !== (float)1) {
+                            // Si es diferente de (float)1, cambiar la presentación en detalle comanda por una equivalente de uno a uno con la UM
+                            $presR = $this->Presentacion_model->buscar([
+                                'medida' => $cantPresArtDet->medida,
+                                'cantidad' => 1,
+                                '_uno' => true
+                            ]);
+
+                            if (!$presR) {
+                                $presR = new Presentacion_model();
+                                $presR->guardar([
+                                    'medida' => $cantPresArtDet->medida,
+                                    'descripcion' => $cantPresArtDet->nombre_medida,
+                                    'cantidad' => 1
+                                ]);
+                                $presR->presentacion = $presR->getPK();
+                            }
+
+                            $dcom = new Dcomanda_model($detcom->detalle_comanda);
+                            $exito = $dcom->guardar([
+                                'presentacion_bck' => $dcom->presentacion,
+                                'presentacion' => $presR->presentacion
+                            ]);                            
+                            $resultados[] = $exito ? 'Se modificó el detalle comanda ID '.$dcom->getPK() : ($dcom->getMensaje() ? join('; ', $dcom->getMensaje()) : 'Error al modificar el detalle de comanda con ID '.$dcom->getPK());
+                        }
+                    }
+                }
+            }
+        }
+        return $resultados;
+    }
 }
 
 /* End of file Comanda_model.php */

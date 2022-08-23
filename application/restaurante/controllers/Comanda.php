@@ -1096,6 +1096,13 @@ class Comanda extends CI_Controller
 		}
 		$this->output->set_output(json_encode($datos));
 	}
+
+	public function fix_presentacion_pasado_opcion_multiple()
+	{
+		set_time_limit(0);
+		$datos = $this->Comanda_model->fix_detcom_presentacion_pasado_opcion_multiple();
+		$this->output->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Comanda.php */
