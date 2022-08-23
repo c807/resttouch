@@ -349,9 +349,12 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.fltrPresentaciones = [];
     const idx = this.articulos.findIndex(p => +p.articulo === +this.detalleEgreso.articulo);
     const articulo = this.articulos[idx];
+    console.log('ARTICULO = ', articulo);
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
+    console.log('PRESENTACIONES = ', this.fltrPresentaciones);    
     if (!update) {
       this.detalleEgreso.presentacion = null;
+      this.detalleEgreso.presentacion = articulo.presentacion_reporte;
     }
   }
 
