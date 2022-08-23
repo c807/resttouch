@@ -24,6 +24,8 @@ import {saveAs} from 'file-saver';
 
 import {Subscription} from 'rxjs';
 import {MatSelectChange} from '@angular/material/select';
+import {Articulo} from "../../../../wms/interfaces/articulo";
+import {Presentacion} from "../../../../admin/interfaces/presentacion";
 
 @Component({
   selector: 'app-form-orden-compra',
@@ -52,7 +54,10 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public esMovil = false;
   public presentaciones: any[] = [];
   public bloqueoMonto = false;
+  public fltrPresentaciones: Presentacion[] = [];
 
+  public filteredArticulos: Articulo[] = [];
+  public txtArticuloSelected: (Articulo | string) = undefined;
   public filteredProveedores: Proveedor[] = [];
 
   private endSubs = new Subscription();
@@ -69,11 +74,11 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   ) {
   }
 
-  setProviderName(){
+  setProviderName() {
     const filteredProveedores =
       this.proveedores.filter(a => a.proveedor === this.ordenCompra.proveedor);
 
-  //  this.txtProveedorSelected = this.displayProveedor(filteredProveedores[0]);
+    //  this.txtProveedorSelected = this.displayProveedor(filteredProveedores[0]);
     this.txtProveedorSelected = filteredProveedores[0];
   }
 
@@ -85,6 +90,37 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.loadTiposMovimiento();
   }
 
+  /**
+   * Filer article selector
+   */
+
+  displayArticulo = (art: Articulo) => {
+    if (art) {
+      return art.descripcion;
+    }
+    return undefined;
+  }
+
+  filtrarArticulos = (value: (Articulo | string)) => {
+    if (value && (typeof value === 'string')) {
+      const filterValue = value.toLowerCase();
+
+      const filterArt = JSON.parse(JSON.stringify(this.articulos));
+
+      const filteredArticulosA =
+        filterArt[0].articulos.filter(a => a.descripcion.toLowerCase().includes(filterValue));
+
+      const filteredArticulosB =
+        filterArt[1].articulos.filter(a => a.descripcion.toLowerCase().includes(filterValue));
+
+
+      filterArt[0].articulos = filteredArticulosA;
+      filterArt[1].articulos = filteredArticulosB;
+      this.filteredArticulos = filterArt;
+    } else {
+      this.filteredArticulos = this.articulos;
+    }
+  }
   /**
    * This is for filtering data in the Proveedr filed
    * @param value
@@ -170,6 +206,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     });
   }
 
+
   loadArticulos = () => {
     // console.log(this.ordenCompra);
     const params = {
@@ -180,18 +217,22 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.ordenCompraSrvc.getArticulosPorProveedor(params).subscribe(res => {
         this.articulos = res;
+        this.filteredArticulos = res;
       })
     );
   }
 
-  resetDetalleOrdenCompra = () => this.detalleOrdenCompra = {
-    orden_compra_detalle: null,
-    orden_compra: (!!this.ordenCompra.orden_compra ? this.ordenCompra.orden_compra : null),
-    articulo: null,
-    cantidad: null,
-    monto: null,
-    total: null,
-    presentacion: null
+  resetDetalleOrdenCompra() {
+    this.detalleOrdenCompra = {
+      orden_compra_detalle: null,
+      orden_compra: (!!this.ordenCompra.orden_compra ? this.ordenCompra.orden_compra : null),
+      articulo: null,
+      cantidad: null,
+      monto: null,
+      total: null,
+      presentacion: null
+    }
+    this.txtArticuloSelected = undefined;
   }
 
   loadDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra) => {
@@ -263,18 +304,20 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadPresentacionesArticulo = (idArticulo: number) => {
+  loadPresentacionesArticulo = (idArticulo) => {
     for (const prov of this.articulos) {
       for (const art of prov.articulos) {
         if (+idArticulo === +art.articulo) {
+          this.txtArticuloSelected = art;
           this.presentaciones = art.presentaciones;
+          this.detalleOrdenCompra.articulo = art.articulo;
           break;
         }
       }
     }
   }
 
-  articuloSelected = (obj: MatSelectChange) => this.loadPresentacionesArticulo(+obj.value);
+  articuloSelected = (obj) => this.loadPresentacionesArticulo(obj.option.value);
 
   loadUltimoCostoPresentacion = (idPresentacion: number, changeMonto: boolean = true) => {
     for (const prov of this.articulos) {
