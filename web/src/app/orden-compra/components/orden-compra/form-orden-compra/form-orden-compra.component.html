@@ -19,14 +19,20 @@
                 <input matInput type="date" placeholder="Fecha" name="fecha" [(ngModel)]="ordenCompra.fecha_orden"
                     required>
             </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <mat-label>Proveedor</mat-label>
-                <mat-select name="proveedor" [(ngModel)]="ordenCompra.proveedor" required>
-                    <mat-option *ngFor="let prov of proveedores" [value]="prov.proveedor">
-                        ({{prov.nit}}) {{prov.razon_social}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+
+          <mat-form-field class="fullWidth">
+
+            <mat-label>Proveedor</mat-label>
+            <input type="text" [(ngModel)]="txtProveedorSelected" [ngModelOptions]="{standalone: true}"
+                   placeholder="Proveedor" matInput [matAutocomplete]="autoProveedores"
+                   (keyup)="filtrarProveedores(txtProveedorSelected)" required>
+            <mat-autocomplete #autoProveedores="matAutocomplete" [displayWith]="displayProveedor" >
+              <mat-option *ngFor="let prov of filteredProveedores" [value]="prov" >
+                ({{prov.nit}}) {{prov.razon_social}}
+              </mat-option>
+            </mat-autocomplete>
+
+          </mat-form-field>
             <mat-form-field class="fullWidth" *ngIf="esMovil">
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas" name="notas"
                     [(ngModel)]="ordenCompra.notas">
@@ -107,10 +113,10 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field class="fullWidth" *ngIf="esMovil">  
+            <mat-form-field class="fullWidth" *ngIf="esMovil">
                 <input matInput type="number" placeholder="Cantidad" name="cantidad"
                     [(ngModel)]="detalleOrdenCompra.cantidad"
-                    (keyup)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"                    
+                    (keyup)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
                     required>
             </mat-form-field>
 
@@ -171,7 +177,7 @@
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>            
+            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
         </table>
     </mat-card-content>
 </mat-card>

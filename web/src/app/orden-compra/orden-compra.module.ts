@@ -32,6 +32,7 @@ import { ListaOrdenCompraComponent } from './components/orden-compra/lista-orden
 import { FormOrdenCompraComponent } from './components/orden-compra/form-orden-compra/form-orden-compra.component';
 import { RptListaPedidosComponent } from './components/reporte/rpt-lista-pedidos/rpt-lista-pedidos.component';
 import { ResumenPedidosProveedorComponent } from './components/reporte/resumen-pedidos-proveedor/resumen-pedidos-proveedor.component';
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
 
 
 @NgModule({
@@ -62,6 +63,7 @@ import { ResumenPedidosProveedorComponent } from './components/reporte/resumen-p
     MatDialogModule,
     MatSidenavModule,
     MatTreeModule,
+    MatAutocompleteModule
   ]
 })
 export class OrdenCompraModule { }

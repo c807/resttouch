@@ -12,7 +12,8 @@
             </mat-form-field>
             <mat-checkbox name="pordefecto" class="fullWidth" [(ngModel)]="+bodega.pordefecto">Usar por defecto</mat-checkbox>
             <mat-checkbox name="merma" class="fullWidth" [(ngModel)]="+bodega.merma">¿Es Merma?</mat-checkbox>
-            
+            <mat-checkbox name="permitir_requisicion" class="fullWidth" [(ngModel)]="+bodega.permitir_requisicion">Permitir requisiciones</mat-checkbox>
+
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"
                     [disabled]="!frmBodega.form.valid">

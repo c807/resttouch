@@ -21,7 +21,7 @@ export class OrdenCompraComponent implements OnInit {
     private ls: LocalstorageService
   ) {
     this.ordenCompra = {
-      orden_compra: null, proveedor: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), notas: null, estatus_movimiento: 1, bodega: null, 
+      orden_compra: null, proveedor: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), notas: null, estatus_movimiento: 1, bodega: null,
       tipo_movimiento: null, fecha_orden: moment().format(GLOBAL.dbDateFormat), sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0)
     };
   }
@@ -34,6 +34,7 @@ export class OrdenCompraComponent implements OnInit {
     this.ordenCompra = oc;
     this.frmOrdenCompra.ordenCompra = this.ordenCompra;
     this.frmOrdenCompra.loadDetalleOrdenCompra(+this.ordenCompra.orden_compra);
+    this.frmOrdenCompra.setProviderName();
   }
 
   refreshOrdenCompraList = () => {
