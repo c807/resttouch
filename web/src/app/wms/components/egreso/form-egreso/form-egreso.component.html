@@ -102,12 +102,16 @@
 
             <mat-form-field class="fullWidth">
                 <mat-label>Presentación</mat-label>
-                <mat-select name="presentacion" [(ngModel)]="detalleEgreso.presentacion" required>
+                <mat-select name="presentacion" [(ngModel)]="detalleEgreso.presentacion" required [disabled]="presentacionArticuloDisabled">
                     <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                         {{p.descripcion}}
                     </mat-option>
                 </mat-select>
+                <button type="button" *ngIf="presentacionArticuloDisabled && +this.detalleEgreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="presentacionArticuloDisabled = false">
+                    <mat-icon class="iconFontSize">change_circle</mat-icon>
+                </button>
             </mat-form-field>
+
             <mat-form-field class="fullWidth">
                 <input matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" [(ngModel)]="detalleEgreso.cantidad"
                     (change)="detalleEgreso.precio_total = +detalleEgreso.precio_unitario * +detalleEgreso.cantidad"
