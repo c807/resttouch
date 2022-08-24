@@ -89,6 +89,7 @@ class Compra extends CI_Controller {
 				$tmp = new Compra_model($row->orden_compra);
 				$datos[] = $row;
 			}
+			$datos = ordenar_array_objetos($datos, 'orden_compra', 1, 'desc');
 		} else if($compras){
 			$tmp = new Compra_model($compras->orden_compra);
 			$datos[] = $compras;
