@@ -124,8 +124,8 @@
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
-                        <button type="button" *ngIf="presentacionArticuloDisabled && +this.detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="presentacionArticuloDisabled = false">
-                            <mat-icon class="iconFontSize">change_circle</mat-icon>
+                        <button type="button" *ngIf="presentacionArticuloDisabled && +detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="presentacionArticuloDisabled = false">
+                            <mat-icon class="iconFontSizeDisableBtn">change_circle</mat-icon>
                         </button>
                     </mat-form-field>
 

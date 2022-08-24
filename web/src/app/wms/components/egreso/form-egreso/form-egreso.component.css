@@ -9,3 +9,7 @@
 tr.mat-footer-row {
   font-weight: bold;
 }
+
+.iconFontSizeDisableBtn {
+  font-size: 34pt !important;
+}

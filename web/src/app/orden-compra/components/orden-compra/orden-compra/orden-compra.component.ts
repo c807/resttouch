@@ -33,6 +33,7 @@ export class OrdenCompraComponent implements OnInit {
     //console.log(oc);
     this.ordenCompra = oc;
     this.frmOrdenCompra.ordenCompra = this.ordenCompra;
+    this.frmOrdenCompra.resetDetalleOrdenCompra();
     this.frmOrdenCompra.loadDetalleOrdenCompra(+this.ordenCompra.orden_compra);
     this.frmOrdenCompra.setProviderName();
   }

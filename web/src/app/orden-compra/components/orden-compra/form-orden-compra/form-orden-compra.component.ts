@@ -59,6 +59,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public filteredArticulos: Articulo[] = [];
   public txtArticuloSelected: (Articulo | string) = undefined;
   public filteredProveedores: Proveedor[] = [];
+  public presentacionArticuloDisabled = true;
 
   private endSubs = new Subscription();
 
@@ -182,7 +183,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
       sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0)
     };
     this.resetDetalleOrdenCompra();
-    this.txtProveedorSelected = undefined;
+    this.txtProveedorSelected = undefined;    
   }
 
   onSubmit = () => {
@@ -201,6 +202,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
           notas: res.compra.notas,
           estatus_movimiento: +res.compra.estatus_movimiento
         };
+        this.setProviderName();
         this.loadDetalleOrdenCompra(this.ordenCompra.orden_compra);
       }
     });
@@ -311,6 +313,8 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
           this.txtArticuloSelected = art;
           this.presentaciones = art.presentaciones;
           this.detalleOrdenCompra.articulo = art.articulo;
+          this.detalleOrdenCompra.presentacion = art.presentacion_reporte;
+          this.loadUltimoCostoPresentacion(+art.presentacion_reporte);
           break;
         }
       }

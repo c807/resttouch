@@ -59,7 +59,7 @@ class Articulo_ultima_compra_model extends General_model
         if ((int)$idProveedor > 0) {
             $prov = $this->db->select('proveedor, razon_social')->where('proveedor', $idProveedor)->get('proveedor')->row();
             $articulosConProveedor = $this->db
-                ->select('a.articulo, a.descripcion, a.debaja')
+                ->select('a.articulo, a.descripcion, a.debaja, a.presentacion_reporte')
                 ->join('articulo_ultima_compra b', 'a.articulo = b.articulo')
                 ->join('categoria_grupo c', 'c.categoria_grupo = a.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
@@ -91,10 +91,10 @@ class Articulo_ultima_compra_model extends General_model
 
         // Artículos sin proveedor
         $articulosSinProveedor = $this->db
-            ->select('a.articulo, a.descripcion, d.presentacion, d.descripcion AS descripcion_presentacion, a.debaja')
+            ->select('a.articulo, a.descripcion, d.presentacion, d.descripcion AS descripcion_presentacion, a.debaja, a.presentacion_reporte')
             ->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
             ->join('categoria c', 'c.categoria = b.categoria')
-            ->join('presentacion d', 'd.presentacion = a.presentacion')
+            ->join('presentacion d', 'd.presentacion = a.presentacion_reporte')
             ->join('articulo_ultima_compra e', 'e.articulo = a.articulo', 'left')
             ->where('c.sede', $idSede)
             ->where('a.mostrar_inventario', 1)
@@ -108,6 +108,8 @@ class Articulo_ultima_compra_model extends General_model
                 $articulos[] = (object)[
                     'articulo' => $asp->articulo,
                     'descripcion' => $asp->descripcion,
+                    'debaja' => $asp->debaja,
+                    'presentacion_reporte' => $asp->presentacion_reporte,
                     'presentaciones' => [
                         (object)[
                             'presentacion' => $asp->presentacion,

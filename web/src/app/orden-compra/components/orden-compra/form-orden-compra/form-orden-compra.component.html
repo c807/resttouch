@@ -91,27 +91,14 @@
         </h4>
     </mat-card-title>
     <mat-card-content>
-        <form #frmDetalleOrdenCompra="ngForm" *ngIf="showDetalleOrdenCompraForm"
-            (ngSubmit)="frmDetalleOrdenCompra.form.valid && onSubmitDetail()" novalidate>
-
-<!--            <mat-form-field class="fullWidth">-->
-<!--                <mat-label>Artículo</mat-label>-->
-<!--                <mat-select name="articulo" [(ngModel)]="detalleOrdenCompra.articulo" (selectionChange)="articuloSelected($event)" required>-->
-<!--                    <mat-optgroup *ngFor="let group of articulos" [label]="group.razon_social">-->
-<!--                        <mat-option *ngFor="let a of group.articulos" [value]="a.articulo" [disabled]="+a.debaja === 1">-->
-<!--                            {{a.descripcion}}-->
-<!--                        </mat-option>-->
-<!--                    </mat-optgroup>-->
-<!--                </mat-select>-->
-<!--            </mat-form-field>-->
+        <form #frmDetalleOrdenCompra="ngForm" *ngIf="showDetalleOrdenCompraForm" (ngSubmit)="frmDetalleOrdenCompra.form.valid && onSubmitDetail()" novalidate>
 
           <mat-form-field class="fullWidth">
             <mat-label>Artículo</mat-label>
             <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}"
                    placeholder="Artículo" matInput [matAutocomplete]="autoArticulos"
                    (keyup)="filtrarArticulos(txtArticuloSelected)" required>
-            <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo"
-                              (optionSelected)="articuloSelected($event)">
+            <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo" (optionSelected)="articuloSelected($event)">
               <mat-optgroup *ngFor="let group of filteredArticulos" [label]="group.razon_social">
                 <mat-option *ngFor="let a of group.articulos" [value]="a.articulo" [disabled]="+a.debaja === 1">
                   {{a.descripcion}}
@@ -122,11 +109,14 @@
 
             <mat-form-field class="fullWidth">
                 <mat-label>Presentación</mat-label>
-                <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" (selectionChange)="presentacionSelected($event)" required>
+                <mat-select name="presentacion" [(ngModel)]="detalleOrdenCompra.presentacion" (selectionChange)="presentacionSelected($event)" required [disabled]="presentacionArticuloDisabled">
                     <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                         {{p.descripcion_presentacion}}
                     </mat-option>
                 </mat-select>
+                <button type="button" *ngIf="presentacionArticuloDisabled && +detalleOrdenCompra.articulo > 0" mat-button matSuffix mat-icon-button (click)="presentacionArticuloDisabled = false">
+                    <mat-icon class="iconFontSizeDisableBtn">change_circle</mat-icon>
+                </button>
             </mat-form-field>
 
             <mat-form-field class="fullWidth" *ngIf="esMovil">
@@ -141,6 +131,9 @@
                     (keyup)="detalleOrdenCompra.total = +detalleOrdenCompra.monto * +detalleOrdenCompra.cantidad"
                     [disabled]="bloqueoMonto"
                     required>
+                <button type="button" *ngIf="bloqueoMonto && +detalleOrdenCompra.articulo > 0" mat-button matSuffix mat-icon-button (click)="bloqueoMonto = false">
+                    <mat-icon class="iconFontSizeDisableBtn">change_circle</mat-icon>
+                </button>
             </mat-form-field>
             <span class="bld" style="font-size: medium;" *ngIf="+detalleOrdenCompra.total !== 0">
                 Total: {{(detalleOrdenCompra.total | number:'1.2-2') || '0.00'}}
