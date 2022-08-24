@@ -345,7 +345,7 @@ class Conversor extends CI_Controller {
 					}
 
 					$pres = new Presentacion_model($art->presentacion_reporte);
-					$precio = $art->getCostoReceta();
+					$precio = $art->getCostoReceta(['bodega' => $req['bodega']]);					
 					
 					if ($precio <= 0) {
 						$costo = false;
@@ -410,11 +410,17 @@ class Conversor extends CI_Controller {
 											"_uno" => true
 										]);
 
-										$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
-										
+										$tmpCosto = 0.0;
+										if($bac) {
+											$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
+										} else {
+											$tmpCosto = $rec->getCosto(['bodega' => $egr->bodega]);
+											$nvoBac = new BodegaArticuloCosto_model();
+											$nvoBac->BodegaArticuloCosto_model->guardar_costos($egr->bodega, $row->articulo->articulo);
+										}										
 
 										$row->cantidad = ($row->cantidad * $det['cantidad'] / $art->rendimiento)/ $presR->cantidad;
-										$costo = $bac->get_costo($egr->bodega, $rec->getPK(), $presR->presentacion);
+										$costo = $bac ? $bac->get_costo($egr->bodega, $rec->getPK(), $presR->presentacion) : $tmpCosto;
 										$total = ($costo * $row->cantidad);
 										$costoIngr += $total;
 										$egr->setDetalle([

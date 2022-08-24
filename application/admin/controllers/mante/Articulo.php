@@ -199,8 +199,13 @@ class Articulo extends CI_Controller
 
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
-			$costo = $rec->_getCosto();
-			$pres = new Presentacion_model($rec->presentacion_reporte);			
+			$costo = $rec->_getCosto();			
+
+			if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
+				$presR = $rec->getPresentacionReporte();
+				$costo = (float)$costo / ((float)$rec->rendimiento * (float)$presR->cantidad);
+			}
+
 			$tmpCosto = $costo * $row->cantidad;
 			$row->costo = round($tmpCosto, 2);
 			$row->articulo->costo = $costo;

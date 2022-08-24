@@ -478,7 +478,9 @@ class Reporte extends CI_Controller
 										$row->precio_unitario = 0;
 									}
 								} else {
-									$row->precio_unitario = 0;
+									$row->precio_unitario = $art->getCosto(['bodega' => $bode]);
+									$nvoBac = new BodegaArticuloCosto_model();
+									$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo);
 								}
 
 								$row->precio_unitario = $row->precio_unitario * $pres->cantidad;
@@ -1594,99 +1596,106 @@ class Reporte extends CI_Controller
 
 	public function consumo_articulo()
 	{
-		ini_set("pcre.backtrack_limit", "15000000");
+		ini_set('pcre.backtrack_limit', '15000000');
 		
-		$datos = json_decode(file_get_contents("php://input"), true);
+		$datos = json_decode(file_get_contents('php://input'), true);
 
-		$datos["sede"] = $datos["sede"] ?? $this->data->sede;
+		$datos['sede'] = $datos['sede'] ?? $this->data->sede;
 
-		if (verDato($datos, "fdel") && verDato($datos, "fal")) {
+		if (verDato($datos, 'fdel') && verDato($datos, 'fal')) {
 			$lista = $this->Reporte_model->getResumenConsumo($datos);
-			$sede  = new Sede_model($datos["sede"]);
+			$sede  = new Sede_model($datos['sede']);
 			$data  = [];
 
-			foreach ($lista as $key => $row) {
+			foreach ($lista as $row) {
 				$tmp   = new Articulo_model($row->articulo);
-				$costo = $tmp->_getCosto();
+				$costo = $tmp->_getCosto();				
+				
+				if ((int)$tmp->produccion === 1 && (float)$tmp->rendimiento !== (float)0) {					
+					$presR = $tmp->getPresentacionReporte();
+					$costo = (float)$costo / (float)$tmp->rendimiento;
+					$row->cantidad = (float)$presR->cantidad !== (float)0 ? ((float)$row->cantidad / (float)$presR->cantidad) : 0;					
+				}
+
 				$total = round(($row->cantidad * $costo), 2);
 				
 				$data[] = [
-					"codigo"   => $row->codigo,
-					"articulo" => $row->narticulo,
-					"cantidad" => $row->cantidad,
-					"unidad"   => $row->ndescripcion,
-					"costo"    => $costo,
-					"total"    => $total
+					'codigo'   => $row->codigo,
+					'articulo' => $row->narticulo,
+					'cantidad' => $row->cantidad,
+					'unidad'   => $row->ndescripcion,
+					'costo'    => $costo,
+					'total'    => $total
 				];
 			}
 
-			$nombreArchivo = "Consumo_articulo_".rand().".xls";
+			$nombreArchivo = 'Consumo_articulo_'.rand().'.xls';
 			
-			if (verDato($datos, "_excel")) {
+			if (verDato($datos, '_excel')) {
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->setActiveSheetIndex(0);
 				$hoja = $excel->getActiveSheet();
-				$hoja->setTitle("Reporte de consumos");
+				$hoja->setTitle('Reporte de consumos');
 
-				$hoja->setCellValue("A1", "Del: ")->mergeCells("A1:C1");
-				$hoja->setCellValue("A2", "Al: ")->mergeCells("A2:C2");
-				$hoja->setCellValue("A3", "Sede: ")->mergeCells("A3:C3");
+				$hoja->setCellValue('A1', 'Del: ')->mergeCells('A1:C1');
+				$hoja->setCellValue('A2', 'Al: ')->mergeCells('A2:C2');
+				$hoja->setCellValue('A3', 'Sede: ')->mergeCells('A3:C3');
 
-				$hoja->setCellValue("D1", formatoFecha($datos["fdel"], 2))->mergeCells("D1:F1");
-				$hoja->setCellValue("D2", formatoFecha($datos["fal"], 2))->mergeCells("D2:F2");
-				$hoja->setCellValue("D3", "{$sede->nombre} - {$sede->alias}")->mergeCells("D3:F3");
+				$hoja->setCellValue('D1', formatoFecha($datos['fdel'], 2))->mergeCells('D1:F1');
+				$hoja->setCellValue('D2', formatoFecha($datos['fal'], 2))->mergeCells('D2:F2');
+				$hoja->setCellValue('D3', "{$sede->nombre} - {$sede->alias}")->mergeCells('D3:F3');
 
-				if (verDato($datos, "grupo_nombre")) {
-					$hoja->setCellValue("A4", "Subcategoría: ")->mergeCells("A4:C4");
-					$hoja->setCellValue("D4", $datos["grupo_nombre"])->mergeCells("D4:F4");
+				if (verDato($datos, 'grupo_nombre')) {
+					$hoja->setCellValue('A4', 'Subcategoría: ')->mergeCells('A4:C4');
+					$hoja->setCellValue('D4', $datos['grupo_nombre'])->mergeCells('D4:F4');
 				}
 
-				$hoja->getStyle("A1:A4")->getFont()->setBold(true);
+				$hoja->getStyle('A1:A4')->getFont()->setBold(true);
 
 				$nombres = [
-					"Código",
-					"Articulo",
-					"Cantidad",
-					"Unidad",
-					"Costo",
-					"Total"
+					'Código',
+					'Articulo',
+					'Cantidad',
+					'Unidad',
+					'Costo',
+					'Total'
 				];
 
-				$hoja->fromArray($nombres, null, "A6");
-				$hoja->getStyle("A6:F6")->getFont()->setBold(true);
-				$hoja->getStyle("C6")->getAlignment()->setHorizontal("right");
-				$hoja->getStyle("E6:F6")->getAlignment()->setHorizontal("right");
+				$hoja->fromArray($nombres, null, 'A6');
+				$hoja->getStyle('A6:F6')->getFont()->setBold(true);
+				$hoja->getStyle('C6')->getAlignment()->setHorizontal('right');
+				$hoja->getStyle('E6:F6')->getAlignment()->setHorizontal('right');
 				
 				$pos = 7;
 				$tot = 0;
-				foreach ($data as $key => $row) {
+				foreach ($data as $row) {
 					
 					$hoja->fromArray($row, null, "A{$pos}");
 					
 					$hoja->getStyle("C{$pos}")
 					->getNumberFormat()
-					->setFormatCode("0.00");
+					->setFormatCode('0.00');
 
 					$hoja->getStyle("E{$pos}:F{$pos}")
 					->getNumberFormat()
-					->setFormatCode("0.00");
+					->setFormatCode('0.00');
 					
-					$tot+= $row["total"];
+					$tot+= $row['total'];
 					$pos++;
 				}
 
-				$hoja->setCellValue("A{$pos}", "Total:")->mergeCells("A{$pos}:E{$pos}");
+				$hoja->setCellValue("A{$pos}", 'Total:')->mergeCells("A{$pos}:E{$pos}");
 				$hoja->setCellValue("F{$pos}", $tot);
 
 				$hoja->getStyle("F{$pos}")
 				->getNumberFormat()
-				->setFormatCode("0.00");
+				->setFormatCode('0.00');
 
 				$hoja->getStyle("A{$pos}:F{$pos}")->applyFromArray([
-					"font"    => ["bold" => true],
-					"borders" => [
-						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
-						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+					'font'    => ['bold' => true],
+					'borders' => [
+						'top'    => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+						'bottom' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
 					]
 				]);
 
@@ -1694,29 +1703,29 @@ class Reporte extends CI_Controller
 					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 				}
 
-				header("Content-Type: application/vnd.ms-excel");
+				header('Content-Type: application/vnd.ms-excel');
 				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
-				header("Cache-Control: max-age=1");
-				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-				header("Cache-Control: cache, must-revalidate");
-				header("Pragma: public");
+				header('Cache-Control: max-age=1');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+				header('Cache-Control: cache, must-revalidate');
+				header('Pragma: public');
 				
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-				$writer->save("php://output");
+				$writer->save('php://output');
 			} else {
 				$pdf = new \Mpdf\Mpdf([
-				"tempDir" => sys_get_temp_dir(),
-				"format"  => "Letter"
+				'tempDir' => sys_get_temp_dir(),
+				'format'  => 'Letter'
 			]);
 
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-			$pdf->WriteHTML($this->load->view("reporte/articulo/consumo_articulo", [
-				"data"   => $data,
-				"params" => $datos,
-				"sede"   => $sede
+			$pdf->WriteHTML($this->load->view('reporte/articulo/consumo_articulo', [
+				'data'   => $data,
+				'params' => $datos,
+				'sede'   => $sede
 			], true));
-			$pdf->Output("{$nombreArchivo}.pdf", "D");
+			$pdf->Output("{$nombreArchivo}.pdf", 'D');
 			}
 		}
 	}
@@ -1742,7 +1751,14 @@ class Reporte extends CI_Controller
 			foreach ($art->getReceta() as $row) {
 				$rec                  = new Articulo_model($row->articulo->articulo);
 				$costo                = $rec->_getCosto();
+
+				if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
+					$presR = $rec->getPresentacionReporte();
+					$costo = (float)$costo / ((float)$rec->rendimiento * (float)$presR->cantidad);
+				}
+
 				$tmpCosto             = $costo * $row->cantidad;
+				// $tmpCosto             = $costo;
 				$row->costo           = round($tmpCosto, 2);
 				$row->articulo->costo = $costo;
 				$tmp["receta"][]      = $row;
