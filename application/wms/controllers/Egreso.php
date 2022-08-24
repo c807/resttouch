@@ -123,6 +123,7 @@ class Egreso extends CI_Controller {
 					$datos[] = $row;
 				}				
 			}
+			$datos = ordenar_array_objetos($datos, 'egreso', 1, 'desc');
 		} else if($egresos){
 			$tmp = new Egreso_model($egresos->egreso);
 			$egresos->tipo_movimiento = $tmp->getTipoMovimiento();

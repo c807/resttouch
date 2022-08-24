@@ -67,6 +67,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public documentosTipo: DocumentoTipo[] = [];
   public tiposCompraVenta: TipoCompraVenta[] = [];
   public usuarioConfirmaIngresos = false;
+  public presentacionArticuloDisabled = true;
 
   private endSubs = new Subscription();
 
@@ -259,6 +260,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
         this.resetDetalleIngreso();
       }
       this.bloqueoBotones = false;
+      this.presentacionArticuloDisabled = true;
     });
   }
 
@@ -371,6 +373,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     const idx = this.articulos.findIndex(p => +p.articulo === +this.detalleIngreso.articulo);
     const articulo = this.articulos[idx];
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
+    this.detalleIngreso.presentacion = articulo.presentacion_reporte;
   }
 
   setProveedor = (idProveedor: number) => this.txtProveedorSelected = this.proveedores.find(p => +p.proveedor === idProveedor);

@@ -702,7 +702,12 @@ class Articulo_model extends General_model
 					'bodega' => $args['bodega'],
 					'_uno' => true
 				]);
-				$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
+				if ($bac) {
+					$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);					
+				} else {
+					$bac = new BodegaArticuloCosto_model();
+					$bac->guardar_costos($args['bodega'], $this->getPK());
+				}
 				$costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
 			} else {
 				$costo = $this->getCosto($args);

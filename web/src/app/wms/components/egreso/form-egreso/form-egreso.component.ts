@@ -66,6 +66,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public txtArticuloSelectedM: (Articulo | string) = undefined;
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public usuarioConfirmaEgresos = false;
+  public presentacionArticuloDisabled = true;
 
   private endSubs = new Subscription();
 
@@ -251,6 +252,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 3000 });
       }
       this.bloqueoBotones = false;
+      this.presentacionArticuloDisabled = true;
     });
   }
 
@@ -349,9 +351,12 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.fltrPresentaciones = [];
     const idx = this.articulos.findIndex(p => +p.articulo === +this.detalleEgreso.articulo);
     const articulo = this.articulos[idx];
+    // console.log('ARTICULO = ', articulo);
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
+    // console.log('PRESENTACIONES = ', this.fltrPresentaciones);    
     if (!update) {
       this.detalleEgreso.presentacion = null;
+      this.detalleEgreso.presentacion = articulo.presentacion_reporte;
     }
   }
 

@@ -178,6 +178,7 @@ class Ingreso extends CI_Controller {
 					$datos[] = $row;
 				}				
 			}
+			$datos = ordenar_array_objetos($datos, 'ingreso', 1, 'desc');
 		} else if($ingresos){
 			$tmp = new Ingreso_model($ingresos->ingreso);
 			$ingresos->tipo_movimiento = $tmp->getTipoMovimiento();
