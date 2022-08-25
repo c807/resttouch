@@ -1,7 +1,7 @@
 <mat-card class="mat-elevation-z4 fullWidth">
     <mat-card-title>
         <h4>
-            Egreso{{!!egreso.egreso ? (' No. ' + egreso.egreso) : ''}}
+            {{esRequisicion ? 'Requisición' : 'Egreso'}}{{!!egreso.egreso ? (' No. ' + egreso.egreso) : ''}}
             <button mat-icon-button type="button" color="accent" (click)="showEgresoForm = true;"
                 *ngIf="!showEgresoForm">
                 <mat-icon class="iconFontSize">expand_more</mat-icon>
@@ -23,10 +23,10 @@
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput type="date" placeholder="Fecha" name="fecha" [(ngModel)]="egreso.fecha" required>
+                <input matInput type="date" [placeholder]="esRequisicion ? 'Requerido para' : 'Fecha'" name="fecha" [(ngModel)]="egreso.fecha" required>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <mat-label>Bodega</mat-label>
+                <mat-label>{{esRequisicion ? 'Bodega a la que solicito' : 'Bodega'}}</mat-label>
                 <mat-select name="bodega" [(ngModel)]="egreso.bodega" required>
                     <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
                         {{bode.descripcion}}
@@ -34,7 +34,7 @@
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <mat-label>Bodega destino</mat-label>
+                <mat-label>{{esRequisicion ? 'Bodega que solicita' : 'Bodega destino'}}</mat-label>
                 <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino" [required]="+egreso.traslado == 1">
                     <mat-option *ngFor="let bodeDest of bodegas" [value]="bodeDest.bodega">
                         {{bodeDest.descripcion}}
@@ -59,7 +59,7 @@
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarEgreso()"
-                    *ngIf="egreso.egreso && detallesEgreso.length > 0 && usuarioConfirmaEgresos"
+                    *ngIf="egreso.egreso && detallesEgreso.length > 0 && usuarioConfirmaEgresos && !esRequisicion"
                     [disabled]="!frmEgreso.form.valid || !egreso.tipo_movimiento_destino || [2, 3].indexOf(+egreso.estatus_movimiento) >= 0">
                     Confirmar
                 </button>

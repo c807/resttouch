@@ -3,4 +3,5 @@ export interface TipoMovimiento {
     descripcion: string;
     ingreso: number;
     egreso: number;
+    requisicion: number;
 }

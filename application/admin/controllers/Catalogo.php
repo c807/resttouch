@@ -36,8 +36,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_tipo_movimiento()
 	{
-		$this->output
-		->set_output(json_encode($this->Catalogo_model->getTipoMovimiento($_GET)));
+		$this->output->set_output(json_encode($this->Catalogo_model->getTipoMovimiento($_GET)));
 	}
 
 	public function get_documento_tipo()

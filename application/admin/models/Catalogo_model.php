@@ -61,6 +61,10 @@ class Catalogo_model extends CI_Model
 			$this->db->where('egreso', $args['egreso']);
 		}
 
+		if (isset($args['requisicion'])) {
+			$this->db->where('requisicion', $args['egreso']);
+		}
+
 		$qry = $this->db
 			->order_by("descripcion")
 			->get("tipo_movimiento");

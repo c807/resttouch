@@ -20,8 +20,8 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
 
   public lstEgresos: Egreso[];
   public lstEgresosPaged: Egreso[];
-  @Output() getEgresoEv = new EventEmitter();
-
+  @Output() getEgresoEv = new EventEmitter();  
+  
   public length = 0;
   public pageSize = 5;
   public pageSizeOptions: number[] = [5, 10, 15];
@@ -32,8 +32,10 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
   public esMovil = false;
   public params = {
     _fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
-    _fal: moment().endOf('month').format(GLOBAL.dbDateFormat)
+    _fal: moment().endOf('month').format(GLOBAL.dbDateFormat),
+    _solo_requisiciones: 0
   }
+  public esRequisicion = false;
 
   private endSubs = new Subscription();
 
@@ -46,7 +48,7 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.loadEgresos();
+    // this.loadEgresos();
   }
 
   ngOnDestroy() {
@@ -65,11 +67,12 @@ export class ListaEgresoComponent implements OnInit, OnDestroy {
   }
 
   loadEgresos = () => {
+    if (this.esRequisicion) {
+      this.params._solo_requisiciones = 1;
+    }
     this.egresoSrvc.get(this.params).subscribe(lst => {
-      if (lst) {
-        this.lstEgresos = lst;
-        this.applyFilter();
-      }
+      this.lstEgresos = lst;
+      this.applyFilter();      
     });
   }
 

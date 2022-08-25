@@ -120,7 +120,15 @@ class Egreso extends CI_Controller {
 				$row->bodega = $tmp->getBodega();
 				$row->usuario = $tmp->getUsuario();
 				if((int)$row->bodega->sede === (int)$dataToken->sede) {
-					$datos[] = $row;
+					$agregar = true;
+					if (isset($fltr['_solo_requisiciones']) && (int)$fltr['_solo_requisiciones'] === 1) {
+						if ((int)$row->tipo_movimiento->requisicion === 0) {
+							$agregar = false;
+						}
+					}
+					if ($agregar) {
+						$datos[] = $row;
+					}
 				}				
 			}
 			$datos = ordenar_array_objetos($datos, 'egreso', 1, 'desc');
@@ -129,7 +137,15 @@ class Egreso extends CI_Controller {
 			$egresos->tipo_movimiento = $tmp->getTipoMovimiento();
 			$egresos->bodega = $tmp->getBodega();
 			if((int)$egresos->bodega->sede === (int)$dataToken->sede) {				
-				$datos[] = $egresos;
+				$agregar = true;
+				if (isset($fltr['_solo_requisiciones']) && (int)$fltr['_solo_requisiciones'] === 1) {
+					if ((int)$egresos->tipo_movimiento->requisicion === 0) {
+						$agregar = false;
+					}
+				}
+				if ($agregar) {
+					$datos[] = $egresos;
+				}
 			}
 		}
 

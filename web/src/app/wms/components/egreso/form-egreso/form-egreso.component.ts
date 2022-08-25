@@ -67,6 +67,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public usuarioConfirmaEgresos = false;
   public presentacionArticuloDisabled = true;
+  public esRequisicion = false;  
 
   private endSubs = new Subscription();
 
@@ -88,7 +89,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.usuarioConfirmaEgresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1;
     this.resetEgreso();
-    this.loadTiposMovimiento();
+    // this.loadTiposMovimiento();
     this.loadTiposMovimiento(false);
     this.loadBodegas();
     this.loadArticulos();
@@ -97,18 +98,21 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     if(!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
     }
-  }
+  }  
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
   }
 
   loadTiposMovimiento = (paraEgreso = true) => {
-    const fltr = paraEgreso ? { egreso: 1 } : { ingreso: 1 };
+    const fltr = paraEgreso ? { egreso: 1, requisicion: this.esRequisicion ? 1 : 0 } : { ingreso: 1 };
     this.tipoMovimientoSrvc.get(fltr).subscribe(res => {
       if (res) {
         if (paraEgreso) {
           this.tiposMovimiento = res;
+          if (this.esRequisicion) {
+            this.egreso.tipo_movimiento = res[0]?.tipo_movimiento || null;
+          }
         } else {
           this.tiposMovimientoIngreso = res;
         }
