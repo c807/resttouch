@@ -1609,12 +1609,15 @@ class Reporte extends CI_Controller
 
 			foreach ($lista as $row) {
 				$tmp   = new Articulo_model($row->articulo);
-				$costo = $tmp->_getCosto();				
+				$costo = $tmp->_getCosto();
 				
+				$presR = $tmp->getPresentacionReporte();
+				$row->cantidad = (float)$presR->cantidad !== (float)0 ? ((float)$row->cantidad / (float)$presR->cantidad) : 0;
+
 				if ((int)$tmp->produccion === 1 && (float)$tmp->rendimiento !== (float)0) {					
-					$presR = $tmp->getPresentacionReporte();
 					$costo = (float)$costo / (float)$tmp->rendimiento;
-					$row->cantidad = (float)$presR->cantidad !== (float)0 ? ((float)$row->cantidad / (float)$presR->cantidad) : 0;					
+				} else {
+					$costo = (float)$costo * (float)$presR->cantidad;
 				}
 
 				$total = round(($row->cantidad * $costo), 2);

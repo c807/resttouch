@@ -41,6 +41,7 @@ const routes: Routes = [
   { path: 'uso_ingrediente', component: UsoIngredienteComponent, canActivate: [AuthGuard] },
   { path: 'margen_receta', component: MargenRecetaComponent, canActivate: [AuthGuard] },
   { path: 'consumo_articulo', component: ConsumoArticuloComponent, canActivate: [AuthGuard] },
+  { path: 'requisiciones', component: EgresoComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

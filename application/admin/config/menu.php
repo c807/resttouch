@@ -261,6 +261,10 @@ $config['menu'] = [
 					6 => [
 						'nombre' => 'Cuadre diario',
 						'link' => '/wms/cuadre_diario'
+					],
+					7 => [
+						'nombre' => 'Requisiciones',
+						'link' => '/wms/requisiciones'
 					]
 				]
 			],
