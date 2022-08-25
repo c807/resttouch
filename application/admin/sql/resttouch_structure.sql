@@ -2354,7 +2354,7 @@ ALTER TABLE RT_DATABASE_NAME.factura ADD INDEX fel_uuid_ASC (fel_uuid ASC), ADD 
 ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN presentacion_bck INT NULL AFTER presentacion;
 INSERT INTO RT_DATABASE_NAME.impresora (sede, nombre, bluetooth, pordefecto, pordefectocuenta, pordefectofactura) VALUES (1, 'IMPRESORA', 0, 1, 1, 1);
 ALTER TABLE RT_DATABASE_NAME.bodega ADD COLUMN permitir_requisicion int NOT NULL DEFAULT 0 AFTER merma;
-
+ALTER TABLE RT_DATABASE_NAME.tipo_movimiento ADD COLUMN requisicion TINYINT(1) NOT NULL DEFAULT 0 AFTER egreso;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
