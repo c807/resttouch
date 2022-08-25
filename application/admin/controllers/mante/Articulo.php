@@ -49,28 +49,39 @@ class Articulo extends CI_Controller
 						$existeCodigo = $this->chkCodigoExistente($req['codigo']);
 					}
 				}
-			}
+			}			
 
 			if (!$existeCodigo) {
-				$pre = new Presentacion_model($req['presentacion']);
-				$preRep = new Presentacion_model($req['presentacion_reporte']);
-				if ($pre->medida == $preRep->medida) {					
-					$datos['exito'] = $art->guardar($req);
+				$continuar = true;
+				if ((int)$req['produccion'] === 1) {
+					if ((float)$req['rendimiento'] <= (float)0) {
+						$continuar = false;
+					}
+				}
 
-					if ($datos['exito']) {
-						$datos['mensaje'] = "Datos Actualizados con Exito";
-						$datos['articulo'] = $art;
+				if ($continuar) {
+					$pre = new Presentacion_model($req['presentacion']);
+					$preRep = new Presentacion_model($req['presentacion_reporte']);
+					if ($pre->medida == $preRep->medida) {					
+						$datos['exito'] = $art->guardar($req);
+	
+						if ($datos['exito']) {
+							$datos['mensaje'] = "Datos Actualizados con Exito";
+							$datos['articulo'] = $art;
+						} else {
+							$datos['mensaje'] = $art->getMensaje();
+						}
 					} else {
-						$datos['mensaje'] = $art->getMensaje();
+						$datos['mensaje'] = "Las unidades de medida no coinciden";
 					}
 				} else {
-					$datos['mensaje'] = "Las unidades de medida no coinciden";
+					$datos['mensaje'] = 'El rendimiento de la producción debe ser mayor a cero(0).';
 				}
 			} else {
 				$datos['mensaje'] = 'El código ' . $req['codigo'] . ' ya existe. Intente otro, por favor.';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
