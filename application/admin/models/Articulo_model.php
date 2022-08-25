@@ -1185,6 +1185,7 @@ class Articulo_model extends General_model
 			->get('articulo a')
 			->row();
 	}
+
 	public function _getCosto()
 	{
 		$costo = 0;
@@ -1198,6 +1199,30 @@ class Articulo_model extends General_model
 		} else {
 			$costo = $this->getCosto();
 		}
+
+		return $costo;
+	}
+
+	public function _getCosto_2()
+	{
+		$costo = 0;
+
+		if ($this->esreceta == 1) {
+			foreach ($this->getReceta() as $row) {
+				$articulo = new Articulo_model($row->articulo->articulo);
+				$elCosto = $articulo->_getCosto_2();
+				
+				if((int)$articulo->produccion === 1 && (float)$articulo->rendimiento !== (float)0) {
+					$pr = $articulo->getPresentacionReporte();
+					$elCosto = (float)$elCosto / ((float)$articulo->rendimiento * (float)$pr->cantidad);
+				}
+
+				$tmp      = $row->cantidad * $elCosto;
+				$costo    += round($tmp, 2);
+			}
+		} else {
+			$costo = $this->getCosto();
+		}	
 
 		return $costo;
 	}
