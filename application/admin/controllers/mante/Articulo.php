@@ -53,10 +53,8 @@ class Articulo extends CI_Controller
 
 			if (!$existeCodigo) {
 				$continuar = true;
-				if ((int)$req['produccion'] === 1) {
-					if ((float)$req['rendimiento'] <= (float)0) {
-						$continuar = false;
-					}
+				if ((int)$req['produccion'] === 1 && (float)$req['rendimiento'] <= (float)0) {
+					$continuar = false;
 				}
 
 				if ($continuar) {
