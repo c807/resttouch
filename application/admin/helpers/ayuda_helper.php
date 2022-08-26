@@ -616,8 +616,7 @@ if (!function_exists('get_url_websocket')) {
 if (!function_exists('verPropiedad')) {
 	function verPropiedad($clase, $propiedad, $return=false)
 	{
-		if (property_exists($clase, $propiedad) && 
-			!empty($clase->$propiedad)) {
+		if (!empty($clase) && property_exists($clase, $propiedad) && !empty($clase->$propiedad)) {
 			
 			return $clase->$propiedad;
 		}

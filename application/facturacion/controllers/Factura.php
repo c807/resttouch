@@ -566,7 +566,7 @@ class Factura extends CI_Controller
 		$tmp   = $fac->getFacturaFel();
 		$lista = [];
 
-		if ($tmp) {
+		if ($tmp && is_array($tmp) && isset($tmp) > 0) {
 			foreach ($tmp as $key => $row) {
 
 				$json = json_decode($row->resultado);

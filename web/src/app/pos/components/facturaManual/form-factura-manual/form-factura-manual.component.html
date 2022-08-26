@@ -84,8 +84,7 @@
                     (click)="firmarFactura()">
                     Firmar
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="factura.fel_uuid == undefined || factura.fel_uuid == null"
+                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="factura.factura"
                     (click)="getResultadoFel(factura)">
                     Resultado
                 </button>
