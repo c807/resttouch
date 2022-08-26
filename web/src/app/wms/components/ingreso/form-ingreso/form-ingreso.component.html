@@ -135,16 +135,9 @@
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth">
-                        <input matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" min="1"
-                            [(ngModel)]="detalleIngreso.cantidad"
-                            (change)="calculaCostoUnitario()"
-                            required>
-                    </mat-form-field>
-
-                    <!-- <mat-form-field class="fullWidth" *ngIf="saveToDB">
-                        <input matInput placeholder="Costo unitario Con IVA" name="precio_unitario" type="number"
-                            step="0.01" [(ngModel)]="detalleIngreso.precio_unitario">
-                    </mat-form-field> -->
+                        <input *ngIf="saveToDB" matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" min="1" [(ngModel)]="detalleIngreso.cantidad" (change)="calculaCostoUnitario()" required>
+                        <input *ngIf="!saveToDB" matInput placeholder="Cantidad" name="cantidad" type="number" step="0.01" min="0.01" [(ngModel)]="detalleIngreso.cantidad" required>
+                    </mat-form-field>                    
 
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <input matInput placeholder="Costo Total Con IVA" name="precio_total" type="number"
@@ -153,7 +146,7 @@
                             required>
                     </mat-form-field>
 
-                    <span class="bld" style="font-size: medium;" *ngIf="+detalleIngreso.precio_unitario !== 0">
+                    <span class="bld" style="font-size: medium;" *ngIf="+detalleIngreso.precio_unitario !== 0 && saveToDB">
                         Costo unitario con IVA: {{(detalleIngreso.precio_unitario | number:'1.4-4') || '0.0000'}}
                     </span>
 
@@ -164,7 +157,7 @@
                             Guardar
                         </button>
                         <button mat-raised-button type="button" color="accent" (click)="addToDetail()"
-                            [disabled]="!detalleIngreso.articulo || !frmDetalleIngreso.form.valid || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || +detalleIngreso.cantidad < 1"
+                            [disabled]="!detalleIngreso.articulo || !frmDetalleIngreso.form.valid || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || +detalleIngreso.cantidad < 0.01"
                             *ngIf="!saveToDB">
                             Guardar producción
                         </button>

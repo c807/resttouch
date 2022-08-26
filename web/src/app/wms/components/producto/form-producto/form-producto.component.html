@@ -4,29 +4,16 @@
             <mat-card-title>
                 <h4>
                     {{!!articulo.articulo ? (articulo.descripcion | truncar:35) : 'Artículo'}}
-                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = true;"
-                        *ngIf="!showArticuloForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = true;" *ngIf="!showArticuloForm">
                         <mat-icon class="iconFontSize">expand_more</mat-icon>
                     </button>
-                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = false;"
-                        *ngIf="showArticuloForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showArticuloForm = false;" *ngIf="showArticuloForm">
                         <mat-icon class="iconFontSize">expand_less</mat-icon>
                     </button>
                 </h4>
             </mat-card-title>
             <mat-card-content>
-                <form #frmArticulo="ngForm" *ngIf="showArticuloForm" (ngSubmit)="frmArticulo.form.valid && onSubmit()"
-                    novalidate>
-                    <!-- <mat-hint align="start" *ngIf="!categoria || !categoria.descripcion"><strong>Por favor seleccione un categoría.</strong></mat-hint><br *ngIf="!categoria || !categoria.descripcion"/>
-                    <mat-hint align="start" *ngIf="!subcategoria || !subcategoria.descripcion"><strong>Por favor seleccione un sub-categoría.</strong></mat-hint>
-                    <mat-chip-list>
-                        <mat-chip color="accent" class="catSubCat" *ngIf="categoria" selected>
-                            {{categoria.descripcion}}
-                        </mat-chip>
-                        <mat-chip color="warn" class="catSubCat" *ngIf="subcategoria" selected>
-                            {{subcategoria.descripcion}}
-                        </mat-chip>
-                    </mat-chip-list> -->
+                <form #frmArticulo="ngForm" *ngIf="showArticuloForm" (ngSubmit)="frmArticulo.form.valid && onSubmit()" novalidate>                    
 
                     <mat-form-field class="fullWidth" style="margin-top: 10px;">
                         <mat-label>Sub-categoría</mat-label>
@@ -38,16 +25,12 @@
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth">
-                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text"
-                            placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion"
-                            minlength="1" maxlength="250" required>
-                        <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion"
-                            [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="articulo.descripcion" minlength="1" maxlength="250" required>
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth">
-                        <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio"
-                            required>
+                        <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio" required>
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth">
@@ -67,39 +50,32 @@
                         </mat-select>
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
-                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código"
-                            name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
-                        <input matInput *ngIf="esMovil" type="text" placeholder="Código" name="codigo"
-                            [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código" name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Código" name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
-                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text"
-                            placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1"
-                            maxlength="25">
-                        <input matInput *ngIf="esMovil" type="text" placeholder="Shopify ID" name="shopify_id"
-                            [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth" *ngIf="+articulo.produccion == 1">
-                        <input matInput type="number" step="0.05" placeholder="Rendimiento" name="rendimiento"
-                            [(ngModel)]="articulo.rendimiento" required>
+                        <input matInput type="number" step="0.01" placeholder="Rendimiento" name="rendimiento" min="0.01" [(ngModel)]="articulo.rendimiento" required>
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth" *ngIf="+articulo.multiple == 1 || +articulo.combo">
-                        <input matInput type="number" step="1" placeholder="Cantidad minima" name="minima"
-                            [(ngModel)]="articulo.cantidad_minima" required>
+                        <input matInput type="number" step="1" placeholder="Cantidad minima" name="minima" [(ngModel)]="articulo.cantidad_minima" required>
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth" *ngIf="+articulo.multiple == 1 || +articulo.combo">
-                        <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima"
-                            [(ngModel)]="articulo.cantidad_maxima" required>
+                        <input matInput type="number" step="1" placeholder="Cantidad maxima" name="maxima" [(ngModel)]="articulo.cantidad_maxima" required>                    
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth" *ngIf="+articulo.mostrar_inventario === 1">
-                        <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo"
-                            [(ngModel)]="articulo.stock_minimo">
+                        <input matInput type="number" step="1" placeholder="Stock mínimo" name="stock_minimo" [(ngModel)]="articulo.stock_minimo">
                     </mat-form-field>
+
                     <mat-form-field class="fullWidth" *ngIf="+articulo.mostrar_inventario === 1">
-                        <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo"
-                            [(ngModel)]="articulo.stock_maximo">
+                        <input matInput type="number" step="1" placeholder="Stock máximo" name="stock_maximo" [(ngModel)]="articulo.stock_maximo">
                     </mat-form-field>
 
                     <mat-form-field class="fullWidth">
@@ -123,65 +99,61 @@
 
                     <div class="row">
                         <div class="col m3 s3">
-                            <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion"
-                                (change)="setEsRecetaOn()" [disabled]="articuloEsOpcionMultiple || articuloEsCombo">
-                                Producción</mat-checkbox>
+                            <mat-checkbox name="produccion" class="example-margin" [(ngModel)]="+articulo.produccion" (change)="setEsRecetaOn()" [disabled]="articuloEsOpcionMultiple || articuloEsCombo">
+                                Producción
+                            </mat-checkbox>
                         </div>
                         <div class="col m3 s3">
-                            <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos"
-                                (change)="setMultipleOff()" [disabled]="articuloEsOpcionMultiple">De POS</mat-checkbox>
+                            <mat-checkbox name="mostrar_pos" class="example-margin" [(ngModel)]="+articulo.mostrar_pos" (change)="setMultipleOff()" [disabled]="articuloEsOpcionMultiple">
+                                De POS
+                            </mat-checkbox>
                         </div>
                         <div class="col m3 s3">
-                            <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo"
-                                (change)="setOpcMultOff()"
-                                [disabled]="articuloEsReceta || articuloMostrarInventario || articuloEsOpcionMultiple">
-                                Combo</mat-checkbox>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col m3 s3">
-                            <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple"
-                                (change)="setComboOff()"
-                                [disabled]="articuloEsReceta || articuloMostrarPOS || articuloMostrarInventario || articuloEsCombo">
-                                Opción múltiple</mat-checkbox>
-                        </div>
-                        <div class="col m3 s3">
-                            <mat-checkbox name="mostrar_inventario" class="example-margin"
-                                [(ngModel)]="+articulo.mostrar_inventario"
-                                [disabled]="articuloEsCombo || articuloEsOpcionMultiple" (change)="apagaCombo()">De
-                                inventario</mat-checkbox>
-                        </div>
-                        <div class="col m3 s3">
-                            <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta"
-                                (change)="setOpcComboOff()" [disabled]="disableEsReceta">Es receta</mat-checkbox>
+                            <mat-checkbox name="combo" class="example-margin" [(ngModel)]="+articulo.combo" (change)="setOpcMultOff()" [disabled]="articuloEsReceta || articuloMostrarInventario || articuloEsOpcionMultiple">
+                                Combo
+                            </mat-checkbox>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col m3 s3">
-                            <mat-checkbox name="cobro_mas_caro" class="example-margin"
-                                [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">Cobrar el más
-                                caro</mat-checkbox>
+                            <mat-checkbox name="multiple" class="example-margin" [(ngModel)]="+articulo.multiple" (change)="setComboOff()" [disabled]="articuloEsReceta || articuloMostrarPOS || articuloMostrarInventario || articuloEsCombo">
+                                Opción múltiple
+                            </mat-checkbox>
                         </div>
                         <div class="col m3 s3">
-                            <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra"
-                                [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">Usar como extra
+                            <mat-checkbox name="mostrar_inventario" class="example-margin" [(ngModel)]="+articulo.mostrar_inventario" [disabled]="articuloEsCombo || articuloEsOpcionMultiple" (change)="apagaCombo()">
+                                De inventario
+                            </mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="esreceta" class="example-margin" [(ngModel)]="+articulo.esreceta" (change)="setOpcComboOff()" [disabled]="disableEsReceta">
+                                Es receta
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m3 s3">
+                            <mat-checkbox name="cobro_mas_caro" class="example-margin" [(ngModel)]="+articulo.cobro_mas_caro" [disabled]="+articulo.combo === 0">
+                                Cobrar el más caro
+                            </mat-checkbox>
+                        </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="esextra" class="example-margin" [(ngModel)]="+articulo.esextra" [disabled]="+articulo.combo === 1 || +articulo.multiple === 1">
+                                Usar como extra
                             </mat-checkbox>
                         </div>
                     </div>
                     <div align="end">
-                        <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                            [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
                             Guardar
                         </button>
-                        <button mat-raised-button type="button" color="accent" class="btnAccion"
-                            (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
                             Replicar a sedes
                         </button>
                         <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
                             Dar de baja
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="resetArticulo()"
-                            *ngIf="articulo.articulo">
+                        <button mat-raised-button type="button" color="accent" (click)="resetArticulo()" *ngIf="articulo.articulo">
                             Nuevo
                         </button>
                     </div>
@@ -193,24 +165,19 @@
             <mat-card-title>
                 <h4>
                     Detalle del artículo {{articulo.descripcion | truncar:35}}
-                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = true;"
-                        *ngIf="!showDetalleForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = true;" *ngIf="!showDetalleForm">
                         <mat-icon class="iconFontSize">expand_more</mat-icon>
                     </button>
-                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = false;"
-                        *ngIf="showDetalleForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleForm = false;" *ngIf="showDetalleForm">
                         <mat-icon class="iconFontSize">expand_less</mat-icon>
                     </button>
                 </h4>
             </mat-card-title>
             <mat-card-content>
-                <form #frmDetalleArticulo="ngForm" *ngIf="showDetalleForm"
-                    (ngSubmit)="frmDetalleArticulo.form.valid && onSubmitDetail()" novalidate>
+                <form #frmDetalleArticulo="ngForm" *ngIf="showDetalleForm" (ngSubmit)="frmDetalleArticulo.form.valid && onSubmitDetail()" novalidate>
                     <mat-form-field class="fullWidth">
                         <mat-label>Artículo</mat-label>
-                        <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}"
-                            placeholder="Artículo" matInput [matAutocomplete]="autoArticulos"
-                            (keyup)="filtrarArticulos(txtArticuloSelected)" required>
+                        <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
                         <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
                             <mat-option *ngFor="let a of filteredArticulos" [value]="a"
                                 [disabled]="disableArticuloReceta(a)">

@@ -274,7 +274,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     art = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo);
     this.detalleIngreso.presentacion = art[0].presentacion_reporte;
 
-    if (+this.detalleIngreso.cantidad < 1) {
+    if (+this.detalleIngreso.cantidad < 1 && !this.produccion) {
       this.detalleIngreso.cantidad = 1;
     }
 

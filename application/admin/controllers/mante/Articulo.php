@@ -53,7 +53,7 @@ class Articulo extends CI_Controller
 
 			if (!$existeCodigo) {
 				$continuar = true;
-				if ((int)$req['produccion'] === 1 && (float)$req['rendimiento'] <= (float)0) {
+				if ((int)$req['produccion'] === 1 && !((float)$req['rendimiento'] >= (float)0.01)) {
 					$continuar = false;
 				}
 
@@ -73,7 +73,7 @@ class Articulo extends CI_Controller
 						$datos['mensaje'] = "Las unidades de medida no coinciden";
 					}
 				} else {
-					$datos['mensaje'] = 'El rendimiento de la producción debe ser mayor a cero(0).';
+					$datos['mensaje'] = 'El rendimiento de la producción debe ser mayor o igual a 0.01.';
 				}
 			} else {
 				$datos['mensaje'] = 'El código ' . $req['codigo'] . ' ya existe. Intente otro, por favor.';
