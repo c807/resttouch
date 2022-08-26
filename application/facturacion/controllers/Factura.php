@@ -558,6 +558,36 @@ class Factura extends CI_Controller
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
+
+	public function get_resultado_factura($xid)
+	{
+		
+		$fac   = new Factura_model($xid);
+		$tmp   = $fac->getFacturaFel();
+		$lista = [];
+
+		if ($tmp) {
+			foreach ($tmp as $key => $row) {
+
+				$json = json_decode($row->resultado);
+				$data = [
+					"fecha"       => formatoFecha($row->fecha, 1),
+					"descripcion" => "N/A",
+					"resultado"   => $json
+				];
+				
+				if (verPropiedad($json, "descripcion")) {
+					$data["descripcion"] = $json->descripcion;
+				}
+
+				$lista[] = $data;
+			}
+		}
+
+		$this->output
+		->set_content_type("application/json")
+		->set_output(json_encode($lista));
+	}
 }
 
 /* End of file Factura.php */

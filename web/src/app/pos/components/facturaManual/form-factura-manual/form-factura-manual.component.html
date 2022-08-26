@@ -85,6 +85,11 @@
                     Firmar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
+                    [disabled]="factura.fel_uuid == undefined || factura.fel_uuid == null"
+                    (click)="getResultadoFel(factura)">
+                    Resultado
+                </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion"
                     [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion"
                     (click)="imprimirFactura()">
                     Imprimir

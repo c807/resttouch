@@ -5,6 +5,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DresultadoListaComponent } from '../dresultado-lista/dresultado-lista.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -435,6 +436,16 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
           }
         });
       }
+    });
+  }
+
+  getResultadoFel(fact: any) {
+    const dialogRef = this.dialog.open(DresultadoListaComponent, {
+      data: fact
+    })
+
+    dialogRef.afterClosed().subscribe(result => {
+      
     });
   }
 

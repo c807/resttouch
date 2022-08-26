@@ -99,4 +99,10 @@ export class FacturaService {
       params
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getFacturaFel(xid: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlFacturacion}/${this.moduleUrl}/get_resultado_factura/${xid}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

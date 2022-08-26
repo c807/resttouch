@@ -1741,6 +1741,21 @@ class Factura_model extends General_model
 
 		return isset($args["_uno"]) ? $tmp->row() : $tmp->result();
 	}
+
+	public function getFacturaFel()
+	{
+		return $this->db
+		->select("
+			fecha,
+			resultado
+		")
+		->from("factura_fel")
+		->where("factura", $this->factura)
+		->where("resultado is not null")
+		->order_by("factura_fel", "desc")
+		->get()
+		->result();
+	}
 }
 
 /* End of file Factura_model.php */
