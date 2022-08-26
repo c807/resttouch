@@ -440,13 +440,9 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   getResultadoFel(fact: any) {
-    const dialogRef = this.dialog.open(DresultadoListaComponent, {
-      data: fact
-    })
-
-    dialogRef.afterClosed().subscribe(result => {
-      
-    });
+    this.dialog.open(DresultadoListaComponent, {
+      data: fact, width: '70%'
+    });    
   }
 
   loadArticulos = () => {

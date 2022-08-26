@@ -16,6 +16,6 @@ export class DresultadoItemComponent implements OnInit {
 		) { }
 
 	ngOnInit(){
-		this.resJson = JSON.stringify(this.data)
+		this.resJson = JSON.stringify((this.data.resultado || {}), undefined, 2);
 	}
 }

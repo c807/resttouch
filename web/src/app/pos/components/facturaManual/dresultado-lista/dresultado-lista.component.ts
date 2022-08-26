@@ -35,23 +35,19 @@ export class DresultadoListaComponent implements OnInit, OnDestroy {
 
 	getlistaResultado = () => {
 		this.cargando = true
-		this.endSubs.add(      
+		this.endSubs.add(
 			this.facturaSrvc.getFacturaFel(this.data.factura).subscribe(res => {
 				if (res) {
-					this.datos    = res
-					this.cargando = false
+					this.datos = res;
+					this.cargando = false;
 				}
 			})
 		)
 	}
 
 	setItemResultado = (obj: any) => {
-		const dialogRef = this.dialog.open(DresultadoItemComponent, {
-			data: obj
-		})
-
-		dialogRef.afterClosed().subscribe(result => {
-
-		});
+		this.dialog.open(DresultadoItemComponent, {
+			data: obj, width: '90%', height: '82%'
+		});		
 	}
 }

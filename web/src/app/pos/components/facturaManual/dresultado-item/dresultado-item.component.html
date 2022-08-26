@@ -1,11 +1,16 @@
 <h2 mat-dialog-title>Resultado</h2>
-<mat-dialog-content style="width: 60vw;">
-	<div>
-		<mat-form-field class="fullWidth">
-			<textarea matInput [(ngModel)]="resJson" rows="10"></textarea>
-		</mat-form-field>
+<mat-dialog-content style="height: 90%">
+	<div>		
+		<pre>{{resJson}}</pre>
 	</div>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-	<button mat-button mat-dialog-close>Cerrar</button>
+	<div align="start" style="width: 90%;">
+        <span>
+			<strong>NOTA:</strong> Si el resultado es NULL o vacío, por favor comuníquese con su certificador de facturas.
+		</span>
+    </div>
+    <div align="end" style="width: 10%;">        
+		<button mat-raised-button mat-dialog-close color="accent">Cerrar</button>
+    </div>
 </mat-dialog-actions>

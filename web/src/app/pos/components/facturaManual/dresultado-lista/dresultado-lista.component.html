@@ -5,11 +5,11 @@
 	<mat-nav-list *ngIf="!cargando">
 		<mat-list-item *ngFor="let i of datos" (click)="setItemResultado(i)">
 			<mat-icon mat-list-icon>receipt</mat-icon>
-			<h5 mat-line>{{ i.fecha }}</h5>
-			<span mat-line>{{ i.descripcion }}</span>
+			<h5 mat-line><strong>Fecha/hora:</strong> {{ i.fecha }}</h5>
+			<p mat-line><strong>Respuesta:</strong> {{ i.descripcion }}</p>
 		</mat-list-item>
 	</mat-nav-list>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-	<button mat-button mat-dialog-close>Cerrar</button>
+	<button color="accent" mat-raised-button mat-dialog-close>Cerrar</button>
 </mat-dialog-actions>
