@@ -22,6 +22,7 @@ import { Presentacion } from '../../../../admin/interfaces/presentacion';
 import { PresentacionService } from '../../../../admin/services/presentacion.service';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PideTipoMovimientoDestinoComponent } from '../pide-tipo-movimiento-destino/pide-tipo-movimiento-destino.component';
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
@@ -67,7 +68,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public usuarioConfirmaEgresos = false;
   public presentacionArticuloDisabled = true;
-  public esRequisicion = false;  
+  public esRequisicion = false;
 
   private endSubs = new Subscription();
 
@@ -95,10 +96,10 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.loadArticulos();
     this.loadProveedores();
     this.loadPresentaciones();
-    if(!this.saveToDB) {
+    if (!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
     }
-  }  
+  }
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
@@ -179,9 +180,29 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     });
   }
 
-  confirmarEgreso = () => {
+  execConfirmarEgreso = () => {
     this.egreso.estatus_movimiento = 2;
     this.onSubmit();
+  }
+
+  confirmarEgreso = () => {
+    if (+this.egreso.traslado === 1) {
+      const pideTipoMovDestRef = this.dialog.open(PideTipoMovimientoDestinoComponent, {
+        data: this.tiposMovimientoIngreso
+      });  
+      this.endSubs.add(
+        pideTipoMovDestRef.afterClosed().subscribe((tmd: number) => {
+          if (+tmd > 0) {          
+            this.egreso.tipo_movimiento_destino = +tmd;
+            this.execConfirmarEgreso();
+          } else {
+            this.snackBar.open('Debe seleccionar un tipo de movimiento para la bodega de destino para poder confirmar.', 'Egreso', { duration: 7000 });
+          }
+        })
+      );
+    } else {
+      this.execConfirmarEgreso();
+    }
   }
 
   loadArticulos = () => {
@@ -201,12 +222,12 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   resetDetalleMerma = () => {
-      this.detalleMerma = {
-        egreso_detalle: null, egreso: (!!this.egreso.egreso ? this.egreso.egreso : null), articulo: null, cantidad: null,
-        precio_unitario: null, precio_total: null, presentacion: 0
-      }
+    this.detalleMerma = {
+      egreso_detalle: null, egreso: (!!this.egreso.egreso ? this.egreso.egreso : null), articulo: null, cantidad: null,
+      precio_unitario: null, precio_total: null, presentacion: 0
+    }
 
-      this.txtArticuloSelectedM = undefined;
+    this.txtArticuloSelectedM = undefined;
   }
 
   loadDetalleEgreso = (idegreso: number = +this.egreso.egreso) => {
@@ -261,16 +282,16 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   addToDetail = () => {
-    if (this.detalleEgreso.cantidad > 0){
+    if (this.detalleEgreso.cantidad > 0) {
       this.detallesEgreso.splice(this.detallesEgreso.findIndex(de => +de.articulo === +this.detalleEgreso.articulo), 1);
       this.detallesEgreso.push(this.detalleEgreso);
-      
+
       this.resetDetalleEgreso();
       this.updateTableDataSource();
     } else {
       this.snackBar.open(`ERROR: La cantidad debe ser mayor a 0`, 'Egreso', { duration: 3000 });
     }
-    
+
   }
 
   addToDetailMerma = () => {
@@ -279,7 +300,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       if (index > -1) {
         this.detallesMerma.splice(index, 1);
       }
-      var art:any;
+      var art: any;
       art = this.articulos.filter(p => +p.articulo == this.detalleMerma.articulo);
       this.detalleMerma.presentacion = art[0].presentacion_reporte;
 
@@ -287,12 +308,12 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       this.txtArticuloSelectedM = undefined;
       this.resetDetalleMerma();
       this.updateTableDataSourceM();
-    } else if(this.detalleMerma.cantidad <= 0){
+    } else if (this.detalleMerma.cantidad <= 0) {
       this.snackBar.open(`ERROR: La cantidad debe ser mayor a 0`, 'Egreso', { duration: 3000 });
-    } else if(this.detalleMerma.cantidad_utilizada <= 0){
+    } else if (this.detalleMerma.cantidad_utilizada <= 0) {
       this.snackBar.open(`ERROR: La cantidad a utilizar debe ser mayor a 0`, 'Egreso', { duration: 3000 });
     }
-    
+
   }
 
   editFromDetail = (idarticulo: number) => {
@@ -311,7 +332,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     var tmp = this.detallesMerma.filter(de => +de.articulo === +idarticulo)[0];
     this.detalleMerma = {
       egreso_detalle: tmp.egreso_detalle, egreso: tmp.egreso_detalle, articulo: tmp.articulo, cantidad: tmp.cantidad,
-      precio_unitario: tmp.precio_unitario, precio_total: tmp.precio_unitario, presentacion: tmp.presentacion, 
+      precio_unitario: tmp.precio_unitario, precio_total: tmp.precio_unitario, presentacion: tmp.presentacion,
       cantidad_utilizada: tmp.cantidad_utilizada
     };
     this.setPresentacionesMerma();
@@ -409,7 +430,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.dataSource.filter = filter;
   }
 
-  imprimirEgreso = () => {    
+  imprimirEgreso = () => {
     this.endSubs.add(
       this.pdfServicio.getEgreso(+this.egreso.egreso).subscribe(res => {
         if (res) {
@@ -417,12 +438,12 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
           saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Egreso', { duration: 3000 });
-        }        
+        }
       })
-    );    
+    );
   }
 
-  eliminarDetalle = (idDetalle: number) => {    
+  eliminarDetalle = (idDetalle: number) => {
     const delRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
@@ -440,8 +461,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         });
       }
     });
-  }  
+  }
 
-  getPrecioTotal =  () => this.detallesEgreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+  getPrecioTotal = () => this.detallesEgreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
 
 }

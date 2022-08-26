@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>Tipo de movimiento para la bodega de destino</h1>
+<div mat-dialog-content>
+    <form #frmTipoMovDestino="ngForm" novalidate>
+        <mat-form-field class="fullWidth">
+            <mat-label>¿Qué tipo de movimiento va a generar en la bodega de destino?</mat-label>
+            <mat-select name="tipo_movimiento_destino" [(ngModel)]="tipo_movimiento_destino" required>
+                <mat-option *ngFor="let tmD of data" [value]="tmD.tipo_movimiento">
+                    {{tmD.descripcion}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" color="accent" (click)="terminar()" [disabled]="!frmTipoMovDestino.form.valid">
+        Aceptar
+    </button>
+</div>
+

@@ -44,15 +44,7 @@
             <mat-form-field class="fullWidth">
                 <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="egreso.comentario" maxlength="500">
             </mat-form-field>
-            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?</mat-checkbox>            
-            <mat-form-field class="fullWidth" *ngIf="+egreso.traslado == 1 && ([2, 3].indexOf(+egreso.estatus_movimiento) < 0)">
-                <mat-label>Tipo de movimiento destino</mat-label>
-                <mat-select name="tipo_movimiento_destino" [(ngModel)]="egreso.tipo_movimiento_destino">
-                    <mat-option *ngFor="let tmD of tiposMovimientoIngreso" [value]="tmD.tipo_movimiento">
-                        {{tmD.descripcion}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB && !esRequisicion" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?</mat-checkbox>                        
             <span *ngIf="!!egreso.idcomandafox"><br/><strong>Comanda: #{{egreso.idcomandafox}}</strong></span>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmEgreso.form.valid || ([2, 3].indexOf(+egreso.estatus_movimiento) >= 0) || bloqueoBotones" *ngIf="saveToDB">
@@ -60,7 +52,7 @@
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarEgreso()"
                     *ngIf="egreso.egreso && detallesEgreso.length > 0 && usuarioConfirmaEgresos && !esRequisicion"
-                    [disabled]="!frmEgreso.form.valid || !egreso.tipo_movimiento_destino || [2, 3].indexOf(+egreso.estatus_movimiento) >= 0">
+                    [disabled]="!frmEgreso.form.valid || [2, 3].indexOf(+egreso.estatus_movimiento) >= 0">
                     Confirmar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirEgreso()" *ngIf="egreso.egreso">
@@ -77,13 +69,11 @@
 <mat-card class="mat-elevation-z4 fullWidth" *ngIf="egreso.egreso || !saveToDB">
     <mat-card-title>
         <h4>
-            Detalle del egreso {{saveToDB ? 'No.' : ''}} {{egreso.egreso}}
-            <button mat-icon-button type="button" color="accent" (click)="showDetalleEgresoForm = true;"
-                *ngIf="!showDetalleEgresoForm">
+            Detalle {{esRequisicion ? 'de la requisición' : 'del egreso'}} {{saveToDB ? 'No.' : ''}} {{egreso.egreso}}
+            <button mat-icon-button type="button" color="accent" (click)="showDetalleEgresoForm = true;" *ngIf="!showDetalleEgresoForm">
                 <mat-icon class="iconFontSize">expand_more</mat-icon>
             </button>
-            <button mat-icon-button type="button" color="accent" (click)="showDetalleEgresoForm = false;"
-                *ngIf="showDetalleEgresoForm">
+            <button mat-icon-button type="button" color="accent" (click)="showDetalleEgresoForm = false;" *ngIf="showDetalleEgresoForm">
                 <mat-icon class="iconFontSize">expand_less</mat-icon>
             </button>
         </h4>

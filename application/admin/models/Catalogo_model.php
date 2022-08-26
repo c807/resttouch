@@ -61,8 +61,8 @@ class Catalogo_model extends CI_Model
 			$this->db->where('egreso', $args['egreso']);
 		}
 
-		if (isset($args['requisicion'])) {
-			$this->db->where('requisicion', $args['egreso']);
+		if (isset($args['requisicion']) && (int)$args['requisicion'] === 1) {
+			$this->db->where('requisicion', $args['requisicion']);
 		}
 
 		$qry = $this->db

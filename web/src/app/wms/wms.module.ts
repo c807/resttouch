@@ -64,13 +64,14 @@ import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/re
 import { UsoIngredienteComponent } from './components/reporte/uso-ingrediente/uso-ingrediente.component';
 import { MargenRecetaComponent } from './components/reporte/margen-receta/margen-receta.component';
 import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
+import { PideTipoMovimientoDestinoComponent } from './components/egreso/pide-tipo-movimiento-destino/pide-tipo-movimiento-destino.component';
 
 @NgModule({
   declarations: [
     ListaProductoComponent, ListaIngresoComponent, FormIngresoComponent, IngresoComponent, ProductoComponent, FormProductoComponent,
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
-    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent
+    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, PideTipoMovimientoDestinoComponent
   ],
   imports: [
     CommonModule,
