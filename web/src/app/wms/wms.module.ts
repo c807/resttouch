@@ -65,13 +65,16 @@ import { UsoIngredienteComponent } from './components/reporte/uso-ingrediente/us
 import { MargenRecetaComponent } from './components/reporte/margen-receta/margen-receta.component';
 import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
 import { PideTipoMovimientoDestinoComponent } from './components/egreso/pide-tipo-movimiento-destino/pide-tipo-movimiento-destino.component';
+import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
+import { FormTipoMovimientoComponent } from './components/tipo-movimiento/form-tipo-movimiento/form-tipo-movimiento.component';
+import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista-tipo-movimiento/lista-tipo-movimiento.component';
 
 @NgModule({
   declarations: [
     ListaProductoComponent, ListaIngresoComponent, FormIngresoComponent, IngresoComponent, ProductoComponent, FormProductoComponent,
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
-    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, PideTipoMovimientoDestinoComponent
+    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent
   ],
   imports: [
     CommonModule,

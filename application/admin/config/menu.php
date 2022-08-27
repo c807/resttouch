@@ -319,6 +319,10 @@ $config['menu'] = [
 					1 => [
 						'nombre' => 'Bodegas',
 						'link' => '/admin/bodega'
+					],
+					2 => [
+						'nombre' => 'Tipos de movimiento',
+						'link' => '/wms/tipo_movimiento'
 					]
 				]
 			]

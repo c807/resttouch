@@ -1,0 +1,27 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+           Tipo de movimiento {{!!tipoMovimiento.tipo_movimiento ? tipoMovimiento.descripcion : ''}}
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmTipoMovimiento="ngForm" (ngSubmit)="frmTipoMovimiento.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoMovimiento.descripcion" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoMovimiento.descripcion" required>
+            </mat-form-field>
+            <mat-checkbox name="ingreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.ingreso">Para ingresos</mat-checkbox>
+            <mat-checkbox name="egreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.egreso">Para egresos</mat-checkbox>
+            <mat-checkbox name="requisicion" class="fullWidth" [(ngModel)]="+tipoMovimiento.requisicion">Para requisiciones</mat-checkbox>
+
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoMovimiento.form.valid">
+                    Guardar
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetTipoMovimiento()" *ngIf="tipoMovimiento.tipo_movimiento">
+                    Nuevo
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

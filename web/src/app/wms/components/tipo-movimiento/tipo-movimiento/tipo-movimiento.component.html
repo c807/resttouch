@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tipo-movimiento #lstTipoMovimiento (getTipoMovimientoEv)="setTipoMovimiento($event)"></app-lista-tipo-movimiento>
+    </div>
+    <div class="col m7 s12">
+        <app-form-tipo-movimiento #frmTipoMovimiento [tipoMovimiento]="tipoMovimiento" (tipoMovimientoSavedEv)="refreshTipoMovimientoList()"></app-form-tipo-movimiento>
+    </div>
+</div>

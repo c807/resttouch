@@ -20,6 +20,7 @@ import { ResumenIngresoComponent } from './components/reporte/resumen-ingreso/re
 import { UsoIngredienteComponent } from './components/reporte/uso-ingrediente/uso-ingrediente.component';
 import { MargenRecetaComponent } from './components/reporte/margen-receta/margen-receta.component';
 import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
+import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -42,6 +43,7 @@ const routes: Routes = [
   { path: 'margen_receta', component: MargenRecetaComponent, canActivate: [AuthGuard] },
   { path: 'consumo_articulo', component: ConsumoArticuloComponent, canActivate: [AuthGuard] },
   { path: 'requisiciones', component: EgresoComponent, canActivate: [AuthGuard] },
+  { path: 'tipo_movimiento', component: TipoMovimientoComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
