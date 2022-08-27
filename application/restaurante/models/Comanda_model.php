@@ -1027,27 +1027,29 @@ class Comanda_model extends General_Model
                 $exito = $cta->guardar($campos);
                 if (!$exito) {
                     $errores[] = implode(';', $cta->getMensaje());
-                } else {
-                    $detsComanda = $this->db
-                        ->select('b.detalle_comanda')
-                        ->join('detalle_comanda b', 'b.detalle_comanda = a.detalle_comanda')
-                        ->where('a.cuenta_cuenta', $ctaOrigen->cuenta)
-                        ->get('detalle_cuenta a')
-                        ->result();
-                    if ($detsComanda) {
-                        foreach ($detsComanda as $detc) {
-                            $det = new Dcomanda_model($detc->detalle_comanda);
-                            $exito = $det->guardar(['comanda' => $cmdDestino]);
-                            if (!$exito) {
-                                $errores[] = implode(';', $cta->getMensaje());
-                            }
-                        }
-                    }
                 }
                 $noCta++;
             }
             if (empty($errores)) {
-                return true;
+                $detsComanda = $this->db
+                    ->select('b.detalle_comanda')
+                    ->where('b.comanda', $this->getPK())
+                    ->get('detalle_comanda b')
+                    ->result();
+                if ($detsComanda) {
+                    foreach ($detsComanda as $detc) {
+                        $det = new Dcomanda_model($detc->detalle_comanda);
+                        $exito = $det->guardar(['comanda' => $cmdDestino]);
+                        if (!$exito) {
+                            $errores[] = implode(';', $cta->getMensaje());
+                        }
+                    }
+                }
+                if (empty($errores)) {
+                    return true;
+                } else {
+                    $this->mensaje[] = implode(';', $errores);
+                }
             } else {
                 $this->mensaje[] = implode(';', $errores);
             }
@@ -1206,8 +1208,8 @@ class Comanda_model extends General_Model
                             $exito = $dcom->guardar([
                                 'presentacion_bck' => $dcom->presentacion,
                                 'presentacion' => $presR->presentacion
-                            ]);                            
-                            $resultados[] = $exito ? 'Se modificó el detalle comanda ID '.$dcom->getPK() : ($dcom->getMensaje() ? join('; ', $dcom->getMensaje()) : 'Error al modificar el detalle de comanda con ID '.$dcom->getPK());
+                            ]);
+                            $resultados[] = $exito ? 'Se modificó el detalle comanda ID ' . $dcom->getPK() : ($dcom->getMensaje() ? join('; ', $dcom->getMensaje()) : 'Error al modificar el detalle de comanda con ID ' . $dcom->getPK());
                         }
                     }
                 }
