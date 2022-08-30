@@ -38,6 +38,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
+    this.params._coniva = '0';
     this.getSede();
     this.getBodega();
   }
@@ -88,7 +89,8 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
 
   resetParams = () => {
     this.params = {
-      fecha: moment().format(GLOBAL.dbDateFormat)
+      fecha: moment().format(GLOBAL.dbDateFormat),
+      _coniva: '0'
     };
     this.cargando = false;
   }

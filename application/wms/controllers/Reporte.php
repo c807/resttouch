@@ -435,6 +435,12 @@ class Reporte extends CI_Controller
 		foreach ($req['sede'] as $s) {
 			$sede = new Sede_model($s);
 			$empresa = $sede->getEmpresa();
+
+			$porIva = 1.0;
+			if(isset($req['_coniva']) && (int)$req['_coniva'] === 1) {
+				$porIva +=  ($empresa ? (float)$empresa->porcentaje_iva : 0);
+			}
+
 			$data[] = (object)[
 				'empresa' => (object)['empresa' => $empresa->getPK(), 'nombre' => $empresa->nombre, 'nombre_comercial' => $empresa->nombre_comercial],
 				'sede' => $sede->getPK(),
@@ -483,7 +489,7 @@ class Reporte extends CI_Controller
 									$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo);
 								}
 
-								$row->precio_unitario = $row->precio_unitario * $pres->cantidad;
+								$row->precio_unitario = ($row->precio_unitario * $porIva) * $pres->cantidad;
 
 								$obj = (object)[
 									"articulo" => $art->getPK(),
@@ -1742,7 +1748,16 @@ class Reporte extends CI_Controller
 
 		$nombreArchivo = "Recetas_".rand().".xls";
 
-		foreach ($lista as $llave => $fila) {
+		$sede = new Sede_model($this->data->sede);
+		$emp = $sede->getEmpresa();
+
+		$req = json_decode(file_get_contents('php://input'), true);
+		$porIva = 1.0;
+		if(isset($req['_coniva']) && (int)$req['_coniva'] === 1) {
+			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
+		}
+
+		foreach ($lista as $fila) {
 			$art = new Articulo_model($fila->articulo);
 			$tmp = [];
 
@@ -1758,8 +1773,8 @@ class Reporte extends CI_Controller
 					$costo = (float)$costo / ((float)$rec->rendimiento * (float)$presR->cantidad);
 				}
 
-				$tmpCosto             = $costo * $row->cantidad;
-				// $tmpCosto             = $costo;
+				$costo *= $porIva;
+				$tmpCosto             = $costo * $row->cantidad;				
 				$row->costo           = round($tmpCosto, 2);
 				$row->articulo->costo = $costo;
 				$tmp["receta"][]      = $row;

@@ -67,9 +67,9 @@ export class ReportePdfService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  imprimirReceta(id: number) {
+  imprimirReceta(id: number, conIva: number = 0) {
     return this.http.get<string>(
-      `${GLOBAL.urlMantenimientos}/articulo/imprimir_receta/${id}`,
+      `${GLOBAL.urlMantenimientos}/articulo/imprimir_receta/${id}?_coniva=${conIva}`,
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }

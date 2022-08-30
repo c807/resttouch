@@ -238,7 +238,8 @@ export class ProductoComponent implements OnInit, OnDestroy {
     );
   }
 
-  generarRepReceta() {
+  generarRepReceta(conIva: number = 0) {
+    this.paramsRep._coniva = conIva;
     this.endSubs.add(
       this.pdfServicio.generar_receta_costo(this.paramsRep).subscribe(res => {
         if (res) {

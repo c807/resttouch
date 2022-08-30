@@ -222,9 +222,11 @@
                             *ngIf="receta.articulo_detalle">
                             Nuevo
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="imprimirReceta()"
-                            *ngIf="recetas.length > 0">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirReceta()" *ngIf="recetas.length > 0">
                             Imprimir
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="imprimirReceta(1)" *ngIf="recetas.length > 0">
+                            Imprimir (con I.V.A.)
                         </button>
                     </div>
                 </form>

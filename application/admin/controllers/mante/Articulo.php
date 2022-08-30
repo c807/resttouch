@@ -197,14 +197,29 @@ class Articulo extends CI_Controller
 		$art = new Articulo_model($articulo);
 		$datos = [];
 
-		$sede = $this->Catalogo_model->getSede([
-			'sede' => $data->sede,
-			"_uno" => true
-		]);
+		$sede = $this->Catalogo_model->getSede([ 'sede' => $data->sede, '_uno' => true ]);
+
+		$emp = null;
+		if ($sede) {
+			$emp = $this->Catalogo_model->getEmpresa([
+				"empresa" => $sede->empresa,
+				"_uno" => true
+			]);
+			if ($emp) {
+				$datos['empresa'] = $emp;
+				$datos['nsede'] = $sede->nombre;
+			}
+		}
+
+		$porIva = 1.0;
+		if(isset($_GET['_coniva']) && (int)$_GET['_coniva'] === 1) {			
+			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
+		}
 
 		$datos["articulo"]       = $art;
 		$datos["articulo_grupo"] = $art->getCategoriaGrupo();
-		$datos["costo"]          = $art->_getCosto();
+		$tmpCosto                = $art->_getCosto();
+		$datos["costo"]          = (float)$tmpCosto * $porIva;
 
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
@@ -215,22 +230,14 @@ class Articulo extends CI_Controller
 				$costo = (float)$costo / ((float)$rec->rendimiento * (float)$presR->cantidad);
 			}
 
+			$costo *= $porIva;
 			$tmpCosto = $costo * $row->cantidad;
 			$row->costo = round($tmpCosto, 2);
 			$row->articulo->costo = $costo;
 			$datos["receta"][] = $row;
 		}
 
-		if ($sede) {
-			$emp = $this->Catalogo_model->getEmpresa([
-				"empresa" => $sede->empresa,
-				"_uno" => true
-			]);
-			if ($emp) {
-				$datos['empresa'] = $emp;
-				$datos['nsede'] = $sede->nombre;
-			}
-		}	
+			
 
 		$vista = $this->load->view('reporte/receta', $datos, true);
 

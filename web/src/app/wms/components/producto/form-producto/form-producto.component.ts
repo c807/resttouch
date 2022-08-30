@@ -390,9 +390,9 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     );
   }
 
-  imprimirReceta = () => {
+  imprimirReceta = (conIva: number = 0) => {
     this.endSubs.add(      
-      this.rptSrvc.imprimirReceta(this.articulo.articulo).subscribe(res => {
+      this.rptSrvc.imprimirReceta(this.articulo.articulo, conIva).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: 'application/pdf' });
           saveAs(blob, `${this.titulo}_${this.articulo.descripcion}.pdf`);
