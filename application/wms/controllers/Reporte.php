@@ -1520,6 +1520,14 @@ class Reporte extends CI_Controller
 		$datos["sede"]   = $datos["sede"] ?? $this->data->sede;
 		$datos["_todos"] = true;
 		unset($datos["_excel"]);
+
+		$sede = new Sede_model($datos["sede"]);
+		$emp = $sede->getEmpresa();
+		
+		$porIva = 1.0;
+		if(isset($datos['_coniva']) && (int)$datos['_coniva'] === 1) {
+			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
+		}
 		
 		$nombreArchivo = "Margen_receta_".rand().".xls";
 		$lista         = $this->Articulo_model->buscarArticulo($datos);
@@ -1530,6 +1538,13 @@ class Reporte extends CI_Controller
 			$pre = $tmp->getPresentacion();
 
 			$costo = $tmp->_getCosto();
+
+			if ((int)$tmp->produccion === 1 && (float)$tmp->rendimiento !== (float)0) {
+				$presR = $tmp->getPresentacionReporte();
+				$costo = (float)$costo / ((float)$tmp->rendimiento * (float)$presR->cantidad);
+			}
+
+			$costo *= $porIva;
 			$margen = ($row->precio > 0 && $costo > 0) ? ((($row->precio / $costo)-1)*100) : 0;
 			
 			$data[] = [
@@ -1613,6 +1628,13 @@ class Reporte extends CI_Controller
 			$sede  = new Sede_model($datos['sede']);
 			$data  = [];
 
+			$emp = $sede->getEmpresa();
+		
+			$porIva = 1.0;
+			if(isset($datos['_coniva']) && (int)$datos['_coniva'] === 1) {
+				$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
+			}
+
 			foreach ($lista as $row) {
 				$tmp   = new Articulo_model($row->articulo);
 				$costo = $tmp->_getCosto_2();
@@ -1623,7 +1645,8 @@ class Reporte extends CI_Controller
 				if ((int)$tmp->produccion === 1 && (float)$tmp->rendimiento !== (float)0) {
 					$costo = (float)$costo / (float)$tmp->rendimiento;					
 				}
-				
+
+				$costo *= $porIva;				
 				$total = round(($row->cantidad * $costo), 2);
 				
 				$data[] = [

@@ -26,7 +26,7 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 		}
 	};
 
-	public params: any = {};
+	public params: any = { _coniva: '0' };
 	public titulo: string = "Margen_receta";
 	public subCategorias: CategoriaGrupoResponse[] = [];
 	public cargando = false;
@@ -50,7 +50,8 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 
 	resetParams = () => {
 		this.params = {
-			categoria_grupo: null
+			categoria_grupo: null,
+			_coniva: '0'
 		}
 	}
 

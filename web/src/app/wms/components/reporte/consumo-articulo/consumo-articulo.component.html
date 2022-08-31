@@ -32,6 +32,13 @@
 						</mat-select>
 					</mat-form-field>
 
+					<mat-form-field class="fullWidth">
+						<mat-label>Con I.V.A.</mat-label>
+						<mat-select name="_coniva" [(ngModel)]="params._coniva" required>
+							<mat-option value="0">No</mat-option>
+							<mat-option value="1">Sí</mat-option>
+						</mat-select>
+					</mat-form-field>
 
 					<app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
 				</form>

@@ -58,7 +58,8 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			sede: this.ls.get(GLOBAL.usrTokenVar).sede,
-			categoria_grupo: null
+			categoria_grupo: null,
+			_coniva: '0'
 		}
 	}
 
