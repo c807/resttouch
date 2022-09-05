@@ -125,7 +125,7 @@ class Cuenta_model extends General_Model
 		$tmp1 = $this->db
 			->select('count(a.detalle_cuenta) det, count(b.detalle_cuenta) fact')
 			->from('detalle_cuenta a')
-			->join('detalle_factura_detalle_cuenta b', 'a.detalle_cuenta = b.detalle_cuenta', 'left')			
+			->join('detalle_factura_detalle_cuenta b', 'a.detalle_cuenta = b.detalle_cuenta', 'left')
 			->where('cuenta_cuenta', $this->getPK())
 			->get()
 			->row();
@@ -518,9 +518,8 @@ class Cuenta_model extends General_Model
 				unset($args['_esreceta']);
 
 				$args['_extras'] = true;
-				$detalle->detalle_extras = $this->obtener_detalle($args);		
-				unset($args['_extras']);		
-
+				$detalle->detalle_extras = $this->obtener_detalle($args);
+				unset($args['_extras']);
 			} else {
 				if (isset($args['_esreceta'])) {
 					unset($args['_esreceta']);
@@ -546,6 +545,19 @@ class Cuenta_model extends General_Model
 		}
 
 		return $this->db->get('detalle_cuenta a')->result();
+	}
+
+	public function cuentas_comanda($args = [])
+	{
+		$campos = $this->getCampos(false, '', 'cuenta');
+		if (count($args) > 0) {
+			foreach ($args as $key => $row) {
+				if (substr($key, 0, 1) != "_") {
+					$this->db->where($key, $row);
+				}
+			}
+		}
+		return $this->db->select($campos)->get('cuenta')->result();
 	}
 }
 

@@ -1,1 +1,31 @@
-<p>cuenta-cobrada-otra-estacion works!</p>
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+            Cuenta cobrada en otra estación
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmCtaCobradaOtraEstacion="ngForm" (ngSubmit)="frmCtaCobradaOtraEstacion.form.valid && procesar()" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput type="number" placeholder="Ingrese el número de la comanda" name="comanda" [(ngModel)]="params.comanda" min="1" step="1" (keyup.enter)="obtenerCuentasAbiertas()" required>
+                <button type="button" mat-button matSuffix mat-icon-button (click)="obtenerCuentasAbiertas()" [disabled]="+params.comanda <= 0">
+                    <mat-icon class="iconFontSizeBuscarBtn">search</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field class="fullWidth" *ngIf="+params.comanda > 0 && cuentas.length > 0">
+                <mat-label>Seleccione una cuenta abierta de la comanda #{{params.comanda}}</mat-label>
+                <mat-select name="mesa" [(ngModel)]="params.cuenta" required>
+                    <mat-option *ngFor="let cta of cuentas" [value]="cta">
+                        {{cta.nombre}} - {{cta.numero}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>                        
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" [disabled]="!params.comanda || !params.cuenta || cargando">
+                    Procesar
+                </button>
+            </div>
+        </form>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-card-content>
+</mat-card>

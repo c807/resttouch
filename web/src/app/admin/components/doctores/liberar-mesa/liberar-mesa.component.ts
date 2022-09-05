@@ -51,6 +51,7 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       dialogRef.afterClosed().subscribe(res => {
         if (res) {
+          this.cargando = true;
           this.mesaSrvc.liberarMesaDr(+this.mesa.mesa).subscribe(res => {
             let msg = `${res.exito ? '' : 'ERROR: '}${res.mensaje}`;
             if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
@@ -66,6 +67,7 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
             } else {
               this.dialog.open(ConfirmDialogComponent, { maxWidth: '500px', data: new ConfirmDialogModel('Liberar mesa', msg, 'Ok', '') });
             }
+            this.cargando = false;
           })
         }
       })

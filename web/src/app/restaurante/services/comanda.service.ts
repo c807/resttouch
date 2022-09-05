@@ -209,4 +209,10 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getCuentasComanda(fltr: any = {}): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/get_cuentas_comanda?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }
