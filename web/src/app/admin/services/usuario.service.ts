@@ -77,22 +77,7 @@ export class UsuarioService {
         }
       }
       resolve(false);
-    });
-    // if (this.usrToken) {
-    //   if (this.onlineSrvc.isOnline$.value){
-    //     const resp: any = await this.http.get(`${GLOBAL.url}/${this.moduleUrl}/checktoken_get`).toPromise();
-    //     if (resp.valido) {
-    //       return resp.valido;
-    //     } else {
-    //       return false;
-    //     }
-    //   } else {
-    //     const decodedToken = this.jwtHelper.decodeToken(this.usrToken);
-    //     console.log('decodedToken', decodedToken);
-    //     return true;
-    //   }
-    // }
-    // return false;
+    });    
   }
 
   get(filtros: any): Observable<Usuario[]> {

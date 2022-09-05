@@ -66,6 +66,31 @@ class Mesa_model extends General_Model {
 		->get('mesa a')
 		->result();
 	}
+
+	public function liberar_mesa()
+	{
+		$datos = new stdClass();
+		$datos->comandas_relacionadas = '';
+		$datos->comandas_cerradas = 0;
+		$comandas = $this->db
+			->select('GROUP_CONCAT(DISTINCT c.comanda ORDER BY c.comanda SEPARATOR ",") AS comandas')
+			->join('comanda_has_mesa b', 'a.mesa = b.mesa')
+			->join('comanda c', 'c.comanda = b.comanda')
+			->where('a.mesa', $this->mesa)
+			->where('c.estatus', 1)
+			->get('mesa a')
+			->row();
+		
+		if ($comandas && isset($comandas->comandas)) {
+			$datos->comandas_relacionadas = $comandas->comandas;
+			$this->db->where("comanda IN({$datos->comandas_relacionadas})")->update('cuenta', ['cerrada' => 1]);
+			$this->db->where("comanda IN({$datos->comandas_relacionadas})")->update('comanda', ['estatus' => 2]);
+			$datos->comandas_cerradas = $this->db->affected_rows();
+		}
+
+		$datos->exito = $this->guardar(['estatus' => 1]);
+		return (array)$datos;
+	}
 }
 
 /* End of file Mesa_model.php */

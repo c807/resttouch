@@ -1,0 +1,25 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>
+            Liberar una mesa ocupada
+        </h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmLiberarMesa="ngForm" (ngSubmit)="frmLiberarMesa.form.valid && liberarMesa()" novalidate>
+            <mat-form-field class="fullWidth">
+                <mat-label>Mesa</mat-label>
+                <mat-select name="mesa" [ngModelOptions]="{standalone: true}" [(ngModel)]="mesa" required>
+                    <mat-option *ngFor="let m of mesas" [value]="m">
+                        {{m.area.nombre}} - {{m.etiqueta || m.numero}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>                        
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!mesa || cargando">
+                    Liberar
+                </button>
+            </div>
+        </form>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-card-content>
+</mat-card>

@@ -101,12 +101,19 @@ class Usuario_model extends General_model
                 }
 
                 if ($validado) {
+                    $this->load->model('Configuracion_model');
+                    $horasValidezToken = 12;
+                    $horasValidezTokenRow = $this->Configuracion_model->buscar(['campo' => 'RT_HORAS_VALIDEZ_TOKEN', '_uno' => true]);
+                    if($horasValidezTokenRow && (int)$horasValidezTokenRow->valor > 0) {
+                        $horasValidezToken = (int)$horasValidezTokenRow->valor;
+                    }
+
                     $tokenData = array(
                         'idusuario' => $dbusr->usuario,
                         'sede' => $dbusr->sede,                        
                         'usuario' => $dbusr->usrname,
                         'inicia' => date('Y-m-d H:i:s'),
-                        'hasta' => date('Y-m-d H:i:s', strtotime('+12 hours')),
+                        'hasta' => date('Y-m-d H:i:s', strtotime("+{$horasValidezToken} hours")),
                         'dominio' => $credenciales['dominio']
                     );
                     return array(

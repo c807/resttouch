@@ -1679,6 +1679,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_MAX_DIAS_ANTIGUEDAD_INVENTARIO_FISICO', '1', '1', 'Cantidad de días de antiguedad que permite generar inventario físico/cuadre diario.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_CHECK_FINANCIAL_STATUS', '3', '0', 'Habilita/Deshabilita el chequeo de una orden de Shopify para ver si fue pagada o no.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_ACTUALIZA_CORREO_CF', '3', '0', 'Habilita/Deshabilita actualización automática de correo del cliente cuando el NIT es CF.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_HORAS_VALIDEZ_TOKEN', '1', '12', 'Establece cantidad de horas de validez del token del usuario. 12 horas por defecto.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 

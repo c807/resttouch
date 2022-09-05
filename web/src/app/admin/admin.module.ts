@@ -128,6 +128,9 @@ import { InitialSetupComponent } from './components/setup/initial-setup/initial-
 import { UpdateDataBasesComponent } from './components/setup/update-data-bases/update-data-bases.component';
 import { SetConfigCorpComponent } from './components/setup/set-config-corp/set-config-corp.component';
 import { SetupComponent } from './components/setup/setup/setup.component';
+import { DoctoresComponent } from './components/doctores/doctores/doctores.component';
+import { LiberarMesaComponent } from './components/doctores/liberar-mesa/liberar-mesa.component';
+import { CuentaCobradaOtraEstacionComponent } from './components/doctores/cuenta-cobrada-otra-estacion/cuenta-cobrada-otra-estacion.component';
 
 @NgModule({
   declarations: [
@@ -149,7 +152,7 @@ import { SetupComponent } from './components/setup/setup/setup.component';
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

@@ -39,4 +39,18 @@ export class MesaService {
       `${GLOBAL.urlMantenimientos}/area/get_mesas_disponibles?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getMesaFullData(fltr: any = {}): Observable<MesaDisponible[]> {
+    fltr._fulldata = 1;
+    return this.http.get<MesaDisponible[]>(
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/buscar?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  liberarMesaDr(idMesa: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/liberar_mesa/${idMesa}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
 }

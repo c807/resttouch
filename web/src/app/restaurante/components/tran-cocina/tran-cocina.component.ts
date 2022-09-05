@@ -55,6 +55,15 @@ export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
         this.notificarUsuario();
       });
 
+      this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
+
+      this.socket.on('connect_timeout', () => {
+        const msg = 'DESCONECTADO DEL SERVIDOR (TIMEOUT)';
+        this.snackBar.open(msg, 'ERROR', { duration: 5000 });        
+      });      
+
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));
+
       setInterval(() => {
         this.setTiempo();
       }, 1000);
@@ -65,7 +74,7 @@ export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     Promise.resolve(null).then(() => {      
-      console.log('Elemento = ', this.divContenedorPedidos);
+      // console.log('Elemento = ', this.divContenedorPedidos);
       // console.log('ScrollHeight = ', this.divContenedorPedidos);
     });
   }

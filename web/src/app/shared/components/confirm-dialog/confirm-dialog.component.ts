@@ -6,8 +6,9 @@ export class ConfirmDialogModel {
     public title: string,
     public message: string,
     public lblBtnConfirm: string,
-    public lblBtnDeny: string,
-    public config: any = null
+    public lblBtnDeny: string = '',
+    public config: any = null,
+    public showAlert = false
   ) { }
 }
 

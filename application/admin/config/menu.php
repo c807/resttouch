@@ -129,6 +129,10 @@ $config['menu'] = [
 					2 => [
 						'nombre' => 'Anular comandas',
 						'link' => '/restaurante/anulacomanda'
+					],
+					3 => [
+						'nombre' => 'Doctores',
+						'link' => '/admin/doctores'
 					]
 				]
 			]

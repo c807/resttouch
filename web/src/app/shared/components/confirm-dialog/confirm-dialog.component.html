@@ -2,21 +2,18 @@
   {{title}}
 </h1>
 <div mat-dialog-content>
-  <p>{{message}}</p>
+  <div align="center" *ngIf="data.showAlert">
+    <img id="imgAlto" src="/assets/img/alto_b.png" width="200" height="200" alt="ALTO">
+  </div>
+  <p align="justify">{{message}}</p>
   <div *ngIf="config && config.input">
     <p *ngFor="let input of config.input">
-      <!-- <span *ngIf="input.select">
-        {{input.datos | json}}
-      </span> -->
       <mat-form-field class="fullWidth" *ngIf="input.select">
         <mat-label>{{ input.label }}</mat-label>
         <mat-select name="input.label" [(ngModel)]="input.valor" [ngModelOptions]="{standalone: true}" [required]="input.requerido">
             <mat-option *ngFor="let dato of input.datos" [value]="dato[input.id]">
                 {{ dato[input.descripcion] }}
-            </mat-option>
-            <!-- <mat-option *ngFor="let dato of input.datos" [value]="dato.id">
-              {{ dato.descripcion }}
-            </mat-option> -->
+            </mat-option>            
         </mat-select>
       </mat-form-field>
       <mat-form-field class="fullWidth" *ngIf="!input.select">
@@ -26,6 +23,6 @@
   </div>
 </div>
 <div mat-dialog-actions align="center">
-  <button mat-raised-button class="btnConfig" (click)="onDismiss()">{{lblBtnDeny}}</button>
+  <button mat-raised-button class="btnConfig" (click)="onDismiss()" *ngIf="lblBtnDeny && lblBtnDeny.trim().length > 0">{{lblBtnDeny}}</button>
   <button mat-raised-button class="btnConfig" color="accent" (click)="onConfirm()">{{lblBtnConfirm}}</button>
 </div>

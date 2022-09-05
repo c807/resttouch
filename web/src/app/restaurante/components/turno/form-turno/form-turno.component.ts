@@ -107,7 +107,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
 
   loadUsuarios = () => {
     this.endSubs.add(
-      this.usuarioSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe(res => {
+      this.usuarioSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0), debaja: 0 }).subscribe(res => {
         if (res) {
           this.usuarios = res;
         }
