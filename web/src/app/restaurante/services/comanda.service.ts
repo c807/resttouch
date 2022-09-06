@@ -215,4 +215,11 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  fixCuentaCobradaEnOtraEstacion(params: any): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/fix_cuenta_cobrada_otra_estacion`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }

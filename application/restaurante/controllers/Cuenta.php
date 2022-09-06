@@ -62,7 +62,7 @@ class Cuenta extends CI_Controller
 				$dc->guardar([
 					'aumento_porcentaje' => $porcentajeAumento,
 					'aumento' => $aumento
-				]);				
+				]);
 				$detalleComanda[$i]->aumento_porcentaje = $porcentajeAumento;
 				$detalleComanda[$i]->aumento = $aumento;
 			}
@@ -267,6 +267,33 @@ class Cuenta extends CI_Controller
 	{
 		$cuentas = $this->Cuenta_model->cuentas_comanda($_GET);
 		$this->output->set_output(json_encode($cuentas));
+	}
+
+	public function fix_cuenta_cobrada_otra_estacion()
+	{
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$req =  json_decode(file_get_contents('php://input'), true);
+			$factura = $this->Cuenta_model->get_factura_cuenta($req['idcuenta'], $req['comanda']);
+			$cuenta = new Cuenta_model($req['idcuenta']);
+			$msg = "La cuenta '{$cuenta->nombre} #{$cuenta->numero}'";
+			if ($factura) {
+				$cuenta->guardar(['cerrada' => 1]);
+				$datos['exito'] = true;
+				$factFirmada = $factura->serie_numero ? " con serie y número '{$factura->serie_numero}'" : '';
+				$datos['mensaje'] = "{$msg} fue cerrada con éxito. Tiene una factura asociada a nombre de '{$factura->cliente}'{$factFirmada}. Favor revisar en factura manual.";
+			} else {
+				$datos['exito'] = $this->Cuenta_model->limpia_datos_pago($req['idcuenta']);
+				if ($datos['exito']) {
+					$datos['mensaje'] = "{$msg} arreglada con éxito. Se limpiaron las formas de pago asociadas a la cuenta para proceder con el cobro.";
+				} else {
+					$datos['mensaje'] = "{$msg} no tenía formas de pago asociadas. Si todavía no la puede cobrar, por favor comuníquese con atención al cliente.";
+				}
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));
 	}
 }
 

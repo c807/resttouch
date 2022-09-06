@@ -559,6 +559,50 @@ class Cuenta_model extends General_Model
 		}
 		return $this->db->select($campos)->get('cuenta')->result();
 	}
+
+	public function get_factura_cuenta($idcuenta = null, $idcomanda = null)
+	{
+		if(!isset($idcuenta)) {
+			$idcuenta = $this->getPK();
+		}
+
+		if (!isset($idcomanda)) {
+			$idcomanda = 0;
+			$cmd = $this->db->select('comanda')->where('cuenta', $idcuenta)->get('cuenta')->row();
+			if($cmd) {
+				$idcomanda = (int)$cmd->comanda;
+			}
+		}
+
+		$factura = $this->db
+			->select('f.factura, CONCAT(f.serie_factura, "-", f.numero_factura) AS serie_numero, CONCAT(IFNULL(TRIM(g.nombre), ""), " (", IFNULL(TRIM(g.nit), ""), ")") AS cliente')
+			->join('detalle_comanda b', 'a.comanda = b.comanda')
+			->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+			->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura')
+			->join('factura f', 'f.factura = e.factura')
+			->join('cliente g', 'g.cliente = f.cliente')
+			->where('a.comanda', $idcomanda)
+			->where('c.cuenta_cuenta', $idcuenta)
+			->group_by('f.factura')
+			->get('comanda a')
+			->row();
+
+		if ($factura) {
+			return $factura;
+		}
+		
+		return null;
+	}
+
+	public function limpia_datos_pago($idcuenta = null)
+	{
+		if(!isset($idcuenta)) {
+			$idcuenta = $this->getPK();
+		}
+		$this->db->where('cuenta', $idcuenta)->delete('cuenta_forma_pago');
+		return $this->db->affected_rows() > 0;
+	}
 }
 
 /* End of file Cuenta_model.php */

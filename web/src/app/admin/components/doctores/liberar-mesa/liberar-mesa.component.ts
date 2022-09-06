@@ -38,13 +38,13 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
   loadMesasOcupadas = () => this.endSubs.add(this.mesaSrvc.getMesaFullData({ estatus: 2 }).subscribe(res => this.mesas = res));
 
   liberarMesa = () => {
-    const mensaje = `Este proceso liberará la mesa '${this.mesa.area.nombre} - ${this.mesa.etiqueta || this.mesa.numero}', lo que implica que cerrará de forma forzada cualquier comanda y cuenta que esté relacionada. ¿Está seguro(a) que desea continuar?`;
+    const mensaje = `Este proceso liberará la mesa <b>'${this.mesa.area.nombre} - ${this.mesa.etiqueta || this.mesa.numero}'</b>, lo que implica que cerrará de forma forzada cualquier comanda y cuenta que esté relacionada.<br/><b>¿Está seguro(a) de continuar?</b>`;
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Liberar mesa',
         mensaje,
-        'Sí', 'No', null, true
+        'Sí', 'No', null, true, true
       )
     });
 
@@ -52,23 +52,25 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
       dialogRef.afterClosed().subscribe(res => {
         if (res) {
           this.cargando = true;
-          this.mesaSrvc.liberarMesaDr(+this.mesa.mesa).subscribe(res => {
-            let msg = `${res.exito ? '' : 'ERROR: '}${res.mensaje}`;
-            if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
-              msg += ' No se forzó el cierre comanda(s) y/o cuenta(s).';
-            } else {
-              const ese = +res.comandas_cerradas > 1 ? 's' : '';
-              msg += ` Se forzó el cierre de la${ese} siguiente${ese} comanda${ese} ${res.comandas_relacionadas} y su${ese} cuenta${ese}.`;
-            }
-            this.mesa = null;
-            this.loadMesasOcupadas();
-            if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
-              this.snackBar.open(msg, 'Liberar mesa', { duration: 8000 });
-            } else {
-              this.dialog.open(ConfirmDialogComponent, { maxWidth: '500px', data: new ConfirmDialogModel('Liberar mesa', msg, 'Ok', '') });
-            }
-            this.cargando = false;
-          })
+          this.endSubs.add(
+            this.mesaSrvc.liberarMesaDr(+this.mesa.mesa).subscribe(res => {
+              let msg = `${res.exito ? '' : 'ERROR: '}${res.mensaje}`;
+              if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
+                msg += ' No se forzó el cierre comanda(s) y/o cuenta(s).';
+              } else {
+                const ese = +res.comandas_cerradas > 1 ? 's' : '';
+                msg += ` Se forzó el cierre de la${ese} siguiente${ese} comanda${ese} ${res.comandas_relacionadas} y su${ese} cuenta${ese}.`;
+              }
+              this.mesa = null;
+              this.loadMesasOcupadas();
+              if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
+                this.snackBar.open(msg, 'Liberar mesa', { duration: 8000 });
+              } else {
+                this.dialog.open(ConfirmDialogComponent, { maxWidth: '500px', data: new ConfirmDialogModel('Liberar mesa', msg, 'Ok', '') });
+              }
+              this.cargando = false;
+            })
+          );
         }
       })
     );

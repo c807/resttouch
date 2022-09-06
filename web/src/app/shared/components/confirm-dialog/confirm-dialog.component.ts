@@ -8,7 +8,8 @@ export class ConfirmDialogModel {
     public lblBtnConfirm: string,
     public lblBtnDeny: string = '',
     public config: any = null,
-    public showAlert = false
+    public showAlert = false,
+    public asHTML = false
   ) { }
 }
 
