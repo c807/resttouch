@@ -6,7 +6,7 @@
 	<title>Resumen de consumos por articulo</title>
 </head>
 <body lang="es-GT" dir="ltr">
-	<h3 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;">Resumen de consumos por articulo</h3>
+	<h3 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;">Resumen de consumos por artículo</h3>
 	<div class="encabezado" style="border: 1px solid black; padding: 2.5px; border-radius: 10px;">
 
 		<p style="margin: 1px auto 1px;"><b>Del: </b> <?php echo formatoFecha($params["fdel"], 2)?> <b>Al: </b> <?php echo formatoFecha($params["fal"], 2)?></p>
@@ -19,7 +19,7 @@
 		<thead>
 			<tr>
 				<th class="titulo text-left">Código</th>
-				<th class="titulo text-left">Articulo</th>
+				<th class="titulo text-left">Artículo</th>
 				<th class="titulo text-right">Cantidad</th>
 				<th class="titulo text-left">Unidad</th>
 				<th class="titulo text-right">Costo</th>
@@ -33,7 +33,7 @@
 					<td class="cuerpo text-left"><?php echo $row["articulo"] ?></td>
 					<td class="cuerpo text-right"><?php echo number_format($row["cantidad"], 2) ?></td>
 					<td class="cuerpo text-left"><?php echo $row["unidad"] ?></td>
-					<td class="cuerpo text-right"><?php echo number_format($row["costo"], 2) ?></td>
+					<td class="cuerpo text-right"><?php echo number_format($row["costo"], 5) ?></td>
 					<td class="cuerpo text-right"><?php echo number_format($row["total"], 2) ?></td>
 				</tr>
 			<?php endforeach ?>

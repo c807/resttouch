@@ -74,7 +74,7 @@ class Reporte extends CI_Controller
 			$art->actualizarExistencia($_POST);
 			$rec = $art->getReceta();
 			if (count($rec) == 0 || $art->produccion || (count($rec) > 0 && (int)$art->mostrar_inventario === 1)) {
-				$args["reg"][$row->sede][] = $art->getExistencias($_POST);
+				$args['reg'][$row->sede][] = $art->getExistencias($_POST);
 			}
 		}
 
@@ -101,29 +101,29 @@ class Reporte extends CI_Controller
 			}
 		}
 
-		if (verDato($_POST, "_excel")) {
+		if (verDato($_POST, '_excel')) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$excel->getProperties()
-				->setCreator("Restouch")
-				->setTitle("Office 2007 xlsx Existencias")
-				->setSubject("Office 2007 xlsx Existencias")
-				->setKeywords("office 2007 openxml php");
+				->setCreator('Restouch')
+				->setTitle('Office 2007 xlsx Existencias')
+				->setSubject('Office 2007 xlsx Existencias')
+				->setKeywords('office 2007 openxml php');
 
 			$excel->setActiveSheetIndex(0);
 			$hoja = $excel->getActiveSheet();
 			$nombres = [
-				"Código",
-				"Descripción",
-				"Unidad",
-				"Mínimo",
-				"Máximo",
-				"S. Inicial",
-				"Ingresos",
-				"Egresos",
-				"Comandas",
-				"Factura Directa",
-				"Total Egresos",
-				"Existencia"
+				'Código',
+				'Descripción',
+				'Unidad',
+				'Mínimo',
+				'Máximo',
+				'S. Inicial',
+				'Ingresos',
+				'Egresos',
+				'Comandas',
+				'Factura Directa',
+				'Total Egresos',
+				'Existencia'
 			];
 			/*Encabezado*/
 			$hoja->setCellValue('A1', "Reporte de Existencias {$args['subtitulo']}");
@@ -495,7 +495,7 @@ class Reporte extends CI_Controller
 									"articulo" => $art->getPK(),
 									"presentacion" => $pres->descripcion,
 									"cantidad" => $art->existencias,
-									"total" => (float) round($art->existencias, 2) * (float) round($row->precio_unitario, 2),
+									"total" => (float)$art->existencias * $row->precio_unitario,
 									"descripcion" => $art->descripcion,
 									"precio_unitario" => $row->precio_unitario,
 									"ultima_compra" => isset($row->fecha) ? formatoFecha($row->fecha, 2) : '',
@@ -537,7 +537,7 @@ class Reporte extends CI_Controller
 			$hoja->getStyle('A4:K4')->getAlignment()->setHorizontal('center');
 			$hoja->getStyle('I')->getAlignment()->setHorizontal('center');
 			$hoja->getStyle('H')->getNumberFormat()->setFormatCode('0.00');
-			$hoja->getStyle('J')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('J')->getNumberFormat()->setFormatCode('0.00000');
 			$hoja->getStyle('K')->getNumberFormat()->setFormatCode('0.00');
 			$hoja->setCellValue('A4', 'Empresa');
 			$hoja->setCellValue('B4', 'Sede');
@@ -1188,9 +1188,9 @@ class Reporte extends CI_Controller
 		) {
 			$lista = $this->Reporte_model->getResumenEgreso($params);
 
+			$data = [];
+			$nombreArchivo = "resumen_egreso_".rand();
 			if ($lista) {
-				$data = [];
-				$nombreArchivo = "resumen_egreso_".rand();
 				
 				foreach ($lista as $key => $row) {
 					if (!isset($data[$row->egreso])) {
@@ -1208,155 +1208,155 @@ class Reporte extends CI_Controller
 					$data[$row->egreso]["detalle"][] = $row;
 				}
 
-				$params["sede"] = $this->Sede_model->buscar(["sede" => $this->data->sede, "_uno" => true]);
+			}
+			$params["sede"] = $this->Sede_model->buscar(["sede" => $this->data->sede, "_uno" => true]);
+			
+			if (verDato($params, "_excel")) {
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+				$hoja->setTitle("Reporte");
+
+				$hoja->setCellValue("A1", "Resumen de egresos")->mergeCells("A1:D1");
+				$hoja->setCellValue("A3", "Del: ");
+				$hoja->setCellValue("A4", "Al: ");
+				$hoja->setCellValue("A5", "Sede: ");
+				$hoja->setCellValue("A6", "Bodega: ");
+				$hoja->getStyle("A1:A6")->getFont()->setBold(true);
+
+				$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
+				$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
+				$hoja->setCellValue("B5", "{$params['sede']->nombre} ({$params['sede']->alias})");
+				$hoja->setCellValue("B6", $params["bodega_nombre"]);
 				
-				if (verDato($params, "_excel")) {
-					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+				$pos   = 8;
+				$total = 0;
 
-					$excel->setActiveSheetIndex(0);
-					$hoja = $excel->getActiveSheet();
-					$hoja->setTitle("Reporte");
+				$titulo = [
+					"Fecha",
+					"Documento",
+					"Estatus egreso",
+					"Tipo",
+					"Bodega",
+					"",
+					"Comentario"
+				];
 
-					$hoja->setCellValue("A1", "Resumen de egresos")->mergeCells("A1:D1");
-					$hoja->setCellValue("A3", "Del: ");
-					$hoja->setCellValue("A4", "Al: ");
-					$hoja->setCellValue("A5", "Sede: ");
-					$hoja->setCellValue("A6", "Bodega: ");
-					$hoja->getStyle("A1:A6")->getFont()->setBold(true);
+				$hoja->fromArray($titulo, null, "A{$pos}");
+				$hoja->getStyle("A{$pos}:G{$pos}")->getFont()->setBold(true);
+				$pos++;
+				
+				foreach ($data as $key => $row) {
 
-					$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
-					$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
-					$hoja->setCellValue("B5", "{$params['sede']->nombre} ({$params['sede']->alias})");
-					$hoja->setCellValue("B6", $params["bodega_nombre"]);
-					
-					$pos   = 8;
-					$total = 0;
-
-					$titulo = [
-						"Fecha",
-						"Documento",
-						"Estatus egreso",
-						"Tipo",
-						"Bodega",
+					$tmpData = [
+						formatoFecha($row["fecha"], 2),
+						$row["egreso"],
+						$row["estatus"],
+						$row["nmovimiento"],
+						$row["nbodega"],
 						"",
-						"Comentario"
+						$row["comentario"]
 					];
 
-					$hoja->fromArray($titulo, null, "A{$pos}");
-					$hoja->getStyle("A{$pos}:G{$pos}")->getFont()->setBold(true);
+					$hoja->fromArray($tmpData, null, "A{$pos}");
+
+					$hoja->getStyle("G{$pos}")
+					->getAlignment()
+					->setWrapText(true);
+					
+					$pos++;
+
+					$tmpTotal = 0;
+					$tmpTitulo = [
+						"Código",
+						"Artículo",
+						"Presentación",
+						"Cantidad",
+						"Total"
+					];
+
+					$hoja->fromArray($tmpTitulo, null, "B{$pos}");
+					$hoja->getStyle("E{$pos}:F{$pos}")->getAlignment()->setHorizontal("right");
+					$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
 					$pos++;
 					
-					foreach ($data as $key => $row) {
+					foreach ($row["detalle"] as $llave => $fila) {
 
-						$tmpData = [
-							formatoFecha($row["fecha"], 2),
-							$row["egreso"],
-							$row["estatus"],
-							$row["nmovimiento"],
-							$row["nbodega"],
-							"",
-							$row["comentario"]
-						];
-
-						$hoja->fromArray($tmpData, null, "A{$pos}");
-
-						$hoja->getStyle("G{$pos}")
-						->getAlignment()
-						->setWrapText(true);
-						
-						$pos++;
-
-						$tmpTotal = 0;
-						$tmpTitulo = [
-							"Código",
-							"Articulo",
-							"Presentación",
-							"Cantidad",
-							"Total"
-						];
-
-						$hoja->fromArray($tmpTitulo, null, "B{$pos}");
-						$hoja->getStyle("E{$pos}:F{$pos}")->getAlignment()->setHorizontal("right");
-						$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
-						$pos++;
-						
-						foreach ($row["detalle"] as $llave => $fila) {
-
-							$hoja->setCellValue("B{$pos}", $fila->carticulo);
-							$hoja->setCellValue("C{$pos}", $fila->narticulo);
-							$hoja->setCellValue("D{$pos}", $fila->npresentacion);
-							$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
-							$hoja->setCellValue("F{$pos}", number_format((float)$fila->precio_total, 2, ".", ""));
-							$hoja->getStyle("E{$pos}:F{$pos}")
-							->getNumberFormat()
-							->setFormatCode("0.00");
-
-							$tmpTotal += $fila->precio_total;
-							$pos++;
-						}
-						
-						$hoja->setCellValue("A{$pos}", "Total Documento:")->mergeCells("A{$pos}:E{$pos}");
-						$hoja->setCellValue("F{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
-						$hoja->getStyle("A{$pos}:E{$pos}")->getAlignment()->setHorizontal("right");
-						$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
-						$hoja->getStyle("F{$pos}")
+						$hoja->setCellValue("B{$pos}", $fila->carticulo);
+						$hoja->setCellValue("C{$pos}", $fila->narticulo);
+						$hoja->setCellValue("D{$pos}", $fila->npresentacion);
+						$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
+						$hoja->setCellValue("F{$pos}", number_format((float)$fila->precio_total, 2, ".", ""));
+						$hoja->getStyle("E{$pos}:F{$pos}")
 						->getNumberFormat()
 						->setFormatCode("0.00");
-						
-						$pos+=2;
-						$total+= $tmpTotal;
-					}
 
-					$hoja->setCellValue("A{$pos}", "GRAN TOTAL")->mergeCells("A{$pos}:E{$pos}");
-					$hoja->setCellValue("F{$pos}", number_format((float)$total, 2, ".", ""));
+						$tmpTotal += $fila->precio_total;
+						$pos++;
+					}
+					
+					$hoja->setCellValue("A{$pos}", "Total Documento:")->mergeCells("A{$pos}:E{$pos}");
+					$hoja->setCellValue("F{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
 					$hoja->getStyle("A{$pos}:E{$pos}")->getAlignment()->setHorizontal("right");
+					$hoja->getStyle("A{$pos}:F{$pos}")->getFont()->setBold(true);
 					$hoja->getStyle("F{$pos}")
 					->getNumberFormat()
 					->setFormatCode("0.00");
-
-					$hoja->getStyle("A{$pos}:F{$pos}")->applyFromArray([
-						"font"    => ["bold" => true],
-						"borders" => [
-							"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
-							"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
-						]
-					]);
-
-					for ($i=1; $i <= 6; $i++) {
-						$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
-					}
-					$hoja->getColumnDimension("G")->setWidth(30);
-
-					header("Content-Type: application/vnd.ms-excel");
-					header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
-					header("Cache-Control: max-age=1");
-					header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-					header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-					header("Cache-Control: cache, must-revalidate");
-					header("Pragma: public");
 					
-					$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-					$writer->save("php://output");
+					$pos+=2;
+					$total+= $tmpTotal;
+				}
+
+				$hoja->setCellValue("A{$pos}", "GRAN TOTAL")->mergeCells("A{$pos}:E{$pos}");
+				$hoja->setCellValue("F{$pos}", number_format((float)$total, 2, ".", ""));
+				$hoja->getStyle("A{$pos}:E{$pos}")->getAlignment()->setHorizontal("right");
+				$hoja->getStyle("F{$pos}")
+				->getNumberFormat()
+				->setFormatCode("0.00");
+
+				$hoja->getStyle("A{$pos}:F{$pos}")->applyFromArray([
+					"font"    => ["bold" => true],
+					"borders" => [
+						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+					]
+				]);
+
+				for ($i=1; $i <= 6; $i++) {
+					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+				}
+				$hoja->getColumnDimension("G")->setWidth(30);
+
+				header("Content-Type: application/vnd.ms-excel");
+				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+				header("Cache-Control: max-age=1");
+				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+				header("Cache-Control: cache, must-revalidate");
+				header("Pragma: public");
+				
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save("php://output");
+			} else {
+				$tmp = sys_get_temp_dir();
+				$pdf = new \Mpdf\Mpdf([
+					"tempDir" => $tmp,
+					"format"  => "Letter"
+				]);
+
+				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+				$pdf->WriteHTML($this->load->view("reporte/egreso/resumen_imprimir", ["data" => $data, "params" => $params], true));
+				
+				if (verDato($params, "_rturno")) {
+					$ruta = "{$tmp}/{$nombreArchivo}.pdf";
+					$pdf->Output($ruta, "F");
+
+					$this->output
+					->set_content_type("application/json")
+					->set_output(json_encode(["ruta" => $ruta]));
 				} else {
-					$tmp = sys_get_temp_dir();
-					$pdf = new \Mpdf\Mpdf([
-						"tempDir" => $tmp,
-						"format"  => "Letter"
-					]);
-
-					$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-					$pdf->WriteHTML($this->load->view("reporte/egreso/resumen_imprimir", ["data" => $data, "params" => $params], true));
-					
-					if (verDato($params, "_rturno")) {
-						$ruta = "{$tmp}/{$nombreArchivo}.pdf";
-						$pdf->Output($ruta, "F");
-
-						$this->output
-						->set_content_type("application/json")
-						->set_output(json_encode(["ruta" => $ruta]));
-					} else {
-						$pdf->Output("{$nombreArchivo}.pdf", "D");
-					}
+					$pdf->Output("{$nombreArchivo}.pdf", "D");
 				}
 			}
 		}
@@ -1647,7 +1647,7 @@ class Reporte extends CI_Controller
 				}
 
 				$costo *= $porIva;				
-				$total = round(($row->cantidad * $costo), 2);
+				$total = round(($row->cantidad * $costo), 5);
 				
 				$data[] = [
 					'codigo'   => $row->codigo,
@@ -1667,36 +1667,37 @@ class Reporte extends CI_Controller
 				$hoja = $excel->getActiveSheet();
 				$hoja->setTitle('Reporte de consumos');
 
-				$hoja->setCellValue('A1', 'Del: ')->mergeCells('A1:C1');
-				$hoja->setCellValue('A2', 'Al: ')->mergeCells('A2:C2');
-				$hoja->setCellValue('A3', 'Sede: ')->mergeCells('A3:C3');
+				$hoja->setCellValue('A1', 'Resumen de consumos por artículo')->mergeCells('A1:C1');
+				$hoja->setCellValue('A2', 'Del: ')->mergeCells('A2:C2');
+				$hoja->setCellValue('A3', 'Al: ')->mergeCells('A3:C3');
+				$hoja->setCellValue('A4', 'Sede: ')->mergeCells('A4:C4');
 
-				$hoja->setCellValue('D1', formatoFecha($datos['fdel'], 2))->mergeCells('D1:F1');
-				$hoja->setCellValue('D2', formatoFecha($datos['fal'], 2))->mergeCells('D2:F2');
-				$hoja->setCellValue('D3', "{$sede->nombre} - {$sede->alias}")->mergeCells('D3:F3');
+				$hoja->setCellValue('D2', formatoFecha($datos['fdel'], 2))->mergeCells('D2:F2');
+				$hoja->setCellValue('D3', formatoFecha($datos['fal'], 2))->mergeCells('D3:F3');
+				$hoja->setCellValue('D4', "{$sede->nombre} - {$sede->alias}")->mergeCells('D4:F4');
 
 				if (verDato($datos, 'grupo_nombre')) {
-					$hoja->setCellValue('A4', 'Subcategoría: ')->mergeCells('A4:C4');
-					$hoja->setCellValue('D4', $datos['grupo_nombre'])->mergeCells('D4:F4');
+					$hoja->setCellValue('A5', 'Subcategoría: ')->mergeCells('A5:C5');
+					$hoja->setCellValue('D5', $datos['grupo_nombre'])->mergeCells('D5:F5');
 				}
 
-				$hoja->getStyle('A1:A4')->getFont()->setBold(true);
+				$hoja->getStyle('A1:A5')->getFont()->setBold(true);
 
 				$nombres = [
 					'Código',
-					'Articulo',
+					'Artículo',
 					'Cantidad',
 					'Unidad',
 					'Costo',
 					'Total'
 				];
 
-				$hoja->fromArray($nombres, null, 'A6');
-				$hoja->getStyle('A6:F6')->getFont()->setBold(true);
-				$hoja->getStyle('C6')->getAlignment()->setHorizontal('right');
-				$hoja->getStyle('E6:F6')->getAlignment()->setHorizontal('right');
+				$hoja->fromArray($nombres, null, 'A7');
+				$hoja->getStyle('A7:F7')->getFont()->setBold(true);
+				$hoja->getStyle('C7')->getAlignment()->setHorizontal('right');
+				$hoja->getStyle('E7:F7')->getAlignment()->setHorizontal('right');
 				
-				$pos = 7;
+				$pos = 8;
 				$tot = 0;
 				foreach ($data as $row) {
 					
@@ -1706,7 +1707,11 @@ class Reporte extends CI_Controller
 					->getNumberFormat()
 					->setFormatCode('0.00');
 
-					$hoja->getStyle("E{$pos}:F{$pos}")
+					$hoja->getStyle("E{$pos}")
+					->getNumberFormat()
+					->setFormatCode('0.00000');
+
+					$hoja->getStyle("F{$pos}")
 					->getNumberFormat()
 					->setFormatCode('0.00');
 					
@@ -1763,13 +1768,13 @@ class Reporte extends CI_Controller
 	public function generar_receta_costo()
 	{
 		$lista = $this->Articulo_model->buscarArticulo([
-			"esreceta" => 1,
-			"_todos"   => true
+			'esreceta' => 1,
+			'_todos'   => true
 		]);
 
 		$data = [];
 
-		$nombreArchivo = "Recetas_".rand().".xls";
+		$nombreArchivo = 'Recetas_'.rand().'.xls';
 
 		$sede = new Sede_model($this->data->sede);
 		$emp = $sede->getEmpresa();
@@ -1784,8 +1789,9 @@ class Reporte extends CI_Controller
 			$art = new Articulo_model($fila->articulo);
 			$tmp = [];
 
-			$tmp["articulo"]       = $art;
-			$tmp["articulo_grupo"] = $art->getCategoriaGrupo();
+			$tmp['articulo']       = $art;
+			$tmp['articulo_grupo'] = $art->getCategoriaGrupo();
+			$tmp['presentacion_reporte'] = $art->getPresentacionReporte();
 
 			foreach ($art->getReceta() as $row) {
 				$rec                  = new Articulo_model($row->articulo->articulo);
@@ -1798,22 +1804,22 @@ class Reporte extends CI_Controller
 
 				$costo *= $porIva;
 				$tmpCosto             = $costo * $row->cantidad;				
-				$row->costo           = round($tmpCosto, 2);
+				$row->costo           = round($tmpCosto, 5);
 				$row->articulo->costo = $costo;
-				$tmp["receta"][]      = $row;
+				$tmp['receta'][]      = $row;
 			}
 
 			$data[] = $tmp;
 		}
 
 		$pdf = new \Mpdf\Mpdf([
-			"tempDir" => sys_get_temp_dir(),
-			"format"  => "Letter"
+			'tempDir' => sys_get_temp_dir(),
+			'format'  => 'Letter'
 		]);
 
 		$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-		$pdf->WriteHTML($this->load->view("reporte/articulo/receta_costo", ["data" => $data], true));
-		$pdf->Output("{$nombreArchivo}.pdf", "D");
+		$pdf->WriteHTML($this->load->view('reporte/articulo/receta_costo', ['data' => $data], true));
+		$pdf->Output("{$nombreArchivo}.pdf", 'D');
 	}
 }
 

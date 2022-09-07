@@ -13,20 +13,20 @@
 	<div class="encabezado" style="border: 1px solid black; padding: 2.5px; border-radius: 10px; width: 100%; position: relative;">
 		<table class="table encabezado">
 			<tr>
-				<td class="text-right"><b>Código: </b></td>
+				<td class="text-right"><b>Código:</b></td>
 				<td><?php echo $articulo->codigo?></td>
-				<td class="text-right"><b>Fecha: </b></td>
+				<td class="text-right"><b>Fecha:</b></td>
 				<td><?php echo formatoFecha(Hoy(), 2);?></td>
 			</tr>
 			<tr>
-				<td class="text-right"><b>Categoria: </b></td>
+				<td class="text-right"><b>Categoría:</b></td>
 				<td><?php echo "$articulo_grupo->descripcion ({$articulo_grupo->ncategoria})"?></td>
 				<td class="text-right"><b>Nombre: </b></td>
 				<td><?php echo $articulo->descripcion?></td>
 			</tr>
 			<tr>
-				<td></td>
-				<td></td>
+				<td><b>Presentación:</b></td>
+				<td><?php echo $presentacion_reporte->descripcion?></td>
 				<td class="text-right"><b>Rendimiento: </b></td>
 				<td><?php echo $articulo->rendimiento?></td>
 			</tr>
@@ -36,7 +36,7 @@
 		<thead>
 			<tr>
 				<th class="encabezado text-left">Código</th>
-				<th class="encabezado text-left">Descripcion</th>
+				<th class="encabezado text-left">Descripción</th>
 				<th class="encabezado text-center">Cantidad</th>
 				<th class="encabezado text-right">Costo U.</th>
 				<th class="encabezado text-right">Total Q.</th>
@@ -48,7 +48,7 @@
 					<td class="cuerpo text-left"><?php echo $row->articulo->codigo?></td>
 					<td class="cuerpo text-left"><?php echo $row->articulo->descripcion?></td>
 					<td class="cuerpo text-center"><?php echo number_format($row->cantidad, 2)." ".$row->medida->descripcion?></td>
-					<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 2)?></td>
+					<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 5)?></td>
 					<td class="cuerpo text-right"><?php echo number_format($row->costo, 2)?></td>
 				</tr>
 			<?php endforeach ?>

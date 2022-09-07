@@ -85,9 +85,9 @@ class Ingreso extends CI_Controller {
 		
 		$lista = $this->Reporte_model->get_lista_ingreso($datos);
 
+		$data = [];
+		$nombreArchivo = "Resumen_ingreso_".rand();
 		if ($lista) {
-			$data = [];
-			$nombreArchivo = "Resumen_ingreso_".rand();
 			
 			foreach ($lista as $key => $row) {
 				$tmp   = $this->Reporte_model->get_ingreso($row->ingreso);
@@ -115,125 +115,125 @@ class Ingreso extends CI_Controller {
 
 			$data = ordenar_array_objetos($data, 'ordenar');
 
-			if (verDato($datos, "_excel")) {
-				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
-				$excel->setActiveSheetIndex(0);
-				$hoja = $excel->getActiveSheet();
-				$hoja->setTitle("Resumen de ingresos");
+		}
+		if (verDato($datos, "_excel")) {
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
+			$hoja->setTitle("Resumen de ingresos");
 
-				$hoja->getStyle("A1:K2")->getFont()->setBold(true);
-				$hoja->getStyle("A1:K2")->getAlignment()->setHorizontal("center");
-				$hoja->mergeCells("A1:K1");
-				$hoja->mergeCells("A2:K2");
+			$hoja->getStyle("A1:K2")->getFont()->setBold(true);
+			$hoja->getStyle("A1:K2")->getAlignment()->setHorizontal("center");
+			$hoja->mergeCells("A1:K1");
+			$hoja->mergeCells("A2:K2");
 
-				$hoja->setCellValue("A1", "Resumen de ingresos");
-				$hoja->setCellValue("A2", "Del ".formatoFecha($datos["fdel"], 2)." al ".formatoFecha($datos["fal"], 2));
-				$titulo =  [
-					"Fecha",
-					"Número",
-					"Estatus ingreso",
-					"Tipo",
-					"Sede",
-					"Bodega",
-					"Proveedor",
-					"Serie",
-					"Documento",
-					"Fecha",
-					"Total"
+			$hoja->setCellValue("A1", "Resumen de ingresos");
+			$hoja->setCellValue("A2", "Del ".formatoFecha($datos["fdel"], 2)." al ".formatoFecha($datos["fal"], 2));
+			$titulo =  [
+				"Fecha",
+				"Número",
+				"Estatus ingreso",
+				"Tipo",
+				"Sede",
+				"Bodega",
+				"Proveedor",
+				"Serie",
+				"Documento",
+				"Fecha",
+				"Total"
+			];
+			$hoja->fromArray($titulo, null, "A4");
+			$hoja->getStyle("K4")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("A4:K4")->getFont()->setBold(true);
+
+			$pos   = 5;
+			$total = 0;
+			
+			foreach ($data as $key => $row) {
+				$tmpData = [
+					$row->fecha,
+					$row->numero,
+					$row->estatus,
+					$row->tipo,
+					$row->sede,
+					$row->bodega,
+					$row->proveedor,
+					$row->serie,
+					$row->documento,
+					formatoFecha($row->fecha_doc, 2),
+					number_format((float)$row->total, 2, ".", "")
 				];
-				$hoja->fromArray($titulo, null, "A4");
-				$hoja->getStyle("K4")->getAlignment()->setHorizontal("right");
-				$hoja->getStyle("A4:K4")->getFont()->setBold(true);
 
-				$pos   = 5;
-				$total = 0;
-				
-				foreach ($data as $key => $row) {
-					$tmpData = [
-						$row->fecha,
-						$row->numero,
-						$row->estatus,
-						$row->tipo,
-						$row->sede,
-						$row->bodega,
-						$row->proveedor,
-						$row->serie,
-						$row->documento,
-						formatoFecha($row->fecha_doc, 2),
-						number_format((float)$row->total, 2, ".", "")
-					];
-
-					$hoja->fromArray($tmpData, null, "A{$pos}");
-					$hoja->getStyle("J{$pos}")->getAlignment()->setHorizontal("right");
-					$hoja->getStyle("J{$pos}")
-					->getNumberFormat()
-					->setFormatCode("0.00");
-
-					$total += $row->total;
-					$pos++;
-				}
-
-				for ($i=1; $i <= 11; $i++) {
-					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
-				}
-
-				$hoja->getStyle("A{$pos}:K{$pos}")->getFont()->setBold(true);
-				$hoja->getStyle("A{$pos}:K{$pos}")->getAlignment()->setHorizontal("right");
-				$hoja->mergeCells("A{$pos}:J{$pos}");
-				$hoja->setCellValue("A{$pos}", "Total");
-				$hoja->setCellValue("K{$pos}", number_format((float)$total, 2, ".", ""));
-				
-				$hoja->getStyle("K{$pos}")
+				$hoja->fromArray($tmpData, null, "A{$pos}");
+				$hoja->getStyle("J{$pos}")->getAlignment()->setHorizontal("right");
+				$hoja->getStyle("J{$pos}")
 				->getNumberFormat()
 				->setFormatCode("0.00");
 
-				$hoja->getStyle("A{$pos}:K{$pos}")->applyFromArray([
-					"borders" => [
-						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
-						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
-					]
-				]);
-
-				header("Content-Type: application/vnd.ms-excel");
-				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
-				header("Cache-Control: max-age=1");
-				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-				header("Cache-Control: cache, must-revalidate");
-				header("Pragma: public");
-				
-				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-				$writer->save("php://output");
-			} else {
-				$tmp  = sys_get_temp_dir();
-				$pdf = new \Mpdf\Mpdf([
-					"tempDir" => $tmp,
-					"format" => "letter",
-					"lands"
-				]);
-
-				$pdf->AddPage("P");
-
-				$vista = $this->load->view("rep/ingreso/imprimir_resumen", [
-					"params" => $datos,
-					"lista"  => $data
-				], true);
-
-				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-				$pdf->WriteHTML($vista);
-
-				if (verDato($datos, "_rturno")) {
-					$ruta = "{$tmp}/{$nombreArchivo}.pdf";
-					$pdf->Output($ruta, "F");
-
-					$this->output
-					->set_content_type("application/json")
-					->set_output(json_encode(["ruta" => $ruta]));
-				} else {
-					$pdf->Output("{$nombreArchivo}.pdf", "D");
-				}
-
+				$total += $row->total;
+				$pos++;
 			}
+
+			for ($i=1; $i <= 11; $i++) {
+				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+			}
+
+			$hoja->getStyle("A{$pos}:K{$pos}")->getFont()->setBold(true);
+			$hoja->getStyle("A{$pos}:K{$pos}")->getAlignment()->setHorizontal("right");
+			$hoja->mergeCells("A{$pos}:J{$pos}");
+			$hoja->setCellValue("A{$pos}", "Total");
+			$hoja->setCellValue("K{$pos}", number_format((float)$total, 2, ".", ""));
+			
+			$hoja->getStyle("K{$pos}")
+			->getNumberFormat()
+			->setFormatCode("0.00");
+
+			$hoja->getStyle("A{$pos}:K{$pos}")->applyFromArray([
+				"borders" => [
+					"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+					"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+				]
+			]);
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+			$writer->save("php://output");
+		} else {
+			$tmp  = sys_get_temp_dir();
+			$pdf = new \Mpdf\Mpdf([
+				"tempDir" => $tmp,
+				"format" => "letter",
+				"lands"
+			]);
+
+			$pdf->AddPage("P");
+
+			$vista = $this->load->view("rep/ingreso/imprimir_resumen", [
+				"params" => $datos,
+				"lista"  => $data
+			], true);
+
+			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+			$pdf->WriteHTML($vista);
+
+			if (verDato($datos, "_rturno")) {
+				$ruta = "{$tmp}/{$nombreArchivo}.pdf";
+				$pdf->Output($ruta, "F");
+
+				$this->output
+				->set_content_type("application/json")
+				->set_output(json_encode(["ruta" => $ruta]));
+			} else {
+				$pdf->Output("{$nombreArchivo}.pdf", "D");
+			}
+
 		}
 	}
 }

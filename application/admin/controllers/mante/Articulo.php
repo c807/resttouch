@@ -200,10 +200,7 @@ class Articulo extends CI_Controller
 
 		$emp = null;
 		if ($sede) {
-			$emp = $this->Catalogo_model->getEmpresa([
-				"empresa" => $sede->empresa,
-				"_uno" => true
-			]);
+			$emp = $this->Catalogo_model->getEmpresa(['empresa' => $sede->empresa, '_uno' => true]);
 			if ($emp) {
 				$datos['empresa'] = $emp;
 				$datos['nsede'] = $sede->nombre;
@@ -215,15 +212,14 @@ class Articulo extends CI_Controller
 			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
 		}
 
-		$datos["articulo"]       = $art;
-		$datos["articulo_grupo"] = $art->getCategoriaGrupo();
-		// $tmpCosto                = $art->_getCosto();
+		$datos['articulo']       = $art;
+		$datos['articulo_grupo'] = $art->getCategoriaGrupo();		
+		$datos['presentacion_reporte'] = $art->getPresentacionReporte();
 		$tmpCosto                = $art->_getCosto_2();
-		$datos["costo"]          = (float)$tmpCosto * $porIva;
+		$datos['costo']          = (float)$tmpCosto * $porIva;
 
 		foreach ($art->getReceta() as $row) {
-			$rec = new Articulo_model($row->articulo->articulo);
-			// $costo = $rec->_getCosto();
+			$rec = new Articulo_model($row->articulo->articulo);			
 			$costo = $rec->_getCosto_2();
 
 			if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
@@ -233,9 +229,9 @@ class Articulo extends CI_Controller
 
 			$costo *= $porIva;
 			$tmpCosto = $costo * $row->cantidad;
-			$row->costo = round($tmpCosto, 2);
+			$row->costo = round($tmpCosto, 5);
 			$row->articulo->costo = $costo;
-			$datos["receta"][] = $row;
+			$datos['receta'][] = $row;
 		}
 
 			

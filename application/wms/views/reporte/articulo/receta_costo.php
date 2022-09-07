@@ -22,8 +22,8 @@
 					<td><?php echo $fila["articulo"]->descripcion?></td>
 				</tr>
 				<tr>
-					<td></td>
-					<td></td>
+					<td><b>Presentación:</b></td>
+					<td><?php echo $fila["presentacion_reporte"]->descripcion?></td>
 					<td class="text-right"><b>Rendimiento: </b></td>
 					<td><?php echo $fila["articulo"]->rendimiento?></td>
 				</tr>
@@ -33,7 +33,7 @@
 			<thead>
 				<tr>
 					<th class="encabezado text-left">Código</th>
-					<th class="encabezado text-left">Descripcion</th>
+					<th class="encabezado text-left">Descripción</th>
 					<th class="encabezado text-center">Cantidad</th>
 					<th class="encabezado text-right">Costo U.</th>
 					<th class="encabezado text-right">Total Q.</th>
@@ -45,7 +45,7 @@
 						<td class="cuerpo text-left"><?php echo $row->articulo->codigo?></td>
 						<td class="cuerpo text-left"><?php echo $row->articulo->descripcion?></td>
 						<td class="cuerpo text-center"><?php echo number_format($row->cantidad, 2)." ".$row->medida->descripcion?></td>
-						<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 2)?></td>
+						<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 5)?></td>
 						<td class="cuerpo text-right"><?php echo number_format($row->costo, 2)?></td>
 					</tr>
 				<?php endforeach ?>

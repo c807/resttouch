@@ -45,7 +45,7 @@
 				<tr>
 					<td class="encabezado cuerpo text-center"></td>
 					<td class="encabezado cuerpo text-center"><b>Código</b></td>
-					<td class="encabezado cuerpo text-left" colspan="2"><b>Articulo</b></td>
+					<td class="encabezado cuerpo text-left" colspan="2"><b>Artículo</b></td>
 					<td class="encabezado cuerpo text-left" colspan="2"><b>Presentación</b></td>
 					<td class="encabezado cuerpo text-right"><b>Cantidad</b></td>
 					<td class="encabezado cuerpo text-right"><b>Total</b></td>

@@ -66,7 +66,7 @@
 							<td style="border: 1px solid black;padding: 5px; margin-left: 10px;"><?php echo $articulo->presentacion; ?></td>
 							<td style="border: 1px solid black;padding: 5px; width: 7%;" class="text-right"><?php echo number_format($articulo->cantidad, 2); ?></td>
 							<td style="border: 1px solid black;padding: 5px; width: 5%;" class="text-right"><?php echo $articulo->ultima_compra; ?></td>
-							<td style="border: 1px solid black;padding: 5px; width: 7%;" class="text-right"><?php echo number_format($articulo->precio_unitario, 2); ?></td>
+							<td style="border: 1px solid black;padding: 5px; width: 7%;" class="text-right"><?php echo number_format($articulo->precio_unitario, 5); ?></td>
 							<td style="border: 1px solid black;padding: 5px; width: 7%;" class="text-right"><?php echo number_format($articulo->total, 2); ?></td>
 						</tr>
 						<?php $totalBodega += $articulo->total;
