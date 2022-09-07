@@ -45,10 +45,16 @@ class Mesa extends CI_Controller {
 	public function buscar()
 	{
 		$datos = $this->Mesa_model->buscar($_GET);
-		if (isset($_GET['_fulldata']) && (int)$_GET['_fulldata'] === 1) {
+		if (isset($_GET['_fulldata']) && (int)$_GET['_fulldata'] === 1) {			
 			foreach ($datos as $dato) {
 				$dato->area = $this->Area_model->buscar(['area' => $dato->area, '_uno' => true]);
 				$dato->ordenar_por = $dato->area->nombre.'-'.($dato->etiqueta ?? $dato->numero);
+
+				if (isset($_GET['_sede']) && (int)$_GET['_sede'] > 0) {
+					if((int)$dato->area->sede !== (int)$_GET['_sede']) {
+						unset($dato);
+					}
+				}
 			}
 			$datos = ordenar_array_objetos($datos, 'ordenar_por');
 		}
@@ -72,7 +78,7 @@ class Mesa extends CI_Controller {
 				$lblMesa = $mesa->etiqueta ?? $mesa->numero;
 				$comentario = "El usuario {$usr->nombres} {$usr->apellidos} liberó la mesa '{$lblMesa}' del área '{$area->nombre}' de la sede '{$sede->nombre} ($sede->alias)'.";
 
-				if (isset($datos['comandas_relacionadas']) && strlen(trim($datos['comandas_relacionadas'])) > 0) {
+				if (isset($datos['comandas_relacionadas']) && isset($datos['comandas_cerradas']) && (int)$datos['comandas_cerradas'] > 0 && strlen(trim($datos['comandas_relacionadas'])) > 0) {
 					$ese = (int)$datos['comandas_cerradas'] <= 1 ? '' : 's';
 					$comentario.= " Se forzó el cierre de la{$ese} comanda{$ese} {$datos['comandas_relacionadas']}.";
 				}

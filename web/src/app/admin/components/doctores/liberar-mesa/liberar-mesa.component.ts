@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL } from '../../../../shared/global';
 
 import { MesaDisponible } from '../../../../restaurante/interfaces/mesa';
 import { MesaService } from '../../../../restaurante/services/mesa.service';
@@ -25,6 +27,7 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
     public mesaSrvc: MesaService,
+    private ls: LocalstorageService
   ) { }
 
   ngOnInit(): void {
@@ -35,7 +38,7 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-  loadMesasOcupadas = () => this.endSubs.add(this.mesaSrvc.getMesaFullData({ estatus: 2 }).subscribe(res => this.mesas = res));
+  loadMesasOcupadas = () => this.endSubs.add(this.mesaSrvc.getMesaFullData({ _sede: this.ls.get(GLOBAL.usrTokenVar).sede, estatus: 2 }).subscribe(res => this.mesas = res));
 
   liberarMesa = () => {
     const mensaje = `Este proceso liberará la mesa <b>'${this.mesa.area.nombre} - ${this.mesa.etiqueta || this.mesa.numero}'</b>, lo que implica que cerrará de forma forzada cualquier comanda y cuenta que esté relacionada.<br/><b>¿Está seguro(a) de continuar?</b>`;
@@ -55,7 +58,7 @@ export class LiberarMesaComponent implements OnInit, OnDestroy {
           this.endSubs.add(
             this.mesaSrvc.liberarMesaDr(+this.mesa.mesa).subscribe(res => {
               let msg = `${res.exito ? '' : 'ERROR: '}${res.mensaje}`;
-              if (res.comandas_cerradas && +res.comandas_cerradas === 0) {
+              if (+res.comandas_cerradas === 0) {
                 msg += ' No se forzó el cierre comanda(s) y/o cuenta(s).';
               } else {
                 const ese = +res.comandas_cerradas > 1 ? 's' : '';
