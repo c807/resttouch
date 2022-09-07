@@ -161,7 +161,7 @@ class Articulo extends CI_Controller
 							$presArtRec = $rec->getPresentacionReporte();
 							if ((float)$presArtRec->cantidad !== (float)1) {
 								$continuar = false;
-								$datos['mensaje'] = 'Este artículo no aplica para opción múltiple.';
+								$datos['mensaje'] = 'Este artículo no aplica para opción múltiple/combo.';
 							}
 						}
 						if ($continuar) {

@@ -196,7 +196,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
         })
       );
     } else {
-      this.snackBar.open('Por favor ingrese todos los parámetros.', 'Kardex', { duration: 7000 });
+      this.snackBar.open('Por favor ingrese todos los parámetros.', 'Ingresos', { duration: 7000 });
     }
   }
 
