@@ -31,11 +31,11 @@ class Rturno
 
 	private function get_enlace($val="")
 	{
-		if (isset($_SERVER["GAE_APPLICATION"])) {
-			return base_url("{$val}");
-		} else {
-			return base_url("resttouch/{$val}");
-		}
+		# producción
+		return base_url("api/{$val}");
+
+		# local (activar para desarrollo)
+		# return base_url("resttouch/{$val}");
 	}
 
 	private function enviar_curl($url, $metodo="GET", $datos=[])
