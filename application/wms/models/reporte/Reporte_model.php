@@ -328,6 +328,20 @@ EOT;
 
 	public function getIngresoDetalle($args = [])
 	{
+		if (is_array($args)) {
+			$args = (object)$args;
+		}
+
+		$porIva = 1.0;
+		if (isset($args->iva) && (int)$args->iva === 1) {
+			if(isset($args->sede) && $args->sede) {
+				$this->load->model(['Sede_model']);
+				$laSede = new Sede_model($args->sede[0]);
+				$emp = $laSede->getEmpresa();
+				$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);				
+			}
+		}
+
 		if (isset($args->fdel) && isset($args->fal)) {
 			$this->db
 				->where("b.fecha >=", $args->fdel)
@@ -370,15 +384,15 @@ EOT;
 				 	f.descripcion as subcategoria,
 				 	g.descripcion as categoria,
 				 	d.descripcion as producto,
-				 	a.precio_unitario as ultimo_costo,
-				 	avg(a.precio_unitario) as costo_promedio,
-				 	ifnull(stddev_samp(a.precio_unitario),0) as desviacion
-				 ")
+				 	a.precio_unitario * {$porIva} as ultimo_costo,
+				 	avg(a.precio_unitario * {$porIva}) as costo_promedio,
+				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion
+				 ", FALSE)
 				->order_by("g.descripcion, f.descripcion, a.articulo")
 				->group_by("d.codigo");
 
 			if (isset($args->variacion) && $args->variacion) {
-				$this->db->having("ifnull(stddev_samp(a.precio_unitario),0) >= ", $args->variacion);
+				$this->db->having("ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) >= ", $args->variacion);
 			}
 		} else {
 			$this->db->select("
@@ -387,12 +401,12 @@ EOT;
 				c.descripcion as bodega,
 				d.descripcion as producto,
 				a.cantidad, 
-				a.precio_unitario as costo,
+				a.precio_unitario * {$porIva} as costo,
 				e.razon_social as nproveedor,
-				a.precio_total as costo_total,
+				a.precio_total * {$porIva} as costo_total,
 				h.descripcion as ntipo_movimiento,
 				i.descripcion as nestatus
-			");
+			", FALSE);
 		}
 
 		$this->db
