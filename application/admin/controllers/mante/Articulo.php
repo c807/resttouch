@@ -82,8 +82,7 @@ class Articulo extends CI_Controller
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	private function search_product($args = [])
@@ -158,12 +157,12 @@ class Articulo extends CI_Controller
 						$datos['mensaje'] = "No es posible agregar un combo a un combo como detalle.";
 					} else {
 						$continuar = true;						
-						if ((int)$art->multiple === 1) {
-							$presArtRec = $rec->getPresentacion();
+						if ((int)$art->multiple === 1 || (int)$art->combo === 1) {
+							$presArtRec = $rec->getPresentacionReporte();
 							if ((float)$presArtRec->cantidad !== (float)1) {
 								$continuar = false;
 								$datos['mensaje'] = 'Este artículo no aplica para opción múltiple.';
-							}							
+							}
 						}
 						if ($continuar) {
 							$det = $art->guardarReceta($req, $id);
@@ -218,12 +217,14 @@ class Articulo extends CI_Controller
 
 		$datos["articulo"]       = $art;
 		$datos["articulo_grupo"] = $art->getCategoriaGrupo();
-		$tmpCosto                = $art->_getCosto();
+		// $tmpCosto                = $art->_getCosto();
+		$tmpCosto                = $art->_getCosto_2();
 		$datos["costo"]          = (float)$tmpCosto * $porIva;
 
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);
-			$costo = $rec->_getCosto();			
+			// $costo = $rec->_getCosto();
+			$costo = $rec->_getCosto_2();
 
 			if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
 				$presR = $rec->getPresentacionReporte();

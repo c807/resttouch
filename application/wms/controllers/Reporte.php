@@ -1537,7 +1537,7 @@ class Reporte extends CI_Controller
 			$tmp = new Articulo_model($row->articulo);
 			$pre = $tmp->getPresentacion();
 
-			$costo = $tmp->_getCosto();
+			$costo = $tmp->_getCosto_2();
 
 			if ((int)$tmp->produccion === 1 && (float)$tmp->rendimiento !== (float)0) {
 				$presR = $tmp->getPresentacionReporte();
@@ -1789,7 +1789,7 @@ class Reporte extends CI_Controller
 
 			foreach ($art->getReceta() as $row) {
 				$rec                  = new Articulo_model($row->articulo->articulo);
-				$costo                = $rec->_getCosto();
+				$costo                = $rec->_getCosto_2();
 
 				if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
 					$presR = $rec->getPresentacionReporte();
