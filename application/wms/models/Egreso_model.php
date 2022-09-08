@@ -249,16 +249,13 @@ class Egreso_model extends General_Model
 
 	public function trasladar($args = [])
 	{
-		$prov = $this->Proveedor_model->buscar([
-			"razon_social" => "Interno",
-			"_uno" => true
-		]);
+		$prov = $this->Proveedor_model->buscar([ 'razon_social' => 'Interno', '_uno' => true ]);
 		if (!$prov) {
 			$obj = new Proveedor_model();
 			$obj->guardar([
-				"razon_social" => "Interno",
-				"nit" => "cf",
-				"corporacion" => 1
+				'razon_social' => 'Interno',
+				'nit' => 'CF',
+				'corporacion' => 1
 			]);
 			$idProv = $obj->getPK();
 		} else {
@@ -277,8 +274,21 @@ class Egreso_model extends General_Model
 		];
 
 		if ($ing->guardar($datos)) {
+			$porIVA = 0.12;
+			$emp = $this->db
+				->select('c.porcentaje_iva')
+				->join('sede b', 'b.sede = a.sede')
+				->join('empresa c', 'c.empresa = b.empresa')
+				->where('a.bodega', $ing->bodega)
+				->get('bodega a')
+				->row();
+			if ($emp) {
+				$porIVA = (float)$emp->porcentaje_iva ?? 0.12;
+			}
+
 			foreach ($this->getDetalle() as $row) {
 				$row->articulo = $row->articulo->articulo;
+				$row->precio_costo_iva = (float)$row->precio_total * $porIVA;
 				$det = $ing->setDetalle((array) $row);
 				if ($det) {
 					$this->db
