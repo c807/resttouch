@@ -16,7 +16,7 @@
 					<td><?php echo formatoFecha(Hoy(), 2);?></td>
 				</tr>
 				<tr>
-					<td class="text-right"><b>Categoria: </b></td>
+					<td class="text-right"><b>Categoría: </b></td>
 					<td><?php echo "{$fila['articulo_grupo']->descripcion} ({$fila['articulo_grupo']->ncategoria})"?></td>
 					<td class="text-right"><b>Nombre: </b></td>
 					<td><?php echo $fila["articulo"]->descripcion?></td>

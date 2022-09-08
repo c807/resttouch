@@ -226,7 +226,7 @@ class WmsRepIngreso
 
 
 
-						$tmpCosto =  $this->args->iva == 1 ? $row->costo + ($row->costo * 0.12) : $row->costo;
+						$tmpCosto = $row->costo;
 						$tmpCant  = $row->cantidad;
 						$tmpTot   = $tmpCosto * $row->cantidad;
 
@@ -238,7 +238,7 @@ class WmsRepIngreso
 							$row->bodega,
 							$row->producto,
 							number_format((float)$row->cantidad, 2, ".", ""),
-							number_format((float)$tmpCosto, 2, ".", ""),
+							number_format((float)$tmpCosto, 5, ".", ""),
 							number_format((float)$tmpTot, 2, ".", "")
 						];
 

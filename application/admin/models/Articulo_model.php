@@ -9,7 +9,7 @@ class Articulo_model extends General_model
 	public $presentacion;
 	public $descripcion;
 	public $precio;
-	public $bien_servicio;
+	public $bien_servicio = 'B';
 	public $existencias = 0;
 	public $shopify_id;
 	public $codigo = '';

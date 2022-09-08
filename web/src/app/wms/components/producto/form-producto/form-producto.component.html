@@ -58,6 +58,14 @@
                         <input matInput *ngIf="esMovil" type="text" placeholder="Shopify ID" name="shopify_id" [(ngModel)]="articulo.shopify_id" minlength="1" maxlength="25">
                     </mat-form-field>
 
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Bien/Servicio</mat-label>
+                        <mat-select name="bien_servicio" [(ngModel)]="articulo.bien_servicio" required>
+                            <mat-option value="B">Bien</mat-option>
+                            <mat-option value="S">Servicio</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
                     <mat-form-field class="fullWidth" *ngIf="+articulo.produccion == 1">
                         <input matInput type="number" step="0.01" placeholder="Rendimiento" name="rendimiento" min="0.01" [(ngModel)]="articulo.rendimiento" required>
                     </mat-form-field>

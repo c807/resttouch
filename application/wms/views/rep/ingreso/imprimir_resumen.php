@@ -51,7 +51,7 @@
 			</tr>
 		<?php endforeach ?>
 		<tr>
-			<td class="totales text-right" colspan="9"><b>Total</b></td>
+			<td class="totales text-right" colspan="10"><b>Total</b></td>
 			<td class="totales text-right"><b><?php echo number_format($total, 2); ?></b></td>
 		</tr>
 	</table>

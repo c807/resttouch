@@ -97,6 +97,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
             esextra: obj.esextra,
             stock_minimo: obj.stock_minimo,
             stock_maximo: obj.stock_maximo,
+            bien_servicio: obj.bien_servicio
           };
 
           this.categoria = this.categorias.find(c => +c.categoria === +obj.categoria_grupo.categoria);
@@ -108,7 +109,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
             receta: +obj.categoria_grupo.receta,
             impresora: +obj.categoria_grupo.impresora,
             descuento: +obj.categoria_grupo.descuento
-          };
+          };          
           this.frmProductoComponent.articulo = this.articulo;
           this.frmProductoComponent.loadRecetas(+this.articulo.articulo);
           this.frmProductoComponent.resetReceta();

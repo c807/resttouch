@@ -44,8 +44,8 @@
 					$docTotal = 0;
 					$docCant  = 0; ?>
 				
-				<?php foreach ($producto as $key => $row): 
-						$tmpCosto =  $args->iva == 1 ? $row->costo + ($row->costo * 0.12) : $row->costo;
+				<?php foreach ($producto as $key => $row): 						
+						$tmpCosto = $row->costo;
 						$tmpCant  = $row->cantidad;
 						$tmpTot   = $tmpCosto * $row->cantidad;
 				?>
@@ -57,7 +57,7 @@
 						<td><?php echo $row->bodega; ?> </td>
 						<td><?php echo $row->producto; ?></td>
 						<td class="text-right"><?php echo number_format($row->cantidad, 2); ?></td>
-						<td class="text-right"><?php echo number_format($tmpCosto, 2); ?></td>
+						<td class="text-right"><?php echo number_format($tmpCosto, 5); ?></td>
 						<td class="text-right"><?php echo number_format($tmpTot, 2); ?></td>
 					</tr>
 				<?php 

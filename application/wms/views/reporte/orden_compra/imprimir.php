@@ -63,12 +63,13 @@
     <table style="font-size: 10pt;">
         <thead>
             <tr>
-                <th class="text-left" style="width: 16.66%; border-bottom: 1px solid black;">Código</th>
-                <th class="text-left" style="width: 16.70%; border-bottom: 1px solid black;">Descripción</th>
-                <th class="text-left" style="width: 16.66%; border-bottom: 1px solid black;">Presentación</th>
-                <th class="text-right" style="width: 16.66%; border-bottom: 1px solid black;">Cantidad</th>
-                <th class="text-right" style="width: 16.66%; border-bottom: 1px solid black;">Costo U.</th>
-                <th class="text-right" style="width: 16.66%; border-bottom: 1px solid black;">Total</th>
+                <th class="text-left" style="width: 12%; border-bottom: 1px solid black;">Código</th>
+                <th class="text-left" style="width: 16.57%; border-bottom: 1px solid black;">Descripción</th>
+                <th class="text-left" style="width: 14.29%; border-bottom: 1px solid black;">Presentación</th>
+                <th class="text-right" style="width: 14.29%; border-bottom: 1px solid black;">Existencias*</th>
+                <th class="text-right" style="width: 14.29%; border-bottom: 1px solid black;">Cantidad</th>
+                <th class="text-right" style="width: 14.28%; border-bottom: 1px solid black;">Costo U.</th>
+                <th class="text-right" style="width: 14.28%; border-bottom: 1px solid black;">Total</th>
             </tr>
         </thead>
         <tbody>
@@ -78,6 +79,7 @@
                     <td><?php echo $det->codigo; ?></td>
                     <td><?php echo $det->articulo; ?></td>
                     <td><?php echo $det->presentacion; ?></td>
+                    <td class="text-right"><?php echo number_format((float)$det->existencias, 2); ?></td>
                     <td class="text-right"><?php echo number_format((float)$det->cantidad, 2); ?></td>
                     <td class="text-right"><?php echo number_format((float)$det->monto, 2); ?></td>
                     <td class="text-right"><?php echo number_format((float)$det->total, 2); ?></td>
@@ -90,6 +92,9 @@
     <table>
         <tr>
             <td class="text-right bld">Total: <?php echo number_format((float)$montoTotal, 2); ?></td>
+        </tr>
+        <tr>
+            <td class="bld">*NOTA: Las existencias se calculan en base a todas las bodegas.</td>
         </tr>
     </table>    
 </body>

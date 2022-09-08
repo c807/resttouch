@@ -659,7 +659,8 @@ EOT;
 	function get_compra($idCompra)
 	{
 		$campos = 'a.orden_compra, c.nombre AS empresa, b.nombre AS sede, d.razon_social AS proveedor, DATE_FORMAT(a.fecha_orden, "%d/%m/%Y") AS fecha_orden, ';
-		$campos.= 'DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") AS fhcreacion, e.usrname AS usuario, a.notas, f.descripcion AS estatus, g.ingreso, b.alias AS alias_sede';
+		$campos.= 'DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") AS fhcreacion, e.usrname AS usuario, a.notas, f.descripcion AS estatus, g.ingreso, b.alias AS alias_sede,';
+		$campos.= 'a.fecha_orden AS fecha_orden_flat';
 		$oc = $this->db
 			->select($campos)
 			->join('sede b', 'b.sede = a.sede')
@@ -673,7 +674,8 @@ EOT;
 			->row();
 
 		if($oc) {
-			$campos = 'b.codigo, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, a.monto, a.total';
+			$this->load->model('Articulo_model');
+			$campos = 'b.codigo, b.descripcion AS articulo, c.descripcion AS presentacion, a.cantidad, a.monto, a.total, 0 AS existencias, b.articulo AS idarticulo';
 			$oc->detalle = $this->db
 				->select($campos)
 				->join('articulo b', 'b.articulo = a.articulo')
@@ -681,6 +683,20 @@ EOT;
 				->where('a.orden_compra', $idCompra)
 				->get('orden_compra_detalle a')
 				->result();
+			$fdel = new DateTime("{$oc->fecha_orden_flat} 00:00:00");
+			$fdel->modify('+1 day');
+			$args = ['_saldo_inicial' => 1, 'fecha_del' => $fdel->format('Y-m-d')];
+			foreach ($oc->detalle as $det) {
+				$art = new Articulo_model($det->idarticulo);
+				if ($art) {
+					$objExistencias = $art->getExistencias($args);
+					if ($objExistencias) {
+						if ((float)$objExistencias->presentacion->cantidad !== (float)0) {
+							$det->existencias = round($objExistencias->saldo_inicial / (float)$objExistencias->presentacion->cantidad, 2);
+						}
+					}
+				}
+			}
 		}
 		return $oc;
 	}

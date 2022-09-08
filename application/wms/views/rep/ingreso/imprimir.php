@@ -115,7 +115,7 @@
 				?>
 			<?php endforeach ?>
 			<tr>
-				<td colspan="4" class="text-right"><b>Total</b></td>
+				<td colspan="5" class="text-right"><b>Total</b></td>
 				<?php if ($args->reporte == 2): ?>
 					<td class="text-right"><b><?php echo number_format($tcantidad, 2); ?></b></td>
 				<?php else: ?>

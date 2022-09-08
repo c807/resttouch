@@ -65,6 +65,7 @@ export interface ArticuloResponse {
     esextra?: number;
     stock_minimo?: number;
     stock_maximo?: number;
+    bien_servicio?: string;
 }
 
 export interface ArbolCategoriaGrupo {
