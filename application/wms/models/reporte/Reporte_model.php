@@ -943,6 +943,43 @@ EOT;
 		->get()
 		->result();
 	}
+
+	public function get_consumos($args = [])
+	{
+		if (isset($args['fdel'])) {
+			$this->db->where('DATE(b.fhcreacion) >=', $args['fdel']);
+		}
+
+		if (isset($args['fal'])) {
+			$this->db->where('DATE(b.fhcreacion) <=', $args['fal']);
+		}
+
+		if (isset($args['bodega']) && (int)$args['bodega'] > 0) {
+			$this->db->where('a.bodega', $args['bodega']);
+		}
+
+		if (isset($args['categoria_grupo']) && (int)$args['categoria_grupo'] > 0) {
+			$this->db->where('c.categoria_grupo', $args['categoria_grupo']);
+		}
+
+		$campos = 'DATE(b.fhcreacion) AS fecha, DAY(b.fhcreacion) AS dia, MONTH(b.fhcreacion) AS mes, YEAR(b.fhcreacion) AS anio, a.bodega, a.articulo, e.presentacion AS presentacion_reporte, ';
+		$campos.= 'e.descripcion AS descripcion_presentacion_reporte, e.cantidad AS cantidad_presentacion_reporte, a.presentacion AS presentacion_detalle_comanda, ';
+		$campos.= 'd.descripcion AS descripcion_presentacion_detalle_comanda, d.cantidad AS cantidad_presetnacion_detalle_comanda, SUM(a.cantidad_inventario) AS cantidad';
+		$consumos = $this->db
+			->select($campos)
+			->join('comanda b', 'b.comanda = a.comanda')
+			->join('articulo c', 'c.articulo = a.articulo')
+			->join('presentacion d', 'd.presentacion = a.presentacion')
+			->join('presentacion e', 'e.presentacion = c.presentacion_reporte')
+			->where('c.mostrar_inventario', 1)
+			->group_by('DATE(b.fhcreacion), a.articulo, a.presentacion')
+			->having('SUM(a.cantidad_inventario) <> 0')
+			->order_by('DATE(b.fhcreacion), c.descripcion, e.descripcion, d.descripcion')
+			->get('detalle_comanda a')
+			->result();
+
+		return $consumos;
+	}
 }
 
 /* End of file Reporte_model.php */

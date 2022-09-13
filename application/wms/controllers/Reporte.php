@@ -1821,6 +1821,45 @@ class Reporte extends CI_Controller
 		$pdf->WriteHTML($this->load->view('reporte/articulo/receta_costo', ['data' => $data], true));
 		$pdf->Output("{$nombreArchivo}.pdf", 'D');
 	}
+
+	public function consumos_2()
+	{
+		set_time_limit(0);
+		$params = json_decode(file_get_contents('php://input'), true);
+		$rpt = new Reporte_model();
+
+		$datos = [];
+
+		$fltr = ['sede' => $params['sede'][0]];
+
+		if (isset($params['categoria_grupo']) && (int)$params['categoria_grupo'] > 0) {
+			$fltr['categoria_grupo'] = $params['categoria_grupo'];
+		}
+
+		$lstArticulosInventario = $rpt->get_info_articulos_inventario($fltr);
+
+		if (isset($params['fdel'])) {
+			$fltr['fdel'] = $params['fdel'];
+		}
+
+		if (isset($params['fal'])) {
+			$fltr['fal'] = $params['fal'];
+		}
+
+		if (isset($params['bodega']) && is_array($params['bodega']) && (int)$params['bodega'][0] > 0) {
+			$fltr['bodega'] = $params['bodega'][0];
+		}
+
+		$lstConsumos = $rpt->get_consumos($fltr);
+
+		foreach($lstConsumos as $consumo) {
+
+		}
+
+		$datos = $lstArticulosInventario;
+		// $datos = $lstConsumos;
+		$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Reporte.php */

@@ -2356,6 +2356,8 @@ ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN presentacion_bck INT NUL
 INSERT INTO RT_DATABASE_NAME.impresora (sede, nombre, bluetooth, pordefecto, pordefectocuenta, pordefectofactura) VALUES (1, 'IMPRESORA', 0, 1, 1, 1);
 ALTER TABLE RT_DATABASE_NAME.bodega ADD COLUMN permitir_requisicion int NOT NULL DEFAULT 0 AFTER merma;
 ALTER TABLE RT_DATABASE_NAME.tipo_movimiento ADD COLUMN requisicion TINYINT(1) NOT NULL DEFAULT 0 AFTER egreso;
+ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX PresentacionReporte_ASC (presentacion_reporte ASC), ADD INDEX MostrarInventario_ASC (mostrar_inventario ASC);
+ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX MostrarPOS_ASC (mostrar_pos ASC), ADD INDEX EsReceta_ASC (esreceta ASC), ADD INDEX Combo_ASC (combo ASC), ADD INDEX Multiple_ASC (multiple ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
