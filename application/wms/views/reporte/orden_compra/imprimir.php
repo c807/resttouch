@@ -94,7 +94,7 @@
             <td class="text-right bld">Total: <?php echo number_format((float)$montoTotal, 2); ?></td>
         </tr>
         <tr>
-            <td class="bld">*NOTA: Las existencias se calculan en base a todas las bodegas.</td>
+            <td class="bld">*NOTA: Existencias de <?php echo $bodega_existencias ? " bodega <em>'{$bodega_existencias->descripcion}'</em>" : 'todas las bodegas';?>.</td>
         </tr>
     </table>    
 </body>

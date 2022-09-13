@@ -352,7 +352,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   imprimirOC = () => {
     this.endSubs.add(
-      this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra).subscribe(res => {
+      this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra, +this.ordenCompra.bodega).subscribe(res => {
         if (res) {
           const blob = new Blob([res], {type: 'application/pdf'});
           saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);

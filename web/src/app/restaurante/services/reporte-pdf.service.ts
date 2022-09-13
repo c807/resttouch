@@ -169,9 +169,9 @@ export class ReportePdfService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getOrdenCompra(idOC: number) {
+  getOrdenCompra(idOC: number, idBodega: number = 0) {
     return this.http.get<string>(
-      `${GLOBAL.urlWms}/reporte/orden_compra/${idOC}`,
+      `${GLOBAL.urlWms}/reporte/orden_compra/${idOC}${+idBodega > 0 ? ('/' + idBodega) : ''}`,
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }  

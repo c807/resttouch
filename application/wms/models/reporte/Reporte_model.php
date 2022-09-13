@@ -656,7 +656,7 @@ EOT;
 		return $proveedores;
 	}
 
-	function get_compra($idCompra)
+	function get_compra($idCompra, $idbodega = null)
 	{
 		$campos = 'a.orden_compra, c.nombre AS empresa, b.nombre AS sede, d.razon_social AS proveedor, DATE_FORMAT(a.fecha_orden, "%d/%m/%Y") AS fecha_orden, ';
 		$campos.= 'DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") AS fhcreacion, e.usrname AS usuario, a.notas, f.descripcion AS estatus, g.ingreso, b.alias AS alias_sede,';
@@ -686,6 +686,9 @@ EOT;
 			$fdel = new DateTime("{$oc->fecha_orden_flat} 00:00:00");
 			$fdel->modify('+1 day');
 			$args = ['_saldo_inicial' => 1, 'fecha_del' => $fdel->format('Y-m-d')];
+			if (isset($idbodega) && (int)$idbodega > 0) {
+				$args['bodega'] = (int)$idbodega;
+			}
 			foreach ($oc->detalle as $det) {
 				$art = new Articulo_model($det->idarticulo);
 				if ($art) {
@@ -964,7 +967,7 @@ EOT;
 
 		$campos = 'DATE(b.fhcreacion) AS fecha, DAY(b.fhcreacion) AS dia, MONTH(b.fhcreacion) AS mes, YEAR(b.fhcreacion) AS anio, a.bodega, a.articulo, e.presentacion AS presentacion_reporte, ';
 		$campos.= 'e.descripcion AS descripcion_presentacion_reporte, e.cantidad AS cantidad_presentacion_reporte, a.presentacion AS presentacion_detalle_comanda, ';
-		$campos.= 'd.descripcion AS descripcion_presentacion_detalle_comanda, d.cantidad AS cantidad_presetnacion_detalle_comanda, SUM(a.cantidad_inventario) AS cantidad';
+		$campos.= 'd.descripcion AS descripcion_presentacion_detalle_comanda, d.cantidad AS cantidad_presentacion_detalle_comanda, SUM(a.cantidad_inventario) AS cantidad';
 		$consumos = $this->db
 			->select($campos)
 			->join('comanda b', 'b.comanda = a.comanda')
