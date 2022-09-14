@@ -324,10 +324,12 @@ class Factura extends CI_Controller
 					$fac->cargarMoneda();
 					$fac->cargarReceptor();
 					$fac->cargarCertificadorFel();
-					$fac->procesarAnulacion($_POST);
-
 					$cer = $fac->getCertificador();
 					$funcion = $cer->metodo_anulacion;
+
+					if (!in_array($funcion, ["anularInfilePan"])) {
+						$fac->procesarAnulacion($_POST);
+					}
 
 					$resp = $fac->$funcion();
 

@@ -26,6 +26,7 @@ class Factura_model extends General_model
 	public $comentario_anulacion;
 	public $enviar_descripcion_unica = 0;
 	public $descripcion_unica = null;
+	public $factura_serie_correlativo = null;
 
 	public function __construct($id = '')
 	{
@@ -1755,6 +1756,125 @@ class Factura_model extends General_model
 		->order_by("factura_fel", "desc")
 		->get()
 		->result();
+	}
+
+	public function correlativoSerie()
+	{
+		$tmp = $this->db
+		->select("correlativo")
+		->from("factura_serie")
+		->where("factura_serie", $this->factura_serie)
+		->get()
+		->row();
+
+		$correlativo = $tmp->correlativo;
+
+		$this->guardar(["factura_serie_correlativo" => $correlativo]);
+
+		$this->actualizarCorrelativoSerie($correlativo);
+	}
+
+	public function actualizarCorrelativoSerie($correlativo)
+	{
+		$this->db
+		->set("correlativo", ($correlativo+1))
+		->where("factura_serie", $this->factura_serie)
+		->update("factura_serie");
+	}
+
+	public function enviarInfilePan()
+	{
+		$this->load->library("Felfacpan");
+		
+		if (empty($this->factura_serie_correlativo)) {
+			$this->correlativoSerie();
+		}
+
+		$lib = new Felfacpan();
+		$lib->set_factura($this);
+		$lib->set_serie($this->serie);
+		$lib->set_empresa($this->empresa);
+		$lib->set_receptor($this->receptor);
+		$lib->set_sede($this->sedeFactura);
+		$lib->set_certificador($this->getCertificador());
+		$lib->set_servicios($this->getDetalle([], true));
+		$lib->procesar_factura();
+		$respuesta = $lib->enviar();
+
+		if (isset($respuesta->valido) && $respuesta->valido) {
+			$data = [];
+
+			$data["serie_factura"]  = $this->serie->serie;
+			$data["numero_factura"] = $this->factura_serie_correlativo;
+			$data["fel_uuid"]       = $respuesta->cufe;
+
+			$respuesta->fecha = $respuesta->fecha_proceso;
+
+			$this->guardar($data);
+		} elseif (verPropiedad($respuesta, "respuesta_pac") || verPropiedad($respuesta, "errores")) {
+			$errores = [];
+
+			if (verPropiedad($respuesta, "respuesta_pac")) {
+				foreach ($respuesta->respuesta_pac as $row) {
+					$errores[] = "{$row->dCodRes}: {$row->dMsgRes}";
+				}
+			}
+
+			if (verPropiedad($respuesta, "errores")) {
+				foreach ($respuesta->errores as $value) {
+					$errores[] = $value;
+				}
+			}
+
+			$this->setMensaje(implode("\n", $errores));
+
+		} else {
+			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
+		}
+
+		return $respuesta;
+	}
+
+	public function anularInfilePan()
+	{
+		$this->load->library("Felfacpan");
+		
+		$comentario = "ERROR DE EMISIÓN";
+
+		if (isset($_POST["comentario"])) {
+			$comentario = $_POST["comentario"];
+		}
+		
+		$lib = new Felfacpan();
+		$lib->set_factura($this);
+		$lib->set_certificador($this->getCertificador());
+		$respuesta = $lib->anular($comentario);
+
+		if (isset($respuesta->valido) && $respuesta->valido) {
+
+			$this->guardar(["fel_uuid_anulacion" => $this->fel_uuid]);
+		} elseif (verPropiedad($respuesta, "respuesta_pa") || verPropiedad($respuesta, "errores")) {
+			$errores = [];
+
+			if (verPropiedad($respuesta, "respuesta_pa")) {
+				foreach ($respuesta->respuesta_pa as $row) {
+					$errores[] = "{$row->dCodRes} | {$row->dMsgRes}";
+				}
+			}
+
+			if (verPropiedad($respuesta, "errores")) {
+				foreach ($respuesta->errores as $value) {
+					$errores[] = $value;
+				}
+			}
+
+			$this->setMensaje(implode("\n", $errores));
+
+		} else {
+			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
+		}
+
+		return $respuesta;
 	}
 }
 
