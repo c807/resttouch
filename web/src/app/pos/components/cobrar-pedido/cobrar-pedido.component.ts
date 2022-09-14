@@ -220,6 +220,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       this.data = this.inputData;
     }
 
+    this.inputData.porcentajePropina = +this.porcentajePropina;
     this.inputDataOriginal = JSON.parse(JSON.stringify(this.inputData));
 
     this.calculaTotalDeCuenta();
