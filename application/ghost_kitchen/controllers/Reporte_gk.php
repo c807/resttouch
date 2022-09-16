@@ -232,7 +232,8 @@ class Reporte_gk extends CI_Controller
         ->model([
             "Comanda_model",
             "Factura_model",
-            "Dfactura_model"
+            "Dfactura_model",
+            "Dcomanda_model"
         ]);
         
         $datos = json_decode(file_get_contents("php://input"), true);
@@ -253,12 +254,19 @@ class Reporte_gk extends CI_Controller
 
                 if (!isset($data[$row->sede][$categoria->categoria])) {
                     $data[$row->sede][$categoria->categoria] = [
-                        "nombre" => $categoria->ncategoria,
+                        "nombre"  => $categoria->ncategoria,
+                        "detalle" => []
+                    ];
+                }
+
+                if (!isset($data[$row->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo])) {
+                    $data[$row->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo] = [
+                        "nombre" => $categoria->descripcion,
                         "total"  => 0
                     ];
                 }
 
-                $data[$row->sede][$categoria->categoria]["total"] += $det->total;
+                $data[$row->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo]["total"] += $det->total;
             }
         }
 
@@ -270,18 +278,25 @@ class Reporte_gk extends CI_Controller
                 $articulo  = new Articulo_model($det->articulo->articulo);
                 $categoria = $articulo->getCategoriaGrupo();
 
-                if (!isset($data[$row->sede])) {
-                    $data[$row->sede] = [];
+                if (!isset($data[$comanda->sede])) {
+                    $data[$comanda->sede] = [];
                 }
 
-                if (!isset($data[$row->sede][$categoria->categoria])) {
-                    $data[$row->sede][$categoria->categoria] = [
-                        "nombre" => $categoria->ncategoria,
+                if (!isset($data[$comanda->sede][$categoria->categoria])) {
+                    $data[$comanda->sede][$categoria->categoria] = [
+                        "nombre"  => $categoria->ncategoria,
+                        "detalle" => []
+                    ];
+                }
+
+                if (!isset($data[$comanda->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo])) {
+                    $data[$comanda->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo] = [
+                        "nombre" => $categoria->descripcion,
                         "total"  => 0
                     ];
                 }
 
-                $data[$row->sede][$categoria->categoria]["total"] += $det->total;
+                $data[$comanda->sede][$categoria->categoria]["detalle"][$categoria->categoria_grupo]["total"] += $det->total;
             }
         }
 
@@ -317,32 +332,40 @@ class Reporte_gk extends CI_Controller
                 $pos++;
 
                 $total = 0;
-                foreach ($data as $key => $row) {
-                    $tmpSede  = new Sede_model($key);
+                foreach ($data as $sede => $cat) {
+                    $tmpSede  = new Sede_model($sede);
                     $tmpTotal = 0;
-
-                    usort($row, function($a, $b) {
-                        return $a["total"] - $b["total"];
-                    });
 
                     $hoja->setCellValue("A{$pos}", "{$tmpSede->nombre}\n({$tmpSede->alias})");
                     $hoja->getStyle("A{$pos}:B{$pos}")->getAlignment()->setWrapText(true);
                     $hoja->getStyle("A{$pos}:B{$pos}")->getFont()->setBold(true);
                     $pos++;
 
-                    foreach ($row as $llave => $fila) {
 
-                        $hoja->setCellValue("A{$pos}", $fila["nombre"]);
-                        $hoja->setCellValue("B{$pos}", (float) $fila["total"]);
+                    foreach ($cat as $row) {
+                        
+                        usort($row["detalle"], function($a, $b) {
+                            return $a["total"] - $b["total"];
+                        });
 
-                        $hoja->getStyle("B{$pos}")
-                        ->getNumberFormat()
-                        ->setFormatCode("0.00");
-
-                        $tmpTotal += $fila["total"];
-                        $total    += $fila["total"];
-
+                        $hoja->setCellValue("A{$pos}", $row["nombre"]);
+                        $hoja->getStyle("A{$pos}:B{$pos}")->getAlignment()->setWrapText(true);
+                        $hoja->getStyle("A{$pos}:B{$pos}")->getFont()->setBold(true);
                         $pos++;
+                        
+                        foreach ($row["detalle"] as $fila) {
+                            $hoja->setCellValue("A{$pos}", $fila["nombre"]);
+                            $hoja->setCellValue("B{$pos}", (float) $fila["total"]);
+
+                            $hoja->getStyle("B{$pos}")
+                            ->getNumberFormat()
+                            ->setFormatCode("0.00");
+
+                            $tmpTotal += $fila["total"];
+                            $total    += $fila["total"];
+
+                            $pos++;
+                        }
                     }
 
                     $hoja->setCellValue("A{$pos}", "Total");

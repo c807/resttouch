@@ -17,13 +17,9 @@
 	<br>
 	<?php
 		$total  = 0;
-		$ultimo = count($data) - 1;
-		foreach ($data as $key => $row):
-			$tmpSede = new Sede_model($key);
-
-			usort($row, function($a, $b) {
-				return $a["total"] - $b["total"];
-			});
+		$ultimo = array_key_last($data);
+		foreach ($data as $sede => $cat):
+			$tmpSede = new Sede_model($sede);
 	?>
 		<table>
 			<thead>
@@ -36,22 +32,33 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php
+
+				<?php 
 					$tmpTotal = 0;
-					foreach ($row as $llave => $fila):
-						$tmpTotal += $fila["total"];
-						$total    += $fila["total"];
+					foreach ($cat as $idcat => $row):
+
+						usort($row["detalle"], function($a, $b) {
+							return $a["total"] - $b["total"];
+						});
 				?>
 					<tr>
-						<td style="width: 50%;"><?php echo $fila["nombre"]?></td>
-						<td class="text-right" style="width: 50%;"><?php echo number_format($fila["total"], 2)?></td>
+						<td colspan="2"><b><?php echo $row["nombre"]?></b></td>
 					</tr>
+					<?php foreach ($row["detalle"] as $fila): 
+						$tmpTotal += $fila["total"];
+						$total    += $fila["total"];
+					?>
+						<tr>
+							<td style="width: 50%;"><?php echo $fila["nombre"]?></td>
+							<td class="text-right" style="width: 50%;"><?php echo number_format($fila["total"], 2)?></td>
+						</tr>
+					<?php endforeach ?>
 				<?php endforeach ?>
 				<tr>
 					<td class="totales text-right" style="width: 50%;"><b>Total</b></td>
 					<td class="totales text-right" style="width: 50%;"><b><?php echo number_format($tmpTotal, 2)?></b></td>
 				</tr>
-				<?php if ($ultimo == $key): ?>
+				<?php if ($ultimo == $sede): ?>
 					<tr>
 						<td class="totales text-right" style="width: 50%;"><b>Gran Total</b></td>
 						<td class="totales text-right" style="width: 50%;"><b><?php echo number_format($total, 2)?></b></td>
