@@ -379,8 +379,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.inputData.saldo = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
     this.formaPago = {
       monto: this.inputData.saldo,
-      forma_pago: this.formaPago?.forma_pago || null
-    };
+      forma_pago: this.formaPago?.forma_pago || null      
+    };    
   }
 
   cancelar = () => this.dialogRef.close();
@@ -786,6 +786,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.calculaPropina();
     this.actualizaSaldo();
     this.formaPago.monto = parseFloat(this.inputData.saldo).toFixed(2);
+    this.calcTipAuto();
   }
 
   setDatosPedido = () => {
