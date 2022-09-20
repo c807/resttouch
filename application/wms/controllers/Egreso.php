@@ -17,7 +17,8 @@ class Egreso extends CI_Controller {
 			'Configuracion_model',
 			'Presentacion_model',
 			'BodegaArticuloCosto_model',
-			'Proveedor_model'
+			'Proveedor_model',
+			'Bodega_model'
         ]);
         $this->output
 		->set_content_type("application/json", "UTF-8");
@@ -25,14 +26,22 @@ class Egreso extends CI_Controller {
 
 	public function guardar($id = '')
 	{
-		$egr = new Egreso_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+			$egr = new Egreso_model($id);
 			if (empty($id) || $egr->estatus_movimiento == 1) {
 				$datos['exito'] = $egr->guardar($req);
-				if ($egr->estatus_movimiento == 2 && $egr->traslado == 1) {
-					$ing = $egr->trasladar($req);
+				if ((int)$egr->estatus_movimiento === 2 && (int)$egr->traslado === 1) {
+					$bodegaOrigen = $this->Bodega_model->buscar(['bodega' => $egr->bodega, '_uno' => true]);
+					$bodegaDestino = $this->Bodega_model->buscar(['bodega' => $egr->bodega_destino, '_uno' => true]);
+					if((int)$bodegaOrigen->sede === (int)$bodegaDestino->sede) {
+						$ing = $egr->trasladar($req);
+					} else {
+						$req['sede_origen'] = (int)$bodegaOrigen->sede;
+						$req['sede_destino'] = (int)$bodegaDestino->sede;
+						$ing = $egr->traslado_externo($req);
+					}
 					if ($ing) {
 						$ing->detalle = $ing->getDetalle();
 						$datos['ingreso'] = $ing;
@@ -41,20 +50,19 @@ class Egreso extends CI_Controller {
 					}
 				}
 				if($datos['exito']) {
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['egreso'] = $egr;
 				} else {
-					$datos['mensaje'] = implode("<br>", $egr->getMensaje());
+					$datos['mensaje'] = implode('<br>', $egr->getMensaje());
 				}	
 			} else {
-				$datos['mensaje'] = "Solo puede editar egresos en estatus Abierto";
+				$datos['mensaje'] = 'Solo puede editar egresos en estatus Abierto';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parametros inválidos';
 		}
 
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function guardar_detalle($egreso, $id = '') {
@@ -111,6 +119,8 @@ class Egreso extends CI_Controller {
 			$fltr['_fal'] = ['fecha' => $fltr['_fal']];
 		}
 
+		$soloRequisiciones = isset($fltr['_solo_requisiciones']) && (int)$fltr['_solo_requisiciones'] === 1;
+
 		$egresos = $this->Egreso_model->buscar($fltr);
 		$datos = [];
 		if(is_array($egresos)) {
@@ -119,9 +129,11 @@ class Egreso extends CI_Controller {
 				$row->tipo_movimiento = $tmp->getTipoMovimiento();
 				$row->bodega = $tmp->getBodega();
 				$row->usuario = $tmp->getUsuario();
-				if((int)$row->bodega->sede === (int)$dataToken->sede) {
+				$row->bodega_solicita = $tmp->getBodegaDestino();
+				$idSedeBodegaSolicita = $row->bodega_solicita ? (int)$row->bodega_solicita->sede : 0;
+				if((int)$row->bodega->sede === (int)$dataToken->sede || ($soloRequisiciones && (int)$row->bodega->sede !== (int)$dataToken->sede && $idSedeBodegaSolicita === (int)$dataToken->sede)) {
 					$agregar = true;
-					if (isset($fltr['_solo_requisiciones']) && (int)$fltr['_solo_requisiciones'] === 1) {
+					if ($soloRequisiciones) {
 						if ((int)$row->tipo_movimiento->requisicion === 0) {
 							$agregar = false;
 						}
@@ -136,9 +148,12 @@ class Egreso extends CI_Controller {
 			$tmp = new Egreso_model($egresos->egreso);
 			$egresos->tipo_movimiento = $tmp->getTipoMovimiento();
 			$egresos->bodega = $tmp->getBodega();
-			if((int)$egresos->bodega->sede === (int)$dataToken->sede) {				
+			$egresos->usuario = $tmp->getUsuario();
+			$egresos->bodega_solicita = $tmp->getBodegaDestino();
+			$idSedeBodegaSolicita = $egresos->bodega_solicita ? (int)$egresos->bodega_solicita->sede : 0;
+			if((int)$egresos->bodega->sede === (int)$dataToken->sede || ($soloRequisiciones && (int)$egresos->bodega->sede !== (int)$dataToken->sede && (int)$egresos->bodega_solicita->sede === (int)$dataToken->sede)) {
 				$agregar = true;
-				if (isset($fltr['_solo_requisiciones']) && (int)$fltr['_solo_requisiciones'] === 1) {
+				if ($soloRequisiciones) {
 					if ((int)$egresos->tipo_movimiento->requisicion === 0) {
 						$agregar = false;
 					}

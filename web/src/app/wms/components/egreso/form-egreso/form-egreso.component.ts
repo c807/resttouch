@@ -53,6 +53,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public tiposMovimiento: TipoMovimiento[] = [];
   public tiposMovimientoIngreso: TipoMovimiento[] = [];
   public bodegas: Bodega[] = [];
+  public bodegasDestino: Bodega[] = [];
   public articulos: Articulo[] = [];
   public filteredArticulos: Articulo[] = [];
   public proveedores: Proveedor[] = [];
@@ -122,9 +123,14 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   loadBodegas = () => {
-    this.bodegaSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe(res => {
-      if (res) {
+    this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
+      const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
+      if (this.esRequisicion) {
         this.bodegas = res;
+        this.bodegasDestino = this.bodegas.filter(b => +b.sede === +sedeActual);
+      } else {
+        this.bodegasDestino = res;
+        this.bodegas = this.bodegasDestino.filter(b => +b.sede === +sedeActual);
       }
     });
   }

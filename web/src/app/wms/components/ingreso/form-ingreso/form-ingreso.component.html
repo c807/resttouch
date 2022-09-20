@@ -40,8 +40,8 @@
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <mat-label>Bodega de origen</mat-label>
                         <mat-select name="bodega_origen" [(ngModel)]="ingreso.bodega_origen">
-                            <mat-option *ngFor="let bodeO of bodegas" [value]="bodeO.bodega">
-                                {{bodeO.descripcion}}
+                            <mat-option *ngFor="let bodeO of bodegasOrigen" [value]="bodeO.bodega">
+                                {{bodeO.descripcion}} - {{bodeO.datos_sede.nombre}} ({{bodeO.datos_sede.alias}})
                             </mat-option>
                         </mat-select>
                         <button type="button" mat-button *ngIf="ingreso.bodega_origen" matSuffix mat-icon-button

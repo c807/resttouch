@@ -55,6 +55,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public proveedores: Proveedor[] = [];
   public filteredProveedores: Proveedor[] = [];
   public bodegas: Bodega[] = [];
+  public bodegasOrigen: Bodega[] = [];
   public articulos: Articulo[] = [];
   public filteredArticulos: Articulo[] = [];
   public presentaciones: Presentacion[] = [];
@@ -128,10 +129,10 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   loadBodegas = () => {
-    this.bodegaSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe(res => {
-      if (res) {
-        this.bodegas = res;
-      }
+    this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
+      const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
+      this.bodegasOrigen = res;
+      this.bodegas = this.bodegasOrigen.filter(b => +b.sede === +sedeActual);
     });
   }
 
