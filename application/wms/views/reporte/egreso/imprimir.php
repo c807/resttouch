@@ -37,8 +37,12 @@
             <td style="width: 16.67%;"><?php echo number_format($egreso); ?></td>
             <th class="text-right" style="width: 16.66%;">Fecha:</th>
             <td style="width: 16.67%;"><?php echo $fecha; ?></td>
+            <th class="text-right" style="width: 16.66%;"></th>
+            <td style="width: 16.68%;"></td>
+        </tr>
+        <tr>            
             <th class="text-right" style="width: 16.66%;">Bodega:</th>
-            <td style="width: 16.68%;"><?php echo $bodega; ?></td>
+            <td colspan="5"><?php echo $bodega; ?></td>
         </tr>
         <tr>
             <th class="text-right">Tipo:</th>
@@ -50,9 +54,11 @@
         </tr>
         <tr>
             <th class="text-right">Estatus:</th>
-            <td><?php echo $estatus_movimiento; ?></td>
+            <td><?php echo $estatus_movimiento; ?></td>            
+        </tr>
+        <tr>
             <th class="text-right">Destino:</th>
-            <td><?php echo $bodega_destino; ?></td>            
+            <td colspan="5"><?php echo $bodega_destino; ?></td>
         </tr>
         <tr>
             <th class="text-right">Comentario:</th>
