@@ -1756,6 +1756,30 @@ class Factura_model extends General_model
 		->get()
 		->result();
 	}
+
+	public function get_resumen_tipo_venta($lstFacturas = [])
+	{
+		$idsFacturas = '';
+        foreach($lstFacturas as $item) {
+            if ($idsFacturas !== '') {
+                $idsFacturas .= ',';
+            }
+            $idsFacturas .= $item->factura;
+        }
+
+		$resumen = $this->db
+			->select('IFNULL(c.descripcion, a.bien_servicio) AS tipo_venta, SUM(a.cantidad) AS cantidad, SUM(a.total + a.valor_impuesto_especial - a.descuento) AS total')
+			->join('factura b', 'b.factura = a.factura')
+			->join('tipo_compra_venta c', 'c.abreviatura = a.bien_servicio', 'left')
+			->where("b.factura IN({$idsFacturas})")
+			->where('b.fel_uuid_anulacion IS NULL')
+			->group_by('a.bien_servicio')
+			->order_by('tipo_venta')
+			->get('detalle_factura a')
+			->result();
+
+        return $resumen;
+	}
 }
 
 /* End of file Factura_model.php */
