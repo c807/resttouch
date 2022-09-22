@@ -1352,28 +1352,32 @@ class Reporte extends CI_Controller
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->setCellValue("C{$fila}", 'Total');
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
-            $hoja->getStyle("A{$fila}:C{$fila}")->getFont()->setBold(true);
+            $hoja->setCellValue("D{$fila}", 'IVA');
+            $hoja->getStyle("D{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
             $fila++;
             $suma_tipo_venta = 0.0;
             $suma_cantidad_tipo_venta = 0.0;
+            $suma_iva = 0.0;
             foreach($data['resumen_tipo_venta'] as $rtv) {
                 $suma_cantidad_tipo_venta += (float)$rtv->cantidad;
                 $suma_tipo_venta += (float)$rtv->total;
+                $suma_iva += (float)$rtv->iva;
                 $hoja->setCellValue("A{$fila}", $rtv->tipo_venta);
-                $hoja->setCellValue("B{$fila}", (float)$rtv->cantidad);
-                $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                $hoja->setCellValue("C{$fila}", (float)$rtv->total);
-                $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                $hoja->setCellValue("B{$fila}", (float)$rtv->cantidad);                
+                $hoja->setCellValue("C{$fila}", (float)$rtv->total);                
+                $hoja->setCellValue("D{$fila}", (float)$rtv->iva);
+                $hoja->getStyle("B{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+                $hoja->getStyle("B{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
             }
             $hoja->setCellValue("A{$fila}", 'TOTAL:');
             $hoja->setCellValue("B{$fila}", $suma_cantidad_tipo_venta);
             $hoja->setCellValue("C{$fila}", $suma_tipo_venta);
-            $hoja->getStyle("B{$fila}:C{$fila}")->getNumberFormat()->setFormatCode('0.00');
-            $hoja->getStyle("A{$fila}:C{$fila}")->getAlignment()->setHorizontal('right');
-            $hoja->getStyle("A{$fila}:C{$fila}")->getFont()->setBold(true);
+            $hoja->setCellValue("D{$fila}", $suma_iva);
+            $hoja->getStyle("B{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
 
             $hoja->setTitle("Facturas");
 

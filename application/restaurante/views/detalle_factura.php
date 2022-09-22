@@ -240,16 +240,18 @@
 							<th>Tipo</th>
 							<th style="text-align: right;">Cantidad</th>
 							<th style="text-align: right;">Total</th>
+							<th style="text-align: right;">IVA</th>
 						</tr>
 					</thead>
 					<tbody>
-						<?php $suma_tipo_venta = 0.0; $suma_cantidad_tipo_venta = 0.0; ?>
+						<?php $suma_tipo_venta = 0.0; $suma_cantidad_tipo_venta = 0.0; $suma_iva = 0.0; ?>
 						<?php foreach ($resumen_tipo_venta as $rtv): ?>
-							<?php $suma_cantidad_tipo_venta += (float)$rtv->cantidad; $suma_tipo_venta += (float)$rtv->total; ?>
+							<?php $suma_cantidad_tipo_venta += (float)$rtv->cantidad; $suma_tipo_venta += (float)$rtv->total; $suma_iva += (float)$rtv->iva; ?>
 							<tr>
 								<td><?php echo $rtv->tipo_venta ?></td>
 								<td style="text-align: right;"><?php echo number_format((float)$rtv->cantidad, 2); ?></td>
 								<td style="text-align: right;"><?php echo number_format((float)$rtv->total, 2) ?></td>
+								<td style="text-align: right;"><?php echo number_format((float)$rtv->iva, 2) ?></td>
 							</tr>
 						<?php endforeach ?>
 					</tbody>
@@ -258,6 +260,7 @@
 							<th style="text-align: right;">TOTAL:</th>
 							<th style="text-align: right;"><?php echo number_format($suma_cantidad_tipo_venta, 2); ?></th>
 							<th style="text-align: right;"><?php echo number_format($suma_tipo_venta, 2); ?></th>
+							<th style="text-align: right;"><?php echo number_format($suma_iva, 2); ?></th>
 						</tr>
 					</tfoot>
 				</table>								
