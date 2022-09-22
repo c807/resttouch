@@ -1767,9 +1767,13 @@ class Factura_model extends General_model
             $idsFacturas .= $item->factura;
         }
 
+		$campos = 'IFNULL(c.descripcion, a.bien_servicio) AS tipo_venta, SUM(a.cantidad) AS cantidad, SUM(a.total + a.valor_impuesto_especial - a.descuento) AS total, ';
+		$campos.= 'ROUND(SUM(a.total + a.valor_impuesto_especial - a.descuento) * IFNULL(e.porcentaje_iva, 0.12), 2) AS iva';
 		$resumen = $this->db
-			->select('IFNULL(c.descripcion, a.bien_servicio) AS tipo_venta, SUM(a.cantidad) AS cantidad, SUM(a.total + a.valor_impuesto_especial - a.descuento) AS total')
+			->select($campos)
 			->join('factura b', 'b.factura = a.factura')
+			->join('sede d', 'd.sede = b.sede')
+			->join('empresa e', 'e.empresa = d.empresa')
 			->join('tipo_compra_venta c', 'c.abreviatura = a.bien_servicio', 'left')
 			->where("b.factura IN({$idsFacturas})")
 			->where('b.fel_uuid_anulacion IS NULL')
