@@ -227,7 +227,7 @@ class Factura_model extends General_model
 	}
 
 	public function copiarDetalle($factura)
-	{		
+	{
 		$det = $this->db
 			->where("factura", $this->factura)
 			->get("detalle_factura")
@@ -235,13 +235,13 @@ class Factura_model extends General_model
 
 		$camposDetalle = $this->getCampos(true, '', 'detalle_factura');
 		foreach ($det as $row) {
-			$valores = [];			
-			foreach($camposDetalle as $cd) {
-				$valores[$cd->campo] = $row->{$cd->campo};				
+			$valores = [];
+			foreach ($camposDetalle as $cd) {
+				$valores[$cd->campo] = $row->{$cd->campo};
 			}
 			unset($valores['detalle_factura']);
 			$valores['factura'] = $factura;
-			
+
 			$this->db->insert('detalle_factura', $valores);
 
 			$id = $this->db->insert_id();
@@ -760,7 +760,7 @@ class Factura_model extends General_model
 				$this->add_detalle_xml($items, $row, $key, $redondeaMontos, $montoIva, $montoTotal, $impuestosEsp);
 			} // Fin de for de detalle cuando sí es detallada la factura.
 		}
-		
+
 		if ($this->serie->pequenio_contribuyente == 0) {
 			$totalImpuestos = $this->xml->getElementsByTagName('TotalImpuestos')->item(0);
 			$totalIva = $this->xml->getElementsByTagName('TotalImpuesto')->item(0);
@@ -1177,7 +1177,8 @@ class Factura_model extends General_model
 		return $res->RequestTransactionResult->Response;
 	}
 
-	private function get_token_CCG() {
+	private function get_token_CCG()
+	{
 		$link = $this->certificador->vinculo_factura;
 		$datos = array(
 			'username' => $this->certificador->usuario,
@@ -1215,7 +1216,7 @@ class Factura_model extends General_model
 			} else if (isset($res->Errores) && is_array($res->Errores) && count($res->Errores) > 0) {
 				foreach ($res->Errores as $error) {
 					$this->setMensaje($error->DescripcionError);
-				}				
+				}
 			}
 			return $res;
 		} else {
@@ -1226,7 +1227,7 @@ class Factura_model extends General_model
 
 	public function enviarCCGAnulacion($args = [])
 	{
-		$this->load->helper('api');		
+		$this->load->helper('api');
 		$datos = [];
 		$jsonToken = $this->get_token_CCG();
 
@@ -1234,24 +1235,24 @@ class Factura_model extends General_model
 			$link = $this->certificador->vinculo_anulacion;
 			$header = ["Authorization: Bearer {$jsonToken->access_token}"];
 
-			$fact = [				
+			$fact = [
 				'xmlDte' => base64_encode(html_entity_decode($this->xml->saveXML())),
 			];
 
 			$res = json_decode(post_request($link, json_encode($fact), $header));
 
-			if (isset($res->Resultado) && $res->Resultado) {				
+			if (isset($res->Resultado) && $res->Resultado) {
 				$this->fel_uuid_anulacion = $res->UUID;
 				$this->guardar();
 			} else if (isset($res->Errores) && is_array($res->Errores) && count($res->Errores) > 0) {
 				foreach ($res->Errores as $error) {
 					$this->setMensaje($error->DescripcionError);
-				}				
+				}
 			}
 			return $res;
 		} else {
 			$datos['exito'] = false;
-			$datos['mensaje'] = 'No se logró generar el token para anulación.'.(!is_null($jsonToken) && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
+			$datos['mensaje'] = 'No se logró generar el token para anulación.' . (!is_null($jsonToken) && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
 		}
 	}
 
@@ -1349,7 +1350,7 @@ class Factura_model extends General_model
 
 	public function pdfCCG()
 	{
-		$this->load->helper('api');		
+		$this->load->helper('api');
 		$jsonToken = $this->get_token_CCG();
 
 		if (isset($jsonToken->access_token)) {
@@ -1364,7 +1365,7 @@ class Factura_model extends General_model
 				];
 			}
 		}
-		return ['documento' => null, 'tipo' => null];				
+		return ['documento' => null, 'tipo' => null];
 	}
 
 	public function getRazonAnulacion()
@@ -1677,9 +1678,9 @@ class Factura_model extends General_model
 		}
 
 		$campos = 'a.comanda, g.cuenta, g.numero AS nocuenta, g.nombre AS nombrecuenta, IFNULL(i.etiqueta, i.numero) AS mesa, j.nombre AS area, ';
-		$campos.= 'TRIM(CONCAT(IFNULL(TRIM(k.nombres), ""), " ", IFNULL(TRIM(k.apellidos), ""))) AS cajero, ';
-		$campos.= 'TRIM(CONCAT(IFNULL(TRIM(l.nombres), ""), " ", IFNULL(TRIM(l.apellidos), ""))) AS mesero';
-		
+		$campos .= 'TRIM(CONCAT(IFNULL(TRIM(k.nombres), ""), " ", IFNULL(TRIM(k.apellidos), ""))) AS cajero, ';
+		$campos .= 'TRIM(CONCAT(IFNULL(TRIM(l.nombres), ""), " ", IFNULL(TRIM(l.apellidos), ""))) AS mesero';
+
 		$comanda = $this->db
 			->select($campos)
 			->join('detalle_comanda b', 'a.comanda = b.comanda')
@@ -1701,7 +1702,7 @@ class Factura_model extends General_model
 		if ($comanda) {
 			$comanda->formas_pago = $this->db
 				->select('b.forma_pago, b.descripcion AS descripcion_forma_pago, a.documento, a.monto, a.propina, a.vuelto_para, a.vuelto, ')
-				->join('forma_pago b', 'b.forma_pago = a.forma_pago') 
+				->join('forma_pago b', 'b.forma_pago = a.forma_pago')
 				->where('a.cuenta', $comanda->cuenta)
 				->get('cuenta_forma_pago a')
 				->result();
@@ -1710,7 +1711,7 @@ class Factura_model extends General_model
 		return $comanda;
 	}
 
-	public function getFacturas($args=[])
+	public function getFacturas($args = [])
 	{
 		if (verDato($args, "fdel")) {
 			$this->db->where("date(a.fecha_factura) >=", $args["fdel"]);
@@ -1725,7 +1726,7 @@ class Factura_model extends General_model
 		}
 
 		$tmp = $this->db
-		->select("
+			->select("
 			a.factura,
 			a.fecha_factura,
 			b.nombre as ncliente,
@@ -1733,12 +1734,12 @@ class Factura_model extends General_model
 			a.numero_factura,
 			sum(c.total) as total
 		")
-		->from("factura a")
-		->join("cliente b", "b.cliente = a.cliente")
-		->join("detalle_factura c", "c.factura = a.factura", "left")
-		->group_by("a.factura")
-		->order_by("a.fecha_factura, ncliente")
-		->get();
+			->from("factura a")
+			->join("cliente b", "b.cliente = a.cliente")
+			->join("detalle_factura c", "c.factura = a.factura", "left")
+			->group_by("a.factura")
+			->order_by("a.fecha_factura, ncliente")
+			->get();
 
 		return isset($args["_uno"]) ? $tmp->row() : $tmp->result();
 	}
@@ -1746,26 +1747,26 @@ class Factura_model extends General_model
 	public function getFacturaFel()
 	{
 		return $this->db
-		->select("
+			->select("
 			fecha,
 			resultado
 		")
-		->from("factura_fel")
-		->where("factura", $this->factura)
-		->where("resultado is not null")
-		->order_by("factura_fel", "desc")
-		->get()
-		->result();
+			->from("factura_fel")
+			->where("factura", $this->factura)
+			->where("resultado is not null")
+			->order_by("factura_fel", "desc")
+			->get()
+			->result();
 	}
 
 	public function correlativoSerie()
 	{
 		$tmp = $this->db
-		->select("correlativo")
-		->from("factura_serie")
-		->where("factura_serie", $this->factura_serie)
-		->get()
-		->row();
+			->select("correlativo")
+			->from("factura_serie")
+			->where("factura_serie", $this->factura_serie)
+			->get()
+			->row();
 
 		$correlativo = $tmp->correlativo;
 
@@ -1777,15 +1778,15 @@ class Factura_model extends General_model
 	public function actualizarCorrelativoSerie($correlativo)
 	{
 		$this->db
-		->set("correlativo", ($correlativo+1))
-		->where("factura_serie", $this->factura_serie)
-		->update("factura_serie");
+			->set("correlativo", ($correlativo + 1))
+			->where("factura_serie", $this->factura_serie)
+			->update("factura_serie");
 	}
 
 	public function enviarInfilePan()
 	{
 		$this->load->library("Felfacpan");
-		
+
 		if (empty($this->factura_serie_correlativo)) {
 			$this->correlativoSerie();
 		}
@@ -1827,7 +1828,6 @@ class Factura_model extends General_model
 			}
 
 			$this->setMensaje(implode("\n", $errores));
-
 		} else {
 			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
 		}
@@ -1838,13 +1838,13 @@ class Factura_model extends General_model
 	public function anularInfilePan()
 	{
 		$this->load->library("Felfacpan");
-		
+
 		$comentario = "ERROR DE EMISIÓN";
 
 		if (isset($_POST["comentario"])) {
 			$comentario = $_POST["comentario"];
 		}
-		
+
 		$lib = new Felfacpan();
 		$lib->set_factura($this);
 		$lib->set_certificador($this->getCertificador());
@@ -1869,12 +1869,39 @@ class Factura_model extends General_model
 			}
 
 			$this->setMensaje(implode("\n", $errores));
-
 		} else {
 			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
 		}
 
 		return $respuesta;
+	}
+
+	public function get_resumen_tipo_venta($lstFacturas = [])
+	{
+		$idsFacturas = '';
+		foreach ($lstFacturas as $item) {
+			if ($idsFacturas !== '') {
+				$idsFacturas .= ',';
+			}
+			$idsFacturas .= $item->factura;
+		}
+
+		$campos = 'IFNULL(c.descripcion, a.bien_servicio) AS tipo_venta, SUM(a.cantidad) AS cantidad, SUM(a.total + a.valor_impuesto_especial - a.descuento) AS total, ';
+		$campos .= 'ROUND(SUM(a.total + a.valor_impuesto_especial - a.descuento) * IFNULL(e.porcentaje_iva, 0.12), 2) AS iva';
+		$resumen = $this->db
+			->select($campos)
+			->join('factura b', 'b.factura = a.factura')
+			->join('sede d', 'd.sede = b.sede')
+			->join('empresa e', 'e.empresa = d.empresa')
+			->join('tipo_compra_venta c', 'c.abreviatura = a.bien_servicio', 'left')
+			->where("b.factura IN({$idsFacturas})")
+			->where('b.fel_uuid_anulacion IS NULL')
+			->group_by('a.bien_servicio')
+			->order_by('tipo_venta')
+			->get('detalle_factura a')
+			->result();
+
+		return $resumen;
 	}
 }
 

@@ -29,22 +29,24 @@
                 <mat-label>{{esRequisicion ? 'Bodega a la que solicito' : 'Bodega'}}</mat-label>
                 <mat-select name="bodega" [(ngModel)]="egreso.bodega" required>
                     <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
-                        {{bode.descripcion}}
+                        <span *ngIf="!esRequisicion">{{bode.descripcion}}</span>
+                        <span *ngIf="esRequisicion"><strong>{{bode.descripcion}}</strong> - {{bode.datos_sede.nombre}} ({{bode.datos_sede.alias}})</span>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <mat-label>{{esRequisicion ? 'Bodega que solicita' : 'Bodega destino'}}</mat-label>
                 <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino" [required]="+egreso.traslado == 1">
-                    <mat-option *ngFor="let bodeDest of bodegas" [value]="bodeDest.bodega">
-                        {{bodeDest.descripcion}}
+                    <mat-option *ngFor="let bodeDest of bodegasDestino" [value]="bodeDest.bodega">
+                        <span *ngIf="!esRequisicion"><strong>{{bodeDest.descripcion}}</strong> - {{bodeDest.datos_sede.nombre}} ({{bodeDest.datos_sede.alias}})</span>
+                        <span *ngIf="esRequisicion">{{bodeDest.descripcion}}</span>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="egreso.comentario" maxlength="500">
             </mat-form-field>
-            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB && !esRequisicion" [(ngModel)]="+egreso.traslado">¿Es traslado entre bodegas de la misma sede?</mat-checkbox>                        
+            <mat-checkbox name="traslado" class="fullWidth" *ngIf="saveToDB && !esRequisicion" [(ngModel)]="+egreso.traslado">Es traslado</mat-checkbox>                        
             <span *ngIf="!!egreso.idcomandafox"><br/><strong>Comanda: #{{egreso.idcomandafox}}</strong></span>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmEgreso.form.valid || ([2, 3].indexOf(+egreso.estatus_movimiento) >= 0) || bloqueoBotones" *ngIf="saveToDB">

@@ -47,11 +47,27 @@ class Catalogo extends CI_Controller {
 
 	public function get_bodega()
 	{
-		if (!$this->input->get('sede')) {
+		$todas = false;
+		if (!$this->input->get('sede') && !$this->input->get('_todas')) {
 			$_GET['sede'] = $this->data->sede;
 		}
-		$this->output
-		->set_output(json_encode($this->Catalogo_model->getBodega($_GET)));
+		
+		if ($this->input->get('_todas')) {
+			unset($_GET['_todas']);
+			$todas = true;
+		}
+
+		$lasBodegas = $this->Catalogo_model->getBodega($_GET);
+
+		if ($todas) {
+			foreach($lasBodegas as $bodega) {
+				$bodega->datos_sede = $this->Catalogo_model->getSede(['sede' => $bodega->sede, '_uno' => true]);
+				$bodega->order_by = "{$bodega->datos_sede->nombre}-{$bodega->descripcion}";
+			}
+			$lasBodegas = ordenar_array_objetos($lasBodegas, 'order_by');
+		}
+
+		$this->output->set_output(json_encode($lasBodegas));
 	}
 
 	public function get_proveedor()
@@ -81,7 +97,10 @@ class Catalogo extends CI_Controller {
 
 	public function get_articulo_ingreso()
 	{
-		$_GET['sede'] = $this->data->sede;
+		if (!$this->input->get('sede')) {
+			$_GET['sede'] = $this->data->sede;
+		}
+		// $_GET['sede'] = $this->data->sede;
 		$_GET['ingreso'] = true;
 		$this->output->set_output(json_encode($this->Catalogo_model->getArticulo($_GET)));
 	}

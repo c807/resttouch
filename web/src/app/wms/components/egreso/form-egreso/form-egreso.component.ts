@@ -53,6 +53,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public tiposMovimiento: TipoMovimiento[] = [];
   public tiposMovimientoIngreso: TipoMovimiento[] = [];
   public bodegas: Bodega[] = [];
+  public bodegasDestino: Bodega[] = [];
+  public bodegasFull: Bodega[] = [];
   public articulos: Articulo[] = [];
   public filteredArticulos: Articulo[] = [];
   public proveedores: Proveedor[] = [];
@@ -89,11 +91,9 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.usuarioConfirmaEgresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1;
-    this.resetEgreso();
-    // this.loadTiposMovimiento();
+    this.resetEgreso();    
     this.loadTiposMovimiento(false);
-    this.loadBodegas();
-    this.loadArticulos();
+    this.loadBodegas();    
     this.loadProveedores();
     this.loadPresentaciones();
     if (!this.saveToDB) {
@@ -107,8 +107,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
   loadTiposMovimiento = (paraEgreso = true) => {
     const fltr = paraEgreso ? { egreso: 1, requisicion: this.esRequisicion ? 1 : 0 } : { ingreso: 1 };
-    this.tipoMovimientoSrvc.get(fltr).subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.tipoMovimientoSrvc.get(fltr).subscribe(res => {
         if (paraEgreso) {
           this.tiposMovimiento = res;
           if (this.esRequisicion) {
@@ -117,32 +117,44 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         } else {
           this.tiposMovimientoIngreso = res;
         }
-      }
-    });
+      })
+    );
   }
 
   loadBodegas = () => {
-    this.bodegaSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe(res => {
-      if (res) {
-        this.bodegas = res;
-      }
-    });
+    this.endSubs.add(
+      this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
+        const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
+        this.bodegasFull = res;
+        if (this.esRequisicion) {
+          this.bodegas = res;
+          this.bodegasDestino = this.bodegas.filter(b => +b.sede === +sedeActual);
+        } else {
+          this.bodegasDestino = res;
+          this.bodegas = this.bodegasDestino.filter(b => +b.sede === +sedeActual);
+        }
+      })
+    );
   }
 
   loadProveedores = () => {
-    this.proveedorSrvc.get().subscribe(res => {
-      if (res) {
-        this.proveedores = res;
-      }
-    });
+    this.endSubs.add(
+      this.proveedorSrvc.get().subscribe(res => {
+        if (res) {
+          this.proveedores = res;
+        }
+      })
+    );
   }
 
   loadPresentaciones = () => {
-    this.presentacionSrvc.get().subscribe(res => {
-      if (res) {
-        this.presentaciones = res;
-      }
-    });
+    this.endSubs.add(
+      this.presentacionSrvc.get().subscribe(res => {
+        if (res) {
+          this.presentaciones = res;
+        }
+      })
+    );
   }
 
   resetEgreso = () => {
@@ -158,26 +170,29 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
   onSubmit = () => {
     this.bloqueoBotones = true;
-    this.egresoSrvc.save(this.egreso).subscribe(res => {
-      if (res.exito) {
-        this.egresoSavedEv.emit();
-        this.resetEgreso();
-        this.egreso = {
-          egreso: res.egreso.egreso,
-          tipo_movimiento: res.egreso.tipo_movimiento,
-          fecha: res.egreso.fecha,
-          bodega: res.egreso.bodega,
-          creacion: res.egreso.creacion,
-          usuario: res.egreso.usuario,
-          estatus_movimiento: res.egreso.estatus_movimiento,
-          traslado: res.egreso.traslado,
-          bodega_destino: res.egreso.bodega_destino,
-          comentario: res.egreso.comentario
-        };
-        this.loadDetalleEgreso(this.egreso.egreso);
-      }
-      this.bloqueoBotones = false;
-    });
+    this.endSubs.add(
+      this.egresoSrvc.save(this.egreso).subscribe(res => {
+        if (res.exito) {
+          this.egresoSavedEv.emit();
+          this.resetEgreso();
+          this.egreso = {
+            egreso: res.egreso.egreso,
+            tipo_movimiento: res.egreso.tipo_movimiento,
+            fecha: res.egreso.fecha,
+            bodega: res.egreso.bodega,
+            creacion: res.egreso.creacion,
+            usuario: res.egreso.usuario,
+            estatus_movimiento: res.egreso.estatus_movimiento,
+            traslado: res.egreso.traslado,
+            bodega_destino: res.egreso.bodega_destino,
+            comentario: res.egreso.comentario
+          };
+          this.loadArticulos();
+          this.loadDetalleEgreso(this.egreso.egreso);
+        }
+        this.bloqueoBotones = false;
+      })
+    );
   }
 
   execConfirmarEgreso = () => {
@@ -189,10 +204,10 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     if (+this.egreso.traslado === 1) {
       const pideTipoMovDestRef = this.dialog.open(PideTipoMovimientoDestinoComponent, {
         data: this.tiposMovimientoIngreso
-      });  
+      });
       this.endSubs.add(
         pideTipoMovDestRef.afterClosed().subscribe((tmd: number) => {
-          if (+tmd > 0) {          
+          if (+tmd > 0) {
             this.egreso.tipo_movimiento_destino = +tmd;
             this.execConfirmarEgreso();
           } else {
@@ -205,12 +220,19 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadArticulos = () => {
-    this.articuloSrvc.getArticulosIngreso().subscribe(res => {
-      if (res) {
+  loadArticulos = () => {    
+    const fltr = { sede: null }
+    const bodegaASolicitar = this.bodegasFull.find(b => +b.bodega === +this.egreso.bodega);    
+    if (this.esRequisicion) {
+      fltr.sede = bodegaASolicitar?.datos_sede?.sede || 0;
+    } else {
+      delete fltr.sede;
+    }
+    this.endSubs.add(
+      this.articuloSrvc.getArticulosIngreso(fltr).subscribe(res => {
         this.articulos = res;
-      }
-    });
+      })
+    );
   }
 
   resetDetalleEgreso = () => {
@@ -231,54 +253,54 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   loadDetalleEgreso = (idegreso: number = +this.egreso.egreso) => {
-    this.egresoSrvc.getDetalle(idegreso, { egreso: idegreso }).subscribe(res => {
-      // console.log(res);
-      if (res) {
+    this.endSubs.add(
+      this.egresoSrvc.getDetalle(idegreso, { egreso: idegreso }).subscribe(res => {
         this.detallesEgreso = res;
         this.updateTableDataSource();
-      }
-    });
+      })
+    );
   }
 
   getDetalleEgreso = (idegreso: number = +this.egreso.egreso, iddetalle: number) => {
-    this.egresoSrvc.getDetalle(idegreso, { egreso_detalle: iddetalle }).subscribe((res: any[]) => {
-      // console.log(res);
-      if (res) {
-        this.detalleEgreso = {
-          egreso_detalle: res[0].egreso_detalle,
-          egreso: res[0].egreso,
-          articulo: res[0].articulo.articulo,
-          cantidad: +res[0].cantidad,
-          precio_unitario: +res[0].precio_unitario,
-          precio_total: +res[0].precio_total,
-          presentacion: res[0].presentacion.presentacion
-        };
-        this.setPresentaciones();
-        if (!this.saveToDB) {
-          this.setPresentacionesMerma();
+    this.endSubs.add(      
+      this.egresoSrvc.getDetalle(idegreso, { egreso_detalle: iddetalle }).subscribe((res: any[]) => {      
+        if (res) {
+          this.detalleEgreso = {
+            egreso_detalle: res[0].egreso_detalle,
+            egreso: res[0].egreso,
+            articulo: res[0].articulo.articulo,
+            cantidad: +res[0].cantidad,
+            precio_unitario: +res[0].precio_unitario,
+            precio_total: +res[0].precio_total,
+            presentacion: res[0].presentacion.presentacion
+          };
+          this.setPresentaciones();
+          if (!this.saveToDB) {
+            this.setPresentacionesMerma();
+          }
+          this.txtArticuloSelected = res[0].articulo;
+          this.showDetalleEgresoForm = true;
         }
-        this.txtArticuloSelected = res[0].articulo;
-        this.showDetalleEgresoForm = true;
-      }
-    });
+      })
+    );
   }
 
   onSubmitDetail = () => {
     this.bloqueoBotones = true;
     this.detalleEgreso.egreso = this.egreso.egreso;
-    // console.log(this.detalleEgreso);
-    this.egresoSrvc.saveDetalle(this.detalleEgreso).subscribe(res => {
-      // console.log(res);
-      if (res.exito) {
-        this.loadDetalleEgreso();
-        this.resetDetalleEgreso();
-        this.snackBar.open('Egreso guardado con éxito...', 'Egreso', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 3000 });
-      }
-      this.bloqueoBotones = false;
-      this.presentacionArticuloDisabled = true;
-    });
+    this.endSubs.add(      
+      this.egresoSrvc.saveDetalle(this.detalleEgreso).subscribe(res => {      
+        if (res.exito) {
+          this.loadDetalleEgreso();
+          this.resetDetalleEgreso();
+          this.snackBar.open('Egreso guardado con éxito...', 'Egreso', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 3000 });
+        }
+        this.bloqueoBotones = false;
+        this.presentacionArticuloDisabled = true;
+      })
+    );    
   }
 
   addToDetail = () => {
@@ -449,18 +471,22 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
     });
 
-    delRef.afterClosed().subscribe((confirma: boolean) => {
-      if (confirma) {
-        this.egresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
-          if (res.exito) {
-            this.loadDetalleEgreso(+this.egreso.egreso);
-            this.snackBar.open(res.mensaje, 'Egreso', { duration: 3000 });
-          } else {
-            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 7000 });
-          }
-        });
-      }
-    });
+    this.endSubs.add(      
+      delRef.afterClosed().subscribe((confirma: boolean) => {
+        if (confirma) {
+          this.endSubs.add(            
+            this.egresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
+              if (res.exito) {
+                this.loadDetalleEgreso(+this.egreso.egreso);
+                this.snackBar.open(res.mensaje, 'Egreso', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Egreso', { duration: 7000 });
+              }
+            })
+          );
+        }
+      })
+    );
   }
 
   getPrecioTotal = () => this.detallesEgreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);

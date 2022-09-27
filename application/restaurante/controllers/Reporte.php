@@ -1032,7 +1032,7 @@ class Reporte extends CI_Controller
 
             // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
         }
-    }
+    }    
 
     public function factura()
     {
@@ -1091,6 +1091,7 @@ class Reporte extends CI_Controller
         }
 
         $data['ventas_sin_factura'] = $this->Factura_model->get_ventas_sin_factura($_GET);
+        $data['resumen_tipo_venta'] = $this->Factura_model->get_resumen_tipo_venta($data['facturas']);
         if (verDato($_GET, "_excel")) {
             $fdel = formatoFecha($_GET['fdel'], 2);
             $fal = formatoFecha($_GET['fal'], 2);
@@ -1342,6 +1343,42 @@ class Reporte extends CI_Controller
                 $hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
             }
 
+            $fila += 2;
+            $hoja->setCellValue("A{$fila}", 'NOTA: Este resumen no toma en cuenta facturas anuladas ni ventas sin factura.');
+            $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
+            $fila++;
+            $hoja->setCellValue("A{$fila}", 'Tipo');
+            $hoja->setCellValue("B{$fila}", 'Cantidad');
+            $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->setCellValue("C{$fila}", 'Total');
+            $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->setCellValue("D{$fila}", 'IVA');
+            $hoja->getStyle("D{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
+            $fila++;
+            $suma_tipo_venta = 0.0;
+            $suma_cantidad_tipo_venta = 0.0;
+            $suma_iva = 0.0;
+            foreach($data['resumen_tipo_venta'] as $rtv) {
+                $suma_cantidad_tipo_venta += (float)$rtv->cantidad;
+                $suma_tipo_venta += (float)$rtv->total;
+                $suma_iva += (float)$rtv->iva;
+                $hoja->setCellValue("A{$fila}", $rtv->tipo_venta);
+                $hoja->setCellValue("B{$fila}", (float)$rtv->cantidad);                
+                $hoja->setCellValue("C{$fila}", (float)$rtv->total);                
+                $hoja->setCellValue("D{$fila}", (float)$rtv->iva);
+                $hoja->getStyle("B{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+                $hoja->getStyle("B{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                $fila++;
+            }
+            $hoja->setCellValue("A{$fila}", 'TOTAL:');
+            $hoja->setCellValue("B{$fila}", $suma_cantidad_tipo_venta);
+            $hoja->setCellValue("C{$fila}", $suma_tipo_venta);
+            $hoja->setCellValue("D{$fila}", $suma_iva);
+            $hoja->getStyle("B{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
+
             $hoja->setTitle("Facturas");
 
             header("Content-Type: application/vnd.ms-excel");
@@ -1355,13 +1392,13 @@ class Reporte extends CI_Controller
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
             $writer->save("php://output");
         } else {
-
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
                 'format' => 'Legal'
             ]);
             $mpdf->WriteHTML($this->load->view('detalle_factura', $data, true));
             $mpdf->Output("Detalle de Facturas.pdf", "D");
+            // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
         }
         //$mpdf->AddPage();
     }

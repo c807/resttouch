@@ -815,6 +815,7 @@ class Articulo_model extends General_model
 		];
 
 		$art->guardar($datos);
+		return $art->getPK();
 	}
 
 	public function copiarDetalle($sede)

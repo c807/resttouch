@@ -52,6 +52,14 @@ class Egreso_model extends General_Model
 			->row();
 	}
 
+	public function getBodegaDestino()
+	{
+		return $this->db
+			->where("bodega", $this->bodega_destino)
+			->get("bodega")
+			->row();
+	}
+
 	public function getDetalleDatos($item)
 	{
 		$datos = [
@@ -299,7 +307,88 @@ class Egreso_model extends General_Model
 			}
 			return $ing;
 		} else {
-			$this->mensaje = $det->getMensaje();
+			$this->mensaje = $ing->getMensaje();
+		}
+
+		return false;
+	}
+
+	public function traslado_externo($args = [])
+	{
+		$this->load->model(['Categoria_model', 'Cgrupo_model', 'Receta_model']);
+		$prov = $this->Proveedor_model->buscar([ 'razon_social' => 'Interno', '_uno' => true ]);
+		if (!$prov) {
+			$obj = new Proveedor_model();
+			$obj->guardar([
+				'razon_social' => 'Interno',
+				'nit' => 'CF',
+				'corporacion' => 1
+			]);
+			$idProv = $obj->getPK();
+		} else {
+			$idProv = $prov->proveedor;
+		}
+		$ing = new Ingreso_model();
+		$datos = [
+			'tipo_movimiento' => $args['tipo_movimiento_destino'],
+			'fecha' => $this->fecha,
+			'bodega' => $args['bodega_destino'],
+			'usuario' => $this->usuario,
+			'bodega_origen' => $this->bodega,
+			'comentario' => isset($args['comentario']) ? $args['comentario'] : '',
+			'proveedor' => $idProv,
+			'estatus_movimiento' => 1
+		];
+
+		if ($ing->guardar($datos)) {
+			$porIVA = 0.12;
+			$emp = $this->db
+				->select('c.porcentaje_iva')
+				->join('sede b', 'b.sede = a.sede')
+				->join('empresa c', 'c.empresa = b.empresa')
+				->where('a.bodega', $ing->bodega)
+				->get('bodega a')
+				->row();
+			if ($emp) {
+				$porIVA = (float)$emp->porcentaje_iva ?? 0.12;
+			}
+
+			$detEgreso = $this->getDetalle();
+
+			foreach ($detEgreso as $row) {
+				$idArticulo = $row->articulo->articulo;
+				$artOrigen = new Articulo_model($idArticulo);
+
+				$artDest = $this->db
+					->select('a.articulo')
+					->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+					->join('categoria c', 'c.categoria = b.categoria')
+					->where('c.sede', $args['sede_destino'])
+					->where('TRIM(a.codigo)', trim($artOrigen->codigo))
+					->get('articulo a')
+					->row();
+				
+				if(!$artDest) {
+					$artDest = new stdClass();
+					$artDest->articulo = $artOrigen->copiar($args['sede_destino']);
+					if((int)$artDest->articulo > 0) {
+						$artOrigen->copiarDetalle($args['sede_destino']);
+					}
+				}
+
+				$row->articulo = $artDest->articulo;
+				$row->precio_costo_iva = (float)$row->precio_total * $porIVA;
+				$det = $ing->setDetalle((array) $row);
+				if ($det) {
+					$this->db
+						->set("egreso_detalle", $row->egreso_detalle)
+						->set("ingreso_detalle", $det->ingreso_detalle)
+						->insert("traslado_detalle");
+				}
+			}
+			return $ing;
+		} else {
+			$this->mensaje = $ing->getMensaje();
 		}
 
 		return false;

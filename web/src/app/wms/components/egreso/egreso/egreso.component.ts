@@ -52,8 +52,9 @@ export class EgresoComponent implements OnInit, AfterViewInit {
     this.cd.detectChanges();
   }
 
-  setEgreso = (egr: Egreso) => {    
-    this.egreso = egr;
+  setEgreso = (egr: Egreso) => {        
+    this.frmEgreso.egreso = egr;
+    this.frmEgreso.loadArticulos();
     this.frmEgreso.resetDetalleEgreso();
     this.frmEgreso.loadDetalleEgreso(+this.egreso.egreso);
   }

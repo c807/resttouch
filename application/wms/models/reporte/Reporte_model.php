@@ -547,8 +547,10 @@ EOT;
 
 	function get_ingreso($idIngreso)
 	{
-		$campos = "a.ingreso, b.descripcion AS tipo_movimiento, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, c.descripcion AS bodega, ";
-		$campos.= "c.merma, d.usrname AS usuario, h.descripcion as bodega_origen, a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
+		$campos = "a.ingreso, b.descripcion AS tipo_movimiento, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
+		$campos.= "CONCAT(c.descripcion, ' - ', IFNULL(CONCAT(f.nombre, ' (', f.alias, ')'), '')) AS bodega, c.merma, d.usrname AS usuario, ";
+		$campos.= "CONCAT(h.descripcion, ' - ', IFNULL(CONCAT(j.nombre, ' (', j.alias, ')'), '')) as bodega_origen, ";
+		$campos.= "a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
 		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus";
 		$ingreso = $this->db		
 			->select($campos)
@@ -560,6 +562,7 @@ EOT;
 			->join('empresa g', 'g.empresa = f.empresa')
 			->join('estatus_movimiento i', 'i.estatus_movimiento = a.estatus_movimiento')
 			->join('bodega h', 'h.bodega = a.bodega_origen', 'left')
+			->join('sede j', 'j.sede = h.sede', 'left')
 			->where('a.ingreso', $idIngreso)
 			->get('ingreso a')
 			->row();
@@ -587,9 +590,11 @@ EOT;
 
 	function get_egreso($idEgreso)
 	{
-		$campos = "a.egreso, b.descripcion AS tipo_movimiento, c.descripcion AS bodega, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
+		$campos = "a.egreso, b.descripcion AS tipo_movimiento, CONCAT(c.descripcion, ' - ', IFNULL(CONCAT(e.nombre, ' (', e.alias, ')'), '')) AS bodega, ";
+		$campos.= "DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
 		$campos.= "d.usrname AS usuario, IF(a.estatus_movimiento = 1, 'NO CONFIRMADO', 'CONFIRMADO') AS estatus_movimiento, IF(a.traslado = 0, 'No', 'Sí') AS traslado, ";
-		$campos.= "IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, e.nombre AS sede, e.alias AS alias_sede, f.nombre AS empresa, g.descripcion AS bodega_destino, a.comentario";
+		$campos.= "IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, e.nombre AS sede, e.alias AS alias_sede, f.nombre AS empresa, ";
+		$campos.= "CONCAT(g.descripcion, ' - ', IFNULL(CONCAT(h.nombre, ' (', h.alias, ')'), '')) AS bodega_destino, a.comentario";
 
 		$egreso = $this->db
 			->select($campos)
@@ -599,6 +604,7 @@ EOT;
 			->join('sede e', 'e.sede = c.sede')
 			->join('empresa f', 'f.empresa = e.empresa')
 			->join('bodega g', 'g.bodega = a.bodega_destino', 'left')
+			->join('sede h', 'h.sede = g.sede', 'left')
 			->where('a.egreso', $idEgreso)
 			->get('egreso a')
 			->row();
