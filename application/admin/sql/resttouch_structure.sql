@@ -2358,6 +2358,7 @@ ALTER TABLE RT_DATABASE_NAME.bodega ADD COLUMN permitir_requisicion int NOT NULL
 ALTER TABLE RT_DATABASE_NAME.tipo_movimiento ADD COLUMN requisicion TINYINT(1) NOT NULL DEFAULT 0 AFTER egreso;
 ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX PresentacionReporte_ASC (presentacion_reporte ASC), ADD INDEX MostrarInventario_ASC (mostrar_inventario ASC);
 ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX MostrarPOS_ASC (mostrar_pos ASC), ADD INDEX EsReceta_ASC (esreceta ASC), ADD INDEX Combo_ASC (combo ASC), ADD INDEX Multiple_ASC (multiple ASC);
+ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN factura_serie_correlativo INT(11) NULL;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
