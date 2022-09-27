@@ -211,7 +211,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   resetDetalleIngreso = () => {
     this.detalleIngreso = {
       ingreso_detalle: null, ingreso: (!!this.ingreso.ingreso ? this.ingreso.ingreso : null), articulo: null,
-      cantidad: null, precio_unitario: null, precio_total: null, presentacion: 0
+      cantidad: null, precio_unitario: null, precio_total: null, presentacion: 0, costo_unitario_halado: null
     };
     this.txtArticuloSelected = undefined;
   }
@@ -375,6 +375,9 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     const articulo = this.articulos[idx];
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
     this.detalleIngreso.presentacion = articulo.presentacion_reporte;
+    this.detalleIngreso.costo_unitario_halado = null;
+    this.detalleIngreso.precio_total = null;
+    this.detalleIngreso.precio_unitario = null;
   }
 
   setProveedor = (idProveedor: number) => this.txtProveedorSelected = this.proveedores.find(p => +p.proveedor === idProveedor);
@@ -485,10 +488,30 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   calculaCostoUnitario = () => {
+    if (this.detalleIngreso.costo_unitario_halado && +this.detalleIngreso.costo_unitario_halado > 0) {
+      this.detalleIngreso.precio_total = +this.detalleIngreso.costo_unitario_halado * +this.detalleIngreso.cantidad;
+    }
     const pu: number = +this.detalleIngreso.cantidad !== 0 ? (+this.detalleIngreso.precio_total / +this.detalleIngreso.cantidad) : 0;
     this.detalleIngreso.precio_unitario = redondear(pu, 4);
   }
 
   getPrecioTotal =  () => this.detallesIngreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+
+  halarCosto = () => {    
+    const params = {
+      articulo: this.detalleIngreso.articulo,
+      bodega: this.ingreso.bodega,
+      _coniva: 1
+    };
+    this.endSubs.add(
+      this.articuloSrvc.getCostoArticulo(params).subscribe(res => {
+        if (res.exito && +res.costo > 0) {
+          this.detalleIngreso.costo_unitario_halado = +res.costo;
+          this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_halado, 2);
+          this.calculaCostoUnitario();
+        }
+      })
+    );
+  }
   
 }

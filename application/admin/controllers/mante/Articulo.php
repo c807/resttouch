@@ -526,6 +526,39 @@ class Articulo extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
+	public function get_costo()
+	{		
+		$datos = ['exito' => false, 'costo' => (float)0, 'articulo' => 0];
+		if (isset($_GET['articulo']) && (int)$_GET['articulo'] > 0) {
+			$this->load->model(['Sede_model']);
+			$datos['articulo'] = (int)$_GET['articulo'];
+			$art = new Articulo_model($_GET['articulo']);
+			$costo = $art->getCosto($_GET);
+			if((float)$costo === (float)0) {
+				$costo = $art->getCosto();
+			}
+
+			$conIva = isset($_GET['_coniva']) && (int)$_GET['_coniva'] === 1;
+
+			$porIva = $conIva ? 0.12 : 0;
+			if ($conIva) {
+				$sedeArt = $art->get_sede_articulo(['articulo' => $art->getPK()]);
+				$sede = new Sede_model($sedeArt->sede);
+				$emp = $sede->getEmpresa();
+				if ($emp && isset($emp->porcentaje_iva)) {
+					$porIva = (float)$emp->porcentaje_iva;
+				}
+			}
+
+			$datos['costo'] = round((float)$costo * ((float)1 + (float)$porIva), 5);
+			$datos['exito'] = true;
+			$datos['mensaje'] = 'Costo calculado con éxito.';
+		} else {
+			$datos['mensaje'] = 'Debe enviar un artículo para calcular el costo.';
+		}
+		$this->output->set_output(json_encode($datos));
+	}
+
 	// Finaliza endpoints para variación de precio de artículo por tipo de cliente
 }
 

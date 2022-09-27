@@ -277,4 +277,10 @@ export class ArticuloService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  getCostoArticulo(fltr: any = {}): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/get_costo?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }

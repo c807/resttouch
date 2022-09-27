@@ -140,10 +140,10 @@
                     </mat-form-field>                    
 
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
-                        <input matInput placeholder="Costo Total Con IVA" name="precio_total" type="number"
-                            step="0.01" [(ngModel)]="detalleIngreso.precio_total"
-                            (change)="calculaCostoUnitario()"
-                            required>
+                        <input matInput placeholder="Costo Total Con IVA" name="precio_total" type="number" min="0.01" step="0.01" [(ngModel)]="detalleIngreso.precio_total" (change)="calculaCostoUnitario()" required>
+                        <button type="button" *ngIf="+detalleIngreso.cantidad > 0 && +detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="halarCosto()">
+                            <mat-icon class="iconFontSizeDisableBtn">calculate</mat-icon>
+                        </button>
                     </mat-form-field>
 
                     <span class="bld" style="font-size: medium;" *ngIf="+detalleIngreso.precio_unitario !== 0 && saveToDB">

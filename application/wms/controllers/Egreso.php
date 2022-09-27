@@ -73,31 +73,34 @@ class Egreso extends CI_Controller {
 			if ($egr->estatus_movimiento == 1) {
 				$art = new Articulo_model($req['articulo']);
 				$bac = new BodegaArticuloCosto_model();
-				// $req['precio_unitario']	= $art->costo;
-				$req['precio_unitario']	= $bac->get_costo($egr->bodega, $art->articulo, $req['presentacion']);
-				$pres = new Presentacion_model($req['presentacion']);
-				$presArt = $art->getPresentacionReporte();
-
-				if ($pres->medida == $presArt->medida) {
-					$det = $egr->setDetalle($req, $id);
-
-					if($det) {
-						$art->actualizarExistencia();
-						$datos['exito'] = true;
-						$datos['mensaje'] = "Datos Actualizados con Exito";
-						$datos['detalle'] = $det;
+				$pu = $bac->get_costo($egr->bodega, $art->articulo, $req['presentacion']);
+				if ($pu && (float)$pu > (float)0) {
+					$req['precio_unitario']	= $pu;
+					$pres = new Presentacion_model($req['presentacion']);
+					$presArt = $art->getPresentacionReporte();
+	
+					if ($pres->medida == $presArt->medida) {
+						$det = $egr->setDetalle($req, $id);
+	
+						if($det) {
+							$art->actualizarExistencia();
+							$datos['exito'] = true;
+							$datos['mensaje'] = 'Datos Actualizados con Exito';
+							$datos['detalle'] = $det;
+						} else {
+							$datos['mensaje'] = implode("<br>", $egr->getMensaje());
+						}
 					} else {
-						$datos['mensaje'] = implode("<br>", $egr->getMensaje());
+						$datos['mensaje'] = 'Las unidades de medida no coinciden';
 					}
 				} else {
-					$datos['mensaje'] = "Las unidades de medida no coinciden";		
-				}
-					
+					$datos['mensaje'] = 'Este producto no puede darle egreso porque el costo es 0. Debe hacer un ingreso primero para poder sacarlo.';		
+				}	
 			} else {
-				$datos['mensaje'] = "Solo puede editar egresos en estatus Abierto";
+				$datos['mensaje'] = 'Solo puede editar egresos en estatus Abierto.';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output

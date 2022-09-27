@@ -68,6 +68,16 @@ class BodegaArticuloCosto_model extends General_model {
             } else if ($emp->metodo_costeo == 2) {
                 return $bac->costo_promedio * $pres->cantidad;
             }
+        } else {
+            $this->load->model(['Articulo_model']);
+            $art = new Articulo_model($idArticulo);
+            $costo = $art->getCosto(['bodega' => $idBodega]);
+            if ($costo && (float)$costo > (float)0) {
+                return (float)$costo * $pres->cantidad;
+            } else {
+                $costo = $art->getCosto();
+                return (float)$costo * $pres->cantidad;
+            }
         }
 
         return 0.00;
