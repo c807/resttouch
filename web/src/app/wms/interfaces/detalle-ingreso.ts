@@ -8,4 +8,5 @@ export interface DetalleIngreso {
     presentacion?: number;
     cantidad_utilizada?: number;
     costo_unitario_halado?: number;
+    costo_unitario_pr?: number;
 }

@@ -119,7 +119,7 @@
                     </mat-form-field>
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <mat-label>Presentación</mat-label>
-                        <mat-select name="presentacion" [(ngModel)]="detalleIngreso.presentacion" required [disabled]="presentacionArticuloDisabled">
+                        <mat-select name="presentacion" [(ngModel)]="detalleIngreso.presentacion" required [disabled]="presentacionArticuloDisabled" (selectionChange)="cambioPresentacion($event)">
                             <mat-option *ngFor="let p of fltrPresentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>

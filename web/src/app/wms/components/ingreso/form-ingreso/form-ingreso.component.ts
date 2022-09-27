@@ -29,6 +29,7 @@ import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-form-ingreso',
@@ -211,7 +212,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   resetDetalleIngreso = () => {
     this.detalleIngreso = {
       ingreso_detalle: null, ingreso: (!!this.ingreso.ingreso ? this.ingreso.ingreso : null), articulo: null,
-      cantidad: null, precio_unitario: null, precio_total: null, presentacion: 0, costo_unitario_halado: null
+      cantidad: null, precio_unitario: null, precio_total: null, presentacion: 0, costo_unitario_halado: null, costo_unitario_pr: null
     };
     this.txtArticuloSelected = undefined;
   }
@@ -376,6 +377,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
     this.detalleIngreso.presentacion = articulo.presentacion_reporte;
     this.detalleIngreso.costo_unitario_halado = null;
+    this.detalleIngreso.costo_unitario_pr = null;
     this.detalleIngreso.precio_total = null;
     this.detalleIngreso.precio_unitario = null;
   }
@@ -488,8 +490,8 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   calculaCostoUnitario = () => {
-    if (this.detalleIngreso.costo_unitario_halado && +this.detalleIngreso.costo_unitario_halado > 0) {
-      this.detalleIngreso.precio_total = +this.detalleIngreso.costo_unitario_halado * +this.detalleIngreso.cantidad;
+    if (this.detalleIngreso.costo_unitario_pr && +this.detalleIngreso.costo_unitario_pr > 0) {
+      this.detalleIngreso.precio_total = +this.detalleIngreso.costo_unitario_pr * +this.detalleIngreso.cantidad;
     }
     const pu: number = +this.detalleIngreso.cantidad !== 0 ? (+this.detalleIngreso.precio_total / +this.detalleIngreso.cantidad) : 0;
     this.detalleIngreso.precio_unitario = redondear(pu, 4);
@@ -497,7 +499,10 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
 
   getPrecioTotal =  () => this.detallesIngreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
 
-  halarCosto = () => {    
+  halarCosto = () => {
+    const art = this.articulos.find(p => +p.articulo === +this.detalleIngreso.articulo);    
+    const presR = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);
+
     const params = {
       articulo: this.detalleIngreso.articulo,
       bodega: this.ingreso.bodega,
@@ -507,11 +512,21 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       this.articuloSrvc.getCostoArticulo(params).subscribe(res => {
         if (res.exito && +res.costo > 0) {
           this.detalleIngreso.costo_unitario_halado = +res.costo;
-          this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_halado, 2);
+          this.detalleIngreso.costo_unitario_pr = redondear(this.detalleIngreso.costo_unitario_halado * (+presR?.cantidad || 0), 2);
+          this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_pr, 2);
           this.calculaCostoUnitario();
         }
       })
     );
+  }
+
+  cambioPresentacion = (obj: MatSelectChange) => {
+    if (this.detalleIngreso.costo_unitario_halado && +this.detalleIngreso.costo_unitario_halado !== 0) {
+      const presR = this.presentaciones.find(p => +p.presentacion === +obj.value);
+      this.detalleIngreso.costo_unitario_pr = redondear(this.detalleIngreso.costo_unitario_halado * (+presR?.cantidad || 0), 2);
+      this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_pr, 2);      
+      this.calculaCostoUnitario();
+    }
   }
   
 }
