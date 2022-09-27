@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Fisico extends CI_Controller {
+class Fisico extends CI_Controller
+{
 
 	public function __construct()
 	{
@@ -14,12 +15,12 @@ class Fisico extends CI_Controller {
 			"Receta_model",
 			"Proveedor_model",
 			"Tipo_movimiento_model",
-			'Egreso_model', 
-        	'EDetalle_model',
-        	'Ingreso_model',
-        	'IDetalle_Model',
-        	'Presentacion_model',
-        	'BodegaArticuloCosto_model'
+			'Egreso_model',
+			'EDetalle_model',
+			'Ingreso_model',
+			'IDetalle_Model',
+			'Presentacion_model',
+			'BodegaArticuloCosto_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -46,18 +47,22 @@ class Fisico extends CI_Controller {
 			$req['sede'] = $this->data->sede;
 		}
 
-		if (isset($req['categoria_grupo_grupo'])) {
+		if (isset($req['articulo']) && (int)$req['articulo'] > 0) {
 			$arts = $this->Articulo_model->buscar([
-				"categoria_grupo" => $req['categoria_grupo_grupo'],
-				"mostrar_inventario" => 1
+				'articulo' => $req['articulo'],
+				'mostrar_inventario' => 1
+			]);
+		} else if (isset($req['categoria_grupo_grupo'])) {
+			$arts = $this->Articulo_model->buscar([
+				'categoria_grupo' => $req['categoria_grupo_grupo'],
+				'mostrar_inventario' => 1
 			]);
 
 			$req['categoria_grupo'] = $req['categoria_grupo_grupo'];
-
 		} else {
 			$arts = $this->Catalogo_model->getArticulo([
-				"sede" => $req['sede'],
-				"mostrar_inventario" => 1
+				'sede' => $req['sede'],
+				'mostrar_inventario' => 1
 			]);
 		}
 
@@ -78,27 +83,26 @@ class Fisico extends CI_Controller {
 				foreach ($arts as $row) {
 					$art = new Articulo_model($row->articulo);
 					//if ($art->mostrar_inventario == 1) {
-						$art->actualizarExistencia($req);
-						$fisico->setDetalle([
-							"articulo" => $row->articulo,
-							"precio" => $row->precio,
-							"existencia_sistema" => $art->existencias
-						]);
-					
+					$art->actualizarExistencia($req);
+					$fisico->setDetalle([
+						"articulo" => $row->articulo,
+						"precio" => $row->precio,
+						"existencia_sistema" => $art->existencias
+					]);
 				}
 				$datos['exito'] = true;
 				$datos['inventario'] = $fisico->getPK();
 				$datos['mensaje'] = "Proceso realizado exitosamente";
 			} else {
-				$datos['mensaje'] = "Ocurrio un error al generar el proceso";	
+				$datos['mensaje'] = "Ocurrio un error al generar el proceso";
 			}
 		} else {
 			$datos['mensaje'] = "No hay articulos en la categoria seleccionada";
 		}
-		
-		
+
+
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function imprimir($id = '')
@@ -119,7 +123,7 @@ class Fisico extends CI_Controller {
 						"descripcion" => $row->ncategoria,
 						"datos" => []
 					];
-				} 
+				}
 
 				if (!isset($args['detalle'][$row->categoria]['datos'][$row->categoria_grupo])) {
 					$args['detalle'][$row->categoria]['datos'][$row->categoria_grupo] = [
@@ -130,14 +134,14 @@ class Fisico extends CI_Controller {
 
 				$args['detalle'][$row->categoria]['datos'][$row->categoria_grupo]['datos'][] = $row;
 			}
-			
+
 			if (verDato($_GET, "_excel") && filter_var($_GET['_excel'], FILTER_VALIDATE_BOOLEAN)) {
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->getProperties()
-					  ->setCreator("Restouch")
-					  ->setTitle("Office 2007 xlsx Fisico")
-					  ->setSubject("Office 2007 xlsx Fisico")
-					  ->setKeywords("office 2007 openxml php");
+					->setCreator("Restouch")
+					->setTitle("Office 2007 xlsx Fisico")
+					->setSubject("Office 2007 xlsx Fisico")
+					->setKeywords("office 2007 openxml php");
 
 				$excel->setActiveSheetIndex(0);
 				$hoja = $excel->getActiveSheet();
@@ -154,7 +158,7 @@ class Fisico extends CI_Controller {
 				}
 				/*Encabezado*/
 				$hoja->setCellValue("A1", "Inventario Físico #{$args['inventario']->inventario_fisico}");
-				$hoja->setCellValue("D1", "Fecha: ".formatoFecha($args['inventario']->fhcreacion, 2));
+				$hoja->setCellValue("D1", "Fecha: " . formatoFecha($args['inventario']->fhcreacion, 2));
 
 				$hoja->fromArray($nombres, null, "A3");
 				$hoja->getStyle("A1:G3")->getFont()->setBold(true);
@@ -174,32 +178,33 @@ class Fisico extends CI_Controller {
 						foreach ($gcat['datos'] as $art) {
 							$articulo = new Articulo_model($art->articulo);
 							$pres = $articulo->getPresentacionReporte();
-							$existencias = $art->existencia_sistema/$pres->cantidad;
+							$existencias = $art->existencia_sistema / $pres->cantidad;
 							$diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
 
 							if (round($diferencia, 2) == 0) {
 								continue;
 							}
-							
+
 							$reg = [
 								$art->narticulo,
 								empty($art->codigo) ? $art->articulo : $art->codigo,
 								$pres->descripcion,
-								($existencias == 0) ? "0.00" : round($existencias,2)
+								($existencias == 0) ? "0.00" : round($existencias, 2)
 							];
 
 							if (isset($args['existencia_fisica'])) {
 								if ($art->existencia_fisica == 0) {
 									array_push($reg, "0.00");
 								} else {
-									array_push($reg, round($art->existencia_fisica,2));
-								}								
+									array_push($reg, round($art->existencia_fisica, 2));
+								}
 							}
 
 							if ($args['inventario']->confirmado) {
 								array_push(
-									$reg, 
-									round(($art->existencia_sistema/$pres->cantidad) - $art->existencia_fisica,2));
+									$reg,
+									round(($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica, 2)
+								);
 							}
 
 							$hoja->fromArray($reg, null, "A{$fila}");
@@ -210,7 +215,7 @@ class Fisico extends CI_Controller {
 					}
 				}
 
-				for ($i=0; $i <= count($nombres) ; $i++) { 
+				for ($i = 0; $i <= count($nombres); $i++) {
 					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 				}
 
@@ -220,17 +225,16 @@ class Fisico extends CI_Controller {
 				header("Content-Disposition: attachment;filename=Inventario_Fisico.xlsx");
 				header("Cache-Control: max-age=1");
 				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
 				header("Cache-Control: cache, must-revalidate");
 				header("Pragma: public");
 
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 				$writer->save("php://output");
-
 			} else {
 				$pdf   = new \Mpdf\Mpdf([
 					'tempDir' => sys_get_temp_dir(), //produccion
-					"format" => "letter", 
+					"format" => "letter",
 					"lands"
 				]);
 				$vista = $this->load->view('reporte/fisico/imprimir', $args, true);
@@ -238,7 +242,7 @@ class Fisico extends CI_Controller {
 				$pdf->AddPage();
 				$pdf->WriteHTML($vista);
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_').date('YmdHis').'.pdf';
+				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') . '.pdf';
 				$pdf->Output($nombre, "D");
 			}
 		}
@@ -259,12 +263,12 @@ class Fisico extends CI_Controller {
 		$datos = [];
 		$data = ["exito" => 0];
 		if ($srchInvFisico) {
-			$fisico = new Fisico_model($inv);	
+			$fisico = new Fisico_model($inv);
 			if ($fisico->getPK()) {
 				foreach ($fisico->getDetalle() as $row) {
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
-					$row->existencia_sistema = round($row->existencia_sistema/$pres->cantidad, 2);
+					$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 2);
 					$row->existencia_fisica = (float)$row->existencia_fisica;
 					$row->diferencia = (float)$row->diferencia;
 					if (!isset($datos[$row->categoria])) {
@@ -272,40 +276,40 @@ class Fisico extends CI_Controller {
 							"descripcion" => $row->ncategoria,
 							"datos" => []
 						];
-					} 
-	
-	
+					}
+
+
 					if (!isset($datos[$row->categoria]['datos'][$row->categoria_grupo])) {
 						$datos[$row->categoria]['datos'][$row->categoria_grupo] = [
 							"descripcion" => $row->ncategoria_grupo,
 							"datos" => []
 						];
 					}
-	
+
 					$datos[$row->categoria]['datos'][$row->categoria_grupo]['datos'][] = $row;
 				}
-	
+
 				foreach ($datos as $row) {
 					$row['datos'] = array_values($row['datos']);
 					$data['detalle'][] = $row;
 				}
-	
+
 				$data['inventario'] = $this->Fisico_model->buscar([
 					"inventario_fisico" => $fisico->getPK(),
 					"_uno" => true
-				]);	
-	
+				]);
+
 				$data['exito'] = 1;
 			} else {
-				$data['mensaje'] = "No existe un ".($esCuadreDiario ? 'cuadre diario' : 'inventario físico')." con este número {$inv}";
+				$data['mensaje'] = "No existe un " . ($esCuadreDiario ? 'cuadre diario' : 'inventario físico') . " con este número {$inv}";
 			}
 		} else {
-			$data['mensaje'] = "No existe un ".($esCuadreDiario ? 'cuadre diario' : 'inventario físico')." con este número {$inv}";
+			$data['mensaje'] = "No existe un " . ($esCuadreDiario ? 'cuadre diario' : 'inventario físico') . " con este número {$inv}";
 		}
-		
+
 		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($data));
+			->set_content_type("application/json")
+			->set_output(json_encode($data));
 	}
 
 	public function actualizar()
@@ -333,25 +337,23 @@ class Fisico extends CI_Controller {
 
 			if ($contunuar) {
 				$datos['exito'] = true;
-				$datos['mensaje'] = "Datos actualizados con exito";				
+				$datos['mensaje'] = "Datos actualizados con exito";
 			} else {
 				$datos['mensaje'] = "El inventario ya está confirmado no es posible modificarlo";
 			}
-
 		} else {
-            $datos['mensaje'] = "Parametros invalidos";
-        }
+			$datos['mensaje'] = "Parametros invalidos";
+		}
 
-        $this->output
-        	 ->set_output(json_encode($datos));
+		$this->output
+			->set_output(json_encode($datos));
 	}
 
 	private function getMovAjuste($deIngreso = 0, $deEgreso = 0)
-	{		
-		$tm = $this->Tipo_movimiento_model->buscar([ "descripcion" => "Ajuste", "ingreso" => 1, "egreso" => 1, "_uno" => true ]);
+	{
+		$tm = $this->Tipo_movimiento_model->buscar(["descripcion" => "Ajuste", "ingreso" => 1, "egreso" => 1, "_uno" => true]);
 
-		if (!$tm)
-		{
+		if (!$tm) {
 			$tm = $this->Tipo_movimiento_model->buscar([
 				"descripcion" => "Ajuste",
 				"ingreso" => $deIngreso,
@@ -359,8 +361,7 @@ class Fisico extends CI_Controller {
 				"_uno" => true
 			]);
 
-			if(!$tm)
-			{
+			if (!$tm) {
 				$obj = new Tipo_movimiento_model();
 				$obj->guardar([
 					"descripcion" => "Ajuste",
@@ -371,19 +372,19 @@ class Fisico extends CI_Controller {
 			}
 		}
 
-		return $tm->tipo_movimiento;		
+		return $tm->tipo_movimiento;
 	}
 
 	public function confirmar($id)
 	{
 		$datos = ["exito" => false, "mensaje" => ""];
-		$ingreso=[];
-		$egreso=[];
+		$ingreso = [];
+		$egreso = [];
 
 		if ($this->input->method() == 'post') {
 
 			$inv = new Fisico_model($id);
-			$esFisico = (int)$inv->escuadrediario === 0; 
+			$esFisico = (int)$inv->escuadrediario === 0;
 			$sede = new Sede_model($this->data->sede);
 			$emp = $sede->getEmpresa();
 
@@ -396,8 +397,8 @@ class Fisico extends CI_Controller {
 				$prov = $this->Proveedor_model->buscar([
 					"razon_social" => "Interno",
 					"_uno" => true
-				]);			
-	
+				]);
+
 				if (!$prov) {
 					$obj = new Proveedor_model();
 					$obj->guardar([
@@ -410,29 +411,28 @@ class Fisico extends CI_Controller {
 					$idProv = $prov->proveedor;
 				}
 			}
-			
+
 			if ($inv->guardar($args)) {
 
 				//Inicia código para actualizar campo diferencia
 				foreach ($inv->getDetalle() as $row) {
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
-					$row->diferencia = round(($row->existencia_sistema/$pres->cantidad), 2) - $row->existencia_fisica;
+					$row->diferencia = round(($row->existencia_sistema / $pres->cantidad), 2) - $row->existencia_fisica;
 
 					if ($esFisico) {
-						if (round($row->diferencia, 2) > 0){
+						if (round($row->diferencia, 2) > 0) {
 							$egreso[] = $row;
-						}
-						elseif (round($row->diferencia, 2) < 0){
+						} elseif (round($row->diferencia, 2) < 0) {
 							$ingreso[] = $row;
 						}
-					}					
+					}
 				}
 				// Termina código para actualizar campo diferencia
 
 				if ($esFisico) {
 					// Inicia código para generar salidas de ajuste
-					if (count($egreso) > 0){
+					if (count($egreso) > 0) {
 						$gegreso = [
 							"tipo_movimiento" => $this->getMovAjuste(0, 1),
 							"bodega" => $inv->bodega,
@@ -448,9 +448,9 @@ class Fisico extends CI_Controller {
 								$bac = new BodegaArticuloCosto_model();
 								$art = new Articulo_model($row->articulo);
 								$pres = $art->getPresentacionReporte();
-	
+
 								$costo = $bac->get_costo($egr->bodega, $row->articulo, $pres->presentacion);
-	
+
 								$datos = [
 									"cantidad" => abs($row->diferencia),
 									"articulo" => $row->articulo,
@@ -458,15 +458,15 @@ class Fisico extends CI_Controller {
 									"precio_total" => $costo * abs($row->diferencia),
 									"presentacion" => $pres->presentacion
 								];
-	
+
 								$egr->setDetalle($datos);
 							}
 						}
 					}
 					// Termina código para generar salidas de ajuste
-	
+
 					// Inicia código para generar ingresos de ajuste
-					if (count($ingreso) > 0){
+					if (count($ingreso) > 0) {
 						$gingreso = [
 							"tipo_movimiento" => $this->getMovAjuste(1, 0),
 							"fecha" => Hoy(),
@@ -477,7 +477,7 @@ class Fisico extends CI_Controller {
 							"estatus_movimiento" => 2,
 							"ajuste" => 1
 						];
-	
+
 						$ing = new Ingreso_model();
 						if ($ing->guardar($gingreso)) {
 							foreach ($ingreso as $row) {
@@ -485,16 +485,16 @@ class Fisico extends CI_Controller {
 								$articulo = new Articulo_model($row->articulo);
 								$pres = $articulo->getPresentacionReporte();
 								$costo = $bac->get_costo($ing->bodega, $row->articulo, $pres->presentacion);
-	
+
 								$datos = [
-									"articulo" => $row->articulo, 
+									"articulo" => $row->articulo,
 									"cantidad" => abs($row->diferencia),
 									"precio_unitario" => $costo,
 									"precio_total" => $costo * abs($row->diferencia),
 									"presentacion" => $pres->presentacion,
 									"precio_costo_iva" => $costo * abs($row->diferencia) * $emp->porcentaje_iva
 								];
-	
+
 								$ing->setDetalle($datos);
 							}
 						}
@@ -507,17 +507,16 @@ class Fisico extends CI_Controller {
 					"inventario_fisico" => $inv->getPK(),
 					"_uno" => true
 				]);
-				$datos['mensaje'] = "Datos actualizados con exito";	
+				$datos['mensaje'] = "Datos actualizados con exito";
 			} else {
-				$datos['mensaje'] = "Ocurrio un error al guardar el registro";	
+				$datos['mensaje'] = "Ocurrio un error al guardar el registro";
 			}
 		} else {
-            $datos['mensaje'] = "Parametros invalidos";
-        }
+			$datos['mensaje'] = "Parametros invalidos";
+		}
 
-        $this->output->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
-
 }
 
 /* End of file Fisico.php */

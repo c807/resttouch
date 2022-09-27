@@ -54,6 +54,15 @@
           </mat-form-field>
 
           <mat-form-field class="fullWidth">
+            <mat-label>Artículo</mat-label>
+            <mat-select name="articulo" [(ngModel)]="params.articulo">
+              <mat-option *ngFor="let art of lstArticulos" [value]="art.articulo">
+                {{art.descripcion}} ({{art.subcategoria.descripcion}})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="fullWidth">
             <input matInput type="date" placeholder="Fecha" [(ngModel)]="params.fecha" 
               [ngModelOptions]="{standalone: true}" required>
           </mat-form-field>

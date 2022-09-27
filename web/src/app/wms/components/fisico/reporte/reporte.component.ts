@@ -6,11 +6,12 @@ import { Bodega } from '../../../interfaces/bodega';
 import { BodegaService } from '../../../services/bodega.service';
 import { Categoria } from '../../../interfaces/categoria';
 import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
+import { Articulo } from '../../../interfaces/articulo';
 import { ArticuloService } from '../../../services/articulo.service';
 import { FisicoService } from '../../../services/fisico.service';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
 import * as moment from 'moment';
 import { MatSelectChange } from '@angular/material/select';
 import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
@@ -35,6 +36,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
   public cargando = false;
   public showReporte = true;
   public maxDiasAntiguedadInventarioFisico = 1;
+  public lstArticulos: Articulo[] = [];
 
   private endSubs = new Subscription();
 
@@ -78,6 +80,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
     this.params.categoria_grupo_grupo = null;
     this.getBodega({ sede: +obj.value });
     this.loadCategorias({ sede: +obj.value });
+    this.loadArticulos({ sede: +obj.value });
   }
 
   getBodega = (params: any = {}) => {
@@ -117,6 +120,15 @@ export class ReporteComponent implements OnInit, OnDestroy {
         if (res) {
           this.categoriasGrupos = this.articuloSrvc.adaptCategoriaGrupoResponse(res);
         }
+      })
+    );
+  }
+
+  loadArticulos = (params: any = {}) => {
+    params.mostrar_inventario = 1;
+    this.endSubs.add(
+      this.articuloSrvc.getArticulos(params).subscribe(res => {
+        this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');
       })
     );
   }
