@@ -59,6 +59,7 @@ class Mesa_model extends General_Model {
 		return $this->db
 		->select('a.*')
 		->join('area b', 'b.area = a.area')		
+		->where('a.debaja', 0)
 		->where('a.esmostrador', 0)
 		->where('a.escallcenter', 0)
 		->where('b.sede', $sede)
