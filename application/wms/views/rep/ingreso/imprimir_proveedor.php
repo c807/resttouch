@@ -24,7 +24,7 @@
 	<table class="tabla-contenido">
 		<tr>
 			<td class="titulo">Fecha</td>
-			<td class="titulo"># Documento</td>
+			<td class="titulo">Documento</td>
 			<td class="titulo">Estatus ingreso</td>
 			<td class="titulo">Tipo movimiento</td>
 			<td class="titulo">Bodega </td>

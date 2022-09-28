@@ -152,12 +152,12 @@
 
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                            [disabled]="!frmDetalleIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || +detalleIngreso.cantidad < 1"
+                            [disabled]="!frmDetalleIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || +detalleIngreso.cantidad < 1 || +detalleIngreso.precio_unitario === 0"
                             *ngIf="saveToDB">
                             Guardar
                         </button>
                         <button mat-raised-button type="button" color="accent" (click)="addToDetail()"
-                            [disabled]="!detalleIngreso.articulo || !frmDetalleIngreso.form.valid || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || +detalleIngreso.cantidad < 0.01"
+                            [disabled]="!detalleIngreso.articulo || !frmDetalleIngreso.form.valid || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0 || +detalleIngreso.cantidad < 0.01 || +detalleIngreso.precio_unitario === 0"
                             *ngIf="!saveToDB">
                             Guardar producción
                         </button>

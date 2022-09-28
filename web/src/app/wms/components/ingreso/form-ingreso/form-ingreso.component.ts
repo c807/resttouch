@@ -240,7 +240,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
           precio_total: +res[0].precio_total,
           presentacion: res[0].presentacion.presentacion
         };
-        this.setPresentaciones();
+        this.setPresentaciones(true);
         this.txtArticuloSelected = res[0].articulo;
         this.showDetalleIngresoForm = true;
       }
@@ -310,10 +310,8 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       cantidad: (+tmp.cantidad < 1 ? 1 : tmp.cantidad), precio_unitario: tmp.precio_unitario, precio_total: tmp.precio_total,
       presentacion: tmp.presentacion, cantidad_utilizada: tmp.cantidad_utilizada
     };
-    this.setPresentaciones();
-    this.txtArticuloSelected = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo)[0];
-    //this.showDetalleIngresoForm = true;
-    //
+    this.setPresentaciones(true);
+    this.txtArticuloSelected = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo)[0];    
   }
 
   getDescripcionArticulo = (idarticulo: number) => this.articulos.find(art => +art.articulo === +idarticulo).descripcion || '';
@@ -370,16 +368,18 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  setPresentaciones = () => {
+  setPresentaciones = (editando = false) => {    
     this.fltrPresentaciones = [];
     const idx = this.articulos.findIndex(p => +p.articulo === +this.detalleIngreso.articulo);
     const articulo = this.articulos[idx];
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
     this.detalleIngreso.presentacion = articulo.presentacion_reporte;
-    this.detalleIngreso.costo_unitario_halado = null;
-    this.detalleIngreso.costo_unitario_pr = null;
-    this.detalleIngreso.precio_total = null;
-    this.detalleIngreso.precio_unitario = null;
+    if (!editando) {      
+      this.detalleIngreso.costo_unitario_halado = null;
+      this.detalleIngreso.costo_unitario_pr = null;
+      this.detalleIngreso.precio_total = null;
+      this.detalleIngreso.precio_unitario = null;
+    }
   }
 
   setProveedor = (idProveedor: number) => this.txtProveedorSelected = this.proveedores.find(p => +p.proveedor === idProveedor);

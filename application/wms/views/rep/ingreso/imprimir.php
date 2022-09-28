@@ -38,7 +38,8 @@
 			?>
 			<tr>
 				<td class="titulo">Fecha</td>
-				<td class="titulo"># Documento</td>
+				<td class="titulo">Tipo</td>
+				<td class="titulo">Documento</td>
 				<td class="titulo">Estatus ingreso</td>
 				<td class="titulo">Bodega </td>
 				<td class="titulo"><?php echo $col ?></td>
@@ -80,7 +81,7 @@
 					<?php if ($row->nproveedor != $proveedor): ?>
 						<?php $proveedor = $row->nproveedor; ?>
 						<tr>
-							<td colspan="8" class="titulo text-left"><?php echo $proveedor ?></td>
+							<td colspan="9" class="titulo text-left"><?php echo $proveedor ?></td>
 						</tr>
 					<?php endif ?>
 				<?php endif ?>
@@ -88,12 +89,13 @@
 					<?php if ($row->producto != $producto): ?>
 						<?php $producto = $row->producto; ?>
 						<tr>
-							<td colspan="8" class="titulo text-left"><?php echo $producto ?></td>
+							<td colspan="9" class="titulo text-left"><?php echo $producto ?></td>
 						</tr>
 					<?php endif ?>
 				<?php endif ?>
 				<tr>
 					<td><?php echo formatoFecha($row->fecha, 2); ?></td>
+					<td><?php echo $row->ntipo_movimiento; ?></td>
 					<td><?php echo $row->num_documento; ?></td>
 					<td><?php echo $row->nestatus?></td>
 					<td><?php echo $row->bodega; ?> </td>
@@ -115,7 +117,7 @@
 				?>
 			<?php endforeach ?>
 			<tr>
-				<td colspan="5" class="text-right"><b>Total</b></td>
+				<td colspan="6" class="text-right"><b>Total</b></td>
 				<?php if ($args->reporte == 2): ?>
 					<td class="text-right"><b><?php echo number_format($tcantidad, 2); ?></b></td>
 				<?php else: ?>
