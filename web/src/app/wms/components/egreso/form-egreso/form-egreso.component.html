@@ -28,7 +28,7 @@
             <mat-form-field class="fullWidth">
                 <mat-label>{{esRequisicion ? 'Bodega a la que solicito' : 'Bodega'}}</mat-label>
                 <mat-select name="bodega" [(ngModel)]="egreso.bodega" required>
-                    <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
+                    <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega" [disabled]="+bode.debaja === 1">
                         <span *ngIf="!esRequisicion">{{bode.descripcion}}</span>
                         <span *ngIf="esRequisicion"><strong>{{bode.descripcion}}</strong> - {{bode.datos_sede.nombre}} ({{bode.datos_sede.alias}})</span>
                     </mat-option>
@@ -36,8 +36,8 @@
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <mat-label>{{esRequisicion ? 'Bodega que solicita' : 'Bodega destino'}}</mat-label>
-                <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino" [required]="+egreso.traslado == 1">
-                    <mat-option *ngFor="let bodeDest of bodegasDestino" [value]="bodeDest.bodega">
+                <mat-select name="bodega_destino" [(ngModel)]="egreso.bodega_destino" [required]="+egreso.traslado === 1 || esRequisicion">
+                    <mat-option *ngFor="let bodeDest of bodegasDestino" [value]="bodeDest.bodega" [disabled]="+bodeDest.debaja === 1">
                         <span *ngIf="!esRequisicion"><strong>{{bodeDest.descripcion}}</strong> - {{bodeDest.datos_sede.nombre}} ({{bodeDest.datos_sede.alias}})</span>
                         <span *ngIf="esRequisicion">{{bodeDest.descripcion}}</span>
                     </mat-option>

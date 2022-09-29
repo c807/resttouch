@@ -11,8 +11,7 @@ class Bodega extends CI_Controller {
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = '')
@@ -42,18 +41,43 @@ class Bodega extends CI_Controller {
 			$datos['mensaje'] = "Parametros Invalidos";
 		}
 		
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar()
 	{	
 		$_GET['sede'] = $this->data->sede;
-		$datos = $this->Impresora_model->buscar($_GET);
+		$datos = $this->Bodega_model->buscar($_GET);
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+	}
+
+	public function dar_de_baja($id)
+	{		
+		$datos = ['exito' => false];
+		if ($id && (int)$id > 0) {
+			$bodega = new Bodega_model($id);
+
+			$enUso = $bodega->checkEnUso();
+			if ($enUso === '') {
+				$datos['exito'] = $bodega->guardar([
+					'debaja' => 1,
+					'usuariodebaja' => $this->data->idusuario,
+					'fechabaja' => Hoy(3)
+				]);
+				if ($datos['exito']) {
+					$datos['mensaje'] = 'Bodega dada de baja con éxito.';
+				} else {
+					$datos['mensaje'] = implode(';', $bodega->getMensaje());
+				}
+			} else {
+				$datos['mensaje'] = "Esta bodega está en uso por las subcategorías {$enUso}. No se puede dar de baja.";
+			}
+		}  else {
+			$datos['mensaje'] = 'Parámetros inválidos';
+		}
+		
+		$this->output->set_output(json_encode($datos));
 	}
 
 }

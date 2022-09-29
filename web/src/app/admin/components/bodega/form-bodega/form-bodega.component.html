@@ -12,15 +12,20 @@
             </mat-form-field>
             <mat-checkbox name="pordefecto" class="fullWidth" [(ngModel)]="+bodega.pordefecto">Usar por defecto</mat-checkbox>
             <mat-checkbox name="merma" class="fullWidth" [(ngModel)]="+bodega.merma">¿Es Merma?</mat-checkbox>
-            <mat-checkbox name="permitir_requisicion" class="fullWidth" [(ngModel)]="+bodega.permitir_requisicion">Permitir requisiciones</mat-checkbox>
+            <mat-checkbox name="permitir_requisicion" class="fullWidth" [(ngModel)]="+bodega.permitir_requisicion">Permitir requisiciones</mat-checkbox><br/><br/>
+
+            <span *ngIf="+bodega.debaja === 1">
+                <strong>Bodega dada de baja el {{bodega.fechabaja | date:'dd/MM/YYYY HH:mm:ss'}} por {{bodega.usrnamebaja}}</strong>
+            </span>
 
             <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                    [disabled]="!frmBodega.form.valid">
-                    Guardar
+                <button mat-raised-button type="button" color="warn" class="btnAccion" *ngIf="bodega.bodega" (click)="darDeBaja()" [disabled]="+bodega.debaja === 1">
+                    Dar de baja
                 </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetBodega()"
-                    *ngIf="bodega.bodega">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmBodega.form.valid || +bodega.debaja === 1">
+                    Guardar
+                </button>                
+                <button mat-raised-button type="button" color="accent" (click)="resetBodega()" *ngIf="bodega.bodega">
                     Nueva
                 </button>
             </div>

@@ -170,6 +170,9 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
   onSubmit = () => {
     this.bloqueoBotones = true;
+    if (this.esRequisicion) {
+      this.egreso.traslado = 1;
+    }
     this.endSubs.add(
       this.egresoSrvc.save(this.egreso).subscribe(res => {
         if (res.exito) {

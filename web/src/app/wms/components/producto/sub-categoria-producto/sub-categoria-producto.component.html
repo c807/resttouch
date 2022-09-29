@@ -33,7 +33,7 @@
             <mat-form-field class="fullWidth">
                 <mat-label>Sacar de la bodega:</mat-label>
                 <mat-select name="bodega" [(ngModel)]="categoriaGrupo.bodega" required>
-                    <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
+                    <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega" [disabled]="+bode.debaja === 1">
                         {{bode.descripcion}}
                     </mat-option>
                 </mat-select>                

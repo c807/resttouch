@@ -31,4 +31,10 @@ export class BodegaService {
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  darDeBaja(idBodega: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlMantenimientos}/bodega/dar_de_baja/${idBodega}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

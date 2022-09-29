@@ -32,7 +32,7 @@
                     <mat-form-field class="fullWidth" *ngIf="bodega">
                         <mat-label>Bodega</mat-label>
                         <mat-select name="bodega" [(ngModel)]="ingreso.bodega" required>
-                            <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega">
+                            <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega" [disabled]="+bode.debaja === 1">
                                 {{bode.descripcion}}
                             </mat-option>
                         </mat-select>
@@ -40,7 +40,7 @@
                     <mat-form-field class="fullWidth" *ngIf="saveToDB">
                         <mat-label>Bodega de origen</mat-label>
                         <mat-select name="bodega_origen" [(ngModel)]="ingreso.bodega_origen">
-                            <mat-option *ngFor="let bodeO of bodegasOrigen" [value]="bodeO.bodega">
+                            <mat-option *ngFor="let bodeO of bodegasOrigen" [value]="bodeO.bodega" [disabled]="+bodeO.debaja === 1">
                                 {{bodeO.descripcion}} - {{bodeO.datos_sede.nombre}} ({{bodeO.datos_sede.alias}})
                             </mat-option>
                         </mat-select>

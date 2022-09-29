@@ -10,6 +10,9 @@ class Bodega_model extends General_model
     public $merma = 0;
     public $pordefecto = 0;
     public $permitir_requisicion = 0;
+    public $debaja = 0;
+    public $usuariodebaja = null;
+    public $fechabaja = null;
 
     public function __construct($id = '')
     {
@@ -25,6 +28,17 @@ class Bodega_model extends General_model
         $this->db->set('pordefecto', 0);
         $this->db->where('sede', $sede);
         $this->db->update('bodega');
+    }
+
+    public function checkEnUso()
+    {
+        $subcategorias = $this->db
+            ->select('GROUP_CONCAT(descripcion ORDER BY descripcion SEPARATOR ", ") AS subcategorias')            
+            ->where('bodega', $this->getPK())
+            ->get('categoria_grupo')
+            ->row();
+
+        return $subcategorias ? $subcategorias->subcategorias : '';
     }
 
 }

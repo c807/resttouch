@@ -2359,6 +2359,8 @@ ALTER TABLE RT_DATABASE_NAME.tipo_movimiento ADD COLUMN requisicion TINYINT(1) N
 ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX PresentacionReporte_ASC (presentacion_reporte ASC), ADD INDEX MostrarInventario_ASC (mostrar_inventario ASC);
 ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX MostrarPOS_ASC (mostrar_pos ASC), ADD INDEX EsReceta_ASC (esreceta ASC), ADD INDEX Combo_ASC (combo ASC), ADD INDEX Multiple_ASC (multiple ASC);
 ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN factura_serie_correlativo INT(11) NULL;
+ALTER TABLE RT_DATABASE_NAME.bodega ADD COLUMN debaja TINYINT(1) NOT NULL DEFAULT 0 AFTER pordefecto, ADD COLUMN usuariodebaja INT NULL AFTER debaja, ADD COLUMN fechabaja DATETIME NULL AFTER usuariodebaja, ADD INDEX fk_bodega_usuario_idx (usuariodebaja ASC);
+ALTER TABLE RT_DATABASE_NAME.bodega ADD CONSTRAINT fk_bodega_usuario1 FOREIGN KEY (usuariodebaja) REFERENCES RT_DATABASE_NAME.usuario (usuario) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

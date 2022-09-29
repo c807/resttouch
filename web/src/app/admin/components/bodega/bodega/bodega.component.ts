@@ -22,7 +22,9 @@ export class BodegaComponent implements OnInit {
       descripcion: "",
       sede: null,
       merma: null,
-      pordefecto: 0
+      pordefecto: 0,
+      permitir_requisicion: 0,
+      debaja: 0
     }
    }
 

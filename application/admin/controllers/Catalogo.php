@@ -63,8 +63,15 @@ class Catalogo extends CI_Controller {
 			foreach($lasBodegas as $bodega) {
 				$bodega->datos_sede = $this->Catalogo_model->getSede(['sede' => $bodega->sede, '_uno' => true]);
 				$bodega->order_by = "{$bodega->datos_sede->nombre}-{$bodega->descripcion}";
+				$usuarioBaja = $bodega->usuariodebaja ? $this->Catalogo_model->getUsuario(['usuario' => $bodega->usuariodebaja, '_uno' => true]) : null;
+				$bodega->usrnamebaja = $usuarioBaja ? trim("{$usuarioBaja->nombres} {$usuarioBaja->apellidos}") : null;
 			}
 			$lasBodegas = ordenar_array_objetos($lasBodegas, 'order_by');
+		} else {
+			foreach($lasBodegas as $bodega) {				
+				$usuarioBaja = $bodega->usuariodebaja ? $this->Catalogo_model->getUsuario(['usuario' => $bodega->usuariodebaja, '_uno' => true]) : null;
+				$bodega->usrnamebaja = $usuarioBaja ? trim("{$usuarioBaja->nombres} {$usuarioBaja->apellidos}") : null;
+			}			
 		}
 
 		$this->output->set_output(json_encode($lasBodegas));
