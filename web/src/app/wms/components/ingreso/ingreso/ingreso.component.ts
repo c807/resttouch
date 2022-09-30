@@ -16,8 +16,7 @@ export class IngresoComponent implements OnInit {
   public ingreso: Ingreso;
   @ViewChild('lstIngreso') lstIngresoComponent: ListaIngresoComponent;
   @ViewChild('frmIngreso') frmIngreso: FormIngresoComponent;
-  public breakpoint = 2;
-  // public tamFila: number;
+  public breakpoint = 2;  
 
   constructor(
     private ls: LocalstorageService
@@ -30,14 +29,10 @@ export class IngresoComponent implements OnInit {
 
   ngOnInit() {
     this.breakpoint = (window.innerWidth <= 360) ? 1 : 2;
-    // this.tamFila = window.innerHeight - 64;
-    // console.log(this.tamFila);
   }
 
   onWindowResize = (ev: any) => {
     this.breakpoint = (ev.target.innerWidth <= 360) ? 1 : 2;
-    // this.tamFila = ev.target.innerHeight - 64;
-    // console.log(this.tamFila);
   }
 
   setIngreso = (ing: Ingreso) => {

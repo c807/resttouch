@@ -136,7 +136,6 @@ class Ingreso_model extends General_Model
 			} else {
 				$this->db->where('a.bodega', $args['bodega']);
 			}
-			
 		}
 
 		return $this->db
@@ -173,7 +172,6 @@ class Ingreso_model extends General_Model
 			} else {
 				$this->db->where('a.bodega', $args['bodega']);
 			}
-			
 		}
 
 		return $this->db
@@ -234,23 +232,23 @@ class Ingreso_model extends General_Model
 				$this->db->where_in('a.bodega', $args['bodega']);
 			} else {
 				$this->db->where('a.bodega', $args['bodega']);
-			}			
+			}
 		}
 
 		$ai = $this->db
-		->select("c.articulo, max(a.fecha) as fecha, 0 as precio_unitario")
-		->join("bodega b", "a.bodega = b.bodega")
-		->join("ingreso_detalle c", "a.ingreso = c.ingreso")
-		->join("articulo d", "c.articulo = d.articulo")
-		->join("presentacion e", "c.presentacion = e.presentacion")
-		->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
-		->join("categoria g", "g.categoria = f.categoria")
-		->where("a.fecha <= '{$args['fecha']}'")
-		->where("d.mostrar_inventario", 1)
-		->group_by("c.articulo")
-		->order_by("g.descripcion, f.descripcion, d.descripcion")
-		->get("ingreso a")
-		->result();
+			->select("c.articulo, max(a.fecha) as fecha, 0 as precio_unitario")
+			->join("bodega b", "a.bodega = b.bodega")
+			->join("ingreso_detalle c", "a.ingreso = c.ingreso")
+			->join("articulo d", "c.articulo = d.articulo")
+			->join("presentacion e", "c.presentacion = e.presentacion")
+			->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
+			->join("categoria g", "g.categoria = f.categoria")
+			->where("a.fecha <= '{$args['fecha']}'")
+			->where("d.mostrar_inventario", 1)
+			->group_by("c.articulo")
+			->order_by("g.descripcion, f.descripcion, d.descripcion")
+			->get("ingreso a")
+			->result();
 
 		$q1 = $this->db->last_query();
 
@@ -272,7 +270,7 @@ class Ingreso_model extends General_Model
 				$this->db->where_in('b.bodega', $args['bodega']);
 			} else {
 				$this->db->where('b.bodega', $args['bodega']);
-			}			
+			}
 		}
 
 		$anc = $this->db
@@ -301,17 +299,13 @@ class Ingreso_model extends General_Model
 		$cntArtsNoc = count($arts_noc);
 		$nuevo = array();
 
-		foreach($arts_noc as $k => $v)
-		{
+		foreach ($arts_noc as $k => $v) {
 			$nuevo[$k] = clone $v;
 		}
 
-		for ($i = 0; $i < $cntArtsIng; $i++)
-		{
-			for ($j = 0; $j < $cntArtsNoc; $j++)
-			{
-				if ((int)$nuevo[$j]->articulo === (int)$arts_ing[$i]->articulo)
-				{
+		for ($i = 0; $i < $cntArtsIng; $i++) {
+			for ($j = 0; $j < $cntArtsNoc; $j++) {
+				if ((int)$nuevo[$j]->articulo === (int)$arts_ing[$i]->articulo) {
 					unset($arts_noc[$j]);
 				}
 			}
@@ -329,7 +323,7 @@ class Ingreso_model extends General_Model
 			'ultimo_proveedor' => $ingreso->proveedor,
 			'_uno' => true
 		]);
-		
+
 		$auc = null;
 		if ($aucSrch) {
 			$auc = new Articulo_ultima_compra_model($aucSrch->articulo_ultima_compra);
@@ -345,6 +339,30 @@ class Ingreso_model extends General_Model
 		$auc->guardar();
 	}
 
+	public function get_egreso_origen($idIngreso = null)
+	{
+		if (!$idIngreso) {
+			$idIngreso = $this->getPK();
+		}
+
+		$campos = 'e.egreso, e.tipo_movimiento, e.bodega, CONCAT(f.descripcion, " - ", CONCAT(h.nombre, IFNULL(CONCAT(" (", h.alias, ")"), ""))) AS nombre_bodega_origen, e.fecha, e.creacion, e.usuario, ';
+		$campos .= 'e.estatus_movimiento, e.traslado, e.idcomandafox, e.ajuste, e.raw_egreso, e.bodega_destino, ';
+		$campos .= 'CONCAT(g.descripcion, " - ", CONCAT(i.nombre, IFNULL(CONCAT(" (", i.alias, ")"), ""))) AS nombre_bodega_destino, e.comentario';
+		return $this->db
+			->select($campos)
+			->join('ingreso_detalle b', 'b.ingreso_detalle = a.ingreso_detalle')
+			->join('ingreso c', 'c.ingreso = b.ingreso')
+			->join('egreso_detalle d', 'd.egreso_detalle = a.egreso_detalle')
+			->join('egreso e', 'e.egreso = d.egreso')
+			->join('bodega f', 'f.bodega = e.bodega')
+			->join('bodega g', 'g.bodega = e.bodega_destino')
+			->join('sede h', 'h.sede = f.sede')
+			->join('sede i', 'i.sede = g.sede')
+			->where('c.ingreso', $idIngreso)
+			->group_by('e.egreso')
+			->get('traslado_detalle a')
+			->row();
+	}
 }
 
 /* End of file Ingreso_model.php */

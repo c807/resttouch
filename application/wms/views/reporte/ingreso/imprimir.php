@@ -65,6 +65,12 @@
                 <td colspan="3"><?php echo $documento->serie . '-' . $documento->numero; ?></td>
             </tr>
         <?php endif; ?>
+        <?php if ($egreso_origen) : ?>
+            <tr>
+                <th class="text-right">Egreso origen:</th>
+                <td colspan="5"><?php echo "#{$egreso_origen}"; ?></td>
+            </tr>
+        <?php endif; ?>
         <tr>
             <th class="text-right">Comentario:</th>
             <td colspan="5">

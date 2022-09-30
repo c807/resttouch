@@ -64,6 +64,16 @@
                     <mat-form-field class="fullWidth">
                         <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="ingreso.comentario">
                     </mat-form-field>
+                    
+                    <ng-container *ngIf="ingreso.ingreso && ingreso.egreso_origen">
+                        <br/><br/>
+                        <span>
+                            <strong>Generado del egreso #{{ingreso.egreso_origen.egreso}} de {{ingreso.egreso_origen.nombre_bodega_origen}}</strong>
+                        </span>
+                    </ng-container>
+                    <span>
+
+                    </span>
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion"
                             [disabled]="!frmIngreso.form.valid || bloqueoBotones || +documento.enviado === 1 || [2, 3].indexOf(+ingreso.estatus_movimiento) >= 0"

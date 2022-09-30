@@ -584,6 +584,19 @@ EOT;
 				->order_by('b.descripcion')
 				->get('ingreso_detalle a')
 				->result();
+
+			$egreso_origen = $this->db
+			->select('e.egreso')
+			->join('ingreso_detalle b', 'b.ingreso_detalle = a.ingreso_detalle')
+			->join('ingreso c', 'c.ingreso = b.ingreso')
+			->join('egreso_detalle d', 'd.egreso_detalle = a.egreso_detalle')
+			->join('egreso e', 'e.egreso = d.egreso')				
+			->where('c.ingreso', $idIngreso)
+			->group_by('e.egreso')
+			->get('traslado_detalle a')
+			->row();
+
+			$ingreso->egreso_origen = $egreso_origen ? $egreso_origen->egreso : null;
 		}
 		return $ingreso;
 	}

@@ -1,29 +1,30 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Ingreso extends CI_Controller {
+class Ingreso extends CI_Controller
+{
 
 	public function __construct()
 	{
-        parent::__construct();
-        $this->load->model([
-        	'Ingreso_model', 
-        	'IDetalle_Model', 
-        	'Articulo_model',
-        	'Receta_model', 
+		parent::__construct();
+		$this->load->model([
+			'Ingreso_model',
+			'IDetalle_Model',
+			'Articulo_model',
+			'Receta_model',
 			'Presentacion_model',
 			'BodegaArticuloCosto_model',
 			'Bodega_model',
 			'Articulo_ultima_compra_model'
-        ]);
-        $this->load->helper(['jwt', 'authorization']);
+		]);
+		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		if (isset($headers['Authorization'])) {
 			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		}
 
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+		$this->output
+			->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = '')
@@ -33,9 +34,9 @@ class Ingreso extends CI_Controller {
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			if (empty($id) || $ing->estatus_movimiento == 1) {
-				$datos['exito'] = $ing->guardar($req);			
+				$datos['exito'] = $ing->guardar($req);
 
-				if($datos['exito']) {
+				if ($datos['exito']) {
 					if ((int)$req['estatus_movimiento'] === 2) {
 						$this->actualiza_costo_ingreso_confirmado($ing->getPK());
 					}
@@ -47,17 +48,17 @@ class Ingreso extends CI_Controller {
 			} else {
 				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
 			}
-
 		} else {
 			$datos['mensaje'] = "Parametros Invalidos";
 		}
-		
+
 
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
-	public function guardar_detalle($ingreso, $id = '') {
+	public function guardar_detalle($ingreso, $id = '')
+	{
 		$ing = new Ingreso_model($ingreso);
 		$bac = new BodegaArticuloCosto_model();
 		$bod = new Bodega_model($ing->bodega);
@@ -74,20 +75,20 @@ class Ingreso extends CI_Controller {
 				$pres = new Presentacion_model($req['presentacion']);
 
 				$precioUnitarioIngresado = $req['precio_unitario'];
-				
+
 				$costo = $req['precio_unitario'] / $iva;
 				$req['precio_unitario'] = $costo;
 				$req['precio_total'] = $costo * $req['cantidad'];
 				$req['precio_costo_iva'] = $req['precio_total'] * $emp->porcentaje_iva;
 
-				
+
 				if ($pres->medida == $presArt->medida) {
 					$art->actualizarExistencia([
 						"bodega" => $ing->bodega,
 						"sede" => $bod->sede
 					]);
 					$det = $ing->setDetalle($req, $id);
-					if($det) {
+					if ($det) {
 						// $bcosto = $this->BodegaArticuloCosto_model->buscar([
 						// 	'bodega' => $ing->bodega, 
 						// 	'articulo' => $art->getPK(), 
@@ -113,7 +114,7 @@ class Ingreso extends CI_Controller {
 						// 	} 
 
 						// 	$bac->costo_promedio = $costo;
-							
+
 						// } else {
 						// 	$bac->bodega = $ing->bodega;
 						// 	$bac->articulo = $art->getPK();
@@ -124,7 +125,7 @@ class Ingreso extends CI_Controller {
 						// $art->guardar(["costo" => $costo]);
 						// $bac->guardar();
 
-						if((int)$ing->ajuste === 0) {
+						if ((int)$ing->ajuste === 0) {
 							$this->actualiza_ultima_compra($ing, $det, $precioUnitarioIngresado);
 						}
 
@@ -135,13 +136,11 @@ class Ingreso extends CI_Controller {
 						$datos['mensaje'] = implode("<br>", $ing->getMensaje());
 					}
 				} else {
-					$datos['mensaje'] = "Las unidades de medida no coinciden";		
-				}	
-
+					$datos['mensaje'] = "Las unidades de medida no coinciden";
+				}
 			} else {
 				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
 			}
-
 		} else {
 			$datos['mensaje'] = "Parametros Invalidos";
 		}
@@ -149,49 +148,54 @@ class Ingreso extends CI_Controller {
 		$this->output->set_output(json_encode($datos));
 	}
 
-	public function buscar_ingreso(){
+	public function buscar_ingreso()
+	{
 		$this->load->helper(['jwt', 'authorization']);
-		$headers = $this->input->request_headers();		
+		$headers = $this->input->request_headers();
 		$dataToken = AUTHORIZATION::validateToken($headers['Authorization']);
 
 		$fltr = $_GET;
-		if(isset($fltr['_fdel']))
-		{
+		if (isset($fltr['_fdel'])) {
 			$fltr['_fdel'] = ['fecha' => $fltr['_fdel']];
 		}
-		if(isset($fltr['_fal']))
-		{
+		if (isset($fltr['_fal'])) {
 			$fltr['_fal'] = ['fecha' => $fltr['_fal']];
 		}
 
 		$ingresos = $this->Ingreso_model->buscar($fltr);
 		$datos = [];
-		if(is_array($ingresos)) {
+		if (is_array($ingresos)) {
 			foreach ($ingresos as $row) {
 				$tmp = new Ingreso_model($row->ingreso);
-				$row->tipo_movimiento = $tmp->getTipoMovimiento();
-				$row->proveedor = $tmp->getProveedor();
 				$row->bodega = $tmp->getBodega();
-				$row->bodega_origen = $tmp->getBodegaOrigen();
-				$row->usuario = $tmp->getUsuario();
-				if((int)$row->bodega->sede === (int)$dataToken->sede) {
+				if ((int)$row->bodega->sede === (int)$dataToken->sede) {
+					$row->tipo_movimiento = $tmp->getTipoMovimiento();
+					$row->proveedor = $tmp->getProveedor();
+					$row->bodega_origen = $tmp->getBodegaOrigen();
+					$row->usuario = $tmp->getUsuario();
+					$row->egreso_origen = $tmp->get_egreso_origen();
 					$datos[] = $row;
-				}				
+				}
 			}
-			$datos = ordenar_array_objetos($datos, 'ingreso', 1, 'desc');
-		} else if($ingresos){
+			if (!empty($datos)) {
+				$datos = ordenar_array_objetos($datos, 'ingreso', 1, 'desc');
+			}
+		} else if ($ingresos) {
 			$tmp = new Ingreso_model($ingresos->ingreso);
-			$ingresos->tipo_movimiento = $tmp->getTipoMovimiento();
-			$ingresos->proveedor = $tmp->getProveedor();
 			$ingresos->bodega = $tmp->getBodega();
-			if((int)$ingresos->bodega->sede === (int)$dataToken->sede) {				
+			if ((int)$ingresos->bodega->sede === (int)$dataToken->sede) {
+				$ingresos->tipo_movimiento = $tmp->getTipoMovimiento();
+				$ingresos->proveedor = $tmp->getProveedor();
+				$ingresos->bodega_origen = $tmp->getBodegaOrigen();
+				$ingresos->usuario = $tmp->getUsuario();
+				$ingresos->egreso_origen = $tmp->get_egreso_origen();
 				$datos[] = $ingresos;
-			}			
+			}
 		}
 
 		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+			->set_content_type("application/json")
+			->set_output(json_encode($datos));
 	}
 
 	public function buscar_detalle($ingreso)
@@ -200,8 +204,8 @@ class Ingreso extends CI_Controller {
 		$ingreso = new Ingreso_model($ingreso);
 		$_GET['_costo'] = true;
 		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($ingreso->getDetalle($_GET)));
+			->set_content_type("application/json")
+			->set_output(json_encode($ingreso->getDetalle($_GET)));
 	}
 
 	public function actualizar_costo_iva()
@@ -227,7 +231,6 @@ class Ingreso extends CI_Controller {
 					$costo = $art->getCosto();
 					$art->guardar(["costo" => $costo]);
 				}
-				
 			}
 		}
 
@@ -236,7 +239,8 @@ class Ingreso extends CI_Controller {
 			->set_output(json_encode($datos));
 	}
 
-	public function actualiza_costo_bodega_articulo() {
+	public function actualiza_costo_bodega_articulo()
+	{
 		$ingresos = $this->Ingreso_model->buscar();
 		$bac = new BodegaArticuloCosto_model();
 		$datos = [];
@@ -262,7 +266,7 @@ class Ingreso extends CI_Controller {
 		// 	'ultimo_proveedor' => $ingreso->proveedor,
 		// 	'_uno' => true
 		// ]);
-		
+
 		// $auc = null;
 		// if ($aucSrch) {
 		// 	$auc = new Articulo_ultima_compra_model($aucSrch->articulo_ultima_compra);
@@ -284,7 +288,7 @@ class Ingreso extends CI_Controller {
 		$ingreso = new Ingreso_model($detalle->ingreso);
 		$datos = ['exito' => false];
 
-		if((int)$ingreso->estatus_movimiento === 1) {
+		if ((int)$ingreso->estatus_movimiento === 1) {
 			$datos['exito'] = $detalle->eliminar();
 			if ($datos['exito']) {
 				$datos['mensaje'] = "Detalle eliminado con éxito.";
@@ -301,16 +305,16 @@ class Ingreso extends CI_Controller {
 	public function actualiza_costo_ingreso_confirmado($idIngreso)
 	{
 		$ing = new Ingreso_model($idIngreso);
-		if ((int)$ing->estatus_movimiento === 2) {			
+		if ((int)$ing->estatus_movimiento === 2) {
 			$bac = new BodegaArticuloCosto_model();
 			$bod = new Bodega_model($ing->bodega);
 
 			$detalle = $ing->getDetalle();
-			foreach($detalle as $det) {
+			foreach ($detalle as $det) {
 				$art = new Articulo_model($det->articulo->articulo);
 				$presArt = $art->getPresentacion();
 				$pres = new Presentacion_model($det->presentacion->presentacion);
-				
+
 				$precio_total = $det->precio_unitario * $det->cantidad;
 
 				if ($pres->medida == $presArt->medida) {
@@ -319,8 +323,8 @@ class Ingreso extends CI_Controller {
 						'sede' => $bod->sede
 					]);
 					$bcosto = $this->BodegaArticuloCosto_model->buscar([
-						'bodega' => $ing->bodega, 
-						'articulo' => $art->getPK(), 
+						'bodega' => $ing->bodega,
+						'articulo' => $art->getPK(),
 						'_uno' => true
 					]);
 					$costo = $art->getCosto(['bodega' => $ing->bodega]);
@@ -329,7 +333,7 @@ class Ingreso extends CI_Controller {
 						$bac->cargar($bcosto->bodega_articulo_costo);
 						/*Ultima compra*/
 						$costo_uc = $art->getCosto([
-							'bodega' => $ing->bodega, 
+							'bodega' => $ing->bodega,
 							'metodo_costeo' => 1
 						]);
 						$bac->costo_ultima_compra = $costo_uc;
@@ -339,10 +343,9 @@ class Ingreso extends CI_Controller {
 						$existencia = $art->existencias + $det->cantidad * $pres->cantidad;
 						if ($existencia != 0) {
 							$costo = $costo / $existencia;
-						} 
+						}
 
 						$bac->costo_promedio = $costo;
-						
 					} else {
 						$bac->bodega = $ing->bodega;
 						$bac->articulo = $art->getPK();
@@ -351,8 +354,8 @@ class Ingreso extends CI_Controller {
 					}
 
 					$art->guardar(['costo' => $costo]);
-					$bac->guardar();					
-				}	
+					$bac->guardar();
+				}
 			}
 		}
 	}
