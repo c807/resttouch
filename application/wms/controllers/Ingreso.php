@@ -314,8 +314,8 @@ class Ingreso extends CI_Controller
 				$art = new Articulo_model($det->articulo->articulo);
 				$presArt = $art->getPresentacion();
 				$pres = new Presentacion_model($det->presentacion->presentacion);
-
-				$precio_total = $det->precio_unitario * $det->cantidad;
+				
+				// $precio_total = $det->precio_unitario * $det->cantidad;
 
 				if ($pres->medida == $presArt->medida) {
 					$art->actualizarExistencia([
@@ -339,13 +339,17 @@ class Ingreso extends CI_Controller
 						$bac->costo_ultima_compra = $costo_uc;
 
 						/*Costo promedio*/
-						$costo = $bcosto->costo_promedio * $art->existencias + $precio_total;
-						$existencia = $art->existencias + $det->cantidad * $pres->cantidad;
-						if ($existencia != 0) {
-							$costo = $costo / $existencia;
-						}
+						// $costo = $bcosto->costo_promedio * $art->existencias + $precio_total;
+						// $existencia = $art->existencias + $det->cantidad * $pres->cantidad;
+						// if ($existencia != 0) {
+						// 	$costo = $costo / $existencia;
+						// } 
+						$costo_prom = $art->getCosto([
+							'bodega' => $ing->bodega, 
+							'metodo_costeo' => 2
+						]);
 
-						$bac->costo_promedio = $costo;
+						$bac->costo_promedio = $costo_prom;
 					} else {
 						$bac->bodega = $ing->bodega;
 						$bac->articulo = $art->getPK();
