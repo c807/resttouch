@@ -283,4 +283,10 @@ export class ArticuloService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  recalcularCostos(idSede: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/recalcular_costos/${idSede}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
 }

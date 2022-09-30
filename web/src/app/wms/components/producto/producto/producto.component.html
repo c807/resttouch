@@ -82,4 +82,10 @@
             <button mat-list-item class="btn-reportes mat-elevation-z4" (click)="generarRepReceta(1)" style="margin-top: 10px;">Recetas con costos (con I.V.A.)</button>
         </mat-action-list>
     </mat-tab>
+    <mat-tab label="Herramientas">
+        <mat-action-list class="btn-list">
+            <button mat-list-item class="btn-reportes mat-elevation-z4" (click)="recalcularCostos()" style="margin-top: 10px;" [disabled]="cargando">Recalcular costos</button>            
+        </mat-action-list>
+        <app-cargando *ngIf="cargando"></app-cargando>
+    </mat-tab>
 </mat-tab-group>

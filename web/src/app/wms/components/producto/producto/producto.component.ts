@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormProductoComponent } from '../form-producto/form-producto.component';
 import { SubCategoriaProductoComponent } from '../sub-categoria-producto/sub-categoria-producto.component';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
@@ -11,6 +13,9 @@ import { Subscription } from 'rxjs';
 import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 import { saveAs } from "file-saver";
 import * as moment from 'moment';
+
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-producto',
@@ -31,7 +36,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   public articulosFull: Articulo[] = [];
   public paramsRep: any = {};
   public txtFiltro = '';
-  public cargando = false;  
+  public cargando = false;
   @ViewChild('frmProducto') frmProductoComponent: FormProductoComponent;
   @ViewChild('frmSubcategoria') frmSubcategoria: SubCategoriaProductoComponent;
 
@@ -40,7 +45,9 @@ export class ProductoComponent implements OnInit, OnDestroy {
   constructor(
     private articuloSrvc: ArticuloService,
     private ls: LocalstorageService,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.articulo = {
       articulo: null, categoria_grupo: null, presentacion: null, descripcion: null, precio: null, bien_servicio: 'B',
@@ -109,7 +116,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
             receta: +obj.categoria_grupo.receta,
             impresora: +obj.categoria_grupo.impresora,
             descuento: +obj.categoria_grupo.descuento
-          };          
+          };
           this.frmProductoComponent.articulo = this.articulo;
           this.frmProductoComponent.loadRecetas(+this.articulo.articulo);
           this.frmProductoComponent.resetReceta();
@@ -228,7 +235,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
 
   generarRepArticulo(ucompra = 0) {
     this.paramsRep._ucompra = ucompra
-    
+
     this.endSubs.add(
       this.pdfServicio.generar_catalogo_articulo(this.paramsRep).subscribe(res => {
         if (res) {
@@ -252,7 +259,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
   }
 
   getSubCategorias = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
         this.lstSubCategorias = res.map(r => {
           r.categoria_grupo = +r.categoria_grupo;
@@ -260,5 +267,45 @@ export class ProductoComponent implements OnInit, OnDestroy {
         });
       })
     );
-  }  
+  }
+
+  recalcularCostos = () => {    
+    const dialogChkPass = this.dialog.open(CheckPasswordComponent, {
+      width: '40%',
+      disableClose: true,
+      data: new ConfigCheckPasswordModel(1)
+    });
+
+    this.endSubs.add(
+      dialogChkPass.afterClosed().subscribe(res => {
+        if (res) {
+          const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+            maxWidth: '400px',
+            data: new ConfirmDialogModel(
+              'Artículos',
+              'Esto hará un recálculo de los costos de todos los artículos en todas las bodegas. Es un proceso que puede tardar. ¿Desea continuar?',
+              'Sí', 'No', {}, true
+            )
+          });
+
+          this.endSubs.add(
+            confirmRef.afterClosed().subscribe((conf: any) => {
+              if (conf.resultado) {
+                this.cargando = true;
+                this.endSubs.add(
+                  this.articuloSrvc.recalcularCostos(+this.ls.get(GLOBAL.usrTokenVar).sede || 0).subscribe(res => {
+                    this.snackBar.open(res.mensaje, 'Artículo', { duration: 7000 });                    
+                    this.cargando = false;
+                  })
+                );
+              }              
+            })
+          );
+
+        } else {
+          this.snackBar.open('La contraseña no es correcta.', 'Anular comanda', { duration: 7000 });          
+        }
+      })
+    );
+  }
 }

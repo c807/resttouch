@@ -360,7 +360,7 @@ class Articulo_model extends General_model
 
 		if ($args['tipo'] == 1) {
 
-			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
 				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
@@ -383,7 +383,7 @@ class Articulo_model extends General_model
 			return $ingresos->total;
 		} else {
 
-			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
 				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
@@ -427,17 +427,17 @@ class Articulo_model extends General_model
 
 		if ($args['tipo'] == 1) {
 
-			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fhcreacion) <', $args['fecha_del']);
 			} else {
 				if (verDato($args, 'fecha_del')) {
 					$this->db->where('date(e.fhcreacion) >=', $args['fecha_del']);
 				}
-	
+
 				if (verDato($args, 'fecha')) {
 					$this->db->where('date(e.fhcreacion) <=', $args['fecha']);
 				}
-			}			
+			}
 
 			$comandas = $this->db
 				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
@@ -454,7 +454,7 @@ class Articulo_model extends General_model
 			return $comandas->total;
 		} else {
 
-			if(verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
+			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(f.fecha_factura) <', $args['fecha_del']);
 			} else {
 				if (verDato($args, 'fecha_del')) {
@@ -703,7 +703,7 @@ class Articulo_model extends General_model
 					'_uno' => true
 				]);
 				if ($bac) {
-					$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);					
+					$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
 				} else {
 					$bac = new BodegaArticuloCosto_model();
 					$bac->guardar_costos($args['bodega'], $this->getPK());
@@ -1141,7 +1141,7 @@ class Articulo_model extends General_model
 		return (object)['existencia' => '0'];
 	}
 
-	public function _get_costo($args=[])
+	public function _get_costo($args = [])
 	{
 		$this->actualizarExistencia();
 		$receta = $this->getReceta();
@@ -1154,18 +1154,18 @@ class Articulo_model extends General_model
 					"bodega"   => $args["bodega"],
 					"_uno"     => true
 				]);
-				
+
 				$bodega = new BodegaArticuloCosto_model($tmp->bodega_articulo_costo);
 				$costo  = $bodega->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
 			} else {
 				$costo = $this->getCosto($args);
 			}
-		} else {			
+		} else {
 			foreach ($receta as $row) {
 				$art = new Articulo_model($row->articulo->articulo);
 				$tmp = $art->getCosto($args);
 				$val = is_object($tmp) ? $tmp->costo : $tmp;
-				
+
 				$costo += ($val * $row->cantidad);
 			}
 		}
@@ -1212,8 +1212,8 @@ class Articulo_model extends General_model
 			foreach ($this->getReceta() as $row) {
 				$articulo = new Articulo_model($row->articulo->articulo);
 				$elCosto = $articulo->_getCosto_2();
-				
-				if((int)$articulo->produccion === 1 && (float)$articulo->rendimiento !== (float)0) {
+
+				if ((int)$articulo->produccion === 1 && (float)$articulo->rendimiento !== (float)0) {
 					$pr = $articulo->getPresentacionReporte();
 					$elCosto = (float)$elCosto / ((float)$articulo->rendimiento * (float)$pr->cantidad);
 				}
@@ -1223,9 +1223,59 @@ class Articulo_model extends General_model
 			}
 		} else {
 			$costo = $this->getCosto();
-		}	
+		}
 
 		return $costo;
+	}
+
+	public function recalcular_costos($idSede)
+	{
+		//Halar artículos de inventario de la sede
+		$articulosInventario = $this->db
+			->select('a.articulo')
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->where('c.sede', $idSede)
+			->where('a.mostrar_inventario', 1)
+			->get('articulo a')
+			->result();
+
+		if ($articulosInventario) {
+			$idsArticulosInventario = '';
+			foreach ($articulosInventario as $ai) {
+				if ($idsArticulosInventario !== '') {
+					$idsArticulosInventario .= ',';
+				}
+				$idsArticulosInventario .= $ai->articulo;
+			}
+			//Eliminar datos de la tabla de costos
+			$this->db->where("articulo IN({$idsArticulosInventario})")->delete('bodega_articulo_costo');
+			//Dejar en 0 los costos en la tabla de articulo
+			$this->db->where("articulo IN({$idsArticulosInventario})")->update('articulo', ['costo' => 0]);
+			//Obtengo las bodegas de la sede
+			$bodegas = $this->db->select('bodega')->where('sede', $idSede)->get('bodega')->result();
+			foreach ($articulosInventario as $ai) {
+				$articulo = new Articulo_model($ai->articulo);
+				foreach ($bodegas as $bodega) {
+					$params = ['bodega' => $bodega->bodega, 'metodo_costeo' => 1];
+					$costoUltimaCompra = (float)$articulo->getCosto($params);
+					$params['metodo_costeo'] = 2;
+					$costoPromedio = (float)$articulo->getCosto($params);
+					if ($costoUltimaCompra !== (float)0 || $costoPromedio !== (float)0) {
+						$this->db->insert('bodega_articulo_costo', [
+							'bodega' => $bodega->bodega,
+							'articulo' => $ai->articulo,
+							'costo_ultima_compra' => $costoUltimaCompra,
+							'costo_promedio' => $costoPromedio
+						]);
+					}
+				}
+				$costoMetodoEmpresa = (float)$articulo->getCosto();
+				if ($costoMetodoEmpresa !== (float)0) {
+					$articulo->guardar(['costo' => $costoMetodoEmpresa]);
+				}
+			}
+		}
 	}
 }
 

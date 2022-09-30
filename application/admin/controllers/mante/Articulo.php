@@ -18,7 +18,6 @@ class Articulo extends CI_Controller
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-
 		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
@@ -321,9 +320,7 @@ class Articulo extends CI_Controller
 			$art->guardar(["costo" => $costo]);
 		}
 
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function articulos_de_pos()
@@ -525,6 +522,7 @@ class Articulo extends CI_Controller
 
 		$this->output->set_output(json_encode($datos));
 	}
+	// Finaliza endpoints para variación de precio de artículo por tipo de cliente
 
 	public function get_costo()
 	{		
@@ -559,7 +557,17 @@ class Articulo extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	// Finaliza endpoints para variación de precio de artículo por tipo de cliente
+	public function recalcular_costos($sede = null)
+	{
+		if (!$sede) {
+			$sede = $this->data->sede;
+		}
+
+		set_time_limit(0);
+		$datos = ['exito' => true, 'mensaje' => 'Se calcularon los costos con éxito.'];
+		$this->Articulo_model->recalcular_costos($sede);
+		$this->output->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Articulo.php */
