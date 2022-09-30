@@ -114,51 +114,53 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   loadTiposMovimiento = () => {
-    this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
         this.tiposMovimiento = res;
-      }
-    });
+      })
+    );
   }
 
   loadProveedores = () => {
-    this.proveedorSrvc.get().subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.proveedorSrvc.get().subscribe(res => {
         this.proveedores = res;
-      }
-    });
+      })
+    );
   }
 
   loadBodegas = () => {
-    this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
-      const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
-      this.bodegasOrigen = res;
-      this.bodegas = this.bodegasOrigen.filter(b => +b.sede === +sedeActual);
-    });
+    this.endSubs.add(
+      this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
+        const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
+        this.bodegasOrigen = res;
+        this.bodegas = this.bodegasOrigen.filter(b => +b.sede === +sedeActual);
+      })
+    );
   }
 
   loadPresentaciones = () => {
-    this.presentacinSrvc.get().subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.presentacinSrvc.get().subscribe(res => {
         this.presentaciones = res;
-      }
-    });
+      })
+    );
   }
 
   loadDocumentosTipo = () => {
-    this.documentoTipoSrvc.get().subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.documentoTipoSrvc.get().subscribe(res => {
         this.documentosTipo = res;
-      }
-    });
+      })
+    );
   }
 
   loadTiposCompraVenta = () => {
-    this.tipoCompraVentaSrvc.get().subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.tipoCompraVentaSrvc.get().subscribe(res => {
         this.tiposCompraVenta = res;
-      }
-    });
+      })
+    );
   }
 
   removeFromDetail = (idarticulo: number) => {
@@ -184,17 +186,18 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
 
   onSubmit = () => {
     this.bloqueoBotones = true;
-    this.ingresoSrvc.save(this.ingreso).subscribe(res => {
-      // console.log(res);
-      this.resetIngreso();
-      if (res.exito) {
-        this.ingreso = res.ingreso;
-        this.setProveedor(+this.ingreso.proveedor);
-        this.loadDetalleIngreso(+this.ingreso.ingreso);
-      }
-      this.ingresoSavedEv.emit();
-      this.bloqueoBotones = false;
-    });
+    this.endSubs.add(
+      this.ingresoSrvc.save(this.ingreso).subscribe(res => {
+        this.resetIngreso();
+        if (res.exito) {
+          this.ingreso = res.ingreso;
+          this.setProveedor(+this.ingreso.proveedor);
+          this.loadDetalleIngreso(+this.ingreso.ingreso);
+        }
+        this.ingresoSavedEv.emit();
+        this.bloqueoBotones = false;
+      })
+    );
   }
 
   loadArticulos = () => {
@@ -202,11 +205,11 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     if (this.produccion) {
       args = { produccion: 1 };
     }
-    this.articuloSrvc.getArticulosIngreso(args).subscribe(res => {
-      if (res) {
+    this.endSubs.add(
+      this.articuloSrvc.getArticulosIngreso(args).subscribe(res => {
         this.articulos = res;
-      }
-    });
+      })
+    );
   }
 
   resetDetalleIngreso = () => {
@@ -218,52 +221,52 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   loadDetalleIngreso = (idingreso: number = +this.ingreso.ingreso) => {
-    this.ingresoSrvc.getDetalle(idingreso, { ingreso: idingreso }).subscribe(res => {
-      // console.log(res);
-      if (res) {
+    this.endSubs.add(
+      this.ingresoSrvc.getDetalle(idingreso, { ingreso: idingreso }).subscribe(res => {
         this.detallesIngreso = res;
         this.updateTableDataSource();
-      }
-    });
+      })
+    );
   }
 
   getDetalleIngreso = (idingreso: number = +this.ingreso.ingreso, iddetalle: number) => {
-    this.ingresoSrvc.getDetalle(idingreso, { ingreso_detalle: iddetalle }).subscribe((res: any[]) => {
-      // console.log(res);
-      if (res) {
-        this.detalleIngreso = {
-          ingreso_detalle: res[0].ingreso_detalle,
-          ingreso: res[0].ingreso,
-          articulo: res[0].articulo.articulo,
-          cantidad: +res[0].cantidad,
-          precio_unitario: +res[0].precio_unitario,
-          precio_total: +res[0].precio_total,
-          presentacion: res[0].presentacion.presentacion
-        };
-        this.setPresentaciones(true);
-        this.txtArticuloSelected = res[0].articulo;
-        this.showDetalleIngresoForm = true;
-      }
-    });
+    this.endSubs.add(
+      this.ingresoSrvc.getDetalle(idingreso, { ingreso_detalle: iddetalle }).subscribe((res: any[]) => {
+        if (res) {
+          this.detalleIngreso = {
+            ingreso_detalle: res[0].ingreso_detalle,
+            ingreso: res[0].ingreso,
+            articulo: res[0].articulo.articulo,
+            cantidad: +res[0].cantidad,
+            precio_unitario: +res[0].precio_unitario,
+            precio_total: +res[0].precio_total,
+            presentacion: res[0].presentacion.presentacion
+          };
+          this.setPresentaciones(true);
+          this.txtArticuloSelected = res[0].articulo;
+          this.showDetalleIngresoForm = true;
+        }
+      })
+    );
   }
 
   onSubmitDetail = () => {
     this.bloqueoBotones = true;
     this.detalleIngreso.ingreso = this.ingreso.ingreso;
     this.detalleIngreso.precio_total = +this.detalleIngreso.cantidad * +this.detalleIngreso.precio_unitario;
-    // console.log(this.detalleIngreso);
     if (+this.detalleIngreso.cantidad < 1) {
       this.detalleIngreso.cantidad = 1;
     }
-    this.ingresoSrvc.saveDetalle(this.detalleIngreso).subscribe(res => {
-      // console.log(res);
-      if (res) {
-        this.loadDetalleIngreso();
-        this.resetDetalleIngreso();
-      }
-      this.bloqueoBotones = false;
-      this.presentacionArticuloDisabled = true;
-    });
+    this.endSubs.add(
+      this.ingresoSrvc.saveDetalle(this.detalleIngreso).subscribe(res => {
+        if (res) {
+          this.loadDetalleIngreso();
+          this.resetDetalleIngreso();
+        }
+        this.bloqueoBotones = false;
+        this.presentacionArticuloDisabled = true;
+      })
+    );
   }
 
   agregaADetalle = () => {
@@ -286,8 +289,6 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   addToDetail = () => {
-    // console.log('DETALLE INGRESO = ', this.detalleIngreso);
-    // console.log('ESTOY EN PRODUCCION = ', this.produccion);
     if (this.detalleIngreso.cantidad > 0) {
       if (this.produccion) {
         this.agregaADetalle();
@@ -311,7 +312,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       presentacion: tmp.presentacion, cantidad_utilizada: tmp.cantidad_utilizada
     };
     this.setPresentaciones(true);
-    this.txtArticuloSelected = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo)[0];    
+    this.txtArticuloSelected = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo)[0];
   }
 
   getDescripcionArticulo = (idarticulo: number) => this.articulos.find(art => +art.articulo === +idarticulo).descripcion || '';
@@ -327,7 +328,6 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   eliminarArticulo = (element: DetalleIngreso) => {
-    // const idx = this.detallesIngreso.findIndex(d => d.ingreso_detalle === element.ingreso_detalle);
     this.detallesIngreso.splice(this.detallesIngreso.findIndex(d => d.ingreso_detalle === element.ingreso_detalle), 1);
     this.updateTableDataSource();
   }
@@ -368,13 +368,13 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     return undefined;
   }
 
-  setPresentaciones = (editando = false) => {    
+  setPresentaciones = (editando = false) => {
     this.fltrPresentaciones = [];
     const idx = this.articulos.findIndex(p => +p.articulo === +this.detalleIngreso.articulo);
     const articulo = this.articulos[idx];
     this.fltrPresentaciones = this.presentaciones.filter(p => +p.medida.medida === +articulo.presentacion.medida);
     this.detalleIngreso.presentacion = articulo.presentacion_reporte;
-    if (!editando) {      
+    if (!editando) {
       this.detalleIngreso.costo_unitario_halado = null;
       this.detalleIngreso.costo_unitario_pr = null;
       this.detalleIngreso.precio_total = null;
@@ -407,26 +407,30 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
 
   loadDocumento = (idingreso: number = (this.ingreso.ingreso || null)) => {
     if (idingreso) {
-      this.ingresoSrvc.getDocumento({ ingreso: idingreso }).subscribe((doc: Documento[]) => {
-        if (doc && doc.length > 0) {
-          this.setDocumentoIngreso(doc[0]);
-        } else {
-          this.resetDocumento();
-        }
-      });
+      this.endSubs.add(
+        this.ingresoSrvc.getDocumento({ ingreso: idingreso }).subscribe((doc: Documento[]) => {
+          if (doc && doc.length > 0) {
+            this.setDocumentoIngreso(doc[0]);
+          } else {
+            this.resetDocumento();
+          }
+        })
+      );
     }
   }
 
   submitDocumento = () => {
     this.documento.ingreso = this.ingreso.ingreso;
-    this.ingresoSrvc.saveDocumento(this.documento).subscribe(res => {
-      if (res.exito) {
-        this.setDocumentoIngreso(res.documento);
-        this.snackBar.open('Documento guardado con éxito.', 'Ingreso', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
-      }
-    });
+    this.endSubs.add(
+      this.ingresoSrvc.saveDocumento(this.documento).subscribe(res => {
+        if (res.exito) {
+          this.setDocumentoIngreso(res.documento);
+          this.snackBar.open('Documento guardado con éxito.', 'Ingreso', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
+        }
+      })
+    );
   }
 
   enviarAConta = () => {
@@ -436,18 +440,22 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
         data: new ConfirmDialogModel('Envío a contabilidad', 'Una vez enviado a contabilidad no podrá modificar el ingreso ni el documento. ¿Desea continuar?', 'Sí', 'No')
       });
 
-      confirmRef.afterClosed().subscribe((confirma: boolean) => {
-        if (confirma) {
-          this.ingresoSrvc.enviarDocumentoAConta(this.documento.documento).subscribe(res => {
-            if (res.exito) {
-              this.documento = res.documento;
-              this.snackBar.open('Documento enviado a contabilidad.', 'Ingreso', { duration: 3000 });
-            } else {
-              this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
-            }
-          });
-        }
-      });
+      this.endSubs.add(
+        confirmRef.afterClosed().subscribe((confirma: boolean) => {
+          if (confirma) {
+            this.endSubs.add(
+              this.ingresoSrvc.enviarDocumentoAConta(this.documento.documento).subscribe(res => {
+                if (res.exito) {
+                  this.documento = res.documento;
+                  this.snackBar.open('Documento enviado a contabilidad.', 'Ingreso', { duration: 3000 });
+                } else {
+                  this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
+                }
+              })
+            );
+          }
+        })
+      );
     }
   }
 
@@ -470,23 +478,38 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
     });
 
-    delRef.afterClosed().subscribe((confirma: boolean) => {
-      if (confirma) {
-        this.ingresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
-          if (res.exito) {
-            this.loadDetalleIngreso(+this.ingreso.ingreso);
-            this.snackBar.open(res.mensaje, 'Ingreso', { duration: 3000 });
-          } else {
-            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
-          }
-        });
-      }
-    });
+    this.endSubs.add(
+      delRef.afterClosed().subscribe((confirma: boolean) => {
+        if (confirma) {
+          this.endSubs.add(
+            this.ingresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
+              if (res.exito) {
+                this.loadDetalleIngreso(+this.ingreso.ingreso);
+                this.snackBar.open(res.mensaje, 'Ingreso', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ingreso', { duration: 7000 });
+              }
+            })
+          );
+        }
+      })
+    );
   }
 
   confirmarIngreso = () => {
-    this.ingreso.estatus_movimiento = 2;
-    this.onSubmit();
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Ingreso', 'Esto confirmará el ingreso, recalculará costos y ya no podrá modificarlo. ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe((confirma: boolean) => {
+        if (confirma) {
+          this.ingreso.estatus_movimiento = 2;
+          this.onSubmit();
+        }
+      })
+    );
   }
 
   calculaCostoUnitario = () => {
@@ -497,10 +520,10 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.detalleIngreso.precio_unitario = redondear(pu, 4);
   }
 
-  getPrecioTotal =  () => this.detallesIngreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+  getPrecioTotal = () => this.detallesIngreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
 
   halarCosto = () => {
-    const art = this.articulos.find(p => +p.articulo === +this.detalleIngreso.articulo);    
+    const art = this.articulos.find(p => +p.articulo === +this.detalleIngreso.articulo);
     const presR = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);
 
     const params = {
@@ -524,9 +547,9 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     if (this.detalleIngreso.costo_unitario_halado && +this.detalleIngreso.costo_unitario_halado !== 0) {
       const presR = this.presentaciones.find(p => +p.presentacion === +obj.value);
       this.detalleIngreso.costo_unitario_pr = redondear(this.detalleIngreso.costo_unitario_halado * (+presR?.cantidad || 0), 2);
-      this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_pr, 2);      
+      this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_pr, 2);
       this.calculaCostoUnitario();
     }
   }
-  
+
 }

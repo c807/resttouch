@@ -91,9 +91,9 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.usuarioConfirmaEgresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1;
-    this.resetEgreso();    
+    this.resetEgreso();
     this.loadTiposMovimiento(false);
-    this.loadBodegas();    
+    this.loadBodegas();
     this.loadProveedores();
     this.loadPresentaciones();
     if (!this.saveToDB) {
@@ -140,9 +140,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   loadProveedores = () => {
     this.endSubs.add(
       this.proveedorSrvc.get().subscribe(res => {
-        if (res) {
-          this.proveedores = res;
-        }
+        this.proveedores = res;        
       })
     );
   }
@@ -150,9 +148,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   loadPresentaciones = () => {
     this.endSubs.add(
       this.presentacionSrvc.get().subscribe(res => {
-        if (res) {
-          this.presentaciones = res;
-        }
+        this.presentaciones = res;        
       })
     );
   }
@@ -204,28 +200,39 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   confirmarEgreso = () => {
-    if (+this.egreso.traslado === 1) {
-      const pideTipoMovDestRef = this.dialog.open(PideTipoMovimientoDestinoComponent, {
-        data: this.tiposMovimientoIngreso
-      });
-      this.endSubs.add(
-        pideTipoMovDestRef.afterClosed().subscribe((tmd: number) => {
-          if (+tmd > 0) {
-            this.egreso.tipo_movimiento_destino = +tmd;
-            this.execConfirmarEgreso();
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Egreso', 'Esto confirmará el egreso y ya no podrá modificarlo. ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe((confirma: boolean) => {
+        if (confirma) {
+          if (+this.egreso.traslado === 1) {
+            const pideTipoMovDestRef = this.dialog.open(PideTipoMovimientoDestinoComponent, {
+              data: this.tiposMovimientoIngreso
+            });
+            this.endSubs.add(
+              pideTipoMovDestRef.afterClosed().subscribe((tmd: number) => {
+                if (+tmd > 0) {
+                  this.egreso.tipo_movimiento_destino = +tmd;
+                  this.execConfirmarEgreso();
+                } else {
+                  this.snackBar.open('Debe seleccionar un tipo de movimiento para la bodega de destino para poder confirmar.', 'Egreso', { duration: 7000 });
+                }
+              })
+            );
           } else {
-            this.snackBar.open('Debe seleccionar un tipo de movimiento para la bodega de destino para poder confirmar.', 'Egreso', { duration: 7000 });
+            this.execConfirmarEgreso();
           }
-        })
-      );
-    } else {
-      this.execConfirmarEgreso();
-    }
+        }
+      })
+    );
   }
 
-  loadArticulos = () => {    
+  loadArticulos = () => {
     const fltr = { sede: null }
-    const bodegaASolicitar = this.bodegasFull.find(b => +b.bodega === +this.egreso.bodega);    
+    const bodegaASolicitar = this.bodegasFull.find(b => +b.bodega === +this.egreso.bodega);
     if (this.esRequisicion) {
       fltr.sede = bodegaASolicitar?.datos_sede?.sede || 0;
     } else {
@@ -265,8 +272,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   getDetalleEgreso = (idegreso: number = +this.egreso.egreso, iddetalle: number) => {
-    this.endSubs.add(      
-      this.egresoSrvc.getDetalle(idegreso, { egreso_detalle: iddetalle }).subscribe((res: any[]) => {      
+    this.endSubs.add(
+      this.egresoSrvc.getDetalle(idegreso, { egreso_detalle: iddetalle }).subscribe((res: any[]) => {
         if (res) {
           this.detalleEgreso = {
             egreso_detalle: res[0].egreso_detalle,
@@ -291,8 +298,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   onSubmitDetail = () => {
     this.bloqueoBotones = true;
     this.detalleEgreso.egreso = this.egreso.egreso;
-    this.endSubs.add(      
-      this.egresoSrvc.saveDetalle(this.detalleEgreso).subscribe(res => {      
+    this.endSubs.add(
+      this.egresoSrvc.saveDetalle(this.detalleEgreso).subscribe(res => {
         if (res.exito) {
           this.loadDetalleEgreso();
           this.resetDetalleEgreso();
@@ -303,7 +310,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         this.bloqueoBotones = false;
         this.presentacionArticuloDisabled = true;
       })
-    );    
+    );
   }
 
   addToDetail = () => {
@@ -474,10 +481,10 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       data: new ConfirmDialogModel('Eliminar detalle', 'Esto eliminará esta línea de detalle. ¿Desea continuar?', 'Sí', 'No')
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       delRef.afterClosed().subscribe((confirma: boolean) => {
         if (confirma) {
-          this.endSubs.add(            
+          this.endSubs.add(
             this.egresoSrvc.eliminarDetalle(idDetalle).subscribe(res => {
               if (res.exito) {
                 this.loadDetalleEgreso(+this.egreso.egreso);
