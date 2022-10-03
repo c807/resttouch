@@ -182,6 +182,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.resetDocumento();
     this.updateTableDataSource();
     this.txtProveedorSelected = undefined;
+    this.presentacionArticuloDisabled = true;
   }
 
   onSubmit = () => {
@@ -221,6 +222,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   }
 
   loadDetalleIngreso = (idingreso: number = +this.ingreso.ingreso) => {
+    this.presentacionArticuloDisabled = true;
     this.endSubs.add(
       this.ingresoSrvc.getDetalle(idingreso, { ingreso: idingreso }).subscribe(res => {
         this.detallesIngreso = res;
