@@ -216,9 +216,15 @@ class Articulo extends CI_Controller
 		$datos['presentacion_reporte'] = $art->getPresentacionReporte();
 		$tmpCosto                = $art->_getCosto_2();
 		$datos['costo']          = (float)$tmpCosto * $porIva;
+		$datos['advertir'] = '';
 
 		foreach ($art->getReceta() as $row) {
 			$rec = new Articulo_model($row->articulo->articulo);			
+
+			if ((int)$rec->produccion === 0 && (int)$rec->mostrar_inventario === 0 && in_array((int)$rec->esreceta, [0, 1])) {
+				$datos['advertir'] = 'REVISAR';
+			}
+
 			$costo = $rec->_getCosto_2();
 
 			if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {

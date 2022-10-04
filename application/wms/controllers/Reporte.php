@@ -1769,6 +1769,7 @@ class Reporte extends CI_Controller
 
 	public function generar_receta_costo()
 	{
+		ini_set('pcre.backtrack_limit', '15000000');
 		$lista = $this->Articulo_model->buscarArticulo([
 			'esreceta' => 1,
 			'_todos'   => true
@@ -1794,9 +1795,15 @@ class Reporte extends CI_Controller
 			$tmp['articulo']       = $art;
 			$tmp['articulo_grupo'] = $art->getCategoriaGrupo();
 			$tmp['presentacion_reporte'] = $art->getPresentacionReporte();
+			$tmp['advertir'] = '';
 
 			foreach ($art->getReceta() as $row) {
 				$rec                  = new Articulo_model($row->articulo->articulo);
+
+				if ((int)$rec->produccion === 0 && (int)$rec->mostrar_inventario === 0 && in_array((int)$rec->esreceta, [0, 1])) {
+					$tmp['advertir'] = 'REVISAR';
+				}
+
 				$costo                = $rec->_getCosto_2();
 
 				if ((int)$rec->produccion === 1 && (float)$rec->rendimiento !== (float)0) {
@@ -1953,9 +1960,9 @@ class Reporte extends CI_Controller
 				$hoja->setCellValue("C{$fila}", $d->subcategoria);
 				$hoja->setCellValue("D{$fila}", $d->descripcion_articulo);
 				$hoja->setCellValue("E{$fila}", $d->codigo);
-				$hoja->setCellValue("F{$fila}", $d->presentacion_reporte);			
+				$hoja->setCellValue("F{$fila}", $d->presentacion_reporte);
 				$hoja->setCellValue("G{$fila}", $d->bodega);
-				$columna = 'H';			
+				$columna = 'H';
 				foreach ($d->consumos as $consumo) {
 					$hoja->setCellValue("{$columna}{$fila}", $consumo);
 					$columna++;

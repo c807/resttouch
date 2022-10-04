@@ -33,10 +33,20 @@
 		</table>
 	</div><br>
 	<table class="table">
+		<?php if(!empty($advertir)): ?>
+		<caption class="text-center">				
+			<span style="color: red; font-weight: bold;">
+				<?php echo $advertir; ?>
+			</span>
+		</caption>
+		<?php endif ?>
 		<thead>
 			<tr>
 				<th class="encabezado text-left">Código</th>
 				<th class="encabezado text-left">Descripción</th>
+				<th class="encabezado text-center" style="width: 7%;">Pro.</th>
+				<th class="encabezado text-center" style="width: 7%;">Inv.</th>
+				<th class="encabezado text-center" style="width: 7%;">Rec.</th>
 				<th class="encabezado text-center">Cantidad</th>
 				<th class="encabezado text-right">Costo U.</th>
 				<th class="encabezado text-right">Total Q.</th>
@@ -47,6 +57,9 @@
 				<tr>
 					<td class="cuerpo text-left"><?php echo $row->articulo->codigo?></td>
 					<td class="cuerpo text-left"><?php echo $row->articulo->descripcion?></td>
+					<td class="cuerpo text-center"><?php echo (int)$row->articulo->produccion === 1 ? '&#10004;' : '';?></td>
+					<td class="cuerpo text-center"><?php echo (int)$row->articulo->mostrar_inventario === 1 ? '&#10004;' : '';?></td>
+					<td class="cuerpo text-center"><?php echo (int)$row->articulo->esreceta === 1 ? '&#10004;' : '';?></td>
 					<td class="cuerpo text-center"><?php echo number_format($row->cantidad, 2)." ".$row->medida->descripcion?></td>
 					<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 5)?></td>
 					<td class="cuerpo text-right"><?php echo number_format($row->costo, 2)?></td>
@@ -54,7 +67,7 @@
 			<?php endforeach ?>
 			<tr>
 				<td colspan="2"></td>
-				<td colspan="2" class="encabezado btop text-right"><b>Costo total por receta:</b></td>
+				<td colspan="5" class="encabezado btop text-right"><b>Costo total por receta:</b></td>
 				<td class="encabezado btop text-right"><?php echo number_format($total, 2)?></td>
 			</tr>
 			<!-- <tr>
