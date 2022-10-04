@@ -9,7 +9,7 @@
 </div>
 <div class="row">
     <div class="col m6 s12">
-        <app-form-egreso #frmEgreso [(egreso)]="egreso" [saveToDB]="false" (egresoSavedEv)="doSomething()">
+        <app-form-egreso #frmEgreso [(egreso)]="egreso" [saveToDB]="false" [enTransformacion]="true" (egresoSavedEv)="doSomething()">
         </app-form-egreso>
     </div>
     <div class="col m6 s12">

@@ -36,6 +36,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
   @Input() egreso: Egreso;
   @Input() saveToDB = true;
+  @Input() enTransformacion = false;
   @Output() egresoSavedEv = new EventEmitter();
 
   public showEgresoForm = true;
@@ -98,6 +99,10 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.loadPresentaciones();
     if (!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
+    }
+
+    if (this.enTransformacion) {
+      this.loadArticulos();
     }
   }
 
