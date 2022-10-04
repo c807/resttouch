@@ -1217,6 +1217,48 @@ class Comanda_model extends General_Model
         }
         return $resultados;
     }
+
+    public function cerrar_comanda_domicilio()
+    {
+        $esUltimoEstatus = $this->db
+            ->select('estatus_callcenter')
+            ->where('estatus_callcenter', $this->estatus_callcenter)
+            ->where('esultimo', 1)
+            ->get('estatus_callcenter')
+            ->row();
+        
+        if ($esUltimoEstatus) {
+            $cantidad_cuentas = $this->db->select('COUNT(cuenta) AS conteo')->where('comanda', $this->getPK())->get('cuenta')->row();
+            $cantidad_cuentas_cerradas = $this->db->select('COUNT(cuenta) AS conteo')->where('comanda', $this->getPK())->where('cerrada', 1)->get('cuenta')->row();
+            if ((int)$this->estatus === 1 && (int)$cantidad_cuentas->conteo === (int)$cantidad_cuentas_cerradas->conteo) {                
+                $this->guardar(['estatus' => 2]);
+            }
+        }
+    }
+
+    public function fix_comandas_abiertas_domicilio($args = [])
+    {
+        if (isset($args['fal'])) {
+            $this->db->where('DATE(a.fhcreacion) <=', $args['fal']);
+        }
+
+        $lista = $this->db
+            ->select('a.comanda')
+            ->join('cuenta b', 'a.comanda = b.comanda')
+            ->join('estatus_callcenter c', 'c.estatus_callcenter = a.estatus_callcenter')
+            ->where('a.estatus', 1)
+            ->where('b.cerrada', 1)
+            ->where('a.domicilio', 1)
+            ->where('c.esultimo', 1)
+            ->order_by('a.comanda')
+            ->get('comanda a')
+            ->result();
+        
+        foreach($lista as $item) {
+            $cmd = new Comanda_model($item->comanda);
+            $cmd->cerrar_comanda_domicilio();
+        }
+    }
 }
 
 /* End of file Comanda_model.php */

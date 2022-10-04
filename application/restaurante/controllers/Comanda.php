@@ -1080,6 +1080,7 @@ class Comanda extends CI_Controller
 
 			$datos['exito'] = $cmd->guardar($params);
 			if ($datos['exito']) {
+				$cmd->cerrar_comanda_domicilio();
 				$this->load->helper('api');
 				$datos['mensaje'] = 'Estatus de comanda actualizado con éxito.';
 				$datos['comanda'] = $cmd->getComanda(['_usuario' => $data->idusuario]);
@@ -1102,6 +1103,14 @@ class Comanda extends CI_Controller
 		set_time_limit(0);
 		$datos = $this->Comanda_model->fix_detcom_presentacion_pasado_opcion_multiple();
 		$this->output->set_output(json_encode($datos));
+	}
+
+	public function fix_comandas_abiertas_domicilio()
+	{
+		set_time_limit(0);
+		ini_set('memory_limit', '512M');
+		$this->Comanda_model->fix_comandas_abiertas_domicilio($_GET);
+		$this->output->set_output(json_encode(['exito' => true, 'mensaje' => 'Proceso ejecutado con éxito, por favor revise.']));
 	}
 }
 
