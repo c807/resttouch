@@ -45,8 +45,9 @@ class Mesa_model extends General_Model {
 			b.usuario,
 			b.sede,
 			b.estatus')
-		->join('comanda b', 'a.comanda = b.comanda')
+		->join('comanda b', 'b.comanda = a.comanda')
 		->where('a.mesa', $this->mesa)		
+		->where('(SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda) <> (SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda AND cerrada = 1)')
 		->get('comanda_has_mesa a')
 		->row();
 	}
