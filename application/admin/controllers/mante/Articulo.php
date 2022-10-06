@@ -48,7 +48,7 @@ class Articulo extends CI_Controller
 						$existeCodigo = $this->chkCodigoExistente($req['codigo']);
 					}
 				}
-			}			
+			}
 
 			if (!$existeCodigo) {
 				$continuar = true;
@@ -59,9 +59,9 @@ class Articulo extends CI_Controller
 				if ($continuar) {
 					$pre = new Presentacion_model($req['presentacion']);
 					$preRep = new Presentacion_model($req['presentacion_reporte']);
-					if ($pre->medida == $preRep->medida) {					
+					if ($pre->medida == $preRep->medida) {
 						$datos['exito'] = $art->guardar($req);
-	
+
 						if ($datos['exito']) {
 							$datos['mensaje'] = "Datos Actualizados con Exito";
 							$datos['articulo'] = $art;
@@ -155,7 +155,7 @@ class Articulo extends CI_Controller
 					if ($art->combo == 1 && $rec->combo == 1) {
 						$datos['mensaje'] = "No es posible agregar un combo a un combo como detalle.";
 					} else {
-						$continuar = true;						
+						$continuar = true;
 						if ((int)$art->multiple === 1 || (int)$art->combo === 1) {
 							$presArtRec = $rec->getPresentacionReporte();
 							if ((float)$presArtRec->cantidad !== (float)1) {
@@ -168,7 +168,7 @@ class Articulo extends CI_Controller
 							if ($det) {
 								$datos['exito'] = true;
 								$datos['mensaje'] = "Datos Actualizados con Exito";
-								$datos['detalle'] = $det;							
+								$datos['detalle'] = $det;
 							} else {
 								$datos['mensaje'] = implode("<br>", $art->getMensaje());
 							}
@@ -195,7 +195,7 @@ class Articulo extends CI_Controller
 		$art = new Articulo_model($articulo);
 		$datos = [];
 
-		$sede = $this->Catalogo_model->getSede([ 'sede' => $data->sede, '_uno' => true ]);
+		$sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
 
 		$emp = null;
 		if ($sede) {
@@ -207,19 +207,19 @@ class Articulo extends CI_Controller
 		}
 
 		$porIva = 1.0;
-		if(isset($_GET['_coniva']) && (int)$_GET['_coniva'] === 1) {			
+		if (isset($_GET['_coniva']) && (int)$_GET['_coniva'] === 1) {
 			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
 		}
 
 		$datos['articulo']       = $art;
-		$datos['articulo_grupo'] = $art->getCategoriaGrupo();		
+		$datos['articulo_grupo'] = $art->getCategoriaGrupo();
 		$datos['presentacion_reporte'] = $art->getPresentacionReporte();
 		$tmpCosto                = $art->_getCosto_2();
 		$datos['costo']          = (float)$tmpCosto * $porIva;
 		$datos['advertir'] = '';
 
 		foreach ($art->getReceta() as $row) {
-			$rec = new Articulo_model($row->articulo->articulo);			
+			$rec = new Articulo_model($row->articulo->articulo);
 
 			if ((int)$rec->produccion === 0 && (int)$rec->mostrar_inventario === 0 && in_array((int)$rec->esreceta, [0, 1])) {
 				$datos['advertir'] = 'REVISAR';
@@ -239,7 +239,7 @@ class Articulo extends CI_Controller
 			$datos['receta'][] = $row;
 		}
 
-			
+
 
 		$vista = $this->load->view('reporte/receta', $datos, true);
 
@@ -390,7 +390,7 @@ class Articulo extends CI_Controller
 			}
 		}
 
-		if($noHayExistencias) {
+		if ($noHayExistencias) {
 			$datos = $articulo->dar_de_baja($this->data->idusuario);
 		} else {
 			$datos->mensaje = 'Las existencias del artículo no están a cero (0). No se puede dar de baja.';
@@ -399,37 +399,50 @@ class Articulo extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	public function calcula_existencias() {		
+	public function calcula_existencias()
+	{
 		$inicia = time();
 		set_time_limit(0);
 		ini_set('memory_limit', '1536M');
 		$this->load->model(['Sede_model', 'Bodega_model']);
 
 		$fltrSedes = [];
-		if (isset($_GET['sede']) && !empty((int)$_GET['sede'])) { $fltrSedes['sede'] = $_GET['sede']; }
-		
+		if (isset($_GET['sede']) && !empty((int)$_GET['sede'])) {
+			$fltrSedes['sede'] = $_GET['sede'];
+		}
+
 		$fltrBodegas = [];
-		if (isset($_GET['bodega']) && !empty((int)$_GET['bodega'])) { $fltrBodegas['bodega'] = $_GET['bodega']; }
-		
+		if (isset($_GET['bodega']) && !empty((int)$_GET['bodega'])) {
+			$fltrBodegas['bodega'] = $_GET['bodega'];
+		}
+
 		$fltrArticulo = [];
 		$fltrArticulo['_todos'] = true;
-		if (isset($_GET['articulo']) && !empty((int)$_GET['articulo'])) { $fltrArticulo['articulo'] = $_GET['articulo']; }
-		if (isset($_GET['codigo']) && !empty(trim($_GET['codigo']))) { $fltrArticulo['codigo'] = trim($_GET['codigo']); }
-		if (isset($_GET['categoria']) && !empty((int)$_GET['categoria'])) { $fltrArticulo['categoria'] = $_GET['categoria']; }
-		if (isset($_GET['categoria_grupo']) && !empty((int)$_GET['categoria_grupo'])) { $fltrArticulo['categoria_grupo'] = $_GET['categoria_grupo']; }		
-		
+		if (isset($_GET['articulo']) && !empty((int)$_GET['articulo'])) {
+			$fltrArticulo['articulo'] = $_GET['articulo'];
+		}
+		if (isset($_GET['codigo']) && !empty(trim($_GET['codigo']))) {
+			$fltrArticulo['codigo'] = trim($_GET['codigo']);
+		}
+		if (isset($_GET['categoria']) && !empty((int)$_GET['categoria'])) {
+			$fltrArticulo['categoria'] = $_GET['categoria'];
+		}
+		if (isset($_GET['categoria_grupo']) && !empty((int)$_GET['categoria_grupo'])) {
+			$fltrArticulo['categoria_grupo'] = $_GET['categoria_grupo'];
+		}
+
 		$sedes = $this->Sede_model->buscar($fltrSedes);
 		$errores = [];
-		foreach($sedes as $sede) {
+		foreach ($sedes as $sede) {
 			$fltrBodegas['sede'] = $sede->sede;
 			$bodegas = $this->Bodega_model->buscar($fltrBodegas);
-			if(count($bodegas) > 0) {
+			if (count($bodegas) > 0) {
 				$fltrArticulo['sede'] = $sede->sede;
 				$articulos = $this->Articulo_model->buscarArticulo($fltrArticulo);
-				foreach($articulos as $articulo) {
+				foreach ($articulos as $articulo) {
 					$art = new Articulo_model($articulo->articulo);
 					if ((int)$art->getPK() > 0) {
-						foreach($bodegas as $bodega) {
+						foreach ($bodegas as $bodega) {
 							$art->actualizarExistencia(['bodega' => $bodega->bodega]);
 							$seActualizo = $art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
 							if (!$seActualizo) {
@@ -437,7 +450,7 @@ class Articulo extends CI_Controller
 							}
 						}
 					}
-				}				
+				}
 			}
 		}
 		$finaliza = time();
@@ -475,7 +488,7 @@ class Articulo extends CI_Controller
 		$articulo->actualizarExistencia();
 		if (isset($_GET['async'])) {
 			$fp = fopen("actualiza_existencias_{$idArticulo}.rtt", 'a');
-			fwrite($fp, (date('d/m/Y H:i:s:')." Se actualizaron las existencias de {$articulo->descripcion}.\r\n"));
+			fwrite($fp, (date('d/m/Y H:i:s:') . " Se actualizaron las existencias de {$articulo->descripcion}.\r\n"));
 			fclose($fp);
 		}
 		$this->output->set_output(json_encode([
@@ -507,12 +520,12 @@ class Articulo extends CI_Controller
 			if (!empty($id)) {
 				$fltr['articulo_tipo_cliente <>'] = $id;
 			}
-						
+
 			$existe = $this->Articulo_tipo_cliente_model->buscar($fltr);
 			if (!$existe) {
 
 				$datos['exito'] = $atc->guardar($req);
-	
+
 				if ($datos['exito']) {
 					$datos['mensaje'] = "Datos actualizados con éxito.";
 					$datos['articulo_tipo_cliente'] = $atc;
@@ -531,14 +544,14 @@ class Articulo extends CI_Controller
 	// Finaliza endpoints para variación de precio de artículo por tipo de cliente
 
 	public function get_costo()
-	{		
+	{
 		$datos = ['exito' => false, 'costo' => (float)0, 'articulo' => 0];
 		if (isset($_GET['articulo']) && (int)$_GET['articulo'] > 0) {
 			$this->load->model(['Sede_model']);
 			$datos['articulo'] = (int)$_GET['articulo'];
 			$art = new Articulo_model($_GET['articulo']);
 			$costo = $art->getCosto($_GET);
-			if((float)$costo === (float)0) {
+			if ((float)$costo === (float)0) {
 				$costo = $art->getCosto();
 			}
 
@@ -573,6 +586,173 @@ class Articulo extends CI_Controller
 		$datos = ['exito' => true, 'mensaje' => 'Se calcularon los costos con éxito.'];
 		$this->Articulo_model->recalcular_costos($sede);
 		$this->output->set_output(json_encode($datos));
+	}
+
+	private function upload_config($path)
+	{
+		$config['upload_path'] 		= $path;
+		$config['allowed_types'] 	= 'csv|CSV|xlsx|XLSX|xls|XLS';
+		$config['max_filename']	 	= '255';
+		$config['encrypt_name'] 	= TRUE;
+		$config['max_size'] 		= 4096;
+		$this->load->library('upload', $config);
+	}
+
+	private function procesa_medidas($sheet_data = [])
+	{
+		$entidad = [];
+		foreach ($sheet_data as $row => $col) {
+			if ($row != 0) {
+				$entidad['descripcion'] = trim($col[0]);
+				$result = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+				if (!$result) {
+					$umedida = new Umedida_model();
+					$umedida->guardar($entidad);
+				}
+			}
+		}
+	}
+
+	private function procesa_presentaciones($sheet_data = [])
+	{
+		$medidas = $this->Umedida_model->buscar();
+		$entidad = [];
+		foreach ($sheet_data as $row => $col) {
+			if ($row != 0) {
+				$medida = null;
+				foreach ($medidas as $um) {
+					if (strcasecmp(trim($um->descripcion), trim($col[0])) == 0) {
+						$medida = $um;
+						break;
+					}
+				}
+				if ($medida) {
+					$entidad['medida'] = $medida->medida;
+					$entidad['descripcion'] = trim($col[1]);
+					$entidad['cantidad'] = (float)$col[2];
+					$result = $this->Presentacion_model->buscar(['medida' => $entidad['medida'], 'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					if (!$result) {
+						$presentacion = new Presentacion_model();
+						$presentacion->guardar($entidad);
+					}
+				}
+			}
+		}
+	}
+
+	private function procesa_categorias($sheet_data = [])
+	{
+		$sede = $this->data->sede;
+		if ($sede) {
+			$entidad = ['sede' => (int)$sede];
+			foreach ($sheet_data as $row => $col) {
+				if ($row != 0) {
+					$entidad['descripcion'] = trim($col[0]);
+					$result = $this->Categoria_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					if (!$result) {
+						$categoria = new Categoria_model();
+						$categoria->guardar($entidad);
+					}
+				}
+			}
+		}
+	}
+
+	private function procesa_subcategorias($sheet_data = [])
+	{
+		$sede = $this->data->sede;
+		if ($sede) {
+			$this->load->model(['Impresora_model', 'Bodega_model']);
+			$impresoraDefecto = $this->Impresora_model->buscar(['sede' => $sede, 'pordefecto' => 1, '_uno' => true]);
+			$bodegaDefecto = $this->Bodega_model->buscar(['sede' => $sede, 'pordefecto' => 1, '_uno' => true]);
+			$categorias = $this->Categoria_model->buscar(['sede' => $sede]);
+			$entidad = [];
+			foreach ($sheet_data as $row => $col) {
+				if ($row != 0) {
+					$categoria = null;
+					foreach ($categorias as $cat) {
+						if (strcasecmp(trim($cat->descripcion), trim($col[0])) == 0) {
+							$categoria = $cat;
+							break;
+						}
+					}
+					if ($categoria) {
+						$entidad['categoria'] = $categoria->categoria;
+						$entidad['descripcion'] = trim($col[1]);
+						$entidad['impresora'] = $impresoraDefecto ? $impresoraDefecto->impresora : null;
+						$entidad['bodega'] = $bodegaDefecto ? $bodegaDefecto->bodega : null;
+						$result = $this->Cgrupo_model->buscar(['categoria' => $entidad['categoria'], 'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+						if (!$result) {
+							$subcategoria = new Cgrupo_model();
+							$subcategoria->guardar($entidad);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private function procesa_articulos($sheet_data = [])
+	{
+		$sede = $this->data->sede;
+		if ($sede) {
+		}
+	}
+
+	public function load_from_file()
+	{
+		$path = sys_get_temp_dir();
+		$json = ['exito' => false];
+		$this->upload_config($path);
+		if (!$this->upload->do_upload('file')) {
+			$json = ['mensaje' => $this->upload->display_errors()];
+		} else {
+			$this->load->model(['Umedida_model', 'Categoria_model', 'Cgrupo_model']);
+			$file_data = $this->upload->data();
+			$file_name = $path . $file_data['file_name'];
+			$arr_file = explode('.', $file_name);
+			$extension = end($arr_file);
+			if ('csv' == $extension) {
+				$reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+			} else {
+				$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+			}
+			$spreadsheet = $reader->load($file_name);
+
+			$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS'];
+			$sheet_data = [];
+			foreach ($sheet_names as $sheetName) {
+				$sheet = $spreadsheet->getSheetByName($sheetName);
+				if ($sheet) {
+					$sheet_data = $sheet->toArray();
+					switch ($sheetName) {
+						case $sheet_names[0]:
+							$this->procesa_medidas($sheet_data);
+							break;
+						case $sheet_names[1]:
+							$this->procesa_presentaciones($sheet_data);
+							break;
+						case $sheet_names[2]:
+							$this->procesa_categorias($sheet_data);
+							break;
+						case $sheet_names[3]:
+							$this->procesa_subcategorias($sheet_data);
+							break;
+						case $sheet_names[4]:
+							$this->procesa_articulos($sheet_data);
+							break;
+					}
+				}
+			}
+
+			if (file_exists($file_name)) {
+				unlink($file_name);
+			}
+
+			$json['exito'] = true;
+			$json = ['mensaje' => 'Archivo procesado con éxito.'];
+		}
+		$this->output->set_output(json_encode($json));
 	}
 }
 
