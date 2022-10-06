@@ -61,4 +61,11 @@ export class SetupService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  subir_plantilla_datos(obj: FormData): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlMantenimientos}/articulo/load_from_file`,
+      obj
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
 }

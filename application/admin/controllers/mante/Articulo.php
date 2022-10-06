@@ -12,7 +12,10 @@ class Articulo extends CI_Controller
 			'Receta_model',
 			'Presentacion_model',
 			'Usuario_model',
-			'Articulo_tipo_cliente_model'
+			'Articulo_tipo_cliente_model',
+			'Umedida_model',
+			'Categoria_model',
+			'Cgrupo_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -590,6 +593,8 @@ class Articulo extends CI_Controller
 
 	private function upload_config($path)
 	{
+		if (!is_dir($path)) 
+			mkdir($path, 0777, TRUE);
 		$config['upload_path'] 		= $path;
 		$config['allowed_types'] 	= 'csv|CSV|xlsx|XLSX|xls|XLS';
 		$config['max_filename']	 	= '255';
@@ -696,18 +701,75 @@ class Articulo extends CI_Controller
 	{
 		$sede = $this->data->sede;
 		if ($sede) {
+			$cgrupo = new Cgrupo_model();
+			$art = new Articulo_model();
+			$presentaciones = $this->Presentacion_model->buscar(['debaja' => 0]);
+			$subcategorias = $cgrupo->get_simple_list(['sede' => $sede, '_todos' => true, 'debaja' => 0]);
+			$entidad = [];
+			foreach ($sheet_data as $row => $col) {
+				if ($row != 0) {
+					$subcategoria = null;
+					foreach ($subcategorias as $subcat) {
+						if (strcasecmp(trim($subcat->descripcion), trim($col[0])) == 0) {
+							$subcategoria = $subcat;
+							break;
+						}
+					}
+					$presentacion = null;
+					foreach ($presentaciones as $pres) {
+						if (strcasecmp(trim($pres->descripcion), trim($col[5])) == 0) {
+							$presentacion = $pres;
+							break;
+						}
+					}
+
+					if ($subcategoria && $presentacion) {
+						$entidad['categoria_grupo'] = $subcategoria->categoria_grupo;
+						$entidad['presentacion'] = $presentacion->presentacion;
+						$entidad['descripcion'] = trim($col[1]);
+						$entidad['precio'] = (float)$col[2];
+						$entidad['bien_servicio'] = trim($col[3]);
+						$entidad['codigo'] = trim($col[4]);
+						$entidad['presentacion_reporte'] = $presentacion->presentacion;
+						$entidad['mostrar_pos'] = (int)$col[6];
+						$entidad['combo'] = (int)$col[7];
+						$entidad['multiple'] = (int)$col[8];
+						$entidad['cantidad_minima'] = (float)$col[9];
+						$entidad['cantidad_maxima'] = (float)$col[10];
+						$entidad['produccion'] = (int)$col[11];
+						$entidad['rendimiento'] = (float)$col[12];
+						$entidad['esreceta'] = (int)$col[13];
+						$entidad['mostrar_inventario'] = (int)$col[14];
+						$entidad['stock_minimo'] = (float)$col[15];
+						$entidad['stock_maximo'] = (float)$col[16];
+						$entidad['esextra'] = (int)$col[17];
+
+						$result = $art->buscar([
+							'categoria_grupo' => $entidad['categoria_grupo'],
+							'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']),
+							'TRIM(LOWER(codigo))' => strtolower($entidad['codigo']),
+							'_uno' => true
+						]);
+						if (!$result) {
+							$articulo = new Articulo_model();
+							$articulo->guardar($entidad);
+						}
+					}
+				}
+			}
 		}
 	}
 
 	public function load_from_file()
 	{
-		$path = sys_get_temp_dir();
+		set_time_limit(0);
+		ini_set('memory_limit', -1);
+		$path = APPPATH.'documentos/';
 		$json = ['exito' => false];
 		$this->upload_config($path);
 		if (!$this->upload->do_upload('file')) {
-			$json = ['mensaje' => $this->upload->display_errors()];
-		} else {
-			$this->load->model(['Umedida_model', 'Categoria_model', 'Cgrupo_model']);
+			$json['mensaje'] = $this->upload->display_errors();
+		} else {			
 			$file_data = $this->upload->data();
 			$file_name = $path . $file_data['file_name'];
 			$arr_file = explode('.', $file_name);
@@ -717,40 +779,43 @@ class Articulo extends CI_Controller
 			} else {
 				$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 			}
-			$spreadsheet = $reader->load($file_name);
-
-			$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS'];
-			$sheet_data = [];
-			foreach ($sheet_names as $sheetName) {
-				$sheet = $spreadsheet->getSheetByName($sheetName);
-				if ($sheet) {
-					$sheet_data = $sheet->toArray();
-					switch ($sheetName) {
-						case $sheet_names[0]:
-							$this->procesa_medidas($sheet_data);
-							break;
-						case $sheet_names[1]:
-							$this->procesa_presentaciones($sheet_data);
-							break;
-						case $sheet_names[2]:
-							$this->procesa_categorias($sheet_data);
-							break;
-						case $sheet_names[3]:
-							$this->procesa_subcategorias($sheet_data);
-							break;
-						case $sheet_names[4]:
-							$this->procesa_articulos($sheet_data);
-							break;
+			try{
+				$spreadsheet = $reader->load($file_name);
+	
+				$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS'];
+				$sheet_data = [];
+				foreach ($sheet_names as $sheetName) {
+					$sheet = $spreadsheet->getSheetByName($sheetName);
+					if ($sheet) {
+						$sheet_data = $sheet->toArray();
+						switch ($sheetName) {
+							case $sheet_names[0]:
+								$this->procesa_medidas($sheet_data);
+								break;
+							case $sheet_names[1]:
+								$this->procesa_presentaciones($sheet_data);
+								break;
+							case $sheet_names[2]:
+								$this->procesa_categorias($sheet_data);
+								break;
+							case $sheet_names[3]:
+								$this->procesa_subcategorias($sheet_data);
+								break;
+							case $sheet_names[4]:
+								$this->procesa_articulos($sheet_data);
+								break;
+						}
 					}
 				}
+	
+				if (file_exists($file_name)) {
+					unlink($file_name);
+				}
+				$json['exito'] = true;
+				$json['mensaje'] = 'El archivo fue procesado. Por favor revise los cambios.';
+			} catch(Exception $e) {
+				$json['mensaje'] = $e->getMessage();
 			}
-
-			if (file_exists($file_name)) {
-				unlink($file_name);
-			}
-
-			$json['exito'] = true;
-			$json = ['mensaje' => 'Archivo procesado con éxito.'];
 		}
 		$this->output->set_output(json_encode($json));
 	}
