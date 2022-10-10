@@ -975,6 +975,7 @@ class Reporte extends CI_Controller
 
 		foreach ($pedidos as $pedido) {
 			$ultimo_producto = 0;
+			$cantNoMostrar = 0;
 			foreach ($pedido->productos as $producto) {
 				if ((int)$producto->articulo !== $ultimo_producto) {
 					// Inicia calculo de existencia
@@ -995,8 +996,12 @@ class Reporte extends CI_Controller
 
 				$producto->a_pedir = (float)$producto->maximo - (float)$producto->existencia;
 				$producto->mostrar = (float)$producto->existencia >= (float)$producto->maximo ? 0 : 1;
+				if ($producto->mostrar === 0) {
+					$cantNoMostrar++;
+				}
 				$ultimo_producto = (int)$producto->articulo;
 			}
+			$pedido->mostrar = $cantNoMostrar !== count($pedido->productos);
 		}
 
 		$datos = [
@@ -1009,19 +1014,107 @@ class Reporte extends CI_Controller
 
 		$datos['empresa'] = $this->Empresa_model->buscar(['empresa' => $datos['sede']->empresa, '_uno' => true]);
 
-		$vista = $this->load->view('reporte/pedidos/imprimir', $datos, true);
+		if (verDato($params, '_excel')) {
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+			$excel->getProperties()
+				->setCreator('RestTouch')
+				->setTitle('Office 2007 xlsx Lista_pedidos')
+				->setSubject('Office 2007 xlsx Lista_pedidos')
+				->setKeywords('office 2007 openxml php');
+	
+	
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
 
-		$mpdf = new \Mpdf\Mpdf([
-			'tempDir' => sys_get_temp_dir(), //Produccion
-			'format' => 'Letter',
-			'lands'
-		]);
+			$hoja->setCellValue('A1', $datos['empresa']->nombre);
+			$hoja->setCellValue('A2', "{$datos['sede']->nombre} ({$datos['sede']->alias})");
+			$hoja->setCellValue('A3', "Lista de pedido de productos al {$datos['fecha']}");
+			$hoja->setCellValue('A4', "Bodega: {$datos['bodega']->descripcion}");
+			$hoja->setCellValue('A5', 'Impreso: '.date('d/m/Y H:i:s'));
+			$hoja->mergeCells('A1:H1');
+			$hoja->mergeCells('A2:H2');
+			$hoja->mergeCells('A3:H3');
+			$hoja->mergeCells('A4:H4');
+			$hoja->mergeCells('A5:H5');			
+			$hoja->getStyle('A1:H5')->getFont()->setBold(true);
+			$hoja->getStyle('A1:H5')->getAlignment()->setHorizontal('center');
+			
+			$fila = 7;
+			$hoja->setCellValue("E{$fila}", 'Última Compra');
+			$hoja->mergeCells("E{$fila}:F{$fila}");
+			$hoja->getStyle("E{$fila}:F{$fila}")->getFont()->setBold(true);
+			$hoja->getStyle("E{$fila}:F{$fila}")->getAlignment()->setHorizontal('center');
+			$fila++;
+			$hoja->setCellValue("A{$fila}", 'Descripción');
+			$hoja->setCellValue("B{$fila}", 'Presentación');
+			$hoja->setCellValue("C{$fila}", 'Mínimo');
+			$hoja->setCellValue("D{$fila}", 'Máximo');
+			$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+			$hoja->setCellValue("E{$fila}", 'Presentación');
+			$hoja->setCellValue("F{$fila}", 'Costo');
+			$hoja->setCellValue("G{$fila}", 'Existencia');
+			$hoja->setCellValue("H{$fila}", 'A pedir');
+			$hoja->getStyle("F{$fila}:H{$fila}")->getAlignment()->setHorizontal('right');
+			$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
+			$hoja->setAutoFilter("A{$fila}:H{$fila}");
+			$fila++;
+			foreach($datos['pedidos'] as $pedido) {
+				if ($pedido->mostrar) {
+					$hoja->setCellValue("A{$fila}", $pedido->proveedor);
+					$hoja->mergeCells("A{$fila}:H{$fila}");
+					$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
+					$fila++;
+					foreach ($pedido->productos as $producto) {
+						if ($producto->mostrar === 1) {
+							$hoja->setCellValue("A{$fila}", $producto->descripcion_articulo);
+							$hoja->setCellValue("B{$fila}", $producto->descripcion_presentacion);
+							$hoja->setCellValue("C{$fila}", (float)$producto->minimo);
+							$hoja->setCellValue("D{$fila}", (float)$producto->maximo);
+							$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
+							$hoja->getStyle("C{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+							$hoja->setCellValue("E{$fila}", $producto->descripcion_ultima_presentacion);
+							$hoja->setCellValue("F{$fila}", (float)$producto->ultimo_costo);
+							$hoja->setCellValue("G{$fila}", (float)$producto->existencia);
+							$hoja->setCellValue("H{$fila}", (float)$producto->a_pedir);
+							$hoja->getStyle("F{$fila}:H{$fila}")->getAlignment()->setHorizontal('right');
+							$hoja->getStyle("F{$fila}:H{$fila}")->getNumberFormat()->setFormatCode('0.00');
+							$fila++;
+						}
+					}
+				}
+			}		
 
-		$mpdf->AddPage('L');
-		$mpdf->WriteHTML($vista);
-		$mpdf->Output('Pedido_' . date('YmdHis') . '.pdf', "D");
+			$hoja->setTitle('Lista de pedidos');
+			for ($i = 0; $i <= 7; $i++) {
+				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+			}
 
-		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename=Lista_pedidos_' . date('YmdHis') . '.xls');
+			header('Cache-Control: max-age=1');
+			header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+			header('Cache-Control: cache, must-revalidate');
+			header('Pragma: public');
+	
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+			$writer->save('php://output');
+			
+		} else {
+			$vista = $this->load->view('reporte/pedidos/imprimir', $datos, true);
+	
+			$mpdf = new \Mpdf\Mpdf([
+				// 'tempDir' => sys_get_temp_dir(), //Produccion
+				'format' => 'Letter',
+				'lands'
+			]);
+	
+			$mpdf->AddPage('L');
+			$mpdf->WriteHTML($vista);
+			$mpdf->Output('Pedido_' . date('YmdHis') . '.pdf', "D");
+	
+			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+		}
 	}
 
 	private function get_data_oc($idOC, $idbodega = null)

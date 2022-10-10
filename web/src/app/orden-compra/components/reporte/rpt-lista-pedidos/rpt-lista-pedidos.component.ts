@@ -27,7 +27,7 @@ export class RptListaPedidosComponent implements OnInit, OnDestroy {
   public titulo: string = 'Lista_Pedidos';
   public cargando = false;
   public configBotones: ConfiguracionBotones = {
-    showPdf: true, showHtml: false, showExcel: false
+    showPdf: true, showHtml: false, showExcel: true
   };
   public lstSubCategorias: any[] = [];
 
@@ -82,7 +82,12 @@ export class RptListaPedidosComponent implements OnInit, OnDestroy {
   onSubmit(esExcel = 0) {
     if (this.params.sede && this.params.bodega && this.params.fecha && moment(this.params.fecha).isValid()) {
       this.params.fecha_del = moment(this.params.fecha).add(1, 'days').format(GLOBAL.dbDateFormat);      
-      this.cargando = true;      
+      this.cargando = true;   
+      if (+esExcel === 1) {
+        this.params._excel = true;
+      } else {
+        delete this.params._excel;
+      }
       this.endSubs.add(
         this.pdfServicio.getListaPedidos(this.params).subscribe(res => {
           this.cargando = false;

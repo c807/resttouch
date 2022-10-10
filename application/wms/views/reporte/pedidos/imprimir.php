@@ -53,6 +53,7 @@
             <td class="bld brd text-right wtdnum">A pedir</td>
         </tr>
         <?php foreach ($pedidos as $pedido) : ?>
+            <?php if ($pedido->mostrar) : ?>
             <tr class="separador-fila">
                 <td class="bld" colspan="8"><?php echo $pedido->proveedor; ?></td>
             </tr>
@@ -70,6 +71,7 @@
                     </tr>
                 <?php endif; ?>
             <?php endforeach; ?>
+            <?php endif; ?>
         <?php endforeach; ?>
     </table>
 </body>
