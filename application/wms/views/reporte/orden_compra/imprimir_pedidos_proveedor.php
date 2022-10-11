@@ -27,16 +27,17 @@
 						<td><?php echo $row->usuario?></td>
 						<td><?php echo $row->proveedor?></td>
 						<td><?php echo $row->estatus?></td>
-						<td colspan="2"><?php echo $row->ingreso?></td>
+						<td colspan="3"><?php echo $row->ingreso?></td>
 					</tr>
 					<tr>
-						<td colspan="7"><?php echo $row->notas?></td>
+						<td colspan="8"><?php echo $row->notas?></td>
 					</tr>
 					<tr>
 						<td class="sborder"><br></td>
 						<td class="titulo">Codigo</td>
 						<td class="titulo">Descripcion</td>
 						<td class="titulo">Presentacion</td>
+						<td class="titulo text-right">Existencias</td>
 						<td class="titulo text-right">Cantidad</td>
 						<td class="titulo text-right">Costo U.</td>
 						<td class="titulo text-right">Total</td>
@@ -47,21 +48,22 @@
 							<td><?php echo $fila->codigo?></td>
 							<td><?php echo $fila->articulo?></td>
 							<td><?php echo $fila->presentacion?></td>
+							<td class="text-right"><?php echo number_format($fila->existencias, 2)?></td>
 							<td class="text-right"><?php echo number_format($fila->cantidad, 2)?></td>
 							<td class="text-right"><?php echo number_format($fila->monto, 2)?></td>
 							<td class="text-right"><?php echo number_format($fila->total, 2)?></td>
 						</tr>
 					<?php endforeach ?>
 					<tr>
-						<td colspan="6" class="totales">Total</td>
+						<td colspan="7" class="totales">Total</td>
 						<td colspan="1" class="totales"><?php echo number_format($tmpTotal, 2)?></td>
 					</tr>
 					<tr>
-						<td colspan="7" class="sborder"><br></td>
+						<td colspan="8" class="sborder"><br></td>
 					</tr>
 				<?php endforeach ?>
 				<tr>
-					<td colspan="6" class="totales">Total</td>
+					<td colspan="7" class="totales">Total</td>
 					<td colspan="1" class="totales"><?php echo number_format($total, 2)?></td>
 				</tr>
 			</tbody>

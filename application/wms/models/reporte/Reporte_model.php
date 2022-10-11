@@ -679,7 +679,7 @@ EOT;
 	{
 		$campos = 'a.orden_compra, c.nombre AS empresa, b.nombre AS sede, d.razon_social AS proveedor, DATE_FORMAT(a.fecha_orden, "%d/%m/%Y") AS fecha_orden, ';
 		$campos.= 'DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") AS fhcreacion, e.usrname AS usuario, a.notas, f.descripcion AS estatus, g.ingreso, b.alias AS alias_sede,';
-		$campos.= 'a.fecha_orden AS fecha_orden_flat';
+		$campos.= 'a.fecha_orden AS fecha_orden_flat, CONCAT(DATE_FORMAT(a.fecha_orden, "%d%m%Y"), "-", TRIM(d.razon_social)) AS orden_alfa';
 		$oc = $this->db
 			->select($campos)
 			->join('sede b', 'b.sede = a.sede')
@@ -742,8 +742,8 @@ EOT;
 		}
 
 		return $this->db
-		->from("orden_compra")
-		->order_by("fecha")
+		->from('orden_compra')
+		->order_by('fecha_orden')
 		->get()
 		->result();
 	}

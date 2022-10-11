@@ -816,10 +816,10 @@ class Factura_model extends General_model
 
 	public function crearElemento($nombre, $valor = '', $attr = array(), $cdata = false)
 	{
-		if ($cdata) {
-			$txt = $this->xml->createCDATASection($valor);
-			$valor = '';
-		}
+		// if ($cdata) {
+		// 	$txt = $this->xml->createCDATASection($valor);
+		// 	$valor = '';
+		// }
 
 		# Sin NS
 		if (isset($attr['SNS'])) {
@@ -835,9 +835,9 @@ class Factura_model extends General_model
 			}
 		}
 
-		if ($cdata) {
-			$nodo->appendChild($txt);
-		}
+		// if ($cdata) {
+		// 	$nodo->appendChild($txt);
+		// }
 
 		return $nodo;
 	}

@@ -1104,7 +1104,7 @@ class Reporte extends CI_Controller
 			$vista = $this->load->view('reporte/pedidos/imprimir', $datos, true);
 	
 			$mpdf = new \Mpdf\Mpdf([
-				// 'tempDir' => sys_get_temp_dir(), //Produccion
+				'tempDir' => sys_get_temp_dir(), //Produccion
 				'format' => 'Letter',
 				'lands'
 			]);
@@ -1159,7 +1159,11 @@ class Reporte extends CI_Controller
 
 				foreach ($lista as $key => $row) {
 					$tmp = new Reporte_model();
-					$data[] = $tmp->get_compra($row->orden_compra);
+					$data[] = $tmp->get_compra($row->orden_compra, $params['bodega']);
+				}
+
+				if (verDato($params, '_alfa') && $params['_alfa']) {
+					$data = ordenar_array_objetos($data, 'orden_alfa');
 				}
 
 				if (verDato($params, "_excel")) {
@@ -1196,11 +1200,12 @@ class Reporte extends CI_Controller
 						$hoja->setCellValue("B{$pos}", "Codigo");
 						$hoja->setCellValue("C{$pos}", "Descripcion");
 						$hoja->setCellValue("D{$pos}", "Presentacion");
-						$hoja->setCellValue("E{$pos}", "Cantidad");
-						$hoja->setCellValue("F{$pos}", "Costo U.");
-						$hoja->setCellValue("G{$pos}", "Total");
-						$hoja->getStyle("B{$pos}:G{$pos}")->getFont()->setBold(true);
-						$hoja->getStyle("E{$pos}:G{$pos}")->getAlignment()->setHorizontal("right");
+						$hoja->setCellValue("E{$pos}", "Existencia");
+						$hoja->setCellValue("F{$pos}", "Cantidad");
+						$hoja->setCellValue("G{$pos}", "Costo U.");
+						$hoja->setCellValue("H{$pos}", "Total");
+						$hoja->getStyle("B{$pos}:H{$pos}")->getFont()->setBold(true);
+						$hoja->getStyle("E{$pos}:H{$pos}")->getAlignment()->setHorizontal("right");
 
 						$pos++;
 
@@ -1209,36 +1214,31 @@ class Reporte extends CI_Controller
 							$hoja->setCellValue("B{$pos}", $fila->codigo);
 							$hoja->setCellValue("C{$pos}", $fila->articulo);
 							$hoja->setCellValue("D{$pos}", $fila->presentacion);
-							$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
-							$hoja->setCellValue("F{$pos}", number_format((float)$fila->monto, 2, ".", ""));
-							$hoja->setCellValue("G{$pos}", number_format((float)$fila->total, 2, ".", ""));
-							$hoja->getStyle("E{$pos}:G{$pos}")
-								->getNumberFormat()
-								->setFormatCode("0.00");
+							$hoja->setCellValue("E{$pos}", $fila->existencias);
+							$hoja->setCellValue("F{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
+							$hoja->setCellValue("G{$pos}", number_format((float)$fila->monto, 2, ".", ""));
+							$hoja->setCellValue("H{$pos}", number_format((float)$fila->total, 2, ".", ""));
+							$hoja->getStyle("E{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
 
 							$tmpTotal += $fila->total;
 							$pos++;
 						}
 
-						$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:F{$pos}");
-						$hoja->setCellValue("G{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
-						$hoja->getStyle("A{$pos}:G{$pos}")->getFont()->setBold(true);
-						$hoja->getStyle("A{$pos}:G{$pos}")
-							->getNumberFormat()
-							->setFormatCode("0.00");
+						$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:G{$pos}");
+						$hoja->setCellValue("H{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
+						$hoja->getStyle("A{$pos}:H{$pos}")->getFont()->setBold(true);
+						$hoja->getStyle("A{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
 
 						$pos += 2;
 						$total += $tmpTotal;
 					}
 
-					$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:F{$pos}");
-					$hoja->setCellValue("G{$pos}", number_format((float)$total, 2, ".", ""));
+					$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:G{$pos}");
+					$hoja->setCellValue("H{$pos}", number_format((float)$total, 2, ".", ""));
 
-					$hoja->getStyle("A{$pos}:G{$pos}")
-						->getNumberFormat()
-						->setFormatCode("0.00");
+					$hoja->getStyle("A{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
 
-					$hoja->getStyle("A{$pos}:G{$pos}")->applyFromArray([
+					$hoja->getStyle("A{$pos}:H{$pos}")->applyFromArray([
 						"font"    => ["bold" => true],
 						"borders" => [
 							"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
@@ -1268,6 +1268,8 @@ class Reporte extends CI_Controller
 
 					$pdf->WriteHTML($this->load->view("reporte/orden_compra/imprimir_pedidos_proveedor", ["data" => $data, "params" => $params], true));
 					$pdf->Output("{$nombreArchivo}.pdf", "D");
+
+					// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
 				}
 			}
 		}
