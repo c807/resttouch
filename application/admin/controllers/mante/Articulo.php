@@ -608,11 +608,13 @@ class Articulo extends CI_Controller
 		$entidad = [];
 		foreach ($sheet_data as $row => $col) {
 			if ($row != 0) {
-				$entidad['descripcion'] = trim($col[0]);
-				$result = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
-				if (!$result) {
-					$umedida = new Umedida_model();
-					$umedida->guardar($entidad);
+				if (!empty(trim($col[0]))) {
+					$entidad['descripcion'] = trim($col[0]);
+					$result = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					if (!$result) {
+						$umedida = new Umedida_model();
+						$umedida->guardar($entidad);
+					}
 				}
 			}
 		}
@@ -631,7 +633,7 @@ class Articulo extends CI_Controller
 						break;
 					}
 				}
-				if ($medida) {
+				if ($medida && !empty(trim($col[1])) && (float)$col[2] !== (float)0 ) {
 					$entidad['medida'] = $medida->medida;
 					$entidad['descripcion'] = trim($col[1]);
 					$entidad['cantidad'] = (float)$col[2];
@@ -652,11 +654,13 @@ class Articulo extends CI_Controller
 			$entidad = ['sede' => (int)$sede];
 			foreach ($sheet_data as $row => $col) {
 				if ($row != 0) {
-					$entidad['descripcion'] = trim($col[0]);
-					$result = $this->Categoria_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
-					if (!$result) {
-						$categoria = new Categoria_model();
-						$categoria->guardar($entidad);
+					if (!empty(trim($col[0]))) {
+						$entidad['descripcion'] = trim($col[0]);
+						$result = $this->Categoria_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+						if (!$result) {
+							$categoria = new Categoria_model();
+							$categoria->guardar($entidad);
+						}
 					}
 				}
 			}
@@ -681,7 +685,7 @@ class Articulo extends CI_Controller
 							break;
 						}
 					}
-					if ($categoria) {
+					if ($categoria && !empty(trim($col[1]))) {
 						$entidad['categoria'] = $categoria->categoria;
 						$entidad['descripcion'] = trim($col[1]);
 						$entidad['impresora'] = $impresoraDefecto ? $impresoraDefecto->impresora : null;
@@ -723,7 +727,7 @@ class Articulo extends CI_Controller
 						}
 					}
 
-					if ($subcategoria && $presentacion) {
+					if ($subcategoria && $presentacion && !empty(trim($col[1])) && !empty(trim($col[4]))) {
 						$entidad['categoria_grupo'] = $subcategoria->categoria_grupo;
 						$entidad['presentacion'] = $presentacion->presentacion;
 						$entidad['descripcion'] = trim($col[1]);
