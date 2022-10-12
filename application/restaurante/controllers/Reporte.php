@@ -1194,10 +1194,11 @@ class Reporte extends CI_Controller
                 $total = suma_field($detalle, "total");
                 $imp = suma_field($detalle, "valor_impuesto_especial");
                 $total += (float)$imp;
-                $totalPropina += (float)$row->propina;
-                $totalDescuento += (float)$desc;
-                // $totalFactura += ($total - $desc);
-                $totalFactura += $total;
+                if (empty($row->fel_uuid_anulacion)) {
+                    $totalPropina += (float)$row->propina;
+                    $totalDescuento += (float)$desc;                    
+                    $totalFactura += $total;
+                }
 
                 $reg = [
                     $row->numero_factura,

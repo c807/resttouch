@@ -128,8 +128,7 @@
 										$desc = suma_field($detalle, "descuento");
 										echo number_format($desc, 2);
 										if (empty($row->fel_uuid_anulacion)) {
-											$totalDescuento += $desc;
-											// $totalFactura += ($total - $desc);
+											$totalDescuento += $desc;											
 											$totalFactura += $total;
 										}
 									 ?>
