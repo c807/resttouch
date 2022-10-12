@@ -994,7 +994,7 @@ class Comanda_model extends General_Model
         $ctasDeOrigen = $this->db
             ->select('cuenta')
             ->where('comanda', $this->getPK())
-            ->where('cerrada', 0)
+            // ->where('cerrada', 0)
             ->get('cuenta')
             ->result();
 
