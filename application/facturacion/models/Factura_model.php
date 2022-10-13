@@ -554,14 +554,14 @@ class Factura_model extends General_model
 
 		$emisor->setAttribute('NITEmisor', str_replace('-', '', $this->empresa->nit));
 		// $emisor->setAttribute('NombreComercial', $this->empresa->nombre_comercial);
-		$emisor->setAttribute('NombreComercial', $this->sedeFactura->nombre);
+		$emisor->setAttribute('NombreComercial', htmlspecialchars($this->sedeFactura->nombre, ENT_XML1));
 		// $emisor->setAttribute('NombreEmisor', $this->empresa->nombre);
 		$emisor->setAttribute('NombreEmisor', htmlspecialchars($this->empresa->nombre, ENT_XML1));
 
 		$laDireccion = !empty($this->sedeFactura->direccion) ? $this->sedeFactura->direccion : $this->empresa->direccion;
 
 		$direccionEmisor = $this->xml->getElementsByTagName('DireccionEmisor')->item(0);
-		$direccionEmisor->appendChild($this->crearElemento('dte:Direccion', $laDireccion, array(), true));
+		$direccionEmisor->appendChild($this->crearElemento('dte:Direccion', htmlspecialchars($laDireccion, ENT_XML1), array(), true));
 		$direccionEmisor->appendChild($this->crearElemento('dte:CodigoPostal', $this->empresa->codigo_postal));
 		$direccionEmisor->appendChild($this->crearElemento('dte:Municipio', $this->empresa->municipio));
 		$direccionEmisor->appendChild($this->crearElemento('dte:Departamento', $this->empresa->departamento));
@@ -583,10 +583,10 @@ class Factura_model extends General_model
 		$receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit)));
 
 
-		$receptor->setAttribute('NombreReceptor', $this->receptor->nombre);
+		$receptor->setAttribute('NombreReceptor', htmlspecialchars($this->receptor->nombre, ENT_XML1));
 
 		$direccionReceptor = $this->xml->getElementsByTagName('DireccionReceptor')->item(0);
-		$direccionReceptor->appendChild($this->crearElemento('dte:Direccion', $this->receptor->direccion, array(), true));
+		$direccionReceptor->appendChild($this->crearElemento('dte:Direccion', htmlspecialchars($this->receptor->direccion, ENT_XML1), array(), true));
 		$direccionReceptor->appendChild($this->crearElemento('dte:CodigoPostal', 01012));
 		$direccionReceptor->appendChild($this->crearElemento('dte:Municipio', 'Guatemala'));
 		$direccionReceptor->appendChild($this->crearElemento('dte:Departamento', 'Guatemala'));
@@ -602,7 +602,7 @@ class Factura_model extends General_model
 
 		$item->appendChild($this->crearElemento('dte:Cantidad', $row->cantidad));
 		$item->appendChild($this->crearElemento('dte:UnidadMedida', 'PZA'));
-		$item->appendChild($this->crearElemento('dte:Descripcion', $row->articulo->descripcion, array(), true));
+		$item->appendChild($this->crearElemento('dte:Descripcion', htmlspecialchars($row->articulo->descripcion, ENT_XML1), array(), true));
 		$item->appendChild($this->crearElemento('dte:PrecioUnitario', $redondeaMontos ? round(($row->precio_unitario), 6) : round($row->precio_unitario_ext, 10)));
 		$item->appendChild($this->crearElemento('dte:Precio', round($row->subtotal, 10)));
 		$item->appendChild($this->crearElemento('dte:Descuento', $redondeaMontos ? $row->descuento : round($row->descuento_ext, 10)));
