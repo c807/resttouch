@@ -33,51 +33,34 @@ class Usuario extends CI_Controller
             $usr = explode(".", $usr[1]);
 
             $datosDb = $this->Catalogo_model->getCredenciales(['dominio' => $usr[0]]);
-            $conn = [
-                'host' => $datosDb->db_hostname,
-                'user' => $datosDb->db_username,
-                'password' => $datosDb->db_password,
-                'database' => $datosDb->db_database
-            ];
-
-            $db = conexion_db($conn);
-
-            $this->db = $this->load->database($db, true);
-
-            $credenciales['dominio'] = $usr[0];
-            $logged = $this->Usuario_model->logIn($credenciales);
-
-            if (!empty($logged['token'])) {
-                /*
-                $datos = [];
-                $tmp = [];
-                $menu = $this->config->item("menu");
-                $args = ['activo' => 1, 'usuario' => $logged['idusr']];            
-                $acceso = $this->Acceso_model->buscar($args);    
-                foreach ($acceso as $row) {
-                    $tmp[$row->modulo]['nombre'] = $menu[$row->modulo]['nombre'];
-
-                    $tmp[$row->modulo]['submodulo'][$row->submodulo]['nombre'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['nombre'];
-
-                    $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = $menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
+            if ($datosDb) {
+                $conn = [
+                    'host' => $datosDb->db_hostname,
+                    'user' => $datosDb->db_username,
+                    'password' => $datosDb->db_password,
+                    'database' => $datosDb->db_database
+                ];
+    
+                $db = conexion_db($conn);
+    
+                $this->db = $this->load->database($db, true);
+    
+                $credenciales['dominio'] = $usr[0];
+                $logged = $this->Usuario_model->logIn($credenciales);
+    
+                if (!empty($logged['token'])) {                    
+                    $datos = $this->set_accesos_usuario($logged);
+                    $logged['acceso'] = array_values($datos);
+                    $logged['status'] = true;
                 }
-
-                foreach ($tmp as $row) {
-                    $row['submodulo'] = array_values($row['submodulo']);
-                    $datos[] = $row;
-                }
-                */
-                $datos = $this->set_accesos_usuario($logged);
-                $logged['acceso'] = array_values($datos);
-                $logged['status'] = true;
+            } else {
+                $logged['mensaje'] = "El dominio '{$usr[0]}' no existe, por favor revise las credenciales.";
             }
-            //if (!$logged['token']) { $status = parent::HTTP_NOT_FOUND; }
         } else {
-            $logged['error'] = "Parametros invalidos";
+            $logged['error'] = 'Parámetros inválidos.';
         }
 
-        $this->output
-            ->set_output(json_encode($logged));
+        $this->output->set_output(json_encode($logged));
     }
 
     public function set_accesos_usuario($logged)
