@@ -32,6 +32,7 @@ import { TipoClienteComponent } from './components/tipo-cliente/tipo-cliente/tip
 import { SolicitudRegistroComponent } from './components/solicitud-registro/solicitud-registro.component';
 import { SetupComponent } from './components/setup/setup/setup.component';
 import { DoctoresComponent } from './components/doctores/doctores/doctores.component';
+import { MonitorClienteComponent } from './components/monitor-cliente/monitor-cliente/monitor-cliente.component';
 
 const dataTokenVar = localStorage.getItem(GLOBAL.usrTokenVar) || '{}';
 const cnfRoute: string = (JSON.parse(dataTokenVar)?.cnf || moment().format('YYYYMMDD')) as string;
@@ -63,6 +64,7 @@ const routes: Routes = [
   { path: 'rptbitacora', component: ReporteBitacoraComponent, canActivate: [AuthGuard] },
   { path: 'tipo_cliente', component: TipoClienteComponent, canActivate: [AuthGuard] },
   { path: `doctores`, component: DoctoresComponent, canActivate: [AuthGuard] },
+  { path: 'monitor_cliente', component: MonitorClienteComponent, canActivate: [AuthGuard] },
   { path: `cnf${cnfRoute}`, component: SetupComponent, canActivate: [AuthGuard] },  
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }

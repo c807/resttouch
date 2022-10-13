@@ -132,6 +132,9 @@ import { DoctoresComponent } from './components/doctores/doctores/doctores.compo
 import { LiberarMesaComponent } from './components/doctores/liberar-mesa/liberar-mesa.component';
 import { CuentaCobradaOtraEstacionComponent } from './components/doctores/cuenta-cobrada-otra-estacion/cuenta-cobrada-otra-estacion.component';
 import { PlantillaDatosComponent } from './components/setup/plantilla-datos/plantilla-datos.component';
+import { MonitorClienteComponent } from './components/monitor-cliente/monitor-cliente/monitor-cliente.component';
+import { UltimaComandaComponent } from './components/monitor-cliente/ultima-comanda/ultima-comanda.component';
+import { UltimaFacturaComponent } from './components/monitor-cliente/ultima-factura/ultima-factura.component';
 
 @NgModule({
   declarations: [
@@ -153,7 +156,7 @@ import { PlantillaDatosComponent } from './components/setup/plantilla-datos/plan
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

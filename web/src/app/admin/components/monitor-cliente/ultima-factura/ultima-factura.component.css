@@ -1,0 +1,7 @@
+table {
+    margin-top: 10px;
+}
+
+cdk-virtual-scroll-viewport {    
+    height: 720px;    
+}

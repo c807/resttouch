@@ -1,0 +1,28 @@
+<mat-form-field class="fullWidth">
+    <input matInput type="text" (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro"
+        [ngModelOptions]="{standalone: true}">
+</mat-form-field>
+<!-- <cdk-virtual-scroll-viewport #vpComandas [itemSize]="55"> -->
+<table #tblComandas>
+    <thead>
+        <tr>
+            <th>Corporación</th>
+            <th>Empresa</th>
+            <th>Sede</th>
+            <th class="rtxt">Cantidad</th>
+            <th class="rtxt">Última</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let uc of ultimasComandasFiltered">
+            <td>{{uc.nombre_corporacion}}</td>
+            <td>{{uc.nombre_empresa}}</td>
+            <td>{{uc.nombre_sede}}</td>
+            <td class="rtxt">{{uc.cantidad_comandas | number:'1.0-0'}}</td>
+            <td class="rtxt">{{uc.comanda}}</td>
+            <td>{{uc.fhcreacion | date:'dd/MM/yyyy'}}</td>
+        </tr>
+    </tbody>
+</table>
+<!-- </cdk-virtual-scroll-viewport> -->

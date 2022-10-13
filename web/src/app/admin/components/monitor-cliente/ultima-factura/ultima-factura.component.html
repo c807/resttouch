@@ -1,0 +1,30 @@
+<mat-form-field class="fullWidth">
+    <input matInput type="text" (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro"
+        [ngModelOptions]="{standalone: true}">
+</mat-form-field>
+<!-- <cdk-virtual-scroll-viewport #vpFacturas [itemSize]="55"> -->
+<table #tblFacturas>
+    <thead>
+        <tr>
+            <th>Corporación</th>
+            <th>Empresa</th>
+            <th>Sede</th>
+            <th class="rtxt">Cantidad</th>
+            <th>Última</th>
+            <th>Fecha</th>
+            <th>Estatus</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let uf of ultimasFacturasFiltered">
+            <td>{{uf.nombre_corporacion}}</td>
+            <td>{{uf.nombre_empresa}}</td>
+            <td>{{uf.nombre_sede}}</td>
+            <td class="rtxt">{{uf.cantidad_facturas | number:'1.0-0'}}</td>
+            <td>{{uf.factura}}</td>
+            <td>{{uf.fecha_factura | date:'dd/MM/yyyy'}}</td>
+            <td>{{uf.estatus}}</td>
+        </tr>
+    </tbody>
+</table>
+<!-- </cdk-virtual-scroll-viewport> -->

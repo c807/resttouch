@@ -22,6 +22,12 @@ export class AppComponent implements OnInit, OnDestroy {
     event.preventDefault();
   }
 
+  @HostListener('window:keydown.Shift.Control.Alt.m', ['$event'])
+  navegarAlMonitorDeClientes(event: KeyboardEvent) {    
+    this.router.navigate(['/admin/monitor_cliente']);
+    event.preventDefault();
+  }
+
   @ViewChild('sidenav') sidenav: any;
 
   title = 'Rest-Touch';

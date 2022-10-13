@@ -1,0 +1,17 @@
+<div align="center" class="fullWidth">
+    <span id="titulo">        
+        <strong>MONITOR DE CLIENTES</strong>
+    </span>
+    <button type="button" mat-fab color="accent" style="margin-left: 30px;" (click)="loadAll()">
+        <mat-icon class="btnRefresh">refresh</mat-icon>
+    </button>
+</div>
+<app-cargando *ngIf="cargando"></app-cargando>
+<mat-tab-group mat-align-tabs="start">
+    <mat-tab label="Últimas comandas">
+        <app-ultima-comanda #ultimasComandas></app-ultima-comanda>
+    </mat-tab>
+    <mat-tab label="Últimas facturas">
+        <app-ultima-factura #ultimasFacturas></app-ultima-factura>
+    </mat-tab>
+</mat-tab-group>
