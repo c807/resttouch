@@ -3,6 +3,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MonitorClienteService } from '../../../services/monitor-cliente.service';
 import { UltimaComandaComponent } from '../ultima-comanda/ultima-comanda.component';
 import { UltimaFacturaComponent } from '../ultima-factura/ultima-factura.component';
+import { FacturacionClienteComponent } from '../facturacion-cliente/facturacion-cliente.component';
+
+import { Facturacion, DatosPie } from '../../../interfaces/monitor-cliente';
 
 import { Subscription } from 'rxjs';
 
@@ -15,6 +18,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
 
   @ViewChild('ultimasComandas') ultimasComandas: UltimaComandaComponent;
   @ViewChild('ultimasFacturas') ultimasFacturas: UltimaFacturaComponent;
+  @ViewChild('facturacionClientes') facturacionClientes: FacturacionClienteComponent;
   public cargando = false;
 
   private endSubs = new Subscription();
@@ -34,6 +38,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
 
   loadAll = () => {
     this.loadUltimosMovimientos();
+    this.loadFacturacionClientes();
   }
 
   loadUltimosMovimientos = () => {
@@ -48,4 +53,21 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  loadFacturacionClientes = () => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.monitorClienteSrvc.getFacturacion().subscribe((res: Facturacion[]) => {
+        const datosPie: DatosPie = { backgroundColor: [], data: [], labels: [] };
+        for(const df of res) {
+          datosPie.backgroundColor.push(df.color);
+          datosPie.data.push(+df.facturado);
+          // datosPie.labels.push(`${df.nombre_corporacion} - ${df.nombre_empresa} - ${df.nombre_sede}`);
+          datosPie.labels.push(df.nombre_sede);
+        }
+        this.facturacionClientes.facturacion = datosPie;
+      })
+    );
+  }
+
 }

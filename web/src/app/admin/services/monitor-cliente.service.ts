@@ -23,4 +23,9 @@ export class MonitorClienteService {
     return this.http.get<any>(`${GLOBAL.url}/${this.moduleUrl}/ultimos_movimientos`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getFacturacion(): Observable<any> {
+    return this.http.get<any>(`${GLOBAL.url}/${this.moduleUrl}/facturacion`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

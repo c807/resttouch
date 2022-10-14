@@ -1,0 +1,11 @@
+<mat-card>
+    <mat-card-title align="center">Facturación de clientes</mat-card-title>
+    <mat-card-content>
+        <canvas baseChart 
+            [datasets]="[facturacion]"
+            [labels]="facturacion.labels" 
+            [options]="pieOptions" 
+            [chartType]="'pie'">
+        </canvas>
+    </mat-card-content>
+</mat-card>

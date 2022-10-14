@@ -22,4 +22,9 @@ class Monitor_cliente extends CI_Controller
         $this->output->set_output(json_encode($this->mc->get_ultimos_movimientos()));
     }
 
+	public function facturacion()
+    {
+        $this->output->set_output(json_encode($this->mc->get_facturacion($_GET)));
+    }
+
 }

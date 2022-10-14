@@ -36,7 +36,8 @@ class Monitor_cliente_model extends General_model {
         return $ultima_comanda;
     }
 
-    public function get_ultima_factura($schema) {
+    public function get_ultima_factura($schema) 
+    {
         $campos = 'e.corporacion, e.nombre AS nombre_corporacion, d.empresa, d.nombre AS nombre_empresa, b.sede, ';
         $campos.= 'TRIM(CONCAT(b.nombre, IFNULL(CONCAT(" (", b.alias, ")"), ""))) AS nombre_sede, a.factura, ';
         $campos.= 'IFNULL(CONCAT(a.serie_factura, "-", a.numero_factura), "") AS factura, a.fecha_factura, ';
@@ -56,7 +57,8 @@ class Monitor_cliente_model extends General_model {
         return $ultima_factura;
     }
 
-    public function get_ultimos_movimientos() {        
+    public function get_ultimos_movimientos() 
+    {        
         $ultimas_comandas = [];
         $ultimas_facturas = [];
         foreach($this->esquemas as $esquema) {
@@ -75,5 +77,43 @@ class Monitor_cliente_model extends General_model {
         $ultimas_facturas = ordenar_array_objetos($ultimas_facturas, 'ordenar_por');
         
         return (object)['ultimas_comandas' => $ultimas_comandas, 'ultimas_facturas' => $ultimas_facturas];
+    }
+
+    public function get_facturacion($args = [])
+    {
+        $args['fdel'] = isset($args['fdel']) ? $args['fdel'] : (date('Y-m-').'01');
+        $args['fal'] = isset($args['fal']) ? $args['fal'] : date('Y-m-d');
+
+        $campos = 'e.corporacion, e.nombre AS nombre_corporacion, d.empresa, d.nombre AS nombre_empresa, c.sede, TRIM(CONCAT(c.nombre, IFNULL(CONCAT(" (", c.alias, ")"), ""))) AS nombre_sede, ';
+        $campos.= 'SUM(a.total - a.descuento) AS facturado, "" AS color';
+        
+        $facturacion = [];
+        foreach($this->esquemas as $schema) {
+            $facturado = $this->db
+                ->select($campos)
+                ->join("{$schema->SCHEMA_NAME}.factura b", 'b.factura = a.factura')
+                ->join("{$schema->SCHEMA_NAME}.sede c", 'c.sede = b.sede')
+                ->join("{$schema->SCHEMA_NAME}.empresa d", 'd.empresa = c.empresa')
+                ->join("{$schema->SCHEMA_NAME}.corporacion e", 'e.corporacion = d.corporacion')
+                ->where('b.fel_uuid is not null')
+                ->where('b.fel_uuid_anulacion is null')
+                ->where('b.fecha_factura >=', $args['fdel'])
+                ->where('b.fecha_factura <=', $args['fal'])
+                ->group_by('b.sede')
+                ->get("{$schema->SCHEMA_NAME}.detalle_factura a")
+                ->result();
+
+            if (!empty($facturado)) {
+                $facturacion = array_merge($facturacion, $facturado);
+            }
+        }
+        
+        $facturacion = ordenar_array_objetos($facturacion, 'facturado', 1, 'desc');
+
+        foreach($facturacion as $fac) {
+            $fac->color = randomColor();
+        }
+
+        return $facturacion;
     }
 }
