@@ -61,8 +61,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
         const datosPie: DatosPie = { backgroundColor: [], data: [], labels: [] };
         for(const df of res) {
           datosPie.backgroundColor.push(df.color);
-          datosPie.data.push(+df.facturado);
-          // datosPie.labels.push(`${df.nombre_corporacion} - ${df.nombre_empresa} - ${df.nombre_sede}`);
+          datosPie.data.push(+df.facturado);          
           datosPie.labels.push(df.nombre_sede);
         }
         this.facturacionClientes.facturacion = datosPie;
