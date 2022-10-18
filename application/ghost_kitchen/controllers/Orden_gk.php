@@ -574,8 +574,8 @@ class Orden_gk extends CI_Controller
                                     if ($datos->exito) {
                                         $ordenGk->guardar(['estatus_orden_gk' => 4]);
                                         $datos->estatus_orden_gk = $this->Estatus_orden_gk_model->buscar(['estatus_orden_gk' => 4, '_uno' => true]);
-                                        // $urlWs = 'http://localhost:8988/api/updlstpedidos';
-                                        $urlWs = 'https://resttouch.c807.com:8988/api/updlstpedidos';
+                                        $urlBaseWs = get_url_websocket();
+                                        $urlWs = "{$urlBaseWs}/api/updlstpedidos";
                                         $corporacion = $this->Catalogo_model->getCorporacion(['corporacion' => $ordenGk->corporacion, '_uno' => true]);
                                         if ($corporacion) {
                                             $urlWs .= "/{$corporacion->admin_llave}";

@@ -503,7 +503,8 @@ class Comanda extends CI_Controller
 
 					$datos = $comanda->getComanda(['_usuario' => $data->idusuario]);
 					$datos->exito = true;
-					$updlst = json_decode(get_request('https://resttouch.c807.com:8988/api/updlstareas', []));
+					$urlBaseWs = get_url_websocket();					
+					$updlst = json_decode(get_request("{$urlBaseWs}/api/updlstareas", []));
 					$datos->msgws = $updlst;
 				}
 			}

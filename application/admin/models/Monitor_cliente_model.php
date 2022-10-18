@@ -85,7 +85,7 @@ class Monitor_cliente_model extends General_model {
         $args['fal'] = isset($args['fal']) ? $args['fal'] : date('Y-m-d');
 
         $campos = 'e.corporacion, e.nombre AS nombre_corporacion, d.empresa, d.nombre AS nombre_empresa, c.sede, TRIM(CONCAT(c.nombre, IFNULL(CONCAT(" (", c.alias, ")"), ""))) AS nombre_sede, ';
-        $campos.= 'SUM(a.total - a.descuento) AS facturado, "" AS color';
+        $campos.= 'SUM(a.total - a.descuento) AS venta, "" AS color';
         
         $facturacion = [];
         foreach($this->esquemas as $schema) {
@@ -108,7 +108,7 @@ class Monitor_cliente_model extends General_model {
             }
         }
         
-        $facturacion = ordenar_array_objetos($facturacion, 'facturado', 1, 'desc');
+        $facturacion = ordenar_array_objetos($facturacion, 'venta', 1, 'desc');
 
         foreach($facturacion as $fac) {
             $fac->color = randomColor();
@@ -116,4 +116,48 @@ class Monitor_cliente_model extends General_model {
 
         return $facturacion;
     }
+
+    public function get_ventas_sin_factura($args = [])
+    {
+        $args['fdel'] = isset($args['fdel']) ? $args['fdel'] : (date('Y-m-').'01');
+        $args['fal'] = isset($args['fal']) ? $args['fal'] : date('Y-m-d');
+
+        $campos = 'h.corporacion, h.nombre AS nombre_corporacion, g.empresa, g.nombre AS nombre_empresa, f.sede, TRIM(CONCAT(f.nombre, IFNULL(CONCAT(" (", f.alias, ")"), ""))) AS nombre_sede, SUM(a.total) AS venta, ';
+        $campos.= '"" AS color';
+        
+        $ventas = [];
+        foreach($this->esquemas as $schema) {
+            $venta = $this->db
+                ->select($campos)
+                ->join("{$schema->SCHEMA_NAME}.comanda b", 'b.comanda = a.comanda')
+                ->join("{$schema->SCHEMA_NAME}.cuenta c", 'b.comanda = c.comanda')
+                ->join("{$schema->SCHEMA_NAME}.cuenta_forma_pago d", 'c.cuenta = d.cuenta')
+                ->join("{$schema->SCHEMA_NAME}.forma_pago e", 'e.forma_pago = d.forma_pago')
+                ->join("{$schema->SCHEMA_NAME}.sede f", 'f.sede = b.sede')
+                ->join("{$schema->SCHEMA_NAME}.empresa g", 'g.empresa = f.empresa')
+                ->join("{$schema->SCHEMA_NAME}.corporacion h", 'h.corporacion = g.corporacion')
+                ->where('e.sinfactura', 1)
+                ->where('e.descuento', 0)
+                ->where('a.cantidad <>', 0)
+                ->where('DATE(b.fhcreacion) >=', $args['fdel'])
+                ->where('DATE(b.fhcreacion) <=', $args['fal'])
+                ->group_by('b.sede')
+                ->get("{$schema->SCHEMA_NAME}.detalle_comanda a")
+                ->result();
+
+            if (!empty($venta)) {
+                $ventas = array_merge($ventas, $venta);
+            }
+        }
+        
+        $ventas = ordenar_array_objetos($ventas, 'venta', 1, 'desc');
+
+        foreach($ventas as $v) {
+            $v->color = randomColor();
+        }
+
+        return $ventas;
+    }
+
+
 }

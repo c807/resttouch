@@ -27,4 +27,9 @@ class Monitor_cliente extends CI_Controller
         $this->output->set_output(json_encode($this->mc->get_facturacion($_GET)));
     }
 
+	public function ventas_sin_factura()
+    {
+        $this->output->set_output(json_encode($this->mc->get_ventas_sin_factura($_GET)));
+    }
+
 }
