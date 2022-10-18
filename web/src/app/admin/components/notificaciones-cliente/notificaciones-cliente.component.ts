@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, ViewEncapsulation } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
+import { Component, OnInit, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
 
@@ -11,13 +11,16 @@ import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
 export class NotificacionesClienteComponent implements OnInit {
 
   constructor(
-    private snackBarRef: MatSnackBarRef<NotificacionesClienteComponent>,
-    @Inject(MAT_SNACK_BAR_DATA) public data: NotificacionCliente[]
+    private dialogRef: MatDialogRef<NotificacionesClienteComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: NotificacionCliente[]
   ) { }
 
   ngOnInit(): void {
   }
 
-  cerrar = () => this.snackBarRef.dismiss();
+  cerrar = () => this.dialogRef.close();
 
+  actualizar = () => {
+    console.log('tratando de actualizar...');    
+  }
 }

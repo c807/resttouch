@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '../../services/localstorage.service';
@@ -17,12 +17,14 @@ import { NotificacionesClienteComponent } from '../notificaciones-cliente/notifi
 import { NotificacionClienteService } from '../../services/notificacion-cliente.service';
 import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit, AfterViewInit {
+export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public usrInfo: any = {};
   public appMenu: any[];
@@ -30,6 +32,8 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   public timedOut = false;
   public lastPing?: Date = null;
   public notificaciones: NotificacionCliente[] = [];
+
+  private endSubs = new Subscription();
 
   constructor(
     private router: Router,
@@ -63,17 +67,24 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadNotificacionesCliente = () => {
-    this.notificacionClienteSrvc.get().subscribe((res: NotificacionCliente[]) => {
-      if (res && res.length > 0) {
-        this.notificaciones = res;
-        this.snackBar.openFromComponent(NotificacionesClienteComponent, {
-          data: this.notificaciones,
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
-        });
-      }
-    });
+    this.endSubs.add(      
+      this.notificacionClienteSrvc.get().subscribe((res: NotificacionCliente[]) => {
+        if (res && res.length > 0) {
+          this.notificaciones = res;
+          this.dialog.open(NotificacionesClienteComponent, {
+            width: '75%',
+            autoFocus: true,
+            disableClose: true,
+            data: this.notificaciones
+          });
+        }
+      })
+    );
   }
 
   setIdleConfigs = () => {
@@ -83,30 +94,43 @@ export class HeaderComponent implements OnInit, AfterViewInit {
       this.idle.setTimeout(tiempo);
       this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 
-      this.idle.onIdleEnd.subscribe(() => this.idleState = false);
+      this.endSubs.add(
+        this.idle.onIdleEnd.subscribe(() => this.idleState = false)
+      );
 
-      this.idle.onTimeout.subscribe(() => {
-        this.idleState = true;
-        this.timedOut = true;
+      this.endSubs.add(        
+        this.idle.onTimeout.subscribe(() => {
+          this.idleState = true;
+          this.timedOut = true;
+  
+          const solicitaPinRef = this.dialog.open(SolicitaPinInactividadComponent, {
+            width: '25%',
+            hasBackdrop: true,
+            disableClose: true,
+            autoFocus: true,
+            data: null
+          });
+  
+          this.endSubs.add(
+            solicitaPinRef.afterClosed().subscribe(() => this.reset())
+          );
+        })
+      );
 
-        const solicitaPinRef = this.dialog.open(SolicitaPinInactividadComponent, {
-          width: '25%',
-          hasBackdrop: true,
-          disableClose: true,
-          autoFocus: true,
-          data: null
-        });
 
-        solicitaPinRef.afterClosed().subscribe(() => this.reset());
-      });
+      this.endSubs.add(
+        this.idle.onIdleStart.subscribe(() => this.idleState = true)
+      );
 
-      this.idle.onIdleStart.subscribe(() => this.idleState = true);
-
-      this.idle.onTimeoutWarning.subscribe((conteo: number) => this.idleState = true);
+      this.endSubs.add(        
+        this.idle.onTimeoutWarning.subscribe((conteo: number) => this.idleState = true)
+      );
 
       this.keepalive.interval(15);
 
-      this.keepalive.onPing.subscribe(() => this.lastPing = new Date());
+      this.endSubs.add(        
+        this.keepalive.onPing.subscribe(() => this.lastPing = new Date())
+      );
 
       this.reset();
     }
@@ -144,9 +168,7 @@ export class HeaderComponent implements OnInit, AfterViewInit {
       hasBackdrop: true,
       autoFocus: true,
       data: null
-    });
-
-    // aboutRef.afterClosed().subscribe(() => { });
+    });    
   }
 
 }

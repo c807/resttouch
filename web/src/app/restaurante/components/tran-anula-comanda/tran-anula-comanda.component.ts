@@ -161,7 +161,7 @@ export class TranAnulaComandaComponent implements OnInit, OnDestroy {
             const input = conf.config.input[i];
             params[input.id] = input.valor;
           }
-          console.log(params); this.cargando = false; return;
+          // console.log(params); this.cargando = false; return;
           this.endSubs.add(
             this.comandaSrvc.anularComanda(params).subscribe(res => {
               if (res.exito) {

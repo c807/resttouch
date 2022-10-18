@@ -1,6 +1,12 @@
-<div class="noticia">
-    <p *ngFor="let noti of data; index as i">{{i + 1}}) {{noti.notificacion}}</p>
+<h1 mat-dialog-title>
+    Noticias recientes
+</h1>
+<div mat-dialog-content>
+    <ng-container *ngFor="let noti of data; index as i">
+        <div class="noticia" [innerHTML]="noti.notificacion"></div>
+    </ng-container>
 </div>
-<div align="right">
+<div mat-dialog-actions align="end">
+    <!-- <button mat-raised-button color="warn" (click)="actualizar()">Actualizar</button> -->
     <button mat-raised-button color="accent" (click)="cerrar()">Cerrar</button>
 </div>
