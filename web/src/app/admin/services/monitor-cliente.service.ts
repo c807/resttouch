@@ -4,6 +4,7 @@ import { ServiceErrorHandler } from '../../shared/error-handler';
 import { GLOBAL } from '../../shared/global';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import * as qs from 'qs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +25,13 @@ export class MonitorClienteService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getFacturacion(): Observable<any> {
-    return this.http.get<any>(`${GLOBAL.url}/${this.moduleUrl}/facturacion`
+  getFacturacion(params: any = {}): Observable<any> {
+    return this.http.get<any>(`${GLOBAL.url}/${this.moduleUrl}/facturacion?${qs.stringify(params)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getVentasSinFactura(params: any = {}): Observable<any> {
+    return this.http.get<any>(`${GLOBAL.url}/${this.moduleUrl}/ventas_sin_factura?${qs.stringify(params)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

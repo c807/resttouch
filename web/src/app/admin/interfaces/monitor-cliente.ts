@@ -22,12 +22,12 @@ export interface UltimaFactura extends DatosGeneralesCliente{
     ordenar_por: string;        
 }
 
-export interface Facturacion extends DatosGeneralesCliente {
-    facturado: number;
+export interface Vendido extends DatosGeneralesCliente {
+    venta: number;
     color: string;
 }
 
-export interface DatosPie {
+export interface ChartStructure {
     backgroundColor: string[];
     data: number[];
     labels: string[];    

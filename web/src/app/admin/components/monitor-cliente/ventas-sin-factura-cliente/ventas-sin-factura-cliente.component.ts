@@ -5,15 +5,15 @@ import * as moment from 'moment';
 import { ChartStructure } from '../../../interfaces/monitor-cliente';
 
 @Component({
-  selector: 'app-facturacion-cliente',
-  templateUrl: './facturacion-cliente.component.html',
-  styleUrls: ['./facturacion-cliente.component.css']
+  selector: 'app-ventas-sin-factura-cliente',
+  templateUrl: './ventas-sin-factura-cliente.component.html',
+  styleUrls: ['./ventas-sin-factura-cliente.component.css']
 })
-export class FacturacionClienteComponent implements OnInit {
+export class VentasSinFacturaClienteComponent implements OnInit {
 
-  @Output() refrescarDatosFacturacionEv = new EventEmitter();
+  @Output() refrescarVentasSinFacturaEv = new EventEmitter();
   
-  public facturacion: ChartStructure = { backgroundColor: [], data: [], labels: [] };
+  public ventasSinFactura: ChartStructure = { backgroundColor: [], data: [], labels: [] };
   public params: any = {
     fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
     fal: moment().format(GLOBAL.dbDateFormat)
@@ -50,7 +50,8 @@ export class FacturacionClienteComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  reloadFacturacion = () => {
-    this.refrescarDatosFacturacionEv.emit(this.params);
+  reloadVentas = () => {
+    this.refrescarVentasSinFacturaEv.emit(this.params);
   }
+
 }

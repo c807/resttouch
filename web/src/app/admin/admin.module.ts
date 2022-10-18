@@ -136,6 +136,7 @@ import { MonitorClienteComponent } from './components/monitor-cliente/monitor-cl
 import { UltimaComandaComponent } from './components/monitor-cliente/ultima-comanda/ultima-comanda.component';
 import { UltimaFacturaComponent } from './components/monitor-cliente/ultima-factura/ultima-factura.component';
 import { FacturacionClienteComponent } from './components/monitor-cliente/facturacion-cliente/facturacion-cliente.component';
+import { VentasSinFacturaClienteComponent } from './components/monitor-cliente/ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
 
 @NgModule({
   declarations: [
@@ -157,7 +158,7 @@ import { FacturacionClienteComponent } from './components/monitor-cliente/factur
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

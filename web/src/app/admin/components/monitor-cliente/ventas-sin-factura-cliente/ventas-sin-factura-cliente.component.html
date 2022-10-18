@@ -1,21 +1,21 @@
 <mat-card>
-    <mat-card-title align="center">Facturado (Incluye I.V.A.)</mat-card-title>
+    <mat-card-title align="center">Ventas sin factura</mat-card-title>
     <mat-card-content>
-        <form #frmFacturacionClientes="ngForm" novalidate>
+        <form #frmVentasSinFacturaClientes="ngForm" novalidate>
             <mat-form-field class="parametro">
                 <input type="date" matInput placeholder="Del" name="fdel" [(ngModel)]="params.fdel" required>
             </mat-form-field>
             <mat-form-field class="parametro">
                 <input type="date" matInput placeholder="Al" name="fal" [(ngModel)]="params.fal" required>
             </mat-form-field>
-            <button type="button" mat-fab color="accent" style="margin-left: 15px;" (click)="reloadFacturacion()">
+            <button type="button" mat-fab color="accent" style="margin-left: 15px;" (click)="reloadVentas()">
                 <mat-icon style="font-size: 25px;">refresh</mat-icon>
             </button>
         </form>
         <mat-divider></mat-divider>        
         <canvas baseChart 
-            [datasets]="[facturacion]"
-            [labels]="facturacion.labels" 
+            [datasets]="[ventasSinFactura]"
+            [labels]="ventasSinFactura.labels" 
             [options]="chartOptions" 
             [chartType]="'horizontalBar'">
         </canvas>

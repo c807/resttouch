@@ -4,8 +4,9 @@ import { MonitorClienteService } from '../../../services/monitor-cliente.service
 import { UltimaComandaComponent } from '../ultima-comanda/ultima-comanda.component';
 import { UltimaFacturaComponent } from '../ultima-factura/ultima-factura.component';
 import { FacturacionClienteComponent } from '../facturacion-cliente/facturacion-cliente.component';
+import { VentasSinFacturaClienteComponent } from '../ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
 
-import { Facturacion, DatosPie } from '../../../interfaces/monitor-cliente';
+import { Vendido, ChartStructure } from '../../../interfaces/monitor-cliente';
 
 import { Subscription } from 'rxjs';
 
@@ -19,6 +20,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
   @ViewChild('ultimasComandas') ultimasComandas: UltimaComandaComponent;
   @ViewChild('ultimasFacturas') ultimasFacturas: UltimaFacturaComponent;
   @ViewChild('facturacionClientes') facturacionClientes: FacturacionClienteComponent;
+  @ViewChild('ventaSinFacturaClientes') ventaSinFacturaClientes: VentasSinFacturaClienteComponent;
   public cargando = false;
 
   private endSubs = new Subscription();
@@ -39,6 +41,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
   loadAll = () => {
     this.loadUltimosMovimientos();
     this.loadFacturacionClientes();
+    this.loadVentasSinFactura()
   }
 
   loadUltimosMovimientos = () => {
@@ -54,17 +57,34 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadFacturacionClientes = () => {
+  loadFacturacionClientes = (params: any = {}) => {
     this.cargando = true;
     this.endSubs.add(
-      this.monitorClienteSrvc.getFacturacion().subscribe((res: Facturacion[]) => {
-        const datosPie: DatosPie = { backgroundColor: [], data: [], labels: [] };
+      this.monitorClienteSrvc.getFacturacion(params).subscribe((res: Vendido[]) => {
+        const datosChart: ChartStructure = { backgroundColor: [], data: [], labels: [] };
         for(const df of res) {
-          datosPie.backgroundColor.push(df.color);
-          datosPie.data.push(+df.facturado);          
-          datosPie.labels.push(df.nombre_sede);
+          datosChart.backgroundColor.push(df.color);
+          datosChart.data.push(+df.venta);
+          datosChart.labels.push(df.nombre_sede);
         }
-        this.facturacionClientes.facturacion = datosPie;
+        this.facturacionClientes.facturacion = datosChart;
+        this.cargando = false;
+      })
+    );
+  }
+
+  loadVentasSinFactura = (params: any = {}) => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.monitorClienteSrvc.getVentasSinFactura(params).subscribe((res: Vendido[]) => {
+        const datosChart: ChartStructure = { backgroundColor: [], data: [], labels: [] };
+        for(const df of res) {
+          datosChart.backgroundColor.push(df.color);
+          datosChart.data.push(+df.venta);          
+          datosChart.labels.push(df.nombre_sede);
+        }
+        this.ventaSinFacturaClientes.ventasSinFactura = datosChart;
+        this.cargando = false;
       })
     );
   }
