@@ -207,4 +207,17 @@ class Tablero extends CI_Controller {
 
 		$this->output->set_output(json_encode($res));
 	}
+
+	public function get_metabase_url()
+	{
+		$params = [];
+		$config = $this->Configuracion_model->buscar();
+		$params['RT_METABASE_SITE_URL'] = get_configuracion($config, 'RT_METABASE_SITE_URL');
+		$params['RT_METABASE_SECRET_KEY'] = get_configuracion($config, 'RT_METABASE_SECRET_KEY');
+		$cuerpo = json_decode(file_get_contents('php://input'));
+		$params['tipo'] = $cuerpo->tipo;
+		$params['payload'] = $cuerpo->payload;
+		$res = $this->Tablero_model->sign_url_for_metabase($params);
+		$this->output->set_output(json_encode(['url' => $res]));
+	}
 }

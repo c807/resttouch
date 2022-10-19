@@ -597,6 +597,12 @@ class Tablero_model extends General_model
 
 		return array_values($res);
 	}
+
+	public function sign_url_for_metabase($args = [])
+	{
+		$token = JWT::encode($args['payload'], $args['RT_METABASE_SECRET_KEY']);
+		return "{$args['RT_METABASE_SITE_URL']}/embed/{$args['tipo']}/{$token}#bordered=true&titled=true";
+	}
 }
 
 /* End of file Tipo_usuario_model.php */

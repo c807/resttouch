@@ -137,6 +137,8 @@ import { UltimaComandaComponent } from './components/monitor-cliente/ultima-coma
 import { UltimaFacturaComponent } from './components/monitor-cliente/ultima-factura/ultima-factura.component';
 import { FacturacionClienteComponent } from './components/monitor-cliente/facturacion-cliente/facturacion-cliente.component';
 import { VentasSinFacturaClienteComponent } from './components/monitor-cliente/ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
+import { MetabaseComponent } from './components/metabase/metabase/metabase.component';
+import { MetabaseDashboardComponent } from './components/metabase/metabase-dashboard/metabase-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -158,7 +160,7 @@ import { VentasSinFacturaClienteComponent } from './components/monitor-cliente/v
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,
