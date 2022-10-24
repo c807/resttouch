@@ -924,92 +924,94 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.comandaSrvc.obtenerDetalleCuenta({ comanda: meu.comanda, impreso: 0 }).subscribe(async (res) => {
         if (res.length > 0) {
-          for (const cta of meu.cuentas) {
-            const listaProductos = res.filter(r => +r.cuenta_cuenta === +cta.cuenta);
-            if (listaProductos.length > 0) {
-              const productosAImprimir: ProductoSelected[] = [];
-              listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
-              // console.log('productosAImprimir = ', productosAImprimir);
-              const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
-              // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
-              await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
-              let AImpresoraNormal: ProductoSelected[] = [];
-              let AImpresoraBT: ProductoSelected[] = [];
+          // const listaProductos = res.filter(r => +r.cuenta_cuenta === +cta.cuenta);
+          const listaProductos = JSON.parse(JSON.stringify(res));
+          if (listaProductos.length > 0) {
+            const productosAImprimir: ProductoSelected[] = [];
+            listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
+            // console.log('productosAImprimir = ', productosAImprimir);
+            const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
+            // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
+            // await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
+            let AImpresoraNormal: ProductoSelected[] = [];
+            let AImpresoraBT: ProductoSelected[] = [];
 
-              try {
-                AImpresoraNormal = lstProductosAImprimir.filter(p => +p.impresora.bluetooth === 0);
-                AImpresoraBT = lstProductosAImprimir.filter(p => +p.impresora.bluetooth === 1);
-              } catch (error) {
-                console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
-                console.log('NORMAL = ', AImpresoraNormal);
-                console.log('BT = ', AImpresoraBT);
-                console.log(error);
+            try {
+              AImpresoraNormal = lstProductosAImprimir.filter(p => +p.impresora.bluetooth === 0);
+              AImpresoraBT = lstProductosAImprimir.filter(p => +p.impresora.bluetooth === 1);
+            } catch (error) {
+              console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
+              console.log('NORMAL = ', AImpresoraNormal);
+              console.log('BT = ', AImpresoraBT);
+              console.log(error);
+            }
+
+            if (AImpresoraNormal.length > 0) {
+              if (modoComanda !== 3) {
+
+                if (!this.imprimeRecetaEnComanda) {
+                  AImpresoraNormal.map(d => {
+                    if (+d.combo === 0 && +d.esreceta === 1) {
+                      d.detalle = []
+                    }
+                    return d;
+                  });
+                }
+
+                this.socket.emit('print:comanda', `${JSON.stringify({
+                  Tipo: 'Comanda',
+                  Nombre: 'Todas',
+                  Numero: this.noComanda,
+                  DetalleCuenta: AImpresoraNormal,
+                  Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
+                  Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
+                  Total: null,
+                  NumeroPedido: meu.numero_pedido,
+                  NotasGenerales: (meu.notas_generales || ''),
+                  EsReimpresion: true
+                })}`);
+                this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
+              } else {
+                this.snackBar.open(`Comanda #${this.noComanda} enviada a cocina`, 'Comanda', { duration: 7000 });
               }
+            }
 
-              if (AImpresoraNormal.length > 0) {
-                if (modoComanda !== 3) {
+            if (AImpresoraBT.length > 0) {
+              if (modoComanda !== 3) {
+                if (!this.imprimeRecetaEnComanda) {
+                  AImpresoraBT.map(d => {
+                    if (+d.combo === 0 && +d.esreceta === 1) {
+                      d.detalle = []
+                    }
+                    return d;
+                  });
+                }
 
-                  if (!this.imprimeRecetaEnComanda) {
-                    AImpresoraNormal.map(d => {
-                      if (+d.combo === 0 && +d.esreceta === 1) {
-                        d.detalle = []
-                      }
-                      return d;
-                    });
-                  }
-
-                  this.socket.emit('print:comanda', `${JSON.stringify({
+                this.printToBT(
+                  JSON.stringify({
                     Tipo: 'Comanda',
-                    Nombre: cta.nombre,
+                    Nombre: 'Todas',
                     Numero: this.noComanda,
-                    DetalleCuenta: AImpresoraNormal,
+                    DetalleCuenta: AImpresoraBT,
                     Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
                     Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
                     NotasGenerales: (meu.notas_generales || ''),
                     EsReimpresion: true
-                  })}`);
-                  this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
-                } else {
-                  this.snackBar.open(`Comanda #${this.noComanda} enviada a cocina`, 'Comanda', { duration: 7000 });
-                }
+                  })
+                );
               }
-
-              if (AImpresoraBT.length > 0) {
-                if (modoComanda !== 3) {
-                  if (!this.imprimeRecetaEnComanda) {
-                    AImpresoraBT.map(d => {
-                      if (+d.combo === 0 && +d.esreceta === 1) {
-                        d.detalle = []
-                      }
-                      return d;
-                    });
-                  }
-
-                  this.printToBT(
-                    JSON.stringify({
-                      Tipo: 'Comanda',
-                      Nombre: cta.nombre,
-                      Numero: this.noComanda,
-                      DetalleCuenta: AImpresoraBT,
-                      Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
-                      Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
-                      Total: null,
-                      NumeroPedido: meu.numero_pedido,
-                      NotasGenerales: (meu.notas_generales || ''),
-                      EsReimpresion: true
-                    })
-                  );
-                }
-              }
-
-              this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
             }
+
+            // this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
+          }
+          for (const cta of meu.cuentas) {
+            await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
           }
           this.bloqueoBotones = false;
           this.socket.emit('refrescar:mesa', { mesaenuso: meu });
-          // this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
+          this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
           if (+meu.mesa.esmostrador === 0) {
             this.closeSideNavEv.emit();
           } else {

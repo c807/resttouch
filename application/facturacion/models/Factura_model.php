@@ -468,7 +468,7 @@ class Factura_model extends General_model
 			$cuenta = new stdClass();
 			$cuenta->codigo = $key;
 			$cuenta->conceptomayor = str_replace("'", '', $conceptoMayor);
-			$cuenta->haber = $row;
+			$cuenta->haber = round($row, 2);
 			$cuenta->debe = 0;
 			array_push($det->cuenta, (array)$cuenta);
 		}

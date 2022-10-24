@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GLOBAL } from '../../shared/global';
 import { ServiceErrorHandler } from '../../shared/error-handler';
+import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
 
@@ -36,5 +37,12 @@ export class TableroService {
   getDataGraficas = (params: object) => {   
     return this.http.get<any>(`${GLOBAL.url}/tablero/get_datos_graficas_ventas?${qs.stringify(params)}`    
     ).pipe( retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getMetabaseURL = (params: object): Observable<any> => {
+    return this.http.post<any>(
+      `${GLOBAL.url}/tablero/get_metabase_url`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
 }
