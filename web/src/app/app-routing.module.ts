@@ -10,6 +10,7 @@ const routes: Routes = [
   { path: 'pos', loadChildren:() => import('./pos/pos.module').then(m => m.PosModule) },
   { path: 'callcenter', loadChildren:() => import('./callcenter/callcenter.module').then(m => m.CallcenterModule) },
   { path: 'gk', loadChildren:() => import('./ghost-kitchen/ghost-kitchen.module').then(m => m.GhostKitchenModule) },
+  { path: 'hotel', loadChildren:() => import('./hotel/hotel.module').then(m => m.HotelModule) },
   { path: '', redirectTo: 'admin/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/', pathMatch: 'full' }
 ];

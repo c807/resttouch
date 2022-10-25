@@ -1,0 +1,15 @@
+.cell-d{
+  width: 100px !important;
+}
+::ng-deep mat-form-field .mat-form-field-infix {
+  width: initial;
+}
+th.mat-sort-header-sorted {
+  color: black;
+}
+.mat-column-habitacion {
+  width: 32px;
+  border-right: 1px solid currentColor;
+  padding-right: 24px;
+  text-align: center;
+}

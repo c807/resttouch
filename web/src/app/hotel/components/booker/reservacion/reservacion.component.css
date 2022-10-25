@@ -1,0 +1,38 @@
+.cell{
+  width: 100px !important;
+  height: 50px !important;
+}
+
+.cell-cont{
+}
+
+.background-nd{
+  background-color: grey;
+}
+.background-nd:hover{
+  background-color: darkgrey;
+}
+
+
+.background-re{
+  background-color: cornflowerblue;
+}
+.background-re:hover{
+  background-color: cadetblue;
+}
+
+
+.background-man{
+  background-color: darkslategrey;
+}
+.background-man:hover{
+  background-color: #3b5b45;
+}
+
+.background-d{
+  background-color: white;
+}
+
+.background-d:hover{
+  background-color: palegreen;
+}

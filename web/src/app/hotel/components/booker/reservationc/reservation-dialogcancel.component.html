@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>Cancelar reservacion de {{currenD}}</h1>
+<div mat-dialog-content class="body">
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Razon de cancelacion</mat-label>
+    <textarea required [(ngModel)]="fromRazon"  maxlength="100" matInput placeholder="Ex. Se cancelo porque..."></textarea>
+  </mat-form-field>
+</div>
+<div style="width: 100%;" fxLayout="row" fxLayoutAlign="end center" >
+  <div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()" >Regresar</button>
+    <button mat-button [disabled]="!(fromRazon.length>0)" (click)="removeReservation()">Cancelar Reservacion</button>
+  </div>
+</div>
