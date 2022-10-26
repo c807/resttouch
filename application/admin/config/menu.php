@@ -477,6 +477,10 @@ $config['menu'] = [
 					1 => [
 						'nombre' => 'Clientes',
 						'link' => '/callcenter/cliente_master'
+					],
+					2 => [
+						'nombre' => 'Tipos de habitación',
+						'link' => '/admin/tipo_habitacion'
 					]
 				]
 			]

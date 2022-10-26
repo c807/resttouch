@@ -9,7 +9,7 @@
                 <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoDocumento.descripcion" minlength="1" maxlength="45" required>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Abreviatura" name="abreviatura" [(ngModel)]="tipoDocumento.abreviatura" minlength="1" maxlength="1" required>
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Abreviatura" name="abreviatura" [(ngModel)]="tipoDocumento.abreviatura" minlength="1" maxlength="5" required>
                 <input matInput *ngIf="esMovil" type="text" placeholder="Abreviatura" name="abreviatura" [(ngModel)]="tipoDocumento.abreviatura" minlength="1" maxlength="5" required>
             </mat-form-field>            
             <div align="end">
