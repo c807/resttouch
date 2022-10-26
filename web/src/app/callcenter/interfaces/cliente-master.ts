@@ -15,6 +15,8 @@ export interface ClienteMaster {
     nombre: string;
     correo?: string;
     fecha_nacimiento?: string;
+    tipo_documento?: number;
+    numero_documento?: string;
 }
 
 export interface ClienteMasterTelefono extends ClienteMaster, Telefono {

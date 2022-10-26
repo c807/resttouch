@@ -8,6 +8,8 @@ class Cliente_master_model extends General_model
 	public $nombre;
 	public $correo = null;
 	public $fecha_nacimiento = null;
+	public $tipo_documento = null;
+	public $numero_documento = null;
 
 	public function __construct($id = '')
 	{
@@ -24,25 +26,9 @@ class Cliente_master_model extends General_model
 			$this->db->where('a.cliente_master', $args['cliente_master']);
 		}
 
-		//        if(isset($args['telefono'])) {
-		//            $this->db->where('a.telefono', $args['telefono']);
-		//        }
-		//
-		//        if(isset($args['numero'])) {
-		//            if(isset($args['_parecido'])) {
-		//                $this->db->like('c.numero', $args['numero'], 'both', false);
-		//            } else {
-		//                $this->db->where('c.numero', $args['numero']);
-		//            }
-		//        }
-
 		return $this->db
-			->select('a.cliente_master_telefono')
-			//->select('a.cliente_master_telefono, b.*, c.*')
-			//->join('cliente_master b', 'b.cliente_master = a.cliente_master')
-			//->join('telefono c', 'c.telefono = a.telefono')
-			->where('a.debaja', 0)
-			//->get('cliente_master_telefono a')
+			->select('a.cliente_master_telefono')			
+			->where('a.debaja', 0)			
 			->result();
 	}
 

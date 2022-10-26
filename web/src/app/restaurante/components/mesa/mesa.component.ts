@@ -11,6 +11,29 @@ import { MesaService } from '../../services/mesa.service';
 })
 export class MesaComponent implements OnInit, AfterViewInit {
 
+  get imagenMesa(): string {
+    let img = '';
+
+    if (+this.configuracion.esmostrador === 0) {
+      if(+this.configuracion.eshabitacion === 0) {
+        img = 'table_03.svg';
+      } else {
+        img = 'habitacion.png';
+      }
+    } else {
+      if (+this.configuracion.escallcenter === 0) {
+        if (+this.configuracion.vertical === 0) {
+          img = 'mostrador_horizontal.svg';
+        } else {
+          img = 'mostrador_vertical.svg';
+        }
+      } else {
+        img = 'callcenter.svg';
+      }
+    }
+    return img;
+  }
+
   @Input() configuracion: any = {
     mesa: 0,
     area: 0,
@@ -24,7 +47,9 @@ export class MesaComponent implements OnInit, AfterViewInit {
     esmostrador: 0,
     vertical: 0,
     etiqueta: null,
-    escallcenter: 0
+    escallcenter: 0,
+    esreservable: 0,
+    eshabitacion: 0
   };
   @Input() dontAllowDrag = true;
   @Input() isDisabled = false;
@@ -42,19 +67,7 @@ export class MesaComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    if (+this.configuracion.esmostrador === 0) {
-      this.urlImage += 'table_03.svg';
-    } else {
-      if (+this.configuracion.escallcenter === 0) {
-        if (+this.configuracion.vertical === 0) {
-          this.urlImage += 'mostrador_horizontal.svg';
-        } else {
-          this.urlImage += 'mostrador_vertical.svg';
-        }
-      } else {
-        this.urlImage += 'callcenter.svg';
-      }
-    }
+    this.urlImage += this.imagenMesa;
     // console.log(this.configuracion, this.urlImage);
   }
 

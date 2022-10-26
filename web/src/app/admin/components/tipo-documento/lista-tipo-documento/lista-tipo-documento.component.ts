@@ -3,21 +3,21 @@ import { PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
-import { TipoCompraVenta } from '../../../interfaces/tipo-compra-venta';
-import { TipoCompraVentaService } from '../../../services/tipo-compra-venta.service';
+import { TipoDocumento } from '../../../interfaces/tipo-documento';
+import { TipoDocumentoService } from '../../../services/tipo-documento.service';
 
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-lista-tipo-compra-venta',
-  templateUrl: './lista-tipo-compra-venta.component.html',
-  styleUrls: ['./lista-tipo-compra-venta.component.css']
+  selector: 'app-lista-tipo-documento',
+  templateUrl: './lista-tipo-documento.component.html',
+  styleUrls: ['./lista-tipo-documento.component.css']
 })
-export class ListaTipoCompraVentaComponent implements OnInit, OnDestroy {
+export class ListaTipoDocumentoComponent implements OnInit, OnDestroy {
 
-  public lstTiposCompraVenta: TipoCompraVenta[];
-  public lstTiposCompraVentaPaged: TipoCompraVenta[];
-  @Output() getTipoCompraVentaEv = new EventEmitter();
+  public lstTiposDocumento: TipoDocumento[];
+  public lstTiposDocumentoPaged: TipoDocumento[];
+  @Output() getTipoDocumentoEv = new EventEmitter();
 
   public length = 0;
   public pageSize = 5;
@@ -31,13 +31,13 @@ export class ListaTipoCompraVentaComponent implements OnInit, OnDestroy {
   private endSubs = new Subscription();
 
   constructor(
-    private tipoCompraVentaSrvc: TipoCompraVentaService,
+    private tipoCompraVentaSrvc: TipoDocumentoService,
     private ls: LocalstorageService
   ) { }
 
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.loadTiposCompraVenta();
+    this.loadTiposDocumento();
   }
 
   ngOnDestroy(): void {
@@ -46,26 +46,26 @@ export class ListaTipoCompraVentaComponent implements OnInit, OnDestroy {
 
   applyFilter() {
     if (this.txtFiltro.length > 0) {
-      const tmpList = MultiFiltro(this.lstTiposCompraVenta, this.txtFiltro);
+      const tmpList = MultiFiltro(this.lstTiposDocumento, this.txtFiltro);
       this.length = tmpList.length;
-      this.lstTiposCompraVentaPaged = PaginarArray(tmpList, this.pageSize, this.pageIndex + 1);
+      this.lstTiposDocumentoPaged = PaginarArray(tmpList, this.pageSize, this.pageIndex + 1);
     } else {
-      this.length = this.lstTiposCompraVenta.length;
-      this.lstTiposCompraVentaPaged = PaginarArray(this.lstTiposCompraVenta, this.pageSize, this.pageIndex + 1);
+      this.length = this.lstTiposDocumento.length;
+      this.lstTiposDocumentoPaged = PaginarArray(this.lstTiposDocumento, this.pageSize, this.pageIndex + 1);
     }
   }
 
-  loadTiposCompraVenta = () => {
+  loadTiposDocumento = () => {
     this.endSubs.add(
       this.tipoCompraVentaSrvc.get().subscribe(lst => {
-        this.lstTiposCompraVenta = lst;
-        this.applyFilter();        
+        this.lstTiposDocumento = lst;
+        this.applyFilter();
       })
     );
   }
 
-  getTipoCompraVenta = (obj: TipoCompraVenta) => {
-    this.getTipoCompraVentaEv.emit(obj);
+  getTipoDocumento = (obj: TipoDocumento) => {
+    this.getTipoDocumentoEv.emit(obj);
   }
 
   pageChange = (e: PageEvent) => {

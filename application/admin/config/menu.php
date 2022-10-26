@@ -95,6 +95,10 @@ $config['menu'] = [
 					22 => [
 						'nombre' => 'Tipo de cliente',
 						'link' => '/admin/tipo_cliente'
+					],
+					23 => [
+						'nombre' => 'Tipo de documento de identificación',
+						'link' => '/admin/tipo_documento'
 					]
 				]
 			],
@@ -352,7 +356,7 @@ $config['menu'] = [
 						'link' => '/ordcomp/resumen_pedidos_proveedor'
 					]
 				]
-			]			
+			]
 		]
 	],
 	6 => [
@@ -366,7 +370,7 @@ $config['menu'] = [
 						'link' => '/callcenter/seguimiento_callcenter'
 					]
 				]
-					],
+			],
 			2 => [
 				'nombre' => 'Mantenimiento',
 				'opciones' => [
@@ -446,6 +450,33 @@ $config['menu'] = [
 					2 => [
 						'nombre' => 'Ventas por marca',
 						'link' => '/gk/rep_venta_marca'
+					]
+				]
+			]
+		]
+	],
+	8 => [
+		'nombre' => 'RSV',
+		'submodulo' => [
+			1 => [
+				'nombre' => 'Transacción',
+				'opciones' => [
+					1 => [
+						'nombre' => 'Reservaciones',
+						'link' => '/hotel/reservas'
+					]
+				]
+			],
+			2 => [
+				'nombre' => 'Reportes',
+				'opciones' => []
+			],
+			3 => [
+				'nombre' => 'Mantenimiento',
+				'opciones' => [
+					1 => [
+						'nombre' => 'Clientes',
+						'link' => '/callcenter/cliente_master'
 					]
 				]
 			]

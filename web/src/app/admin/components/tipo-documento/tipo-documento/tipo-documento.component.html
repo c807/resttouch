@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-tipo-documento #lstTipoDocumento (getTipoDocumentoEv)="setTipoDocumento($event)"></app-lista-tipo-documento>
+    </div>
+    <div class="col m7 s12">
+        <app-form-tipo-documento #frmTipoDocumento [tipoDocumento]="tipoDocumento" (tipoDocumentoSavedEv)="refreshTipoDocumentoList()"></app-form-tipo-documento>
+    </div>
+</div>

@@ -34,6 +34,7 @@ import { SetupComponent } from './components/setup/setup/setup.component';
 import { DoctoresComponent } from './components/doctores/doctores/doctores.component';
 import { MonitorClienteComponent } from './components/monitor-cliente/monitor-cliente/monitor-cliente.component';
 import { MetabaseComponent } from './components/metabase/metabase/metabase.component';
+import { TipoDocumentoComponent } from './components/tipo-documento/tipo-documento/tipo-documento.component';
 
 
 const dataTokenVar = localStorage.getItem(GLOBAL.usrTokenVar) || '{}';
@@ -68,6 +69,7 @@ const routes: Routes = [
   { path: `doctores`, component: DoctoresComponent, canActivate: [AuthGuard] },
   { path: 'monitor_cliente', component: MonitorClienteComponent, canActivate: [AuthGuard] },
   { path: 'metabase', component: MetabaseComponent, canActivate: [AuthGuard] },
+  { path: 'tipo_documento', component: TipoDocumentoComponent, canActivate: [AuthGuard] },
   { path: `cnf${cnfRoute}`, component: SetupComponent, canActivate: [AuthGuard] },  
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }

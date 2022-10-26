@@ -61,7 +61,7 @@ export class ClienteMasterComponent implements OnInit, OnDestroy {
 
   addEditClienteMaster = (clienteMaster: ClienteMaster = null) => {    
     if (!clienteMaster) {
-      clienteMaster = { cliente_master: null, nombre: null, correo: null, fecha_nacimiento: null };
+      clienteMaster = { cliente_master: null, nombre: null, correo: null, fecha_nacimiento: null, tipo_documento: null, numero_documento: null };
     }
 
     const cmdRef = this.dialog.open(ClienteMasterDialogComponent, {

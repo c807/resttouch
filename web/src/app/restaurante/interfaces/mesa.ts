@@ -16,6 +16,8 @@ export interface Mesa {
     debaja?: number;
     etiqueta?: string;
     escallcenter?: number;
+    esreservable?: number;
+    eshabitacion?: number;
 }
 
 export interface MesaDisponible {
@@ -40,4 +42,6 @@ export interface MesaDisponible {
     debaja?: number;
     etiqueta?: string;
     escallcenter?: number;
+    esreservable?: number;
+    eshabitacion?: number;
 }

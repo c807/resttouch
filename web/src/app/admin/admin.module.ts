@@ -139,6 +139,9 @@ import { FacturacionClienteComponent } from './components/monitor-cliente/factur
 import { VentasSinFacturaClienteComponent } from './components/monitor-cliente/ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
 import { MetabaseComponent } from './components/metabase/metabase/metabase.component';
 import { MetabaseDashboardComponent } from './components/metabase/metabase-dashboard/metabase-dashboard.component';
+import { TipoDocumentoComponent } from './components/tipo-documento/tipo-documento/tipo-documento.component';
+import { FormTipoDocumentoComponent } from './components/tipo-documento/form-tipo-documento/form-tipo-documento.component';
+import { ListaTipoDocumentoComponent } from './components/tipo-documento/lista-tipo-documento/lista-tipo-documento.component';
 
 @NgModule({
   declarations: [
@@ -160,7 +163,7 @@ import { MetabaseDashboardComponent } from './components/metabase/metabase-dashb
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

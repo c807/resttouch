@@ -1,12 +1,12 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import * as moment from 'moment';
-import {HabType} from './habitacion/HabTypeE';
-import {RevStat} from './reservacion/RevStat';
-import {FakeBakend} from './FakeBakend';
-import {MatTable, MatTableDataSource} from '@angular/material/table';
-import {MatPaginator} from '@angular/material/paginator';
-import {LiveAnnouncer} from '@angular/cdk/a11y';
-import {ThemePalette} from '@angular/material/core';
+import { HabType } from './habitacion/HabTypeE';
+import { RevStat } from './reservacion/RevStat';
+import { FakeBakend } from './FakeBakend';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { ThemePalette } from '@angular/material/core';
 
 export interface DayCalendar {
   martes: RevStat;
@@ -61,7 +61,7 @@ export class BookerComponent implements OnInit, AfterViewInit {
   sabdDate = new Date();
   domDate = new Date();
 
-  @ViewChild(MatTable, {static: true}) table: MatTable<any>;
+  @ViewChild(MatTable, { static: true }) table: MatTable<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
 
@@ -150,7 +150,7 @@ export class BookerComponent implements OnInit, AfterViewInit {
 
 
       const shouldFilter = this.filterRoom(RomA.type);
-      console.log(shouldFilter);
+      // console.log(shouldFilter);
 
 
       if (shouldFilter === false) {
@@ -200,7 +200,7 @@ export class BookerComponent implements OnInit, AfterViewInit {
 
         // Set the day reserved according its position in the array
         switch (dow) {
-          case 0 :
+          case 0:
             obj[this.reservationIdDays[7]] = value.id;
             obj[this.displayedColumns[7]] = value.type;
             break;

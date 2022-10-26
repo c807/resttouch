@@ -1,6 +1,6 @@
-import {Reservation, Room} from '../../models/Model';
-import {HabType} from './habitacion/HabTypeE';
-import {RevStat} from './reservacion/RevStat';
+import { Reservation, Room } from '../../models/Model';
+import { HabType } from './habitacion/HabTypeE';
+import { RevStat } from './reservacion/RevStat';
 
 /**
  * Esto son datos que ses despliegan en el portal
@@ -217,7 +217,7 @@ export class FakeBakend {
     },
     {
       id: 4,
-      fecha: '16/1/2022',
+      fecha: '14/1/2022',
       room_id: 1,
       cancelado: false,
       razon: '',
@@ -225,7 +225,7 @@ export class FakeBakend {
     },
     {
       id: 5,
-      fecha: '17/1/2022',
+      fecha: '15/1/2022',
       room_id: 1,
       cancelado: false,
       razon: '',

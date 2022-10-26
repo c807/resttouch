@@ -6,10 +6,8 @@ import { ConfiguraMesaComponent } from '../configura-mesa/configura-mesa.compone
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { Mesa } from '../../../interfaces/mesa';
-// import { Impresora } from '../../../../admin/interfaces/impresora';
 
 import { MesaService } from '../../../services/mesa.service';
-// import { ImpresoraService } from '../../../../admin/services/impresora.service';
 
 @Component({
   selector: 'app-area-designer',
@@ -21,34 +19,29 @@ export class AreaDesignerComponent implements OnInit {
   @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 
   public mesas: Mesa[] = [];
-  public contextMenuPosition = { x: '0px', y: '0px' };
-  // public impresoras: Impresora[] = [];
+  public contextMenuPosition = { x: '0px', y: '0px' };  
   public cargando = false;
 
   constructor(
     private snackBar: MatSnackBar,
     private mesaSrvc: MesaService,
     public dialogRef: MatDialogRef<AreaDesignerComponent>,
-    public dialog: MatDialog,
-    // public impresoraSrvc: ImpresoraService,
+    public dialog: MatDialog,    
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
   ngOnInit() {
     // console.log(this.data);
     this.mesas = this.data.mesas;
-    // console.log(this.mesas);
-    // this.loadImpresoras();
-  }
-
-  // loadImpresoras = () => this.impresoraSrvc.get().subscribe(res => this.impresoras = res);
+    // console.log(this.mesas);    
+  }  
 
   getNextTableNumber = () =>
     this.mesas.length > 0 ?
       (this.mesas.reduce((max, p) => +p.numero > max ? +p.numero : max, (!!this.mesas[0].numero ? +this.mesas[0].numero : 0)) + 1) :
       1
 
-  addTable = (w = 72, h = 72, esmostrador = 0, vertical = 0, escallcenter = 0) => {
+  addTable = (w = 72, h = 72, esmostrador = 0, vertical = 0, escallcenter = 0, esreservable = 0, eshabitacion = 0) => {
     this.cargando = true;
     this.mesas.push({
       mesa: null,
@@ -62,7 +55,9 @@ export class AreaDesignerComponent implements OnInit {
       alto: h,
       esmostrador,
       vertical,
-      escallcenter
+      escallcenter,
+      esreservable,
+      eshabitacion
     });
     this.saveNewMesa(this.mesas[this.mesas.length - 1], this.mesas.length - 1);
   }
@@ -139,4 +134,6 @@ export class AreaDesignerComponent implements OnInit {
       }
     });
   }
+
+  addHabitacion =  () => this.addTable(72, 72, 0, 0, 0, 1, 1);
 }

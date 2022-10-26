@@ -1,0 +1,16 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-content>
+        <mat-form-field class="fullWidth">
+            <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" (input)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+            <input matInput *ngIf="esMovil" (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
+        <mat-nav-list>
+            <mat-list-item *ngFor="let element of lstTiposDocumentoPaged" (click)="getTipoDocumento(element)">
+                <mat-icon mat-list-icon>badge</mat-icon>
+                <h5 mat-line>{{element.descripcion}} ({{element.abreviatura}})</h5>
+            </mat-list-item>
+        </mat-nav-list>
+        <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>
+        </mat-paginator>
+    </mat-card-content>
+</mat-card>

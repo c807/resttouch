@@ -1,9 +1,10 @@
 <h1 mat-dialog-title>Configuración de mesa {{mesa.numero}}</h1>
 <div mat-dialog-content>
     <form #frmConfigMesa="ngForm" novalidate>
-        <mat-form-field class="fullWidth">
+        <mat-form-field style="width: 50%;">
             <input type="text" matInput placeholder="Etiqueta" name="etiqueta" [(ngModel)]="mesa.etiqueta" maxlength="3">
         </mat-form-field>
+        <mat-checkbox name="esreservable" style="width: 50%;" [(ngModel)]="+mesa.esreservable" [disabled]="+mesa.eshabitacion === 1">Reservable</mat-checkbox>
         <mat-form-field class="fullWidth" *ngIf="+mesa.esmostrador === 1">
             <mat-label>Impresora</mat-label>
             <mat-select name="impresora" [(ngModel)]="mesa.impresora">
