@@ -1,25 +1,32 @@
-<mat-card class="mat-elevation-z4 fullWidth">
-    <mat-card-title>
-        <h4>Tipo de habitación</h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmTipoHabitacion="ngForm" (ngSubmit)="frmTipoHabitacion.form.valid && onSubmit()" novalidate>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
-                <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
-                <input matInput *ngIf="esMovil" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
-            </mat-form-field>            
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoHabitacion.form.valid">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetTipoHabitacion()" *ngIf="tipoHabitacion.tipo_habitacion">
-                    Nuevo
-                </button>
-            </div>
-        </form>
-    </mat-card-content>
-</mat-card>
+<mat-tab-group mat-align-tabs="start">
+    <mat-tab label="Tipo de habitación">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Tipo de habitación</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmTipoHabitacion="ngForm" (ngSubmit)="frmTipoHabitacion.form.valid && onSubmit()" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
+                        <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
+                    </mat-form-field>            
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoHabitacion.form.valid">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetTipoHabitacion()" *ngIf="tipoHabitacion.tipo_habitacion">
+                            Nuevo
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+    <mat-tab [label]="+tipoHabitacion.tipo_habitacion > 0 ? 'Tarifas' : ''" [disabled]="+tipoHabitacion.tipo_habitacion === 0">
+        <app-tarifa-reserva #lstTarifaReserva></app-tarifa-reserva>
+    </mat-tab>
+</mat-tab-group>

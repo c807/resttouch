@@ -1,10 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
 import { TipoHabitacion } from '../../../interfaces/tipo-habitacion';
 import { TipoHabitacionService } from '../../../services/tipo-habitacion.service';
+
+import { TarifaReservaComponent } from '../../../../hotel/components/tarifa-reserva/tarifa-reserva/tarifa-reserva.component';
 
 import { Subscription } from 'rxjs';
 
@@ -13,10 +15,11 @@ import { Subscription } from 'rxjs';
   templateUrl: './form-tipo-habitacion.component.html',
   styleUrls: ['./form-tipo-habitacion.component.css']
 })
-export class FormTipoHabitacionComponent implements OnInit, OnDestroy {
+export class FormTipoHabitacionComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() tipoHabitacion: TipoHabitacion;
   @Output() tipoHabitacionSavedEv = new EventEmitter();
+  @ViewChild('lstTarifaReserva') lstTarifaReserva: TarifaReservaComponent;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
@@ -36,8 +39,13 @@ export class FormTipoHabitacionComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();    
   }
 
+  ngAfterViewInit(): void {
+    console.log(this.lstTarifaReserva);
+  }
+
   resetTipoHabitacion() {
     this.tipoHabitacion = { tipo_habitacion: null, descripcion: null, icono: null };
+    this.lstTarifaReserva.tipoHabitacion = null;
   }
 
   onSubmit() {

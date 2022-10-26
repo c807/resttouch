@@ -43,6 +43,7 @@ import { ReservacionComponent } from './components/booker/reservacion/reservacio
 import { FilterComponent } from './components/booker/filtro/filter.component';
 import { ReservationDialogComponent } from './components/booker/reservationd/reservation-dialog.component';
 import { ReservationDialogcancelComponent } from './components/booker/reservationc/reservation-dialogcancel.component';
+import { TarifaReservaComponent } from './components/tarifa-reserva/tarifa-reserva/tarifa-reserva.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { ReservationDialogcancelComponent } from './components/booker/reservatio
     ReservacionComponent,
     FilterComponent,
     ReservationDialogComponent,
-    ReservationDialogcancelComponent
+    ReservationDialogcancelComponent,
+    TarifaReservaComponent
   ],
   imports: [
     CommonModule,
@@ -90,6 +92,9 @@ import { ReservationDialogcancelComponent } from './components/booker/reservatio
     MatKeyboardModule,
     LayoutModule,
     MatTooltipModule
+  ],
+  exports: [
+    TarifaReservaComponent
   ]
 })
 export class HotelModule { }

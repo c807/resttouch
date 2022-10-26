@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { HotelModule } from '../hotel/hotel.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatListModule } from '@angular/material/list';
@@ -173,7 +174,7 @@ import { ListaTipoHabitacionComponent } from './components/tipo-habitacion/lista
     MatInputModule, MatCardModule, MatDividerModule, MatTabsModule, MatTableModule, MatSelectModule, MatCheckboxModule, MatButtonModule,
     MatSnackBarModule, MatToolbarModule, MatMenuModule, MatGridListModule, MatPaginatorModule, MatTreeModule, MatDialogModule,
     MatProgressBarModule, PivotViewAllModule, PivotFieldListAllModule, FlexLayoutModule, ChartModule, NgIdleKeepaliveModule.forRoot(),
-    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule
+    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, HotelModule
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,

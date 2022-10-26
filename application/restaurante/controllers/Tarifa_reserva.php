@@ -6,7 +6,7 @@ class Tarifa_reserva extends CI_Controller {
 	public function __construct()
 	{
         parent::__construct();
-        $this->load->model('Tarifa_reserva_model');
+        $this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model']);
         $this->output->set_content_type('application/json', 'UTF-8');
 	}
 
@@ -35,6 +35,16 @@ class Tarifa_reserva extends CI_Controller {
 	public function buscar()
 	{
 		$datos = $this->Tarifa_reserva_model->buscar($_GET);
+		foreach ($datos as $tr) {
+			$th = $this->Tipo_habitacion_model->buscar(['tipo_habitacion' => $tr->tipo_habitacion, '_uno' => true]);
+			$tr->descripcion_tipo_habitacion = $th ? $th->descripcion : '';
+			$tr->icono_tipo_habitacion = $th ? $th->icono : '';
+		}
+		if (!isset($_GET['tipo_habitacion'])) {
+			$datos = ordenar_array_objetos($datos, 'descripcion_tipo_habitacion');
+		} else {
+			$datos = ordenar_array_objetos($datos, 'monto', 1);
+		}
 		$this->output->set_output(json_encode($datos));
 	}
 
