@@ -3,18 +3,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Catalogo extends CI_Controller {
 
+	private $php_self = '';
+
 	public function __construct()
 	{
 		parent::__construct();
-		//$this->datos = [];
+		$this->php_self = $_SERVER['PHP_SELF'];
 		$this->load->model([
-			"Catalogo_model",
-			'Cgrupo_model'
+			'Catalogo_model',
+			'Cgrupo_model',
+			'Bitacora_model'
 		]);
 		$headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']); 
-		$this->output
-		->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function index()
@@ -85,6 +87,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_articulo()
 	{
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		set_time_limit(0);
 		ini_set('memory_limit', '-1');
 		$_GET['sede'] = $this->data->sede;
@@ -99,17 +102,22 @@ class Catalogo extends CI_Controller {
 			$datos->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $datos->categoria_grupo, '_uno' => true]);
 		}
 
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 		$this->output->set_output(json_encode($datos));
 	}
 
 	public function get_articulo_ingreso()
 	{
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		if (!$this->input->get('sede')) {
 			$_GET['sede'] = $this->data->sede;
 		}
 		// $_GET['sede'] = $this->data->sede;
 		$_GET['ingreso'] = true;
-		$this->output->set_output(json_encode($this->Catalogo_model->getArticulo($_GET)));
+		$datos = $this->Catalogo_model->getArticulo($_GET);
+
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function get_articulo_combo()
@@ -139,6 +147,8 @@ class Catalogo extends CI_Controller {
 
 	public function get_lista_articulo($sede)
 	{
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
+
 		$this->load->model('Categoria_model');
 		$_GET['sede'] = $sede;
 
@@ -163,8 +173,9 @@ class Catalogo extends CI_Controller {
 			$datos[] = $row;
 		}
 
-		$this->output
-		->set_output(json_encode($datos));
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
+
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function get_modulo()
