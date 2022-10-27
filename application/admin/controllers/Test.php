@@ -14,7 +14,13 @@ class Test extends CI_Controller
         $this->output->set_content_type("application/json", "UTF-8");
     }
 
-    public function test() {
-        $this->output->set_output(json_encode($_SERVER));        
+    public function test()
+    {
+        $this->output->set_output(json_encode($_SERVER));
+    }
+
+    public function osinfo()
+    {
+        $this->output->set_output(json_encode(['OS' => PHP_OS]));
     }
 }

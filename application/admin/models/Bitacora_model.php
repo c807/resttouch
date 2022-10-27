@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Bitacora_model extends General_model {
+class Bitacora_model extends General_model
+{
 
 	public $accion;
 	public $usuario;
@@ -30,7 +31,7 @@ class Bitacora_model extends General_model {
 		return $this->buscar($args);
 	}
 
-	public function get_tablas_bitacora() 
+	public function get_tablas_bitacora()
 	{
 		return $this->db->select('tabla')->group_by('tabla')->get('bitacora')->result();
 	}
@@ -38,19 +39,19 @@ class Bitacora_model extends General_model {
 	public function reporte($args = [])
 	{
 		if (isset($args['comentario'])) {
-			$this->db->like('a.comentario', $args['comentario']);			
+			$this->db->like('a.comentario', $args['comentario']);
 		}
 
 		if (isset($args['fdel'])) {
-			$this->db->where('DATE(a.fecha) >=', $args['fdel']);			
+			$this->db->where('DATE(a.fecha) >=', $args['fdel']);
 		}
 
 		if (isset($args['fal'])) {
-			$this->db->where('DATE(a.fecha) <=', $args['fal']);			
+			$this->db->where('DATE(a.fecha) <=', $args['fal']);
 		}
 
 		if (isset($args['fecha'])) {
-			$this->db->where('DATE(a.fecha)', $args['fecha']);			
+			$this->db->where('DATE(a.fecha)', $args['fecha']);
 		}
 
 		if (isset($args['accion'])) {
@@ -85,12 +86,21 @@ class Bitacora_model extends General_model {
 			->select('a.bitacora, d.nombre AS sede, c.usrname AS usuario, b.descripcion AS accion, DATE_FORMAT(a.fecha, "%d/%m/%Y %H:%i:%s") as fecha, a.tabla, a.registro, a.comentario')
 			->join('accion b', 'b.accion = a.accion')
 			->join('usuario c', 'c.usuario = a.usuario')
-			->join('sede d', 'd.sede = c.sede')			
+			->join('sede d', 'd.sede = c.sede')
 			->order_by('a.fecha DESC')
 			->get("{$this->_tabla} a")
 			->result();
 	}
 
+	public function log_to_file($data = '')
+	{
+		if (!empty(trim($data))) {
+			$this->load->helper('file');
+			$archivo = APPPATH.'logs/bitacora_'.date('Ymd').'.txt';			
+			$endLine = strpos(PHP_OS, 'WIN') === false ? "\n" : "\r\n";
+			return write_file($archivo, (trim($data).$endLine), 'at');
+		}
+	}
 }
 
 /* End of file Bitacora_model.php */

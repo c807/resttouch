@@ -325,6 +325,9 @@ if (!function_exists('formatoFecha')) {
 				case 10:
 					$formato = "n";
 					break;
+				case 11:
+					$formato = "d/m/Y H:i:s";
+					break;
 				default:
 					$formato = "d/m/Y H:i";
 					break;
@@ -615,10 +618,10 @@ if (!function_exists('get_url_websocket')) {
 }
 
 if (!function_exists('verPropiedad')) {
-	function verPropiedad($clase, $propiedad, $return=false)
+	function verPropiedad($clase, $propiedad, $return = false)
 	{
 		if (!empty($clase) && property_exists($clase, $propiedad) && !empty($clase->$propiedad)) {
-			
+
 			return $clase->$propiedad;
 		}
 
@@ -629,13 +632,13 @@ if (!function_exists('verPropiedad')) {
 if (!function_exists('dias_transcurridos')) {
 	function dias_transcurridos($fecha1, $fecha2 = '')
 	{
-		if(empty($fecha1)) {
+		if (empty($fecha1)) {
 			return null;
 		} else {
 			$f1 = strtotime($fecha1);
 		}
 
-		if(empty($fecha2)) {
+		if (empty($fecha2)) {
 			$f2 = time();
 		} else {
 			$f2 = strtotime($fecha2);
@@ -643,5 +646,14 @@ if (!function_exists('dias_transcurridos')) {
 
 		$datediff = $f2 - $f1;
 		return abs(round($datediff / 86400));
+	}
+}
+
+if (!function_exists('get_mem_usage')) {
+	function get_mem_usage()
+	{
+		$unit = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+		$size = memory_get_usage(true);
+		return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
 }
