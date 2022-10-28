@@ -90,17 +90,17 @@ class Catalogo extends CI_Controller {
 		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		set_time_limit(0);
 		ini_set('memory_limit', '-1');
-		$_GET['sede'] = $this->data->sede;
-		// $datos = ordenar_array_objetos($this->Catalogo_model->getArticulo($_GET), 'descripcion');
-		$datos = $this->Catalogo_model->getArticulo($_GET);
+		$_GET['sede'] = $this->data->sede;		
+		// $datos = $this->Catalogo_model->getArticulo($_GET);
+		$datos = $this->Catalogo_model->getArticulo_v2($_GET);
 
-		if (is_array($datos)) {
-			foreach($datos as $d) {
-				$d->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $d->categoria_grupo, '_uno' => true]);
-			}
-		} else {
-			$datos->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $datos->categoria_grupo, '_uno' => true]);
-		}
+		// if (is_array($datos)) {
+		// 	foreach($datos as $d) {
+		// 		$d->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $d->categoria_grupo, '_uno' => true]);
+		// 	}
+		// } else {
+		// 	$datos->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $datos->categoria_grupo, '_uno' => true]);
+		// }
 
 		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 		$this->output->set_output(json_encode($datos));
@@ -114,7 +114,8 @@ class Catalogo extends CI_Controller {
 		}
 		// $_GET['sede'] = $this->data->sede;
 		$_GET['ingreso'] = true;
-		$datos = $this->Catalogo_model->getArticulo($_GET);
+		// $datos = $this->Catalogo_model->getArticulo($_GET);
+		$datos = $this->Catalogo_model->getArticulo_v2($_GET);
 
 		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 		$this->output->set_output(json_encode($datos));

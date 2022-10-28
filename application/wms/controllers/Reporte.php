@@ -7,9 +7,12 @@ set_time_limit(0);
 class Reporte extends CI_Controller
 {
 
+	private $php_self = '';
+
 	public function __construct()
 	{
 		parent::__construct();
+		$this->php_self = $_SERVER['PHP_SELF'];
 		$this->load->model([
 			'Sede_model',
 			'Empresa_model',
@@ -19,7 +22,8 @@ class Reporte extends CI_Controller
 			'Ingreso_model',
 			'Categoria_model',
 			'Bodega_model',
-			'BodegaArticuloCosto_model'
+			'BodegaArticuloCosto_model',
+			'Bitacora_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -32,6 +36,7 @@ class Reporte extends CI_Controller
 
 	public function existencia()
 	{
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio,');
 		ini_set('pcre.backtrack_limit', '15000000');
 		$data = [];
 		$_POST = json_decode(file_get_contents('php://input'), true);
@@ -100,6 +105,8 @@ class Reporte extends CI_Controller
 				}
 			}
 		}
+
+		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',medio,');
 
 		if (verDato($_POST, '_excel')) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -190,6 +197,7 @@ class Reporte extends CI_Controller
 
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save("php://output");
+			$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin (excel),'.json_encode($_POST));
 		} else {
 
 			$pdf = new \Mpdf\Mpdf([
@@ -205,7 +213,7 @@ class Reporte extends CI_Controller
 			$pdf->WriteHTML($vista);
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 			$pdf->Output("Existencias_{$rand}.pdf", "D");
-
+			$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin (pdf),'.json_encode($_POST));
 			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($args));
 		}
 	}
@@ -1021,8 +1029,8 @@ class Reporte extends CI_Controller
 				->setTitle('Office 2007 xlsx Lista_pedidos')
 				->setSubject('Office 2007 xlsx Lista_pedidos')
 				->setKeywords('office 2007 openxml php');
-	
-	
+
+
 			$excel->setActiveSheetIndex(0);
 			$hoja = $excel->getActiveSheet();
 
@@ -1030,15 +1038,15 @@ class Reporte extends CI_Controller
 			$hoja->setCellValue('A2', "{$datos['sede']->nombre} ({$datos['sede']->alias})");
 			$hoja->setCellValue('A3', "Lista de pedido de productos al {$datos['fecha']}");
 			$hoja->setCellValue('A4', "Bodega: {$datos['bodega']->descripcion}");
-			$hoja->setCellValue('A5', 'Impreso: '.date('d/m/Y H:i:s'));
+			$hoja->setCellValue('A5', 'Impreso: ' . date('d/m/Y H:i:s'));
 			$hoja->mergeCells('A1:H1');
 			$hoja->mergeCells('A2:H2');
 			$hoja->mergeCells('A3:H3');
 			$hoja->mergeCells('A4:H4');
-			$hoja->mergeCells('A5:H5');			
+			$hoja->mergeCells('A5:H5');
 			$hoja->getStyle('A1:H5')->getFont()->setBold(true);
 			$hoja->getStyle('A1:H5')->getAlignment()->setHorizontal('center');
-			
+
 			$fila = 7;
 			$hoja->setCellValue("E{$fila}", 'Última Compra');
 			$hoja->mergeCells("E{$fila}:F{$fila}");
@@ -1058,7 +1066,7 @@ class Reporte extends CI_Controller
 			$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 			$hoja->setAutoFilter("A{$fila}:H{$fila}");
 			$fila++;
-			foreach($datos['pedidos'] as $pedido) {
+			foreach ($datos['pedidos'] as $pedido) {
 				if ($pedido->mostrar) {
 					$hoja->setCellValue("A{$fila}", $pedido->proveedor);
 					$hoja->mergeCells("A{$fila}:H{$fila}");
@@ -1082,7 +1090,7 @@ class Reporte extends CI_Controller
 						}
 					}
 				}
-			}		
+			}
 
 			$hoja->setTitle('Lista de pedidos');
 			for ($i = 0; $i <= 7; $i++) {
@@ -1096,23 +1104,22 @@ class Reporte extends CI_Controller
 			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
 			header('Cache-Control: cache, must-revalidate');
 			header('Pragma: public');
-	
+
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save('php://output');
-			
 		} else {
 			$vista = $this->load->view('reporte/pedidos/imprimir', $datos, true);
-	
+
 			$mpdf = new \Mpdf\Mpdf([
 				'tempDir' => sys_get_temp_dir(), //Produccion
 				'format' => 'Letter',
 				'lands'
 			]);
-	
+
 			$mpdf->AddPage('L');
 			$mpdf->WriteHTML($vista);
 			$mpdf->Output('Pedido_' . date('YmdHis') . '.pdf', "D");
-	
+
 			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
 		}
 	}
