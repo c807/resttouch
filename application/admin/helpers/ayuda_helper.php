@@ -151,7 +151,8 @@ if (!function_exists('url_base')) {
 		}
 
 		// return base_url($url);
-		return ("http://192.168.168.241/api/{$url}");
+		// return ("http://192.168.168.241/api/{$url}");
+		return ("http://10.0.0.4/api/{$url}");
 	}
 }
 
