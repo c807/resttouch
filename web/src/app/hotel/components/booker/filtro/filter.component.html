@@ -13,18 +13,15 @@
   </form>
   <table mat-table [dataSource]="dataSourceF">
 
-    <!--- Note that these columns can be defined in any order.
-          The actual rendered columns are set as a property on the row definition" -->
-
     <!-- Position Column -->
     <ng-container matColumnDef="text">
-      <th mat-header-cell *matHeaderCellDef> Name</th>
-      <td mat-cell *matCellDef="let element"> {{element.text}} </td>
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let element">{{element.text}} </td>
     </ng-container>
 
     <!-- Name Column -->
     <ng-container matColumnDef="filter">
-      <th mat-header-cell *matHeaderCellDef> Show</th>
+      <th mat-header-cell *matHeaderCellDef>Mostrar</th>
       <td mat-cell *matCellDef="let element">
         <mat-checkbox
           (change)="toggle($event, element)"

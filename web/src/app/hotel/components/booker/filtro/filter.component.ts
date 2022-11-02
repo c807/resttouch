@@ -1,6 +1,6 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {FakeBakend} from '../FakeBakend';
-import {LiveAnnouncer} from '@angular/cdk/a11y';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FakeBakend } from '../FakeBakend';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 
 /**
@@ -11,15 +11,12 @@ import {LiveAnnouncer} from '@angular/cdk/a11y';
   styleUrls: ['filter.component.css'],
   templateUrl: 'filter.component.html',
 })
-export class FilterComponent implements OnInit   {
+export class FilterComponent implements OnInit {
 
   displayedColumns: string[] = ['text', 'filter'];
 
-  @Input()
-  dataSourceR;
-
-  dataSourceF;
-
+  @Input() dataSourceR;
+  public dataSourceF;
   public filteredText;
 
 
@@ -50,9 +47,9 @@ export class FilterComponent implements OnInit   {
   setdata(): void {
     if (this.filteredText !== undefined && this.filteredText !== '') {
       this.dataSourceF = this.dataSourceR.filter(bj =>
-        (
-          this.filteredText !== undefined && this.filteredText !== '' && bj.text.toUpperCase().includes(this.filteredText.toUpperCase())
-        )
+      (
+        this.filteredText !== undefined && this.filteredText !== '' && bj.text.toUpperCase().includes(this.filteredText.toUpperCase())
+      )
       );
     } else {
       this.dataSourceF = this.dataSourceR;
