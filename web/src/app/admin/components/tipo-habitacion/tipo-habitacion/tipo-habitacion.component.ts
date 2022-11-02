@@ -24,8 +24,10 @@ export class TipoHabitacionComponent implements OnInit {
 
   setTipoHabitacion = (th: TipoHabitacion) => {
     this.tipoHabitacion = th
-    this.frmTipoHabitacion.tipoHabitacion = this.tipoHabitacion;
+    this.frmTipoHabitacion.tipoHabitacion = this.tipoHabitacion;    
     this.frmTipoHabitacion.lstTarifaReserva.tipoHabitacion = this.tipoHabitacion;
+    this.frmTipoHabitacion.lstTarifaReserva.resetTarifaReserva();
+    this.frmTipoHabitacion.lstTarifaReserva.loadTarifasReserva();
   };
 
   refreshTipoHabitacionList = () => this.lstTipoHabitacion.loadTiposHabitacion();

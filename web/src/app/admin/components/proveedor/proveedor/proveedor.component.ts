@@ -18,7 +18,8 @@ export class ProveedorComponent implements OnInit {
       proveedor: null,
       corporacion: null,
       razon_social: null,
-      nit: null      
+      nit: null,
+      cuenta_contable_gasto: null
     };
   }
 

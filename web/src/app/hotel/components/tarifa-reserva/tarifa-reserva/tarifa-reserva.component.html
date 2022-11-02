@@ -1,1 +1,76 @@
-<p>{{tipoHabitacion | json}}</p>
+<table>
+    <thead>
+        <th>Adultos</th>
+        <th>Menores</th>
+        <th>Monto</th>
+        <th>Adic./adulto</th>
+        <th>Adic./menor</th>
+        <th>&nbsp;</th>
+    </thead>
+    <tbody>
+        <tr *ngFor="let tres of tarifasReserva">
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="tres.cantidad_adultos" min="0" required>
+                </mat-form-field>                
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="tres.cantidad_menores" min="0" required>
+                </mat-form-field>                
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Monto" name="monto" [(ngModel)]="tres.monto" min="0" step="0.01" required>
+                </mat-form-field>                
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adic./adulto" name="monto_adicional_adulto" [(ngModel)]="tres.monto_adicional_adulto" min="0" step="0.01">
+                </mat-form-field>                
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adic./menor" name="monto_adicioonal_menor" [(ngModel)]="tres.monto_adicional_menor" min="0" step="0.01">
+                </mat-form-field>                
+            </td>
+            <td class="ctxt">
+                <button mat-raised-button type="button" color="accent" (click)="guardarTarifa(tres)" [disabled]="cargando || tresFaltante(tres)">
+                    Guardar
+                </button>
+            </td>
+        </tr>
+        <tr>     
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="tarifaReserva.cantidad_adultos" min="0" required>
+                </mat-form-field>                        
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="tarifaReserva.cantidad_menores" min="0" required>
+                </mat-form-field>                        
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Monto" name="monto" [(ngModel)]="tarifaReserva.monto" min="0" step="0.01" required>
+                </mat-form-field>                        
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adic./adulto" name="monto_adicional_adulto" [(ngModel)]="tarifaReserva.monto_adicional_adulto" min="0" step="0.01">
+                </mat-form-field>                        
+            </td>
+            <td>
+                <mat-form-field>
+                    <input matInput type="number" placeholder="Adic./menor" name="monto_adicioonal_menor" [(ngModel)]="tarifaReserva.monto_adicional_menor" min="0" step="0.01">
+                </mat-form-field>                        
+            </td>
+            <td class="ctxt">
+                <button mat-raised-button type="button" color="accent" (click)="guardarTarifa(tarifaReserva)" [disabled]="cargando || tarifaReservaFaltante">
+                    Guardar
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>

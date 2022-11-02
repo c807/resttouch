@@ -18,6 +18,10 @@
                 <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Código" name="codigo" [(ngModel)]="proveedor.codigo" minlength="1" maxlength="45">
                 <input matInput type="text" *ngIf="esMovil" placeholder="Código" name="codigo" [(ngModel)]="proveedor.codigo" minlength="1" maxlength="45">
             </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Cuenta contable de gasto" name="cuenta_contable_gasto" [(ngModel)]="proveedor.cuenta_contable_gasto" minlength="1" maxlength="10">
+                <input matInput type="text" *ngIf="esMovil" placeholder="Cuenta contable de gasto" name="cuenta_contable_gasto" [(ngModel)]="proveedor.cuenta_contable_gasto" minlength="1" maxlength="10">
+            </mat-form-field>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmProveedor.form.valid">
                     Guardar

@@ -40,12 +40,14 @@ export class FormTipoHabitacionComponent implements OnInit, OnDestroy, AfterView
   }
 
   ngAfterViewInit(): void {
-    console.log(this.lstTarifaReserva);
+    // console.log(this.lstTarifaReserva);
   }
 
   resetTipoHabitacion() {
     this.tipoHabitacion = { tipo_habitacion: null, descripcion: null, icono: null };
     this.lstTarifaReserva.tipoHabitacion = null;
+    this.lstTarifaReserva.resetTarifaReserva();
+    this.lstTarifaReserva.tarifasReserva = [];    
   }
 
   onSubmit() {
