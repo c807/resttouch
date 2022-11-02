@@ -43,7 +43,8 @@ class Schema_model extends General_model
 		} else if (in_array($_SERVER['HTTP_HOST'], ['192.168.18.241'])) {
 			return ['db_hostname' => '192.168.18.240', 'db_username' => 'devja', 'db_password' => 'D3vJA2020!'];
 		}
-		return ['db_hostname' => '192.168.168.240', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
+		// return ['db_hostname' => '192.168.168.240', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
+		return ['db_hostname' => '10.0.0.5', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
 	}
 
 	private function ejecuta_sql($sql)

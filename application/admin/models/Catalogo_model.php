@@ -685,6 +685,118 @@ class Catalogo_model extends CI_Model
 		return $articulos;
 	}
 
+	private function get_campos_tabla($tabla, $prefijo = '')
+	{
+		$lista = $this->db
+			->select('GROUP_CONCAT(CONCAT("'.$prefijo.'", column_name) ORDER BY ordinal_position SEPARATOR ",") AS campos')
+			->where('table_schema', $this->db->database)
+			->where('table_name', $tabla)			
+			->get('information_schema.columns')
+			->row();
+		return $lista ? $lista->campos : '';
+	}
+
+	private function loadImpresorasPorSubcategoria()
+	{
+		$campos = $this->get_campos_tabla('impresora', 'a.');
+		return $this->db
+			->select("{$campos}, b.categoria_grupo")
+			->join('categoria_grupo b', 'a.impresora = b.impresora')
+			->get('impresora a')
+			->result();
+	}
+
+	private function loadPresentaciones()
+	{
+		$campos = $this->get_campos_tabla('presentacion');
+		return $this->db->select($campos)->get('presentacion')->result();
+	}
+
+	private function loadSubcategorias()
+	{
+		$campos = $this->get_campos_tabla('categoria_grupo');
+		return $this->db->select($campos)->get('categoria_grupo')->result();
+	}
+
+	private function buscarObjetoEnLista($lista, $campo, $valor)
+	{		
+		foreach($lista as $item) {
+			if ((int)$item->{$campo} === (int)$valor) {
+				return $item;
+			}
+		}
+		return null;		
+	}
+
+	public function getArticulo_v2($args = [])
+	{
+		$sede = isset($args['sede']) ? $args['sede'] : false;
+		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
+		$activos = isset($args['_activos']) ? true : false;
+		unset($args['ingreso']);
+		unset($args['sede']);
+		unset($args['_activos']);
+		if (count($args) > 0) {
+			foreach ($args as $key => $row) {
+				if ($key != '_uno') {
+					$this->db->where("a.{$key}", $row);
+				}
+			}
+		}
+
+		if ($sede) {
+			if (is_array($sede)) {
+				$this->db->where_in('c.sede', $sede);
+			} else {
+				$this->db->where('c.sede', $sede);
+			}
+		}
+
+		if ($ingreso) {
+			$this->db->where('a.mostrar_inventario', 1);
+		}
+
+		if (!$activos) {
+			$this->db->where('a.debaja', 0);
+		}
+
+		if (isset($args['produccion']) && (int)$args['produccion'] === 1) {
+			$this->db->join('articulo_detalle d', 'a.articulo = d.receta');
+			$this->db->where('d.anulado', 0);
+			$this->db->group_by('a.articulo');
+		}
+
+		$qry = $this->db
+			->select('a.*, c.sede')
+			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->order_by('a.articulo')
+			->get('articulo a');
+
+		$tmp = $this->getCatalogo($qry, $args);
+
+		$listaImpresoras = $this->loadImpresorasPorSubcategoria();
+		$listaPresentaciones = $this->loadPresentaciones();
+		$listaSubcategorias = $this->loadSubcategorias();
+
+		if (is_array($tmp)) {
+			$datos = [];
+			foreach ($tmp as $row) {
+				$row->impresora = $this->buscarObjetoEnLista($listaImpresoras, 'categoria_grupo', $row->categoria_grupo);
+				$row->presentacion = $this->buscarObjetoEnLista($listaPresentaciones, 'presentacion', $row->presentacion);
+				$row->subcategoria = $this->buscarObjetoEnLista($listaSubcategorias, 'categoria_grupo', $row->categoria_grupo);
+				$datos[] = $row;
+			}
+			$tmp = $datos;
+		} else if ($tmp) {
+			$tmp->impresora = $this->buscarObjetoEnLista($listaImpresoras, 'categoria_grupo', $tmp->categoria_grupo);
+			$tmp->presentacion = $this->buscarObjetoEnLista($listaPresentaciones, 'presentacion', $tmp->presentacion);
+			$tmp->subcategoria = $this->buscarObjetoEnLista($listaSubcategorias, 'categoria_grupo', $tmp->categoria_grupo);
+		}
+
+		return ordenar_array_objetos($tmp, 'descripcion');
+	}
+
 }
 
 /* End of file Catalogo_model.php */
