@@ -1,17 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-// header('Access-Control-Allow-Origin: *');
-// header('Access-Control-Allow-Headers: Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
-// header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-// header('Allow: GET, POST, OPTIONS, PUT, DELETE');
-
 class Mesa extends CI_Controller {
 
 	public function __construct()
 	{
         parent::__construct();
-        $this->load->model(['Mesa_model', 'Bitacora_model', 'Area_model', 'Sede_model', 'Usuario_model', 'Accion_model']);
+        $this->load->model(['Mesa_model', 'Bitacora_model', 'Area_model', 'Sede_model', 'Usuario_model', 'Accion_model', 'Tipo_habitacion_model']);
 
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -48,6 +43,7 @@ class Mesa extends CI_Controller {
 		if (isset($_GET['_fulldata']) && (int)$_GET['_fulldata'] === 1) {			
 			foreach ($datos as $dato) {
 				$dato->area = $this->Area_model->buscar(['area' => $dato->area, '_uno' => true]);
+				$dato->tipo_habitacion = $this->Tipo_habitacion_model->buscar(['tipo_habitacion' => $dato->tipo_habitacion, '_uno' => true]);
 				$dato->ordenar_por = $dato->area->nombre.'-'.($dato->etiqueta ?? $dato->numero);
 
 				if (isset($_GET['_sede']) && (int)$_GET['_sede'] > 0) {

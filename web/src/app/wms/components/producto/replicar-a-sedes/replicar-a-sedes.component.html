@@ -10,7 +10,7 @@
                         <mat-label>Sede</mat-label>
                         <mat-select name="sede" multiple [(ngModel)]="params.sede" required>
                             <mat-option *ngFor="let sede of sedes" [value]="sede.sede" [disabled]="+sede.sede === +miSede">
-                                {{sede.nombre}}
+                                {{sede.nombre}} ({{sede.alias}})
                             </mat-option>
                         </mat-select>
                     </mat-form-field>

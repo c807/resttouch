@@ -1,4 +1,5 @@
 import { Impresora } from '../../admin/interfaces/impresora';
+import { TipoHabitacion } from '../../admin/interfaces/tipo-habitacion';
 
 export interface Mesa {
     mesa: number;
@@ -18,6 +19,7 @@ export interface Mesa {
     escallcenter?: number;
     esreservable?: number;
     eshabitacion?: number;
+    tipo_habitacion?: (number | TipoHabitacion)
 }
 
 export interface MesaDisponible {
@@ -44,4 +46,5 @@ export interface MesaDisponible {
     escallcenter?: number;
     esreservable?: number;
     eshabitacion?: number;
+    tipo_habitacion?: (number | TipoHabitacion)
 }

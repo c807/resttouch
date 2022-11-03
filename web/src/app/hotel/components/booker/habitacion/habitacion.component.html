@@ -1,6 +1,5 @@
-
 <div>
   <a></a>
-  <mat-icon aria-hidden="false" aria-label="Example home icon">{{type}}</mat-icon>
-<a>{{text}}</a>
+  <mat-icon aria-hidden="false" aria-label="Example home icon" *ngIf="type">{{type}}</mat-icon>
+  <a>{{text}}</a>
 </div>

@@ -1,5 +1,5 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
-import {HabType} from './HabTypeE';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { HabType } from './HabTypeE';
 
 
 
@@ -11,9 +11,9 @@ import {HabType} from './HabTypeE';
 
 export class HabitacionComponent implements OnInit {
 
-  @Input() resId: string;
+  @Input() resId?: string;
   @Input() text: string;
-  @Input() type: HabType;  
+  @Input() type?: HabType;
 
   constructor() {
   }

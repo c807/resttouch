@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MatTable } from '@angular/material/table'
 
 /**
  * @title Basic use of `<table mat-table>`
@@ -10,11 +11,13 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class FilterComponent implements OnInit {
 
+  @ViewChild('tblFiltro') tblFiltro: MatTable<any[]>;
+
   displayedColumns: string[] = ['text', 'filter'];
 
-  @Input() dataSourceR;
-  public dataSourceF;
-  public filteredText;
+  @Input() dataSourceR: any[];
+  public dataSourceF: any[];
+  public filteredText: string = '';
 
 
   @Output() childEventEmitter: EventEmitter<any> = new EventEmitter<any>();
@@ -23,6 +26,10 @@ export class FilterComponent implements OnInit {
   constructor() {
     this.setdata();
   }
+
+  ngOnInit(): void {
+    this.setdata();
+  }  
 
   cleanAll(): void {
     for (const tipHab of this.dataSourceR) {
@@ -50,21 +57,17 @@ export class FilterComponent implements OnInit {
       );
     } else {
       this.dataSourceF = this.dataSourceR;
+    }    
+    if (this.tblFiltro) {
+      this.tblFiltro.renderRows();
     }
-    console.log('DSF', this.dataSourceF);
-    console.log('DSR', this.dataSourceR);
   }
 
-  toggle(value, element): void {
-    //element.shouldFilter = value;
+  toggle(element: any): void {        
     this.childEventEmitter.emit(element);
   }
 
-  filteredTextCh(event): void {
-    this.setdata();
-  }
-
-  ngOnInit(): void {
+  filteredTextCh(): void {
     this.setdata();
   }
 }

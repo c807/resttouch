@@ -11,6 +11,8 @@ import { FilterComponent } from '../booker/filtro/filter.component';
 
 import { TipoHabitacion } from '../../../admin/interfaces/tipo-habitacion';
 import { TipoHabitacionService } from '../../../admin/services/tipo-habitacion.service';
+import { MesaDisponible } from '../../../restaurante/interfaces/mesa';
+import { MesaService } from '../../../restaurante/services/mesa.service';
 
 import { Subscription } from 'rxjs';
 
@@ -66,13 +68,14 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   public vierDate = new Date();
   public sabdDate = new Date();
   public domDate = new Date();
-  public cargando = false;  
+  public cargando = false;
 
   private endSubs = new Subscription();
 
   constructor(
     private _liveAnnouncer: LiveAnnouncer,
-    private tipoHabitacionSrvc: TipoHabitacionService
+    private tipoHabitacionSrvc: TipoHabitacionService,
+    private mesaSrvc: MesaService
   ) {
   }
 
@@ -81,7 +84,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dateChanged(moment().toDate());
     this.setPaginatorAndSort();
   }
-  
+
   ngAfterViewInit() {
     this.loadTiposHabitacion();
     this.setPaginatorAndSort();
@@ -95,7 +98,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cargando = true;
     this.endSubs.add(
       this.tipoHabitacionSrvc.get().subscribe((res: TipoHabitacion[]) => {
-        for(const tipHab of res) {
+        for (const tipHab of res) {
           this.roomArr.push({
             id: +tipHab.tipo_habitacion,
             long_status: 'DISPONIBLE',
@@ -107,6 +110,16 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
         // console.log(this.roomArr);
         this.fltrTipoHabitacion.dataSourceR = this.roomArr;
         this.fltrTipoHabitacion.setdata();
+        this.cargando = false;
+      })
+    );
+  }
+
+  loadReservables = () => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.mesaSrvc.getMesaFullData({ esreservable: 1 }).subscribe(res => {
+
         this.cargando = false;
       })
     );
@@ -142,15 +155,16 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dateChanged(moment().toDate());
   }
 
-  addFiler(event) {
-    const obj = FakeBakend.RoomArrTypesFilter.filter((value, index, array) => {
-      return value.type === event.type;
-    });
-    const indexFB = FakeBakend.RoomArrTypesFilter.indexOf(obj[0]);
+  addFiler(event: any) {
+    console.log(event);
+    // const obj = FakeBakend.RoomArrTypesFilter.filter((value, index, array) => {
+    //   return value.type === event.type;
+    // });
+    // const indexFB = FakeBakend.RoomArrTypesFilter.indexOf(obj[0]);
 
-    FakeBakend.RoomArrTypesFilter[indexFB].shouldFilter = !event.shouldFilter;
+    // FakeBakend.RoomArrTypesFilter[indexFB].shouldFilter = !event.shouldFilter;
 
-    this.dateChanged(this.sdate);
+    // this.dateChanged(this.sdate);
   }
 
   filterRoom(type): boolean {

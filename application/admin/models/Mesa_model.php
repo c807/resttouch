@@ -20,6 +20,7 @@ class Mesa_model extends General_Model {
 	public $escallcenter = 0;
 	public $esreservable = 0;
 	public $eshabitacion = 0;
+	public $tipo_habitacion = null;
 
 	public function __construct($id = '')
 	{
