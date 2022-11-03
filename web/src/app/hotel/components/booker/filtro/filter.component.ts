@@ -1,7 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FakeBakend } from '../FakeBakend';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
-
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 /**
  * @title Basic use of `<table mat-table>`
@@ -28,8 +25,8 @@ export class FilterComponent implements OnInit {
   }
 
   cleanAll(): void {
-    for (let a = 0; a < FakeBakend.RoomArrTypesFilter.length; a++) {
-      FakeBakend.RoomArrTypesFilter[a].shouldFilter = false;
+    for (const tipHab of this.dataSourceR) {
+      tipHab.shouldFilter = false;
     }
     this.setdata();
     this.childEventEmitterUpdate.emit();
@@ -37,8 +34,8 @@ export class FilterComponent implements OnInit {
 
 
   selectAll(): void {
-    for (let a = 0; a < FakeBakend.RoomArrTypesFilter.length; a++) {
-      FakeBakend.RoomArrTypesFilter[a].shouldFilter = true;
+    for (const tipHab of this.dataSourceR) {
+      tipHab.shouldFilter = true;
     }
     this.setdata();
     this.childEventEmitterUpdate.emit();
@@ -54,6 +51,8 @@ export class FilterComponent implements OnInit {
     } else {
       this.dataSourceF = this.dataSourceR;
     }
+    console.log('DSF', this.dataSourceF);
+    console.log('DSR', this.dataSourceR);
   }
 
   toggle(value, element): void {

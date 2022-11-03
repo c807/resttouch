@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
 import { HabType } from './habitacion/HabTypeE';
 import { RevStat } from './reservacion/RevStat';
@@ -7,6 +7,12 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ThemePalette } from '@angular/material/core';
+import { FilterComponent } from '../booker/filtro/filter.component';
+
+import { TipoHabitacion } from '../../../admin/interfaces/tipo-habitacion';
+import { TipoHabitacionService } from '../../../admin/services/tipo-habitacion.service';
+
+import { Subscription } from 'rxjs';
 
 export interface DayCalendar {
   martes: RevStat;
@@ -38,45 +44,36 @@ const ELEMENT_DATA: DayCalendar[] = [];
   templateUrl: './booker.component.html',
   styleUrls: ['./booker.component.css'],
 })
-export class BookerComponent implements OnInit, AfterViewInit {
-
-
-  allComplete = false;
-  selected: Date | null;
-
-  sdate = new Date();
-  displayedColumns: string[] = ['habitacion', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
-  reservationIdDays: string[] = ['blank', 'resL', 'resM', 'resMi', 'resJ', 'resV', 'resS', 'resD'];
-
-  dataSource = new MatTableDataSource<DayCalendar>(ELEMENT_DATA);
-  dataSourceTemp = ELEMENT_DATA;
-
-  roomArr = FakeBakend.RoomArrTypesFilter;
-
-  monDate = new Date();
-  marDate = new Date();
-  mierDate = new Date();
-  jueDate = new Date();
-  vierDate = new Date();
-  sabdDate = new Date();
-  domDate = new Date();
+export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(MatTable, { static: true }) table: MatTable<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild('fltrTipoHabitacion') fltrTipoHabitacion: FilterComponent;
 
+  public allComplete = false;
+  public selected: Date | null;
+  public sdate = new Date();
+  public displayedColumns: string[] = ['habitacion', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+  public reservationIdDays: string[] = ['blank', 'resL', 'resM', 'resMi', 'resJ', 'resV', 'resS', 'resD'];
+  public dataSource = new MatTableDataSource<DayCalendar>(ELEMENT_DATA);
+  public dataSourceTemp = ELEMENT_DATA;
+  // public roomArr = FakeBakend.RoomArrTypesFilter;
+  public roomArr = [];
+  public monDate = new Date();
+  public marDate = new Date();
+  public mierDate = new Date();
+  public jueDate = new Date();
+  public vierDate = new Date();
+  public sabdDate = new Date();
+  public domDate = new Date();
+  public cargando = false;  
 
-  /**
-   * This method sets the paginator to the datasource
-   */
-  setPaginatorAndSort() {
-    this.dataSource.paginator = this.paginator;
-  }
+  private endSubs = new Subscription();
 
-  ngAfterViewInit() {
-    this.setPaginatorAndSort();
-  }
-
-  constructor(private _liveAnnouncer: LiveAnnouncer) {
+  constructor(
+    private _liveAnnouncer: LiveAnnouncer,
+    private tipoHabitacionSrvc: TipoHabitacionService
+  ) {
   }
 
   ngOnInit(): void {
@@ -84,7 +81,40 @@ export class BookerComponent implements OnInit, AfterViewInit {
     this.dateChanged(moment().toDate());
     this.setPaginatorAndSort();
   }
+  
+  ngAfterViewInit() {
+    this.loadTiposHabitacion();
+    this.setPaginatorAndSort();
+  }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
+  loadTiposHabitacion = () => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.tipoHabitacionSrvc.get().subscribe((res: TipoHabitacion[]) => {
+        for(const tipHab of res) {
+          this.roomArr.push({
+            id: +tipHab.tipo_habitacion,
+            long_status: 'DISPONIBLE',
+            text: tipHab.descripcion,
+            type: tipHab.icono,
+            shouldFilter: true
+          });
+        }
+        // console.log(this.roomArr);
+        this.fltrTipoHabitacion.dataSourceR = this.roomArr;
+        this.fltrTipoHabitacion.setdata();
+        this.cargando = false;
+      })
+    );
+  }
+
+  setPaginatorAndSort() {
+    this.dataSource.paginator = this.paginator;
+  }
 
   /**
    * This method Select Days to be displayed
@@ -215,7 +245,7 @@ export class BookerComponent implements OnInit, AfterViewInit {
       this.dataSourceTemp.push(obj);
     });
 
-    console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
+    // console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
     this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
     this.setPaginatorAndSort();
   }

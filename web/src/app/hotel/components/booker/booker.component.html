@@ -20,7 +20,7 @@
             Habitacion
             <mat-icon [matMenuTriggerFor]="menu" style="padding:0px !important;" aria-hidden="false" aria-label="Example home icon">filter_alt</mat-icon>
             <mat-menu #menu="matMenu">
-              <app-filter (childEventEmitterUpdate)="update()" (childEventEmitter)="addFiler($event)" [dataSourceR]="roomArr"></app-filter>
+              <app-filter #fltrTipoHabitacion (childEventEmitterUpdate)="update()" (childEventEmitter)="addFiler($event)" [dataSourceR]="roomArr"></app-filter>
             </mat-menu>
           </div>
         </th>
