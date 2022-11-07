@@ -885,12 +885,12 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("D{$fila}", round($total, 2));
 
                         if ($data['_validar']) {
-                            $rec = verDato($datos['pagos'], $row->forma_pago, "0");
+                            $rec = verDato($data['pagos'], $row->forma_pago, "0");
                             $recIng += $rec;
                             $hoja->setCellValue("E{$fila}", round($rec, 2));
 
                             // $dif = abs($ing - $rec);
-                            $dif = $ing - $rec;
+                            $dif = $recIng - $rec;
                             $hoja->setCellValue("F{$fila}", round($dif, 2));
                         }
                         $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
