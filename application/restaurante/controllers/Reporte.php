@@ -27,7 +27,8 @@ class Reporte extends CI_Controller
             'TurnoTipo_model',
             'Catalogo_model',
             'Configuracion_model',
-            'Tipo_domicilio_model'
+            'Tipo_domicilio_model',
+            'Sede_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -254,6 +255,9 @@ class Reporte extends CI_Controller
         // domicilio
         // tipo_domicilio
 
+        $sede = new Sede_model($data['sede'][0]);
+        $emp = $sede->getEmpresa();
+        $porIva = 1 + (float)$emp->porcentaje_iva;
 
         $jsonobj = new stdClass();
         $jsonobj->name = $data['tipo_de_ingreso'];
@@ -301,8 +305,10 @@ class Reporte extends CI_Controller
                 $metodo_pago->monto = $ingresos_mont->monto + $descuentos_mont->monto + $facturas_sin_com->monto;
                 $metodo_pago->propina = $ingresos_mont->propina + $descuentos_mont->propina + $facturas_sin_com->propina;
                 $metodo_pago->total = $ingresos_mont->monto + $ingresos_mont->propina;
+                $metodo_pago->total_base = round((float)$metodo_pago->total / $porIva, 2);
 
                 $jsonobj->consumo_total = $jsonobj->consumo_total + $metodo_pago->total; // se dividira luego
+                $jsonobj->consumo_total_base = round((float)$jsonobj->consumo_total / $porIva, 2);
                 $metodo_pago->data = json_encode($json_data);
             } else {
 
@@ -316,8 +322,10 @@ class Reporte extends CI_Controller
                 $metodo_pago->monto = $descuentos->monto;
                 $metodo_pago->propina = $descuentos->propina;
                 $metodo_pago->total = $descuentos->monto + $descuentos->propina;
+                $metodo_pago->total_base = round((float)$metodo_pago->total / $porIva, 2);
 
                 $jsonobj->consumo_total = $jsonobj->consumo_total + $metodo_pago->total; // se dividira luego
+                $jsonobj->consumo_total_base = round((float)$jsonobj->consumo_total / $porIva, 2);
                 $metodo_pago->data = json_encode($json_data);
             }
 
@@ -338,14 +346,17 @@ class Reporte extends CI_Controller
      */
     public function rpt_caja_turno()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-
+        $data = json_decode(file_get_contents('php://input'), true);        
 
         if (!verDato($data, 'sedeRPT')) {
             $data['sede'] = [$this->data->sede];
         } else {
             $data['sede'] = [$data['sedeRPT']]; // Porque vendra un string pero se procesa como array
         }
+
+        $sede = new Sede_model($data['sede'][0]);
+        $emp = $sede->getEmpresa();
+        $porIva = 1 + (float)$emp->porcentaje_iva;
 
         // Decode the JSON file
         ///////////////////// Detalles de la sede
@@ -446,6 +457,7 @@ class Reporte extends CI_Controller
             $turno->cantidadDeMesasUtilizadas = $cantidadDeMesasUtilizadas;
             $turno->consumo_promedio_total = $consumoPromedioTotal;
             $turno->granTotal = $granTotal;
+            $turno->granTotal_base = round((float)$turno->granTotal / $porIva, 2);
             $turno->totalComensales = $totalComensalesTurno;
             $turno->data = $sample_turno_jsonDataAndTipoD;
             array_push($json_data_turnos, $turno);
@@ -472,7 +484,8 @@ class Reporte extends CI_Controller
                 "Descripción",
                 "Monto",
                 "Propina",
-                "Total"
+                "Total",
+                "Total (sin I.V.A.)"
             ];
 
             /*Encabezado*/
@@ -530,6 +543,7 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("C" . $fila, "Monto");
                     $hoja->setCellValue("D" . $fila, "Propina");
                     $hoja->setCellValue("E" . $fila, "Total");
+                    $hoja->setCellValue("F" . $fila, "Total (sin I.V.A.)");
 
                     // Tipo domicilio y descuento
                     $fila++;
@@ -542,23 +556,22 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("C" . $fila, number_format($rowDI->monto, 2, '.', ','));
                         $hoja->setCellValue("D" . $fila, number_format($rowDI->propina, 2, '.', ','));
                         $hoja->setCellValue("E" . $fila, number_format($rowDI->total, 2, '.', ','));
-                        $hoja->getStyle("C" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
-                        //$hoja->setCellValue("F" . $fila, $rowDI->data); //FOR DEBUG
-
-
-
+                        $hoja->setCellValue("F" . $fila, number_format($rowDI->total_base, 2, '.', ','));
+                        $hoja->getStyle("C" . $fila . ":" . "F" . $fila)->getAlignment()->setHorizontal('right');
                     }
 
                     $fila++;
-                    $hoja->getStyle("D" . $fila . ":" . "D" . $fila)->getFont()->setBold(true);
-                    $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
+                    $hoja->getStyle("D" . $fila . ":" . "F" . $fila)->getFont()->setBold(true);
+                    // $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
                     $hoja->setCellValue("D" . $fila, "Total: ");
                     $hoja->setCellValue("E" . $fila, number_format($rowD->consumo_total, 2, '.', ','));
                     $hoja->getStyle("E" . $fila)->getAlignment()->setHorizontal('right');
+                    $hoja->setCellValue("F" . $fila, number_format($rowD->consumo_total_base, 2, '.', ','));
+                    $hoja->getStyle("F" . $fila)->getAlignment()->setHorizontal('right');
                     $end = $fila;
 
                     //Set square style
-                    $hoja->getStyle("B{$start}:E{$end}")
+                    $hoja->getStyle("B{$start}:F{$end}")
                         ->getBorders()
                         ->getAllBorders()
                         ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
@@ -568,8 +581,10 @@ class Reporte extends CI_Controller
                 $fila++;
                 $hoja->setCellValue("D" . $fila, "Gran Total: ");
                 $hoja->setCellValue("E" . $fila, number_format($row->granTotal, 2, '.', ','));
-                $hoja->getStyle("D" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
+                $hoja->getStyle("D" . $fila . ":" . "F" . $fila)->getFont()->setBold(true);
                 $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue("F" . $fila, number_format($row->granTotal_base, 2, '.', ','));                
+                $hoja->getStyle("F" . $fila . ":" . "F" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
                 $fila++;
@@ -591,8 +606,11 @@ class Reporte extends CI_Controller
                 $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
-            }
+            }           
 
+            foreach (range('A', 'F') as $col) {
+                $hoja->getColumnDimension($col)->setAutoSize(true);
+            }
 
             $hoja->setTitle("Reporte de caja por turnos");
 

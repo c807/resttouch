@@ -76,6 +76,7 @@
                     <th style="padding: 5px; font-weight: normal; " class="text-center">Monto</th>
                     <th style="padding: 5px; font-weight: normal; " class="text-center">Propina</th>
                     <th style="padding: 5px; font-weight: normal; " class="text-center">Total</th>
+                    <th style="padding: 5px; font-weight: normal; " class="text-center">Total (sin I.V.A.)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -94,6 +95,7 @@
                         <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->monto, 2, '.', ',') ?></td>
                         <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->propina, 2, '.', ',') ?></td>
                         <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->total, 2, '.', ',') ?></td>
+                        <td style="text-align: right; padding-right: 5px;"><?php echo number_format($rowDI->total_base, 2, '.', ',') ?></td>
                     </tr>
                 <?php endforeach ?>
 
@@ -103,6 +105,7 @@
                     <td style="text-align: right; padding-right: 5px;"></td>
                     <td style="text-align: right; padding-right: 5px; font-weight: bold;"><strong>Total :</strong></td>
                     <td style="text-align: right; font-weight: bold; padding-right: 5px;"><strong><?php echo number_format($rowD->consumo_total, 2, '.', ',') ?></strong></td>
+                    <td style="text-align: right; font-weight: bold; padding-right: 5px;"><strong><?php echo number_format($rowD->consumo_total_base, 2, '.', ',') ?></strong></td>
                 </tr>
 
                 <!-- GRAN TOTAL -->
@@ -112,10 +115,11 @@
                     <tr>
                         <td style="text-align: left;  padding-left: 5px;"></td>
                         <td style="text-align: right; padding-right: 5px;"></td>
-                        <td style="text-align: left; font-weight: bold; padding-left: 5px;">
-                            <strong>Gran Total</strong></td>
+                        <td style="text-align: left; font-weight: bold; padding-left: 5px;"><strong>Gran Total</strong></td>
+                        <td style="text-align: right; font-weight: bold; padding-left: 5px;"><strong><?php echo number_format($row->granTotal, 2, '.', ','); ?></strong></td>
                         <td style="text-align: right; font-weight: bold; padding-left: 5px;">
-                            <strong><?php echo number_format($row->granTotal, 2, '.', ','); ?></strong></td>
+                            <strong><?php echo number_format($row->granTotal_base, 2, '.', ','); ?></strong>
+                        </td>
                     </tr>
                 <?php endif; ?>
 
