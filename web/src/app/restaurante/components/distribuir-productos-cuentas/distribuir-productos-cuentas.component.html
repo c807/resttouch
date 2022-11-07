@@ -1,33 +1,35 @@
 <h1 mat-dialog-title>Distribución de productos - Comanda #{{data.mesaEnUso.comanda}}</h1>
 <div mat-dialog-content>
-    <table>
-        <tr>
-            <th>Artículo</th>
-            <th class="rtxt size-cantidad">Cantidad</th>
-            <th>Cuenta</th>
-        </tr>
-        <tr *ngFor="let prod of cpLstProductos; index as i">
-            <td>{{prod.nombre}}</td>
-            <td class="rtxt">
-                <mat-form-field class="size-cantidad">
-                    <input type="number" matInput name="cantidad" min="1" [max]="cantidadProducto[i]" [(ngModel)]="prod.cantidad" required [disabled]="+prod.combo === 1">
-                </mat-form-field>                
-            </td>
-            <td>
-                <mat-select name="cuenta" [(ngModel)]="prod.idcuenta" required>
-                    <mat-option *ngFor="let cta of comanda.cuentas" [value]="+cta.cuenta" [disabled]="+cta.cerrada === 1 || +prod.idcuenta === +cta.cuenta">
-                        {{cta.nombre}}
-                    </mat-option>
-                </mat-select>
-            </td>
-        </tr>
-    </table>
+    <form #frmDistProdCta="ngForm" novalidate>
+        <table>
+            <tr>
+                <th>Artículo</th>
+                <th class="rtxt size-cantidad">Cantidad</th>
+                <th>Cuenta</th>
+            </tr>
+            <tr *ngFor="let prod of cpLstProductos; index as i">
+                <td>{{prod.nombre}}</td>
+                <td class="rtxt">
+                    <mat-form-field class="size-cantidad">
+                        <input type="number" matInput name="cantidad_{{i}}" min="1" [max]="cantidadProducto[i]" [(ngModel)]="prod.cantidad" required [disabled]="+prod.combo === 1">
+                    </mat-form-field>                
+                </td>
+                <td>
+                    <mat-select name="cuenta_{{i}}" [(ngModel)]="prod.idcuenta" required>
+                        <mat-option *ngFor="let cta of comanda.cuentas" [value]="+cta.cuenta" [disabled]="+cta.cerrada === 1 || +prod.idcuenta === +cta.cuenta">
+                            {{cta.nombre}}
+                        </mat-option>
+                    </mat-select>
+                </td>
+            </tr>
+        </table>
+    </form>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-raised-button (click)="cancelar()" color="warn">
         Cancelar
     </button>
-    <button mat-raised-button type="button" color="accent" (click)="guardar()">
+    <button mat-raised-button type="button" color="accent" (click)="guardar()" [disabled]="!frmDistProdCta.form.valid">
         Guardar
     </button>
 </div>
