@@ -48,7 +48,12 @@ class Propina extends CI_Controller {
 
 	public function buscar()
 	{	
-		$_GET["anulado"] = 0;
+		$_GET['anulado'] = 0;
+
+		if (!isset($_GET['sede'])) {
+			$_GET['sede'] = $this->data->sede;
+		}
+
 		$tmp = $this->Propina_model->buscar($_GET);
 
 		$datos = [];
