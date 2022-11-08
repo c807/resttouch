@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Tarifa_reserva_model extends General_model {
+class Dreserva_model extends General_model {
 
     public $detalle_reserva;
 	public $reserva;

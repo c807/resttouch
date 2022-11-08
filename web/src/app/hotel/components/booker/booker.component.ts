@@ -8,6 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '../booker/filtro/filter.component';
+import { GLOBAL } from '../../../shared/global';
 
 import { TipoHabitacion } from '../../../admin/interfaces/tipo-habitacion';
 import { TipoHabitacionService } from '../../../admin/services/tipo-habitacion.service';
@@ -17,15 +18,23 @@ import { MesaService } from '../../../restaurante/services/mesa.service';
 import { Subscription } from 'rxjs';
 
 export interface DayCalendar {
-  martes: RevStat;
-  lunes: RevStat;
-  miercoles: RevStat;
-  jueves: RevStat;
-  viernes: RevStat;
-  sabado: RevStat;
-  domingo: RevStat;
-  habitacion: HabType;
+  martes: (RevStat | string);
+  lunes: (RevStat | string);
+  miercoles: (RevStat | string);
+  jueves: (RevStat | string);
+  viernes: (RevStat | string);
+  sabado: (RevStat | string);
+  domingo: (RevStat | string);
+  habitacion: (HabType | string);
   habitacionName: string;
+  roomId?: number,
+  resL?: number, 
+  resM?: number, 
+  resMi?: number, 
+  resJ?: number, 
+  resV?: number, 
+  resS?: number, 
+  resD?: number
 }
 
 /**
@@ -69,6 +78,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   public sabdDate = new Date();
   public domDate = new Date();
   public cargando = false;
+  public reservables: MesaDisponible[] = [];
 
   private endSubs = new Subscription();
 
@@ -81,12 +91,14 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.setDates();
-    this.dateChanged(moment().toDate());
+    // this.dateChanged(moment().toDate());    
     this.setPaginatorAndSort();
   }
 
   ngAfterViewInit() {
     this.loadTiposHabitacion();
+    this.loadReservables();
+    // this.dateChanged(moment().toDate());
     this.setPaginatorAndSort();
   }
 
@@ -119,7 +131,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cargando = true;
     this.endSubs.add(
       this.mesaSrvc.getMesaFullData({ esreservable: 1 }).subscribe(res => {
-
+        this.reservables = res;
+        this.dateChanged(moment().toDate());
         this.cargando = false;
       })
     );
@@ -190,29 +203,12 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     //Retrieve data to display
     this.dataSourceTemp = [];
-    FakeBakend.RoomArr.forEach((RomA, RomAindex) => {
 
-
-      const shouldFilter = this.filterRoom(RomA.type);
-      // console.log(shouldFilter);
-
-
-      if (shouldFilter === false) {
-        // Should filter the room
-        return;
-      }
-
-
-      // Data to be manipulated and displayed on the table
-      // This is a Row
-      //resL , resM are the ids of the reservations on RoomReservations
-      //lunes , martes are the types of the reservations wich corresponds to the icon
-      //habitacion, Room Type , because its filtered by Room
-      //Room Name,
-      //roomId the rom Id wich cotains the reservations
-      const obj = {
-        habitacionName: RomA.text,
-        habitacion: RomA.type,
+    console.log('LUNES = ', moment(this.monDate).format(GLOBAL.dbDateFormat));
+    this.reservables.forEach((reservable, i) => {
+      this.dataSourceTemp.push({
+        habitacionName: reservable.etiqueta || reservable.numero.toString(),
+        habitacion: (reservable.tipo_habitacion as TipoHabitacion).icono,
         lunes: RevStat.DISPONIBLE,
         martes: RevStat.DISPONIBLE,
         miercoles: RevStat.DISPONIBLE,
@@ -220,44 +216,80 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
         viernes: RevStat.DISPONIBLE,
         sabado: RevStat.DISPONIBLE,
         domingo: RevStat.DISPONIBLE,
-        roomId: RomA.id,
+        roomId: +reservable.mesa,
         resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
-      };
-      //Retrieve reservations For Room Here
-      //Extrar las reservaciones por habitaciones
-      const reservations = FakeBakend.RoomReservations;
-      reservations.forEach((value, index) => {
-        const date = moment(value.fecha, 'DD/MM/YYYY');
-        const dow = date.day();
-
-        //Si se va a agregar la hora , es aqui.
-        const isInRange = date.isBetween(moment(this.monDate).subtract(1, 'days'), moment(this.domDate).add(1, 'days'));
-        const currentRoom = (RomA.id === value.room_id);
-
-        if (!isInRange || !currentRoom) {
-          // The given date is not in rage of monday to sunday date
-          // The rooms ids are not equal
-          return;
-        }
-        // Set reservation Id
-
-
-        // Set the day reserved according its position in the array
-        switch (dow) {
-          case 0:
-            obj[this.reservationIdDays[7]] = value.id;
-            obj[this.displayedColumns[7]] = value.type;
-            break;
-          default:
-
-            obj[this.reservationIdDays[dow]] = value.id;
-            obj[this.displayedColumns[dow]] = value.type;
-            break;
-        }
-
       });
-      this.dataSourceTemp.push(obj);
     });
+
+
+    // FakeBakend.RoomArr.forEach((RomA, RomAindex) => {
+
+
+    //   const shouldFilter = this.filterRoom(RomA.type);
+    //   // console.log(shouldFilter);
+
+
+    //   if (shouldFilter === false) {
+    //     // Should filter the room
+    //     return;
+    //   }
+
+
+    //   // Data to be manipulated and displayed on the table
+    //   // This is a Row
+    //   //resL , resM are the ids of the reservations on RoomReservations
+    //   //lunes , martes are the types of the reservations wich corresponds to the icon
+    //   //habitacion, Room Type , because its filtered by Room
+    //   //Room Name,
+    //   //roomId the rom Id wich cotains the reservations
+    //   const obj = {
+    //     habitacionName: RomA.text,
+    //     habitacion: RomA.type,
+    //     lunes: RevStat.DISPONIBLE,
+    //     martes: RevStat.DISPONIBLE,
+    //     miercoles: RevStat.DISPONIBLE,
+    //     jueves: RevStat.DISPONIBLE,
+    //     viernes: RevStat.DISPONIBLE,
+    //     sabado: RevStat.DISPONIBLE,
+    //     domingo: RevStat.DISPONIBLE,
+    //     roomId: RomA.id,
+    //     resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
+    //   };
+    //   //Retrieve reservations For Room Here
+    //   //Extrar las reservaciones por habitaciones
+    //   const reservations = FakeBakend.RoomReservations;
+    //   reservations.forEach((value, index) => {
+    //     const date = moment(value.fecha, 'DD/MM/YYYY');
+    //     const dow = date.day();
+
+    //     //Si se va a agregar la hora , es aqui.
+    //     const isInRange = date.isBetween(moment(this.monDate).subtract(1, 'days'), moment(this.domDate).add(1, 'days'));
+    //     const currentRoom = (RomA.id === value.room_id);
+
+    //     if (!isInRange || !currentRoom) {
+    //       // The given date is not in rage of monday to sunday date
+    //       // The rooms ids are not equal
+    //       return;
+    //     }
+    //     // Set reservation Id
+
+
+    //     // Set the day reserved according its position in the array
+    //     switch (dow) {
+    //       case 0:
+    //         obj[this.reservationIdDays[7]] = value.id;
+    //         obj[this.displayedColumns[7]] = value.type;
+    //         break;
+    //       default:
+
+    //         obj[this.reservationIdDays[dow]] = value.id;
+    //         obj[this.displayedColumns[dow]] = value.type;
+    //         break;
+    //     }
+
+    //   });
+    //   this.dataSourceTemp.push(obj);
+    // });
 
     // console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
     this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
