@@ -38,7 +38,7 @@ class Bodega_model extends General_model
             ->get('categoria_grupo')
             ->row();
 
-        return $subcategorias ? $subcategorias->subcategorias : '';
+        return $subcategorias && $subcategorias->subcategorias ? $subcategorias->subcategorias : '';
     }
 
 }
