@@ -40,11 +40,12 @@ class Reserva extends CI_Controller {
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+			$dias = [1 => 'monDate', 2 => 'marDate', 3 => 'mierDate', 4 => 'jueDate', 5 => 'vierDate', 6 => 'sabdDate', 7 => 'domDate'];
             $fecha = DateTime::createFromFormat('Y-m-d', $req['fecha']);
             if(isset($req['fecha']) && $fecha && $fecha->format('Y-m-d') === $req['fecha'] && (int)$fecha->format('w') === 1) {
                 $datos['reservas'] = [];
                 for($i = 0; $i <= 6; $i++) {
-                    $datos['reservas'][(int)$fecha->format('N')] = $this->Reserva_model->get_reservas($fecha->format('Y-m-d'));
+                    $datos['reservas'][$dias[(int)$fecha->format('N')]] = $this->Reserva_model->get_reservas($fecha->format('Y-m-d'));
                     $fecha->modify('+1 day');
                 }
                 $datos['exito'] = true;

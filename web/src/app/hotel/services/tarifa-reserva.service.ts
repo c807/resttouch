@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
 
-
 @Injectable({
   providedIn: 'root'
 })

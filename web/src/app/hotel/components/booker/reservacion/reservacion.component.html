@@ -1,24 +1,15 @@
-<!--<div ng-if="text == RevStat.DISPONIBLE" class="cell background-d" fxLayout="column" fxLayoutAlign="center center">-->
-<!--   <p class="cell-cont" ></p>-->
-<!--</div>-->
-<div
-  (click)="openDialog()"
-  [ngClass]="{
+<div (click)="openDialog()" [ngClass]="{
   'background-d':Disponible() ,
   'background-re': Reservada(),
   'background-man': Mantenimiento(),
   'background-nd':NoDisponible()
-  }"
-  class="cell "
-  fxLayout="column" fxLayoutAlign="center center">
+  }" class="cell " fxLayout="column" fxLayoutAlign="center center">
   <mat-icon *ngIf="Reservada()" aria-hidden="false" aria-label="Example home icon">
     event_available
   </mat-icon>
-  <mat-icon *ngIf="Mantenimiento()" style="color: white;" aria-hidden="false"
-            aria-label="Example home icon">engineering
+  <mat-icon *ngIf="Mantenimiento()" style="color: white;" aria-hidden="false" aria-label="Example home icon">engineering
   </mat-icon>
   <mat-icon *ngIf="NoDisponible()" aria-hidden="false" aria-label="Example home icon">
     do_not_disturb
   </mat-icon>
 </div>
-

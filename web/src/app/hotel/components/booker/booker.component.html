@@ -1,19 +1,14 @@
-<div class="w-auto" fxLayout="row">
+<div fxLayout="row" fxLayoutGap="5px grid" fxFlexFill fxLayoutAlign="start start">
 
-  <div class="w-25">
-    <mat-card class="demo-inline-calendar-card">
+  <div>
+    <mat-card>
       <mat-calendar (selectedChange)="dateChanged($event)" [(selected)]="selected"></mat-calendar>
     </mat-card>
   </div>
 
-  <div class="w-auto" fxLayout="column">
+  <div fxLayout="column">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-      <!--- Note that these columns can be defined in any order.
-            The actual rendered columns are set as a property on the row definition" -->
-
-      <!--[type]="HabType.A1"-->
-      <!-- Position Column -->
       <ng-container matColumnDef="habitacion">
         <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name">
           <div style="width: 90px;" fxLayout="row" fxLayoutAlign="center center">
@@ -29,7 +24,6 @@
         </td>
       </ng-container>
 
-      <!-- Position Column -->
       <ng-container matColumnDef="lunes">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -42,7 +36,6 @@
         </td>
       </ng-container>
 
-      <!-- Name Column -->
       <ng-container matColumnDef="martes">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -56,8 +49,7 @@
           </div>
         </td>
       </ng-container>
-
-      <!-- Weight Column -->
+      
       <ng-container matColumnDef="miercoles">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -71,8 +63,7 @@
           </div>
         </td>
       </ng-container>
-
-      <!-- Symbol Column -->
+      
       <ng-container matColumnDef="jueves">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -86,8 +77,7 @@
           </div>
         </td>
       </ng-container>
-
-      <!-- Symbol Column -->
+      
       <ng-container matColumnDef="viernes">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -101,8 +91,7 @@
           </div>
         </td>
       </ng-container>
-
-      <!-- Symbol Column -->
+      
       <ng-container matColumnDef="sabado">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">
@@ -116,8 +105,7 @@
           </div>
         </td>
       </ng-container>
-
-      <!-- Symbol Column -->
+      
       <ng-container matColumnDef="domingo">
         <th class="cell-d" mat-header-cell *matHeaderCellDef>
           <div fxLayout="column" fxLayoutAlign="center center">

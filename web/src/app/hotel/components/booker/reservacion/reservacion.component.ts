@@ -1,9 +1,9 @@
-import {AfterViewInit, Component, EventEmitter, Input, Output} from '@angular/core';
-import {RevStat} from './RevStat';
-import {MatDialog} from '@angular/material/dialog';
-import {ReservationDialogComponent} from '../reservationd/reservation-dialog.component';
-import {ReservationDialogcancelComponent} from '../reservationc/reservation-dialogcancel.component';
-import {FakeBakend} from '../FakeBakend';
+import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
+import { RevStat } from './RevStat';
+import { MatDialog } from '@angular/material/dialog';
+import { ReservationDialogComponent } from '../reservationd/reservation-dialog.component';
+import { ReservationDialogcancelComponent } from '../reservationc/reservation-dialogcancel.component';
+import { FakeBakend } from '../FakeBakend';
 
 
 @Component({
@@ -27,7 +27,7 @@ export class ReservacionComponent implements AfterViewInit {
   }
 
   public Disponible(): boolean {
-    return (this.text === RevStat.DISPONIBLE || this.isCanceled() === true );
+    return (this.text === RevStat.DISPONIBLE || this.isCanceled() === true);
   }
 
   public Reservada(): boolean {
@@ -35,11 +35,11 @@ export class ReservacionComponent implements AfterViewInit {
   }
 
   public Mantenimiento(): boolean {
-    return (this.text === RevStat.MANTENIMIENTO  && this.isCanceled() === false );
+    return (this.text === RevStat.MANTENIMIENTO && this.isCanceled() === false);
   }
 
   public NoDisponible(): boolean {
-    return (this.text === RevStat.NO_DISPONIBLE && this.isCanceled() === false );
+    return (this.text === RevStat.NO_DISPONIBLE && this.isCanceled() === false);
   }
 
   shouldShowText(): boolean {
@@ -68,7 +68,7 @@ export class ReservacionComponent implements AfterViewInit {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {
       height: '300px',
       width: '500px',
-      data: {roomId: this.roomId, cDate: this.cDate},
+      data: { roomId: this.roomId, cDate: this.cDate },
     });
     dialogRef.afterClosed().subscribe(result => {
       this.requestUpdate.emit();

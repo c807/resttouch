@@ -5,7 +5,8 @@ import { RevStat } from './reservacion/RevStat';
 import { FakeBakend } from './FakeBakend';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { MatSnackBar } from '@angular/material/snack-bar';
+// import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '../booker/filtro/filter.component';
 import { GLOBAL } from '../../../shared/global';
@@ -14,8 +15,36 @@ import { TipoHabitacion } from '../../../admin/interfaces/tipo-habitacion';
 import { TipoHabitacionService } from '../../../admin/services/tipo-habitacion.service';
 import { MesaDisponible } from '../../../restaurante/interfaces/mesa';
 import { MesaService } from '../../../restaurante/services/mesa.service';
+import { ReservaService } from '../../services/reserva.service';
 
 import { Subscription } from 'rxjs';
+import { Reserva } from '../../interfaces/reserva';
+
+import { DateAdapter, NativeDateAdapter } from '@angular/material/core';
+
+class CustomDateAdapter extends NativeDateAdapter {
+  override getDayOfWeekNames(style: 'long' | 'short' | 'narrow') {
+    return ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  }
+
+  override getFirstDayOfWeek(): number {
+    return 1;
+  }
+
+  override parse(value: any): Date | null {
+    if (typeof value === 'string' && value.indexOf('/') > -1) {
+      const str = value.split('/');
+
+      const year = Number(str[2]);
+      const month = Number(str[1]) - 1;
+      const date = Number(str[0]);
+
+      return new Date(year, month, date);
+    }
+    const timestamp = typeof value === 'number' ? value : Date.parse(value);
+    return isNaN(timestamp) ? null : new Date(timestamp);
+  }
+}
 
 export interface DayCalendar {
   martes: (RevStat | string);
@@ -28,13 +57,13 @@ export interface DayCalendar {
   habitacion: (HabType | string);
   habitacionName: string;
   roomId?: number,
-  resL?: number, 
-  resM?: number, 
-  resMi?: number, 
-  resJ?: number, 
-  resV?: number, 
-  resS?: number, 
-  resD?: number
+  resL?: number,
+  resM?: number,
+  resMi?: number,
+  resJ?: number,
+  resV?: number,
+  resS?: number,
+  resD?: number,
 }
 
 /**
@@ -54,6 +83,9 @@ const ELEMENT_DATA: DayCalendar[] = [];
   selector: 'app-bookerc',
   templateUrl: './booker.component.html',
   styleUrls: ['./booker.component.css'],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter }
+  ]
 })
 export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -83,9 +115,11 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   private endSubs = new Subscription();
 
   constructor(
-    private _liveAnnouncer: LiveAnnouncer,
+    // private _liveAnnouncer: LiveAnnouncer,
     private tipoHabitacionSrvc: TipoHabitacionService,
-    private mesaSrvc: MesaService
+    private mesaSrvc: MesaService,
+    private reservaSrvc: ReservaService,
+    private snackBar: MatSnackBar
   ) {
   }
 
@@ -196,31 +230,29 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
    * en la tabla
    * @param event
    */
-  dateChanged(event) {
+  async dateChanged(event) {
+    // console.log('SELECCIONADA = ', event);
     // Se dates on headers of calendar
     this.sdate = moment(event).toDate();
     this.setDates();
 
     //Retrieve data to display
     this.dataSourceTemp = [];
-
-    console.log('LUNES = ', moment(this.monDate).format(GLOBAL.dbDateFormat));
-    this.reservables.forEach((reservable, i) => {
-      this.dataSourceTemp.push({
-        habitacionName: reservable.etiqueta || reservable.numero.toString(),
-        habitacion: (reservable.tipo_habitacion as TipoHabitacion).icono,
-        lunes: RevStat.DISPONIBLE,
-        martes: RevStat.DISPONIBLE,
-        miercoles: RevStat.DISPONIBLE,
-        jueves: RevStat.DISPONIBLE,
-        viernes: RevStat.DISPONIBLE,
-        sabado: RevStat.DISPONIBLE,
-        domingo: RevStat.DISPONIBLE,
-        roomId: +reservable.mesa,
-        resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
+    // console.log('LUNES = ', moment(this.monDate).format(GLOBAL.dbDateFormat));
+    const reservas = await this.reservaSrvc.get({ fecha: moment(this.monDate).format(GLOBAL.dbDateFormat) }).toPromise();
+    // console.log(reservas);
+    if (reservas.exito) {
+      this.reservables.forEach((reservable, i) => {
+        const obj: DayCalendar = this.procesaResevablesReservaciones(reservable, reservas.reservas);
+        this.dataSourceTemp.push(obj);
       });
-    });
 
+      // console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
+      this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
+      this.setPaginatorAndSort();
+    } else {
+      this.snackBar.open(reservas.mensaje, 'Reservas', { duration: 7000 })
+    }
 
     // FakeBakend.RoomArr.forEach((RomA, RomAindex) => {
 
@@ -290,17 +322,72 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     //   });
     //   this.dataSourceTemp.push(obj);
     // });
-
-    // console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
-    this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
-    this.setPaginatorAndSort();
   }
 
   requestUpdate() {
     this.dateChanged(this.sdate);
   }
 
-  /** Announce the change in sort state for assistive technology. */
+  procesaResevablesReservaciones = (reservable: MesaDisponible, dias: any): DayCalendar => {
+    const resRes: DayCalendar = {
+      habitacionName: reservable.etiqueta || reservable.numero.toString(),
+      habitacion: (reservable.tipo_habitacion as TipoHabitacion).icono,
+      lunes: RevStat.DISPONIBLE,
+      martes: RevStat.DISPONIBLE,
+      miercoles: RevStat.DISPONIBLE,
+      jueves: RevStat.DISPONIBLE,
+      viernes: RevStat.DISPONIBLE,
+      sabado: RevStat.DISPONIBLE,
+      domingo: RevStat.DISPONIBLE,
+      roomId: +reservable.mesa,
+      resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
+    };
 
+    let reservas: Reserva[] = [];
+    for (const key in dias) {
+      reservas = JSON.parse(JSON.stringify(dias[key]));
+      if (reservas.length > 0) {
+        for (const reserva of reservas) {
+          if (+reserva.mesa === +resRes.roomId) {
+            if (reserva.detalle.length > 0) {
+              for (const det of reserva.detalle) {
+                switch (true) {
+                  case det.fecha === moment(this.monDate).format(GLOBAL.dbDateFormat):
+                    resRes.lunes = reserva.descripcion_estatus_reserva;
+                    resRes.resL = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.marDate).format(GLOBAL.dbDateFormat):
+                    resRes.martes = reserva.descripcion_estatus_reserva;
+                    resRes.resM = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.mierDate).format(GLOBAL.dbDateFormat):
+                    resRes.miercoles = reserva.descripcion_estatus_reserva;
+                    resRes.resMi = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.jueDate).format(GLOBAL.dbDateFormat):
+                    resRes.jueves = reserva.descripcion_estatus_reserva;
+                    resRes.resJ = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.vierDate).format(GLOBAL.dbDateFormat):
+                    resRes.viernes = reserva.descripcion_estatus_reserva;
+                    resRes.resV = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.sabdDate).format(GLOBAL.dbDateFormat):
+                    resRes.sabado = reserva.descripcion_estatus_reserva;
+                    resRes.resS = +reserva.reserva;
+                    break;
+                  case det.fecha === moment(this.domDate).format(GLOBAL.dbDateFormat):
+                    resRes.domingo = reserva.descripcion_estatus_reserva;
+                    resRes.resD = +reserva.reserva;
+                    break;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return resRes;
+  }
 
 }
