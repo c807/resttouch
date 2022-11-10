@@ -20,31 +20,8 @@ import { ReservaService } from '../../services/reserva.service';
 import { Subscription } from 'rxjs';
 import { Reserva } from '../../interfaces/reserva';
 
-import { DateAdapter, NativeDateAdapter } from '@angular/material/core';
-
-class CustomDateAdapter extends NativeDateAdapter {
-  override getDayOfWeekNames(style: 'long' | 'short' | 'narrow') {
-    return ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
-  }
-
-  override getFirstDayOfWeek(): number {
-    return 1;
-  }
-
-  override parse(value: any): Date | null {
-    if (typeof value === 'string' && value.indexOf('/') > -1) {
-      const str = value.split('/');
-
-      const year = Number(str[2]);
-      const month = Number(str[1]) - 1;
-      const date = Number(str[0]);
-
-      return new Date(year, month, date);
-    }
-    const timestamp = typeof value === 'number' ? value : Date.parse(value);
-    return isNaN(timestamp) ? null : new Date(timestamp);
-  }
-}
+import { DateAdapter } from '@angular/material/core';
+import { CustomDateAdapter } from '../../../shared/classes/custom-date-adapter';
 
 export interface DayCalendar {
   martes: (RevStat | string);
@@ -64,6 +41,7 @@ export interface DayCalendar {
   resV?: number,
   resS?: number,
   resD?: number,
+  roomIdType?: number
 }
 
 /**
@@ -340,7 +318,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
       sabado: RevStat.DISPONIBLE,
       domingo: RevStat.DISPONIBLE,
       roomId: +reservable.mesa,
-      resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
+      resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1,
+      roomIdType: +(reservable.tipo_habitacion as TipoHabitacion).tipo_habitacion
     };
 
     let reservas: Reserva[] = [];

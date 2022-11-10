@@ -32,7 +32,7 @@
           </div>
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
-          <app-reservacion [resId]='element.resL' [cDate]="monDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.lunes'></app-reservacion>
+          <app-reservacion [resId]='element.resL' [cDate]="monDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.lunes'></app-reservacion>
         </td>
       </ng-container>
 
@@ -45,7 +45,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resM' [cDate]="marDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.martes'></app-reservacion>
+            <app-reservacion [resId]='element.resM' [cDate]="marDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.martes'></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -59,7 +59,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resMi' [cDate]="mierDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.miercoles'></app-reservacion>
+            <app-reservacion [resId]='element.resMi' [cDate]="mierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.miercoles'></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -73,7 +73,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resJ' [cDate]="jueDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.jueves'></app-reservacion>
+            <app-reservacion [resId]='element.resJ' [cDate]="jueDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.jueves'></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -87,7 +87,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resV' [cDate]="vierDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.viernes'></app-reservacion>
+            <app-reservacion [resId]='element.resV' [cDate]="vierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.viernes'></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -101,7 +101,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resS' [cDate]="sabdDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.sabado'></app-reservacion>
+            <app-reservacion [resId]='element.resS' [cDate]="sabdDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.sabado'></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -115,7 +115,7 @@
         </th>
         <td class="cell-d" class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resD' [cDate]="domDate" (requestUpdate)="requestUpdate()" [roomId]='element.roomId' [text]='element.domingo'></app-reservacion>
+            <app-reservacion [resId]='element.resD' [cDate]="domDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.domingo'></app-reservacion>
           </div>
         </td>
       </ng-container>

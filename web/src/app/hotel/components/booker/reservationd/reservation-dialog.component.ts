@@ -1,44 +1,64 @@
-import {AfterViewInit, Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import { OnInit, AfterViewInit, Component, Inject, OnDestroy } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { DateAdapter } from '@angular/material/core';
+import { CustomDateAdapter } from '../../../../shared/classes/custom-date-adapter';
+import { GLOBAL } from '../../../../shared/global';
 
-import {FormControl, FormGroup} from '@angular/forms';
-import {RevStat} from '../reservacion/RevStat';
+import { FormControl, FormGroup } from '@angular/forms';
+import { RevStat } from '../reservacion/RevStat';
 import * as moment from 'moment';
-import {FakeBakend} from '../FakeBakend';
+
+import { Reserva } from '../../../interfaces/reserva';
+import { ReservaService } from '../../../services/reserva.service';
+import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
+import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
+
+import { Subscription } from 'rxjs';
 
 export interface DialogData {
   roomId: number;
   cDate: string;
+  roomIdType: number;
+  reserva?: Reserva;
 }
 
 @Component({
   selector: 'app-reservation-dialog',
   templateUrl: './reservation-dialog.component.html',
   styleUrls: ['./reservation-dialog.component.css'],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter }
+  ]
 })
-export class ReservationDialogComponent implements AfterViewInit {
-  range = new FormGroup({
+export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDestroy {
+  public range = new FormGroup({
     start: new FormControl(),
     end: new FormControl(),
   });
-  disableSelect = new FormControl(false);
-  reservationTypes = [
-    {id: 0, name: RevStat.MANTENIMIENTO},
-    {id: 1, name: RevStat.NO_DISPONIBLE},
-    {id: 2, name: RevStat.RESERVADA},
-    {id: 3, name: RevStat.DISPONIBLE}
+  public disableSelect = new FormControl(false);
+  public reservationTypes = [
+    { id: 0, name: RevStat.MANTENIMIENTO },
+    { id: 1, name: RevStat.NO_DISPONIBLE },
+    { id: 2, name: RevStat.RESERVADA },
+    { id: 3, name: RevStat.DISPONIBLE }
   ];
-  selectedResType = this.reservationTypes[0];
+  public selectedResType = this.reservationTypes[0];
+
+  public tarifas: TarifaReserva[] = [];
+  public reserva: Reserva;
+
+  private endSubs = new Subscription();
 
   constructor(
     public dialogRef: MatDialogRef<ReservationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-  ) {
+    private tarifaReservaSrvc: TarifaReservaService,
+    private reservaSrvc: ReservaService
+  ) { }
 
-  }
-
-  onNoClick(): void {
-    this.dialogRef.close();
+  ngOnInit(): void {
+    // console.log('DATA = ', this.data)
+    this.loadTarifasReserva();
   }
 
   ngAfterViewInit(): void {
@@ -46,10 +66,41 @@ export class ReservationDialogComponent implements AfterViewInit {
       start: new FormControl(moment(this.data.cDate).toDate()),
       end: new FormControl(),
     });
+
+    if (this.data.reserva) {
+      this.reserva = JSON.parse(JSON.stringify(this.data.reserva));
+    } else {
+      this.resetReserva();
+    }
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
 
-  validatorsChanged() {
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  loadTarifasReserva = () => {
+    this.endSubs.add(
+      this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).subscribe(res => this.tarifas = res)
+    );
+  }
+
+  resetReserva = () => {
+    this.reserva = {
+      reserva: null,
+      mesa: this.data.roomId,
+      tarifa_reserva: null,
+      cliente_master: null,
+      estatus_reserva: null,
+      fecha_del: moment(this.range.get('start').value).format(GLOBAL.dbDateFormat),
+      fecha_al: null,
+      cantidad_adultos: null,
+      cantidad_menores: null
+    }
+    console.log('ON RESET = ', this.reserva);
   }
 
   public Disponible(): String {
@@ -75,22 +126,10 @@ export class ReservationDialogComponent implements AfterViewInit {
   public addReservation(): void {
     //Get the number of days in range
 
-    const b = moment(this.range.value.start);
-    const a = moment(this.range.value.end);
-    const nu = Math.abs(a.diff(b, 'days') + 1);   // =1
+    this.reserva.fecha_del = moment(this.range.value.start).format(GLOBAL.dbDateFormat);
+    this.reserva.fecha_al = moment(this.range.value.end).format(GLOBAL.dbDateFormat);
 
-
-    for (let i = 0; i < nu; i++) {
-      const abj = {
-        id: FakeBakend.RoomReservations.length + 1,
-        fecha: moment(this.range.value.start).add(i, 'd').format('DD/MM/YYYY'),
-        room_id: this.data.roomId,
-        cancelado: false,
-        razon: '',
-        type: this.selectedResType.name,
-      };
-      FakeBakend.RoomReservations.push(abj);
-    }
+    console.log('RESERVA = ', this.reserva);
 
     this.dialogRef.close();
   }
