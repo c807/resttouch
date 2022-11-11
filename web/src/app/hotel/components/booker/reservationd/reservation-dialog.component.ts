@@ -2,7 +2,7 @@ import { OnInit, AfterViewInit, Component, Inject, OnDestroy } from '@angular/co
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DateAdapter } from '@angular/material/core';
 import { CustomDateAdapter } from '../../../../shared/classes/custom-date-adapter';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
 
 import { FormControl, FormGroup } from '@angular/forms';
 import { RevStat } from '../reservacion/RevStat';
@@ -12,6 +12,8 @@ import { Reserva } from '../../../interfaces/reserva';
 import { ReservaService } from '../../../services/reserva.service';
 import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
 import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
+import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master';
+import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
 
 import { Subscription } from 'rxjs';
 
@@ -46,6 +48,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   public tarifas: TarifaReserva[] = [];
   public reserva: Reserva;
+  public lstClientesMaster: ClienteMaster[] = [];
 
   private endSubs = new Subscription();
 
@@ -53,12 +56,15 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     public dialogRef: MatDialogRef<ReservationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private tarifaReservaSrvc: TarifaReservaService,
-    private reservaSrvc: ReservaService
+    private reservaSrvc: ReservaService,
+    private clienteMasterSrvc: ClienteMasterService
   ) { }
 
   ngOnInit(): void {
     // console.log('DATA = ', this.data)
+    this.resetReserva();
     this.loadTarifasReserva();
+    this.loadClientesMaster();
   }
 
   ngAfterViewInit(): void {
@@ -88,19 +94,25 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
+  loadClientesMaster = () => {
+    this.endSubs.add(
+      this.clienteMasterSrvc.get().subscribe(res => this.lstClientesMaster = OrdenarArrayObjetos(res, 'nombre'))
+    );
+  }
+
   resetReserva = () => {
     this.reserva = {
       reserva: null,
-      mesa: this.data.roomId,
+      mesa: this.data.roomId || null,
       tarifa_reserva: null,
       cliente_master: null,
       estatus_reserva: null,
-      fecha_del: moment(this.range.get('start').value).format(GLOBAL.dbDateFormat),
+      fecha_del: moment(this.range.get('start').value).isValid() ? moment(this.range.get('start').value).format(GLOBAL.dbDateFormat) : null,
       fecha_al: null,
       cantidad_adultos: null,
       cantidad_menores: null
     }
-    console.log('ON RESET = ', this.reserva);
+    // console.log('ON RESET = ', this.reserva);
   }
 
   public Disponible(): String {
@@ -132,5 +144,22 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     console.log('RESERVA = ', this.reserva);
 
     this.dialogRef.close();
+  }
+
+  public selectTarifa = () => {
+    const adultos = +this.reserva.cantidad_adultos || 0;
+    const menores = +this.reserva.cantidad_menores || 0;
+    let tarifaSeleccionada: TarifaReserva;
+    switch (true) {
+      case adultos > 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && menores <= +t.cantidad_menores); break;      
+      case adultos > 0 && menores === 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos); break;
+      case adultos === 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => menores <= +t.cantidad_menores); break;
+    }
+    
+    if (tarifaSeleccionada && tarifaSeleccionada.tarifa_reserva) {      
+      this.reserva.tarifa_reserva = tarifaSeleccionada.tarifa_reserva;
+    } else {
+      this.reserva.tarifa_reserva = null;
+    }    
   }
 }
