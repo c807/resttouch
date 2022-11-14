@@ -23,7 +23,8 @@ class Reserva extends CI_Controller {
 		if ($this->input->method() == 'post') {			
 			$datos['exito'] = $rsrv->guardar($req);
 			if($datos['exito']) {
-				$datos['reserva'] = $rsrv->buscar(['reserva' => $rsrv->getPK(), '_uno' => true]);
+				$rsrv->generaDetalle();
+				$datos['reserva'] = $rsrv;				
 				$datos['mensaje'] = 'Datos actualizados con éxito.';
 			} else {
 				$datos['mensaje'] = $rsrv->getMensaje();

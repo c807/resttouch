@@ -27,10 +27,10 @@ export class ReservaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  // save(entidad: Reserva): Observable<any> {
-  //   return this.http.post<any>(
-  //     `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar${!!entidad.tarifa_reserva ? ('/' + entidad.tarifa_reserva) : ''}`,
-  //     entidad
-  //   ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
-  // }
+  save(entidad: Reserva): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar${!!entidad.reserva ? ('/' + entidad.reserva) : ''}`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

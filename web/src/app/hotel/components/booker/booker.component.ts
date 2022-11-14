@@ -2,7 +2,7 @@ import { AfterViewInit, Component, OnInit, ViewChild, OnDestroy } from '@angular
 import * as moment from 'moment';
 import { HabType } from './habitacion/HabTypeE';
 import { RevStat } from './reservacion/RevStat';
-import { FakeBakend } from './FakeBakend';
+// import { FakeBakend } from './FakeBakend';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -67,7 +67,8 @@ const ELEMENT_DATA: DayCalendar[] = [];
 })
 export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild(MatTable, { static: true }) table: MatTable<any>;
+  // @ViewChild(MatTable, { static: true }) tblReservas: MatTable<any>;
+  @ViewChild('tblReservas') tblReservas: MatTable<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('fltrTipoHabitacion') fltrTipoHabitacion: FilterComponent;
 
@@ -194,12 +195,12 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   filterRoom(type): boolean {
     let result = false;
-    for (let a = 0; a < FakeBakend.RoomArrTypesFilter.length; a++) {
-      if (FakeBakend.RoomArrTypesFilter[a].type.toString() === type) {
-        result = FakeBakend.RoomArrTypesFilter[a].shouldFilter;
-        break;
-      }
-    }
+    // for (let a = 0; a < FakeBakend.RoomArrTypesFilter.length; a++) {
+    //   if (FakeBakend.RoomArrTypesFilter[a].type.toString() === type) {
+    //     result = FakeBakend.RoomArrTypesFilter[a].shouldFilter;
+    //     break;
+    //   }
+    // }
     return result;
   }
 
@@ -216,90 +217,26 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     //Retrieve data to display
     this.dataSourceTemp = [];
-    // console.log('LUNES = ', moment(this.monDate).format(GLOBAL.dbDateFormat));
-    const reservas = await this.reservaSrvc.get({ fecha: moment(this.monDate).format(GLOBAL.dbDateFormat) }).toPromise();
-    // console.log(reservas);
-    if (reservas.exito) {
+    // console.log('LUNES = ', moment(this.monDate).format(GLOBAL.dbDateFormat));    
+    const rsrvs = await this.reservaSrvc.get({ fecha: moment(this.monDate).format(GLOBAL.dbDateFormat) }).toPromise();
+    // console.log(rsrvs);
+    if (rsrvs.exito) {
       this.reservables.forEach((reservable, i) => {
-        const obj: DayCalendar = this.procesaResevablesReservaciones(reservable, reservas.reservas);
+        const obj: DayCalendar = this.procesaResevablesReservaciones(reservable, rsrvs.reservas);
         this.dataSourceTemp.push(obj);
       });
 
-      // console.log('DataSource ' + JSON.stringify(this.dataSourceTemp));
+      // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
       this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
+      // this.dataSource = JSON.parse(JSON.stringify(this.dataSourceTemp));
+      console.log('DataSource = ', this.dataSource.data);
+      this.dataSourceTemp = null;
+      // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
       this.setPaginatorAndSort();
+      this.tblReservas.renderRows();
     } else {
-      this.snackBar.open(reservas.mensaje, 'Reservas', { duration: 7000 })
+      this.snackBar.open(rsrvs.mensaje, 'Reservas', { duration: 7000 })
     }
-
-    // FakeBakend.RoomArr.forEach((RomA, RomAindex) => {
-
-
-    //   const shouldFilter = this.filterRoom(RomA.type);
-    //   // console.log(shouldFilter);
-
-
-    //   if (shouldFilter === false) {
-    //     // Should filter the room
-    //     return;
-    //   }
-
-
-    //   // Data to be manipulated and displayed on the table
-    //   // This is a Row
-    //   //resL , resM are the ids of the reservations on RoomReservations
-    //   //lunes , martes are the types of the reservations wich corresponds to the icon
-    //   //habitacion, Room Type , because its filtered by Room
-    //   //Room Name,
-    //   //roomId the rom Id wich cotains the reservations
-    //   const obj = {
-    //     habitacionName: RomA.text,
-    //     habitacion: RomA.type,
-    //     lunes: RevStat.DISPONIBLE,
-    //     martes: RevStat.DISPONIBLE,
-    //     miercoles: RevStat.DISPONIBLE,
-    //     jueves: RevStat.DISPONIBLE,
-    //     viernes: RevStat.DISPONIBLE,
-    //     sabado: RevStat.DISPONIBLE,
-    //     domingo: RevStat.DISPONIBLE,
-    //     roomId: RomA.id,
-    //     resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1
-    //   };
-    //   //Retrieve reservations For Room Here
-    //   //Extrar las reservaciones por habitaciones
-    //   const reservations = FakeBakend.RoomReservations;
-    //   reservations.forEach((value, index) => {
-    //     const date = moment(value.fecha, 'DD/MM/YYYY');
-    //     const dow = date.day();
-
-    //     //Si se va a agregar la hora , es aqui.
-    //     const isInRange = date.isBetween(moment(this.monDate).subtract(1, 'days'), moment(this.domDate).add(1, 'days'));
-    //     const currentRoom = (RomA.id === value.room_id);
-
-    //     if (!isInRange || !currentRoom) {
-    //       // The given date is not in rage of monday to sunday date
-    //       // The rooms ids are not equal
-    //       return;
-    //     }
-    //     // Set reservation Id
-
-
-    //     // Set the day reserved according its position in the array
-    //     switch (dow) {
-    //       case 0:
-    //         obj[this.reservationIdDays[7]] = value.id;
-    //         obj[this.displayedColumns[7]] = value.type;
-    //         break;
-    //       default:
-
-    //         obj[this.reservationIdDays[dow]] = value.id;
-    //         obj[this.displayedColumns[dow]] = value.type;
-    //         break;
-    //     }
-
-    //   });
-    //   this.dataSourceTemp.push(obj);
-    // });
   }
 
   requestUpdate() {
@@ -333,31 +270,38 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
                 switch (true) {
                   case det.fecha === moment(this.monDate).format(GLOBAL.dbDateFormat):
                     resRes.lunes = reserva.descripcion_estatus_reserva;
-                    resRes.resL = +reserva.reserva;
+                    // resRes.resL = +reserva.reserva;
+                    resRes.resL = 1;
                     break;
                   case det.fecha === moment(this.marDate).format(GLOBAL.dbDateFormat):
                     resRes.martes = reserva.descripcion_estatus_reserva;
-                    resRes.resM = +reserva.reserva;
+                    // resRes.resM = +reserva.reserva;
+                    resRes.resM = 1;
                     break;
                   case det.fecha === moment(this.mierDate).format(GLOBAL.dbDateFormat):
                     resRes.miercoles = reserva.descripcion_estatus_reserva;
-                    resRes.resMi = +reserva.reserva;
+                    // resRes.resMi = +reserva.reserva;
+                    resRes.resMi = 1;
                     break;
                   case det.fecha === moment(this.jueDate).format(GLOBAL.dbDateFormat):
                     resRes.jueves = reserva.descripcion_estatus_reserva;
-                    resRes.resJ = +reserva.reserva;
+                    // resRes.resJ = +reserva.reserva;
+                    resRes.resJ = 1;
                     break;
                   case det.fecha === moment(this.vierDate).format(GLOBAL.dbDateFormat):
                     resRes.viernes = reserva.descripcion_estatus_reserva;
-                    resRes.resV = +reserva.reserva;
+                    // resRes.resV = +reserva.reserva;
+                    resRes.resV = 1;
                     break;
                   case det.fecha === moment(this.sabdDate).format(GLOBAL.dbDateFormat):
                     resRes.sabado = reserva.descripcion_estatus_reserva;
-                    resRes.resS = +reserva.reserva;
+                    // resRes.resS = +reserva.reserva;
+                    resRes.resS = 1;
                     break;
                   case det.fecha === moment(this.domDate).format(GLOBAL.dbDateFormat):
                     resRes.domingo = reserva.descripcion_estatus_reserva;
-                    resRes.resD = +reserva.reserva;
+                    // resRes.resD = +reserva.reserva;
+                    resRes.resD = 1;
                     break;
                 }
               }

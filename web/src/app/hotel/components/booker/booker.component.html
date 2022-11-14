@@ -7,7 +7,7 @@
   </div>
 
   <div fxLayout="column">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table #tblReservas mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
       <ng-container matColumnDef="habitacion">
         <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by name">

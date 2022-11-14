@@ -24,6 +24,7 @@ class Reserva_model extends General_model
 		if (!empty($id)) {
 			$this->cargar($id);
 		}
+		$this->load->model(['Dreserva_model']);
 	}
 
 	public function get_reservas($fecha)
@@ -46,5 +47,16 @@ class Reserva_model extends General_model
 				->result();
 		}
 		return $reservas;
+	}
+
+	public function generaDetalle()
+	{
+		$this->db->delete('detalle_reserva', array('reserva' => $this->getPK()));
+		$fecha = DateTime::createFromFormat('Y-m-d', $this->fecha_del);
+		$fecha_fin = DateTime::createFromFormat('Y-m-d', $this->fecha_al);		
+		do {
+			$this->db->insert('detalle_reserva', array('reserva' => $this->getPK(), 'fecha' => $fecha->format('Y-m-d')));
+			$fecha->modify('+1 day');
+		} while ($fecha <= $fecha_fin);
 	}
 }

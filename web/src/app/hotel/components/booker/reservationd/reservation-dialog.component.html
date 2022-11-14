@@ -61,5 +61,5 @@
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancelar</button>
-  <button mat-raised-button color="accent" (click)="addReservation()">Guardar</button>
+  <button mat-raised-button color="accent" (click)="addReservation()" [disabled]="!reservaLista">Guardar</button>
 </div>

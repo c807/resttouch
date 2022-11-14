@@ -1,8 +1,10 @@
 import { OnInit, AfterViewInit, Component, Inject, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { DateAdapter } from '@angular/material/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomDateAdapter } from '../../../../shared/classes/custom-date-adapter';
 import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { FormControl, FormGroup } from '@angular/forms';
 import { RevStat } from '../reservacion/RevStat';
@@ -33,6 +35,11 @@ export interface DialogData {
   ]
 })
 export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  get reservaLista() {
+    return moment(this.range.value.start).isValid && moment(this.range.value.end).isValid() && this.reserva.cantidad_adultos >= 0 && this.reserva.cantidad_menores >= 0 && +this.reserva.cliente_master > 0 && +this.reserva.tarifa_reserva > 0;
+  }
+
   public range = new FormGroup({
     start: new FormControl(),
     end: new FormControl(),
@@ -57,7 +64,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private tarifaReservaSrvc: TarifaReservaService,
     private reservaSrvc: ReservaService,
-    private clienteMasterSrvc: ClienteMasterService
+    private clienteMasterSrvc: ClienteMasterService,
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -140,10 +149,31 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
     this.reserva.fecha_del = moment(this.range.value.start).format(GLOBAL.dbDateFormat);
     this.reserva.fecha_al = moment(this.range.value.end).format(GLOBAL.dbDateFormat);
+    this.reserva.estatus_reserva = 1;
 
-    console.log('RESERVA = ', this.reserva);
+    // console.log('RESERVA = ', this.reserva);
 
-    this.dialogRef.close();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Reservación',
+        'Esto generará una nueva reserva. ¿Desea continuar?',
+        'Sí', 'No'
+      )
+    });
+
+    this.endSubs.add(      
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {        
+          this.endSubs.add(
+            this.reservaSrvc.save(this.reserva).subscribe(res => {
+              this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
+              this.dialogRef.close();
+            })
+          );
+        }
+      })
+    );
   }
 
   public selectTarifa = () => {
