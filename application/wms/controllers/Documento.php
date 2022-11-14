@@ -58,35 +58,41 @@ class Documento extends CI_Controller {
 			$datos['data_contable'] = $doc->getDataContable($doc->documento);
 
 			if($datos['data_contable']) {
-				$webhook = $this->Webhook_model->buscar([
-					"evento" => "RTEV_ENVIAR_COMPRA_CONTA",
-					"_uno" => true
-				]);
-				if ($webhook) {
-					$this->load->library('Webhook');
-					if (strtolower(trim($webhook->tipo_llamada)) == "soap") {
-						$req = "";
-					} else if(strtolower(trim($webhook->tipo_llamada)) == "json") {
-						$req = $datos['data_contable'];
-					}
-					
-					$this->load->helper('api');
-					$web = new Webhook($webhook);
-					$web->setRequest($req);
-					$datos['respuesta'] = json_decode($web->setEvento());
+				if(!empty($datos['data_contable']->cuenta_contable_gasto)) {
 
-					if ((int)$datos['respuesta']->lastid > 0) {
-						$datos['exito'] = true;
-						$datos['mensaje'] = "Compra enviada con éxito a contabilidad.";
-						$datos['documento'] = $this->getForeignData($doc);
-						unset($datos['data_contable']);
-						unset($datos['respuesta']);
-						$doc->guardar(['enviado' => 1]);
+					if(!empty($datos['data_contable']->idproveedor)) {
+						$webhook = $this->Webhook_model->buscar(['evento' => 'RTEV_ENVIAR_COMPRA_CONTA', '_uno' => true]);
+						if ($webhook) {
+							$this->load->library('Webhook');
+							if (strtolower(trim($webhook->tipo_llamada)) == "soap") {
+								$req = "";
+							} else if(strtolower(trim($webhook->tipo_llamada)) == "json") {
+								$req = $datos['data_contable'];
+							}
+							
+							$this->load->helper('api');
+							$web = new Webhook($webhook);
+							$web->setRequest($req);
+							$datos['respuesta'] = json_decode($web->setEvento());
+		
+							if ((int)$datos['respuesta']->lastid > 0) {
+								$datos['exito'] = true;
+								$datos['mensaje'] = "Compra enviada con éxito a contabilidad.";
+								$datos['documento'] = $this->getForeignData($doc);
+								unset($datos['data_contable']);
+								unset($datos['respuesta']);
+								$doc->guardar(['enviado' => 1]);
+							} else {
+								$datos['mensaje'] = "Hubo un problema en el envío a la contabilidad.";
+							}
+						} else {
+							$datos['mensaje'] = "No está configurada la conexión a la contabilidad.";
+						}
 					} else {
-						$datos['mensaje'] = "Hubo un problema en el envío a la contabilidad.";
+						$datos['mensaje'] = 'El proveedor no tiene asignado un codigo del sistema contable. Por favor asignelo.';
 					}
 				} else {
-					$datos['mensaje'] = "No está configurada la conexión a la contabilidad.";
+					$datos['mensaje'] = 'El proveedor no tiene asignada una cuenta contable. Por favor asignela.';
 				}
 			} else {
 				$datos['mensaje'] = "No se encontró la información para el documento seleccionado.";

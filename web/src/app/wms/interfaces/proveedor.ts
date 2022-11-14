@@ -4,4 +4,5 @@ export interface Proveedor {
     razon_social: string;
     nit: string;
     codigo?: string;
+    cuenta_contable_gasto?: string;
 }
