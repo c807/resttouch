@@ -1230,8 +1230,11 @@ class Api extends CI_Controller
 					}
 				}
 
+				$descripcionCategoria = $esGK ? $req['product_type'] : $req['vendor'];
+				$descripcionCategoria = !empty(trim($descripcionCategoria)) ? trim($descripcionCategoria) : 'Otros';
+
 				$tmpcat = $this->Categoria_model->buscar([
-					'descripcion' => $esGK ? $req['product_type'] : $req['vendor'],
+					'descripcion' => $descripcionCategoria,
 					'sede' => $sede->sede,
 					'_uno' => true
 				]);
@@ -1240,15 +1243,18 @@ class Api extends CI_Controller
 					$cat->cargar($tmpcat->categoria);
 				} else {
 					$cat->guardar([
-						'descripcion' => $esGK ? $req['product_type'] : $req['vendor'],
+						'descripcion' => $descripcionCategoria,
 						'sede' => $sede->sede,
 					]);
 				}
 
+				$descripcionGrupo = $req['tags'];
+				$descripcionGrupo = !empty(trim($descripcionGrupo)) ? trim($descripcionGrupo) : 'Otros';
+
 				$grupo = $this->Cgrupo_model->buscar([
-					"categoria" => $cat->getPK(),
-					"descripcion" => $req['tags'],
-					"_uno" => true
+					'categoria' => $cat->getPK(),
+					'descripcion' => $descripcionGrupo,
+					'_uno' => true
 				]);
 
 				if ($grupo) {
@@ -1258,7 +1264,7 @@ class Api extends CI_Controller
 					$bodega = $this->Bodega_model->buscar(['sede' => $sede->sede, 'pordefecto' => 1, '_uno' => true]);
 					$cgrupo->guardar([
 						'categoria' => $cat->getPK(),
-						'descripcion' => $req['tags'],
+						'descripcion' => $descripcionGrupo,
 						'impresora' => $impresora ? $impresora->impresora : null,
 						'bodega' => $bodega ? $bodega->bodega : null,
 					]);
@@ -1272,18 +1278,18 @@ class Api extends CI_Controller
 						}
 
 						$args = [
-							"categoria_grupo" => $cgrupo->getPK(),
-							"presentacion" => 1,
-							"descripcion" => $desc,
-							"precio" => $row['price'],
-							"bien_servicio" => "B",
-							"existencias" => 0,
-							"shopify_id" => $row['id']
+							'categoria_grupo' => $cgrupo->getPK(),
+							'presentacion' => 1,
+							'descripcion' => $desc,
+							'precio' => $row['price'],
+							'bien_servicio' => 'B',
+							'existencias' => 0,
+							'shopify_id' => $row['id']
 						];
 
 						$tmpArt = $this->Articulo_model->buscar([
-							"shopify_id" => $row['id'],
-							"_uno" => true
+							'shopify_id' => $row['id'],
+							'_uno' => true
 						]);
 
 						$art = new Articulo_model();
@@ -1296,15 +1302,15 @@ class Api extends CI_Controller
 				}
 
 				if ($datos['exito']) {
-					$datos['mensaje'] = "Datos Actualizados con exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 				} else {
-					$datos['mensaje'] = "Ocurrio un erro al guardar el producto";
+					$datos['mensaje'] = 'Ocurrió un error al guardar el producto.';
 				}
 			} else {
-				$datos['mensaje'] = "Parametros Invalidos";
+				$datos['mensaje'] = 'Parámetros inválidos.';
 			}
 		} else {
-			$datos['mensaje'] = "Hacen falta datos obligatorios para continuar";
+			$datos['mensaje'] = 'Hacen falta datos obligatorios para continuar';
 		}
 
 		$this->output->set_output(json_encode($datos));
