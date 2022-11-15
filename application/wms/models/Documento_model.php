@@ -41,7 +41,7 @@ class Documento_model extends General_model {
 		$data = $this->db->query($query)->row();
 
 		if($data) {
-			$query = "SELECT SUM(precio_total) AS total FROM ingreso_detalle WHERE ingreso = $data->ingreso";
+			$query = "SELECT SUM(precio_total + precio_costo_iva) AS total FROM ingreso_detalle WHERE ingreso = $data->ingreso";
 			$suma = $this->db->query($query)->row();
 			if($suma) {
 				$total = round((float)$suma->total, 2);
