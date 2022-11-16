@@ -216,7 +216,7 @@ class Cliente extends CI_Controller
 				$jsonToken = json_decode(post_request($link, http_build_query($datosDF), $header, false));
 
 				if (isset($jsonToken->access_token)) {
-					$esPruebas = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', '192.168.18.241']);
+					$esPruebas = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', 'qa.resttouch.com']);
 					$link = 'https://' . (!$esPruebas ? '' : 'test') . 'ws.ccgfel.gt/Api/ConsultarNit';
 					$header = ["Authorization: Bearer {$jsonToken->access_token}"];
 					$res = json_decode(post_request($link, json_encode(['Nit' => $nit]), $header));

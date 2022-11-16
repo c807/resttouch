@@ -146,12 +146,10 @@ if (!function_exists('url_base')) {
 	{
 		if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
 			return base_url("resttouch/{$url}");
-		} else if (in_array($_SERVER['HTTP_HOST'], ['192.168.18.241'])) {
-			return ("http://192.168.18.241/api/{$url}");
+		} else if (in_array($_SERVER['HTTP_HOST'], ['qa.resttouch.com', '10.0.83.5'])) {
+			return ("http://10.0.83.5/api/{$url}");
 		}
-
-		// return base_url($url);
-		// return ("http://192.168.168.241/api/{$url}");
+		
 		return ("http://10.0.0.4/api/{$url}");
 	}
 }
@@ -607,10 +605,9 @@ if (!function_exists('get_url_websocket')) {
 	function get_url_websocket()
 	{
 		$url_ws = "{$_SERVER['REQUEST_SCHEME']}://";
-		if (in_array($_SERVER["HTTP_HOST"], ["localhost", "127.0.0.1", "192.168.18.241"])) {
+		if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1', 'qa.resttouch.com'])) {
 			$url_ws .= $_SERVER["HTTP_HOST"];
 		} else {
-			// $url_ws .= 'resttouch.c807.com';
 			$url_ws .= 'resttouch.com';
 		}
 		$url_ws .= ':8988';
