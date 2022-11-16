@@ -40,10 +40,9 @@ class Schema_model extends General_model
 	{
 		if (in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1'])) {
 			return ['db_hostname' => 'localhost', 'db_username' => 'root', 'db_password' => 'PoChoco2016'];
-		} else if (in_array($_SERVER['HTTP_HOST'], ['192.168.18.241'])) {
-			return ['db_hostname' => '192.168.18.240', 'db_username' => 'devja', 'db_password' => 'D3vJA2020!'];
-		}
-		// return ['db_hostname' => '192.168.168.240', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
+		} else if (in_array($_SERVER['HTTP_HOST'], ['qa.resttouch.com'])) {
+			return ['db_hostname' => '10.0.83.4', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
+		}		
 		return ['db_hostname' => '10.0.0.5', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
 	}
 
