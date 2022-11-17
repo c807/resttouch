@@ -142,8 +142,8 @@ export class Impresion {
                 Restaurante: this.ls.get(GLOBAL.usrTokenVar).restaurante,
                 PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
                 Impresora: printerToUse,
-                Ubicacion: `${mesaEnUso.area.nombre} - Mesa ${mesaEnUso.etiqueta || mesaEnUso.numero} - Comanda ${obj.comanda}`,
-                Mesero: `${obj.mesero.nombres} ${obj.mesero.apellidos}`,
+                Ubicacion: mesaEnUso && mesaEnUso.area ? `${mesaEnUso.area.nombre} - Mesa ${mesaEnUso.etiqueta || mesaEnUso.numero} - Comanda ${obj.comanda}` : `Comanda ${obj.comanda}`,
+                Mesero: (`${obj.mesero.nombres || ''} ${obj.mesero.apellidos || ''}`).trim(),
                 DireccionEntrega: obj.origen_datos.direccion_entrega,
                 FormasPago: obj.formas_pago || [],
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
@@ -199,4 +199,53 @@ export class Impresion {
             this.printToBT(JSON.stringify(obj));
         }
     }
+
+    imprimirFactura = (fact: any, datosOrigen: any = {}, comanda: any = {}) => {
+        const dataToPrint = {
+          IdFactura: +fact.factura || 0,
+          NombreEmpresa: fact.empresa.nombre_comercial,
+          NitEmpresa: fact.empresa.nit,
+          SedeEmpresa: fact.sedeFactura.nombre,
+          DireccionEmpresa: fact.empresa.direccion,
+          Fecha: moment(fact.fecha_factura).format(GLOBAL.dateFormat),
+          Nit: fact.receptor.nit,
+          Nombre: fact.receptor.nombre,
+          Direccion: fact.receptor.direccion,
+          Serie: fact.serie_factura,
+          Numero: fact.numero_factura,
+          Total: 0.00,
+          NoAutorizacion: fact.fel_uuid,
+          NombreCertificador: fact.certificador_fel.nombre,
+          NitCertificador: fact.certificador_fel.nit,
+          FechaDeAutorizacion: fact.fecha_autorizacion,
+          NoOrdenEnLinea: datosOrigen.numero_orden,
+          FormaDePago: (datosOrigen.metodo_pago && datosOrigen.metodo_pago.length > 0) ? datosOrigen.metodo_pago.join(', ') : '',
+          DetalleFactura: [],
+          Comanda: comanda.comanda || 0,
+          Cuenta: comanda.cuentas[0].cuenta || 0,
+          DatosComanda: fact.datos_comanda || null,
+          Impresora: (null as Impresora)
+        };
+    
+        for (const det of fact.detalle) {
+          dataToPrint.DetalleFactura.push({
+            Cantidad: parseInt(det.cantidad),
+            Descripcion: det.articulo.descripcion,
+            Total: parseFloat(det.total),
+            PrecioUnitario: +det.precio_unitario
+          });
+          dataToPrint.Total += parseFloat(det.total);
+        }
+    
+        if (comanda.impresora_defecto_factura || this.impresoraPorDefecto) {
+          dataToPrint.Impresora = comanda.impresora_defecto_factura || this.impresoraPorDefecto;
+          if (+dataToPrint.Impresora.bluetooth === 0) {
+            this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+          } else {            
+            this.printToBT(JSON.stringify(dataToPrint));
+          }
+        } else {
+          this.socket.emit('print:factura', JSON.stringify(dataToPrint));
+        }
+      }
 }
