@@ -15,6 +15,7 @@ import { ComandaService } from '../../services/comanda.service';
 import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
 import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
+import { FacturaService } from '../../../pos/services/factura.service';
 import { Impresion } from '../../classes/impresion';
 
 import { Subscription } from 'rxjs';
@@ -56,6 +57,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   public params: any = { de: 0, a: 99 };
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
   public ingresoPedidoNuevo = false;
+  public intentosDeFirmarTodo = 0;
   
   private endSubs = new Subscription();
 
@@ -69,6 +71,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     private dns: DesktopNotificationService,
     private estatusCallcenterSrvc: EstatusCallcenterService,
     private configSrvc: ConfiguracionService,
+    private facturaSrvc: FacturaService
   ) { }
 
   ngOnInit() {
@@ -137,7 +140,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       console.log(e);
     } finally {
       if(this.audioNotificacion.nativeElement.paused) {
-        this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
+        // this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
       }
     }
   }
@@ -155,9 +158,10 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   loadEstatusCallCenter = () => this.endSubs.add(this.estatusCallcenterSrvc.get({ esautomatico: 0 }).subscribe(res => this.lstEstatusCallCenter = res));
 
   autoImprimir = () => {
-    const autoImprimir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTOIMPRIMIR_PEDIDO);
+    const autoImprimir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTOIMPRIMIR_PEDIDO) as boolean;
+    const autoFirmar = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTO_FIRMA_DTE_COMANDA_LINEA) as boolean;
     const objImprimir = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
-    this.comandasEnLinea.forEach((obj, i) => {
+    this.comandasEnLinea.forEach(async (obj, i) => {
       if (autoImprimir) {
         if (+obj.impresa === 0) {
           objImprimir.imprimir(obj, i);
@@ -167,7 +171,18 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         objImprimir.marcarComoImpresa(obj);
       }
       this.comandasEnLinea[i].impresa = 1;
-    });    
+
+      if (autoFirmar) {
+        await this.firmarAutomaticamente(obj, objImprimir);
+      }
+    });
+    if (autoImprimir && autoFirmar && this.intentosDeFirmarTodo <= 5) {
+      this.intentosDeFirmarTodo++;
+      this.loadComandasEnLinea();
+    } else if (this.intentosDeFirmarTodo > 5) {
+      this.snackBar.dismiss();
+      this.snackBar.open('Se intentó firmar automáticamente más de 5 veces y no se logró. Si dese intentar de nuevo, por favor refresque la página con CTRL + SHIFT + R.', 'Facturación', { duration: 10000 });      
+    }
   }
 
   loadComandasEnLinea = () => {
@@ -209,6 +224,19 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       }
       this.tblPedidos.renderRows();
     }
+  }
+
+  firmarAutomaticamente = async (obj: any, objImprimir: Impresion) => {
+    const res = await this.facturaSrvc.firmar(+obj.factura.factura).toPromise();
+    if (res.exito) {
+      objImprimir.imprimirFactura(res.factura, obj.origen_datos, obj);
+      // const modoFactura = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_MODO_FACTURA) || 1;          
+      // if (modoFactura === 1) {
+      // } else {
+      //   this.representacionGrafica(+obj.factura.factura);
+      // }          
+    }
+    this.snackBar.open(res.mensaje, 'Facturación', { duration: (res.exito ? 3000 : 10000) });
   }
     
 }
