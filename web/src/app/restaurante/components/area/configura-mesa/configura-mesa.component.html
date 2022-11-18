@@ -13,6 +13,14 @@
                 </mat-option>
             </mat-select>
         </mat-form-field>
+        <mat-form-field class="fullWidth" *ngIf="+mesa.eshabitacion === 1">
+            <mat-label>Tipo de habitación</mat-label>
+            <mat-select name="tipo_habitacion" [(ngModel)]="mesa.tipo_habitacion" [required]="+mesa.eshabitacion === 1">
+                <mat-option *ngFor="let tiphab of tiposHabitacion" [value]="tiphab.tipo_habitacion">
+                    {{tiphab.descripcion}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
     </form>
 </div>
 <div mat-dialog-actions align="end">

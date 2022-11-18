@@ -20,6 +20,7 @@ export class ReservacionComponent implements AfterViewInit {
   @Output() requestUpdate: EventEmitter<any> = new EventEmitter<any>();
   @Input() cDate: string;
   @Input() roomIdType: number;
+  @Input() idReservacion: number = null;
 
   public isCanceled(): boolean {
     const obj = FakeBakend.RoomReservations.find(element => element.id.toString() === this.resId.toString());
@@ -67,7 +68,7 @@ export class ReservacionComponent implements AfterViewInit {
   showDisponible() {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {      
       width: '75%',
-      data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType },
+      data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType, idReservacion: this.idReservacion },
     });
     dialogRef.afterClosed().subscribe(result => {
       this.requestUpdate.emit();

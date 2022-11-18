@@ -24,6 +24,7 @@ export interface DialogData {
   cDate: string;
   roomIdType: number;
   reserva?: Reserva;
+  idReservacion?: number;
 }
 
 @Component({
@@ -70,7 +71,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   ) { }
 
   ngOnInit(): void {
-    // console.log('DATA = ', this.data)
+    console.log('DATA = ', this.data)
     this.resetReserva();
     this.loadTarifasReserva();
     this.loadClientesMaster();

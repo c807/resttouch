@@ -33,15 +33,16 @@ export interface DayCalendar {
   domingo: (RevStat | string);
   habitacion: (HabType | string);
   habitacionName: string;
-  roomId?: number,
-  resL?: number,
-  resM?: number,
-  resMi?: number,
-  resJ?: number,
-  resV?: number,
-  resS?: number,
-  resD?: number,
-  roomIdType?: number
+  roomId?: number;
+  resL?: number;
+  resM?: number;
+  resMi?: number;
+  resJ?: number;
+  resV?: number;
+  resS?: number;
+  resD?: number;
+  roomIdType?: number;
+  idReservacion?: number;
 }
 
 /**
@@ -229,7 +230,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
       // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
       this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
       // this.dataSource = JSON.parse(JSON.stringify(this.dataSourceTemp));
-      console.log('DataSource = ', this.dataSource.data);
+      // console.log('DataSource = ', this.dataSource.data);
       this.dataSourceTemp = null;
       // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
       this.setPaginatorAndSort();
@@ -246,7 +247,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   procesaResevablesReservaciones = (reservable: MesaDisponible, dias: any): DayCalendar => {
     const resRes: DayCalendar = {
       habitacionName: reservable.etiqueta || reservable.numero.toString(),
-      habitacion: (reservable.tipo_habitacion as TipoHabitacion).icono,
+      habitacion: reservable.tipo_habitacion ? (reservable.tipo_habitacion as TipoHabitacion)?.icono || 'home' : 'home',
       lunes: RevStat.DISPONIBLE,
       martes: RevStat.DISPONIBLE,
       miercoles: RevStat.DISPONIBLE,
@@ -256,7 +257,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
       domingo: RevStat.DISPONIBLE,
       roomId: +reservable.mesa,
       resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1,
-      roomIdType: +(reservable.tipo_habitacion as TipoHabitacion).tipo_habitacion
+      roomIdType: reservable.tipo_habitacion ? +(reservable.tipo_habitacion as TipoHabitacion).tipo_habitacion : 1,
+      idReservacion: null
     };
 
     let reservas: Reserva[] = [];
@@ -269,39 +271,39 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
               for (const det of reserva.detalle) {
                 switch (true) {
                   case det.fecha === moment(this.monDate).format(GLOBAL.dbDateFormat):
-                    resRes.lunes = reserva.descripcion_estatus_reserva;
-                    // resRes.resL = +reserva.reserva;
+                    resRes.lunes = reserva.descripcion_estatus_reserva;                    
                     resRes.resL = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.marDate).format(GLOBAL.dbDateFormat):
-                    resRes.martes = reserva.descripcion_estatus_reserva;
-                    // resRes.resM = +reserva.reserva;
+                    resRes.martes = reserva.descripcion_estatus_reserva;                    
                     resRes.resM = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.mierDate).format(GLOBAL.dbDateFormat):
-                    resRes.miercoles = reserva.descripcion_estatus_reserva;
-                    // resRes.resMi = +reserva.reserva;
+                    resRes.miercoles = reserva.descripcion_estatus_reserva;                    
                     resRes.resMi = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.jueDate).format(GLOBAL.dbDateFormat):
-                    resRes.jueves = reserva.descripcion_estatus_reserva;
-                    // resRes.resJ = +reserva.reserva;
+                    resRes.jueves = reserva.descripcion_estatus_reserva;                    
                     resRes.resJ = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.vierDate).format(GLOBAL.dbDateFormat):
-                    resRes.viernes = reserva.descripcion_estatus_reserva;
-                    // resRes.resV = +reserva.reserva;
+                    resRes.viernes = reserva.descripcion_estatus_reserva;                    
                     resRes.resV = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.sabdDate).format(GLOBAL.dbDateFormat):
-                    resRes.sabado = reserva.descripcion_estatus_reserva;
-                    // resRes.resS = +reserva.reserva;
+                    resRes.sabado = reserva.descripcion_estatus_reserva;                    
                     resRes.resS = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.domDate).format(GLOBAL.dbDateFormat):
-                    resRes.domingo = reserva.descripcion_estatus_reserva;
-                    // resRes.resD = +reserva.reserva;
+                    resRes.domingo = reserva.descripcion_estatus_reserva;                    
                     resRes.resD = 1;
+                    resRes.idReservacion = +reserva.reserva;
                     break;
                 }
               }
