@@ -21,7 +21,7 @@ class Reserva extends CI_Controller {
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
-			$hayCruceDeFechas = $this->Reserva_model->hayCruceDeFechas($req['mesa'], $req['fecha_del'], $req['fecha_al']);
+			$hayCruceDeFechas = $this->Reserva_model->hayCruceDeFechas($req['mesa'], $req['fecha_del'], $req['fecha_al'], (int)$req['reserva']);
 			if($hayCruceDeFechas) {
 				$datos['mensaje'] = 'Ya existe una reservación en estas fechas. Por favor cambie las fechas e intente de nuevo.';
 			} else {

@@ -1,8 +1,8 @@
 import { OnInit, AfterViewInit, Component, Inject, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { DateAdapter } from '@angular/material/core';
+import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomDateAdapter } from '../../../../shared/classes/custom-date-adapter';
+import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '../../../../shared/classes/custom-date-adapter';
 import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -32,7 +32,8 @@ export interface DialogData {
   templateUrl: './reservation-dialog.component.html',
   styleUrls: ['./reservation-dialog.component.css'],
   providers: [
-    { provide: DateAdapter, useClass: CustomDateAdapter }
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS }
   ]
 })
 export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -72,11 +73,11 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     public dialog: MatDialog
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     // console.log('DATA = ', this.data)
     this.resetReserva();
-    this.loadTarifasReserva();
-    this.loadClientesMaster();
+    // await this.loadTarifasReserva();
+    // await this.loadClientesMaster();
   }
 
   async ngAfterViewInit() {
@@ -84,6 +85,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       start: new FormControl(moment(this.data.cDate).toDate()),
       end: new FormControl(),
     });
+
+    await this.loadTarifasReserva();
+    await this.loadClientesMaster();
 
     if (+this.data.idReservacion > 0) {
       await this.loadReservacion(+this.data.idReservacion);
@@ -100,16 +104,14 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     this.dialogRef.close();
   }
 
-  loadTarifasReserva = () => {
-    this.endSubs.add(
-      this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).subscribe(res => this.tarifas = res)
-    );
+  loadTarifasReserva = async () => {
+    this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
   }
 
   loadClientesMaster = async () => {
     const listaCM = await this.clienteMasterSrvc.get().toPromise();
     this.lstClientesMaster = OrdenarArrayObjetos(listaCM, 'nombre');
-    this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));    
+    this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));
   }
 
   resetReserva = () => {
@@ -135,7 +137,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
         start: moment(this.reserva.fecha_del).toDate(),
         end: moment(this.reserva.fecha_al).toDate()
       });
-      this.txtClienteMasterSelected = this.filteredLstClientesMaster.find(cm => +cm.cliente_master === +this.reserva.cliente_master);      
+      this.txtClienteMasterSelected = this.filteredLstClientesMaster.find(cm => +cm.cliente_master === +this.reserva.cliente_master);
     }
   }
 
@@ -202,7 +204,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   displayClienteMaster = (cm: ClienteMaster) => {
     if (cm) {
-      this.reserva.cliente_master = cm.cliente_master;      
+      this.reserva.cliente_master = cm.cliente_master;
       return cm.nombre + (cm.numero_documento ? ` (${cm.numero_documento})` : '');
     }
     return undefined;

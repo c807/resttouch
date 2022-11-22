@@ -20,8 +20,8 @@ import { ReservaService } from '../../services/reserva.service';
 import { Subscription } from 'rxjs';
 import { Reserva } from '../../interfaces/reserva';
 
-import { DateAdapter } from '@angular/material/core';
-import { CustomDateAdapter } from '../../../shared/classes/custom-date-adapter';
+import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '../../../shared/classes/custom-date-adapter';
 
 export interface DayCalendar {
   martes: (RevStat | string);
@@ -63,7 +63,8 @@ const ELEMENT_DATA: DayCalendar[] = [];
   templateUrl: './booker.component.html',
   styleUrls: ['./booker.component.css'],
   providers: [
-    { provide: DateAdapter, useClass: CustomDateAdapter }
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
   ]
 })
 export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -134,8 +135,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }
         // console.log(this.roomArr);
-        this.fltrTipoHabitacion.dataSourceR = this.roomArr;
-        this.fltrTipoHabitacion.setdata();
+        // this.fltrTipoHabitacion.dataSourceR = this.roomArr;
+        // this.fltrTipoHabitacion.setdata();
         this.cargando = false;
       })
     );
@@ -271,38 +272,45 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
               for (const det of reserva.detalle) {
                 switch (true) {
                   case det.fecha === moment(this.monDate).format(GLOBAL.dbDateFormat):
-                    resRes.lunes = reserva.descripcion_estatus_reserva;                    
-                    resRes.resL = 1;
+                    resRes.lunes = reserva.descripcion_estatus_reserva;
+                    // resRes.resL = 1;
+                    resRes.resL = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.marDate).format(GLOBAL.dbDateFormat):
-                    resRes.martes = reserva.descripcion_estatus_reserva;                    
-                    resRes.resM = 1;
+                    resRes.martes = reserva.descripcion_estatus_reserva;
+                    // resRes.resM = 1;
+                    resRes.resM = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.mierDate).format(GLOBAL.dbDateFormat):
-                    resRes.miercoles = reserva.descripcion_estatus_reserva;                    
-                    resRes.resMi = 1;
+                    resRes.miercoles = reserva.descripcion_estatus_reserva;
+                    // resRes.resMi = 1;
+                    resRes.resMi = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.jueDate).format(GLOBAL.dbDateFormat):
-                    resRes.jueves = reserva.descripcion_estatus_reserva;                    
-                    resRes.resJ = 1;
+                    resRes.jueves = reserva.descripcion_estatus_reserva;
+                    // resRes.resJ = 1;
+                    resRes.resJ = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.vierDate).format(GLOBAL.dbDateFormat):
-                    resRes.viernes = reserva.descripcion_estatus_reserva;                    
-                    resRes.resV = 1;
+                    resRes.viernes = reserva.descripcion_estatus_reserva;
+                    // resRes.resV = 1;
+                    resRes.resV = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.sabdDate).format(GLOBAL.dbDateFormat):
-                    resRes.sabado = reserva.descripcion_estatus_reserva;                    
-                    resRes.resS = 1;
+                    resRes.sabado = reserva.descripcion_estatus_reserva;
+                    // resRes.resS = 1;
+                    resRes.resS = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                   case det.fecha === moment(this.domDate).format(GLOBAL.dbDateFormat):
-                    resRes.domingo = reserva.descripcion_estatus_reserva;                    
-                    resRes.resD = 1;
+                    resRes.domingo = reserva.descripcion_estatus_reserva;
+                    // resRes.resD = 1;
+                    resRes.resD = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
                     break;
                 }

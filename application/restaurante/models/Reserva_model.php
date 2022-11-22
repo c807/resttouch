@@ -33,8 +33,8 @@ class Reserva_model extends General_model
 		$campos = "{$camposReserva}, b.descripcion AS descripcion_estatus_reserva, b.color";
 		$reservas = $this->db
 			->select($campos)
-			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')
-			->where('a.fecha_del', $fecha)
+			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')			
+			->where("'{$fecha}' BETWEEN a.fecha_del AND a.fecha_al", NULL, FALSE)
 			->get('reserva a')
 			->result();
 
@@ -60,8 +60,11 @@ class Reserva_model extends General_model
 		} while ($fecha <= $fecha_fin);
 	}
 
-	public function hayCruceDeFechas($mesa, $fdel, $fal)
+	public function hayCruceDeFechas($mesa, $fdel, $fal, $idReserva = 0)
 	{
+		if ((int)$idReserva > 0) {
+			$this->db->where('a.reserva <>', $idReserva);
+		}
 		$cruce = $this->db
 			->select('a.reserva')
 			->where('a.mesa', $mesa)

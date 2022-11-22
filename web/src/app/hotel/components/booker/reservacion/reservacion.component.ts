@@ -3,7 +3,7 @@ import { RevStat } from './RevStat';
 import { MatDialog } from '@angular/material/dialog';
 import { ReservationDialogComponent } from '../reservationd/reservation-dialog.component';
 import { ReservationDialogcancelComponent } from '../reservationc/reservation-dialogcancel.component';
-import { FakeBakend } from '../FakeBakend';
+// import { FakeBakend } from '../FakeBakend';
 
 
 @Component({
@@ -23,8 +23,9 @@ export class ReservacionComponent implements AfterViewInit {
   @Input() idReservacion: number = null;
 
   public isCanceled(): boolean {
-    const obj = FakeBakend.RoomReservations.find(element => element.id.toString() === this.resId.toString());
-    return obj.cancelado;
+    // const obj = FakeBakend.RoomReservations.find(element => element.id.toString() === this.resId.toString());
+    // return obj.cancelado;
+    return false
   }
 
   public Disponible(): boolean {
@@ -56,7 +57,8 @@ export class ReservacionComponent implements AfterViewInit {
     if (this.Disponible()) {
       this.showDisponible();
     } else if (this.Reservada()) {
-      this.showDisponible(this.idReservacion);
+      // this.showDisponible(this.idReservacion);
+      this.showDisponible(+this.resId);
       // this.cancelReservation();
     } else if (this.Mantenimiento()) {
       this.cancelReservation();
