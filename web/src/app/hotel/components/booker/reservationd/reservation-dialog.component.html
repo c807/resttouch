@@ -13,14 +13,14 @@
     <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
   </mat-form-field>
 
-  <mat-form-field style="width: 45%;" appearance="fill">
+  <!-- <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">
     <mat-label>Estatus</mat-label>
     <mat-select (selectionChange)="select($event.value)" [disabled]="disableSelect.value">
       <mat-option *ngFor="let option of reservationTypes" value="{{ option.id }}">
         {{ option.name }}
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </mat-form-field> -->
   <!-- <div style="margin-bottom: 10px" [ngClass]="{
     'background-d': selectedResType.name === Disponible(),
     'background-re': selectedResType.name === Reservada(),
@@ -33,11 +33,11 @@
   </div> -->
   <br/>
   <mat-form-field style="width: 45%;">
-    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="reserva.cantidad_adultos" (blur)="selectTarifa()" required>
+    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="reserva.cantidad_adultos" (blur)="selectTarifa()" min="0" required>
   </mat-form-field>
 
   <mat-form-field style="width: 45%;">
-    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="reserva.cantidad_menores" (blur)="selectTarifa()" required>
+    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="reserva.cantidad_menores" (blur)="selectTarifa()" min="0" required>
   </mat-form-field>
 
   <mat-form-field style="width: 90%;">
@@ -51,11 +51,23 @@
 
   <mat-form-field style="width: 90%;">
     <mat-label>Cliente</mat-label>
-    <mat-select name="cliente_master" [(ngModel)]="reserva.cliente_master" required>      
+    <!-- <mat-select name="cliente_master" [(ngModel)]="reserva.cliente_master" required>      
       <mat-option *ngFor="let cliMas of lstClientesMaster" [value]="cliMas.cliente_master">
         {{ cliMas.nombre }}{{cliMas.numero_documento ? (' (' + cliMas.numero_documento + ')') : ''}}
       </mat-option>
-    </mat-select>
+    </mat-select> -->
+
+    
+    <input type="text" [(ngModel)]="txtClienteMasterSelected" [ngModelOptions]="{standalone: true}" 
+           placeholder="Cliente" matInput [matAutocomplete]="autoClienteMaster" (keyup)="filtrarClientesMaster(txtClienteMasterSelected)" required>
+
+    <mat-autocomplete #autoClienteMaster="matAutocomplete" [displayWith]="displayClienteMaster">
+      <mat-option *ngFor="let cliMas of filteredLstClientesMaster" [value]="cliMas">
+        {{ cliMas.nombre }}{{cliMas.numero_documento ? (' (' + cliMas.numero_documento + ')') : ''}}
+      </mat-option>
+    </mat-autocomplete>
+
+
   </mat-form-field>
 
 </div>

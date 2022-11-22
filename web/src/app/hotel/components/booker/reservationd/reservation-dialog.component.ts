@@ -57,6 +57,8 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public tarifas: TarifaReserva[] = [];
   public reserva: Reserva;
   public lstClientesMaster: ClienteMaster[] = [];
+  public filteredLstClientesMaster: ClienteMaster[] = [];
+  public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
 
   private endSubs = new Subscription();
 
@@ -71,20 +73,20 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   ) { }
 
   ngOnInit(): void {
-    console.log('DATA = ', this.data)
+    // console.log('DATA = ', this.data)
     this.resetReserva();
     this.loadTarifasReserva();
     this.loadClientesMaster();
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit() {
     this.range = new FormGroup({
       start: new FormControl(moment(this.data.cDate).toDate()),
       end: new FormControl(),
     });
 
-    if (this.data.reserva) {
-      this.reserva = JSON.parse(JSON.stringify(this.data.reserva));
+    if (+this.data.idReservacion > 0) {
+      await this.loadReservacion(+this.data.idReservacion);
     } else {
       this.resetReserva();
     }
@@ -104,10 +106,10 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
-  loadClientesMaster = () => {
-    this.endSubs.add(
-      this.clienteMasterSrvc.get().subscribe(res => this.lstClientesMaster = OrdenarArrayObjetos(res, 'nombre'))
-    );
+  loadClientesMaster = async () => {
+    const listaCM = await this.clienteMasterSrvc.get().toPromise();
+    this.lstClientesMaster = OrdenarArrayObjetos(listaCM, 'nombre');
+    this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));    
   }
 
   resetReserva = () => {
@@ -125,25 +127,27 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     // console.log('ON RESET = ', this.reserva);
   }
 
-  public Disponible(): String {
-    return RevStat.DISPONIBLE;
+  loadReservacion = async (reservaId: number) => {
+    const rsv = await this.reservaSrvc.get({ reserva: +reservaId }, true).toPromise() as Reserva[];
+    if (rsv.length > 0) {
+      this.reserva = rsv[0];
+      this.range.setValue({
+        start: moment(this.reserva.fecha_del).toDate(),
+        end: moment(this.reserva.fecha_al).toDate()
+      });
+      this.txtClienteMasterSelected = this.filteredLstClientesMaster.find(cm => +cm.cliente_master === +this.reserva.cliente_master);      
+    }
   }
 
-  public Reservada(): String {
-    return RevStat.RESERVADA;
-  }
+  public Disponible = (): String => RevStat.DISPONIBLE;
 
-  public Mantenimiento(): String {
-    return RevStat.MANTENIMIENTO;
-  }
+  public Reservada = (): String => RevStat.RESERVADA;
 
-  public NoDisponible(): String {
-    return RevStat.NO_DISPONIBLE;
-  }
+  public Mantenimiento = (): String => RevStat.MANTENIMIENTO;
 
-  public select(value): void {
-    this.selectedResType = this.reservationTypes[value];
-  }
+  public NoDisponible = (): String => RevStat.NO_DISPONIBLE;
+
+  // public select = (value) => this.selectedResType = this.reservationTypes[value];
 
   public addReservation(): void {
     //Get the number of days in range
@@ -163,9 +167,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       dialogRef.afterClosed().subscribe(res => {
-        if (res) {        
+        if (res) {
           this.endSubs.add(
             this.reservaSrvc.save(this.reserva).subscribe(res => {
               this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
@@ -178,19 +182,38 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   }
 
   public selectTarifa = () => {
-    const adultos = +this.reserva.cantidad_adultos || 0;
-    const menores = +this.reserva.cantidad_menores || 0;
+    this.reserva.cantidad_adultos = Math.abs(+this.reserva.cantidad_adultos || 0);
+    this.reserva.cantidad_menores = Math.abs(+this.reserva.cantidad_menores || 0);
+    const adultos = this.reserva.cantidad_adultos;
+    const menores = this.reserva.cantidad_menores;
     let tarifaSeleccionada: TarifaReserva;
     switch (true) {
-      case adultos > 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && menores <= +t.cantidad_menores); break;      
+      case adultos > 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && menores <= +t.cantidad_menores); break;
       case adultos > 0 && menores === 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos); break;
       case adultos === 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => menores <= +t.cantidad_menores); break;
     }
-    
-    if (tarifaSeleccionada && tarifaSeleccionada.tarifa_reserva) {      
+
+    if (tarifaSeleccionada && tarifaSeleccionada.tarifa_reserva) {
       this.reserva.tarifa_reserva = tarifaSeleccionada.tarifa_reserva;
     } else {
       this.reserva.tarifa_reserva = null;
-    }    
+    }
+  }
+
+  displayClienteMaster = (cm: ClienteMaster) => {
+    if (cm) {
+      this.reserva.cliente_master = cm.cliente_master;      
+      return cm.nombre + (cm.numero_documento ? ` (${cm.numero_documento})` : '');
+    }
+    return undefined;
+  }
+
+  filtrarClientesMaster = (value: (ClienteMaster | string)) => {
+    if (value && (typeof value === 'string')) {
+      const filterValue = value.toLowerCase();
+      this.filteredLstClientesMaster = this.lstClientesMaster.filter(cm => cm.nombre.toLowerCase().includes(filterValue) || cm.numero_documento.toLocaleLowerCase().includes(filterValue));
+    } else {
+      this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));
+    }
   }
 }

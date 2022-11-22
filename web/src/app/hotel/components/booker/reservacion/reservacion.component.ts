@@ -56,7 +56,8 @@ export class ReservacionComponent implements AfterViewInit {
     if (this.Disponible()) {
       this.showDisponible();
     } else if (this.Reservada()) {
-      this.cancelReservation();
+      this.showDisponible(this.idReservacion);
+      // this.cancelReservation();
     } else if (this.Mantenimiento()) {
       this.cancelReservation();
     } else if (this.NoDisponible()) {
@@ -65,10 +66,10 @@ export class ReservacionComponent implements AfterViewInit {
 
   }
 
-  showDisponible() {
+  showDisponible(reservacionId: number = null) {
     const dialogRef = this.dialog.open(ReservationDialogComponent, {      
       width: '75%',
-      data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType, idReservacion: this.idReservacion },
+      data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType, idReservacion: reservacionId },
     });
     dialogRef.afterClosed().subscribe(result => {
       this.requestUpdate.emit();

@@ -59,4 +59,15 @@ class Reserva_model extends General_model
 			$fecha->modify('+1 day');
 		} while ($fecha <= $fecha_fin);
 	}
+
+	public function hayCruceDeFechas($mesa, $fdel, $fal)
+	{
+		$cruce = $this->db
+			->select('a.reserva')
+			->where('a.mesa', $mesa)
+			->where("(a.fecha_al BETWEEN '{$fdel}' AND '{$fal}' OR a.fecha_del BETWEEN '{$fdel}' AND '{$fal}' OR '{$fdel}' BETWEEN a.fecha_del AND a.fecha_al OR '{$fal}' BETWEEN a.fecha_del AND a.fecha_al)", NULL, FALSE)
+			->get('reserva a')
+			->row();
+		return $cruce && (int)$cruce->reserva > 0 ? true : false;
+	}
 }

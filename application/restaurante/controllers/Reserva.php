@@ -20,15 +20,20 @@ class Reserva extends CI_Controller {
 		$rsrv = new Reserva_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
-		if ($this->input->method() == 'post') {			
-			$datos['exito'] = $rsrv->guardar($req);
-			if($datos['exito']) {
-				$rsrv->generaDetalle();
-				$datos['reserva'] = $rsrv;				
-				$datos['mensaje'] = 'Datos actualizados con éxito.';
+		if ($this->input->method() == 'post') {
+			$hayCruceDeFechas = $this->Reserva_model->hayCruceDeFechas($req['mesa'], $req['fecha_del'], $req['fecha_al']);
+			if($hayCruceDeFechas) {
+				$datos['mensaje'] = 'Ya existe una reservación en estas fechas. Por favor cambie las fechas e intente de nuevo.';
 			} else {
-				$datos['mensaje'] = $rsrv->getMensaje();
-			}	
+				$datos['exito'] = $rsrv->guardar($req);
+				if($datos['exito']) {
+					$rsrv->generaDetalle();
+					$datos['reserva'] = $rsrv;
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
+				} else {
+					$datos['mensaje'] = $rsrv->getMensaje();
+				}
+			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
@@ -57,6 +62,12 @@ class Reserva extends CI_Controller {
         } else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		} 
+		$this->output->set_output(json_encode($datos));
+	}
+
+	public function simple_search()
+	{
+		$datos = $this->Reserva_model->buscar($_GET);
 		$this->output->set_output(json_encode($datos));
 	}
 
