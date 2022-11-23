@@ -15,6 +15,7 @@ class Fpago_model extends General_model {
 	public $pedirautorizacion = 0;
 	public $sinfactura = 0;
 	public $esefectivo = 0;
+	public $escobrohabitacion = 0;
 
 	public function __construct($id = "")
 	{

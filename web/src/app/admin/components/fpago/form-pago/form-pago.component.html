@@ -24,6 +24,7 @@
             <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
             <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>
             <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>
+            <mat-checkbox name="escobrohabitacion" class="btnAccion" [(ngModel)]="+fpago.escobrohabitacion">Es cobro a habitación</mat-checkbox>
             <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+fpago.activo">Activo</mat-checkbox>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFpago.form.valid">

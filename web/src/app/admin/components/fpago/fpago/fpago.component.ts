@@ -24,7 +24,8 @@ export class FpagoComponent implements OnInit {
       pedirautorizacion: 0,
       adjuntararchivo: 0,
       sinfactura: 0,
-      activo: 1
+      activo: 1,
+      escobrohabitacion: 0
     };
   }
 

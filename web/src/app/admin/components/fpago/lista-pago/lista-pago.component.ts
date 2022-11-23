@@ -61,6 +61,7 @@ export class ListaPagoComponent implements OnInit {
             fp.pedirautorizacion = +fp.pedirautorizacion;
             fp.sinfactura = +fp.sinfactura;
             fp.activo = +fp.activo;
+            fp.escobrohabitacion = +fp.escobrohabitacion;
             return fp;
           });
           this.listaFpago = lst;
