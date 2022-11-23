@@ -14,8 +14,11 @@ import { Reserva } from '../../../interfaces/reserva';
 import { ReservaService } from '../../../services/reserva.service';
 import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
 import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
+import { EstatusReserva } from '../../../interfaces/estatus-reserva';
+import { EstatusReservaService } from '../../../services/estatus-reserva.service';
 import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master';
 import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
+
 
 import { Subscription } from 'rxjs';
 
@@ -60,6 +63,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public lstClientesMaster: ClienteMaster[] = [];
   public filteredLstClientesMaster: ClienteMaster[] = [];
   public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
+  public lstEstatusReserva: EstatusReserva[] = [];
 
   private endSubs = new Subscription();
 
@@ -70,14 +74,12 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     private reservaSrvc: ReservaService,
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public estatusReservaSrvc: EstatusReservaService
   ) { }
 
-  ngOnInit() {
-    // console.log('DATA = ', this.data)
-    this.resetReserva();
-    // await this.loadTarifasReserva();
-    // await this.loadClientesMaster();
+  ngOnInit() {    
+    this.resetReserva();    
   }
 
   async ngAfterViewInit() {
@@ -87,6 +89,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     });
 
     await this.loadTarifasReserva();
+    await this.loadEstatusReserva();
     await this.loadClientesMaster();
 
     if (+this.data.idReservacion > 0) {
@@ -106,6 +109,10 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   loadTarifasReserva = async () => {
     this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
+  }
+  
+  loadEstatusReserva = async () => {
+    this.lstEstatusReserva = await this.estatusReservaSrvc.get().toPromise();
   }
 
   loadClientesMaster = async () => {
@@ -141,13 +148,13 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  public Disponible = (): String => RevStat.DISPONIBLE;
+  // public Disponible = (): String => RevStat.DISPONIBLE;
 
-  public Reservada = (): String => RevStat.RESERVADA;
+  // public Reservada = (): String => RevStat.RESERVADA;
 
-  public Mantenimiento = (): String => RevStat.MANTENIMIENTO;
+  // public Mantenimiento = (): String => RevStat.MANTENIMIENTO;
 
-  public NoDisponible = (): String => RevStat.NO_DISPONIBLE;
+  // public NoDisponible = (): String => RevStat.NO_DISPONIBLE;
 
   // public select = (value) => this.selectedResType = this.reservationTypes[value];
 
@@ -156,7 +163,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
     this.reserva.fecha_del = moment(this.range.value.start).format(GLOBAL.dbDateFormat);
     this.reserva.fecha_al = moment(this.range.value.end).format(GLOBAL.dbDateFormat);
-    this.reserva.estatus_reserva = 1;
+    if (this.reserva && (this.reserva.estatus_reserva === null || this.reserva.estatus_reserva === undefined)) {
+      this.reserva.estatus_reserva = 1;
+    }
 
     // console.log('RESERVA = ', this.reserva);
 
@@ -164,7 +173,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Reservación',
-        'Esto generará una nueva reserva. ¿Desea continuar?',
+        `Esto ${this.reserva && +this.reserva.reserva > 0 ? 'modificará la' : 'generará una nueva'} reserva. ¿Desea continuar?`,
         'Sí', 'No'
       )
     });

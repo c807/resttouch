@@ -36,6 +36,14 @@ export class ReservacionComponent implements AfterViewInit {
     return (this.text === RevStat.RESERVADA && this.isCanceled() === false);
   }
 
+  public CheckIn(): boolean {
+    return (this.text === RevStat.CHECK_IN && this.isCanceled() === false);
+  }
+
+  public CheckOut(): boolean {
+    return (this.text === RevStat.CHECK_OUT && this.isCanceled() === false);
+  }
+
   public Mantenimiento(): boolean {
     return (this.text === RevStat.MANTENIMIENTO && this.isCanceled() === false);
   }
@@ -56,10 +64,8 @@ export class ReservacionComponent implements AfterViewInit {
 
     if (this.Disponible()) {
       this.showDisponible();
-    } else if (this.Reservada()) {
-      // this.showDisponible(this.idReservacion);
-      this.showDisponible(+this.resId);
-      // this.cancelReservation();
+    } else if (this.Reservada() || this.CheckIn()) {
+      this.showDisponible(+this.resId);      
     } else if (this.Mantenimiento()) {
       this.cancelReservation();
     } else if (this.NoDisponible()) {

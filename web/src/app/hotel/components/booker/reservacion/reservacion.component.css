@@ -14,7 +14,21 @@
   background-color: cornflowerblue;
 }
 .background-re:hover{
-  background-color: cadetblue;
+  background-color: #24e4eb;
+}
+
+.background-ch{
+  background-color: yellowgreen;
+}
+.background-ch:hover{
+  background-color: yellow;
+}
+
+.background-cho{
+  background-color: gray;
+}
+.background-cho:hover{
+  background-color: lightgray;
 }
 
 .background-man{
