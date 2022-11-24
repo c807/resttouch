@@ -1248,10 +1248,10 @@ export class TranComanda {
     this.mesaEnUso.cuentas[idxCta].cerrada = +obj.cerrada;
   }
 
-  trasladoMesa = <T>(dialogRef: MatDialogRef<T> = null) => {
+  trasladoMesa = <T>(dialogRef: MatDialogRef<T> = null, idCuenta: number = null) => {
     const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
       width: '55%',
-      data: { mesaEnUso: this.mesaEnUso }
+      data: { mesaEnUso: this.mesaEnUso, idCuenta: idCuenta }
     });
 
     this.endSubs.add(

@@ -97,14 +97,12 @@ class Comanda extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	public function unir_cuentas($cuentaDe, $cuentaA)
-	{
+	private function join_accounts($cuentaDe, $cuentaA) {
 		$deCuenta = new Cuenta_model($cuentaDe);
 		$aCuenta = new Cuenta_model($cuentaA);
 		$datos = ['exito' => false];
 		if ($deCuenta->cerrada == 0) {
-			if ($aCuenta->cerrada == 0) {
-				// $detOrigen = $deCuenta->getDetalle(['_es_unificacion' => true, '_for_print' => true, '_totalCero' => true]);
+			if ($aCuenta->cerrada == 0) {				
 				$detOrigen = $deCuenta->get_plain_detalle_cuenta();
 				if (count($detOrigen) > 0) {
 					foreach ($detOrigen as $do) {
@@ -122,6 +120,12 @@ class Comanda extends CI_Controller
 		} else {
 			$datos['mensaje'] = 'La cuenta de origen ya está cerrada.';
 		}
+		return $datos;
+	}
+
+	public function unir_cuentas($cuentaDe, $cuentaA)
+	{
+		$datos = $this->join_accounts($cuentaDe, $cuentaA);
 		$this->output->set_output(json_encode($datos));
 	}
 
@@ -148,11 +152,17 @@ class Comanda extends CI_Controller
 			if ($cmdDestino) {
 				$datos['exito'] = $cmd->trasladar_cuentas_a_comanda($cmdDestino->comanda, $cuentaATrasladar);
 				if ($datos['exito']) {
-					/* 
-					JA 23/11/2022: Antes de hacer las siguientes dos acciones hay que validar si todas las cuentas de la comanda $cmd están cerradas.
-					*/
-					$cmd->guardar(['estatus' => 2]);
-					$mesaOrigen->guardar(['estatus' => 1]);
+					if ((int)$cuentaATrasladar > 0 && (int)$mesaDestino->eshabitacion === 1) {
+						$cuentaDestino = $this->Cuenta_model->buscar(['comanda' => $cmdDestino->comanda, 'numero' => 1, 'cerrada' => 0, '_uno' => true]);
+						if ($cuentaDestino) {
+							$this->join_accounts($cuentaATrasladar, $cuentaDestino->cuenta);
+						}
+					}
+
+					if ($cmd->check_cuentas_cerradas()) {
+						$cmd->guardar(['estatus' => 2]); // Cierra la comanda
+						$mesaOrigen->guardar(['estatus' => 1]); // Libera la mesa de origen
+					}
 				} else {
 					$datos['mensaje'] = $cmd->getMensaje();
 				}

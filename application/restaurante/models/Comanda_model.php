@@ -45,17 +45,9 @@ class Comanda_model extends General_Model
 
     public function getMesas()
     {
+        $campos = $this->getCampos(false, 'b.', 'mesa');
         return $this->db
-            ->select('
-			b.mesa,
-			b.area,
-			b.numero,
-			b.posx,
-			b.posy,
-			b.tamanio,
-			b.estatus, b.esmostrador, b.etiqueta, b.escallcenter,
-			b.impresora,
-			c.nombre as narea')
+            ->select("{$campos}, c.nombre as narea")
             ->join('mesa b', 'b.mesa = a.mesa')
             ->join('area c', 'c.area = b.area')
             ->where('a.comanda', $this->comanda)
@@ -1289,6 +1281,18 @@ class Comanda_model extends General_Model
             $cmd = new Comanda_model($item->comanda);
             $cmd->cerrar_comanda_domicilio();
         }
+    }
+
+    public function check_cuentas_cerradas($idcomanda = null)
+    {
+        if(empty($idcomanda)) {
+            $idcomanda = (int)$this->comanda;
+        }
+
+        $cntCuentas = $this->db->select('COUNT(cuenta) AS cantidad_cuentas')->where('comanda', $idcomanda)->get('cuenta')->row();
+        $cntCuentasCerradas = $this->db->select('COUNT(cuenta) AS cantidad_cuentas_cerradas')->where('comanda', $idcomanda)->where('cerrada', 1)->get('cuenta')->row();
+        
+        return (int)$cntCuentasCerradas->cantidad_cuentas_cerradas === (int)$cntCuentas->cantidad_cuentas;
     }
 }
 

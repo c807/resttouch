@@ -62,8 +62,8 @@ export class AccionesComandaComponent implements OnInit {
     this.cerrar();
   }
 
-  trasladarMesa = () => {
-    this.data.tranComanda.trasladoMesa(this.data.dialogRef);
+  trasladarMesa = (idCuenta: number = null) => {
+    this.data.tranComanda.trasladoMesa(this.data.dialogRef, idCuenta);
     this.cerrar();
   }
 

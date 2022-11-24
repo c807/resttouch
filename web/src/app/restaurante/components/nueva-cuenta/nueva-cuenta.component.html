@@ -1,16 +1,42 @@
 <h1 mat-dialog-title>Nueva cuenta - Comanda #{{data.mesaEnUso.comanda}}</h1>
 <div mat-dialog-content>
-    <form #frmNuevaCuenta="ngForm" novalidate>
-        <mat-form-field class="fullWidth">
-            <input type="text" matInput placeholder="Nombre" name="nombre" [(ngModel)]="nuevaCuenta.nombre" required>
-        </mat-form-field>
+    <app-cargando *ngIf="cargando"></app-cargando>
+    <form #frmNuevaCuenta="ngForm" novalidate>        
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>
+                        <button mat-raised-button type="button" color="accent" (click)="addCuenta()">
+                            Agregar
+                        </button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let nvaCta of nuevasCuentas; index as i">
+                    <td>{{nvaCta.numero}}</td>
+                    <td>
+                        <mat-form-field class="fullWidth">
+                            <input type="text" matInput placeholder="Nombre" name="nombre_{{i}}" [(ngModel)]="nvaCta.nombre" required>
+                        </mat-form-field>                        
+                    </td>
+                    <td>
+                        <button mat-raised-button type="button" color="accent" (click)="delCuenta(i)">
+                            Quitar
+                        </button>                        
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </form>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-raised-button (click)="cancelar()" color="warn" [disabled]="cargando">
         Cancelar
     </button>
-    <button mat-raised-button type="button" color="accent" (click)="guardar()" [disabled]="!frmNuevaCuenta.form.valid">
+    <button mat-raised-button type="button" color="accent" (click)="guardar()" [disabled]="!frmNuevaCuenta.form.valid || nuevasCuentas.length === 0">
         Guardar
     </button>
 </div>

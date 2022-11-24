@@ -34,7 +34,7 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {   
-    console.log('DATA = ', this.data);
+    // console.log('DATA = ', this.data);
     if (+this.data.idCuenta > 0) {
       this.idCuenta = +this.data.idCuenta;
     }
