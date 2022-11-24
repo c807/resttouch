@@ -20,6 +20,7 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
 
   public mesasDisponibles: MesaDisponible[] = [];
   public destino: MesaDisponible;
+  public idCuenta: number = null;
 
   private endSubs = new Subscription();
 
@@ -33,6 +34,11 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {   
+    console.log('DATA = ', this.data);
+    if (+this.data.idCuenta > 0) {
+      this.idCuenta = +this.data.idCuenta;
+    }
+
     this.loadMesasDisponibles();
   }
 
@@ -72,7 +78,7 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
     }
 
     this.endSubs.add(
-      this.comandaSrvc.trasladarMesa(+this.data.mesaEnUso.comanda, +this.data.mesaEnUso.mesa.mesa, +this.destino.mesa, params).subscribe(res => {
+      this.comandaSrvc.trasladarMesa(+this.data.mesaEnUso.comanda, +this.data.mesaEnUso.mesa.mesa, +this.destino.mesa, +this.idCuenta, params).subscribe(res => {
         if (res.exito) {
           this.snackBar.open(res.mensaje, 'Traslado de mesa', { duration: 3000 });
           this.dialogRef.close(true);

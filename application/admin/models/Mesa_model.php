@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Mesa_model extends General_Model {
+class Mesa_model extends General_Model
+{
 
 	public $mesa;
 	public $area;
@@ -27,49 +28,57 @@ class Mesa_model extends General_Model {
 		parent::__construct();
 		$this->setTabla('mesa');
 
-		if(!empty($id)) {
+		if (!empty($id)) {
 			$this->cargar($id);
 		}
 	}
 
-	public function get_comanda($args = []){
+	public function get_comanda($args = [])
+	{
 
-		if(isset($args['estatus'])) {
+		if (isset($args['estatus'])) {
 			$this->db->where('b.estatus', 1);
 		}
 
-		if(isset($args['sede'])) {
+		if (isset($args['sede'])) {
 			$this->db->where('b.sede', $args['sede']);
 		}
 
 		return $this->db
-		->select('
+			->select('
 			b.comanda,
 			b.usuario,
 			b.sede,
 			b.estatus')
-		->join('comanda b', 'b.comanda = a.comanda')
-		->where('a.mesa', $this->mesa)		
-		->where('(SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda) <> (SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda AND cerrada = 1)')
-		->get('comanda_has_mesa a')
-		->row();
+			->join('comanda b', 'b.comanda = a.comanda')
+			->where('a.mesa', $this->mesa)
+			->where('(SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda) <> (SELECT count(cuenta) FROM cuenta WHERE comanda = b.comanda AND cerrada = 1)')
+			->get('comanda_has_mesa a')
+			->row();
 	}
 
-	public function getDisponibles($sede, $soloDisponibles = false) {
+	public function getDisponibles($sede, $soloDisponibles = false)
+	{
+		$campos = $this->getCampos(false, 'a.', 'mesa');
+
 		if ($soloDisponibles) {
 			$this->db->where('a.estatus', 1);
 		}
 
-		return $this->db
-		->select('a.*')
-		->join('area b', 'b.area = a.area')		
-		->where('a.debaja', 0)
-		->where('a.esmostrador', 0)
-		->where('a.escallcenter', 0)
-		->where('b.sede', $sede)
-		->order_by('b.nombre, a.numero')
-		->get('mesa a')
-		->result();
+		$md = $this->db
+			->select($campos)
+			->join('area b', 'b.area = a.area')
+			->join('reserva c', 'a.mesa = c.mesa', 'left')
+			->where('a.debaja', 0)
+			->where('a.esmostrador', 0)
+			->where('a.escallcenter', 0)
+			->where('b.sede', $sede)
+			->where('(c.estatus_reserva = 2 OR c.estatus_reserva IS NULL)')
+			->order_by('b.nombre, a.numero')
+			->get('mesa a')
+			->result();
+
+		return $md;
 	}
 
 	public function liberar_mesa()
@@ -85,7 +94,7 @@ class Mesa_model extends General_Model {
 			->where('c.estatus', 1)
 			->get('mesa a')
 			->row();
-		
+
 		if ($comandas && isset($comandas->comandas)) {
 			$datos->comandas_relacionadas = $comandas->comandas;
 			$this->db->where("comanda IN({$datos->comandas_relacionadas})")->update('cuenta', ['cerrada' => 1]);

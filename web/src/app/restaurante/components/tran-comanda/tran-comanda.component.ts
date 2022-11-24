@@ -1207,10 +1207,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     this.mesaEnUso.cuentas[idxCta].cerrada = +obj.cerrada;
   }
 
-  trasladoMesa = () => {
+  trasladoMesa = (idCuenta: number = null) => {
     const trasladoRef = this.dialog.open(TrasladoMesaComponent, {
       width: '55%',
-      data: { mesaEnUso: this.mesaEnUso }
+      data: { mesaEnUso: this.mesaEnUso, idCuenta: idCuenta }
     });
 
     trasladoRef.afterClosed().subscribe(result => {

@@ -989,12 +989,31 @@ class Comanda_model extends General_Model
             ->result();
     }
 
-    public function trasladar_cuentas_a_comanda($cmdDestino)
+    private function getHijosDetalleComanda($padres)
     {
+        $detalles = [];
+        foreach ($padres as $padre) {
+            $detalles[] = $padre;
+            $hijos = $this->db->select('detalle_comanda')->where('detalle_comanda_id', $padre->detalle_comanda)->get('detalle_comanda')->result();
+            if ($hijos) {
+                foreach ($hijos as $hijo) {
+                    $detalles[] = $hijo;
+                }
+                $detalles = array_merge($detalles, $this->getHijosDetalleComanda($hijos));
+            }
+        }
+        return $detalles;
+    }
+
+    public function trasladar_cuentas_a_comanda($cmdDestino, $cuentaATrasladar = null)
+    {
+        if ((int)$cuentaATrasladar > 0) {
+            $this->db->where('cuenta', (int)$cuentaATrasladar);
+        }
+
         $ctasDeOrigen = $this->db
             ->select('cuenta')
             ->where('comanda', $this->getPK())
-            // ->where('cerrada', 0)
             ->get('cuenta')
             ->result();
 
@@ -1031,11 +1050,23 @@ class Comanda_model extends General_Model
                 $noCta++;
             }
             if (empty($errores)) {
-                $detsComanda = $this->db
-                    ->select('b.detalle_comanda')
-                    ->where('b.comanda', $this->getPK())
-                    ->get('detalle_comanda b')
-                    ->result();
+                $detsComanda = [];
+                if ((int)$cuentaATrasladar > 0) {
+                    $detsComanda = $this->db
+                        ->select('b.detalle_comanda')
+                        ->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+                        ->where('b.comanda', $this->getPK())
+                        ->where('c.cuenta_cuenta', (int)$cuentaATrasladar)
+                        ->get('detalle_comanda b')
+                        ->result();
+                    $detsComanda = $this->getHijosDetalleComanda($detsComanda);
+                } else {
+                    $detsComanda = $this->db
+                        ->select('b.detalle_comanda')
+                        ->where('b.comanda', $this->getPK())
+                        ->get('detalle_comanda b')
+                        ->result();
+                }
                 if ($detsComanda) {
                     foreach ($detsComanda as $detc) {
                         $det = new Dcomanda_model($detc->detalle_comanda);
@@ -1226,11 +1257,11 @@ class Comanda_model extends General_Model
             ->where('esultimo', 1)
             ->get('estatus_callcenter')
             ->row();
-        
+
         if ($esUltimoEstatus) {
             $cantidad_cuentas = $this->db->select('COUNT(cuenta) AS conteo')->where('comanda', $this->getPK())->get('cuenta')->row();
             $cantidad_cuentas_cerradas = $this->db->select('COUNT(cuenta) AS conteo')->where('comanda', $this->getPK())->where('cerrada', 1)->get('cuenta')->row();
-            if ((int)$this->estatus === 1 && (int)$cantidad_cuentas->conteo === (int)$cantidad_cuentas_cerradas->conteo) {                
+            if ((int)$this->estatus === 1 && (int)$cantidad_cuentas->conteo === (int)$cantidad_cuentas_cerradas->conteo) {
                 $this->guardar(['estatus' => 2]);
             }
         }
@@ -1253,8 +1284,8 @@ class Comanda_model extends General_Model
             ->order_by('a.comanda')
             ->get('comanda a')
             ->result();
-        
-        foreach($lista as $item) {
+
+        foreach ($lista as $item) {
             $cmd = new Comanda_model($item->comanda);
             $cmd->cerrar_comanda_domicilio();
         }

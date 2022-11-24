@@ -5,6 +5,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '../../../../shared/classes/custom-date-adapter';
 import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { Socket } from 'ngx-socket-io';
 
 import { FormControl, FormGroup } from '@angular/forms';
 import { RevStat } from '../reservacion/RevStat';
@@ -18,6 +20,7 @@ import { EstatusReserva } from '../../../interfaces/estatus-reserva';
 import { EstatusReservaService } from '../../../services/estatus-reserva.service';
 import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master';
 import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
+import { ComandaService } from '../../../../restaurante/services/comanda.service';
 
 
 import { Subscription } from 'rxjs';
@@ -74,12 +77,19 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     private reservaSrvc: ReservaService,
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
+    private ls: LocalstorageService,
+    private comandaSrvc: ComandaService,
+    private socket: Socket,
     public dialog: MatDialog,
-    public estatusReservaSrvc: EstatusReservaService
+    public estatusReservaSrvc: EstatusReservaService,
   ) { }
 
-  ngOnInit() {    
-    this.resetReserva();    
+  ngOnInit() {
+    if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
+      this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
+      this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
+    }
+    this.resetReserva();
   }
 
   async ngAfterViewInit() {
@@ -110,7 +120,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   loadTarifasReserva = async () => {
     this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
   }
-  
+
   loadEstatusReserva = async () => {
     this.lstEstatusReserva = await this.estatusReservaSrvc.get().toPromise();
   }
@@ -148,16 +158,6 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  // public Disponible = (): String => RevStat.DISPONIBLE;
-
-  // public Reservada = (): String => RevStat.RESERVADA;
-
-  // public Mantenimiento = (): String => RevStat.MANTENIMIENTO;
-
-  // public NoDisponible = (): String => RevStat.NO_DISPONIBLE;
-
-  // public select = (value) => this.selectedResType = this.reservationTypes[value];
-
   public addReservation(): void {
     //Get the number of days in range
 
@@ -169,11 +169,13 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
     // console.log('RESERVA = ', this.reserva);
 
+    const msgCheckIn = this.reserva && +this.reserva.estatus_reserva === 2 ? ' Al hacer el check-in se abrirá automáticamente una cuenta para el cliente. ' : '';
+
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Reservación',
-        `Esto ${this.reserva && +this.reserva.reserva > 0 ? 'modificará la' : 'generará una nueva'} reserva. ¿Desea continuar?`,
+        `Esto ${this.reserva && +this.reserva.reserva > 0 ? 'modificará la' : 'generará una nueva'} reserva.${msgCheckIn} ¿Desea continuar?`,
         'Sí', 'No'
       )
     });
@@ -184,7 +186,11 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
           this.endSubs.add(
             this.reservaSrvc.save(this.reserva).subscribe(res => {
               this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
-              this.dialogRef.close();
+              if (res.exito && res.reserva && +res.reserva.estatus_reserva === 2) {
+                this.abrirComandaDeHabitacion(res.reserva as Reserva);
+              } else {
+                this.dialogRef.close();
+              }
             })
           );
         }
@@ -226,5 +232,46 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     } else {
       this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));
     }
+  }
+
+  abrirComandaDeHabitacion = (rsv: Reserva) => {
+    // console.log(rsv);
+
+    const cliMas = this.lstClientesMaster.find(c => +c.cliente_master === +rsv.cliente_master);
+
+    const comandaReserva: any = {
+      nombreArea: '',
+      area: +rsv.area,
+      mesa: +rsv.mesa,
+      numero: +rsv.numero_mesa,
+      mesero: this.ls.get(GLOBAL.usrTokenVar).idusr,
+      comensales: +rsv.cantidad_adultos + +rsv.cantidad_menores,
+      comanda: 0,
+      esevento: 0,
+      dividirCuentasPorSillas: false,
+      estatus: 1,
+      clientePedido: null,
+      cuentas: [
+        {
+          numero: 1,
+          nombre: cliMas?.nombre || 'Unica',
+          productos: []
+        }
+      ]
+    };
+
+    this.endSubs.add(
+      this.comandaSrvc.save(comandaReserva).subscribe(res => {
+        if (res.exito) {
+          this.socket.emit('refrescar:mesa', {});
+          const comandaCreada = res.comanda;
+          const msg = `Comanda #${comandaCreada.comanda} para la habitación #${comandaCreada.mesa.etiqueta || comandaCreada.mesa.numero} del área ${comandaCreada.mesa.area.nombre} creada.`;
+          this.snackBar.open(msg, 'Reserva', { duration: 7000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Reserva', { duration: 7000 });
+        }
+        this.dialogRef.close();
+      })
+    );
   }
 }

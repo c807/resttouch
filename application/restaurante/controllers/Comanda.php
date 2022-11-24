@@ -125,7 +125,7 @@ class Comanda extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	public function trasladar_mesa($comanda, $origen, $destino)
+	public function trasladar_mesa($comanda, $origen, $destino, $cuentaATrasladar = null)
 	{
 		$cmd = new Comanda_model($comanda);
 		$mesaOrigen = new Mesa_model($origen);
@@ -146,8 +146,11 @@ class Comanda extends CI_Controller
 		} else {
 			$cmdDestino = $mesaDestino->get_comanda(['estatus' => 1, 'sede' => $this->data->sede]);
 			if ($cmdDestino) {
-				$datos['exito'] = $cmd->trasladar_cuentas_a_comanda($cmdDestino->comanda);
+				$datos['exito'] = $cmd->trasladar_cuentas_a_comanda($cmdDestino->comanda, $cuentaATrasladar);
 				if ($datos['exito']) {
+					/* 
+					JA 23/11/2022: Antes de hacer las siguientes dos acciones hay que validar si todas las cuentas de la comanda $cmd están cerradas.
+					*/
 					$cmd->guardar(['estatus' => 2]);
 					$mesaOrigen->guardar(['estatus' => 1]);
 				} else {

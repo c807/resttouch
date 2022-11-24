@@ -171,6 +171,11 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickMesa(m: any) {
     // console.log(m.mesaSelected); return;
     if (!this.cargando) {
+      if (+m.mesaSelected.eshabitacion === 1 && +m.mesaSelected.estatus === 1) {        
+        this.snackBar.open('Para modificar la cuenta debe hacer CHECK IN primero.', 'Habitaciones', {duration: 7000});
+        return;
+      }
+
       if (+m.mesaSelected.escallcenter === 0) {        
         this.aperturaCargaMesa(m);
       } else {

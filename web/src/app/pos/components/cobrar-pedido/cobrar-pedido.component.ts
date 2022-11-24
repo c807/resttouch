@@ -704,7 +704,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   onSelectionChangeFP = (msc: MatSelectChange) => {
     const idx = this.lstFormasPago.findIndex(lfp => +lfp.forma_pago === +msc.value);
     if (idx > -1) {
-      // console.log(this.lstFormasPago[idx]);
+      console.log(this.lstFormasPago[idx]);
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
       this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {

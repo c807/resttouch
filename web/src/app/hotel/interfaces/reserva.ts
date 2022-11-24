@@ -17,6 +17,8 @@ export interface Reserva {
     descripcion_estatus_reserva?: string;
     color?: string;
     detalle?: DetalleReserva[];
+    area?: number;
+    numero_mesa?: number;
 }
 
 export interface DetalleReserva {

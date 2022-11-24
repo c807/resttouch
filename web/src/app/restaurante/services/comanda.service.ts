@@ -130,9 +130,9 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  trasladarMesa(idComanda: number, idMesaOrigen: number, idMesaDestino: number, params:any = {}): Observable<any> {
+  trasladarMesa(idComanda: number, idMesaOrigen: number, idMesaDestino: number, idCuenta: number = null, params:any = {}): Observable<any> {
     return this.http.get<any>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/trasladar_mesa/${idComanda}/${idMesaOrigen}/${idMesaDestino}?${qs.stringify(params)}`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/trasladar_mesa/${idComanda}/${idMesaOrigen}/${idMesaDestino}${+idCuenta > 0 ? ('/'+idCuenta) : ''}?${qs.stringify(params)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
