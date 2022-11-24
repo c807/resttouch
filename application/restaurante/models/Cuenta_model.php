@@ -376,7 +376,7 @@ class Cuenta_model extends General_Model
 						}
 					}
 				} catch (Exception $e) {
-					$this->setMensaje("Error en procesar la tarjeta, " . $e->getMessege());
+					$this->setMensaje("Error en procesar la tarjeta, " . $e->getMessage());
 					return false;
 				}
 			}
