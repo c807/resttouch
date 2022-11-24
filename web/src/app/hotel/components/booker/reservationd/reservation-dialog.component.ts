@@ -251,6 +251,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       dividirCuentasPorSillas: false,
       estatus: 1,
       clientePedido: null,
+      reserva: +this.reserva.reserva,
       cuentas: [
         {
           numero: 1,

@@ -16,7 +16,7 @@
   <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">
     <mat-label>Estatus</mat-label>
     <mat-select name="estatus_reserva" [(ngModel)]="reserva.estatus_reserva">
-      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}">
+      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}" [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva">
         {{ estRes.descripcion }}
       </mat-option>
     </mat-select>

@@ -15,7 +15,8 @@ class Cuenta extends CI_Controller
 			'Mesa_model',
 			'Sede_model',
 			'Articulo_tipo_cliente_model',
-			'Cliente_model'
+			'Cliente_model',
+			'Reserva_model'
 		]);
 
 		$this->output->set_content_type('application/json', 'UTF-8');
@@ -170,13 +171,19 @@ class Cuenta extends CI_Controller
 									}
 									if ($cerrada === count($cuentas)) {
 										$tmp = $com->getMesas();
+										$mesa = null;
 
 										if ($tmp) {
 											$mesa = new Mesa_model($tmp->mesa);
-											$mesa->guardar(['estatus' => 1]);
+											$mesa->guardar(['estatus' => 1]);											
 										}
 
 										$com->guardar(['estatus' => 2]);
+
+										if ($mesa && (int)$mesa->eshabitacion === 1 && (int)$com->reserva > 0) {
+											$rsvr = new Reserva_model($com->reserva);
+											$rsvr->guardar(['estatus_reserva' => 3]);
+										}
 									}
 									$datos['exito'] = true;
 									$datos['mensaje'] = 'Cobro realizado exitosamente';

@@ -601,7 +601,7 @@ class Factura extends CI_Controller {
 						unset($web);
 						unset($ret);
 						unset($fac);
-					} catch(Exception $error) {
+					} catch(Exception $e) {
 						$fallo[] = $e->getMessage();
 					}
 				}

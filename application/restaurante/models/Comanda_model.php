@@ -28,6 +28,7 @@ class Comanda_model extends General_Model
     public $fhtomapedido = null;
     public $comensales = 0;
     public $esevento = 0;
+    public $reserva = null;
 
     public function __construct($id = '')
     {
