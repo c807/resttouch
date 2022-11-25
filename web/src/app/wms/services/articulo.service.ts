@@ -88,10 +88,16 @@ export class ArticuloService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getArticulos(fltr: any = {}): Observable<Articulo[]> {
-    return this.http.get<Articulo[]>(
-      `${GLOBAL.urlCatalogos}/get_articulo?${qs.stringify(fltr)}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  getArticulos(fltr: any = {}, simple = false): Observable<Articulo[]> {
+    if (!simple) {
+      return this.http.get<Articulo[]>(
+        `${GLOBAL.urlCatalogos}/get_articulo?${qs.stringify(fltr)}`
+      ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    } else {
+      return this.http.get<Articulo[]>(
+        `${GLOBAL.urlMantenimientos}/${this.articuloUrl}/simple_search?${qs.stringify(fltr)}`
+      ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    }
   }
 
   getArticuloCombo(fltr: any = {}): Observable<any[]> {

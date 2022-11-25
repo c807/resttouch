@@ -8,4 +8,5 @@ export interface TarifaReserva {
     monto_adicional_menor: number;
     descripcion_tipo_habitacion?: string;
     icono_tipo_habitacion?: string;
+    articulo?: string;
 }

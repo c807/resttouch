@@ -40,4 +40,11 @@ export class ReservaService {
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  agregarCobroHabitacion(params: any): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/agregar_cobro_habitacion`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
 }

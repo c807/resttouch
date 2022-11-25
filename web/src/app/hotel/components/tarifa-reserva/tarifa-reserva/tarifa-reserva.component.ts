@@ -1,9 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { GLOBAL } from '../../../../shared/global';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 
 import { TipoHabitacion } from '../../../../admin/interfaces/tipo-habitacion';
-import { TipoHabitacionService } from '../../../../admin/services/tipo-habitacion.service';
 import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
 import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
+import { ArticuloService } from '../../../../wms/services/articulo.service';
+import { Articulo } from '../../../../wms/interfaces/articulo';
 
 import { Subscription } from 'rxjs';
 
@@ -25,16 +28,20 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
   public tipoHabitacion: TipoHabitacion;
   public tarifasReserva: TarifaReserva[] = [];
   public tarifaReserva: TarifaReserva;
+  public lstArticuloHabitacion: Articulo[] = [];
   public cargando = false;
 
   private endSubs = new Subscription();
 
   constructor(
-    private tarifaReservaSrvc: TarifaReservaService
+    private tarifaReservaSrvc: TarifaReservaService,
+    private articuloSrvc: ArticuloService,
+    private ls: LocalstorageService
   ) { }
 
   ngOnInit(): void {
     this.resetTarifaReserva();
+    this.loadArticulosHabitacion();
   }
 
   ngOnDestroy(): void {
@@ -49,8 +56,18 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
       cantidad_menores: null,
       monto: null,
       monto_adicional_adulto: 0,
-      monto_adicional_menor: 0
+      monto_adicional_menor: 0,
+      articulo: null
     }
+  }
+
+  loadArticulosHabitacion = () => {
+    const fltr = {
+      _todos: 1, impuesto_especial: 1, debaja: 0, sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0
+    }
+    this.endSubs.add(
+      this.articuloSrvc.getArticulos(fltr, true).subscribe(res => this.lstArticuloHabitacion = res)
+    );
   }
 
   loadTarifasReserva = (fltr: any = {}) => {

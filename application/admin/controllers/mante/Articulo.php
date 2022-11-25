@@ -823,6 +823,15 @@ class Articulo extends CI_Controller
 		}
 		$this->output->set_output(json_encode($json));
 	}
+
+	public function simple_search()
+	{
+		$datos = $this->Articulo_model->buscarArticulo($_GET);
+		if ($datos) {
+			$datos = ordenar_array_objetos($datos, 'descripcion');
+		}
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos ? $datos : []));
+	}
 }
 
 /* End of file Articulo.php */

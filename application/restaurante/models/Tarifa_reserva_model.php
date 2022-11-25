@@ -10,6 +10,7 @@ class Tarifa_reserva_model extends General_model {
     public $monto = 0.0;
     public $monto_adicional_adulto = 0.0;
     public $monto_adicional_menor = 0.0;    
+	public $articulo = null;
 
 	public function __construct($id = '')
 	{

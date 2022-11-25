@@ -15,6 +15,7 @@ class Reserva_model extends General_model
 	public $hora_fin = null;
 	public $cantidad_adultos = 0;
 	public $cantidad_menores = 0;
+	public $cobradoencomanda = 0;
 
 	public function __construct($id = '')
 	{
@@ -72,5 +73,15 @@ class Reserva_model extends General_model
 			->get('reserva a')
 			->row();
 		return $cruce && (int)$cruce->reserva > 0 ? true : false;
+	}
+
+	public function get_numero_comanda_reserva($idReserva = null)
+	{
+		if(empty($idReserva)){
+			$idReserva = $this->reserva;
+		}
+
+		$comanda = $this->db->select('comanda')->where('reserva', $idReserva)->get('comanda')->row();
+		return $comanda && $comanda->comanda ? (int)$comanda->comanda : 0;
 	}
 }

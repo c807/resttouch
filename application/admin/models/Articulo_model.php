@@ -533,6 +533,8 @@ class Articulo_model extends General_model
 
 	public function buscarArticulo($args = [])
 	{
+		$campos = $this->getCampos(false, 'a.', 'articulo');
+
 		if (isset($args['codigo'])) {
 			$this->db->where('TRIM(a.codigo)', $args['codigo']);
 		}
@@ -569,8 +571,12 @@ class Articulo_model extends General_model
 			$this->db->where('a.esreceta', $args['esreceta']);
 		}
 
+		if (isset($args['impuesto_especial'])) {
+			$this->db->where('a.impuesto_especial IS '.((int)$args['impuesto_especial'] === 0 ? '' : 'NOT ').'NULL');
+		}
+
 		$tmp = $this->db
-			->select('a.*')
+			->select($campos)
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
 			->join('categoria c', 'b.categoria = c.categoria')
 			->get('articulo a');
@@ -1019,7 +1025,6 @@ class Articulo_model extends General_model
 
 		return null;
 	}
-
 
 	public function get_categoria()
 	{

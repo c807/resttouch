@@ -5,6 +5,7 @@
         <th>Monto</th>
         <th>Adic./adulto</th>
         <th>Adic./menor</th>
+        <th>Artículo</th>
         <th>&nbsp;</th>
     </thead>
     <tbody>
@@ -32,6 +33,15 @@
             <td>
                 <mat-form-field>
                     <input matInput type="number" placeholder="Adic./menor" name="monto_adicioonal_menor" [(ngModel)]="tres.monto_adicional_menor" min="0" step="0.01">
+                </mat-form-field>                
+            </td>
+            <td>
+                <mat-form-field>
+                    <mat-select name="articulo" [(ngModel)]="tres.articulo">
+                        <mat-option *ngFor="let artHab of lstArticuloHabitacion" [value]="artHab.articulo">
+                            {{artHab.descripcion}}                           
+                        </mat-option>
+                    </mat-select>                    
                 </mat-form-field>                
             </td>
             <td class="ctxt">
@@ -65,6 +75,15 @@
                 <mat-form-field>
                     <input matInput type="number" placeholder="Adic./menor" name="monto_adicioonal_menor" [(ngModel)]="tarifaReserva.monto_adicional_menor" min="0" step="0.01">
                 </mat-form-field>                        
+            </td>
+            <td>
+                <mat-form-field>
+                    <mat-select name="articulo" [(ngModel)]="tarifaReserva.articulo">
+                        <mat-option *ngFor="let artHab of lstArticuloHabitacion" [value]="artHab.articulo">
+                            {{artHab.descripcion}}                           
+                        </mat-option>
+                    </mat-select>                    
+                </mat-form-field>                
             </td>
             <td class="ctxt">
                 <button mat-raised-button type="button" color="accent" (click)="guardarTarifa(tarifaReserva)" [disabled]="cargando || tarifaReservaFaltante">

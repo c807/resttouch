@@ -275,4 +275,28 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       })
     );
   }
+
+  agregarCobroHabitacion = () => {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Reservación',
+        `Esto agregará un cobro de habitación en la comanda generada para esta reserva. Si lo desea eliminar deberá hacerlo directamente de la comanda. ¿Desea continuar?`,
+        'Sí', 'No'
+      )
+    });
+
+    this.endSubs.add(
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {
+          this.endSubs.add(
+            this.reservaSrvc.agregarCobroHabitacion({ reserva: this.reserva.reserva }).subscribe(res => {
+              this.reserva.cobradoencomanda = res.exito ? 1 : 0;
+              this.snackBar.open(`${res.exito ? '': 'ERROR: '}${res.mensaje}`, 'Reserva', { duration: 7000 });
+            })
+          );
+        }
+      })
+    );
+  }
 }

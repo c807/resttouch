@@ -14,6 +14,7 @@ export interface Reserva {
     hora_fin?: string;
     cantidad_adultos: number;
     cantidad_menores: number;
+    cobradoencomanda?: number;
     descripcion_estatus_reserva?: string;
     color?: string;
     detalle?: DetalleReserva[];

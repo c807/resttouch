@@ -79,9 +79,8 @@ export class ReservacionComponent implements AfterViewInit {
       width: '75%',
       data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType, idReservacion: reservacionId },
     });
-    dialogRef.afterClosed().subscribe(result => {
-      this.requestUpdate.emit();
-    });
+
+    dialogRef.afterClosed().toPromise().then(() => this.requestUpdate.emit());    
   }
 
   cancelReservation() {
@@ -94,9 +93,8 @@ export class ReservacionComponent implements AfterViewInit {
         cDate: this.cDate
       },
     });
-    dialogRef.afterClosed().subscribe(result => {
-      this.requestUpdate.emit();
-    });
+
+    dialogRef.afterClosed().toPromise().then(() => this.requestUpdate.emit());        
   }
 
   ngAfterViewInit(): void {

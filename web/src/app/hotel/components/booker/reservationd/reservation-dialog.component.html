@@ -16,7 +16,7 @@
   <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">
     <mat-label>Estatus</mat-label>
     <mat-select name="estatus_reserva" [(ngModel)]="reserva.estatus_reserva">
-      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}" [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva">
+      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}" [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva" >
         {{ estRes.descripcion }}
       </mat-option>
     </mat-select>
@@ -34,7 +34,7 @@
     <mat-label>Tarifa</mat-label>
     <mat-select name="tarifa_reserva" [(ngModel)]="reserva.tarifa_reserva" required>      
       <mat-option *ngFor="let tarRes of tarifas" [value]="tarRes.tarifa_reserva">
-        Monto: {{ tarRes.monto | number: '1.2-2'}} - {{ tarRes.cantidad_adultos }} adulto{{ +tarRes.cantidad_adultos !== 1 ? 's' : '' }} -  {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }}
+        Monto: {{ tarRes.monto | number: '1.2-2'}} - {{ tarRes.cantidad_adultos }} adulto{{ +tarRes.cantidad_adultos !== 1 ? 's' : '' }} - {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }}
       </mat-option>
     </mat-select>
   </mat-form-field>
@@ -53,5 +53,6 @@
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancelar</button>
+  <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()" [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+reserva.estatus_reserva === 2">Agregar cobro de habitación</button>
   <button mat-raised-button color="accent" (click)="addReservation()" [disabled]="!reservaLista">Guardar</button>
 </div>
