@@ -159,7 +159,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  public addReservation(): void {
+  addReservation(): void {
     //Get the number of days in range
 
     this.reserva.fecha_del = moment(this.range.value.start).format(GLOBAL.dbDateFormat);
@@ -199,7 +199,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     );
   }
 
-  public selectTarifa = () => {
+  selectTarifa = () => {
     this.reserva.cantidad_adultos = Math.abs(+this.reserva.cantidad_adultos || 0);
     this.reserva.cantidad_menores = Math.abs(+this.reserva.cantidad_menores || 0);
     const adultos = this.reserva.cantidad_adultos;
