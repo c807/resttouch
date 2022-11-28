@@ -16,43 +16,49 @@
   <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">
     <mat-label>Estatus</mat-label>
     <mat-select name="estatus_reserva" [(ngModel)]="reserva.estatus_reserva">
-      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}" [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva" >
+      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}"
+        [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva">
         {{ estRes.descripcion }}
       </mat-option>
     </mat-select>
-  </mat-form-field>    
-  <br/>
+  </mat-form-field>
+  <br />
   <mat-form-field style="width: 45%;">
-    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="reserva.cantidad_adultos" (blur)="selectTarifa()" min="0" required>
+    <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="reserva.cantidad_adultos"
+      (blur)="selectTarifa()" min="0" required>
   </mat-form-field>
 
   <mat-form-field style="width: 45%;">
-    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="reserva.cantidad_menores" (blur)="selectTarifa()" min="0" required>
+    <input matInput type="number" placeholder="Menores" name="cantidad_menores" [(ngModel)]="reserva.cantidad_menores"
+      (blur)="selectTarifa()" min="0" required>
   </mat-form-field>
 
   <mat-form-field style="width: 90%;">
     <mat-label>Tarifa</mat-label>
-    <mat-select name="tarifa_reserva" [(ngModel)]="reserva.tarifa_reserva" required>      
+    <mat-select name="tarifa_reserva" [(ngModel)]="reserva.tarifa_reserva" required>
       <mat-option *ngFor="let tarRes of tarifas" [value]="tarRes.tarifa_reserva">
-        Monto: {{ tarRes.monto | number: '1.2-2'}} - {{ tarRes.cantidad_adultos }} adulto{{ +tarRes.cantidad_adultos !== 1 ? 's' : '' }} - {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }}
+        Monto: {{ tarRes.monto | number: '1.2-2'}} - {{ tarRes.cantidad_adultos }} adulto{{ +tarRes.cantidad_adultos !==
+        1 ? 's' : '' }} - {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }}
       </mat-option>
     </mat-select>
   </mat-form-field>
 
-  <mat-form-field style="width: 90%;">
+  <mat-form-field style="width: 80%;">
     <mat-label>Cliente</mat-label>
-    <input type="text" [(ngModel)]="txtClienteMasterSelected" [ngModelOptions]="{standalone: true}" 
-           placeholder="Cliente" matInput [matAutocomplete]="autoClienteMaster" (keyup)="filtrarClientesMaster(txtClienteMasterSelected)" required>
+    <input type="text" [(ngModel)]="txtClienteMasterSelected" [ngModelOptions]="{standalone: true}" placeholder="Cliente" matInput [matAutocomplete]="autoClienteMaster"
+      (keyup)="filtrarClientesMaster(txtClienteMasterSelected)" required>
     <mat-autocomplete #autoClienteMaster="matAutocomplete" [displayWith]="displayClienteMaster">
       <mat-option *ngFor="let cliMas of filteredLstClientesMaster" [value]="cliMas">
         {{ cliMas.nombre }}{{cliMas.numero_documento ? (' (' + cliMas.numero_documento + ')') : ''}}
       </mat-option>
     </mat-autocomplete>
-  </mat-form-field>
-
+  </mat-form-field>  
+  <button mat-raised-button color="accent" (click)="agregarNuevoClienteMaster()" style="width: 10%; margin-left: 5px;">Nuevo</button>
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancelar</button>
-  <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()" [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+reserva.estatus_reserva === 2">Agregar cobro de habitación</button>
+  <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()"
+    [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+reserva.estatus_reserva === 2">Agregar cobro
+    de habitación</button>
   <button mat-raised-button color="accent" (click)="addReservation()" [disabled]="!reservaLista">Guardar</button>
 </div>

@@ -34,7 +34,7 @@ class Reserva_model extends General_model
 		$campos = "{$camposReserva}, b.descripcion AS descripcion_estatus_reserva, b.color";
 		$reservas = $this->db
 			->select($campos)
-			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')			
+			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')
 			->where("'{$fecha}' BETWEEN a.fecha_del AND a.fecha_al", NULL, FALSE)
 			->get('reserva a')
 			->result();
@@ -54,7 +54,7 @@ class Reserva_model extends General_model
 	{
 		$this->db->delete('detalle_reserva', array('reserva' => $this->getPK()));
 		$fecha = DateTime::createFromFormat('Y-m-d', $this->fecha_del);
-		$fecha_fin = DateTime::createFromFormat('Y-m-d', $this->fecha_al);		
+		$fecha_fin = DateTime::createFromFormat('Y-m-d', $this->fecha_al);
 		do {
 			$this->db->insert('detalle_reserva', array('reserva' => $this->getPK(), 'fecha' => $fecha->format('Y-m-d')));
 			$fecha->modify('+1 day');
@@ -75,10 +75,14 @@ class Reserva_model extends General_model
 		return $cruce && (int)$cruce->reserva > 0 ? true : false;
 	}
 
-	public function get_numero_comanda_reserva($idReserva = null)
+	public function get_numero_comanda_reserva($idReserva = null, $abierta = false)
 	{
-		if(empty($idReserva)){
+		if (empty($idReserva)) {
 			$idReserva = $this->reserva;
+		}
+
+		if ($abierta) {
+			$this->db->where('estatus', 1);
 		}
 
 		$comanda = $this->db->select('comanda')->where('reserva', $idReserva)->get('comanda')->row();

@@ -20,6 +20,7 @@ import { EstatusReserva } from '../../../interfaces/estatus-reserva';
 import { EstatusReservaService } from '../../../services/estatus-reserva.service';
 import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master';
 import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
+import { ClienteMasterDialogComponent } from '../../../../callcenter/components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
 import { ComandaService } from '../../../../restaurante/services/comanda.service';
 
 
@@ -46,7 +47,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   get reservaLista() {
     return moment(this.range.value.start).isValid && moment(this.range.value.end).isValid() && this.reserva.cantidad_adultos >= 0 && this.reserva.cantidad_menores >= 0 && +this.reserva.cliente_master > 0 && +this.reserva.tarifa_reserva > 0;
-  }
+  }  
 
   public range = new FormGroup({
     start: new FormControl(),
@@ -66,7 +67,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public lstClientesMaster: ClienteMaster[] = [];
   public filteredLstClientesMaster: ClienteMaster[] = [];
   public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
-  public lstEstatusReserva: EstatusReserva[] = [];
+  public lstEstatusReserva: EstatusReserva[] = [];  
 
   private endSubs = new Subscription();
 
@@ -106,7 +107,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       await this.loadReservacion(+this.data.idReservacion);
     } else {
       this.resetReserva();
-    }
+    }    
   }
 
   ngOnDestroy(): void {
@@ -230,7 +231,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       const filterValue = value.toLowerCase();
       this.filteredLstClientesMaster = this.lstClientesMaster.filter(cm => cm.nombre.toLowerCase().includes(filterValue) || cm.numero_documento.toLocaleLowerCase().includes(filterValue));
     } else {
-      this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));
+      this.filteredLstClientesMaster = this.lstClientesMaster;
     }
   }
 
@@ -292,10 +293,29 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
           this.endSubs.add(
             this.reservaSrvc.agregarCobroHabitacion({ reserva: this.reserva.reserva }).subscribe(res => {
               this.reserva.cobradoencomanda = res.exito ? 1 : 0;
-              this.snackBar.open(`${res.exito ? '': 'ERROR: '}${res.mensaje}`, 'Reserva', { duration: 7000 });
+              this.snackBar.open(`${res.exito ? '' : 'ERROR: '}${res.mensaje}`, 'Reserva', { duration: 7000 });
             })
           );
         }
+      })
+    );
+  }
+
+  agregarNuevoClienteMaster = () => {
+
+    const obj: ClienteMaster = {
+      cliente_master: null, nombre: null, correo: null, fecha_nacimiento: null, tipo_documento: null, numero_documento: null
+    };
+
+    const cmdRef = this.dialog.open(ClienteMasterDialogComponent, {
+      maxWidth: '100vw', maxHeight: '85vh', width: '99vw', height: '85vh',
+      disableClose: true,
+      data: { clienteMaster: obj }
+    });
+
+    this.endSubs.add(
+      cmdRef.afterClosed().subscribe(() => {
+        this.loadClientesMaster();
       })
     );
   }

@@ -9,7 +9,8 @@ class Reserva extends CI_Controller
 		parent::__construct();
 		$this->load->model([
 			'Reserva_model', 'Dreserva_model', 'Mesa_model', 'Tarifa_reserva_model',
-			'Comanda_model', 'Cuenta_model', 'Dcomanda_model', 'Articulo_model', 'Receta_model', 'Dcuenta_model'
+			'Comanda_model', 'Cuenta_model', 'Dcomanda_model', 'Articulo_model',
+			'Receta_model', 'Dcuenta_model'
 		]);
 		$this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
@@ -29,16 +30,30 @@ class Reserva extends CI_Controller
 			if ($hayCruceDeFechas) {
 				$datos['mensaje'] = 'Ya existe una reservación en estas fechas. Por favor cambie las fechas e intente de nuevo.';
 			} else {
-				$datos['exito'] = $rsrv->guardar($req);
-				if ($datos['exito']) {
-					$rsrv->generaDetalle();
-					$habitacion = new Mesa_model($rsrv->mesa);
-					$rsrv->area = $habitacion->area;
-					$rsrv->numero_mesa = $habitacion->numero;
-					$datos['reserva'] = $rsrv;
-					$datos['mensaje'] = 'Datos actualizados con éxito.';
+				//Revisar si está haciendo check-in y si si está haciendo check-in, ver que no hayan comandas abiertas para esta mesa.
+				$continuar = true;
+				$cmdAbierta = 0;
+				if ((int)$req['estatus_reserva'] === 2) {
+					$cmdAbierta = $rsrv->get_numero_comanda_reserva(null, true);
+					$mesa = new Mesa_model($req['mesa']);
+					$cmdAbiertaDeMesa = $mesa->get_comanda(['estatus' => 1]);
+					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa && (int)$cmdAbiertaDeMesa->comanda === 0;
+				}
+
+				if ($continuar) {
+					$datos['exito'] = $rsrv->guardar($req);
+					if ($datos['exito']) {
+						$rsrv->generaDetalle();
+						$habitacion = new Mesa_model($rsrv->mesa);
+						$rsrv->area = $habitacion->area;
+						$rsrv->numero_mesa = $habitacion->numero;
+						$datos['reserva'] = $rsrv;
+						$datos['mensaje'] = 'Datos actualizados con éxito.';
+					} else {
+						$datos['mensaje'] = $rsrv->getMensaje();
+					}
 				} else {
-					$datos['mensaje'] = $rsrv->getMensaje();
+					$datos['mensaje'] = 'Esta habitación tiene una comanda abierta. Debe cerrarla primero para poder hacer check in.';
 				}
 			}
 		} else {
