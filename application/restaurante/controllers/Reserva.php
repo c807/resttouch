@@ -29,8 +29,7 @@ class Reserva extends CI_Controller
 			$hayCruceDeFechas = $this->Reserva_model->hayCruceDeFechas($req['mesa'], $req['fecha_del'], $req['fecha_al'], (int)$req['reserva']);
 			if ($hayCruceDeFechas) {
 				$datos['mensaje'] = 'Ya existe una reservación en estas fechas. Por favor cambie las fechas e intente de nuevo.';
-			} else {
-				//Revisar si está haciendo check-in y si si está haciendo check-in, ver que no hayan comandas abiertas para esta mesa.
+			} else {				
 				$continuar = true;
 				$cmdAbierta = 0;
 				if ((int)$req['estatus_reserva'] === 2) {
