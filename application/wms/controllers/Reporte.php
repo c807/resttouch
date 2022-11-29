@@ -1874,7 +1874,8 @@ class Reporte extends CI_Controller
 		ini_set('pcre.backtrack_limit', '15000000');
 		$lista = $this->Articulo_model->buscarArticulo([
 			'esreceta' => 1,
-			'_todos'   => true
+			'_todos'   => true,
+			'sede'     => $this->data->sede
 		]);
 
 		$data = [];
