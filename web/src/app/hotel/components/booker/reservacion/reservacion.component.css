@@ -11,24 +11,24 @@
 }
 
 .background-re{
-  background-color: cornflowerblue;
+  background-color: #ff000083;
 }
 .background-re:hover{
-  background-color: #24e4eb;
+  background-color: #ff00003a;
 }
 
 .background-ch{
-  background-color: yellowgreen;
+  background-color: #008000a6;
 }
 .background-ch:hover{
-  background-color: yellow;
+  background-color: #00800070;
 }
 
 .background-cho{
-  background-color: gray;
+  background-color: #0000ff96;
 }
 .background-cho:hover{
-  background-color: lightgray;
+  background-color: #0000ff65;
 }
 
 .background-man{

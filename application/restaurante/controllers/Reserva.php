@@ -36,7 +36,7 @@ class Reserva extends CI_Controller
 					$cmdAbierta = $rsrv->get_numero_comanda_reserva(null, true);
 					$mesa = new Mesa_model($req['mesa']);
 					$cmdAbiertaDeMesa = $mesa->get_comanda(['estatus' => 1]);
-					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa && (int)$cmdAbiertaDeMesa->comanda === 0;
+					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa;
 				}
 
 				if ($continuar) {
