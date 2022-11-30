@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Cambio de habitación</h1>
+<div mat-dialog-content>
+  <mat-form-field class="fullWidth" appearance="fill">
+    <mat-label>Seleccione una habitación</mat-label>
+    <mat-select name="mesa" [(ngModel)]="habitacionSelected.mesa">      
+        <mat-option *ngFor="let habitacion of reservables" value="{{habitacion.mesa}}">
+            {{habitacion.area.nombre}} - {{habitacion.etiqueta || habitacion.numero}}
+        </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="warn" (click)="cerrar(0)">Cancelar</button>
+  <button mat-raised-button color="accent" (click)="cerrar(habitacionSelected.mesa)" [disabled]="!habitacionSelected || !habitacionSelected.mesa">Cambiar</button>
+</div>

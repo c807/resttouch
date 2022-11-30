@@ -22,7 +22,7 @@ import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master'
 import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
 import { ClienteMasterDialogComponent } from '../../../../callcenter/components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
 import { ComandaService } from '../../../../restaurante/services/comanda.service';
-
+import { DialogSelectReservableComponent } from '../../dialog-select-reservable/dialog-select-reservable.component';
 
 import { Subscription } from 'rxjs';
 
@@ -119,7 +119,8 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   }
 
   loadTarifasReserva = async () => {
-    this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
+    // this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
+    this.tarifas = await this.tarifaReservaSrvc.get().toPromise();
   }
 
   loadEstatusReserva = async () => {
@@ -208,9 +209,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     const menores = this.reserva.cantidad_menores;
     let tarifaSeleccionada: TarifaReserva;
     switch (true) {
-      case adultos > 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && menores <= +t.cantidad_menores); break;
-      case adultos > 0 && menores === 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos); break;
-      case adultos === 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => menores <= +t.cantidad_menores); break;
+      case adultos > 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && menores <= +t.cantidad_menores && +t.tipo_habitacion === +this.data.roomIdType); break;
+      case adultos > 0 && menores === 0: tarifaSeleccionada = this.tarifas.find(t => adultos <= +t.cantidad_adultos && +t.tipo_habitacion === +this.data.roomIdType); break;
+      case adultos === 0 && menores > 0: tarifaSeleccionada = this.tarifas.find(t => menores <= +t.cantidad_menores && +t.tipo_habitacion === +this.data.roomIdType); break;
     }
 
     if (tarifaSeleccionada && tarifaSeleccionada.tarifa_reserva) {
@@ -325,5 +326,32 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   cancelarReservacion = () => {
     this.reserva.estatus_reserva = 4;
     this.addReservation();
+  }
+
+  cambiarHabitacion = () => {
+    const dialogRef = this.dialog.open(DialogSelectReservableComponent, {
+      width: '50%',
+      data: { }
+    });
+
+    this.endSubs.add(
+      dialogRef.afterClosed().subscribe((habitacion_destino: number = 0) => {
+        if (+habitacion_destino > 0) {
+          const obj = {
+            reserva: +this.reserva.reserva,
+            mesa_destino: +habitacion_destino            
+          }
+          this.endSubs.add(
+            this.reservaSrvc.cambiarHabitacion(obj).subscribe(res => {
+              this.snackBar.open(`${res.exito ? '' : 'ERROR: '}${res.mensaje}`, 'Reserva', { duration: 7000 });
+              this.dialogRef.close();
+            })
+          );
+        } else {
+          this.snackBar.open(`Por favor seleccione una habitación.`, 'Reserva', { duration: 7000 });
+          this.dialogRef.close();
+        }
+      })
+    );
   }
 }
