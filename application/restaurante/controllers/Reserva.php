@@ -146,6 +146,55 @@ class Reserva extends CI_Controller
 		}
 		$this->output->set_output(json_encode($datos));
 	}
+
+	public function cambiar_habitacion()
+	{
+		$req = json_decode(file_get_contents('php://input'), true);
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post' && isset($req['reserva'])) {
+			$rsvr = new Reserva_model($req['reserva']);
+			if (in_array((int)$rsvr->estatus_reserva, array(1, 2))) {
+				$hayCruceDeFechas = $this->Reserva_model->hayCruceDeFechas($req['mesa_destino'], $rsvr->fecha_del, $rsvr->fecha_al, (int)$req['reserva']);
+				if (!$hayCruceDeFechas) {
+					if((int)$rsvr->estatus_reserva === 1) {
+						$datos['exito'] = $rsvr->guardar(['mesa' => $req['mesa_destino']]);
+						if ($datos['exito']) {
+							$datos['mensaje'] = 'Cambio de habitación realizado con éxito.';
+						} else {
+							$datos['mensaje'] = implode(',', $rsvr->getMensaje());
+						}
+					} else if ((int)$rsvr->estatus_reserva === 2) {
+						$cmdAbierta = $rsvr->get_numero_comanda_reserva(null, true);
+						if ((int)$cmdAbierta > 0) {
+							$cmd = new Comanda_model($cmdAbierta);
+							$mesaDestino = new Mesa_model($req['mesa_destino']);
+							$mesaOrigen = new Mesa_model($rsvr->mesa);
+							
+							$mesaDestino->guardar(['estatus' => 2]);
+							$cmd->trasladar_mesa($req['mesa_destino'], $cmdAbierta);
+							$mesaOrigen->guardar(['estatus' => 1]);
+							$datos['exito'] = $rsvr->guardar(['mesa' => $req['mesa_destino']]);
+							
+							if ($datos['exito']) {
+								$datos['mensaje'] = 'Cambio de habitación realizado con éxito.';
+							} else {
+								$datos['mensaje'] = implode(',', $rsvr->getMensaje());
+							}
+						} else {
+							$datos['mensaje'] = 'No hay comanda abierta para esta habitación. Por favor revise la información.';
+						}					
+					}	
+				} else {
+					$datos['mensaje'] = 'Ya hay una reservación para esas fechas. Por favor cancélela o asigne otra habitación.';
+				}
+			} else {
+				$datos['mensaje'] = 'La reservación debe estar en estatus de RESERVADA o CHECK-IN para poder cambiar de habitación.';
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Propina.php */
