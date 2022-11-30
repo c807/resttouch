@@ -176,7 +176,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Reservación',
-        `Esto ${this.reserva && +this.reserva.reserva > 0 ? 'modificará la' : 'generará una nueva'} reserva.${msgCheckIn} ¿Desea continuar?`,
+        `Esto ${this.reserva && +this.reserva.reserva > 0 ? (+this.reserva.estatus_reserva === 4 ? 'cancelará la' : 'modificará la') : 'generará una nueva'} reserva.${msgCheckIn} ¿Desea continuar?`,
         'Sí', 'No'
       )
     });
@@ -194,6 +194,8 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
               }
             })
           );
+        } else {
+          this.dialogRef.close();
         }
       })
     );
@@ -318,5 +320,10 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
         this.loadClientesMaster();
       })
     );
+  }
+
+  cancelarReservacion = () => {
+    this.reserva.estatus_reserva = 4;
+    this.addReservation();
   }
 }

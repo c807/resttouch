@@ -28,10 +28,15 @@ class Reserva_model extends General_model
 		$this->load->model(['Dreserva_model']);
 	}
 
-	public function get_reservas($fecha)
+	public function get_reservas($fecha, $vigentes = true)
 	{
 		$camposReserva = $this->getCampos(false, 'a.', 'reserva');
 		$campos = "{$camposReserva}, b.descripcion AS descripcion_estatus_reserva, b.color";
+
+		if ($vigentes) {
+			$this->db->where('a.estatus_reserva <> 4');
+		}
+
 		$reservas = $this->db
 			->select($campos)
 			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')
@@ -69,6 +74,7 @@ class Reserva_model extends General_model
 		$cruce = $this->db
 			->select('a.reserva')
 			->where('a.mesa', $mesa)
+			->where('a.estatus_reserva <> 4')
 			->where("(a.fecha_al BETWEEN '{$fdel}' AND '{$fal}' OR a.fecha_del BETWEEN '{$fdel}' AND '{$fal}' OR '{$fdel}' BETWEEN a.fecha_del AND a.fecha_al OR '{$fal}' BETWEEN a.fecha_del AND a.fecha_al)", NULL, FALSE)
 			->get('reserva a')
 			->row();

@@ -20,8 +20,8 @@
         </tr>
     </thead>
     <tbody>
-        <tr *cdkVirtualFor="let cliente of lstClienteMasterFiltered">
-            <td>{{cliente.nombre}}</td>
+        <tr *cdkVirtualFor="let cliente of lstClienteMasterFiltered" [ngClass]="{'en-lista-negra': +cliente.enlistanegra === 1}">
+            <td><mat-icon aria-hidden="false" aria-label="En lista negra" style="margin-right: 5px; color:red;" *ngIf="+cliente.enlistanegra === 1">warning_amber</mat-icon>{{cliente.nombre}}</td>
             <td class="ctxt" style="width: 10%;">{{cliente.cliente_master}}</td>
             <td style="width: 20%;">{{cliente.correo}}</td>
             <td class="ctxt" style="width: 10%;">{{cliente.fecha_nacimiento | date:'dd/MM/yyyy'}}</td>

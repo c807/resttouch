@@ -17,6 +17,7 @@ export interface ClienteMaster {
     fecha_nacimiento?: string;
     tipo_documento?: number;
     numero_documento?: string;
+    enlistanegra?: number;
 }
 
 export interface ClienteMasterTelefono extends ClienteMaster, Telefono {

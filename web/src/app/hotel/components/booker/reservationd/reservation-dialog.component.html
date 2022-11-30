@@ -16,10 +16,11 @@
   <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">
     <mat-label>Estatus</mat-label>
     <mat-select name="estatus_reserva" [(ngModel)]="reserva.estatus_reserva">
-      <mat-option *ngFor="let estRes of lstEstatusReserva" value="{{ estRes.estatus_reserva }}"
-        [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva">
-        {{ estRes.descripcion }}
-      </mat-option>
+      <ng-container *ngFor="let estRes of lstEstatusReserva">
+        <mat-option value="{{ estRes.estatus_reserva }}" *ngIf="[1, 2].indexOf(+estRes.estatus_reserva) > -1" [disabled]="+estRes.estatus_reserva <= +reserva.estatus_reserva">
+          {{ estRes.descripcion }}
+        </mat-option>
+      </ng-container>
     </mat-select>
   </mat-form-field>
   <br />
@@ -47,9 +48,9 @@
     <mat-label>Cliente</mat-label>
     <input type="text" [(ngModel)]="txtClienteMasterSelected" [ngModelOptions]="{standalone: true}" placeholder="Cliente" matInput [matAutocomplete]="autoClienteMaster"
       (keyup)="filtrarClientesMaster(txtClienteMasterSelected)" required>
-    <mat-autocomplete #autoClienteMaster="matAutocomplete" [displayWith]="displayClienteMaster">
+    <mat-autocomplete #autoClienteMaster="matAutocomplete" [displayWith]="displayClienteMaster">      
       <mat-option *ngFor="let cliMas of filteredLstClientesMaster" [value]="cliMas">
-        {{ cliMas.nombre }}{{cliMas.numero_documento ? (' (' + cliMas.numero_documento + ')') : ''}}
+        <mat-icon aria-hidden="false" aria-label="En lista negra" *ngIf="+cliMas.enlistanegra === 1">warning_amber</mat-icon>{{ cliMas.nombre }}{{cliMas.numero_documento ? (' (' + cliMas.numero_documento + ')') : ''}}
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>  
@@ -57,6 +58,7 @@
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancelar</button>
+  <button mat-raised-button color="secondary" (click)="cancelarReservacion()" *ngIf="+reserva.estatus_reserva === 1">Cancelar reservación</button>
   <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()"
     [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+reserva.estatus_reserva === 2">Agregar cobro
     de habitación</button>

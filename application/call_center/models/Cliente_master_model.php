@@ -10,6 +10,7 @@ class Cliente_master_model extends General_model
 	public $fecha_nacimiento = null;
 	public $tipo_documento = null;
 	public $numero_documento = null;
+	public $enlistanegra = 0;
 
 	public function __construct($id = '')
 	{

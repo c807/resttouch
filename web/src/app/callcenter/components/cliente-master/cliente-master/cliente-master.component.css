@@ -13,3 +13,7 @@ cdk-virtual-scroll-viewport {
     margin-top: 1px !important;
     margin-bottom: 1px !important;
   }
+
+  .en-lista-negra {
+    background-color: #d3d3d356;
+  }

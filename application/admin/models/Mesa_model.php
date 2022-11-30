@@ -73,7 +73,7 @@ class Mesa_model extends General_Model
 			->where('a.esmostrador', 0)
 			->where('a.escallcenter', 0)
 			->where('b.sede', $sede)
-			->where('(c.estatus_reserva = 2 OR c.estatus_reserva IS NULL)')
+			->where('(c.estatus_reserva = 2 OR (c.estatus_reserva IS NULL AND a.eshabitacion = 0))')
 			->order_by('b.nombre, a.numero')
 			->get('mesa a')
 			->result();
