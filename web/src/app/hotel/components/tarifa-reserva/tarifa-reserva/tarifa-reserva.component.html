@@ -10,6 +10,7 @@
     </thead>
     <tbody>
         <tr *ngFor="let tres of tarifasReserva">
+            
             <td>
                 <mat-form-field>
                     <input matInput type="number" placeholder="Adultos" name="cantidad_adultos" [(ngModel)]="tres.cantidad_adultos" min="0" required>

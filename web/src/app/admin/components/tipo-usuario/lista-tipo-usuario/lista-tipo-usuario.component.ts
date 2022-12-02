@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
@@ -6,13 +6,15 @@ import { LocalstorageService } from '../../../services/localstorage.service';
 import { UsuarioTipo } from '../../../interfaces/usuario-tipo';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 
+import { Subscription } from 'rxjs';
+
 @Component({
 	selector: 'app-lista-tipo-usuario',
 	templateUrl: './lista-tipo-usuario.component.html',
 	styleUrls: ['./lista-tipo-usuario.component.css']
 })
 
-export class ListaTipoUsuarioComponent implements OnInit {
+export class ListaTipoUsuarioComponent implements OnInit, OnDestroy {
 
 	public lstUsuarioTipo: UsuarioTipo[];
 	public lstUsuarioTipoPaged: UsuarioTipo[];
@@ -28,6 +30,8 @@ export class ListaTipoUsuarioComponent implements OnInit {
 	public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
 	public esMovil = false;
 
+	private endSubs = new Subscription();
+
 	constructor(
 		private tipoUsuarioSrvc: TipoUsuarioService,
 		private ls: LocalstorageService
@@ -36,6 +40,10 @@ export class ListaTipoUsuarioComponent implements OnInit {
 	ngOnInit() {
 		this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
 		this.loadTipoUsuario();
+	}
+
+	ngOnDestroy(): void {
+		this.endSubs.unsubscribe();
 	}
 
 	applyFilter(cambioPagina = false) {
@@ -53,14 +61,16 @@ export class ListaTipoUsuarioComponent implements OnInit {
 	}
 
 	loadTipoUsuario = () => {
-		this.tipoUsuarioSrvc.get().subscribe(lst => {
-			if (lst) {
-				if (lst.length > 0) {
-					this.lstUsuarioTipo = lst;
-					this.applyFilter();
+		this.endSubs.add(			
+			this.tipoUsuarioSrvc.get().subscribe(lst => {
+				if (lst) {
+					if (lst.length > 0) {
+						this.lstUsuarioTipo = lst;
+						this.applyFilter();
+					}
 				}
-			}
-		});
+			})
+		);
 	}
 
 	getTipoUsuario = (obj: UsuarioTipo) => {

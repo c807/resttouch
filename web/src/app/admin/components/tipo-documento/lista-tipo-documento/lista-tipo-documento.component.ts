@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { PageEvent } from '@angular/material/paginator';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
@@ -18,6 +18,7 @@ export class ListaTipoDocumentoComponent implements OnInit, OnDestroy {
   public lstTiposDocumento: TipoDocumento[];
   public lstTiposDocumentoPaged: TipoDocumento[];
   @Output() getTipoDocumentoEv = new EventEmitter();
+  @ViewChild('paginador') paginador: MatPaginator;
 
   public length = 0;
   public pageSize = 5;
@@ -44,7 +45,7 @@ export class ListaTipoDocumentoComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-  applyFilter() {
+  applyFilter(cambioPagina = false) {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstTiposDocumento, this.txtFiltro);
       this.length = tmpList.length;
@@ -53,6 +54,9 @@ export class ListaTipoDocumentoComponent implements OnInit, OnDestroy {
       this.length = this.lstTiposDocumento.length;
       this.lstTiposDocumentoPaged = PaginarArray(this.lstTiposDocumento, this.pageSize, this.pageIndex + 1);
     }
+    if (!cambioPagina) {
+			this.paginador.firstPage();
+		}
   }
 
   loadTiposDocumento = () => {
@@ -71,7 +75,7 @@ export class ListaTipoDocumentoComponent implements OnInit, OnDestroy {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter();
+    this.applyFilter(true);
   }
 
 }

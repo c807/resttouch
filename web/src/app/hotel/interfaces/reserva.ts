@@ -20,6 +20,8 @@ export interface Reserva {
     detalle?: DetalleReserva[];
     area?: number;
     numero_mesa?: number;
+    etiqueta_mesa?: string;
+    comanda?: number;
 }
 
 export interface DetalleReserva {

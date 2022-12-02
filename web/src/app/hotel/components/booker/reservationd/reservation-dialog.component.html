@@ -1,9 +1,12 @@
-<h1 mat-dialog-title>{{+reserva?.reserva > 0 ? 'Editar' : 'Nueva'}} reservación</h1>
+<h1 mat-dialog-title>
+  {{+reserva?.reserva > 0 ? 'Editar' : 'Nueva'}} reservación
+  <span *ngIf="+reserva?.reserva > 0"> - Habitación {{reserva.etiqueta_mesa || reserva.numero_mesa }}</span>
+  <span *ngIf="+reserva.comanda > 0"> - Comanda {{reserva.comanda}}</span>
+</h1>
 <div mat-dialog-content>
-
   <mat-form-field style="width: 45%;" appearance="fill">
     <mat-label>Fecha</mat-label>
-    <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+    <mat-date-range-input [formGroup]="range" [rangePicker]="picker" [dateFilter]="filtroFecha">
       <input matStartDate formControlName="start" placeholder="Start date">
       <input matEndDate formControlName="end" placeholder="End date">
     </mat-date-range-input>

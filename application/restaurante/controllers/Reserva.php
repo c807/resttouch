@@ -94,6 +94,8 @@ class Reserva extends CI_Controller
 			$habitacion = new Mesa_model($rsrv->mesa);
 			$rsrv->area = $habitacion->area;
 			$rsrv->numero_mesa = $habitacion->numero;
+			$rsrv->etiqueta_mesa = $habitacion->etiqueta;
+			$rsrv->comanda = $this->Reserva_model->get_numero_comanda_reserva($rsrv->reserva, true);
 		}
 		$this->output->set_output(json_encode($datos));
 	}

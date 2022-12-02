@@ -68,6 +68,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public filteredLstClientesMaster: ClienteMaster[] = [];
   public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
   public lstEstatusReserva: EstatusReserva[] = [];  
+  public startDate = moment().toDate();
 
   private endSubs = new Subscription();
 
@@ -232,7 +233,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   filtrarClientesMaster = (value: (ClienteMaster | string)) => {
     if (value && (typeof value === 'string')) {
       const filterValue = value.toLowerCase();
-      this.filteredLstClientesMaster = this.lstClientesMaster.filter(cm => cm.nombre.toLowerCase().includes(filterValue) || cm.numero_documento.toLocaleLowerCase().includes(filterValue));
+      this.filteredLstClientesMaster = this.lstClientesMaster.filter(cm => cm.nombre.toLowerCase().includes(filterValue) || cm.numero_documento?.toLowerCase().includes(filterValue));
     } else {
       this.filteredLstClientesMaster = this.lstClientesMaster;
     }
@@ -353,5 +354,11 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
         }
       })
     );
+  }
+
+  filtroFecha = (d: Date | null): boolean => {
+    const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+    const fecha = moment(`${moment(d).format(GLOBAL.dbDateFormat)} 00:00:00`);
+    return hoy.isBefore(fecha);
   }
 }

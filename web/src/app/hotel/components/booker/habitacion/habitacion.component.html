@@ -1,4 +1,4 @@
-<div>
+<div [ngClass]="{'de-baja': +debaja === 1}">
   <a></a>
   <mat-icon aria-hidden="false" aria-label="Example home icon" *ngIf="type">{{type}}</mat-icon>
   <a>{{text}}</a>

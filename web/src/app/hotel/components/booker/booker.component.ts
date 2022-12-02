@@ -43,6 +43,7 @@ export interface DayCalendar {
   resD?: number;
   roomIdType?: number;
   idReservacion?: number;
+  debaja?: number;
 }
 
 /**
@@ -259,7 +260,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
       roomId: +reservable.mesa,
       resL: -1, resM: -1, resMi: -1, resJ: -1, resV: -1, resS: -1, resD: -1,
       roomIdType: reservable.tipo_habitacion ? +(reservable.tipo_habitacion as TipoHabitacion).tipo_habitacion : 1,
-      idReservacion: null
+      idReservacion: null,
+      debaja: +reservable.debaja
     };
 
     let reservas: Reserva[] = [];
