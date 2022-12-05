@@ -121,6 +121,13 @@ class Reserva extends CI_Controller
 						$monto_menor_adicional = $menores_extras > 0 ? ($menores_extras * (float)$tarifa->monto_adicional_menor) : 0.0;
 						$monto += $monto_adulto_adicional + $monto_menor_adicional;
 
+						$inicia = DateTime::createFromFormat('Y-m-d', $rsvr->fecha_del);
+						$fin  = DateTime::createFromFormat('Y-m-d', $rsvr->fecha_al);
+						$noches = abs((int)$fin->diff($inicia)->format('%a'));
+						$noches = $noches === 0 ? 1 : $noches;
+
+						$monto = $noches * $monto;
+
 						$detalle_comanda = [
 							'articulo' => $tarifa->articulo, 'cantidad' => 1, 'precio' => $monto, 'impreso' => 1, 'total' => $monto
 						];

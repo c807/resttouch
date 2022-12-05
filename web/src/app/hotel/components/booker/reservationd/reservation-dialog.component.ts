@@ -69,6 +69,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
   public lstEstatusReserva: EstatusReserva[] = [];  
   public startDate = moment().toDate();
+  public idEstatusReservaInicial = 0;
 
   private endSubs = new Subscription();
 
@@ -153,6 +154,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     const rsv = await this.reservaSrvc.get({ reserva: +reservaId }, true).toPromise() as Reserva[];
     if (rsv.length > 0) {
       this.reserva = rsv[0];
+      this.idEstatusReservaInicial = +this.reserva.estatus_reserva;
       this.range.setValue({
         start: moment(this.reserva.fecha_del).toDate(),
         end: moment(this.reserva.fecha_al).toDate()
@@ -173,34 +175,48 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     // console.log('RESERVA = ', this.reserva);
 
     const msgCheckIn = this.reserva && +this.reserva.estatus_reserva === 2 ? ' Al hacer el check-in se abrirá automáticamente una cuenta para el cliente. ' : '';
+    let continuar = true;
 
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      maxWidth: '400px',
-      data: new ConfirmDialogModel(
-        'Reservación',
-        `Esto ${this.reserva && +this.reserva.reserva > 0 ? (+this.reserva.estatus_reserva === 4 ? 'cancelará la' : 'modificará la') : 'generará una nueva'} reserva.${msgCheckIn} ¿Desea continuar?`,
-        'Sí', 'No'
-      )
-    });
+    if (this.reserva && +this.reserva.estatus_reserva === 2)
+    {
+      const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+      const fechaInicioReserva = moment(`${moment(this.reserva.fecha_del).format(GLOBAL.dbDateFormat)} 00:00:00`);
+      if (hoy.isBefore(fechaInicioReserva)) {
+        continuar = false;        
+      }
+    }
 
-    this.endSubs.add(
-      dialogRef.afterClosed().subscribe(res => {
-        if (res) {
-          this.endSubs.add(
-            this.reservaSrvc.save(this.reserva).subscribe(res => {
-              this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
-              if (res.exito && res.reserva && +res.reserva.estatus_reserva === 2) {
-                this.abrirComandaDeHabitacion(res.reserva as Reserva);
-              } else {
-                this.dialogRef.close();
-              }
-            })
-          );
-        } else {
-          this.dialogRef.close();
-        }
-      })
-    );
+    if (continuar) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        maxWidth: '400px',
+        data: new ConfirmDialogModel(
+          'Reservación',
+          `Esto ${this.reserva && +this.reserva.reserva > 0 ? (+this.reserva.estatus_reserva === 4 ? 'cancelará la' : 'modificará la') : 'generará una nueva'} reserva.${msgCheckIn} ¿Desea continuar?`,
+          'Sí', 'No'
+        )
+      });
+  
+      this.endSubs.add(
+        dialogRef.afterClosed().subscribe(res => {
+          if (res) {
+            this.endSubs.add(
+              this.reservaSrvc.save(this.reserva).subscribe(res => {
+                this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
+                if (res.exito && res.reserva && +res.reserva.estatus_reserva === 2) {
+                  this.abrirComandaDeHabitacion(res.reserva as Reserva);
+                } else {
+                  this.dialogRef.close();
+                }
+              })
+            );
+          } else {
+            this.dialogRef.close();
+          }
+        })
+      );
+    } else {
+      this.snackBar.open('No puede hacer CHECK-IN de una reserva futura.', 'Reserva', { duration: 7000 });
+    }
   }
 
   selectTarifa = () => {
