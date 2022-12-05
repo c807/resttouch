@@ -36,7 +36,7 @@
             <button mat-menu-item (click)="toggleDeBaja(item)" *ngIf="+item.debaja === 0" class="customize" [disabled]="+item.estatus === 2">
                 <mat-icon class="btnIconSize">thumb_down</mat-icon>Dar de baja
             </button>
-            <button mat-menu-item (click)="toggleDeBaja(item, 0)" *ngIf="+item.debaja === 1" class="customizeUp" [disabled]="+item.estatus === 2">
+            <button mat-menu-item (click)="toggleDeBaja(item, 0)" *ngIf="+item.debaja === 1" class="customizeUp">
                 <mat-icon class="btnIconSize">thumb_up</mat-icon>Habilitar
             </button>
         </ng-template>
