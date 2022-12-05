@@ -16,6 +16,7 @@ class Cajacorte extends CI_Controller
 			'Catalogo_model',
 			'Fpago_model',
 			'Cajacorte_nominacion_model',
+			'Usuario_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -92,8 +93,11 @@ class Cajacorte extends CI_Controller
 	public function buscar()
 	{
 		$cajas = $this->Cajacorte_model->getCajaCorte($_GET);
+		$usr = new Usuario_model();
 		foreach ($cajas as $caja) {
 			$caja->caja_corte_tipo = $this->Catalogo_model->getCajaCorteTipo(['caja_corte_tipo' =>$caja->caja_corte_tipo, '_uno' => true]);
+			$usuario = $usr->find(['usuario' => $caja->usuario, '_uno' => true]);
+			$caja->usrname = $usuario ? trim($usuario->usrname) : null;
 		}
 		$this->output->set_output(json_encode($cajas));
 	}

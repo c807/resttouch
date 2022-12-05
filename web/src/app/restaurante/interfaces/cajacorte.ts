@@ -13,6 +13,7 @@ export interface ccGeneral {
 	fecha: string;
 	total: number;
 	descripcion_documento?: string;
+	usrname?: string;
 }
 
 export interface ccDetalle {
