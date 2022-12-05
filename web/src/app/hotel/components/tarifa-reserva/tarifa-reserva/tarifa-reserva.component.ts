@@ -26,11 +26,11 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
         tares.cantidad_menores === undefined
       ) || (
         tares.monto === null || tares.monto === undefined
-      ) || +tares.cantidad_adultos < 0 || +tares.cantidad_menores < 0 || +tares.monto < 0 || +tares.monto_adicional_adulto < 0 || +tares.monto_adicional_menor < 0;
+      ) || +tares.cantidad_adultos < 0 || +tares.cantidad_menores < 0 || +tares.monto < 0 || +tares.monto_adicional_adulto < 0 || +tares.monto_adicional_menor < 0 || !tares.articulo;
   }
 
   get tarifaReservaFaltante(): boolean {
-    return (this.tarifaReserva.cantidad_adultos === null || this.tarifaReserva.cantidad_adultos === undefined) || (this.tarifaReserva.cantidad_menores === null || this.tarifaReserva.cantidad_menores === undefined) || (this.tarifaReserva.monto === null || this.tarifaReserva.monto === undefined) || +this.tarifaReserva.cantidad_adultos < 0 || +this.tarifaReserva.cantidad_menores < 0 || +this.tarifaReserva.monto < 0 || +this.tarifaReserva.monto_adicional_adulto < 0 || +this.tarifaReserva.monto_adicional_menor < 0;
+    return (this.tarifaReserva.cantidad_adultos === null || this.tarifaReserva.cantidad_adultos === undefined) || (this.tarifaReserva.cantidad_menores === null || this.tarifaReserva.cantidad_menores === undefined) || (this.tarifaReserva.monto === null || this.tarifaReserva.monto === undefined) || +this.tarifaReserva.cantidad_adultos < 0 || +this.tarifaReserva.cantidad_menores < 0 || +this.tarifaReserva.monto < 0 || +this.tarifaReserva.monto_adicional_adulto < 0 || +this.tarifaReserva.monto_adicional_menor < 0 || !this.tarifaReserva.articulo;
   }
 
   public tipoHabitacion: TipoHabitacion;

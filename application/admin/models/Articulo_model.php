@@ -1282,6 +1282,17 @@ class Articulo_model extends General_model
 			}
 		}
 	}
+
+	public function usado_en_tarifario($idArticulo = null)
+	{
+		if (!$idArticulo) {
+			$idArticulo = $this->getPK();
+		}
+
+		$tarifa = $this->db->select('tarifa_reserva')->where('articulo', $idArticulo)->get('tarifa_reserva')->row();
+		
+		return $tarifa && (int)$tarifa->tarifa_reserva > 0 ? true : false;
+	}
 }
 
 /* End of file Articulo_model.php */

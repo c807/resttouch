@@ -37,8 +37,8 @@
                 </mat-form-field>                
             </td>
             <td>
-                <mat-form-field>
-                    <mat-select name="articulo" [(ngModel)]="tres.articulo">
+                <mat-form-field style="min-width: 10%;">
+                    <mat-select name="articulo" [(ngModel)]="tres.articulo" required>
                         <mat-option *ngFor="let artHab of lstArticuloHabitacion" [value]="artHab.articulo">
                             {{artHab.descripcion}}                           
                         </mat-option>
@@ -78,8 +78,8 @@
                 </mat-form-field>                        
             </td>
             <td>
-                <mat-form-field>
-                    <mat-select name="articulo" [(ngModel)]="tarifaReserva.articulo">
+                <mat-form-field style="min-width: 10%;">
+                    <mat-select name="articulo" [(ngModel)]="tarifaReserva.articulo" required>
                         <mat-option *ngFor="let artHab of lstArticuloHabitacion" [value]="artHab.articulo">
                             {{artHab.descripcion}}                           
                         </mat-option>

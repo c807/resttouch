@@ -394,7 +394,12 @@ class Articulo extends CI_Controller
 		}
 
 		if ($noHayExistencias) {
-			$datos = $articulo->dar_de_baja($this->data->idusuario);
+			$usadoEnTarifario = $articulo->usado_en_tarifario();
+			if (!$usadoEnTarifario) {
+				$datos = $articulo->dar_de_baja($this->data->idusuario);
+			} else {
+				$datos->mensaje = 'Este artículo está siendo usado en el tarifario de reservas. No se puede dar de baja.';
+			}
 		} else {
 			$datos->mensaje = 'Las existencias del artículo no están a cero (0). No se puede dar de baja.';
 		}
