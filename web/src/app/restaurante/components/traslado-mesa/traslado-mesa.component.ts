@@ -47,12 +47,16 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
   }
 
   loadMesasDisponibles = () => {
-    const fltr = { solo_disponibles: 0 };
+    const fltr: any = { solo_disponibles: 0 };
 
     if (this.data.solo_disponibles) {
       fltr.solo_disponibles = +this.data.solo_disponibles;
     } else {
       delete fltr.solo_disponibles;
+    }
+
+    if (+this.idCuenta === 0) {
+      fltr.eshabitacion = 0;
     }
 
     this.endSubs.add(
