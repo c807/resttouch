@@ -19,6 +19,7 @@ import { TranCocinaComponent } from './components/tran-cocina/tran-cocina.compon
 import { TranAnulaComandaComponent } from './components/tran-anula-comanda/tran-anula-comanda.component';
 import { ComandaComponent } from './components/reportes/comanda/comanda.component';
 import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-admin.component';
+import { NotaPredefinidaComponent } from './components/nota-predefinida/nota-predefinida/nota-predefinida.component';
 
 const routes: Routes = [
   { path: 'mantareas', component: AreaComponent, canActivate: [AuthGuard] },
@@ -38,6 +39,7 @@ const routes: Routes = [
   { path: 'anulacomanda', component: TranAnulaComandaComponent, canActivate: [AuthGuard] },
   { path: 'rptcomanda', component: ComandaComponent, canActivate: [AuthGuard] },
   { path: 'rptvtasadm', component: VentasAdminComponent, canActivate: [AuthGuard] },
+  { path: 'notas_predefinidas', component: NotaPredefinidaComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

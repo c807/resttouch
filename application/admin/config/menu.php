@@ -217,6 +217,10 @@ $config['menu'] = [
 					2 => [
 						'nombre' => 'Distribución de propinas',
 						'link' => '/restaurante/propina'
+					],
+					3 => [
+						'nombre' => 'Notas predefinidas',
+						'link' => '/restaurante/notas_predefinidas'
 					]
 				]
 			]

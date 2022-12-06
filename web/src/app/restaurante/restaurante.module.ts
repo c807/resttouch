@@ -98,6 +98,9 @@ import { MTranComandaComponent } from './components/mobile/m-tran-comanda/m-tran
 import { MListaProductosComponent } from './components/mobile/m-lista-productos/m-lista-productos.component';
 import { MAccionesArticuloComandaComponent } from './components/mobile/m-acciones-articulo-comanda/m-acciones-articulo-comanda.component';
 import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-admin.component';
+import { NotaPredefinidaComponent } from './components/nota-predefinida/nota-predefinida/nota-predefinida.component';
+import { FormNotaPredefinidaComponent } from './components/nota-predefinida/form-nota-predefinida/form-nota-predefinida.component';
+import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lista-nota-predefinida/lista-nota-predefinida.component';
 
 @NgModule({
   declarations: [
@@ -109,7 +112,7 @@ import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
-    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent
+    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent, NotaPredefinidaComponent, FormNotaPredefinidaComponent, ListaNotaPredefinidaComponent
   ],
   imports: [
     CommonModule,

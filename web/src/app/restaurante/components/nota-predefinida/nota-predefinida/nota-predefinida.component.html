@@ -1,0 +1,9 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-nota-predefinida #lstNotaPredefinida (getNotaPredefinidaEv)="setNotaPredefinida($event)"></app-lista-nota-predefinida>
+    </div>
+    <div class="col m7 s12">
+        <app-form-nota-predefinida #frmNotaPredefinida [notaPredefinida]="notaPredefinida" (notaPredefinidaSavedEv)="refreshNotaPredefinidaList()"></app-form-nota-predefinida>
+    </div>
+</div>
+
