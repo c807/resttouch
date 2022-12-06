@@ -108,7 +108,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
 
     this.endSubs.add(
       ngenDialog.afterClosed().subscribe((notasGen: string) => {
-        if (notasGen !== null) {
+        if (notasGen !== null && notasGen !== undefined) {
           this.endSubs.add(
             this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: notasGen.trim() }).subscribe(res => {
               if (res.exito) {

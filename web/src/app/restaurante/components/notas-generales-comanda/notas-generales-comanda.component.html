@@ -1,17 +1,35 @@
 <h1 mat-dialog-title>Notas de {{data.titulo}}</h1>
 <mat-dialog-content>
-    <form #frmNotasGenCom="ngForm" novalidate>
+    <!-- <form #frmNotasGenCom="ngForm" novalidate>
         <mat-form-field class="fullWidth">
             <textarea matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Notas" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
             <textarea matInput *ngIf="esMovil" placeholder="Notas" name="notasGenerales" [(ngModel)]="data.notasGenerales" maxlength="1000"></textarea>
         </mat-form-field>
-    </form>
+    </form> -->
+
+    <form>
+        <mat-form-field appearance="fill" class="fullWidth">
+          <!-- <mat-label>Number</mat-label> -->
+          <input type="text"
+                 placeholder="Notas"
+                 aria-label="Notas"
+                 matInput
+                 [formControl]="txtNotas"
+                 [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete" class="fullWidth">
+            <mat-option *ngFor="let np of filteredLstNotasPredefinidas | async" [value]="np">
+              {{np}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </form>
+
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-    <button mat-raised-button (click)="terminar()" color="secondary" class="btnAccion">
+    <!-- <button mat-raised-button (click)="terminar()" color="secondary" class="btnAccion">
         Cancelar
-    </button>
-    <button mat-raised-button (click)="terminar(data.notasGenerales)" color="accent">
-        Guardar
+    </button> -->
+    <button mat-raised-button (click)="terminar()" color="accent">
+        Regresar
     </button>
 </mat-dialog-actions>

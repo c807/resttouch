@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
 import { WmsModule } from '../wms/wms.module';
 import { PosModule } from '../pos/pos.module';
@@ -35,6 +35,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 import { EcoFabSpeedDialModule } from '@ecodev/fab-speed-dial';
@@ -119,6 +120,7 @@ import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lis
     RestauranteRoutingModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     NgxBarCodePutModule,
     SharedModule,
     WmsModule,
@@ -153,7 +155,8 @@ import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lis
     MatBottomSheetModule,
     MatKeyboardModule,
     LayoutModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatAutocompleteModule
   ],
   providers: [
     MatNativeDateModule
