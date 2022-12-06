@@ -105,6 +105,20 @@ class Mesa_model extends General_Model
 		$datos->exito = $this->guardar(['estatus' => 1]);
 		return (array)$datos;
 	}
+
+	public function get_reservas($vigentes = true, $idMesa = null) {
+		$campos = $this->getCampos(false, '', 'reserva');
+
+		if (!$idMesa) {
+			$idMesa = $this->getPK();
+		}
+
+		if ($vigentes) {
+			$this->db->where_in('estatus_reserva', [1, 2]);
+		}
+
+		return $this->db->select($campos)->where('mesa', $idMesa)->get('reserva')->result();
+	}
 }
 
 /* End of file Mesa_model.php */

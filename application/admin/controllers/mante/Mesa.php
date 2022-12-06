@@ -22,15 +22,27 @@ class Mesa extends CI_Controller {
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+			$continuar = true;
 
-			$datos['exito'] = $mesa->guardar($req);
+			if ((int)$mesa->esreservable === 1 && isset($req['debaja']) && (int)$req['debaja'] === 1) {
+				$reservas = $mesa->get_reservas();
+				if ($reservas && count($reservas) > 0) {
+					$continuar = false;
+					$tipo = $mesa->eshabitacion === 1 ? 'habitación' : 'mesa';
+					$datos['mensaje'] = "Hay reservas vigentes asociadas a esta {$tipo}. Debe cancelarlas primero para darla de baja, por favor.";
+				}
+			}
 
-			if($datos['exito']) {
-				$datos['mensaje'] = "Datos actualizados con éxito.";
-				$datos['mesa'] = $mesa;
-			} else {
-				$datos['mensaje'] = $mesa->getMensaje();
-			}	
+			if ($continuar) {
+				$datos['exito'] = $mesa->guardar($req);
+	
+				if($datos['exito']) {
+					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mesa'] = $mesa;
+				} else {
+					$datos['mensaje'] = $mesa->getMensaje();
+				}
+			}
 		} else {
 			$datos['mensaje'] = "Parámetros inválidos.";
 		}		

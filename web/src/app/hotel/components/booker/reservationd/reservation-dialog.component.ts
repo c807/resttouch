@@ -32,6 +32,7 @@ export interface DialogData {
   roomIdType: number;
   reserva?: Reserva;
   idReservacion?: number;
+  descripcionHabitacion?: string;
 }
 
 @Component({
@@ -48,6 +49,10 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   get reservaLista() {
     return moment(this.range.value.start).isValid && moment(this.range.value.end).isValid() && this.reserva.cantidad_adultos >= 0 && this.reserva.cantidad_menores >= 0 && +this.reserva.cliente_master > 0 && +this.reserva.tarifa_reserva > 0;
   }  
+
+  get diaSalida() {
+    return moment(this.range.value.end).isValid() ? moment(this.range.value.end).add(1, 'day').format(GLOBAL.dateFormat) : null;
+  }
 
   public range = new FormGroup({
     start: new FormControl(),
@@ -375,6 +380,6 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   filtroFecha = (d: Date | null): boolean => {
     const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
     const fecha = moment(`${moment(d).format(GLOBAL.dbDateFormat)} 00:00:00`);
-    return hoy.isBefore(fecha);
+    return hoy.isBefore(fecha) || hoy.isSame(fecha);
   }
 }

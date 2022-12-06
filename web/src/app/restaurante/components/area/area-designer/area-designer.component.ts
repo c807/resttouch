@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -6,27 +6,30 @@ import { ConfiguraMesaComponent } from '../configura-mesa/configura-mesa.compone
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 import { Mesa } from '../../../interfaces/mesa';
-
 import { MesaService } from '../../../services/mesa.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-area-designer',
   templateUrl: './area-designer.component.html',
   styleUrls: ['./area-designer.component.css']
 })
-export class AreaDesignerComponent implements OnInit {
+export class AreaDesignerComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
 
   public mesas: Mesa[] = [];
-  public contextMenuPosition = { x: '0px', y: '0px' };  
+  public contextMenuPosition = { x: '0px', y: '0px' };
   public cargando = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
     private mesaSrvc: MesaService,
     public dialogRef: MatDialogRef<AreaDesignerComponent>,
-    public dialog: MatDialog,    
+    public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
@@ -34,7 +37,11 @@ export class AreaDesignerComponent implements OnInit {
     // console.log(this.data);
     this.mesas = this.data.mesas;
     // console.log(this.mesas);    
-  }  
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
 
   getNextTableNumber = () =>
     this.mesas.length > 0 ?
@@ -67,16 +74,18 @@ export class AreaDesignerComponent implements OnInit {
   addCallCenter = () => this.addTable(72, 72, 1, 0, 1);
 
   saveNewMesa = (mesa: Mesa, pos: number) => {
-    this.mesaSrvc.save(mesa).subscribe(res => {
-      if (res.exito) {
-        if (!!res.mesa) {
-          this.mesas[pos] = res.mesa;
+    this.endSubs.add(
+      this.mesaSrvc.save(mesa).subscribe(res => {
+        if (res.exito) {
+          if (!!res.mesa) {
+            this.mesas[pos] = res.mesa;
+          }
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
         }
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
-      }
-      this.cargando = false;
-    });
+        this.cargando = false;
+      })
+    );
   }
 
   onClickMesa = (obj: any) => { };
@@ -97,10 +106,6 @@ export class AreaDesignerComponent implements OnInit {
       width: '50%',
       data: { mesa: item }
     });
-
-    configMesaRef.afterClosed().subscribe(res => {
-
-    });
   }
 
   toggleDeBaja = (item: Mesa, deBaja = 1) => {
@@ -108,32 +113,37 @@ export class AreaDesignerComponent implements OnInit {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         +item.esmostrador === 0 ? 'Mesa' : 'Mostrador',
-        `¿Seguro que desea ${
-        deBaja === 1 ? 'dar de baja' : 'habilitar'
+        `¿Seguro que desea ${deBaja === 1 ? 'dar de baja' : 'habilitar'
         } ${+item.esmostrador === 0 ? 'la mesa' : 'el mostrador'} #${item.numero}?`,
         'Sí', 'No'
       )
     });
 
-    confBajaMesa.afterClosed().subscribe((conf: boolean) => {
-      if (conf) {
-        item.debaja = deBaja;
-        this.mesaSrvc.save(item).subscribe(res => {
-          if (res.exito) {
-            if (!!res.mesa) {
-              const idx = this.mesas.findIndex(m => +m.mesa === +res.mesa.mesa);
-              if (idx > -1) {
-                this.mesas[idx] = res.mesa;
+    this.endSubs.add(
+      confBajaMesa.afterClosed().subscribe((conf: boolean) => {
+        if (conf) {
+          item.debaja = deBaja;
+          this.endSubs.add(
+            this.mesaSrvc.save(item).subscribe(res => {
+              if (res.exito) {
+                if (!!res.mesa) {
+                  const idx = this.mesas.findIndex(m => +m.mesa === +res.mesa.mesa);
+                  if (idx > -1) {
+                    this.mesas[idx] = res.mesa;
+                  }
+                  this.snackBar.open(res.mensaje, 'Mesa', { duration: 3000 });
+                }
+              } else {
+                item.debaja = +deBaja === 0 ? 1 : 0;
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
               }
-              this.snackBar.open(res.mensaje, 'Mesa', { duration: 3000 });
-            }
-          } else {
-            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
-          }
-        });
-      }
-    });
+            })
+          );
+        }
+      })
+    );
+
   }
 
-  addHabitacion =  () => this.addTable(72, 72, 0, 0, 0, 1, 1);
+  addHabitacion = () => this.addTable(72, 72, 0, 0, 0, 1, 1);
 }

@@ -71,7 +71,7 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
 
   loadArticulosHabitacion = () => {
     const fltr = {
-      _todos: 1, impuesto_especial: 1, debaja: 0, sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0
+      _todos: 1, impuesto_especial: 1, debaja: 0, sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0, mostrar_pos: 1
     }
     this.endSubs.add(
       this.articuloSrvc.getArticulos(fltr, true).subscribe(res => this.lstArticuloHabitacion = res)

@@ -736,7 +736,7 @@ export class TranComanda {
                               Numero: this.noComanda,
                               DetalleCuenta: AImpresoraNormal,
                               Ubicacion:
-                                `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
+                                `${meu.mesa.area.nombre} - ${+meu.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} ${meu.mesa.etiqueta || meu.mesa.numero}`,
                               Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                               Total: null,
                               NumeroPedido: meu.numero_pedido,
@@ -771,7 +771,7 @@ export class TranComanda {
                                 Numero: this.noComanda,
                                 DetalleCuenta: AImpresoraBT,
                                 Ubicacion:
-                                  `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
+                                  `${meu.mesa.area.nombre} - ${+meu.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} ${meu.mesa.etiqueta || meu.mesa.numero}`,
                                 Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                                 Total: null,
                                 NumeroPedido: meu.numero_pedido
@@ -978,7 +978,7 @@ export class TranComanda {
                   Nombre: 'Todas',
                   Numero: this.noComanda,
                   DetalleCuenta: AImpresoraNormal,
-                  Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
+                  Ubicacion: `${meu.mesa.area.nombre} - ${+meu.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} ${meu.mesa.etiqueta || meu.mesa.numero}`,
                   Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                   Total: null,
                   NumeroPedido: meu.numero_pedido,
@@ -1008,7 +1008,7 @@ export class TranComanda {
                     Nombre: 'Todas',
                     Numero: this.noComanda,
                     DetalleCuenta: AImpresoraBT,
-                    Ubicacion: `${meu.mesa.area.nombre} - Mesa ${meu.mesa.etiqueta || meu.mesa.numero}`,
+                    Ubicacion: `${meu.mesa.area.nombre} - ${+meu.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} ${meu.mesa.etiqueta || meu.mesa.numero}`,
                     Mesero: `${meu.mesero.nombres} ${meu.mesero.apellidos}`,
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
@@ -1114,7 +1114,7 @@ export class TranComanda {
         IdCuenta: +this.cuentaActiva.cuenta || 0,
         EsReimpresion: true,
         Ubicacion:
-          `${this.mesaEnUso.mesa.area.nombre} - Mesa ${this.mesaEnUso.mesa.etiqueta || this.mesaEnUso.mesa.numero
+          `${this.mesaEnUso.mesa.area.nombre} - ${+this.mesaEnUso.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} ${this.mesaEnUso.mesa.etiqueta || this.mesaEnUso.mesa.numero
           } - Comanda ${this.mesaEnUso.comanda}`,
         Mesero: `${this.mesaEnUso.mesero.nombres} ${this.mesaEnUso.mesero.apellidos}`
       };

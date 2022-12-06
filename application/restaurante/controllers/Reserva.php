@@ -123,7 +123,7 @@ class Reserva extends CI_Controller
 
 						$inicia = DateTime::createFromFormat('Y-m-d', $rsvr->fecha_del);
 						$fin  = DateTime::createFromFormat('Y-m-d', $rsvr->fecha_al);
-						$noches = abs((int)$fin->diff($inicia)->format('%a'));
+						$noches = abs((int)$fin->diff($inicia)->format('%a')) + 1;
 						$noches = $noches === 0 ? 1 : $noches;
 
 						$monto = $noches * $monto;
