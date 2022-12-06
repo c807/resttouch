@@ -57,12 +57,16 @@ class Mesa_model extends General_Model
 			->row();
 	}
 
-	public function getDisponibles($sede, $soloDisponibles = false)
+	public function getDisponibles($sede, $soloDisponibles = false, $fltrHabitacion = null)
 	{
 		$campos = $this->getCampos(false, 'a.', 'mesa');
 
 		if ($soloDisponibles) {
 			$this->db->where('a.estatus', 1);
+		}
+
+		if (!is_null($fltrHabitacion) && is_numeric($fltrHabitacion)) {
+			$this->db->where('a.eshabitacion', $fltrHabitacion);
 		}
 
 		$md = $this->db
