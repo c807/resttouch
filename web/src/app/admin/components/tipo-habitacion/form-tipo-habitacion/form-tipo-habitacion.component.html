@@ -10,9 +10,16 @@
                         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
                         <input matInput *ngIf="esMovil" placeholder="Descripción" name="descripcion" [(ngModel)]="tipoHabitacion.descripcion" minlength="1" maxlength="45" required>
                     </mat-form-field>
-                    <mat-form-field class="fullWidth">
-                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
-                        <input matInput *ngIf="esMovil" type="text" placeholder="Ícono" name="icono" [(ngModel)]="tipoHabitacion.icono" minlength="1" maxlength="45">
+                    <mat-form-field class="fullWidth">                        
+                        <mat-label>Ícono</mat-label>
+                        <mat-select name="icono" [(ngModel)]="tipoHabitacion.icono">
+                            <mat-select-trigger>
+                                <mat-icon aria-hidden="false" aria-label="Ícono">{{tipoHabitacion.icono}}</mat-icon>                                
+                            </mat-select-trigger>
+                            <mat-option *ngFor="let i of iconos" [value]="i">
+                                <mat-icon aria-hidden="false" aria-label="Ícono">{{i}}</mat-icon>
+                            </mat-option>
+                        </mat-select>
                     </mat-form-field>            
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoHabitacion.form.valid">

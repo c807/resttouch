@@ -22,6 +22,7 @@ export class FormTipoHabitacionComponent implements OnInit, OnDestroy, AfterView
   @ViewChild('lstTarifaReserva') lstTarifaReserva: TarifaReservaComponent;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public iconos = ['home', 'apartment', 'maps_home_work', 'business', 'location_city', 'cottage', 'villa', 'house_siding', 'bungalow', 'chalet', 'gite', 'domain', 'fireplace'];
 
   private endSubs = new Subscription();
 
