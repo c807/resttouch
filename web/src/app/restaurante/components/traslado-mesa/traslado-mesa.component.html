@@ -4,7 +4,7 @@
         <mat-form-field class="fullWidth">
             <mat-label>Trasladar a mesa:</mat-label>
             <mat-select name="destino" [(ngModel)]="destino" required>
-                <mat-option *ngFor="let mDispon of mesasDisponibles" [value]="mDispon">
+                <mat-option *ngFor="let mDispon of mesasDisponibles" [value]="mDispon" [disabled]="+data.mesaEnUso.mesa.mesa === +mDispon.mesa">
                     {{mDispon.area.nombre}} - {{mDispon.etiqueta || mDispon.numero}}
                 </mat-option>
             </mat-select>
