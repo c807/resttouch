@@ -99,9 +99,10 @@ class Area extends CI_Controller
 	{
 		$soloDispoibles = isset($_GET['solo_disponibles']) ? (int)$_GET['solo_disponibles'] : 0;
 		$fltrHabitacion = isset($_GET['eshabitacion']) ? (int)$_GET['eshabitacion'] : null;
+		$solo_ocupadas = isset($_GET['solo_ocupadas']) ? (int)$_GET['solo_ocupadas'] : 0;
 
 		$this->load->model('Mesa_model');		
-		$mesas = $this->Mesa_model->getDisponibles($this->data->sede, ($soloDispoibles === 1), $fltrHabitacion);
+		$mesas = $this->Mesa_model->getDisponibles($this->data->sede, ($soloDispoibles === 1), $fltrHabitacion, ($solo_ocupadas === 1));
 		foreach($mesas as $mesa) {
 			$mesa->area = new Area_model($mesa->area);
 		}

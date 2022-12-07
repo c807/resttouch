@@ -57,6 +57,8 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
 
     if (+this.idCuenta === 0) {
       fltr.eshabitacion = 0;
+    } else {
+      fltr.solo_ocupadas = 1;
     }
 
     this.endSubs.add(
@@ -68,7 +70,7 @@ export class TrasladoMesaComponent implements OnInit, OnDestroy {
 
   trasladar = () => {
 
-    const params = {
+    const params: any = {
       razon_anulacion: null,
       usuario: null      
     };
