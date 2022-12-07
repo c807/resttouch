@@ -28,7 +28,7 @@ class Mesa extends CI_Controller {
 				$reservas = $mesa->get_reservas();
 				if ($reservas && count($reservas) > 0) {
 					$continuar = false;
-					$tipo = $mesa->eshabitacion === 1 ? 'habitación' : 'mesa';
+					$tipo = (int)$mesa->eshabitacion === 1 ? 'habitación' : 'mesa';
 					$datos['mensaje'] = "Hay reservas vigentes asociadas a esta {$tipo}. Debe cancelarlas primero para darla de baja, por favor.";
 				}
 			}
