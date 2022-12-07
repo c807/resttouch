@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Configuración de mesa {{mesa.numero}}</h1>
+<h1 mat-dialog-title>Configuración de {{+mesa.eshabitacion === 0 ? 'mesa' : 'habitación'}} {{mesa.etiqueta || mesa.numero}}</h1>
 <div mat-dialog-content>
     <form #frmConfigMesa="ngForm" novalidate>
         <mat-form-field style="width: 50%;">

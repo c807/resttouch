@@ -28,7 +28,7 @@
     <div style="visibility: hidden; position: fixed;" [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu"></div>
     <mat-menu #contextMenu="matMenu">
         <ng-template matMenuContent let-item="item">
-            <span mat-menu-item class="mesaTitle" disableRipple="true">Mesa #{{item.numero}} ({{item.mesa}})</span>
+            <span mat-menu-item class="mesaTitle" disableRipple="true">{{+item.eshabitacion === 0 ? 'Mesa' : 'Habitación'}} #{{item.numero}} ({{item.mesa}})</span>
             <mat-divider></mat-divider>
             <button mat-menu-item (click)="configurarMesa(item)" *ngIf="+item.debaja === 0">
                 <mat-icon class="btnIconSize">settings</mat-icon>Configuracion

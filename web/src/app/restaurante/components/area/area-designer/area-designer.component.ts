@@ -112,9 +112,9 @@ export class AreaDesignerComponent implements OnInit, OnDestroy {
     const confBajaMesa = this.dialog.open(ConfirmDialogComponent, {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
-        +item.esmostrador === 0 ? 'Mesa' : 'Mostrador',
+        +item.esmostrador === 0 ? (+item.eshabitacion === 0 ? 'Mesa' : 'Habitación') : 'Mostrador',
         `¿Seguro que desea ${deBaja === 1 ? 'dar de baja' : 'habilitar'
-        } ${+item.esmostrador === 0 ? 'la mesa' : 'el mostrador'} #${item.numero}?`,
+        } ${+item.esmostrador === 0 ? (+item.eshabitacion === 0 ? 'la mesa' : 'la habitación') : 'el mostrador'} #${item.numero}?`,
         'Sí', 'No'
       )
     });
