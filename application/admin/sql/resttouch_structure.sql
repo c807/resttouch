@@ -1680,6 +1680,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_CHECK_FINANCIAL_STATUS', '3', '0', 'Habilita/Deshabilita el chequeo de una orden de Shopify para ver si fue pagada o no.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_ACTUALIZA_CORREO_CF', '3', '0', 'Habilita/Deshabilita actualización automática de correo del cliente cuando el NIT es CF.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_HORAS_VALIDEZ_TOKEN', '1', '12', 'Establece cantidad de horas de validez del token del usuario. 12 horas por defecto.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUTO_FIRMA_DTE_COMANDA_LINEA', '3', '0', 'Habilita/Desahabilita la firma automática desde comanda en línea.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 
@@ -2315,7 +2316,6 @@ CREATE TABLE RT_DATABASE_NAME.articulo_tipo_cliente (
   ALTER TABLE RT_DATABASE_NAME.orden_gk CHANGE COLUMN encabezados encabezados TEXT NULL DEFAULT NULL ;
   ALTER TABLE RT_DATABASE_NAME.inventario_fisico ADD COLUMN escuadrediario TINYINT(1) NULL DEFAULT 0 AFTER confirmado_fecha;
   ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo CHANGE COLUMN existencia existencia DECIMAL(20,2) NULL DEFAULT '0.00';
-
   CREATE TABLE RT_DATABASE_NAME.articulo_ultima_compra (
   articulo_ultima_compra int(11) NOT NULL AUTO_INCREMENT,
   articulo int(11) NOT NULL,
@@ -2361,6 +2361,109 @@ ALTER TABLE RT_DATABASE_NAME.articulo ADD INDEX MostrarPOS_ASC (mostrar_pos ASC)
 ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN factura_serie_correlativo INT(11) NULL;
 ALTER TABLE RT_DATABASE_NAME.bodega ADD COLUMN debaja TINYINT(1) NOT NULL DEFAULT 0 AFTER pordefecto, ADD COLUMN usuariodebaja INT NULL AFTER debaja, ADD COLUMN fechabaja DATETIME NULL AFTER usuariodebaja, ADD INDEX fk_bodega_usuario_idx (usuariodebaja ASC);
 ALTER TABLE RT_DATABASE_NAME.bodega ADD CONSTRAINT fk_bodega_usuario1 FOREIGN KEY (usuariodebaja) REFERENCES RT_DATABASE_NAME.usuario (usuario) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE RT_DATABASE_NAME.mesa ADD COLUMN esreservable TINYINT(1) NOT NULL DEFAULT 0 AFTER escallcenter;
+ALTER TABLE RT_DATABASE_NAME.mesa ADD COLUMN eshabitacion TINYINT(1) NOT NULL DEFAULT 0 AFTER esreservable;
+CREATE TABLE RT_DATABASE_NAME.tipo_documento (
+  tipo_documento INT NOT NULL AUTO_INCREMENT,
+  descripcion VARCHAR(45) NOT NULL,
+  abreviatura VARCHAR(5) NOT NULL,
+  PRIMARY KEY (tipo_documento));  
+ALTER TABLE RT_DATABASE_NAME.cliente_master ADD COLUMN tipo_documento INT NULL AFTER fecha_nacimiento, ADD COLUMN numero_documento VARCHAR(250) NULL AFTER tipo_documento, ADD INDEX fk_cliente_master_tipo_documento1_idx (tipo_documento ASC), ADD INDEX Numero_documentoASC (numero_documento ASC);
+ALTER TABLE RT_DATABASE_NAME.cliente_master ADD CONSTRAINT fk_cliente_master_tipo_documento1 FOREIGN KEY (tipo_documento) REFERENCES RT_DATABASE_NAME.tipo_documento (tipo_documento) ON DELETE NO ACTION ON UPDATE NO ACTION;
+CREATE TABLE RT_DATABASE_NAME.estatus_reserva (
+  estatus_reserva INT NOT NULL AUTO_INCREMENT,
+  descripcion VARCHAR(45) NOT NULL,
+  color VARCHAR(7) NOT NULL,
+  PRIMARY KEY (estatus_reserva));  
+  CREATE TABLE RT_DATABASE_NAME.tipo_habitacion (
+  tipo_habitacion INT NOT NULL AUTO_INCREMENT,
+  descripcion VARCHAR(45) NOT NULL,
+  icono VARCHAR(45) NULL,
+  PRIMARY KEY (tipo_habitacion));
+CREATE TABLE RT_DATABASE_NAME.tarifa_reserva (
+  tarifa_reserva int(11) NOT NULL AUTO_INCREMENT,
+  tipo_habitacion int(11) NOT NULL,
+  cantidad_adultos int(11) NOT NULL DEFAULT '0',
+  cantidad_menores int(11) NOT NULL DEFAULT '0',
+  monto decimal(20,2) NOT NULL DEFAULT '0.00',
+  monto_adicional_adulto decimal(20,2) NOT NULL DEFAULT '0.00',
+  monto_adicional_menor decimal(20,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (tarifa_reserva),
+  KEY fk_tarifa_reserva_tipo_habitacion1_idx (tipo_habitacion),
+  CONSTRAINT fk_tarifa_reserva_tipo_habitacion1 FOREIGN KEY (tipo_habitacion) REFERENCES RT_DATABASE_NAME.tipo_habitacion (tipo_habitacion) ON DELETE NO ACTION ON UPDATE NO ACTION);  
+CREATE TABLE RT_DATABASE_NAME.reserva (
+  reserva INT NOT NULL AUTO_INCREMENT,
+  mesa INT NOT NULL,
+  tarifa_reserva INT NOT NULL,
+  cliente_master INT NOT NULL,
+  estatus_reserva INT NOT NULL,
+  fecha_del DATE NOT NULL,
+  hora_inicio TIME NULL,
+  fecha_al DATE NOT NULL,
+  hora_fin TIME NULL,
+  cantidad_adultos INT NOT NULL DEFAULT 0,
+  cantidad_menores INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (reserva),
+  INDEX fk_reserva_mesa1_idx (mesa ASC),
+  INDEX fk_reserva_tarifa_reserva1_idx (tarifa_reserva ASC),
+  INDEX fk_reserva_cliente_master1_idx (cliente_master ASC),
+  INDEX fk_reserva_estatus_reserva1_idx (estatus_reserva ASC),
+  INDEX Fecha_delASC (fecha_del ASC),
+  INDEX Fecha_alASC (fecha_al ASC),
+  CONSTRAINT fk_reserva_mesa1
+    FOREIGN KEY (mesa)
+    REFERENCES RT_DATABASE_NAME.mesa (mesa)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_reserva_tarifa_reserva1
+    FOREIGN KEY (tarifa_reserva)
+    REFERENCES RT_DATABASE_NAME.tarifa_reserva (tarifa_reserva)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_reserva_cliente_master1
+    FOREIGN KEY (cliente_master)
+    REFERENCES RT_DATABASE_NAME.cliente_master (cliente_master)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_reserva_estatus_reserva1
+    FOREIGN KEY (estatus_reserva)
+    REFERENCES RT_DATABASE_NAME.estatus_reserva (estatus_reserva)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+CREATE TABLE RT_DATABASE_NAME.detalle_reserva (
+  detalle_reserva INT NOT NULL AUTO_INCREMENT,
+  reserva INT NOT NULL,
+  fecha DATE NOT NULL,
+  PRIMARY KEY (detalle_reserva),
+  INDEX fk_detalle_reserva_reserva1_idx (reserva ASC),
+  INDEX FechaASC (fecha ASC),
+  CONSTRAINT fk_detalle_reserva_reserva1
+    FOREIGN KEY (reserva)
+    REFERENCES RT_DATABASE_NAME.reserva (reserva)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+ALTER TABLE RT_DATABASE_NAME.mesa ADD COLUMN tipo_habitacion INT NULL AFTER eshabitacion, ADD INDEX fk_mesa_tipo_habitacion1_idx (tipo_habitacion ASC);
+ALTER TABLE RT_DATABASE_NAME.mesa ADD CONSTRAINT fk_mesa_tipo_habitacion1 FOREIGN KEY (tipo_habitacion) REFERENCES RT_DATABASE_NAME.tipo_habitacion (tipo_habitacion) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN escobrohabitacion TINYINT(1) NOT NULL DEFAULT 0 AFTER esefectivo;
+ALTER TABLE RT_DATABASE_NAME.comanda ADD COLUMN reserva INT NULL AFTER esevento, ADD INDEX fk_comanda_reserva1_idx (reserva ASC);
+ALTER TABLE RT_DATABASE_NAME.comanda ADD CONSTRAINT fk_comanda_reserva1 FOREIGN KEY (reserva) REFERENCES RT_DATABASE_NAME.reserva (reserva) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE RT_DATABASE_NAME.tarifa_reserva ADD COLUMN articulo INT NULL AFTER monto_adicional_menor, ADD INDEX fk_tarifa_reserva_articulo1_idx (articulo ASC);
+ALTER TABLE RT_DATABASE_NAME.tarifa_reserva ADD CONSTRAINT fk_tarifa_reserva_articulo1 FOREIGN KEY (articulo)  REFERENCES RT_DATABASE_NAME.articulo (articulo) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE RT_DATABASE_NAME.reserva ADD COLUMN cobradoencomanda TINYINT(1) NOT NULL DEFAULT 0 AFTER cantidad_menores;
+ALTER TABLE RT_DATABASE_NAME.cliente_master ADD COLUMN enlistanegra TINYINT(1) NOT NULL DEFAULT 0 AFTER numero_documento;
+DROP TABLE IF EXISTS RT_DATABASE_NAME.notas;
+CREATE TABLE RT_DATABASE_NAME.nota_predefinida (
+  nota_predefinida INT NOT NULL AUTO_INCREMENT,
+  nota VARCHAR(1000) NOT NULL,
+  PRIMARY KEY (nota_predefinida),
+  INDEX NotaASC (nota ASC));
+ALTER TABLE RT_DATABASE_NAME.estatus_reserva CHANGE COLUMN color color VARCHAR(7) NULL ;
+INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUES(1, 'RESERVADA');
+INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUES(2, 'CHECK-IN');
+INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUES(3, 'CHECK-OUT');
+INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUES(4, 'CANCELADA');
+INSERT INTO RT_DATABASE_NAME.tipo_documento(tipo_documento, descripcion, abreviatura) VALUES(1, 'Código Único de Identificación', 'CUI');
+INSERT INTO RT_DATABASE_NAME.tipo_documento(tipo_documento, descripcion, abreviatura) VALUES(2, 'Pasaporte', 'PP');
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
