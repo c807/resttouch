@@ -116,8 +116,7 @@ export const GLOBAL = {
 export const PaginarArray = (array: any[], pageSize: number, pageNumber: number) =>
   array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
-export const CheckObjectType = (objeto, tipo: string) =>
-  Object.prototype.toString.call(objeto).toLowerCase().substring(7).indexOf(tipo.trim().toLowerCase()) > -1;
+export const CheckObjectType = (objeto, tipo: string) => Object.prototype.toString.call(objeto).toLowerCase().substring(7).indexOf(tipo.trim().toLowerCase()) > -1;
 
 export const MultiFiltro = (array: any[], filtro: any) => {
   if (array.length > 0) {
@@ -174,3 +173,40 @@ export const redondear = (numero: number, decimalPlaces: number) => {
 export const isAllowedUrl = (url: string): boolean => GLOBAL.ALLOWED_URLS.indexOf(url) > -1;
 
 export const isEmail = (correo: string): boolean => correo.match(GLOBAL.FORMATO_EMAIL) !== null && correo.match(GLOBAL.FORMATO_EMAIL) !== undefined;
+
+export const procesarNIT = (nit: string): string => {
+  let limpiado = nit.replace(/[^0-9kcf]+/gi, '').toUpperCase();
+
+  if (limpiado.length < 2 || limpiado.length > 12) {
+    return null;
+  }
+
+  if (limpiado === 'CF') 
+  {
+    return 'CF';
+  }
+
+  const digitoVerificadorNoEsValido = limpiado.slice(-1).match(/[^0-9k]+/gi);
+  if (digitoVerificadorNoEsValido !== null && digitoVerificadorNoEsValido !== undefined ) {
+    return null;
+  }
+
+  return limpiado;
+}
+
+export const procesarCUI = (nit: string): string => {
+  let limpiado = nit.replace(/[^0-9]+/gi, '').toUpperCase();
+
+  if (limpiado.length < 12 || limpiado.length > 13) {
+    return null;
+  }
+
+  const codigo_depto = limpiado.slice(-4).slice(0, 2);
+  const codigo_mupio = limpiado.slice(-4).slice(2);  
+
+  return limpiado;
+}
+
+export const procesarPasaporte = (nit: string) => {
+  let limpiado = nit.replace(/[^0-9a-z]+/gi, '').toUpperCase();
+}
