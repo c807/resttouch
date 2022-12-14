@@ -17,6 +17,7 @@ import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callce
 import { ConfiguracionService } from '../../../admin/services/configuracion.service';
 import { FacturaService } from '../../../pos/services/factura.service';
 import { Impresion } from '../../classes/impresion';
+import { CorrelativoService } from '../../../admin/services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 
@@ -71,7 +72,8 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     private dns: DesktopNotificationService,
     private estatusCallcenterSrvc: EstatusCallcenterService,
     private configSrvc: ConfiguracionService,
-    private facturaSrvc: FacturaService
+    private facturaSrvc: FacturaService,
+    private correlativoSrvc: CorrelativoService
   ) { }
 
   ngOnInit() {
@@ -160,7 +162,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   autoImprimir = () => {
     const autoImprimir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTOIMPRIMIR_PEDIDO) as boolean;
     const autoFirmar = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTO_FIRMA_DTE_COMANDA_LINEA) as boolean;
-    const objImprimir = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+    const objImprimir = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc, this.correlativoSrvc);
     this.comandasEnLinea.forEach(async (obj, i) => {
       if (autoImprimir) {
         if (+obj.impresa === 0) {

@@ -38,6 +38,9 @@ import { UsuarioService } from '../../admin/services/usuario.service';
 
 import { AccionesComandaComponent } from '../components/acciones-comanda/acciones-comanda.component';
 import { Base64 } from 'js-base64';
+import { Correlativo } from '../../admin/interfaces/correlativo';
+import { CorrelativoService } from '../../admin/services/correlativo.service';
+
 import { Subscription } from 'rxjs';
 
 export class TranComanda {
@@ -89,7 +92,8 @@ export class TranComanda {
     protected configSrvc: ConfiguracionService,
     protected articuloSrvc: ArticuloService,
     protected bsAccionesCmd: MatBottomSheet,
-    protected usuarioSrvc: UsuarioService
+    protected usuarioSrvc: UsuarioService,
+    protected correlativoSrvc: CorrelativoService
   ) {
   }
 
@@ -961,6 +965,8 @@ export class TranComanda {
               console.log(error);
             }
 
+            const correlativo: Correlativo = await this.correlativoSrvc.get().toPromise();
+
             if (AImpresoraNormal.length > 0) {
               if (modoComanda !== 3) {
 
@@ -983,7 +989,8 @@ export class TranComanda {
                   Total: null,
                   NumeroPedido: meu.numero_pedido,
                   NotasGenerales: (meu.notas_generales || ''),
-                  EsReimpresion: true
+                  EsReimpresion: true,
+                  NumeroImpresion: correlativo.siguiente || 1
                 })}`);
                 this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
               } else {
@@ -1013,7 +1020,8 @@ export class TranComanda {
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
                     NotasGenerales: (meu.notas_generales || ''),
-                    EsReimpresion: true
+                    EsReimpresion: true,
+                    NumeroImpresion: correlativo.siguiente || 1
                   })
                 );
               }

@@ -17,6 +17,7 @@ import { ComandaService } from '../../../services/comanda.service';
 import { ArticuloService } from '../../../../wms/services/articulo.service';
 import { ReportePdfService } from '../../../services/reporte-pdf.service';
 import { UsuarioService } from '../../../../admin/services/usuario.service';
+import { CorrelativoService } from '../../../../admin/services/correlativo.service';
 
 @Component({
   selector: 'app-m-tran-comanda',
@@ -47,9 +48,10 @@ export class MTranComandaComponent extends TranComanda implements OnInit, OnDest
     protected configSrvc: ConfiguracionService,
     protected articuloSrvc: ArticuloService,
     protected bsAccionesCmd: MatBottomSheet,
-    protected usuarioSrvc: UsuarioService        
+    protected usuarioSrvc: UsuarioService,
+    protected correlativoSrvc: CorrelativoService
   ) {
-    super(dialog, snackBar, comandaSrvc, socket, ls, pdfServicio, configSrvc, articuloSrvc, bsAccionesCmd, usuarioSrvc);
+    super(dialog, snackBar, comandaSrvc, socket, ls, pdfServicio, configSrvc, articuloSrvc, bsAccionesCmd, usuarioSrvc, correlativoSrvc);
   }
 
   ngOnInit(): void {

@@ -26,6 +26,7 @@ import { ImpresoraService } from '../../../admin/services/impresora.service';
 import { RazonAnulacion } from '../../../admin/interfaces/razon-anulacion';
 import { AnulacionService } from '../../../admin/services/anulacion.service';
 import { TrasladoMesaComponent } from '../traslado-mesa/traslado-mesa.component';
+import { CorrelativoService } from '../../../admin/services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 
@@ -74,7 +75,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private estatusCallcenterSrvc: EstatusCallcenterService,
     private anulacionSrvc: AnulacionService,
-    private impresoraSrvc: ImpresoraService
+    private impresoraSrvc: ImpresoraService,
+    private correlativoSrvc: CorrelativoService
   ) { }
 
   ngOnInit(): void {
@@ -149,7 +151,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
   imprimir = (obj: any, idx: number = 0) => {
     obj.EsReimpresion = true;
     // console.log(obj); // return;
-    const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+    const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc, this.correlativoSrvc);
     objImpresion.imprimir(obj, idx);
 
     if (+obj.orden_gk > 0) {
@@ -334,7 +336,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       if (+dataToPrint.Impresora.bluetooth === 0) {
         this.socket.emit('print:factura', JSON.stringify(dataToPrint));
       } else {
-        const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc);
+        const objImpresion = new Impresion(this.socket, this.ls, this.comandaSrvc, this.configSrvc, this.correlativoSrvc);
         objImpresion.imprimirABT(JSON.stringify(dataToPrint));
       }
     } else {

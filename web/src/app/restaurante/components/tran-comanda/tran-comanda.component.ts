@@ -34,6 +34,8 @@ import { Cliente } from '../../../admin/interfaces/cliente';
 import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
 import { UsuarioService } from '../../../admin/services/usuario.service';
 import { Base64 } from 'js-base64';
+import { Correlativo } from '../../../admin/interfaces/correlativo';
+import { CorrelativoService } from '../../../admin/services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 
@@ -87,7 +89,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     private pdfServicio: ReportePdfService,
     private configSrvc: ConfiguracionService,
     private articuloSrvc: ArticuloService,
-    private usuarioSrvc: UsuarioService
+    private usuarioSrvc: UsuarioService,
+    private correlativoSrvc: CorrelativoService
   ) { }
 
   ngOnInit() {
@@ -946,6 +949,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
               console.log(error);
             }
 
+            const correlativo: Correlativo = await this.correlativoSrvc.get().toPromise();
+
             if (AImpresoraNormal.length > 0) {
               if (modoComanda !== 3) {
 
@@ -968,7 +973,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                   Total: null,
                   NumeroPedido: meu.numero_pedido,
                   NotasGenerales: (meu.notas_generales || ''),
-                  EsReimpresion: true
+                  EsReimpresion: true,
+                  NumeroImpresion: correlativo.siguiente || 1
                 })}`);
                 this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
               } else {
@@ -998,7 +1004,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                     Total: null,
                     NumeroPedido: meu.numero_pedido,
                     NotasGenerales: (meu.notas_generales || ''),
-                    EsReimpresion: true
+                    EsReimpresion: true,
+                    NumeroImpresion: correlativo.siguiente || 1
                   })
                 );
               }

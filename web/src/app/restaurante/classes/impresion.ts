@@ -7,6 +7,8 @@ import { GLOBAL } from '../../shared/global';
 import { Base64 } from 'js-base64';
 import * as moment from 'moment';
 import { Impresora } from '../../admin/interfaces/impresora';
+import { Correlativo } from '../../admin/interfaces/correlativo';
+import { CorrelativoService } from '../../admin/services/correlativo.service';
 
 export class Impresion {
 
@@ -16,7 +18,8 @@ export class Impresion {
         private socket: Socket,
         private ls?: LocalstorageService,
         private comandaSrvc?: ComandaService,
-        private configSrvc?: ConfiguracionService
+        private configSrvc?: ConfiguracionService,
+        private correlativoSrvc?: CorrelativoService
     ) { }
 
     private setToPrint = (articulos: any[]) => {
@@ -64,6 +67,8 @@ export class Impresion {
         const AImpresoraNormal: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 0);
         const AImpresoraBT: ProductoSelected[] = listaProductos.filter(p => +p.impresora.bluetooth === 1);
 
+        const correlativo: Correlativo = await this.correlativoSrvc.get().toPromise();
+
         let objToPrint = {};
 
         if (AImpresoraNormal.length > 0) {
@@ -79,7 +84,8 @@ export class Impresion {
                 NotasGenerales: obj.notas_generales || '',
                 FormasPago: obj.formas_pago || [],
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
-                EsReimpresion: obj.EsReimpresion || false
+                EsReimpresion: obj.EsReimpresion || false,
+                NumeroImpresion: correlativo.siguiente || 1
             };
             this.socket.emit('print:comanda', `${JSON.stringify(objToPrint)}`);
         }
@@ -96,7 +102,8 @@ export class Impresion {
                 NotasGenerales: obj.notas_generales || '',
                 FormasPago: obj.formas_pago || [],
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
-                EsReimpresion: obj.EsReimpresion || false
+                EsReimpresion: obj.EsReimpresion || false,
+                NumeroImpresion: correlativo.siguiente || 1
             };
             this.printToBT(JSON.stringify(objToPrint));
         }
