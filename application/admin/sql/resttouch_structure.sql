@@ -2464,6 +2464,13 @@ INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUE
 INSERT INTO RT_DATABASE_NAME.estatus_reserva(estatus_reserva, descripcion) VALUES(4, 'CANCELADA');
 INSERT INTO RT_DATABASE_NAME.tipo_documento(tipo_documento, descripcion, abreviatura) VALUES(1, 'Código Único de Identificación', 'CUI');
 INSERT INTO RT_DATABASE_NAME.tipo_documento(tipo_documento, descripcion, abreviatura) VALUES(2, 'Pasaporte', 'PP');
+CREATE TABLE RT_DATABASE_NAME.correlativo (
+  correlativo int(11) NOT NULL AUTO_INCREMENT,
+  tabla varchar(50) NOT NULL,
+  fecha date NOT NULL,
+  siguiente int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (correlativo)
+);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
