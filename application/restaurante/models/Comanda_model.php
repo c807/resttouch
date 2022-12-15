@@ -1063,9 +1063,11 @@ class Comanda_model extends General_Model
                 if ($detsComanda) {
                     foreach ($detsComanda as $detc) {
                         $det = new Dcomanda_model($detc->detalle_comanda);
-                        $exito = $det->guardar(['comanda' => $cmdDestino]);
-                        if (!$exito) {
-                            $errores[] = implode(';', $cta->getMensaje());
+                        if ((int)$det->comanda !== (int)$cmdDestino) {
+                            $exito = $det->guardar(['comanda' => $cmdDestino]);
+                            if (!$exito) {
+                                $errores[] = implode(';', $cta->getMensaje());
+                            }
                         }
                     }
                 }
@@ -1286,13 +1288,13 @@ class Comanda_model extends General_Model
 
     public function check_cuentas_cerradas($idcomanda = null)
     {
-        if(empty($idcomanda)) {
+        if (empty($idcomanda)) {
             $idcomanda = (int)$this->comanda;
         }
 
         $cntCuentas = $this->db->select('COUNT(cuenta) AS cantidad_cuentas')->where('comanda', $idcomanda)->get('cuenta')->row();
         $cntCuentasCerradas = $this->db->select('COUNT(cuenta) AS cantidad_cuentas_cerradas')->where('comanda', $idcomanda)->where('cerrada', 1)->get('cuenta')->row();
-        
+
         return (int)$cntCuentasCerradas->cantidad_cuentas_cerradas === (int)$cntCuentas->cantidad_cuentas;
     }
 }

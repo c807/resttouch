@@ -159,12 +159,20 @@ class Comanda extends CI_Controller
 						}
 					}
 
-					if ($cmd->check_cuentas_cerradas()) {
-						$cmd->guardar(['estatus' => 2]); // Cierra la comanda
-						$mesaOrigen->guardar(['estatus' => 1]); // Libera la mesa de origen
+					$todasCuentasCerradas = $cmd->check_cuentas_cerradas();
+
+					if ($todasCuentasCerradas) {
+						$e1 = $cmd->guardar(['estatus' => 2]); // Cierra la comanda
+						if (!$e1) {
+							$datos['mensaje'] = "{$datos['mensaje']}. ".implode(';', $cmd->getMensaje());
+						}
+						$e2 = $mesaOrigen->guardar(['estatus' => 1]); // Libera la mesa de origen
+						if (!$e2) {
+							$datos['mensaje'] = "{$datos['mensaje']}. ".implode(';', $mesaOrigen->getMensaje());
+						}
 					}
 				} else {
-					$datos['mensaje'] = $cmd->getMensaje();
+					$datos['mensaje'] = implode(';', $cmd->getMensaje());
 				}
 			} else {
 				$datos['exito'] = false;
