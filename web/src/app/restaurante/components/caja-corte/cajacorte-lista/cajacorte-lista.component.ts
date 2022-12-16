@@ -14,6 +14,14 @@ import * as moment from 'moment';
 import { GLOBAL } from '../../../../shared/global';
 import { saveAs } from 'file-saver';
 
+import { ImpresionCorteCaja } from '../../../interfaces/cajacorte';
+import { Impresora } from '../../../../admin/interfaces/impresora';
+import { ImpresoraService } from '../../../../admin/services/impresora.service';
+import { Impresion } from '../../../classes/impresion';
+import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
+import { Socket } from 'ngx-socket-io';
+import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+
 @Component({
   selector: 'app-cajacorte-lista',
   templateUrl: './cajacorte-lista.component.html',
@@ -41,6 +49,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
   public turno: Turno = null;
   public listacc: ccGeneral[];
   public ccorteTipo: ccTipo[] = [];
+  public impresora: Impresora;
 
   private endSubs = new Subscription();
 
@@ -48,21 +57,52 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     private ccorteSrvc: CajacorteService,
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private impresoraSrvc: ImpresoraService,
+    private socket: Socket,
+    private ls: LocalstorageService,
+    private configSrvc: ConfiguracionService
   ) { }
 
   ngOnInit() {
+    this.conectarAWS();
     this.loadCajaCorteTipo();
+    this.loadImpresoraDefecto();
   }
 
   ngOnDestroy(): void {
     this.endSubs.unsubscribe();
   }
 
+  conectarAWS = () => {
+    if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
+      this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
+
+      this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
+
+      this.socket.on('connect_timeout', () => {
+        const msg = 'DESCONECTADO DEL SERVIDOR (TIMEOUT)';
+        this.snackBar.open(msg, 'ERROR', { duration: 5000 });
+      });
+
+      this.socket.on('reconnect_attempt', (attempt: number) => this.snackBar.open(`INTENTO DE RECONEXIÓN #${attempt}`, 'ERROR', { duration: 10000 }));
+    }
+  }
+
   loadCajaCorteTipo = () => {
     this.endSubs.add(
       this.ccorteSrvc.getCajaCorteTipo().subscribe(res => {
         this.ccorteTipo = res;
+      })
+    );
+  }
+
+  loadImpresoraDefecto = () => {
+    this.endSubs.add(
+      this.impresoraSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0), pordefecto: 1 }).subscribe(res => {
+        if (res && res.length > 0) {
+          this.impresora = res[0];
+        }
       })
     );
   }
@@ -125,7 +165,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     return saldo;
   }
 
-  imprimirCC = (obj: ccGeneral, _excel = 0) => {
+  imprimirCC = (obj: ccGeneral, _excel = 0, enComandera = 0) => {
     const params = {
       _validar: true,
       _excel,
@@ -135,7 +175,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       sede: [this.turno.sede],
       _pagos: [],
       _saldo_actual: this.calcularSaldo(obj),
-      _fecha_caja: obj.creacion
+      _fecha_caja: obj.creacion,
+      _encomandera: enComandera
     }
 
     this.endSubs.add(
@@ -148,8 +189,18 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
         this.endSubs.add(
           this.pdfServicio.getReporteCaja(params).subscribe(res => {
             if (res) {
-              const blob = new Blob([res], { type: (_excel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-              saveAs(blob, `Caja_${moment().format(GLOBAL.dateTimeFormatRptName)}.${_excel === 0 ? 'pdf' : 'xls'}`);
+              if (+enComandera === 1) {
+                const blob = new Blob([res], { type: 'application/json' });
+                const fr = new FileReader();
+                fr.onload = (e) => {
+                  const obj = JSON.parse((e.target.result as string));
+                  this.sendToImpresora(obj);
+                };
+                fr.readAsText(blob);
+              } else {
+                const blob = new Blob([res], { type: (_excel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+                saveAs(blob, `Caja_${moment().format(GLOBAL.dateTimeFormatRptName)}.${_excel === 0 ? 'pdf' : 'xls'}`);
+              }
             } else {
               this.snackBar.open('No se pudo generar el reporte...', 'Caja', { duration: 7000 });
             }
@@ -170,5 +221,24 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       dialogCCF.afterClosed().subscribe(() => { })
     );
+  }
+
+  sendToImpresora = (res: any) => {
+    const obj: ImpresionCorteCaja = {
+      Empresa: res.empresa.nombre,
+      Sede: res.nsede,
+      FechaDel: moment(res.fdel).format(GLOBAL.dateFormat),
+      FechaAl: moment(res.fal).format(GLOBAL.dateFormat),
+      Turno: res.turno?.descripcion || null,
+      TotalDeComensales: res.totalComensales,
+      Impresora: this.impresora || null,
+      Ingresos: res.ingresos || [],
+      FacturasSinComanda: res.facturas_sin_comanda || [],
+      Descuentos: res.descuentos || [],
+      TipoVenta: res.tipo_venta || []
+    }
+
+    const imprimir = new Impresion(this.socket, this.ls, null, this.configSrvc);
+    imprimir.imprimirCorteCaja(obj);
   }
 }

@@ -9,14 +9,15 @@
     <mat-card-content>
       <table>
         <thead>
-        <tr>
+        <tr class="brd-tr">
           <th style="width: 5%;">Fecha/Hora</th>
           <th style="width: 25%;">Tipo</th>
           <th style="width: 15%;" class="rtxt">Total</th>
           <th style="width: 15%;" colspan="3">Documento / Fecha</th>
-          <th style="width: 15%;"></th>
-          <th style="width: 15%;"></th>
-          <th style="width: 15%;"></th>
+          <th style="width: 10%;"></th>
+          <th style="width: 10%;"></th>
+          <th style="width: 10%;"></th>
+          <th style="width: 10%;"></th>          
         </tr>
         </thead>
         <tbody>
@@ -26,8 +27,7 @@
             <td style="width: 25%; ">
               <p style="word-break: break-all;">
                 {{cc.caja_corte_tipo.descripcion}}
-                <small
-                  *ngIf="cc.descripcion_documento !== null && cc.descripcion_documento !== undefined && cc.descripcion_documento.trim() !== ''">
+                <small *ngIf="cc.descripcion_documento !== null && cc.descripcion_documento !== undefined && cc.descripcion_documento.trim() !== ''">
                   <br/>
                   &bull; {{cc.descripcion_documento}}
                 </small>
@@ -35,29 +35,32 @@
             </td>
             <td style="width: 15%; " class="rtxt">
               <p style="word-break: break-all;">{{cc.total | number:'1.2-2'}}</p></td>
-            <td style="width: 15%; ">
+            <td style="width: 5%; ">
               <p style="word-break: break-all;">{{cc.serie}}</p></td>
-            <td style="width: 15%; ">{{cc.numero}}</td>
-            <td style="width: 15%;">{{cc.fecha | date:'dd/MM/YYYY'}}</td>
-            <td style="width: 15%;" class="ctxt">
+            <td style="width: 5%; ">{{cc.numero}}</td>
+            <td style="width: 5%;">{{cc.fecha | date:'dd/MM/YYYY'}}</td>
+            <td style="width: 10%;" class="ctxt">
               <button mat-icon-button (click)="verCC(cc)" color="accent">
                 <mat-icon>preview</mat-icon>
               </button>
             </td>
             <td style="width: 10%;" class="ctxt">
-              <button mat-icon-button (click)="imprimirCC(cc)" color="accent"
-                      *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
+              <button mat-icon-button (click)="imprimirCC(cc)" color="accent" *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
                 <mat-icon>picture_as_pdf</mat-icon>
               </button>
             </td>
             <td style="width: 10%;" class="ctxt">
-              <button mat-icon-button (click)="imprimirCC(cc, 1)" color="accent"
-                      *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
+              <button mat-icon-button (click)="imprimirCC(cc, 1)" color="accent" *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
                 <mat-icon>article</mat-icon>
               </button>
             </td>
+            <td style="width: 10%;" class="ctxt">
+              <button mat-icon-button (click)="imprimirCC(cc, 0, 1)" color="accent" *ngIf="+cc.caja_corte_tipo.imprimecorte === 1">
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
           </tr>
-          <tr>
+          <tr class="brd-tr">
             <td colspan="7"><strong>Hecho por: </strong>{{cc.usrname}}</td>
           </tr>
         </ng-container>

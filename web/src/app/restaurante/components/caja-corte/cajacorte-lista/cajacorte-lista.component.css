@@ -6,3 +6,16 @@ mat-button-toggle-group {
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
+
+table, th, tr, td {
+	border: none;
+	padding: 1px;	
+}
+
+.brd-tr {
+	border-bottom: 1px solid black;
+}
+
+mat-icon {
+	font-size: 25pt;
+}
