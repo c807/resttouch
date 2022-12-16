@@ -6,7 +6,7 @@
     </div>
   </div>
 
-  <mat-tab-group *ngIf="+clienteMaster.cliente_master > 0">
+  <mat-tab-group>
     <mat-tab label="Teléfono">
       <app-cliente-master-telefono #frmClienteMasterTelefono [clienteMaster]="clienteMaster"></app-cliente-master-telefono>
     </mat-tab>
