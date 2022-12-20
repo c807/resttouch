@@ -1,13 +1,16 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatInput } from '@angular/material/input';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
 import { Cliente } from '../../../interfaces/cliente';
 import { ClienteService } from '../../../services/cliente.service';
 import { TipoCliente } from '../../../interfaces/tipo-cliente';
 import { TipoClienteService } from '../../../services/tipo-cliente.service';
+import { Municipio } from '../../../interfaces/municipio';
+import { MunicipioService } from '../../../services/municipio.service';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -16,6 +19,22 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./form-cliente.component.css']
 })
 export class FormClienteComponent implements OnInit, OnDestroy {
+
+  get nitValido(): boolean {
+    return !!procesarNIT(this.cliente?.nit);
+  }
+
+  get cuiValido(): boolean {
+    return !!procesarCUI(this.cliente?.cui, this.municipios || []);
+  }
+
+  get pasaporteValido(): boolean {
+    return !!procesarPasaporte(this.cliente?.pasaporte);
+  }
+
+  get receptorValido(): boolean {    
+    return !!this.cliente?.nit || !!this.cliente?.cui || !!this.cliente?.pasaporte || !!this.cliente?.nombre;
+  }
 
   @Input() cliente: Cliente;
   @Input() inicializoCliente = true;
@@ -26,6 +45,7 @@ export class FormClienteComponent implements OnInit, OnDestroy {
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public tiposCliente: TipoCliente[] = [];
+  public municipios: Municipio[] = [];
 
   private endSubs = new Subscription();
 
@@ -33,7 +53,8 @@ export class FormClienteComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private clienteSrvc: ClienteService,
     private ls: LocalstorageService,
-    private tipoClienteSrvc: TipoClienteService
+    private tipoClienteSrvc: TipoClienteService,
+    private municipioSrvc: MunicipioService
   ) { }
 
   ngOnInit() {
@@ -42,6 +63,7 @@ export class FormClienteComponent implements OnInit, OnDestroy {
       this.resetCliente();
     }
     this.loadTiposCliente();
+    this.loadMunicipios();
   }
 
   ngOnDestroy() {
@@ -51,6 +73,12 @@ export class FormClienteComponent implements OnInit, OnDestroy {
   loadTiposCliente = () => {
     this.endSubs.add(
       this.tipoClienteSrvc.get().subscribe(res => this.tiposCliente = res)
+    );
+  }
+
+  loadMunicipios = () => {
+    this.endSubs.add(
+      this.municipioSrvc.get().subscribe(res => this.municipios = res)
     );
   }
 
@@ -72,18 +100,23 @@ export class FormClienteComponent implements OnInit, OnDestroy {
   }
 
   guardarCliente = () => {
-    this.endSubs.add(
-      this.clienteSrvc.save(this.cliente).subscribe(res => {
-        // console.log(res);
-        if (res.exito) {
-          this.clienteSavedEv.emit(res.cliente);
-          this.resetCliente();
-          this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
-        }
-      })
-    );
+    if (this.validarReceptor()) {
+      // console.log(this.cliente); return;      
+      this.endSubs.add(
+        this.clienteSrvc.save(this.cliente).subscribe(res => {
+          // console.log(res);
+          if (res.exito) {
+            this.clienteSavedEv.emit(res.cliente);
+            this.resetCliente();
+            this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+          }
+        })
+      );
+    } else {
+      this.snackBar.open('El documento del receptor no es válido, por favor revise la información.', 'Cliente', { duration: 7000 });
+    }
   }
 
   loadInfoContribuyente = (nit: string) => {
@@ -125,6 +158,14 @@ export class FormClienteComponent implements OnInit, OnDestroy {
       e.preventDefault();
       return false;
     }
+  }
+
+  validarReceptor = (): boolean => {
+    this.cliente.nit = procesarNIT(this.cliente?.nit);
+    this.cliente.cui = procesarCUI(this.cliente?.cui, this.municipios || []);
+    this.cliente.pasaporte = procesarPasaporte(this.cliente?.pasaporte);
+    this.cliente.nombre = this.cliente?.nombre.replace(/[^0-9a-zñ*-.,/() ]+/gi, '').trim();
+    return this.receptorValido;
   }
 
 }

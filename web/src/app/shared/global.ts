@@ -3,6 +3,7 @@ export const PROTOCOLO = window.location.protocol;
 export const ANFITRION = window.location.hostname;
 const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ? 'api' : 'resttouch'}`;
 import * as moment from 'moment';
+import { Municipio } from '../admin/interfaces/municipio';
 
 export const GLOBAL = {
   rtVersion: '2022.12.16.07.51.21',
@@ -175,6 +176,10 @@ export const isAllowedUrl = (url: string): boolean => GLOBAL.ALLOWED_URLS.indexO
 export const isEmail = (correo: string): boolean => correo.match(GLOBAL.FORMATO_EMAIL) !== null && correo.match(GLOBAL.FORMATO_EMAIL) !== undefined;
 
 export const procesarNIT = (nit: string): string => {
+  if (!nit) {
+    return null;
+  }
+
   let limpiado = nit.replace(/[^0-9kcf]+/gi, '').toUpperCase();
 
   if (limpiado.length < 2 || limpiado.length > 12) {
@@ -194,19 +199,28 @@ export const procesarNIT = (nit: string): string => {
   return limpiado;
 }
 
-export const procesarCUI = (nit: string): string => {
-  let limpiado = nit.replace(/[^0-9]+/gi, '').toUpperCase();
+export const procesarCUI = (cui: string, mupios: Municipio[]): string => {
+  if (!cui || mupios?.length === 0) {
+    return null;
+  }
+
+  let limpiado = cui.replace(/[^0-9]+/gi, '').toUpperCase();
 
   if (limpiado.length < 12 || limpiado.length > 13) {
     return null;
   }
 
-  const codigo_depto = limpiado.slice(-4).slice(0, 2);
-  const codigo_mupio = limpiado.slice(-4).slice(2);  
+  const codigo_ubicacion = limpiado.slice(-4);
+  const idxMupio = mupios.findIndex(m => m.codigo === codigo_ubicacion);
 
-  return limpiado;
+  return idxMupio >= 0 ? limpiado : null;
 }
 
-export const procesarPasaporte = (nit: string) => {
-  let limpiado = nit.replace(/[^0-9a-z]+/gi, '').toUpperCase();
+export const procesarPasaporte = (pasaporte: string) => {
+  if (!pasaporte) {
+    return null;
+  }
+
+  let limpiado = pasaporte.replace(/[^0-9a-z]+/gi, '').toUpperCase();
+  return limpiado;
 }
