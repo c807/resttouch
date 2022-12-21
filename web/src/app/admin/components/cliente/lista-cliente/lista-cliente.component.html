@@ -14,15 +14,12 @@
         <cdk-virtual-scroll-viewport itemSize="55">
             <mat-nav-list>
                 <ng-container *cdkVirtualFor="let cli of lstClientesPaged">                    
-                    <mat-list-item (click)="getCliente(cli)">
+                    <mat-list-item (click)="getCliente(cli)" [disabled]="desHabilitaCliente(cli)">
                         <mat-icon mat-list-icon>person</mat-icon>
                         <h5 mat-line>{{cli.nombre}}</h5>
                     </mat-list-item>
                 </ng-container>
             </mat-nav-list>
-        </cdk-virtual-scroll-viewport>
-        <!-- <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
-            (page)="pageChange($event)" showFirstLastButtons>
-        </mat-paginator> -->
+        </cdk-virtual-scroll-viewport>        
     </mat-card-content>
 </mat-card>

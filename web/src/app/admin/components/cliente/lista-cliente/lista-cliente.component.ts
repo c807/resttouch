@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import { PageEvent, MatPaginator } from '@angular/material/paginator';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { GLOBAL, MultiFiltro } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
 import { Cliente } from '../../../interfaces/cliente';
@@ -16,11 +16,23 @@ import { FormClienteDialogComponent } from '../form-cliente-dialog/form-cliente-
 })
 export class ListaClienteComponent implements OnInit {
 
+  get desHabilitaCliente() {
+    return (c: Cliente): boolean => {
+      let deshabilitar = false;
+
+      if (+this.totalDeCuenta >= 2500) {
+              
+      }
+
+      return deshabilitar;
+    }
+  }
+
   public lstClientes: Cliente[];
   public lstClientesPaged: Cliente[];
   @Input() showAddButton = false;
-  @Output() getClienteEv = new EventEmitter();
-  // @ViewChild('paginador') paginador: MatPaginator;
+  @Input() totalDeCuenta = 0;
+  @Output() getClienteEv = new EventEmitter();  
 
   public length = 0;
   public pageSize = 5;
@@ -43,20 +55,15 @@ export class ListaClienteComponent implements OnInit {
     this.loadClientes();
   }
 
-  applyFilter = (cambioPagina = false) => {
+  applyFilter = () => {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstClientes, this.txtFiltro);
-      this.length = tmpList.length;
-      // this.lstClientesPaged = PaginarArray(tmpList, this.pageSize, this.pageIndex + 1);
+      this.length = tmpList.length;      
       this.lstClientesPaged = JSON.parse(JSON.stringify(tmpList));
     } else {
-      this.length = this.lstClientes.length;
-      // this.lstClientesPaged = PaginarArray(this.lstClientes, this.pageSize, this.pageIndex + 1);
+      this.length = this.lstClientes.length;      
       this.lstClientesPaged = JSON.parse(JSON.stringify(this.lstClientes));;
-    }
-    // if (!cambioPagina) {
-    //   this.paginador.firstPage();
-    // }
+    }    
   }
 
   validateKey = (e: any) => {
@@ -127,6 +134,6 @@ export class ListaClienteComponent implements OnInit {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter(true);
+    this.applyFilter();
   }
 }

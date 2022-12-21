@@ -8,7 +8,7 @@
 <div mat-dialog-content class="contenido">
   <div class="row">
     <div class="col m5 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
-      <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true">
+      <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true" [totalDeCuenta]="+inputData.totalDeCuenta">
       </app-lista-cliente>
     </div>
     <div class="col m3 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
@@ -231,8 +231,7 @@
         <tbody>
           <tr>
             <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
-            <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta |
-              number:'1.2-2'}}</td>
+            <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta | number:'1.2-2'}}</td>
           </tr>
           <tr>
             <td class="text-right font-weight-bold">PENDIENTE:</td>
