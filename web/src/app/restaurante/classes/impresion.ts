@@ -138,6 +138,7 @@ export class Impresion {
             const totalCuenta = this.sumaDetalle(lstProductosAImprimir);
             const printerToUse = obj.impresora_defecto_cuenta || obj.impresora_defecto;
             const imprimePropSugerida = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_PROPINA_SUGERIDA);
+            const ngen = +obj.domicilio === 1 ? (obj.notas_generales || null) : null;
 
             const msgToPrint = {
                 Tipo: 'Cuenta',
@@ -156,7 +157,8 @@ export class Impresion {
                 TipoDomicilio: obj.tipo_domicilio?.descripcion || '',
                 IdComanda: +obj.comanda || 0,
                 IdCuenta: +cuentaActiva.cuenta || 0,
-                DatosFacturacion: obj.datos_facturacion || null
+                DatosFacturacion: obj.datos_facturacion || null,
+                NotasGenerales: ngen
             };
 
             // console.log('CUENTA = ', msgToPrint);
