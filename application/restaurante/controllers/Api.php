@@ -101,11 +101,12 @@ class Api extends CI_Controller
 								$nit = "CF";
 							}
 						} else {
-							if (validar_nit($datosCliente['zip'])) {
-								$nit = $datosCliente['zip']; //Para cambios.	
-							} else {
-								$nit = "CF";
-							}
+							// if (validar_nit($datosCliente['zip'])) {
+							// 	$nit = $datosCliente['zip']; //Para cambios.	
+							// } else {
+							// 	$nit = "CF";
+							// }
+							$nit = "CF";
 						}
 	
 						$nit = strtoupper(preg_replace("/[^0-9Kk?!]/", '', $nit));
