@@ -1,20 +1,20 @@
 <mat-card class="mat-elevation-z4 fullWidth">
     <mat-card-content>
         <mat-form-field class="fullWidth">
-            <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" (input)="applyFilter()"
-                (keypress)="validateKey($event)" placeholder="Buscar..." [(ngModel)]="txtFiltro"
-                [ngModelOptions]="{standalone: true}">
-            <input matInput type="text" *ngIf="esMovil" (keyup)="applyFilter()" (keypress)="validateKey($event)"
-                placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+            <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" (input)="applyFilter()" (keypress)="validateKey($event)" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+            <input matInput type="text" *ngIf="esMovil" (keyup)="applyFilter()" (keypress)="validateKey($event)" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
             <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(txtFiltro)"
-                *ngIf="length === 0 && txtFiltro.length >= 4">
+                *ngIf="length === 0 && txtFiltro.length >= 2 && txtFiltro.length <= 12">
                 Validar NIT
             </button>
         </mat-form-field>
         <cdk-virtual-scroll-viewport itemSize="55">
-            <mat-nav-list>
-                <ng-container *cdkVirtualFor="let cli of lstClientesPaged">                    
-                    <mat-list-item (click)="getCliente(cli)" [disabled]="desHabilitaCliente(cli)">
+            <mat-nav-list dense>
+                <ng-container *cdkVirtualFor="let cli of lstClientesPaged">
+                    <mat-list-item matRipple (click)="getCliente(cli)" [disabled]="desHabilitaCliente(cli)">
+                        <button mat-line mat-icon-button mat-list-icon aria-label="Editar cliente" *ngIf="+totalDeCuenta > 0" disabled="false" (click)="agregarCliente(cli)">
+                            <mat-icon style="font-size: 20pt">edit</mat-icon>
+                        </button>
                         <mat-icon mat-list-icon>person</mat-icon>
                         <h5 mat-line>{{cli.nombre}}</h5>
                     </mat-list-item>

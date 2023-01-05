@@ -27,6 +27,8 @@ class Factura_model extends General_model
 	public $enviar_descripcion_unica = 0;
 	public $descripcion_unica = null;
 	public $factura_serie_correlativo = null;
+	public $documento_receptor = null;
+	public $tipo_documento_receptor = null;
 
 	public function __construct($id = '')
 	{
@@ -573,15 +575,39 @@ class Factura_model extends General_model
 	}
 
 	public function set_receptor($args = array())
-	{
-		# $correos = explode(",", $this->cliente->correo_factura);
+	{		
 		$receptor = $this->xml->getElementsByTagName('Receptor')->item(0);
-		# $receptor->setAttribute('CorreoReceptor', $correos[0]);
+
 		$receptor->setAttribute('CorreoReceptor', str_replace(" ", "", str_replace(",", ";", $this->correo_receptor)));
-
-
-		$receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit)));
-
+		
+		// $receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit))); // Antes de SAT v1.7.4
+		// Cambios para SAT v1.7.4
+		$receptor->setAttribute('TipoEspecial', '');
+		$documento = '';
+		if ($this->fel_uuid && !is_null($this->fel_uuid) && !empty($this->fel_uuid)) {
+			if ($this->documento_receptor && !is_null($this->documento_receptor) && !empty($this->documento_receptor)) {
+				$documento = $this->documento_receptor;
+				if ($this->tipo_documento_receptor && !is_null($this->tipo_documento_receptor) && !empty($this->tipo_documento_receptor)) {
+					$receptor->setAttribute('TipoEspecial', $this->tipo_documento_receptor);
+				}
+			} else {
+				$documento = $this->receptor->nit; //Agregado para facturas generadas antes de cambios de SAT
+			}
+		} else {
+			$documento = $this->receptor->nit;
+			if (!$documento || is_null($documento) || empty(trim($documento))) {
+				$documento = $this->receptor->cui;
+				if (!$documento || is_null($documento) || empty(trim($documento))) {
+					$documento = $this->receptor->pasaporte;
+				} else {
+					$this->tipo_documento_receptor = 'CUI';
+					$receptor->setAttribute('TipoEspecial', $this->tipo_documento_receptor);
+				}
+			}
+			$this->documento_receptor = $documento;
+		}		
+		$receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $documento)));
+		// Fin de cambios para SAT v1.7.4
 
 		$receptor->setAttribute('NombreReceptor', htmlspecialchars($this->receptor->nombre, ENT_XML1));
 

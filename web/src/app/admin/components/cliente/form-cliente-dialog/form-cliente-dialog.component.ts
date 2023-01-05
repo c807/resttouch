@@ -25,7 +25,7 @@ export class FormClienteDialogComponent implements OnInit {
     } else {
       this.cliente = {
         cliente: null, nombre: null, direccion: null, nit: null, telefono: null, correo: null,
-        codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
+        codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null, cui: null, pasaporte: null
       };
     }
   }

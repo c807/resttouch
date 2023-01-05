@@ -1,9 +1,9 @@
 <h1 mat-dialog-title>AGREGAR CLIENTE</h1>
-<div mat-dialog-content>
+<div mat-dialog-content class="contenido">
     <app-form-cliente #frmCliente [cliente]="cliente" [inicializoCliente]="false" [verTodos]="false" (clienteSavedEv)="clienteAgregado($event)"></app-form-cliente>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-raised-button (click)="cancelar()" color="warn">
-        Cancelar
+        Cerrar
     </button>
 </div>

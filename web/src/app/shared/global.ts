@@ -4,6 +4,7 @@ export const ANFITRION = window.location.hostname;
 const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ? 'api' : 'resttouch'}`;
 import * as moment from 'moment';
 import { Municipio } from '../admin/interfaces/municipio';
+import { Cliente } from '../admin/interfaces/cliente';
 
 export const GLOBAL = {
   rtVersion: '2022.12.16.07.51.21',
@@ -37,7 +38,7 @@ export const GLOBAL = {
   reintentos: 0,
   IDIOMA_TECLADO: 'Español',
   DEEP_LINK_ANDROID: 'intent://scan/impresion/__INFOBASE64__#Intent;scheme=restouch;package=com.restouch.impresion;end',
-  FORMATO_EMAIL: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,  
+  FORMATO_EMAIL: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
   sonidos_rt: '/assets/sonidos',
   CONSTANTES: {
     RT_IMPRESORA_DEFECTO: 'RT_IMPRESORA_DEFECTO',
@@ -175,6 +176,12 @@ export const isAllowedUrl = (url: string): boolean => GLOBAL.ALLOWED_URLS.indexO
 
 export const isEmail = (correo: string): boolean => correo.match(GLOBAL.FORMATO_EMAIL) !== null && correo.match(GLOBAL.FORMATO_EMAIL) !== undefined;
 
+export enum TIPO_ID_RECEPTOR {
+  NIT = 4,
+  CUI = 2,
+  PASAPORTE = 3
+}
+
 export const procesarNIT = (nit: string): string => {
   if (!nit) {
     return null;
@@ -186,13 +193,12 @@ export const procesarNIT = (nit: string): string => {
     return null;
   }
 
-  if (limpiado === 'CF') 
-  {
+  if (limpiado === 'CF') {
     return 'CF';
   }
 
   const digitoVerificadorNoEsValido = limpiado.slice(-1).match(/[^0-9k]+/gi);
-  if (digitoVerificadorNoEsValido !== null && digitoVerificadorNoEsValido !== undefined ) {
+  if (digitoVerificadorNoEsValido !== null && digitoVerificadorNoEsValido !== undefined) {
     return null;
   }
 
@@ -222,5 +228,29 @@ export const procesarPasaporte = (pasaporte: string) => {
   }
 
   let limpiado = pasaporte.replace(/[^0-9a-z]+/gi, '').toUpperCase();
+
+  if (limpiado.length < 3 || limpiado.length > 18) {
+    return null;
+  }
+
   return limpiado;
+}
+
+export const seleccionaDocumentoReceptor = (c: Cliente, mupios: Municipio[]): { documento: string, tipo: TIPO_ID_RECEPTOR } => {
+  // Tipos de documento: NIT = 4, CUI = 2, Pasaporte = 3
+  let documento = procesarNIT(c.nit);
+  if (documento) {
+    return { documento: documento, tipo: TIPO_ID_RECEPTOR.NIT };
+  } else {
+    documento = procesarCUI(c.cui, mupios);
+    if (documento) {
+      return { documento: documento, tipo: TIPO_ID_RECEPTOR.CUI };
+    } else {
+      documento = procesarPasaporte(c.pasaporte);
+      if (documento) {
+        return { documento: documento, tipo: TIPO_ID_RECEPTOR.PASAPORTE };
+      }
+    }
+  }
+  return null;
 }

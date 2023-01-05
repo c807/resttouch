@@ -1,8 +1,7 @@
 <mat-card class="mat-elevation-z4 fullWidth">
     <mat-card-title>
-        <h4>
-            Cliente {{!!cliente.cliente ? cliente.nombre : ''}}
-        </h4>
+        <h4 *ngIf="verTodos">Cliente {{!!cliente.cliente ? cliente.nombre : ''}}</h4>
+        <h6 *ngIf="!verTodos">Cliente {{!!cliente.cliente ? cliente.nombre : ''}}</h6>
     </mat-card-title>
     <mat-card-content>
         <form #frmCliente="ngForm" (ngSubmit)="frmCliente.form.valid && onSubmit()" novalidate>

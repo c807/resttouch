@@ -1,29 +1,33 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, MultiFiltro } from '../../../../shared/global';
+import { GLOBAL, MultiFiltro, seleccionaDocumentoReceptor } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
 import { Cliente } from '../../../interfaces/cliente';
 import { ClienteService } from '../../../services/cliente.service';
+import { Municipio } from '../../../interfaces/municipio';
+import { MunicipioService } from '../../../services/municipio.service';
+
 import { FormClienteDialogComponent } from '../form-cliente-dialog/form-cliente-dialog.component';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-cliente',
   templateUrl: './lista-cliente.component.html',
   styleUrls: ['./lista-cliente.component.css'],  
 })
-export class ListaClienteComponent implements OnInit {
+export class ListaClienteComponent implements OnInit, OnDestroy {
 
   get desHabilitaCliente() {
     return (c: Cliente): boolean => {
       let deshabilitar = false;
-
       if (+this.totalDeCuenta >= 2500) {
-              
+        let documento = seleccionaDocumentoReceptor(c, this.municipios);
+        deshabilitar = documento?.documento && documento?.tipo && documento.documento !== 'CF' ? false : true;
       }
-
       return deshabilitar;
     }
   }
@@ -42,17 +46,26 @@ export class ListaClienteComponent implements OnInit {
   public txtFiltro = '';
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public municipios: Municipio[] = [];
+
+  private endSubs = new Subscription();
 
   constructor(
     public dialogAddCliente: MatDialog,
     private snackBar: MatSnackBar,
     private clienteSrvc: ClienteService,
-    private ls: LocalstorageService
+    private ls: LocalstorageService,
+    private mupioSrvc: MunicipioService
   ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.loadClientes();
+    this.loadMunicipios();
+    this.loadClientes();    
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter = () => {
@@ -79,27 +92,31 @@ export class ListaClienteComponent implements OnInit {
   loadInfoContribuyente = (nit: string) => {
     const tmpnit = nit.trim().toUpperCase().replace(/[^a-zA-Z0-9]/gi, '');
     if (tmpnit !== 'CF') {
-      this.clienteSrvc.getInfoContribuyente(tmpnit).subscribe(res => {
-        if (res.exito) {
-          const tmpCliente: Cliente = {
-            cliente: undefined,
-            nombre: res.contribuyente.nombre,
-            nit: tmpnit,
-            direccion: res.contribuyente.direccion
-          };
-          this.clienteSrvc.save(tmpCliente).subscribe(resNvoCliente => {
-            if (resNvoCliente.exito) {
-              this.loadClientes();
-              this.getCliente(resNvoCliente.cliente);
-              this.snackBar.open(`${res.mensaje}. Cliente agregado.`, 'Cliente', { duration: 3000 });
-            } else {
-              this.snackBar.open(`ERROR: ${resNvoCliente.mensaje}`, 'Cliente', { duration: 7000 });
-            }
-          });
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
-        }
-      });
+      this.endSubs.add(        
+        this.clienteSrvc.getInfoContribuyente(tmpnit).subscribe(res => {
+          if (res.exito) {
+            const tmpCliente: Cliente = {
+              cliente: undefined,
+              nombre: res.contribuyente.nombre,
+              nit: tmpnit,
+              direccion: res.contribuyente.direccion
+            };
+            this.endSubs.add(              
+              this.clienteSrvc.save(tmpCliente).subscribe(resNvoCliente => {
+                if (resNvoCliente.exito) {
+                  this.loadClientes();
+                  this.getCliente(resNvoCliente.cliente);
+                  this.snackBar.open(`${res.mensaje}. Cliente agregado.`, 'Cliente', { duration: 3000 });
+                } else {
+                  this.snackBar.open(`ERROR: ${resNvoCliente.mensaje}`, 'Cliente', { duration: 7000 });
+                }
+              })
+            );
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+          }
+        })
+      );
     }
   }
 
@@ -114,21 +131,25 @@ export class ListaClienteComponent implements OnInit {
     });
   }
 
+  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
+
   getCliente = (obj: Cliente) => this.getClienteEv.emit(obj);
 
-  agregarCliente = () => {
+  agregarCliente = (cli: Cliente = null) => {
     const addClienteRef = this.dialogAddCliente.open(FormClienteDialogComponent, {
-      width: '50%',
-      data: { esDialogo: true }
+      width: '75%',
+      data: { esDialogo: true, cliente: cli }
     });
 
-    addClienteRef.afterClosed().subscribe(result => {
-      if (result) {
-        // console.log(result);
-        this.loadClientes();
-        this.getCliente(result);
-      }
-    });
+    this.endSubs.add(      
+      addClienteRef.afterClosed().subscribe(result => {
+        if (result) {
+          // console.log(result);
+          this.loadClientes();
+          this.getCliente(result);
+        }
+      })
+    );
   }
 
   pageChange = (e: PageEvent) => {
