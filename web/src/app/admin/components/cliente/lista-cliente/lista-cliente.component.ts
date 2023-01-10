@@ -32,6 +32,14 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
     }
   }
 
+  get nuevoCliente(): Cliente {
+    const nvoCli: Cliente = {
+      cliente: null, nombre: null, direccion: null, nit: null, cui: null, pasaporte: null, telefono: null, correo: null,
+      codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null, observaciones: null, tipo_cliente: null
+    };
+    return nvoCli;
+  }
+
   public lstClientes: Cliente[];
   public lstClientesPaged: Cliente[];
   @Input() showAddButton = false;
@@ -135,7 +143,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
 
   getCliente = (obj: Cliente) => this.getClienteEv.emit(obj);
 
-  agregarCliente = (cli: Cliente = null, idx: number = 0) => {
+  agregarCliente = (cli: Cliente = this.nuevoCliente, idx: number = 0) => {
     const addClienteRef = this.dialogAddCliente.open(FormClienteDialogComponent, {
       width: '75%',
       data: { esDialogo: true, cliente: JSON.parse(JSON.stringify(cli)) }
@@ -147,6 +155,8 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
           // console.log(result);
           this.loadClientes();
           this.getCliente(result);
+          this.txtFiltro = (result as Cliente).nombre;
+          this.applyFilter();
           if (+idx > 0) {
             this.reemplazaClienteDeLista(result, idx);
           }

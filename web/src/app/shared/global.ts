@@ -7,7 +7,7 @@ import { Municipio } from '../admin/interfaces/municipio';
 import { Cliente } from '../admin/interfaces/cliente';
 
 export const GLOBAL = {
-  rtVersion: '2022.12.16.07.51.21',
+  rtVersion: '2023.01.10.12.43.26',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -254,3 +254,5 @@ export const seleccionaDocumentoReceptor = (c: Cliente, mupios: Municipio[]): { 
   }
   return null;
 }
+
+export const isNotNullOrUndefined = (obj: any): boolean => obj !== null && obj !== undefined;

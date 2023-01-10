@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatInput } from '@angular/material/input';
-import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte } from '../../../../shared/global';
+import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '../../../../shared/global';
 import { LocalstorageService } from '../../../services/localstorage.service';
 
 import { Cliente } from '../../../interfaces/cliente';
@@ -21,19 +21,20 @@ import { Subscription } from 'rxjs';
 export class FormClienteComponent implements OnInit, OnDestroy {
 
   get nitValido(): boolean {
-    return !!procesarNIT(this.cliente?.nit);
+    return isNotNullOrUndefined(procesarNIT(this.cliente?.nit));
   }
 
   get cuiValido(): boolean {
-    return !!procesarCUI(this.cliente?.cui, this.municipios || []);
+    return isNotNullOrUndefined(procesarCUI(this.cliente?.cui, this.municipios || []));
   }
 
   get pasaporteValido(): boolean {
-    return !!procesarPasaporte(this.cliente?.pasaporte);
+    return isNotNullOrUndefined(procesarPasaporte(this.cliente?.pasaporte));
   }
 
-  get receptorValido(): boolean {    
-    return !!this.cliente?.nit || !!this.cliente?.cui || !!this.cliente?.pasaporte || !!this.cliente?.nombre;
+  get receptorValido(): boolean {
+    const esValido = this.nitValido || this.cuiValido || this.pasaporteValido;    
+    return esValido;
   }
 
   @Input() cliente: Cliente;

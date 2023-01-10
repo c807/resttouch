@@ -9,6 +9,7 @@ export interface Cliente {
     municipio?: string;
     departamento?: string;
     pais_iso_dos?: string;
+    observaciones?: string;
     tipo_cliente?: number;
     cui?: string;
     pasaporte?: string;

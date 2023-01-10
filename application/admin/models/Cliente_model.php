@@ -6,7 +6,7 @@ class Cliente_model extends General_model {
 	public $cliente;
 	public $nombre;
 	public $direccion;
-	public $nit;
+	public $nit = null;
 	public $cui = null;
 	public $pasaporte = null;
 	public $telefono;

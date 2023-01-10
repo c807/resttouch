@@ -3,9 +3,11 @@
         <mat-form-field class="fullWidth">
             <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" (input)="applyFilter()" (keypress)="validateKey($event)" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
             <input matInput type="text" *ngIf="esMovil" (keyup)="applyFilter()" (keypress)="validateKey($event)" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
-            <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(txtFiltro)"
-                *ngIf="length === 0 && txtFiltro.length >= 2 && txtFiltro.length <= 12">
+            <!-- <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(txtFiltro)" *ngIf="length === 0 && txtFiltro.length >= 2 && txtFiltro.length <= 12">
                 Validar NIT
+            </button> -->
+            <button type="button" mat-raised-button matSuffix color="accent" (click)="agregarCliente()" *ngIf="length === 0 && txtFiltro.length >= 2 && +totalDeCuenta > 0">
+                Nuevo
             </button>
         </mat-form-field>
         <cdk-virtual-scroll-viewport itemSize="55">

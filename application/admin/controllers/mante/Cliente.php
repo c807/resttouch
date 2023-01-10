@@ -16,34 +16,50 @@ class Cliente extends CI_Controller
 		$clt = new Cliente_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
-		if ($this->input->method() == 'post') {
-			// $req['nit'] = str_replace("-", "", $req['nit']);
-			$req['nit'] = strtoupper(preg_replace("/[^0-9KkcCfF?!]/", '', $req['nit']));
+		if ($this->input->method() == 'post') {			
+			$req['nit'] = strtoupper(preg_replace('/[^0-9KkcCfF?!]/', '', $req['nit']));
 			$continuar = true;
-			if (empty($id) && $req['nit'] !== 'CF') {
-				$tmpClt = $this->Cliente_model->buscar([
-					"nit" => $req['nit'],
-					"_uno" => true
-				]);
-
+			if (empty($id) && $req['nit'] !== 'CF' && !empty($req['nit'])) {
+				$tmpClt = $this->Cliente_model->buscar(['nit' => $req['nit'], '_uno' => true]);
 				if ($tmpClt) {
 					$continuar = false;
 				}
 			}
-			if ($continuar) {
-				$datos['exito'] = $clt->guardar($req);
 
-				if ($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
-					$datos['cliente'] = $clt;
+			$req['cui'] = strtoupper(preg_replace('/[^0-9?!]/', '', $req['cui']));
+			if ($continuar && empty($id) && !empty($req['cui'])) {
+				$tmpClt = $this->Cliente_model->buscar(['cui' => $req['cui'], '_uno' => true]);
+				if ($tmpClt) {
+					$continuar = false;
+				}				
+			}
+
+			$req['pasaporte'] = strtoupper(preg_replace('/[^0-9a-zA-Z?!]/', '', $req['pasaporte']));
+			if ($continuar && empty($id) && !empty($req['pasaporte'])) {
+				$tmpClt = $this->Cliente_model->buscar(['pasaporte' => $req['pasaporte'], '_uno' => true]);
+				if ($tmpClt) {
+					$continuar = false;
+				}				
+			}			
+
+			if ($continuar) {
+				if (empty($req['nit']) && empty($req['cui']) && empty($req['pasaporte'])) {
+					$datos['mensaje'] = 'Debe ingresar un N.I.T., CUI o PASAPORTE para poder guardar este cliente.';
 				} else {
-					$datos['mensaje'] = $clt->getMensaje();
+					$datos['exito'] = $clt->guardar($req);
+	
+					if ($datos['exito']) {
+						$datos['mensaje'] = 'Datos actualizados con éxito.';
+						$datos['cliente'] = $clt;
+					} else {
+						$datos['mensaje'] = $clt->getMensaje();
+					}
 				}
 			} else {
-				$datos['mensaje'] = "Ya existe un cliente con este N.I.T.";
+				$datos['mensaje'] = 'Ya existe un cliente con este N.I.T./CUI/PASAPORTE.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output

@@ -9,7 +9,7 @@
                 <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" maxlength="25">
                 <input matInput *ngIf="esMovil" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" maxlength="25">
                 <mat-hint *ngIf="!nitValido">El N.I.T. es inválido.</mat-hint>
-                <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(cliente.nit)" *ngIf="cliente && cliente.nit && cliente.nit.length >= 2 && !verTodos">
+                <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(cliente.nit)" *ngIf="cliente && cliente.nit && cliente.nit.length >= 2">
                     Validar NIT
                 </button>
             </mat-form-field>
