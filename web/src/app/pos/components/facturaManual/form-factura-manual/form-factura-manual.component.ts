@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL, seleccionaDocumentoReceptor } from '../../../../shared/global';
 import * as moment from 'moment';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DresultadoListaComponent } from '../dresultado-lista/dresultado-lista.component';
@@ -31,6 +31,9 @@ import { ConfiguracionService } from '../../../../admin/services/configuracion.s
 import { Base64 } from 'js-base64';
 import { Impresion } from '../../../../restaurante/classes/impresion';
 
+import { Municipio } from '../../../../admin/interfaces/municipio';
+import { MunicipioService } from '../../../../admin/services/municipio.service';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -39,6 +42,35 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./form-factura-manual.component.css']
 })
 export class FormFacturaManualComponent implements OnInit, OnDestroy {
+
+  get totalDeFactura(): number {
+    let totFact = 0;
+    for (const df of this.detallesFactura) {
+      totFact += +df.total;
+    }
+    return totFact;
+  }
+
+  get desHabilitaCliente() {
+    return (c: Cliente): boolean => {
+      let deshabilitar = false;
+      if (+this.totalDeFactura >= 2500) {
+        const documento = seleccionaDocumentoReceptor(c, this.municipios);
+        deshabilitar = documento?.documento && documento?.tipo && documento.documento !== 'CF' ? false : true;
+      }
+      return deshabilitar;
+    }
+  }
+
+  get noPuedeFirmar() {
+    if (this.factura?.cliente) {
+      const cli = this.clientes.find(c => +c.cliente === +this.factura.cliente);
+      if (cli) {
+        return this.desHabilitaCliente(cli);
+      }
+    }
+    return false;
+  }
 
   @Input() factura: Factura;
   @Output() facturaSavedEv = new EventEmitter();
@@ -62,6 +94,9 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public clienteSelected: (Cliente | string) = undefined;
   public razonAnulacion: RazonAnulacion[] = [];
   public impresoraPorDefecto: Impresora = null;
+  public municipios: Municipio[] = [];
+  public height: string;
+  public heightArticulos: string;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
 
@@ -79,7 +114,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     private socket: Socket,
     private ls: LocalstorageService,
     private configSrvc: ConfiguracionService,
-    private impresoraSrvc: ImpresoraService
+    private impresoraSrvc: ImpresoraService,
+    private mupioSrvc: MunicipioService
   ) { }
 
   ngOnInit() {
@@ -87,6 +123,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     this.refacturacion = false;
     this.resetFactura();
     this.loadFacturaSeries();
+    this.loadMunicipios();
     this.loadClientes();
     this.loadMonedas();
     this.loadArticulos();
@@ -111,13 +148,18 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   filtrar = (value: (Cliente | string)) => {
-    if (value && (typeof value === 'string')) {
+    if (value !== null && value !== undefined && (typeof value === 'string')) {
       const filterValue = value.toLowerCase();
-      this.filteredClientes =
-        this.clientes.filter(c => c.nombre.toLowerCase().includes(filterValue) || c.nit.toLowerCase().includes(filterValue));
+      this.filteredClientes = this.clientes.filter(c => c.nombre?.toLowerCase().includes(filterValue) || c.nit?.toLowerCase().includes(filterValue) || c.cui?.toLowerCase().includes(filterValue) || c.pasaporte?.toLowerCase().includes(filterValue));
     } else {
-      this.filteredClientes = this.clientes;
+      this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));
     }
+
+    if (this.filteredClientes.length < 7) {
+      this.height = (this.filteredClientes.length * 50) + 'px';
+    } else {
+      this.height = '350px';
+    }    
   }
 
   loadImpresoraDefecto = () => {
@@ -159,11 +201,13 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       this.clienteSrvc.get().subscribe(res => {
         if (res) {
           this.clientes = res;
-          this.filteredClientes = this.clientes;
+          this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));
         }
       })
     );
   }
+
+  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
 
   loadMonedas = () => {
     this.endSubs.add(      
@@ -465,10 +509,15 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   filtrarArticulos = (value: (Articulo | string)) => {
     if (value && (typeof value === 'string')) {
       const filterValue = value.toLowerCase();
-      this.filteredArticulos =
-        this.articulos.filter(a => a.descripcion.toLowerCase().includes(filterValue));
+      this.filteredArticulos = this.articulos.filter(a => a.descripcion.toLowerCase().includes(filterValue));
     } else {
       this.filteredArticulos = this.articulos;
+    }
+
+    if (this.filteredArticulos. length < 7) {
+      this.heightArticulos = (this.filteredArticulos.length * 50) + 'px';
+    } else {
+      this.heightArticulos = '350px'
     }
   }
 

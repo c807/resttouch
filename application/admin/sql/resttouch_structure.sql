@@ -2811,6 +2811,7 @@ INSERT INTO RT_DATABASE_NAME.municipio(codigo, depto, mupio) VALUES(TRIM('2215')
 INSERT INTO RT_DATABASE_NAME.municipio(codigo, depto, mupio) VALUES(TRIM('2216'), TRIM('Jutiapa'), TRIM('San José Acatempa'));
 INSERT INTO RT_DATABASE_NAME.municipio(codigo, depto, mupio) VALUES(TRIM('2217'), TRIM('Jutiapa'), TRIM('Quesada'));
 ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN documento_receptor VARCHAR(100) NULL AFTER factura_serie_correlativo, ADD COLUMN tipo_documento_receptor VARCHAR(5) NULL AFTER documento_receptor;
+ALTER TABLE RT_DATABASE_NAME.sede ADD COLUMN codigo_postal VARCHAR(25) NULL AFTER alias, ADD COLUMN municipio VARCHAR(100) NULL AFTER codigo_postal, ADD COLUMN departamento VARCHAR(100) NULL AFTER municipio, ADD COLUMN pais_iso_dos CHAR(2) NULL AFTER departamento;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

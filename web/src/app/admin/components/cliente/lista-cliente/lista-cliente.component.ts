@@ -17,7 +17,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-lista-cliente',
   templateUrl: './lista-cliente.component.html',
-  styleUrls: ['./lista-cliente.component.css'],  
+  styleUrls: ['./lista-cliente.component.css'],
 })
 export class ListaClienteComponent implements OnInit, OnDestroy {
 
@@ -25,7 +25,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
     return (c: Cliente): boolean => {
       let deshabilitar = false;
       if (+this.totalDeCuenta >= 2500) {
-        let documento = seleccionaDocumentoReceptor(c, this.municipios);
+        const documento = seleccionaDocumentoReceptor(c, this.municipios);
         deshabilitar = documento?.documento && documento?.tipo && documento.documento !== 'CF' ? false : true;
       }
       return deshabilitar;
@@ -36,7 +36,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
   public lstClientesPaged: Cliente[];
   @Input() showAddButton = false;
   @Input() totalDeCuenta = 0;
-  @Output() getClienteEv = new EventEmitter();  
+  @Output() getClienteEv = new EventEmitter();
 
   public length = 0;
   public pageSize = 5;
@@ -61,7 +61,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadMunicipios();
-    this.loadClientes();    
+    this.loadClientes();
   }
 
   ngOnDestroy(): void {
@@ -71,12 +71,12 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
   applyFilter = () => {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.lstClientes, this.txtFiltro);
-      this.length = tmpList.length;      
+      this.length = tmpList.length;
       this.lstClientesPaged = JSON.parse(JSON.stringify(tmpList));
     } else {
-      this.length = this.lstClientes.length;      
+      this.length = this.lstClientes.length;
       this.lstClientesPaged = JSON.parse(JSON.stringify(this.lstClientes));;
-    }    
+    }
   }
 
   validateKey = (e: any) => {
@@ -92,7 +92,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
   loadInfoContribuyente = (nit: string) => {
     const tmpnit = nit.trim().toUpperCase().replace(/[^a-zA-Z0-9]/gi, '');
     if (tmpnit !== 'CF') {
-      this.endSubs.add(        
+      this.endSubs.add(
         this.clienteSrvc.getInfoContribuyente(tmpnit).subscribe(res => {
           if (res.exito) {
             const tmpCliente: Cliente = {
@@ -101,7 +101,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
               nit: tmpnit,
               direccion: res.contribuyente.direccion
             };
-            this.endSubs.add(              
+            this.endSubs.add(
               this.clienteSrvc.save(tmpCliente).subscribe(resNvoCliente => {
                 if (resNvoCliente.exito) {
                   this.loadClientes();
@@ -135,18 +135,21 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
 
   getCliente = (obj: Cliente) => this.getClienteEv.emit(obj);
 
-  agregarCliente = (cli: Cliente = null) => {
+  agregarCliente = (cli: Cliente = null, idx: number = 0) => {
     const addClienteRef = this.dialogAddCliente.open(FormClienteDialogComponent, {
       width: '75%',
-      data: { esDialogo: true, cliente: cli }
+      data: { esDialogo: true, cliente: JSON.parse(JSON.stringify(cli)) }
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       addClienteRef.afterClosed().subscribe(result => {
         if (result) {
           // console.log(result);
           this.loadClientes();
           this.getCliente(result);
+          if (+idx > 0) {
+            this.reemplazaClienteDeLista(result, idx);
+          }
         }
       })
     );
@@ -156,5 +159,14 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
     this.applyFilter();
+  }
+
+  reemplazaClienteDeLista = (cli: Cliente, idx: number) => {
+    const idCliente = +cli.cliente;
+    this.lstClientesPaged[idx] = cli;
+    const idxListaOriginal = this.lstClientes.findIndex(c => +c.cliente === idCliente);
+    if (idxListaOriginal >= 0) {
+      this.lstClientes[idxListaOriginal] = cli;
+    }
   }
 }

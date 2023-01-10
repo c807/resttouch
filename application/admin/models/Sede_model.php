@@ -15,6 +15,10 @@ class Sede_model extends General_model {
     public $codigo;
     public $cuenta_contable;
 	public $alias = null;
+	public $codigo_postal = null;
+	public $municipio = null;
+    public $departamento = null;
+    public $pais_iso_dos = null;
 
 	public function __construct($id = "")
 	{

@@ -554,20 +554,26 @@ class Factura_model extends General_model
 			$emisor->setAttribute('CorreoEmisor', $this->empresa->correo_emisor);
 		}
 
-		$emisor->setAttribute('NITEmisor', str_replace('-', '', $this->empresa->nit));
-		// $emisor->setAttribute('NombreComercial', $this->empresa->nombre_comercial);
+		$emisor->setAttribute('NITEmisor', str_replace('-', '', $this->empresa->nit));		
 		$emisor->setAttribute('NombreComercial', htmlspecialchars($this->sedeFactura->nombre, ENT_XML1));
-		// $emisor->setAttribute('NombreEmisor', $this->empresa->nombre);
 		$emisor->setAttribute('NombreEmisor', htmlspecialchars($this->empresa->nombre, ENT_XML1));
 
-		$laDireccion = !empty($this->sedeFactura->direccion) ? $this->sedeFactura->direccion : $this->empresa->direccion;
-
 		$direccionEmisor = $this->xml->getElementsByTagName('DireccionEmisor')->item(0);
+		
+		$laDireccion = !empty($this->sedeFactura->direccion) ? $this->sedeFactura->direccion : $this->empresa->direccion;
 		$direccionEmisor->appendChild($this->crearElemento('dte:Direccion', htmlspecialchars($laDireccion, ENT_XML1), array(), true));
-		$direccionEmisor->appendChild($this->crearElemento('dte:CodigoPostal', $this->empresa->codigo_postal));
-		$direccionEmisor->appendChild($this->crearElemento('dte:Municipio', $this->empresa->municipio));
-		$direccionEmisor->appendChild($this->crearElemento('dte:Departamento', $this->empresa->departamento));
-		$direccionEmisor->appendChild($this->crearElemento('dte:Pais', $this->empresa->pais_iso_dos));
+
+		$elCodigoPostal = !empty($this->sedeFactura->codigo_postal) ? $this->sedeFactura->codigo_postal : $this->empresa->codigo_postal;
+		$direccionEmisor->appendChild($this->crearElemento('dte:CodigoPostal', $elCodigoPostal));
+
+		$elMupio = !empty($this->sedeFactura->municipio) ? $this->sedeFactura->municipio : $this->empresa->municipio;
+		$direccionEmisor->appendChild($this->crearElemento('dte:Municipio', $elMupio));
+
+		$elDepto = !empty($this->sedeFactura->departamento) ? $this->sedeFactura->departamento : $this->empresa->departamento;
+		$direccionEmisor->appendChild($this->crearElemento('dte:Departamento', $elDepto));
+
+		$elPaisISODos = !empty($this->sedeFactura->pais_iso_dos) ? $this->sedeFactura->pais_iso_dos : $this->empresa->pais_iso_dos;
+		$direccionEmisor->appendChild($this->crearElemento('dte:Pais', $elPaisISODos));
 
 		/*if ($this->serie->tipo === 'FCAM') {
 			$this->AbonosFacturaCambiaria();
@@ -581,8 +587,7 @@ class Factura_model extends General_model
 		$receptor->setAttribute('CorreoReceptor', str_replace(" ", "", str_replace(",", ";", $this->correo_receptor)));
 		
 		// $receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit))); // Antes de SAT v1.7.4
-		// Cambios para SAT v1.7.4
-		$receptor->setAttribute('TipoEspecial', '');
+		// Cambios para SAT v1.7.4		
 		$documento = '';
 		if ($this->fel_uuid && !is_null($this->fel_uuid) && !empty($this->fel_uuid)) {
 			if ($this->documento_receptor && !is_null($this->documento_receptor) && !empty($this->documento_receptor)) {
@@ -597,12 +602,12 @@ class Factura_model extends General_model
 			$documento = $this->receptor->nit;
 			if (!$documento || is_null($documento) || empty(trim($documento))) {
 				$documento = $this->receptor->cui;
+				$this->tipo_documento_receptor = 'CUI';
 				if (!$documento || is_null($documento) || empty(trim($documento))) {
 					$documento = $this->receptor->pasaporte;
-				} else {
-					$this->tipo_documento_receptor = 'CUI';
-					$receptor->setAttribute('TipoEspecial', $this->tipo_documento_receptor);
+					$this->tipo_documento_receptor = 'EXT';
 				}
+				$receptor->setAttribute('TipoEspecial', $this->tipo_documento_receptor);
 			}
 			$this->documento_receptor = $documento;
 		}		

@@ -10,12 +10,12 @@
         </mat-form-field>
         <cdk-virtual-scroll-viewport itemSize="55">
             <mat-nav-list dense>
-                <ng-container *cdkVirtualFor="let cli of lstClientesPaged">
-                    <mat-list-item matRipple (click)="getCliente(cli)" [disabled]="desHabilitaCliente(cli)">
-                        <button mat-line mat-icon-button mat-list-icon aria-label="Editar cliente" *ngIf="+totalDeCuenta > 0" disabled="false" (click)="agregarCliente(cli)">
+                <ng-container *cdkVirtualFor="let cli of lstClientesPaged; let index = index">
+                    <mat-list-item matRipple (click)="!desHabilitaCliente(cli) && getCliente(cli)" [ngClass]="{'cliente-no-valido': desHabilitaCliente(cli)}">
+                        <button mat-line mat-icon-button mat-list-icon aria-label="Editar cliente" *ngIf="+totalDeCuenta > 0" (click)="agregarCliente(cli, index)">
                             <mat-icon style="font-size: 20pt">edit</mat-icon>
                         </button>
-                        <mat-icon mat-list-icon>person</mat-icon>
+                        <mat-icon mat-list-icon *ngIf="+totalDeCuenta === 0">person</mat-icon>
                         <h5 mat-line>{{cli.nombre}}</h5>
                     </mat-list-item>
                 </ng-container>

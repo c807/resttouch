@@ -24,6 +24,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 import { EcoFabSpeedDialModule } from '@ecodev/fab-speed-dial';
@@ -74,6 +75,7 @@ import { DresultadoItemComponent } from './components/facturaManual/dresultado-i
     MatDialogModule,
     MatSidenavModule,
     MatAutocompleteModule,
+    ScrollingModule,
     EcoFabSpeedDialModule,
     MatTooltipModule
   ],

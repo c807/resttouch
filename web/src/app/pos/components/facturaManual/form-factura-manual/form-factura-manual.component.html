@@ -25,19 +25,16 @@
                 </mat-form-field>
             </div>
             <div class="form-group">
-                <mat-form-field class="fullWidth">                
+                <mat-form-field class="fullWidth">
                     <mat-label>Cliente</mat-label>
                     <input type="text" [(ngModel)]="clienteSelected" [ngModelOptions]="{standalone: true}" placeholder="Cliente" matInput [matAutocomplete]="auto" (keyup)="filtrar(clienteSelected)" required>
                     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCliente">
-                        <mat-option *ngFor="let cli of filteredClientes" [value]="cli">
-                            {{cli.nombre}} ({{cli.nit}})
-                        </mat-option>
+                        <cdk-virtual-scroll-viewport class="autocomplete-test-viewport" [ngStyle]="{'height': height}" style="overflow-x: hidden;" itemSize="25">
+                            <mat-option *cdkVirtualFor="let cli of filteredClientes" [value]="cli" [disabled]="desHabilitaCliente(cli)" class="autocomplete-cliente-item">
+                                {{cli.nombre}} ({{cli.nit || cli.cui || cli.pasaporte}})
+                            </mat-option>
+                        </cdk-virtual-scroll-viewport>
                     </mat-autocomplete>                    
-                    <!--<mat-select name="cliente" [(ngModel)]="factura.cliente" required>
-                        <mat-option *ngFor="let cli of clientes" [value]="cli.cliente">
-                            {{cli.nombre}} ({{cli.nit}})
-                        </mat-option>
-                    </mat-select>-->
                 </mat-form-field>                
             </div>
             <div class="form-group">
@@ -80,7 +77,7 @@
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion"
+                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion || noPuedeFirmar"
                     (click)="firmarFactura()">
                     Firmar
                 </button>
@@ -103,8 +100,7 @@
                     (click)="anularFactura()">
                     Anular
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    *ngIf="!!factura.fel_uuid_anulacion" (click)="refacturar()">
+                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="!!factura.fel_uuid_anulacion" (click)="refacturar()" [disabled]="noPuedeFirmar">
                     Refacturar
                 </button>
                 <button mat-raised-button type="button" color="accent" (click)="resetFactura()" *ngIf="factura.factura">
@@ -139,9 +135,11 @@
                     <mat-label>Artículo</mat-label>                    
                     <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
                     <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo" (optionSelected)="setPrecioUnitario($event)">
-                        <mat-option *ngFor="let a of filteredArticulos" [value]="a">
-                            {{a.descripcion}}
-                        </mat-option>
+                        <cdk-virtual-scroll-viewport class="autocomplete-test-viewport" [ngStyle]="{'height': heightArticulos}" style="overflow-x: hidden;" itemSize="25">
+                            <mat-option *cdkVirtualFor="let a of filteredArticulos" [value]="a" class="autocomplete-articulo-item">
+                                {{a.descripcion}}
+                            </mat-option>
+                        </cdk-virtual-scroll-viewport>
                     </mat-autocomplete>
                 </mat-form-field>
             </div>
@@ -177,19 +175,22 @@
             <ng-container matColumnDef="articulo">
                 <th mat-header-cell *matHeaderCellDef>Artículo</th>
                 <td mat-cell *matCellDef="let element" class="text-wrap">{{element.articulo.descripcion}}</td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="precio_unitario">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Precio Unitario</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.precio_unitario | number:'1.2-2'}}
-                </td>
+                <td mat-cell *matCellDef="let element" class="text-right">{{element.precio_unitario | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">Total</td>
             </ng-container>
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.total | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">{{(totalDeFactura || 0) | number:'1.2-2'}}</td>
             </ng-container>
             <ng-container matColumnDef="editItem">
                 <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
@@ -200,10 +201,11 @@
                         Editar
                     </button>
                 </td>
+                <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;">
-            </tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>            
         </table>
     </mat-card-content>
 </mat-card>

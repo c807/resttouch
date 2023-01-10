@@ -2,3 +2,8 @@ cdk-virtual-scroll-viewport {
     height: 590px;
     overflow-x: hidden;
 }
+
+.cliente-no-valido {
+    background-color: lightgoldenrodyellow;    
+    color: slategrey
+}

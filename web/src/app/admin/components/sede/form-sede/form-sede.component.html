@@ -25,6 +25,18 @@
                 <input matInput type="text" placeholder="Dirección" name="direccion" [(ngModel)]="sede.direccion" minlength="1" maxlength="150">
             </mat-form-field>
             <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Código postal" name="codigo_postal" [(ngModel)]="sede.codigo_postal" minlength="1" maxlength="25">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Municipio" name="municipio" [(ngModel)]="sede.municipio" minlength="1" maxlength="100">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Departamento" name="departamento" [(ngModel)]="sede.departamento" minlength="1" maxlength="100">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="País" name="pais_iso_dos" [(ngModel)]="sede.pais_iso_dos" minlength="2" maxlength="2">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
                 <input matInput type="text" placeholder="Teléfono" name="telefono" [(ngModel)]="sede.telefono" minlength="1" maxlength="25" (keypress)="validatePhone($event)">
             </mat-form-field>
             <mat-form-field class="fullWidth">

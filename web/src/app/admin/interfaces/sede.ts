@@ -11,6 +11,10 @@ export interface Sede {
     codigo?: number;
     cuenta_contable?: string;
     alias?: string;
+    codigo_postal?: string;
+    municipio?: string;
+    departamento?: string;
+    pais_iso_dos?: string;    
 }
 
 export interface Corporacion {

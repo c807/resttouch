@@ -5,3 +5,11 @@
 .iconFontSize {
     font-size: 24pt;
 }
+
+.autocomplete-cliente-item {
+    height: 50px;
+}
+
+.autocomplete-articulo-item {
+    height: 50px;
+}

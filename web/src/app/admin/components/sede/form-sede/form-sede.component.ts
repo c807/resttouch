@@ -58,7 +58,7 @@ export class FormSedeComponent implements OnInit {
     telefono: null,
     correo: null,
     codigo: null,
-    cuenta_contable: null
+    cuenta_contable: null, codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
   }
 
   onSubmit = () => {
