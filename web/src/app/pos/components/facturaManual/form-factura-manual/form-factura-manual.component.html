@@ -73,34 +73,34 @@
             </div>            
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || !factura.cliente">
+                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || !factura.cliente || cargando">
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion || noPuedeFirmar"
+                    [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion || noPuedeFirmar || cargando"
                     (click)="firmarFactura()">
                     Firmar
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="factura.factura"
+                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="factura.factura" [disabled]="cargando"
                     (click)="getResultadoFel(factura)">
                     Resultado
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion"
+                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || refacturacion || cargando"
                     (click)="imprimirFactura()">
                     Imprimir
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || detallesFactura.length === 0 || refacturacion"
+                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || detallesFactura.length === 0 || refacturacion || cargando"
                     (click)="representacionGrafica()">
                     PDF
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion"
-                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || !!factura.fel_uuid_anulacion || detallesFactura.length === 0"
+                    [disabled]="!frmFactura.form.valid || factura.fel_uuid == undefined || factura.fel_uuid == null || !!factura.fel_uuid_anulacion || detallesFactura.length === 0 || cargando"
                     (click)="anularFactura()">
                     Anular
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="!!factura.fel_uuid_anulacion" (click)="refacturar()" [disabled]="noPuedeFirmar">
+                <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="!!factura.fel_uuid_anulacion" (click)="refacturar()" [disabled]="noPuedeFirmar || cargando">
                     Refacturar
                 </button>
                 <button mat-raised-button type="button" color="accent" (click)="resetFactura()" *ngIf="factura.factura">
@@ -160,7 +160,7 @@
             </div>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                    [disabled]="!frmDetalleFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion">
+                    [disabled]="!frmDetalleFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || cargando">
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" (click)="resetDetalleFactura()"
@@ -197,7 +197,7 @@
                 <td mat-cell *matCellDef="let element" class="text-wrap">
                     <button mat-raised-button type="button" color="accent"
                         (click)="getDetalleFactura(element.factura, element.detalle_factura)"
-                        [disabled]="!!factura.fel_uuid || !!factura.fel_uuid_anulacion || refacturacion">
+                        [disabled]="!!factura.fel_uuid || !!factura.fel_uuid_anulacion || refacturacion || cargando">
                         Editar
                     </button>
                 </td>

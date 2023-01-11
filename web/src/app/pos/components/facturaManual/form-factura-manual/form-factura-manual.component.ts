@@ -97,6 +97,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public municipios: Municipio[] = [];
   public height: string;
   public heightArticulos: string;
+  public cargando = false;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
 
@@ -140,9 +141,11 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   getRazonAnulacion = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.anulacionSrvc.get().subscribe(res => {
         this.razonAnulacion = res;
+        this.cargando = false;
       })
     );
   }
@@ -159,67 +162,79 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       this.height = (this.filteredClientes.length * 50) + 'px';
     } else {
       this.height = '350px';
-    }    
+    }
   }
 
   loadImpresoraDefecto = () => {
+    this.cargando = true;
     const idImpresoraDefecto: number = +this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRESORA_DEFECTO) || 0;
 
-    this.endSubs.add(            
+    this.endSubs.add(
       this.impresoraSrvc.get({ pordefectofactura: 1 }).subscribe((res: Impresora[]) => {
         if (res && res.length > 0) {
           this.impresoraPorDefecto = res[0];
+          this.cargando = false;
         } else {
           if (idImpresoraDefecto > 0) {
-            this.endSubs.add(              
+            this.cargando = true;
+            this.endSubs.add(
               this.impresoraSrvc.get({ impresora: idImpresoraDefecto }).subscribe((res: Impresora[]) => {
                 if (res && res.length > 0) {
                   this.impresoraPorDefecto = res[0];
                 } else {
                   this.impresoraPorDefecto = null;
                 }
+                this.cargando = false;
               })
             );
-          }        
+          }
+          this.cargando = false;
         }
       })
     );
   }
 
   loadFacturaSeries = () => {
-    this.endSubs.add(      
+    this.cargando = true;
+    this.endSubs.add(
       this.facturaSerieSrvc.get().subscribe(res => {
-        if (res) {
-          this.facturaSeries = res;
-        }
+        this.facturaSeries = res;        
+        this.cargando = false;
       })
     );
   }
 
   loadClientes = () => {
-    this.endSubs.add(      
+    this.cargando = true;
+    this.endSubs.add(
       this.clienteSrvc.get().subscribe(res => {
-        if (res) {
-          this.clientes = res;
-          this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));
-        }
+        this.clientes = res;
+        this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));        
+        this.cargando = false;
       })
     );
   }
 
-  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
+  loadMunicipios = () => {
+    this.cargando = true;
+    this.endSubs.add(this.mupioSrvc.get().subscribe(res => {
+      this.municipios = res;
+      this.cargando = false;
+    }));
+  };
 
   loadMonedas = () => {
-    this.endSubs.add(      
+    this.cargando = true;
+    this.endSubs.add(
       this.monedaSrvc.get().subscribe(res => {
-        if (res) {
-          this.monedas = res;
-        }
+        this.monedas = res;        
+        this.cargando = true;
       })
     );
   }
 
   refacturar = () => {
+    this.cargando = true;
     this.factura = {
       factura: this.factura.factura, factura_serie: null, cliente: null,
       fecha_factura: moment().format(GLOBAL.dbDateFormat), moneda: null, exenta: 0, notas: null,
@@ -229,6 +244,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     this.clienteSelected = undefined;
     this.resetDetalleFactura();
     this.detallesFactura = [];
+    this.cargando = false;
   }
 
   resetFactura = () => {
@@ -251,48 +267,55 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   onSubmit = () => {
+    this.cargando = true;
     // console.log(this.factura); return;
     if (this.refacturacion) {
-      this.facturaSrvc.refacturar(this.factura).subscribe(res => {
-        if (res.exito) {
-          this.facturaSavedEv.emit();
-          this.resetFactura();
-          this.refacturacion = false;
-          this.factura = {
-            factura: res.factura.factura,
-            factura_serie: res.factura.factura_serie,
-            cliente: res.factura.cliente,
-            fecha_factura: res.factura.fecha_factura,
-            moneda: res.factura.moneda,
-            exenta: +res.factura.exenta,
-            notas: res.factura.notas,
-            fel_uuid: res.factura.fel_uuid,
-            enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
-            descripcion_unica: res.factura.descripcion_unica
-          };
-          this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
-        }
-      });
-    } else {
-      this.facturaSrvc.save(this.factura).subscribe(res => {
-        if (res.exito) {
-          this.facturaSavedEv.emit();
-          this.resetFactura();
-          this.factura = {
-            factura: res.factura.factura,
-            factura_serie: res.factura.factura_serie,
-            cliente: res.factura.cliente,
-            fecha_factura: res.factura.fecha_factura,
-            moneda: res.factura.moneda,
-            exenta: +res.factura.exenta,
-            notas: res.factura.notas,
-            fel_uuid: res.factura.fel_uuid,
-            enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
-            descripcion_unica: res.factura.descripcion_unica
+      this.endSubs.add(
+        this.facturaSrvc.refacturar(this.factura).subscribe(res => {
+          if (res.exito) {
+            this.facturaSavedEv.emit();
+            this.resetFactura();
+            this.refacturacion = false;
+            this.factura = {
+              factura: res.factura.factura,
+              factura_serie: res.factura.factura_serie,
+              cliente: res.factura.cliente,
+              fecha_factura: res.factura.fecha_factura,
+              moneda: res.factura.moneda,
+              exenta: +res.factura.exenta,
+              notas: res.factura.notas,
+              fel_uuid: res.factura.fel_uuid,
+              enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
+              descripcion_unica: res.factura.descripcion_unica
+            };
+            this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
           }
-          this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
-        }
-      });
+          this.cargando = false;
+        })
+      );
+    } else {
+      this.endSubs.add(        
+        this.facturaSrvc.save(this.factura).subscribe(res => {
+          if (res.exito) {
+            this.facturaSavedEv.emit();
+            this.resetFactura();
+            this.factura = {
+              factura: res.factura.factura,
+              factura_serie: res.factura.factura_serie,
+              cliente: res.factura.cliente,
+              fecha_factura: res.factura.fecha_factura,
+              moneda: res.factura.moneda,
+              exenta: +res.factura.exenta,
+              notas: res.factura.notas,
+              fel_uuid: res.factura.fel_uuid,
+              enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
+              descripcion_unica: res.factura.descripcion_unica
+            }
+            this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
+          }
+          this.cargando = false;
+        })
+      );
     }
 
   }
@@ -307,22 +330,28 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       )
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        this.facturaSrvc.firmar(+this.factura.factura).subscribe(resFirma => {
-          if (resFirma.exito) {
-            this.factura.numero_factura = resFirma.factura.numero_factura;
-            this.factura.serie_factura = resFirma.factura.serie_factura;
-            this.factura.certificador_fel = resFirma.factura.certificador_fel;
-            this.factura.fel_uuid = resFirma.factura.fel_uuid;
-            this.facturaSavedEv.emit();
-            this.snackBar.open('Factura firmada con éxito...', 'Firmar', { duration: 3000 });
-          } else {
-            this.snackBar.open(`ERROR: ${resFirma.mensaje}`, 'Firmar', { duration: 3000 });
-          }
-        });
-      }
-    });
+    this.endSubs.add(      
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {
+          this.cargando = true;
+          this.endSubs.add(
+            this.facturaSrvc.firmar(+this.factura.factura).subscribe(resFirma => {
+              if (resFirma.exito) {
+                this.factura.numero_factura = resFirma.factura.numero_factura;
+                this.factura.serie_factura = resFirma.factura.serie_factura;
+                this.factura.certificador_fel = resFirma.factura.certificador_fel;
+                this.factura.fel_uuid = resFirma.factura.fel_uuid;
+                this.facturaSavedEv.emit();
+                this.snackBar.open('Factura firmada con éxito...', 'Firmar', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${resFirma.mensaje}`, 'Firmar', { duration: 3000 });
+              }
+              this.cargando = false;
+            })
+          );
+        }
+      })
+    );
   }
 
   procesaDetalleFactura = (detalle: any[], edu = 0, descripcionUnica: string = null) => {
@@ -330,7 +359,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
     if (edu === 1 && descripcionUnica) {
       let total = 0;
-      for(const det of detalle) {
+      for (const det of detalle) {
         total += +det.total;
       }
       detFact.push({
@@ -365,10 +394,10 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
   imprimirFactura = () => {
     // console.log(this.factura);
+    this.cargando = true;
     this.facturaSrvc.imprimir(+this.factura.factura).subscribe(res => {
       if (res.factura) {
         // console.log(res.factura);
-
         const datosAImprimir = {
           IdFactura: +res.factura.factura,
           NombreEmpresa: res.factura.empresa.nombre,
@@ -395,7 +424,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
           Comanda: res.factura.comanda || 0,
           Cuenta: res.factura.cuenta || 0,
           DatosComanda: res.factura.datos_comanda || null
-        };        
+        };
 
         if (this.impresoraPorDefecto) {
           if (+this.impresoraPorDefecto.bluetooth === 0) {
@@ -415,6 +444,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       } else {
         this.snackBar.open(`ERROR: ${res.mensaje}`, 'Impresión', { duration: 3000 });
       }
+      this.cargando = false;
     });
   }
 
@@ -461,41 +491,49 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       )
     });
 
-    dialogRef.afterClosed().subscribe(res => {
-      if (res.resultado) {
-        const params = {};
-        for (let i = 0; i < res.config.input.length; i++) {
-          const input = res.config.input[i];
-          params[input.id] = input.valor;
-        }
-
-        this.facturaSrvc.anular(+this.factura.factura, params).subscribe(resAnula => {
-          if (resAnula.exito) {
-            this.factura.fel_uuid_anulacion = resAnula.factura.fel_uuid_anulacion;
-            this.imprimirCodoAnulacion(this.factura, resAnula.anulacion);
-            this.facturaSavedEv.emit();
-            this.snackBar.open('Factura anulada con éxito...', 'Firmar', { duration: 3000 });
-          } else {
-            this.snackBar.open(`ERROR: ${resAnula.mensaje}`, 'Firmar', { duration: 10000 });
+    this.endSubs.add(
+      dialogRef.afterClosed().subscribe(res => {
+        if (res.resultado) {
+          this.cargando = true;
+          const params = {};
+          for (let i = 0; i < res.config.input.length; i++) {
+            const input = res.config.input[i];
+            params[input.id] = input.valor;
           }
-        });
-      }
-    });
+          
+          this.endSubs.add(            
+            this.facturaSrvc.anular(+this.factura.factura, params).subscribe(resAnula => {
+              if (resAnula.exito) {
+                this.factura.fel_uuid_anulacion = resAnula.factura.fel_uuid_anulacion;
+                this.imprimirCodoAnulacion(this.factura, resAnula.anulacion);
+                this.facturaSavedEv.emit();
+                this.snackBar.open('Factura anulada con éxito...', 'Firmar', { duration: 3000 });
+              } else {
+                this.snackBar.open(`ERROR: ${resAnula.mensaje}`, 'Firmar', { duration: 10000 });
+              }
+              this.cargando = false;
+            })
+          );
+        }
+      })
+    );
   }
 
   getResultadoFel(fact: any) {
     this.dialog.open(DresultadoListaComponent, {
       data: fact, width: '70%'
-    });    
+    });
   }
 
   loadArticulos = () => {
-    this.articuloSrvc.getArticulos().subscribe(res => {
-      if (res) {
+    this.cargando = true;
+    this.endSubs.add(      
+      this.articuloSrvc.getArticulos().subscribe(res => {
         this.articulos = res;
         this.filteredArticulos = this.articulos;
-      }
-    });
+        this.cargando = false;
+      })
+    );
   }
 
   displayArticulo = (art: Articulo) => {
@@ -514,7 +552,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       this.filteredArticulos = this.articulos;
     }
 
-    if (this.filteredArticulos. length < 7) {
+    if (this.filteredArticulos.length < 7) {
       this.heightArticulos = (this.filteredArticulos.length * 50) + 'px';
     } else {
       this.heightArticulos = '350px'
@@ -535,63 +573,78 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   loadDetalleFactura = (idfactura: number = +this.factura.factura) => {
-    this.facturaSrvc.getDetalle(idfactura, { factura: idfactura }).subscribe(res => {
-      // console.log(res);
-      if (res) {
-        this.detallesFactura = res;
-        this.updateTableDataSource();
-      }
-    });
+    this.cargando = true;
+    this.endSubs.add(      
+      this.facturaSrvc.getDetalle(idfactura, { factura: idfactura }).subscribe(res => {
+        // console.log(res);
+        if (res) {
+          this.detallesFactura = res;
+          this.updateTableDataSource();
+        }
+        this.cargando = false;
+      })
+    );
   }
 
   getDetalleFactura = (idfactura: number = +this.factura.factura, iddetalle: number) => {
-    this.facturaSrvc.getDetalle(idfactura, { detalle_factura: iddetalle }).subscribe((res: any[]) => {
-      // console.log(res);
-      if (res) {
-        this.detalleFactura = {
-          detalle_factura: res[0].detalle_factura,
-          factura: res[0].factura,
-          articulo: res[0].articulo.articulo,
-          cantidad: +res[0].cantidad,
-          precio_unitario: +res[0].precio_unitario,
-          total: +res[0].total
-        };
-        this.txtArticuloSelected = res[0].articulo;
-        this.showFormDetalle = true;
-      }
-    });
+    this.cargando = true;
+    this.endSubs.add(      
+      this.facturaSrvc.getDetalle(idfactura, { detalle_factura: iddetalle }).subscribe((res: any[]) => {
+        // console.log(res);
+        if (res) {
+          this.detalleFactura = {
+            detalle_factura: res[0].detalle_factura,
+            factura: res[0].factura,
+            articulo: res[0].articulo.articulo,
+            cantidad: +res[0].cantidad,
+            precio_unitario: +res[0].precio_unitario,
+            total: +res[0].total
+          };
+          this.txtArticuloSelected = res[0].articulo;
+          this.showFormDetalle = true;
+        }
+        this.cargando = false;
+      })
+    );
   }
 
-  onSubmitDetail = () => {
-    if(this.detalleFactura.articulo == null){
+  onSubmitDetail = () => {    
+    if (this.detalleFactura.articulo == null) {
       this.snackBar.open(`ERROR: Artículo no válido. Por favor seleccione un artículo válido.`, 'Artículo', { duration: 7000 });
       return;
     }
+    this.cargando = true;
     this.detalleFactura.factura = this.factura.factura;
     this.detalleFactura.total = +this.detalleFactura.precio_unitario * +this.detalleFactura.cantidad;
     // console.log(this.detalleFactura);
-    this.facturaSrvc.saveDetalle(this.detalleFactura).subscribe(res => {
-      // console.log(res);
-      if (res) {
-        this.loadDetalleFactura();
-        this.resetDetalleFactura();
-      }
-    });
+    this.endSubs.add(
+      this.facturaSrvc.saveDetalle(this.detalleFactura).subscribe(res => {
+        // console.log(res);
+        if (res) {
+          this.loadDetalleFactura();
+          this.resetDetalleFactura();
+        }
+        this.cargando = false;
+      })
+    );
   }
 
   updateTableDataSource = () => this.dataSource = new MatTableDataSource(this.detallesFactura);
 
   representacionGrafica = () => {
-
-    this.facturaSrvc.getGrafo(this.factura.factura).subscribe(res => {
-      if (res.exito) {
-        switch (res.tipo) {
-          case 'link': this.openLinkWindow(res.documento); break;
-          case 'pdf': this.openPdfDocument(res.documento); break;
-          case 'xml': this.openXMLDocument(res.documento); break;
+    this.cargando = true;
+    this.endSubs.add(
+      this.facturaSrvc.getGrafo(this.factura.factura).subscribe(res => {
+        if (res.exito) {
+          switch (res.tipo) {
+            case 'link': this.openLinkWindow(res.documento); break;
+            case 'pdf': this.openPdfDocument(res.documento); break;
+            case 'xml': this.openXMLDocument(res.documento); break;
+          }
         }
-      }
-    });
+        this.cargando = false;
+      })
+    );
   }
 
   openLinkWindow = (url: string) => window.open(url, 'winFactPdf', this.WIN_FEATURES);
@@ -603,7 +656,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
         '<iframe width="100%" style="margin: -8px;border: none;" height="100%" src="data:application/pdf;base64, ' +
         encodeURI(pdf) +
         '"></iframe>');
-    } catch(e) {
+    } catch (e) {
       this.snackBar.open('No se pudo abrir la ventana emergente para ver la representación gráfica. Revise la configuración de su explorador, por favor.', 'PDF', { duration: 7000 });
     }
   }
@@ -612,7 +665,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     const xmlWindow = window.open('', 'winFactXML', this.WIN_FEATURES);
     try {
       xmlWindow.document.write(`<pre lang="xml">${xml}</pre>`);
-    } catch(e) {
+    } catch (e) {
       this.snackBar.open('No se pudo abrir la ventana emergente para ver la representación gráfica. Revise la configuración de su explorador, por favor.', 'PDF', { duration: 7000 });
     }
   }
