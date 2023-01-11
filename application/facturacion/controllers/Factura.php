@@ -169,7 +169,7 @@ class Factura extends CI_Controller
 				$row->comanda = $tmp->getComanda(false);
 				$datos[] = $row;
 			}
-		} else if ($facturas) {			
+		} else if ($facturas) {
 			$tmp = new Factura_model($facturas->factura);
 			$tmp->cargarReceptor();
 			$tmp->cargarMoneda();
@@ -226,8 +226,25 @@ class Factura extends CI_Controller
 
 					$comanda = $fac->getComanda();
 					$fac->origen_datos = ($comanda) ? $comanda->getOrigenDatos() : null;
-					$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
+
+					$laDireccion = $fac->empresa->direccion;
+
+					if (!empty($fac->sedeFactura->direccion)) {
+						$laDireccion = trim($fac->sedeFactura->direccion);
+						if (!empty($fac->sedeFactura->municipio)) {
+							$laDireccion .= ', ' . trim($fac->sedeFactura->municipio);
+						}
+						if (!empty($fac->sedeFactura->departamento)) {
+							$laDireccion .= ', ' . trim($fac->sedeFactura->departamento);
+						}
+					}
+
+					$fac->empresa->direccion = $laDireccion;
 					$fac->datos_comanda = $fac->get_datos_comanda();
+
+					if (!empty($fac->documento_receptor) && !is_null($fac->documento_receptor)) {
+						$fac->receptor->nit = $fac->documento_receptor;
+					}
 					$datos['exito'] = true;
 					$datos['factura'] = $fac;
 					$datos['mensaje'] = "Datos actualizados con exito";
@@ -402,13 +419,28 @@ class Factura extends CI_Controller
 		$comanda = $fac->getComanda();
 
 		$fac->origen_datos = ($comanda) ? $comanda->getOrigenDatos() : null;
-		$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
+
+		$laDireccion = $fac->empresa->direccion;
+
+		if (!empty($fac->sedeFactura->direccion)) {
+			$laDireccion = trim($fac->sedeFactura->direccion);
+			if (!empty($fac->sedeFactura->municipio)) {
+				$laDireccion .= ', ' . trim($fac->sedeFactura->municipio);
+			}
+			if (!empty($fac->sedeFactura->departamento)) {
+				$laDireccion .= ', ' . trim($fac->sedeFactura->departamento);
+			}
+		}
+
+		$fac->empresa->direccion = $laDireccion;
 		$fac->datos_comanda = $fac->get_datos_comanda();
 
+		if (!empty($fac->documento_receptor) && !is_null($fac->documento_receptor)) {
+			$fac->receptor->nit = $fac->documento_receptor;
+		}
+
 		$datos['factura'] = $fac;
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function xml($factura)
@@ -563,7 +595,7 @@ class Factura extends CI_Controller
 
 	public function get_resultado_factura($xid)
 	{
-		
+
 		$fac   = new Factura_model($xid);
 		$tmp   = $fac->getFacturaFel();
 		$lista = [];
@@ -577,7 +609,7 @@ class Factura extends CI_Controller
 					"descripcion" => "N/A",
 					"resultado"   => $json
 				];
-				
+
 				if (verPropiedad($json, "descripcion")) {
 					$data["descripcion"] = $json->descripcion;
 				}
@@ -587,8 +619,8 @@ class Factura extends CI_Controller
 		}
 
 		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($lista));
+			->set_content_type("application/json")
+			->set_output(json_encode($lista));
 	}
 }
 
