@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { GLOBAL, seleccionaDocumentoReceptor } from '../../../../shared/global';
+import { GLOBAL, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '../../../../shared/global';
 import * as moment from 'moment';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { DresultadoListaComponent } from '../dresultado-lista/dresultado-lista.component';
@@ -54,17 +54,18 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   get desHabilitaCliente() {
     return (c: Cliente): boolean => {
       let deshabilitar = false;
-      if (+this.totalDeFactura >= 2500) {
-        const documento = seleccionaDocumentoReceptor(c, this.municipios);
+      if (+this.totalDeFactura >= 2500 || +this.totalFacturaOriginal >= 2500) {
+        const documento = seleccionaDocumentoReceptor(c, this.municipios);        
         deshabilitar = documento?.documento && documento?.tipo && documento.documento !== 'CF' ? false : true;
       }
       return deshabilitar;
     }
   }
 
-  get noPuedeFirmar() {
-    if (this.factura?.cliente) {
-      const cli = this.clientes.find(c => +c.cliente === +this.factura.cliente);
+  get noPuedeFirmar() {    
+    const idCliente: number = +this.clienteOriginal?.cliente || +this.factura?.cliente || 0;    
+    if (idCliente > 0) {
+      const cli = this.clientes.find(c => +c.cliente === idCliente);
       if (cli) {
         return this.desHabilitaCliente(cli);
       }
@@ -98,6 +99,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public height: string;
   public heightArticulos: string;
   public cargando = false;
+  public clienteOriginal: Cliente = null;
+  public totalFacturaOriginal: number = 0;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
 
@@ -116,7 +119,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private configSrvc: ConfiguracionService,
     private impresoraSrvc: ImpresoraService,
-    private mupioSrvc: MunicipioService
+    private mupioSrvc: MunicipioService    
   ) { }
 
   ngOnInit() {
@@ -235,6 +238,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
   refacturar = () => {
     this.cargando = true;
+    this.totalFacturaOriginal = this.totalDeFactura;
     this.factura = {
       factura: this.factura.factura, factura_serie: null, cliente: null,
       fecha_factura: moment().format(GLOBAL.dbDateFormat), moneda: null, exenta: 0, notas: null,
@@ -256,19 +260,22 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     this.clienteSelected = undefined;
     this.resetDetalleFactura();
     this.detallesFactura = [];
+    this.totalFacturaOriginal = 0;
+    this.clienteOriginal = null;
+    this.refacturacion = false;
   }
 
   displayCliente = (cli: Cliente) => {
     if (cli) {
       this.factura.cliente = cli.cliente;
-      return cli.nombre;
+      return cli.nombre + `(${cli.nit || cli.cui || cli.pasaporte || ''})`;
     }
     return undefined;
   }
 
   onSubmit = () => {
     this.cargando = true;
-    // console.log(this.factura); return;
+    // console.log(this.factura); return;    
     if (this.refacturacion) {
       this.endSubs.add(
         this.facturaSrvc.refacturar(this.factura).subscribe(res => {
@@ -288,6 +295,13 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
               enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
               descripcion_unica: res.factura.descripcion_unica
             };
+            const cli = this.clientes.find(c => +c.cliente === +this.factura.cliente);
+            if (isNotNullOrUndefined(cli)) {
+              this.clienteSelected = cli;
+              this.clienteOriginal = { ...cli };
+            }
+            this.totalFacturaOriginal = 0;
+            this.loadDetalleFactura(+this.factura.factura);
             this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
           }
           this.cargando = false;
@@ -310,7 +324,14 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
               fel_uuid: res.factura.fel_uuid,
               enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
               descripcion_unica: res.factura.descripcion_unica
-            }
+            }           
+
+            const cli = this.clientes.find(c => +c.cliente === +this.factura.cliente);
+            if (isNotNullOrUndefined(cli)) {
+              this.clienteSelected = cli;
+              this.clienteOriginal = { ...cli };
+            }            
+            this.loadDetalleFactura(+this.factura.factura);            
             this.snackBar.open('Factura manual agregada...', 'Factura', { duration: 3000 });
           }
           this.cargando = false;
@@ -682,5 +703,5 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     const objImpresion = new Impresion(this.socket);
     objImpresion.impresoraPorDefecto = this.impresoraPorDefecto;
     objImpresion.anulacionDeFactura(fact, anulacion);
-  }
+  }  
 }

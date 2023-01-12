@@ -45,6 +45,7 @@ export class FacturaManualComponent implements OnInit {
       descripcion_unica: fact.descripcion_unica
     };
     this.frmFactura.clienteSelected = fact.cliente;
+    this.frmFactura.clienteOriginal = JSON.parse(JSON.stringify(fact.cliente));
     this.frmFactura.loadDetalleFactura(+this.factura.factura);
     this.frmFactura.resetDetalleFactura();
   }

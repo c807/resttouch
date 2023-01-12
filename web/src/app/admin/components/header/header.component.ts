@@ -26,6 +26,11 @@ import { Subscription } from 'rxjs';
 })
 export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  get moduloEnUso(): string {
+    const usando: string = (this.ls.get(GLOBAL.usrLastModuleVar, false) as string || 'N/A').replace(/[^0-9A-Z/]+/gi, '');
+    return usando
+  }
+
   public usrInfo: any = {};
   public appMenu: any[];
   public idleState = false;

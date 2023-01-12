@@ -19,25 +19,25 @@ class Cliente extends CI_Controller
 		if ($this->input->method() == 'post') {			
 			$req['nit'] = strtoupper(preg_replace('/[^0-9KkcCfF?!]/', '', $req['nit']));
 			$continuar = true;
-			if (empty($id) && $req['nit'] !== 'CF' && !empty($req['nit'])) {
+			if ($req['nit'] !== 'CF' && !empty($req['nit'])) {
 				$tmpClt = $this->Cliente_model->buscar(['nit' => $req['nit'], '_uno' => true]);
-				if ($tmpClt) {
+				if ($tmpClt && (int)$tmpClt->cliente !== (int)$id) {
 					$continuar = false;
 				}
 			}
 
 			$req['cui'] = strtoupper(preg_replace('/[^0-9?!]/', '', $req['cui']));
-			if ($continuar && empty($id) && !empty($req['cui'])) {
+			if ($continuar && !empty($req['cui'])) {
 				$tmpClt = $this->Cliente_model->buscar(['cui' => $req['cui'], '_uno' => true]);
-				if ($tmpClt) {
+				if ($tmpClt && (int)$tmpClt->cliente !== (int)$id) {
 					$continuar = false;
 				}				
 			}
 
 			$req['pasaporte'] = strtoupper(preg_replace('/[^0-9a-zA-Z?!]/', '', $req['pasaporte']));
-			if ($continuar && empty($id) && !empty($req['pasaporte'])) {
+			if ($continuar && !empty($req['pasaporte'])) {
 				$tmpClt = $this->Cliente_model->buscar(['pasaporte' => $req['pasaporte'], '_uno' => true]);
-				if ($tmpClt) {
+				if ($tmpClt && (int)$tmpClt->cliente !== (int)$id) {
 					$continuar = false;
 				}				
 			}			
@@ -62,8 +62,7 @@ class Cliente extends CI_Controller
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar()

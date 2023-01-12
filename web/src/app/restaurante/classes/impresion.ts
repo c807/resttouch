@@ -196,7 +196,7 @@ export class Impresion {
             Numero: factura.numero_factura,
             FechaFactura: moment(factura.fecha_factura).format(GLOBAL.dateFormat),
             Cliente: anulacion.cliente.nombre,
-            NIT: anulacion.cliente.nit,
+            NIT: factura.documento_receptor || anulacion.cliente.nit || anulacion.cliente.cui || anulacion.cliente.pasaporte,
             FechaAnulacion: anulacion.fecha,
             Comentario: anulacion.comentario,
             Impresora: (factura.impresora as Impresora) || this.impresoraPorDefecto

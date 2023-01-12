@@ -5,7 +5,7 @@
         <app-clock [idleStatus]="idleState"></app-clock>
         <span class="spacer"></span>
         <button mat-raised-button color="primary" [matMenuTriggerFor]="menu">
-            {{usrInfo.usuario}}&nbsp;<mat-icon>apps</mat-icon>
+            {{usrInfo.usuario}} - {{moduloEnUso}}&nbsp;<mat-icon>apps</mat-icon>
         </button>
         <button mat-icon-button type="button" (click)="LogOut()">
             <mat-icon>power_settings_new</mat-icon>

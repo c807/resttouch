@@ -16,12 +16,12 @@ export class OnlineService {
   listenToOnlineStatus(): void {
     window.addEventListener('online', () => {
       this.isOnline$.next(true);
-      this.snackBar.open('Ya estamos en línea. Si hay sincronizaciones pendientes, se iniciaran en este momemento.', 'RestTouch', { duration: 7000 });
+      this.snackBar.open('Ya estamos en línea.', 'RestTouch Pro', { duration: 7000 });
     });
 
     window.addEventListener('offline', () => {
       this.isOnline$.next(false);
-      this.snackBar.open('Se perdió la conexión a internet. Algunas funciones no podrán ser utilizadas.', 'RestTouch', { duration: 7000 });
+      this.snackBar.open('Se perdió la conexión a internet. Algunas funciones no podrán ser utilizadas.', 'RestTouch Pro', { duration: 7000 });
     });
   }
 }
