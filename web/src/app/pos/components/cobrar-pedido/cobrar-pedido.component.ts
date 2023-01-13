@@ -2,7 +2,7 @@ import { Component, Inject, Input, OnDestroy, OnInit, AfterViewInit } from '@ang
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL, isEmail } from '../../../shared/global';
+import { GLOBAL, isEmail, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '../../../shared/global';
 import { LocalstorageService } from '../../../admin/services/localstorage.service';
 import * as moment from 'moment';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -31,6 +31,8 @@ import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicili
 import { ValidaPwdGerenteTurnoComponent } from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
 import { ArticuloTipoCliente } from '../../../wms/interfaces/articulo-tipo-cliente';
 import { ArticuloService } from '../../../wms/services/articulo.service';
+import { Municipio } from '../../../admin/interfaces/municipio';
+import { MunicipioService } from '../../../admin/services/municipio.service';
 
 interface DatosPedido {
   sede: number;
@@ -68,6 +70,31 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get esCorreoElectronico() {
     return (correo: string) => isEmail(correo);
+  }
+
+  get esClienteInvalido(): boolean {
+    let esInvalido = false;
+
+    if (this.totalDeCuentaConPropina >= 2500) {
+      if (isNotNullOrUndefined(this.clienteSelected)) {
+        const documento = seleccionaDocumentoReceptor(this.clienteSelected, this.municipios);
+        esInvalido = documento?.documento && documento?.tipo && documento.documento !== 'CF' ? false : true;
+      }
+    }
+
+    return esInvalido;
+  }
+
+  get montoPropina(): number {
+    let mntProp = 0;    
+    for(const fp of this.formasPagoDeCuenta) {
+      mntProp += +fp.propina;
+    }    
+    return mntProp;
+  }
+
+  get totalDeCuentaConPropina(): number {
+    return +this.inputData.totalDeCuenta + this.montoPropina;
   }
 
   @Input() inputData: any = {};
@@ -113,6 +140,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public varTipoDomicilio = `${GLOBAL.rtTipoDomicilio}_`;
   public varClienteFactura = `${GLOBAL.rtClienteFactura}_`;
   public permiteDetalleFacturaPersonalizado = true;
+  public municipios: Municipio[] = [];
 
   private endSubs = new Subscription();
 
@@ -132,7 +160,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     private clienteMasterSrvc: ClienteMasterService,
     private tiempoEntregaSrvc: TiempoEntregaService,
     private tipoDomicilioSrvc: TipoDomicilioService,
-    private articuloSrvc: ArticuloService
+    private articuloSrvc: ArticuloService,
+    private mupioSrvc: MunicipioService
   ) {
   }
 
@@ -171,6 +200,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.loadSedes();
     this.loadTiemposEntrega();
     this.loadTiposDomicilio();
+    this.loadMunicipios();
   }
 
   ngOnDestroy() {
@@ -250,6 +280,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       this.tipoDomicilioSrvc.get().subscribe(res => this.tiposDomicilio = res)
     );
   }
+
+  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
 
   calculaPropina = () => {
     this.inputData.montoPropina = parseFloat((this.inputData.porcentajePropina * this.inputData.totalDeCuenta / 100).toFixed(2));

@@ -8,7 +8,7 @@
 <div mat-dialog-content class="contenido">
   <div class="row">
     <div class="col m5 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
-      <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true" [totalDeCuenta]="+inputData.totalDeCuenta">
+      <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true" [totalDeCuenta]="totalDeCuentaConPropina">
       </app-lista-cliente>
     </div>
     <div class="col m3 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
@@ -250,11 +250,11 @@
   <app-cargando *ngIf="facturando" [configuracion]="cargandoConf"></app-cargando>
   <button mat-raised-button color="accent" (click)="cancelar()" [disabled]="facturando">Cancelar</button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 0"
-    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica)">
+    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || esClienteInvalido">
     Facturar
   </button>
   <button mat-raised-button color="accent" (click)="cobrar()" *ngIf="+data.mesaenuso.mesa.escallcenter === 1"
-    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || !this.datosPedido.tiempo_entrega || !this.datosPedido.tipo_domicilio">
+    [disabled]="formasPagoDeCuenta.length == 0 || +inputData.saldo > 0 || !factReq.cliente || facturando || !this.datosPedido.sede || (+descripcionUnica.enviar_descripcion_unica === 1 && !descripcionUnica.descripcion_unica) || !this.datosPedido.tiempo_entrega || !this.datosPedido.tipo_domicilio || esClienteInvalido">
     Enviar
   </button>
 </div>
