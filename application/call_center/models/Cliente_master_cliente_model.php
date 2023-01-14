@@ -49,7 +49,8 @@ class Cliente_master_cliente_model extends General_model
             ->join('cliente_master b', 'b.cliente_master = a.cliente_master')
             ->join('cliente c', 'c.cliente = a.cliente')
             ->where('a.cliente_master', $args['cliente_master'])
-            ->where('c.nit', $args['nit'])
+            // ->where('c.nit', $args['nit'])
+            ->where("(TRIM(c.nit) = '{$args['nit']}' OR TRIM(c.cui) = '{$args['nit']}' OR TRIM(c.pasaporte) = '{$args['nit']}')")
             ->where('a.debaja', 1)
             ->get('cliente_master_cliente a')
             ->row();
@@ -69,15 +70,17 @@ class Cliente_master_cliente_model extends General_model
     public function get_join_nit_no_debaja($args = [])
     {
         //Check for any debaja.
-        return  $this->db
-            ->select('a.*, b.* , c.*')
-            ->join('cliente_master b', 'b.cliente_master = a.cliente_master')
-            ->join('cliente c', 'c.cliente = a.cliente')
-            ->where('a.cliente_master', $args['cliente_master'])
-            ->where('c.nit', $args['nit'])
-            ->where('a.debaja', 0)
-            ->get('cliente_master_cliente a')
-            ->row();
+        $data = $this->db
+        ->select('a.*, b.* , c.*')
+        ->join('cliente_master b', 'b.cliente_master = a.cliente_master')
+        ->join('cliente c', 'c.cliente = a.cliente')
+        ->where('a.cliente_master', $args['cliente_master'])
+        ->where('a.debaja', 0)
+        ->where("(TRIM(c.nit) = '{$args['nit']}' OR TRIM(c.cui) = '{$args['nit']}' OR TRIM(c.pasaporte) = '{$args['nit']}')")
+        ->get('cliente_master_cliente a')
+        ->row();
+
+        return  $data;
 
     }
 

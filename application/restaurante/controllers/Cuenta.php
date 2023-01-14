@@ -141,7 +141,7 @@ class Cuenta extends CI_Controller
 									'forma_pago' => $row->forma_pago,
 									'_uno' => true
 								]);
-								if ($fpago->sinfactura == 1) {
+								if ((int)$fpago->sinfactura === 1) {
 									$facturar = false;
 								}
 								$fpagos[] = $fpago->sinfactura;

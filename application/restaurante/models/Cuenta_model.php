@@ -77,7 +77,9 @@ class Cuenta_model extends General_Model
 	{
 		if (is_array($args) && count($args) > 0) {
 			if ($this->numero === null) {
-				$args['numero'] = $this->getNumero($args);
+				if (!isset($args['numero']) || empty($args['numero'])) {
+					$args['numero'] = $this->getNumero($args);
+				}
 			} else {
 				$args['numero'] = $this->numero;
 			}
@@ -86,7 +88,7 @@ class Cuenta_model extends General_Model
 				return $this->guardar($args);
 			}
 		} else {
-			$this->setMensaje("Datos invalidos");
+			$this->setMensaje('Datos inválidos.');
 		}
 
 		return false;

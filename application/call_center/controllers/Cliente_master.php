@@ -276,7 +276,7 @@ class Cliente_master extends CI_Controller
     public function asociar_cliente_master_cliente(){
 
         // Check if nit already exist
-        $resultadoNoDbj = $this->Cliente_master_cliente_model->get_join_nit_no_debaja($_GET);
+        $resultadoNoDbj = $this->Cliente_master_cliente_model->get_join_nit_no_debaja($_GET);        
         $datos['exist'] = true;
 
         if($resultadoNoDbj) {

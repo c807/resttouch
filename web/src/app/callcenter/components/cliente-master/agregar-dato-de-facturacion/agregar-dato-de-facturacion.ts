@@ -49,9 +49,9 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
-  validatePhone = (e: any) => {
+  validateDocumentoReceptor = (e: any) => {
     const inp = String.fromCharCode(e.keyCode);
-    if (/[0-9CcFfKk]/.test(inp)) {
+    if (/[0-9a-z]/gi.test(inp)) {
       return true;
     } else {
       e.preventDefault();

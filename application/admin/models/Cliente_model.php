@@ -33,7 +33,8 @@ class Cliente_model extends General_model {
         //Query Builder
         $this->db->select('*');
         $this->db->from('cliente');
-        $this->db->where('nit', $args['nit']);
+        // $this->db->where('nit', $args['nit']);
+		$this->db->where("(TRIM(nit) = '{$args['nit']}' OR TRIM(cui) = '{$args['nit']}' OR TRIM(pasaporte) = '{$args['nit']}')");
         //Get the results
         return $this->db->get()->result();
     }

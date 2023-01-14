@@ -216,7 +216,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
   addDireccionSeleccionadaToLocalStorage = (cli: (Cliente | ClienteMasterTelefono)) => {
     const cliSel = cli as ClienteMasterTelefono;
     if (!this.direccionSelected || (+cliSel.cliente_master !== +this.direccionSelected.cliente_master.cliente_master)) {
-      this.direccionSelected = cliSel.direcciones[0] || null;
+      this.direccionSelected = cliSel?.direcciones[0] || null;
     }
     this.ls.set(this.varDireccionEntrega, this.direccionSelected);
   }
@@ -224,7 +224,7 @@ export class PideTelefonoDialogComponent implements OnInit, OnDestroy {
   addDatosFacturacionToLocalStorage = (cli: (Cliente | ClienteMasterTelefono)) => {
     const cliSel = cli as ClienteMasterTelefono;
     if (!this.datosFacturacionSelected || (+cliSel.cliente_master !== +this.datosFacturacionSelected.cliente_master)) {
-      this.datosFacturacionSelected = cliSel.datos_facturacion[0] || null;
+      this.datosFacturacionSelected = cliSel?.datos_facturacion[0] || null;
     }
     this.ls.set(this.varClienteFactura, this.datosFacturacionSelected);
   }
