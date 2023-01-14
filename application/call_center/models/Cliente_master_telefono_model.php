@@ -71,7 +71,7 @@ class Cliente_master_telefono_model extends General_model {
 				$tel->datos_facturacion = $this->Cliente_master_cliente_model->buscar(['cliente_master' => $tel->cliente_master, 'debaja' => 0]);
 				if ($tel->datos_facturacion && count($tel->datos_facturacion) > 0) {
 					foreach ($tel->datos_facturacion as $d) {						
-						$d->cliente = $this->db->select('cliente, nombre, direccion, nit, telefono, correo, codigo_postal, municipio, departamento, pais_iso_dos, observaciones, tipo_cliente')->where('cliente', $d->cliente)->get('cliente')->row();
+						$d->cliente = $this->db->select('cliente, nombre, direccion, nit, telefono, correo, codigo_postal, municipio, departamento, pais_iso_dos, observaciones, tipo_cliente, cui, pasaporte')->where('cliente', $d->cliente)->get('cliente')->row();
 					}
 				}
 			}

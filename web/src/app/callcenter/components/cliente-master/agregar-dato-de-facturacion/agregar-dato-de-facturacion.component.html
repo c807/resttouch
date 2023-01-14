@@ -15,7 +15,7 @@
   <tr>
     <th>Nombre</th>
     <th>Dirección</th>
-    <th>NIT</th>
+    <th>Documento</th>
     <th>Correo</th>
     <th></th>
   </tr>
@@ -24,7 +24,7 @@
   <tr *ngFor="let cl of lstClmCL">
     <td>{{cl.cliente.nombre}}</td>
     <td>{{cl.cliente.direccion}}</td>
-    <td>{{cl.cliente.nit}}</td>
+    <td>{{cl.cliente.nit || cl.cliente.cui || cl.cliente.pasaporte}}</td>
     <td>{{cl.cliente.correo}}</td>
     <td>
       <button mat-raised-button type="button" color="accent" (click)="desasociarClienteM(cl)" [disabled]="cargando">
