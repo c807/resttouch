@@ -36,7 +36,8 @@ class Cliente_model extends General_model {
         // $this->db->where('nit', $args['nit']);
 		$this->db->where("(TRIM(nit) = '{$args['nit']}' OR TRIM(cui) = '{$args['nit']}' OR TRIM(pasaporte) = '{$args['nit']}')");
         //Get the results
-        return $this->db->get()->result();
+		$results = $this->db->get()->result();
+        return $results;
     }
 
 	public function get_lista($args = [], $rowno = 0, $rowperpage = 5, $search='')

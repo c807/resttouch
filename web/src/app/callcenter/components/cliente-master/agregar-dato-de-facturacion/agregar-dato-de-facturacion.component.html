@@ -4,7 +4,7 @@
     <form #frmDirC="ngForm" (ngSubmit)="frmDirC.form.valid && asociarClienteMaster()" novalidate>
       <mat-form-field style="width: 75%; padding-right: 5px;">
         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="NIT o CUI o Pasaporte" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validateDocumentoReceptor($event)" minlength="2" maxlength="100" required>
-        <input matInput *ngIf="esMovil" type="text" placeholder="NIT" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validateDocumentoReceptor($event)" minlength="2" maxlength="100" required>
+        <input matInput *ngIf="esMovil" type="text" placeholder="NIT o CUI o Pasaporte" name="nit" [(ngModel)]="ClientefrmDirC.nit" (keypress)="validateDocumentoReceptor($event)" minlength="2" maxlength="100" required>
       </mat-form-field>
       <button mat-raised-button type="submit" color="accent" [disabled]="!frmDirC.form.valid || cargando || !(+clienteMaster?.cliente_master > 0)">
         Asociar

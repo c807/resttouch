@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
+import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
+import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '../../../../shared/global';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Cliente } from "../../../../admin/interfaces/cliente";
 import { MatInput } from "@angular/material/input";
@@ -9,12 +9,32 @@ import { ClienteService } from "../../../../admin/services/cliente.service";
 import { LocalstorageService } from "../../../../admin/services/localstorage.service";
 import { ClienteMasterService } from "../../../services/cliente-master.service";
 
+import { Municipio } from '../../../../admin/interfaces/municipio';
+import { MunicipioService } from '../../../../admin/services/municipio.service';
+
 @Component({
   selector: 'app-dialog-agregar-cliente',
   templateUrl: './dialog-agregar-cliente.component.html',
   styleUrls: ['./dialog-agergar-cliente.component.css']
 })
-export class DialogAgregarClienteComponent implements OnInit {
+export class DialogAgregarClienteComponent implements OnInit, OnDestroy {
+
+  get nitValido(): boolean {
+    return isNotNullOrUndefined(procesarNIT(this.cliente?.nit));
+  }
+
+  get cuiValido(): boolean {
+    return isNotNullOrUndefined(procesarCUI(this.cliente?.cui, this.municipios || []));
+  }
+
+  get pasaporteValido(): boolean {
+    return isNotNullOrUndefined(procesarPasaporte(this.cliente?.pasaporte));
+  }
+
+  get receptorValido(): boolean {
+    const esValido = this.nitValido || this.cuiValido || this.pasaporteValido;
+    return esValido;
+  }
 
   @Input() cliente: Cliente;
   @Input() inicializoCliente = true;
@@ -24,6 +44,8 @@ export class DialogAgregarClienteComponent implements OnInit {
   public esDialogo = false;
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
+  public municipios: Municipio[] = [];
+
   private endSubs = new Subscription();
 
   constructor(
@@ -31,6 +53,7 @@ export class DialogAgregarClienteComponent implements OnInit {
     private clienteSrvc: ClienteService,
     private ls: LocalstorageService,
     private clienteMasterSrvc: ClienteMasterService,
+    private municipioSrvc: MunicipioService,
     public dialogRef: MatDialogRef<DialogAgregarClienteComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
@@ -47,11 +70,22 @@ export class DialogAgregarClienteComponent implements OnInit {
     if (this.data.nit) {
       this.cliente.nit = this.data.nit;
     }
+    this.loadMunicipios();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
+  loadMunicipios = () => {
+    this.endSubs.add(
+      this.municipioSrvc.get().subscribe(res => this.municipios = res)
+    );
   }
 
   resetCliente = () => this.cliente = {
     cliente: null, nombre: null, direccion: null, nit: this.data?.nit || null, telefono: null, correo: null,
-    codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
+    codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null, cui: null, pasaporte: null
   }
 
   onSubmit = () => {
@@ -83,40 +117,46 @@ export class DialogAgregarClienteComponent implements OnInit {
   }
 
   guardarCliente = () => {
-    this.clienteSrvc.save(this.cliente).subscribe(res => {
-      // console.log(res);
-      if (res.exito) {
-        this.clienteSavedEv.emit(res.cliente);
-        this.resetCliente();
-        this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
+    if (this.validarReceptor()) {
+      this.endSubs.add(
+        this.clienteSrvc.save(this.cliente).subscribe(res => {
+          if (res.exito) {
+            this.clienteSavedEv.emit(res.cliente);
+            this.resetCliente();
+            this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });
 
-        if (this.data.fromClienteMaster) {
-          this.asociarClienteMasterCliente(res);
-        }
+            if (this.data.fromClienteMaster) {
+              this.asociarClienteMasterCliente(res);
+            }
 
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
-      }
-    });
-
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+          }
+        })
+      );
+    } else {
+      this.snackBar.open('El documento del receptor no es válido, por favor revise la información.', 'Cliente', { duration: 7000 });
+    }
   }
 
   loadInfoContribuyente = (nit: string) => {
     const tmpnit = nit.trim().toUpperCase().replace(/[^0-9KkcCfF]/gi, '');
     if (tmpnit !== 'CF') {
-      this.clienteSrvc.getInfoContribuyente(tmpnit).subscribe(res => {
-        if (res.exito) {
-          this.cliente.nombre = res.contribuyente.nombre;
-          this.cliente.nit = tmpnit;
-          this.cliente.direccion = res.contribuyente.direccion;
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
-          this.cliente.nombre = null;
-          this.cliente.nit = tmpnit;
-          this.cliente.direccion = null;
-          this.txtNitCliente.focus();
-        }
-      });
+      this.endSubs.add(
+        this.clienteSrvc.getInfoContribuyente(tmpnit).subscribe(res => {
+          if (res.exito) {
+            this.cliente.nombre = res.contribuyente.nombre;
+            this.cliente.nit = tmpnit;
+            this.cliente.direccion = res.contribuyente.direccion;
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cliente', { duration: 7000 });
+            this.cliente.nombre = null;
+            this.cliente.nit = tmpnit;
+            this.cliente.direccion = null;
+            this.txtNitCliente.focus();
+          }
+        })
+      );
     }
   }
 
@@ -141,5 +181,13 @@ export class DialogAgregarClienteComponent implements OnInit {
   }
 
   cancelar = () => this.dialogRef.close({ recargar: false, cliente: null });
+
+  validarReceptor = (): boolean => {
+    this.cliente.nit = procesarNIT(this.cliente?.nit);
+    this.cliente.cui = procesarCUI(this.cliente?.cui, this.municipios || []);
+    this.cliente.pasaporte = procesarPasaporte(this.cliente?.pasaporte);
+    this.cliente.nombre = this.cliente?.nombre.replace(/[^0-9a-zñ*-.,/() ]+/gi, '').trim();
+    return this.receptorValido;
+  }
 
 }

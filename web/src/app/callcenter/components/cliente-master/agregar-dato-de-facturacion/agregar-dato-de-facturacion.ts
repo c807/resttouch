@@ -75,7 +75,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(DialogAgregarClienteComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: false,
-      data: {clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: this.ClientefrmDirC.nit}
+      data: {clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: null}
     });
     cmdRef.afterClosed().subscribe((res: any) => {
       if (res.recargar) {
@@ -90,7 +90,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
 
   asociarClienteMaster = () => {
     this.cargando = true;
-    const numberNit = +this.ClientefrmDirC.nit;
+    const numberNit: string = this.ClientefrmDirC.nit;
     this.endSubs.add(
       this.clienteMasterSrvc.asasociarClienteMasterCliente({ cliente_master: this.clienteMaster.cliente_master, nit: numberNit }).subscribe(res => {
         this.loadClienteMasterCliente();

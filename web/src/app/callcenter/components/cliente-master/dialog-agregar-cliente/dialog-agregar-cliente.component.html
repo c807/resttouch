@@ -7,11 +7,24 @@
   <mat-card-content>
     <form #frmCliente="ngForm" (ngSubmit)="frmCliente.form.valid && onSubmit()" novalidate>
       <mat-form-field class="fullWidth">
-        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" required maxlength="25">
-        <input matInput *ngIf="esMovil" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" required maxlength="25">
-        <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(cliente.nit)" *ngIf="cliente && cliente.nit && cliente.nit.length >= 4 && !verTodos">
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" maxlength="25">
+        <input matInput *ngIf="esMovil" #txtNitCliente type="text" placeholder="N.I.T." name="nit" [(ngModel)]="cliente.nit" maxlength="25">
+        <mat-hint *ngIf="!nitValido">El N.I.T. es inválido.</mat-hint>
+        <button type="button" mat-raised-button matSuffix color="accent" (click)="loadInfoContribuyente(cliente.nit)" *ngIf="cliente && cliente.nit && cliente.nit.length >= 2">
           Validar NIT
         </button>
+      </mat-form-field>
+
+      <mat-form-field class="fullWidth" [ngClass]="{'top-separator': !nitValido}">
+        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" #txtCuiCliente type="text" placeholder="C.U.I." name="cui" [(ngModel)]="cliente.cui" maxlength="20">
+        <input matInput *ngIf="esMovil" #txtCuiCliente type="text" placeholder="C.U.I." name="cui" [(ngModel)]="cliente.cui" maxlength="20">
+        <mat-hint *ngIf="!cuiValido">El C.U.I. es inválido.</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field class="fullWidth" [ngClass]="{'top-separator': !cuiValido}">
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" #txtPasaporteCliente type="text" placeholder="Pasaporte" name="pasaporte" [(ngModel)]="cliente.pasaporte" maxlength="50">
+          <input matInput *ngIf="esMovil" #txtPasaporteCliente type="text" placeholder="Pasaporte" name="pasaporte" [(ngModel)]="cliente.pasaporte" maxlength="50">
+          <mat-hint *ngIf="!pasaporteValido">El número de pasaporte es inválido.</mat-hint>
       </mat-form-field>
 
       <mat-form-field class="fullWidth">
@@ -34,7 +47,7 @@
         <input matInput *ngIf="esMovil" type="text" placeholder="E-mail" name="correo" [(ngModel)]="cliente.correo" maxlength="50" (keypress)="validateEmail($event)">
       </mat-form-field>
 
-      <mat-form-field class="fullWidth" *ngIf="verTodos">
+      <!-- <mat-form-field class="fullWidth" *ngIf="verTodos">
         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código postal" name="codigo_postal" maxlength="25" [(ngModel)]="cliente.codigo_postal">
         <input matInput *ngIf="esMovil" type="text" placeholder="Código postal" name="codigo_postal" maxlength="25" [(ngModel)]="cliente.codigo_postal">
       </mat-form-field>
@@ -52,10 +65,10 @@
       <mat-form-field class="fullWidth" *ngIf="verTodos">
         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" maxlength="2" placeholder="Pais ISO" name="pais_iso_dos" [(ngModel)]="cliente.pais_iso_dos">
         <input matInput *ngIf="esMovil" type="text" maxlength="2" placeholder="Pais ISO" name="pais_iso_dos" [(ngModel)]="cliente.pais_iso_dos">
-      </mat-form-field>
+      </mat-form-field> -->
 
       <div align="end">        
-        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmCliente.form.valid">
+        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmCliente.form.valid || !receptorValido">
           Guardar
         </button>
         <button mat-raised-button type="button" color="accent"class="btnAccion" (click)="resetCliente()" *ngIf="cliente.cliente">
