@@ -15,13 +15,20 @@ class Articulo extends CI_Controller
 			'Articulo_tipo_cliente_model',
 			'Umedida_model',
 			'Categoria_model',
-			'Cgrupo_model'
+			'Cgrupo_model',
+			'Bitacora_model',
+			'Accion_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		$this->output->set_content_type("application/json", "UTF-8");
+		$this->usr = null;
+
+		if ($this->data && !empty($this->data->idusuario)) {
+			$this->usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+		}
 	}
 
 	public function chkCodigoExistente($codigo = '')
@@ -63,9 +70,10 @@ class Articulo extends CI_Controller
 					$pre = new Presentacion_model($req['presentacion']);
 					$preRep = new Presentacion_model($req['presentacion_reporte']);
 					if ($pre->medida == $preRep->medida) {
+						$comentario = "El usuario {$this->usr->usrname} modificó el artículo '{$art->descripcion}' desde el mantenimiento de artículos. Registro original: " . json_encode($art);
 						$datos['exito'] = $art->guardar($req);
-
 						if ($datos['exito']) {
+							$this->add_to_bitacora($art->getPK(), $comentario);
 							$datos['mensaje'] = "Datos Actualizados con Exito";
 							$datos['articulo'] = $art;
 						} else {
@@ -291,8 +299,13 @@ class Articulo extends CI_Controller
 				foreach ($req["sedes"] as $sede) {
 					foreach ($articulos as $row) {
 						$art = new Articulo_model($row->articulo);
+
 						if (!empty($art->codigo)) {
 							$art->copiar($sede['sede']);
+							$sedeOrigen = $this->Sede_model->buscar(['sede' => $this->data->sede, '_uno' => true]);
+							$sedeDestino = $this->Sede_model->buscar(['sede' => $sede['sede'], '_uno' => true]);
+							$comentario = "El usuario {$this->usr->usrname} replicó el artículo {$art->descripcion} de la sede '{$sedeOrigen->nombre} ($sedeOrigen->alias)' a la sede '{$sedeDestino->nombre} ($sedeDestino->alias)'";
+							$this->add_to_bitacora($art->getPK(), $comentario);
 						}
 					}
 
@@ -304,17 +317,16 @@ class Articulo extends CI_Controller
 					}
 				}
 
-				$datos["exito"] = true;
-				$datos['mensaje'] = "Datos actualizados con exito";
+				$datos['exito'] = true;
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 			} else {
-				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar.';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parametros inválidos';
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function actualizar_costos()
@@ -374,8 +386,14 @@ class Articulo extends CI_Controller
 		$datos = new stdClass();
 		$datos->exito = false;
 		$articulo = new Articulo_model($req['articulo']);
+		$comentario = "El usuario {$this->usr->usrname} modificó el artículo '{$articulo->descripcion}' desde la edición rápida de artículos. Registro original: " . json_encode($articulo);
 		$datos->exito = $articulo->guardar($req);
-		$datos->mensaje = $datos->exito ? 'Artículo actualizado con éxito.' : $articulo->getMensaje();
+		if ($datos->exito) {
+			$this->add_to_bitacora($articulo->getPK(), $comentario);
+			$datos->mensaje = 'Artículo actualizado con éxito.';
+		} else {
+			$datos->mensaje = $articulo->getMensaje();
+		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
@@ -598,7 +616,7 @@ class Articulo extends CI_Controller
 
 	private function upload_config($path)
 	{
-		if (!is_dir($path)) 
+		if (!is_dir($path))
 			mkdir($path, 0777, TRUE);
 		$config['upload_path'] 		= $path;
 		$config['allowed_types'] 	= 'csv|CSV|xlsx|XLSX|xls|XLS';
@@ -638,7 +656,7 @@ class Articulo extends CI_Controller
 						break;
 					}
 				}
-				if ($medida && !empty(trim($col[1])) && (float)$col[2] !== (float)0 ) {
+				if ($medida && !empty(trim($col[1])) && (float)$col[2] !== (float)0) {
 					$entidad['medida'] = $medida->medida;
 					$entidad['descripcion'] = trim($col[1]);
 					$entidad['cantidad'] = (float)$col[2];
@@ -773,12 +791,12 @@ class Articulo extends CI_Controller
 	{
 		set_time_limit(0);
 		ini_set('memory_limit', -1);
-		$path = APPPATH.'documentos/';
+		$path = APPPATH . 'documentos/';
 		$json = ['exito' => false];
 		$this->upload_config($path);
 		if (!$this->upload->do_upload('file')) {
 			$json['mensaje'] = $this->upload->display_errors();
-		} else {			
+		} else {
 			$file_data = $this->upload->data();
 			$file_name = $path . $file_data['file_name'];
 			$arr_file = explode('.', $file_name);
@@ -788,9 +806,9 @@ class Articulo extends CI_Controller
 			} else {
 				$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
 			}
-			try{
+			try {
 				$spreadsheet = $reader->load($file_name);
-	
+
 				$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS'];
 				$sheet_data = [];
 				foreach ($sheet_names as $sheetName) {
@@ -816,13 +834,13 @@ class Articulo extends CI_Controller
 						}
 					}
 				}
-	
+
 				if (file_exists($file_name)) {
 					unlink($file_name);
 				}
 				$json['exito'] = true;
 				$json['mensaje'] = 'El archivo fue procesado. Por favor revise los cambios.';
-			} catch(Exception $e) {
+			} catch (Exception $e) {
 				$json['mensaje'] = $e->getMessage();
 			}
 		}
@@ -836,6 +854,20 @@ class Articulo extends CI_Controller
 			$datos = ordenar_array_objetos($datos, 'descripcion');
 		}
 		$this->output->set_content_type("application/json")->set_output(json_encode($datos ? $datos : []));
+	}
+
+	private function add_to_bitacora($idRegistro, $comentario)
+	{
+		$bit = new Bitacora_model();
+		$acc = $this->Accion_model->buscar(['descripcion' => 'Modificacion', '_uno' => true]);
+
+		$bit->guardar([
+			'accion' => $acc->accion,
+			'usuario' => $this->data->idusuario,
+			'tabla' => 'articulo',
+			'registro' => $idRegistro,
+			'comentario' => $comentario
+		]);
 	}
 }
 

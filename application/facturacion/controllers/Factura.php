@@ -31,8 +31,7 @@ class Factura extends CI_Controller
 			'Configuracion_model'
 		]);
 		$this->load->helper(['jwt', 'authorization']);
-		$this->output
-			->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = '')
