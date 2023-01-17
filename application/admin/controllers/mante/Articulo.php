@@ -23,12 +23,7 @@ class Articulo extends CI_Controller
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-		$this->output->set_content_type("application/json", "UTF-8");
-		$this->usr = null;
-
-		if ($this->data && !empty($this->data->idusuario)) {
-			$this->usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
-		}
+		$this->output->set_content_type("application/json", "UTF-8");		
 	}
 
 	public function chkCodigoExistente($codigo = '')
@@ -70,7 +65,8 @@ class Articulo extends CI_Controller
 					$pre = new Presentacion_model($req['presentacion']);
 					$preRep = new Presentacion_model($req['presentacion_reporte']);
 					if ($pre->medida == $preRep->medida) {
-						$comentario = "El usuario {$this->usr->usrname} modificó el artículo '{$art->descripcion}' desde el mantenimiento de artículos. Registro original: " . json_encode($art);
+						$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+						$comentario = "El usuario {$usr->usrname} modificó el artículo '{$art->descripcion}' desde el mantenimiento de artículos. Registro original: " . json_encode($art);
 						$datos['exito'] = $art->guardar($req);
 						if ($datos['exito']) {
 							$this->add_to_bitacora($art->getPK(), $comentario);
@@ -296,15 +292,16 @@ class Articulo extends CI_Controller
 					$articulos = $this->Catalogo_model->getArticulo(["sede" => $data->sede]);
 				}
 
+				$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+				$sedeOrigen = $this->Sede_model->buscar(['sede' => $this->data->sede, '_uno' => true]);
 				foreach ($req["sedes"] as $sede) {
 					foreach ($articulos as $row) {
 						$art = new Articulo_model($row->articulo);
 
 						if (!empty($art->codigo)) {
 							$art->copiar($sede['sede']);
-							$sedeOrigen = $this->Sede_model->buscar(['sede' => $this->data->sede, '_uno' => true]);
 							$sedeDestino = $this->Sede_model->buscar(['sede' => $sede['sede'], '_uno' => true]);
-							$comentario = "El usuario {$this->usr->usrname} replicó el artículo {$art->descripcion} de la sede '{$sedeOrigen->nombre} ($sedeOrigen->alias)' a la sede '{$sedeDestino->nombre} ($sedeDestino->alias)'";
+							$comentario = "El usuario {$usr->usrname} replicó el artículo {$art->descripcion} de la sede '{$sedeOrigen->nombre} ($sedeOrigen->alias)' a la sede '{$sedeDestino->nombre} ($sedeDestino->alias)'";
 							$this->add_to_bitacora($art->getPK(), $comentario);
 						}
 					}
@@ -386,7 +383,8 @@ class Articulo extends CI_Controller
 		$datos = new stdClass();
 		$datos->exito = false;
 		$articulo = new Articulo_model($req['articulo']);
-		$comentario = "El usuario {$this->usr->usrname} modificó el artículo '{$articulo->descripcion}' desde la edición rápida de artículos. Registro original: " . json_encode($articulo);
+		$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+		$comentario = "El usuario {$usr->usrname} modificó el artículo '{$articulo->descripcion}' desde la edición rápida de artículos. Registro original: " . json_encode($articulo);
 		$datos->exito = $articulo->guardar($req);
 		if ($datos->exito) {
 			$this->add_to_bitacora($articulo->getPK(), $comentario);
