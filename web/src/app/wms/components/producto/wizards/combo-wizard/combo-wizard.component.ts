@@ -1,16 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
 import { LocalstorageService } from '../../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../../shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../../../shared/global';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 
 // import { Articulo } from '../../../../interfaces/articulo';
-import { CategoriaGrupoResponse } from '../../../../interfaces/categoria-grupo';
+import { SubCategoriaSimpleSearch } from '../../../../interfaces/categoria-grupo';
 import { ArticuloService } from '../../../../services/articulo.service';
+import { Presentacion } from '../../../../../admin/interfaces/presentacion';
+import { PresentacionService } from '../../../../../admin/services/presentacion.service';
 
 import { Subscription } from 'rxjs';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-combo-wizard',
@@ -20,39 +23,98 @@ import { Subscription } from 'rxjs';
 export class ComboWizardComponent implements OnInit, OnDestroy {
 
   get descripcionArticulo(): FormControl {
-    return this.encabezadoHeadereFormGroup.get('descripcion') as FormControl;
+    return this.encabezadoFormGroup.get('descripcion') as FormControl;
+  }  
+
+  get filtroSubcategoria(): FormControl {
+    return this.encabezadoFormGroup.get('filtroSubcategoria') as FormControl;    
   }
 
   get categoriaGrupoArticulo(): FormControl {
-    return this.encabezadoHeadereFormGroup.get('categoria_grupo') as FormControl;
+    return this.encabezadoFormGroup.get('categoria_grupo') as FormControl;
+  }
+
+  get filtroPresentacion(): FormControl {
+    return this.encabezadoFormGroup.get('filtroPresentacion') as FormControl;    
+  }
+
+  get presentacion(): FormControl {
+    return this.encabezadoFormGroup.get('presentacion') as FormControl;    
+  }
+
+  get presentacion_reporte(): FormControl {
+    return this.encabezadoFormGroup.get('presentacion_reporte') as FormControl;
+  }
+
+  get precioArticulo(): FormControl {
+    return this.encabezadoFormGroup.get('precio') as FormControl;    
+  }
+
+  get codigoArticulo(): FormControl {
+    return this.encabezadoFormGroup.get('codigo') as FormControl;    
+  }
+
+  get cobro_mas_caro(): FormControl {
+    return this.encabezadoFormGroup.get('cobro_mas_caro') as FormControl;
+  }
+
+  get detalle(): FormArray {
+    return this.detalleFormGroup.get('detalle') as FormArray;
   }
 
   // public articulo: Articulo;
-  public encabezadoHeadereFormGroup: FormGroup;
-  public lstSubCategorias: CategoriaGrupoResponse[] = [];
-  public lstSubCategoriasFiltered: Observable<CategoriaGrupoResponse[]>;
-  // public secondFormGroup: FormGroup;
+  public encabezadoFormGroup: FormGroup;
+  public myControl = new FormControl();
+  public lstSubCategorias: SubCategoriaSimpleSearch[] = [];
+  public lstSubCategoriasFiltered: Observable<SubCategoriaSimpleSearch[]>;
+  public lstPresentaciones: Presentacion[] = [];
+  public lstPresentacionesFiltered: Observable<Presentacion[]>;
+  
+  public detalleFormGroup: FormGroup;
 
   private endSubs = new Subscription();
 
   constructor(
     private fb: FormBuilder,
     private ls: LocalstorageService,
-    private articuloSrvc: ArticuloService
+    private articuloSrvc: ArticuloService,
+    private presentacionSrvc: PresentacionService
   ) { }
 
   ngOnInit(): void {
-    this.encabezadoHeadereFormGroup = this.fb.group({
+    this.encabezadoFormGroup = this.fb.group({
       descripcion: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(250)]],
-      categoria_grupo: [null, Validators.required]
+      filtroSubcategoria: ['', Validators.required],
+      categoria_grupo: [null, Validators.required],
+      filtroPresentacion: ['', Validators.required],
+      presentacion: [null, Validators.required],
+      presentacion_reporte: [null, Validators.required],
+      precio: [null, [Validators.required, Validators.min(0)]],
+      codigo: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
+      cobro_mas_caro: ['0', Validators.required]
     });
-    // this.secondFormGroup = this.fb.group({
-    //   secondCtrl: ['', Validators.required],
-    // });
+    
+    this.detalleFormGroup = this.fb.group({
+      detalle: this.fb.array([
+        this.fb.group({
+          articulo: [],
+          cantidad: [1, Validators.required],
+          medida: [null, Validators.required],
+          precio: [0, Validators.required]
+        })
+      ]),
+    });
+
     this.loadSubCategorias();
-    this.lstSubCategoriasFiltered = this.categoriaGrupoArticulo.valueChanges.pipe(
+    this.lstSubCategoriasFiltered = this.filtroSubcategoria.valueChanges.pipe(
       startWith(''),
       map(value => this.filtrarSubCategorias(value))
+    );
+
+    this.loadPresentaciones();
+    this.lstPresentacionesFiltered = this.filtroPresentacion.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filtrarPresentaciones(value))
     );
   }
 
@@ -62,17 +124,22 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
 
   loadSubCategorias = () => {
     this.endSubs.add(
-      this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
-        this.lstSubCategorias = res.map(r => {
-          r.categoria_grupo = +r.categoria_grupo;
-          return r;
-        });
+      this.articuloSrvc.getCategoriasGruposSimple({ sede: this.ls.get(GLOBAL.usrTokenVar).sede, debaja: 0, _todos:true }).subscribe(res => {        
+        this.lstSubCategorias = OrdenarArrayObjetos(res, 'descripcion');
       })
     );
   }
 
-  private filtrarSubCategorias = (value: string): CategoriaGrupoResponse[] => {
-    if (value && (typeof value === 'string')) {
+  loadPresentaciones = () => {
+    this.endSubs.add(      
+      this.presentacionSrvc.get().subscribe((res: Presentacion[]) => {
+        this.lstPresentaciones = res.filter(p => +p.cantidad === 1);
+      })
+    );
+  }
+
+  private filtrarSubCategorias = (value: string): SubCategoriaSimpleSearch[] => {
+    if (value && (typeof value === 'string') && value !== '') {
       const filtro = value.toLowerCase();
       return this.lstSubCategorias.filter(sc => sc.descripcion.toLowerCase().includes(filtro));
     } else {
@@ -80,8 +147,28 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     }
   }
 
-  subcategoriaDisplay = (sc: CategoriaGrupoResponse) => {
-    return sc && sc.descripcion ? `${sc.descripcion} (${sc.categoria.descripcion})` : ''
+  subcategoriaDisplay = (sc: SubCategoriaSimpleSearch) => sc && sc.descripcion ? `${sc.descripcion} (${sc.categoria})` : '';
+
+  subcategoriaSelectedEv = (sc: MatAutocompleteSelectedEvent) => {
+    const subcat = sc.option.value as SubCategoriaSimpleSearch;
+    this.categoriaGrupoArticulo.patchValue(subcat.categoria_grupo);
+  }
+
+  private filtrarPresentaciones = (value: string): Presentacion[] => {
+    if (value && (typeof value === 'string') && value !== '') {
+      const filtro = value.toLowerCase();
+      return this.lstPresentaciones.filter(p => p.descripcion.toLowerCase().includes(filtro));
+    } else {
+      return this.lstPresentaciones;
+    }
+  }
+
+  presentacionDisplay = (p: Presentacion) => p && p.descripcion ? p.descripcion : '';
+
+  presentacionSelectedEv = (p: MatAutocompleteSelectedEvent) => {
+    const pres = p.option.value as Presentacion;
+    this.presentacion.patchValue(pres.presentacion);
+    this.presentacion_reporte.patchValue(pres.presentacion);    
   }
 
 }

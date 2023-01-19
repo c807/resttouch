@@ -1,3 +1,23 @@
 .espacio {
     margin-top: 10px;
 }
+
+.radio-group {
+    display: flex;
+    flex-direction: row;
+    margin: 15px 0;
+    align-items: flex-start;
+}
+
+.radio-button {
+    margin: 5px;
+}
+
+.halfWidth {
+    width: 46%;
+}
+
+.marginados {
+    margin-left: 5px;
+    margin-right: 5px;
+}

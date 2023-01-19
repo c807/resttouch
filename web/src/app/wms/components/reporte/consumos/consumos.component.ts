@@ -7,6 +7,7 @@ import { BodegaService } from '../../../services/bodega.service';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 import { ArticuloService } from '../../../services/articulo.service';
+import { SubCategoriaSimpleSearch } from '../../../interfaces/categoria-grupo';
 import { saveAs } from 'file-saver';
 import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
@@ -24,7 +25,7 @@ export class ConsumosComponent implements OnInit, OnDestroy {
   public params: any = {};
   public titulo: string = "Consumos";
   public cargando = false;
-  public lstSubCategorias: any[] = [];
+  public lstSubCategorias: SubCategoriaSimpleSearch[] = [];
   public configBotones: ConfiguracionBotones = {
     showPdf: false, showHtml: false, showExcel: true
   };

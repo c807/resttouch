@@ -28,6 +28,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatRadioModule } from '@angular/material/radio';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 
@@ -112,7 +113,8 @@ import { ComboWizardComponent } from './components/producto/wizards/combo-wizard
     MatAutocompleteModule,
     MatChipsModule,
     ScrollingModule,
-    MatStepperModule
+    MatStepperModule,
+    MatRadioModule
   ],
   providers: [ ],
   exports: [

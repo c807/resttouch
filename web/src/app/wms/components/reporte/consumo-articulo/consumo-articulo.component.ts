@@ -6,7 +6,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { Subscription } from "rxjs";
 import { saveAs } from "file-saver";
 import { ReportePdfService } from "../../../../restaurante/services/reporte-pdf.service";
-import { CategoriaGrupo, CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
+import { SubCategoriaSimpleSearch } from '../../../interfaces/categoria-grupo';
 import { LocalstorageService } from '../../../../admin/services/localstorage.service';
 import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
@@ -31,7 +31,7 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 	public params: any = {};
 	public paramsToSend: any = {};
 	public titulo: string = "Consumo_articulo";
-	public subCategorias: CategoriaGrupoResponse[] = [];
+	public subCategorias: SubCategoriaSimpleSearch[] = [];
 	public sedes: UsuarioSede[] = [];
 	public cargando = false;
 	private endSubs = new Subscription();

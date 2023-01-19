@@ -48,3 +48,9 @@ export interface CategoriaGrupoImpresora {
     fechabaja?: string;
     usuariobaja?: number;
 }
+
+export interface SubCategoriaSimpleSearch {
+    categoria_grupo: number;
+    descripcion: string;
+    categoria: string    
+}

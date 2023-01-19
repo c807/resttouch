@@ -4,7 +4,7 @@ import { GLOBAL } from '../../shared/global';
 import { ServiceErrorHandler } from '../../shared/error-handler';
 import { Categoria } from '../interfaces/categoria';
 import { Impresora } from '../interfaces/impresora';
-import { CategoriaGrupo, CategoriaGrupoResponse, CategoriaGrupoImpresora } from '../interfaces/categoria-grupo';
+import { CategoriaGrupo, CategoriaGrupoResponse, CategoriaGrupoImpresora, SubCategoriaSimpleSearch } from '../interfaces/categoria-grupo';
 import { Articulo, ArbolArticulos, NodoProducto, ArbolCategoriaGrupo, ArticuloResponse, ArticuloCodigo, ArticuloFastEdit, ContenidoCombo } from '../interfaces/articulo';
 import { ArticuloDetalle } from '../interfaces/articulo-detalle';
 import { ArticuloTipoCliente } from '../interfaces/articulo-tipo-cliente';
@@ -271,8 +271,8 @@ export class ArticuloService {
   }
   // Fin de métodos para precios por tipo de cliente
 
-  getCategoriasGruposSimple(fltr: any = {}): Observable<any[]> {
-    return this.http.get<any[]>(
+  getCategoriasGruposSimple(fltr: any = {}): Observable<SubCategoriaSimpleSearch[]> {
+    return this.http.get<SubCategoriaSimpleSearch[]>(
       `${GLOBAL.urlMantenimientos}/${this.categoriaGrupoUrl}/simple_search?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
