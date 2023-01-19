@@ -1,0 +1,60 @@
+<mat-stepper linear="true" #stepper>
+    <mat-step>
+        <ng-template matStepLabel>¡Bienvenido(a)!</ng-template>
+        <p>!Hola! Mi nombre es <strong>ChefBot</strong> y seré su asistente para esta tarea. Si ya está listo(a) para iniciar, por favor presione el botón <i>Siguiente</i> para comenzar.</p>
+        <div class="espacio" align="end">
+            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>            
+        </div>
+    </mat-step>
+    <mat-step [stepControl]="encabezadoHeadereFormGroup">
+        <form [formGroup]="encabezadoHeadereFormGroup">
+            <ng-template matStepLabel>Datos generales del combo</ng-template>
+            <p>Aquí llenaremos algunos datos que son requeridos para el combo. ¿Me ayuda a responder las siguientes preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
+            <mat-form-field appearance="fill" class="fullWidth">
+                <mat-label>¿Cómo se llamará combo?</mat-label>
+                <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required minlength="1" maxlength="250">
+                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth espacio" *ngIf="descripcionArticulo.valid">
+                <mat-label>¿En qué subcategoría desea que muestre el combo?</mat-label>
+                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput formControlName="categoria_grupo" required [matAutocomplete]="autoSubcategoria">
+                <mat-autocomplete autoActiveFirstOption #autoSubcategoria="matAutocomplete" [displayWith]="subcategoriaDisplay">
+                    <mat-option *ngFor="let sc of lstSubCategoriasFiltered | async" [value]="sc.categoria_grupo">
+                        {{sc.descripcion}} ({{sc.categoria.descripcion}})
+                    </mat-option>
+                </mat-autocomplete>
+
+                <!-- <mat-select id="categoria_grupo" formControlName="categoria_grupo" required>
+                    <mat-option *ngFor="let sc of lstSubCategorias" [value]="sc.categoria_grupo">
+                        {{sc.descripcion}} ({{sc.categoria.descripcion}})
+                    </mat-option>
+                </mat-select> -->
+            </mat-form-field>
+
+            <div class="espacio" align="end">
+                <button mat-raised-button color="accent" matStepperNext>Siguiente</button>
+            </div>
+        </form>
+    </mat-step>
+    <!-- <mat-step [stepControl]="secondFormGroup" label="Fill out your address">
+        <form [formGroup]="secondFormGroup">
+            <mat-form-field appearance="fill">
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="secondCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
+            </mat-form-field>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step> -->
+    <mat-step>
+        <ng-template matStepLabel>¡Hasta pronto!</ng-template>
+        <p>Fue un gusto poder ayudarle. Aquí estaré atento si necesita más ayuda. ¡Hasta pronto!</p>
+        <div class="espacio" align="end">
+            <button mat-button matStepperPrevious>Regresar</button>
+            <button mat-raised-button color="accent" (click)="stepper.reset()">Reiniciar</button>
+        </div>
+    </mat-step>
+</mat-stepper>

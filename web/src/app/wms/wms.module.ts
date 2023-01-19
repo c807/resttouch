@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SharedModule } from '../shared/shared.module';
 
@@ -27,6 +27,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { MatStepperModule } from '@angular/material/stepper';
 
 import { MatKeyboardModule } from 'angular-onscreen-material-keyboard';
 
@@ -68,13 +69,17 @@ import { PideTipoMovimientoDestinoComponent } from './components/egreso/pide-tip
 import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
 import { FormTipoMovimientoComponent } from './components/tipo-movimiento/form-tipo-movimiento/form-tipo-movimiento.component';
 import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista-tipo-movimiento/lista-tipo-movimiento.component';
+import { DialogWizardComponent } from './components/producto/wizards/dialog-wizard/dialog-wizard.component';
+import { ComboWizardComponent } from './components/producto/wizards/combo-wizard/combo-wizard.component';
 
 @NgModule({
   declarations: [
     ListaProductoComponent, ListaIngresoComponent, FormIngresoComponent, IngresoComponent, ProductoComponent, FormProductoComponent,
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
-    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent
+    FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
+    ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
+    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent
   ],
   imports: [
     CommonModule,
@@ -83,6 +88,7 @@ import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista
     SharedModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     MatKeyboardModule,
     MatListModule,
     MatIconModule,
@@ -105,7 +111,8 @@ import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista
     MatTreeModule,
     MatAutocompleteModule,
     MatChipsModule,
-    ScrollingModule
+    ScrollingModule,
+    MatStepperModule
   ],
   providers: [ ],
   exports: [

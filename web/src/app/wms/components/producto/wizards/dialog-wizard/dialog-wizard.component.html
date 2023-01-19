@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Paso a paso: {{tituloPasoAPaso}}</h1>
+<div mat-dialog-content class="contenido">
+    <app-combo-wizard *ngIf="+data.wizard === 1"></app-combo-wizard>    
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cancelar()" color="warn">
+        Cancelar
+    </button>
+</div>

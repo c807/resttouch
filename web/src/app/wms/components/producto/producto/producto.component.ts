@@ -16,6 +16,7 @@ import * as moment from 'moment';
 
 import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { DialogWizardComponent } from '../wizards/dialog-wizard/dialog-wizard.component';
 
 @Component({
   selector: 'app-producto',
@@ -307,5 +308,13 @@ export class ProductoComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  openDialogWizard = (wiz: number) => {
+    this.dialog.open(DialogWizardComponent, {
+      maxWidth: '100vw', maxHeight: '85vh', width: '97vw', height: '85vh',
+      disableClose: true,
+      data: { wizard: +wiz }
+    });    
   }
 }
