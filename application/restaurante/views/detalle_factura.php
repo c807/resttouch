@@ -15,7 +15,7 @@
 					<td><?php echo $empresa->nombre ?></td>
 				</tr>
 				<tr>
-					<td><?php echo $sede->nombre ?></td>
+					<td><?php echo "{$sede->nombre} ({$sede->alias})" ?></td>
 				</tr>
 			</table>
 		</div>

@@ -31,6 +31,18 @@
                     <div class="row">
                         <div class="col fullWidth">
                             <mat-form-field class="fullWidth">
+                                <mat-label>Sede</mat-label>
+                                <mat-select name="sede" [(ngModel)]="params.sede">
+                                  <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                                    {{sede.sede.nombre}} ({{sede.sede.alias}})
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col fullWidth">
+                            <mat-form-field class="fullWidth">
                                 <input matInput type="text" placeholder="Comandas (separadas por coma si es más de una)" name="comandas" [(ngModel)]="params.comandas" (keypress)="validateKey($event)">
                             </mat-form-field>
                         </div>                        

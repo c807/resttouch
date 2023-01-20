@@ -70,11 +70,11 @@ class Reporte_model extends CI_Model
 
 				if (isset($args['_fecha_caja'])) {
 					$this->db->where("h.fhcreacion <=", $args['_fecha_caja']);
-				} 
+				}
 			} else {
 				$this->db
 					->where("date(h.fhcreacion) >=", $args['fdel']);
-				
+
 				if (!isset($args['_fecha_caja'])) {
 					$this->db->where("date(h.fhcreacion) <=", $args['fal']);
 				} else {
@@ -149,12 +149,11 @@ class Reporte_model extends CI_Model
 	public function get_ingresos_sin_comanda($args = [])
 	{
 		$facturas = [];
-		if (!isset($args['tipo_domicilio']))
-		{
+		if (!isset($args['tipo_domicilio'])) {
 			if (isset($args['fdel'])) {
 				$this->db->where('a.fecha_factura >=', $args['fdel']);
 			}
-	
+
 			if (!isset($args['_fecha_caja'])) {
 				if (isset($args['fal'])) {
 					$this->db->where('a.fecha_factura <=', $args['fal']);
@@ -162,17 +161,17 @@ class Reporte_model extends CI_Model
 			} else {
 				$this->db->where("a.fecha_factura <= DATE('{$args['_fecha_caja']}')", NULL, FALSE);
 			}
-	
+
 			if (isset($args['factura'])) {
 				$this->db->where('a.factura', $args['factura']);
 			}
-	
+
 			if (!isset($args['propina'])) {
 				$this->db->where("c.descripcion NOT LIKE '%propina%'");
 			} else {
 				$this->db->where("c.descripcion LIKE '%propina%'");
 			}
-	
+
 			if (isset($args['sede'])) {
 				if (is_array($args['sede'])) {
 					$this->db->where_in("a.sede", $args['sede']);
@@ -180,7 +179,7 @@ class Reporte_model extends CI_Model
 					$this->db->where("a.sede", $args['sede']);
 				}
 			}
-	
+
 			$query = $this->db
 				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				->join('detalle_factura b', 'a.factura = b.factura')
@@ -190,7 +189,7 @@ class Reporte_model extends CI_Model
 				->where('a.fel_uuid_anulacion IS NULL')
 				->where('d.detalle_factura_detalle_cuenta IS NULL')
 				->get('factura a');
-			
+
 			if (!isset($args['propina'])) {
 				$resultado = $query->result();
 				foreach ($resultado as $fact) {
@@ -373,7 +372,8 @@ class Reporte_model extends CI_Model
 			$this->db->join("{$joinSelect} h", 'a.comanda = h.comanda', 'inner', false);
 		}
 
-		$select = "a.comanda, TRIM(CONCAT(IFNULL(b.nombres, ''), ' ', IFNULL(b.apellidos, ''))) AS usuario, TRIM(d.nombre) AS sede, a.turno, DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i:%s') AS fecha_turno, ";
+		$select = "a.comanda, TRIM(CONCAT(IFNULL(b.nombres, ''), ' ', IFNULL(b.apellidos, ''))) AS usuario, TRIM(CONCAT(TRIM(d.nombre), IFNULL(CONCAT(' (', d.alias, ')'), ''))) AS sede, a.turno, ";
+		$select .= "DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i:%s') AS fecha_turno, ";
 		$select .= "TRIM(f.descripcion) AS turno_tipo, DATE_FORMAT(e.inicio, '%d/%m/%Y %H:%i:%s') AS inicio_turno, DATE_FORMAT(e.fin, '%d/%m/%Y %H:%i:%s') AS fin_turno, ";
 		$select .= "TRIM(CONCAT(IFNULL(c.nombres, ''), ' ', IFNULL(c.apellidos, ''))) AS mesero, DATE_FORMAT(a.fhcreacion, '%d/%m/%Y %H:%i:%s') AS fecha_comanda, TRIM(a.notas_generales) AS notas_generales, ";
 		$select .= "a.orden_gk, TRIM(g.descripcion) AS razon_anulacion";
@@ -516,7 +516,7 @@ class Reporte_model extends CI_Model
 	{
 		if (isset($args['fdel'])) {
 			$this->db->where('a.fecha_factura >=', $args['fdel']);
-		}				
+		}
 
 		if (isset($args['fal'])) {
 			$this->db->where('a.fecha_factura <=', $args['fal']);
@@ -525,11 +525,11 @@ class Reporte_model extends CI_Model
 		if (isset($args['sede']) && (int)$args['sede'] > 0) {
 			$this->db->where('a.sede =', $args['sede']);
 		}
-		
+
 		$campos = 'a.factura, f.nombre AS empresa, e.nombre AS sede, e.alias AS alias_sede, a.serie_factura AS serie, a.numero_factura AS numero, DATE_FORMAT(a.fecha_factura, "%d/%m/%Y") AS fecha_factura, ';
-		$campos.= 'g.nit, g.nombre AS cliente, d.cuenta_cuenta AS cuenta, IF(a.fel_uuid_anulacion IS NULL, "No", "Sí") AS anulada, TRIM(CONCAT(IFNULL(h.nombres, ""), " ", IFNULL(h.apellidos, ""))) AS usuario, ';
-		$campos.= 'TRIM(CONCAT(IFNULL(k.nombres, ""), " ", IFNULL(k.apellidos, ""))) AS mesero, IFNULL(m.etiqueta, m.numero) AS mesa, IFNULL(n.descripcion, "Restaurante") AS tipo, ';
-		$campos.= 'o.descripcion AS razon_anulacion, a.comentario_anulacion';
+		$campos .= 'g.nit, g.nombre AS cliente, d.cuenta_cuenta AS cuenta, IF(a.fel_uuid_anulacion IS NULL, "No", "Sí") AS anulada, TRIM(CONCAT(IFNULL(h.nombres, ""), " ", IFNULL(h.apellidos, ""))) AS usuario, ';
+		$campos .= 'TRIM(CONCAT(IFNULL(k.nombres, ""), " ", IFNULL(k.apellidos, ""))) AS mesero, IFNULL(m.etiqueta, m.numero) AS mesa, IFNULL(n.descripcion, "Restaurante") AS tipo, ';
+		$campos .= 'o.descripcion AS razon_anulacion, a.comentario_anulacion';
 
 		$facturas = $this->db
 			->select($campos, FALSE)
@@ -552,8 +552,8 @@ class Reporte_model extends CI_Model
 			->order_by('f.nombre, e.nombre, a.fecha_factura, a.factura, a.serie_factura, a.numero_factura')
 			->get('factura a')
 			->result();
-		
-		foreach($facturas as $factura) {
+
+		foreach ($facturas as $factura) {
 			$factura->formas_pago = $this->db
 				->select('b.forma_pago, b.descripcion AS descripcion_forma_pago, IF(b.descuento = 0, a.monto, a.monto * -1) AS monto, a.propina', FALSE)
 				->join('forma_pago b', 'b.forma_pago = a.forma_pago')

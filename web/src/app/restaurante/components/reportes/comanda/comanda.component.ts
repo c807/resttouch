@@ -8,6 +8,8 @@ import { ReportePdfService } from '../../../services/reporte-pdf.service';
 import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 import { FormaPago } from '../../../../admin/interfaces/forma-pago';
 import { FpagoService } from '../../../../admin/services/fpago.service';
+import { UsuarioSede } from '../../../../admin/interfaces/acceso';
+import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
 
 import { Subscription } from 'rxjs';
 
@@ -20,6 +22,7 @@ export class ComandaComponent implements OnInit, OnDestroy {
 
   public params: any = {};
   public cargando = false;
+  public sedes: UsuarioSede[] = [];
   public configBotones: ConfiguracionBotones = {
     showPdf: false, showHtml: false, showExcel: true, isExcelDisabled: false
   };
@@ -38,12 +41,14 @@ export class ComandaComponent implements OnInit, OnDestroy {
   constructor(
     private snackBar: MatSnackBar,
     private pdfServicio: ReportePdfService,
-    private fPagoSrvc: FpagoService
+    private fPagoSrvc: FpagoService,
+    private sedeSrvc: AccesoUsuarioService
   ) { }
 
   ngOnInit(): void {    
     this.resetParams();
     this.loadFormasPago();
+    this.loadSedes();
   }
 
   ngOnDestroy(): void {
@@ -61,7 +66,8 @@ export class ComandaComponent implements OnInit, OnDestroy {
       ver_detalle_facturas: 1,
       tipo_fecha: 1,
       comandas: null,
-      formas_pago: []
+      formas_pago: [],
+      sede: null
     };
   }
 
@@ -82,6 +88,16 @@ export class ComandaComponent implements OnInit, OnDestroy {
   loadFormasPago = () => {
     this.endSubs.add(
       this.fPagoSrvc.get().subscribe(res => this.formasPago = res)
+    );
+  }
+
+  loadSedes = () => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+        this.sedes = res;
+        this.cargando = false;
+      })
     );
   }
 

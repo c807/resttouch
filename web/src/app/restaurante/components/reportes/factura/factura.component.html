@@ -6,21 +6,34 @@
       </mat-card-title>
       <mat-card-content>
         <form #frmRptFactura="ngForm" novalidate>
-          <mat-form-field class="fullWidth">            
-            <input matInput type="date" placeholder="Del" name="fdel" [(ngModel)]="params.fdel" (change)="chkDates()" required>
+          <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Del" name="fdel" [(ngModel)]="params.fdel" (change)="chkDates()"
+              required>
           </mat-form-field>
-          <mat-form-field class="fullWidth">            
-            <input matInput type="date" placeholder="Al" name="fal" [(ngModel)]="params.fal" (change)="chkDates()" required>
+          <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Al" name="fal" [(ngModel)]="params.fal" (change)="chkDates()"
+              required>
+          </mat-form-field>
+          <mat-form-field class="fullWidth">
+            <mat-label>Sede</mat-label>
+            <mat-select name="sede" [(ngModel)]="params.sede">
+              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
+              </mat-option>
+            </mat-select>
           </mat-form-field>
           <div class="row">
             <div class="col">
-              <mat-checkbox name="detalle" class="fullWidth" [(ngModel)]="+params._detalle">Mostrar Detalle</mat-checkbox>
+              <mat-checkbox name="detalle" class="fullWidth" [(ngModel)]="+params._detalle">Mostrar
+                Detalle</mat-checkbox>
             </div>
             <div class="col">
-              <mat-checkbox name="anuladas" class="fullWidth" [(ngModel)]="+params._anuladas">Mostrar Únicamente Anuladas</mat-checkbox>
+              <mat-checkbox name="anuladas" class="fullWidth" [(ngModel)]="+params._anuladas">Mostrar Únicamente
+                Anuladas</mat-checkbox>
             </div>
-          </div>          
-          <app-rpt-botones [configuracion]="configBotones" (excelClick) = "excelClick()" (pdfClick)="onSubmit()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+          </div>
+          <app-rpt-botones [configuracion]="configBotones" (excelClick)="excelClick()" (pdfClick)="onSubmit()"
+            (resetParamsClick)="resetParams()"></app-rpt-botones>
         </form>
         <app-cargando *ngIf="cargando"></app-cargando>
       </mat-card-content>

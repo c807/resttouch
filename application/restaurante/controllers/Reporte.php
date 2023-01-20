@@ -1054,9 +1054,9 @@ class Reporte extends CI_Controller
 
     public function factura()
     {
-        ini_set("pcre.backtrack_limit", "15000000");
-        $_GET['sede'] = $this->data->sede;
-        $_GET["_facturadas"] = true;
+        ini_set("pcre.backtrack_limit", "15000000");        
+        $_GET['sede'] = isset($_GET['sede']) && (int)$_GET['sede'] > 0 ? $_GET['sede'] : $this->data->sede;
+        $_GET['_facturadas'] = true;
 
         $facts = $this->Factura_model->get_facturas($_GET);
 
@@ -1092,16 +1092,10 @@ class Reporte extends CI_Controller
             }
         }
 
-        $sede = $this->Catalogo_model->getSede([
-            'sede' => $this->data->sede,
-            "_uno" => true
-        ]);
+        $sede = $this->Catalogo_model->getSede(['sede' => $_GET['sede'], '_uno' => true]);
 
         if ($sede) {
-            $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
-            ]);
+            $emp = $this->Catalogo_model->getEmpresa(['empresa' => $sede->empresa, '_uno' => true]);
             if ($emp) {
                 $data['empresa'] = $emp;
                 $data['sede'] = $sede;
@@ -1110,65 +1104,65 @@ class Reporte extends CI_Controller
 
         $data['ventas_sin_factura'] = $this->Factura_model->get_ventas_sin_factura($_GET);
         $data['resumen_tipo_venta'] = $this->Factura_model->get_resumen_tipo_venta($data['facturas']);
-        if (verDato($_GET, "_excel")) {
+        if (verDato($_GET, '_excel')) {
             $fdel = formatoFecha($_GET['fdel'], 2);
             $fal = formatoFecha($_GET['fal'], 2);
             $anuladas = isset($data['_anuladas']) && filter_var($data['_anuladas'], FILTER_VALIDATE_BOOLEAN);
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Articulo")
-                ->setSubject("Office 2007 xlsx Articulo")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Articulo')
+                ->setSubject('Office 2007 xlsx Articulo')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
             $nombres = [
-                "Factura",
-                "Mesa",
-                "Fecha",
-                "NIT",
-                "Cliente"
+                'Factura',
+                'Mesa',
+                'Fecha',
+                'NIT',
+                'Cliente'
             ];
 
             if ($data['impuesto_especial']) {
-                $nombres[] = "Impuesto Especial";
-                $hoja->getStyle("F9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("G9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("H9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("I9")->getAlignment()->setHorizontal('right');
+                $nombres[] = 'Impuesto Especial';
+                $hoja->getStyle('F9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('G9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('H9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('I9')->getAlignment()->setHorizontal('right');
                 $hoja->getStyle('I')->getNumberFormat()->setFormatCode('0.00');
                 $hoja->getStyle('I')->getAlignment()->setHorizontal('right');
                 $hoja->getStyle('J')->getAlignment()->setHorizontal('center');
             } else {
-                $hoja->getStyle("F9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("G9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("H9")->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('F9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('G9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('H9')->getAlignment()->setHorizontal('right');
                 $hoja->getStyle('I')->getAlignment()->setHorizontal('center');
             }
 
             if ($anuladas) {
-                array_push($nombres, "Fecha de anulación");
-                array_push($nombres, "Usuario que anuló");
-                array_push($nombres, "Motivo");
+                array_push($nombres, 'Fecha de anulación');
+                array_push($nombres, 'Usuario que anuló');
+                array_push($nombres, 'Motivo');
             }
 
-            array_push($nombres, "Total");
-            array_push($nombres, "Propina");
-            array_push($nombres, "Descuento");
-            array_push($nombres, "Estatus");
+            array_push($nombres, 'Total');
+            array_push($nombres, 'Propina');
+            array_push($nombres, 'Descuento');
+            array_push($nombres, 'Estatus');
 
             /*Encabezado*/
-            $hoja->setCellValue("A1", $data["empresa"]->nombre);
-            $hoja->setCellValue("A2", $data["sede"]->nombre);
-            $hoja->setCellValue("A4", "Detalle de facturas");
-            $hoja->setCellValue("A5", "Del: {$fdel} al: {$fal}");
+            $hoja->setCellValue('A1', $data['empresa']->nombre);
+            $hoja->setCellValue('A2', "{$data['sede']->nombre} ({$data['sede']->alias})");
+            $hoja->setCellValue('A4', 'Detalle de facturas');
+            $hoja->setCellValue('A5', "Del: {$fdel} al: {$fal}");
 
-            $hoja->fromArray($nombres, null, "A9");
-            $hoja->getStyle("A1:A8")->getFont()->setBold(true);
-            $hoja->getStyle("A9:M9")->getFont()->setBold(true);
-            $hoja->setCellValue("A7", "Facturas");
-            $hoja->setCellValue("A8", "FEL");
+            $hoja->fromArray($nombres, null, 'A9');
+            $hoja->getStyle('A1:A8')->getFont()->setBold(true);
+            $hoja->getStyle('A9:M9')->getFont()->setBold(true);
+            $hoja->setCellValue('A7', 'Facturas');
+            $hoja->setCellValue('A8', 'FEL');
             $hoja->getStyle('A')->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
             $hoja->getStyle('E')->getNumberFormat()->setFormatCode('0.00');
             $hoja->getStyle('E')->getNumberFormat()->setFormatCode('0.00');
@@ -1182,20 +1176,20 @@ class Reporte extends CI_Controller
             $hoja->getStyle('H')->getAlignment()->setHorizontal('right');
 
             // $hoja->getStyle('A9:M9')->getAlignment()->setHorizontal('center');
-            $hoja->getStyle("A9")->getAlignment()->setHorizontal('left');
-            $hoja->getStyle("B9")->getAlignment()->setHorizontal('center');
-            $hoja->getStyle("C9")->getAlignment()->setHorizontal('center');
-            $hoja->getStyle("D9")->getAlignment()->setHorizontal('left');
-            $hoja->getStyle("E9")->getAlignment()->setHorizontal('left');
+            $hoja->getStyle('A9')->getAlignment()->setHorizontal('left');
+            $hoja->getStyle('B9')->getAlignment()->setHorizontal('center');
+            $hoja->getStyle('C9')->getAlignment()->setHorizontal('center');
+            $hoja->getStyle('D9')->getAlignment()->setHorizontal('left');
+            $hoja->getStyle('E9')->getAlignment()->setHorizontal('left');
 
             if (isset($_GET['_anuladas']) && filter_var($_GET['_anuladas'], FILTER_VALIDATE_BOOLEAN)) {
-                $hoja->getStyle("F9")->getAlignment()->setHorizontal('left');
-                $hoja->getStyle("G9")->getAlignment()->setHorizontal('left');
-                $hoja->getStyle("H9")->getAlignment()->setHorizontal('left');
-                $hoja->getStyle("I9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("J9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("K9")->getAlignment()->setHorizontal('right');
-                $hoja->getStyle("L9")->getAlignment()->setHorizontal('center');
+                $hoja->getStyle('F9')->getAlignment()->setHorizontal('left');
+                $hoja->getStyle('G9')->getAlignment()->setHorizontal('left');
+                $hoja->getStyle('H9')->getAlignment()->setHorizontal('left');
+                $hoja->getStyle('I9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('J9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('K9')->getAlignment()->setHorizontal('right');
+                $hoja->getStyle('L9')->getAlignment()->setHorizontal('center');
                 $hoja->getStyle('I')->getNumberFormat()->setFormatCode('0.00');
                 $hoja->getStyle('J')->getNumberFormat()->setFormatCode('0.00');
                 $hoja->getStyle('K')->getNumberFormat()->setFormatCode('0.00');
@@ -1208,9 +1202,9 @@ class Reporte extends CI_Controller
 
             foreach ($data['facturas'] as $row) {
                 $detalle = $row->getDetalle();
-                $desc = suma_field($detalle, "descuento");
-                $total = suma_field($detalle, "total");
-                $imp = suma_field($detalle, "valor_impuesto_especial");
+                $desc = suma_field($detalle, 'descuento');
+                $total = suma_field($detalle, 'total');
+                $imp = suma_field($detalle, 'valor_impuesto_especial');
                 $total += (float)$imp;
                 if (empty($row->fel_uuid_anulacion)) {
                     $totalPropina += (float)$row->propina;
@@ -1266,30 +1260,30 @@ class Reporte extends CI_Controller
 
                 $fila++;
 
-                if (isset($data['_detalle']) && $data['_detalle'] !== "false") {
+                if (isset($data['_detalle']) && $data['_detalle'] !== 'false') {
                     $tituloDet = [
-                        "",
-                        "",
-                        "",
-                        "Artículo", // Columnas del articulo
-                        "Cantidad" // Columnas del articulo
+                        '',
+                        '',
+                        '',
+                        'Artículo', // Columnas del articulo
+                        'Cantidad' // Columnas del articulo
                     ];
 
                     // if ($data['impuesto_especial']) {
-                    // 	$tituloDet[] = "Impuesto Especial";
+                    // 	$tituloDet[] = 'Impuesto Especial';
                     // }
 
-                    array_push($tituloDet, "Total");  // Columnas del articulo
-                    array_push($tituloDet, "Descuento"); //Columans del articulo
+                    array_push($tituloDet, 'Total');  // Columnas del articulo
+                    array_push($tituloDet, 'Descuento'); //Columans del articulo
                     $hoja->fromArray($tituloDet, null, "A{$fila}");
                     $hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
                     $fila++;
 
                     foreach ($detalle as $det) {
                         $reg = [
-                            "",  // Espacio en blanco de columna A
-                            "",  // Espacio en blanco de columna B
-                            "",  // Espacio en blanco de columna C
+                            '',  // Espacio en blanco de columna A
+                            '',  // Espacio en blanco de columna B
+                            '',  // Espacio en blanco de columna C
                             $det->articulo->descripcion, //Nombre del articulo, Col D
                             $det->cantidad, // Alado cantidad del articulo, Col E
                             round($det->total, 2), // Col F
@@ -1316,13 +1310,13 @@ class Reporte extends CI_Controller
             $total3 = [];
             $total4 = [];
             for ($i = 0; $i < $col - 1; $i++) {
-                $total[$i] = "";
-                $total2[$i] = "";
-                $total3[$i] = "";
-                $total4[$i] = "";
+                $total[$i] = '';
+                $total2[$i] = '';
+                $total3[$i] = '';
+                $total4[$i] = '';
             }
 
-            array_push($total, "Total (con desct., con propina):");
+            array_push($total, 'Total (con desct., con propina):');
             array_push($total, round($totalFactura, 2));
             array_push($total, round($totalPropina, 2));
             array_push($total, round($totalDescuento, 2));
@@ -1331,7 +1325,7 @@ class Reporte extends CI_Controller
             $hoja->fromArray($total, null, "A{$fila}");
             $hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 
-            // array_push($total2, "Total (con desct., sin propina):");
+            // array_push($total2, 'Total (con desct., sin propina):');
             // array_push($total2, round($totalFactura - $totalPropina, 2));
             // array_push($total2, '');
             // array_push($total2, '');
@@ -1340,7 +1334,7 @@ class Reporte extends CI_Controller
             // $hoja->fromArray($total2, null, "A{$fila}");
             // $hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 
-            array_push($total3, "Ventas sin factura:");
+            array_push($total3, 'Ventas sin factura:');
             array_push($total3, round($data['ventas_sin_factura'], 2));
             array_push($total3, '');
             array_push($total3, '');
@@ -1349,7 +1343,7 @@ class Reporte extends CI_Controller
             $hoja->fromArray($total3, null, "A{$fila}");
             $hoja->getStyle("A{$fila}:L{$fila}")->getFont()->setBold(true);
 
-            array_push($total4, "Total ingresos (con desct.):");
+            array_push($total4, 'Total ingresos (con desct.):');
             array_push($total4, round($totalFactura + $data['ventas_sin_factura'], 2));
             array_push($total4, '');
             array_push($total4, '');
@@ -1398,26 +1392,26 @@ class Reporte extends CI_Controller
             $hoja->getStyle("A{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("A{$fila}:D{$fila}")->getFont()->setBold(true);
 
-            $hoja->setTitle("Facturas");
+            $hoja->setTitle('Facturas');
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Ventas.xlsx");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Ventas.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
+            $writer->save('php://output');
         } else {
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
                 'format' => 'Legal'
             ]);
             $mpdf->WriteHTML($this->load->view('detalle_factura', $data, true));
-            $mpdf->Output("Detalle de Facturas.pdf", "D");
-            // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
+            $mpdf->Output('Detalle de Facturas.pdf', 'D');
+            // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($data));
         }
         //$mpdf->AddPage();
     }
@@ -1885,9 +1879,7 @@ class Reporte extends CI_Controller
     {
         $req = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($req['sede'])) {
-            $req['sede'] = $this->data->sede;
-        }
+        $req['sede'] = isset($req['sede']) && (int)$req['sede'] > 0 ? $req['sede'] : $this->data->sede;
 
         $comandas = $this->Reporte_model->get_lista_comandas($req);
         foreach ($comandas as $comanda) {
