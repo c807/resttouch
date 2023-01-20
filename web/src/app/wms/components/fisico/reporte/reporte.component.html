@@ -22,7 +22,7 @@
             <mat-label>Sede</mat-label>
             <mat-select name="sede" [(ngModel)]="params.sede" (selectionChange)="onSedeSelected($event)" required>
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                {{sede.sede.nombre}}
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -46,7 +46,7 @@
           </mat-form-field>
           <mat-form-field class="fullWidth">
             <mat-label>Sub-categoría</mat-label>
-            <mat-select name="categoriaGrupoPadre" [(ngModel)]="params.categoria_grupo_grupo">
+            <mat-select name="categoriaGrupoPadre" [(ngModel)]="params.categoria_grupo_grupo" (selectionChange)="subcategoriaSelectedEv($event)">
               <mat-option *ngFor="let subcatpadre of categoriasGruposPadre" [value]="subcatpadre.categoria_grupo">
                 {{subcatpadre.descripcion}}
               </mat-option>

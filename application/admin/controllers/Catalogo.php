@@ -90,7 +90,7 @@ class Catalogo extends CI_Controller {
 		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		set_time_limit(0);
 		ini_set('memory_limit', '-1');
-		$_GET['sede'] = $this->data->sede;		
+		$_GET['sede'] = isset($_GET['sede']) && (int)$_GET['sede'] > 0 ? $_GET['sede'] : $this->data->sede;
 		// $datos = $this->Catalogo_model->getArticulo($_GET);
 		$datos = $this->Catalogo_model->getArticulo_v2($_GET);
 

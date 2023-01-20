@@ -84,7 +84,7 @@
     </mat-tab>
     <mat-tab label="Herramientas">
         <mat-action-list class="btn-list">
-            <button mat-list-item class="btn-reportes mat-elevation-z4" (click)="openDialogWizard(1)" style="margin-top: 10px;" [disabled]="cargando">Paso a paso: combos</button>
+            <!-- <button mat-list-item class="btn-reportes mat-elevation-z4" (click)="openDialogWizard(1)" style="margin-top: 10px;" [disabled]="cargando">Paso a paso: combos</button> -->
             <button mat-list-item class="btn-reportes mat-elevation-z4" (click)="recalcularCostos()" style="margin-top: 10px;" [disabled]="cargando">Recalcular costos</button>            
         </mat-action-list>
         <app-cargando *ngIf="cargando"></app-cargando>

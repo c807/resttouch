@@ -50,19 +50,22 @@ class Fisico extends CI_Controller
 		if (isset($req['articulo']) && (int)$req['articulo'] > 0) {
 			$arts = $this->Articulo_model->buscar([
 				'articulo' => $req['articulo'],
-				'mostrar_inventario' => 1
+				'mostrar_inventario' => 1,
+				'debaja' => 0
 			]);
 		} else if (isset($req['categoria_grupo_grupo'])) {
 			$arts = $this->Articulo_model->buscar([
 				'categoria_grupo' => $req['categoria_grupo_grupo'],
-				'mostrar_inventario' => 1
+				'mostrar_inventario' => 1,
+				'debaja' => 0
 			]);
 
 			$req['categoria_grupo'] = $req['categoria_grupo_grupo'];
 		} else {
 			$arts = $this->Catalogo_model->getArticulo([
 				'sede' => $req['sede'],
-				'mostrar_inventario' => 1
+				'mostrar_inventario' => 1,
+				'debaja' => 0
 			]);
 		}
 

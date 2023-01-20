@@ -37,6 +37,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
   public showReporte = true;
   public maxDiasAntiguedadInventarioFisico = 1;
   public lstArticulos: Articulo[] = [];
+  public lstArticulosOriginal: Articulo[] = [];
 
   private endSubs = new Subscription();
 
@@ -99,7 +100,10 @@ export class ReporteComponent implements OnInit, OnDestroy {
     );
   }
 
-  onCategoriaSelected = (obj: any) => this.loadSubCategorias(+obj.value.categoria);
+  onCategoriaSelected = (obj: MatSelectChange) => {
+    this.loadSubCategorias(+obj.value.categoria);
+    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.subcategoria.categoria === +obj.value.categoria);    
+  };
 
   loadSubCategorias = (idcategoria: number) => {
     this.endSubs.add(      
@@ -112,7 +116,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
     );
   }
 
-  onSubCategoriaPadreSelected = (obj: any) => this.loadSubCategoriasSubcategorias(+obj.value);
+  // onSubCategoriaPadreSelected = (obj: any) => this.loadSubCategoriasSubcategorias(+obj.value);
 
   loadSubCategoriasSubcategorias = (idsubcat: number) => {
     this.endSubs.add(      
@@ -129,6 +133,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.articuloSrvc.getArticulos(params).subscribe(res => {
         this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');
+        this.lstArticulosOriginal = JSON.parse(JSON.stringify(this.lstArticulos));
       })
     );
   }
@@ -180,4 +185,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
     return valida;
   }
 
+  subcategoriaSelectedEv = (obj: MatSelectChange) => {    
+    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);
+  }
 }
