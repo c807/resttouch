@@ -71,7 +71,8 @@ import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movim
 import { FormTipoMovimientoComponent } from './components/tipo-movimiento/form-tipo-movimiento/form-tipo-movimiento.component';
 import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista-tipo-movimiento/lista-tipo-movimiento.component';
 import { DialogWizardComponent } from './components/producto/wizards/dialog-wizard/dialog-wizard.component';
-import { ComboWizardComponent } from './components/producto/wizards/combo-wizard/combo-wizard.component';
+import { ComboWizardComponent } from './components/producto/wizards/combo/combo-wizard/combo-wizard.component';
+import { DetalleComboWizardComponent } from './components/producto/wizards/combo/detalle-combo-wizard/detalle-combo-wizard.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +81,7 @@ import { ComboWizardComponent } from './components/producto/wizards/combo-wizard
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
     FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
     ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
-    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent
+    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent
   ],
   imports: [
     CommonModule,

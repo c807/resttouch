@@ -1,18 +1,20 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
-import { LocalstorageService } from '../../../../../admin/services/localstorage.service';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../../shared/global';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { LocalstorageService } from '../../../../../../admin/services/localstorage.service';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../../../../shared/global';
 
+import { DetalleComboWizardComponent } from '../detalle-combo-wizard/detalle-combo-wizard.component';
 
 // import { Articulo } from '../../../../interfaces/articulo';
-import { SubCategoriaSimpleSearch } from '../../../../interfaces/categoria-grupo';
-import { ArticuloService } from '../../../../services/articulo.service';
-import { Presentacion } from '../../../../../admin/interfaces/presentacion';
-import { PresentacionService } from '../../../../../admin/services/presentacion.service';
+import { SubCategoriaSimpleSearch } from '../../../../../interfaces/categoria-grupo';
+import { ArticuloService } from '../../../../../services/articulo.service';
+import { Presentacion } from '../../../../../../admin/interfaces/presentacion';
+import { PresentacionService } from '../../../../../../admin/services/presentacion.service';
 
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 @Component({
@@ -78,7 +80,8 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private ls: LocalstorageService,
     private articuloSrvc: ArticuloService,
-    private presentacionSrvc: PresentacionService
+    private presentacionSrvc: PresentacionService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -94,7 +97,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
       cobro_mas_caro: ['0', Validators.required]
     });
     
-    this.detalleFormGroup = this.fb.group({
+    this.detalleFormGroup = this.fb.group({      
       detalle: this.fb.array([
         this.fb.group({
           articulo: [],
@@ -169,6 +172,21 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     const pres = p.option.value as Presentacion;
     this.presentacion.patchValue(pres.presentacion);
     this.presentacion_reporte.patchValue(pres.presentacion);    
+  }
+
+  addDetalleCombo = (tipoProducto: number) => {
+    const detComboDialog = this.dialog.open(DetalleComboWizardComponent, {
+      width: '75%', height: '55vh',
+      disableClose: true,
+      data: { tipoProducto }
+    });
+
+    this.endSubs.add(
+      detComboDialog.afterClosed().subscribe(det => {
+        console.log('DETALLE = ', det);
+      })
+    );
+
   }
 
 }

@@ -67,11 +67,19 @@
         <ng-template matStepLabel>¿Qué lleva el combo?</ng-template>
         <p>En este paso es necesario agregar productos al combo. Puede agregar producto terminado o productos en los que se les de la opción a los clientes de seleccionar. Al terminar de agregar lo que lleva el combo, puede dar click en el botón <i>Siguiente</i>.</p>
         <form [formGroup]="detalleFormGroup">
-            <div formArrayName="detalle">
-                <div *ngFor="let det of detalle.controls; let i = index" [formGroupName]="i">
-
-                </div>
-            </div>
+            <table formArrayName="detalle" dense>
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(1)">Producto terminado</button></td>
+                        <td class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(2)">Opción múltiple</button></td>
+                    </tr>
+                    <tr *ngFor="let det of detalle.controls; let i = index" [formGroupName]="i"></tr>
+                </tbody>
+                <!-- <div *ngFor="let det of detalle.controls; let i = index" [formGroupName]="i"></div> -->
+            </table>
             <div align="end">
                 <button mat-raised-button matStepperPrevious>Regresar</button>
                 <button mat-raised-button color="accent" matStepperNext [disabled]="detalle.length === 0">Siguiente</button>

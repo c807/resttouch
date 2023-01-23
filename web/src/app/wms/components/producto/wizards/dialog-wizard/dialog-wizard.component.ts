@@ -51,8 +51,8 @@ export class DialogWizardComponent implements OnInit, OnDestroy {
     });
 
     this.endSubs.add(
-      confDialog.afterClosed().subscribe((respuesta: boolean) => {
-        if (respuesta) {
+      confDialog.afterClosed().subscribe(respuesta => {        
+        if (respuesta.resultado) {
           this.dialogWizRef.close();
         }
       })

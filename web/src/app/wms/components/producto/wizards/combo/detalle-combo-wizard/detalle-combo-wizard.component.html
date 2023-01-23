@@ -1,0 +1,47 @@
+<h1 mat-dialog-title>Paso a paso: artículo de un combo</h1>
+<div mat-dialog-content class="contenido">
+    <form [formGroup]="productoFrmGrp">
+
+        <mat-form-field appearance="fill" class="fullWidth">
+            <mat-label>¿Qué artículo desea agregar al combo?</mat-label>
+            <input type="text" placeholder="Seleccione un artículo, por favor" matInput formControlName="filtroArticulo" required [matAutocomplete]="autoArticulo">
+            <mat-autocomplete autoActiveFirstOption #autoArticulo="matAutocomplete" [displayWith]="articuloDisplay" (optionSelected)="articuloSelectedEv($event)">
+                <cdk-virtual-scroll-viewport class="autocomplete-test-viewport" [ngStyle]="{'height': height}" style="overflow-x: hidden;" itemSize="25">
+                    <mat-option *cdkVirtualFor="let arti of articulosFiltered | async" [value]="arti" class="autocomplete-articulo-item">
+                        {{arti.descripcion}}
+                    </mat-option>
+                </cdk-virtual-scroll-viewport>
+            </mat-autocomplete>            
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="fullWidth" *ngIf="articulo.valid">
+            <mat-label>¿Con qué unidad de medida desea que se descargue?</mat-label>
+            <input type="text" placeholder="Seleccione una unidad de medida, por favor" matInput formControlName="filtroMedida" required [matAutocomplete]="autoUMedida">
+            <mat-autocomplete autoActiveFirstOption #autoUMedida="matAutocomplete" [displayWith]="medidaDisplay" (optionSelected)="medidaSelectedEv($event)">
+                <mat-option *ngFor="let m of medidasFiltered | async" [value]="m">
+                    {{m.descripcion}}
+                </mat-option>
+            </mat-autocomplete>
+            <mat-hint>Sugerencia: para combos se suele utilizar la UNIDAD.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="fullWidth" *ngIf="articulo.valid && medida.valid">
+            <mat-label>¿Cuántos de esta unidad de medida desea descargar por cada combo?</mat-label>
+            <input matInput type="number" placeholder="Cantidad" formControlName="cantidad" required min="1" max="999999">            
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="fullWidth" *ngIf="articulo.valid && medida.valid && cantidad.valid">
+            <mat-label>¿Cuál es el costo adicional (si aplica) de este artículo en el combo?</mat-label>
+            <input matInput type="number" placeholder="Precio" formControlName="precio" required min="0">
+            <mat-hint>Idea: un valor de cero (0) significa que no va a cobrar adicional por este artículo.</mat-hint>
+        </mat-form-field>
+    </form>    
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cancelar()" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button (click)="agregarProducto()" color="accent">
+        Terminar
+    </button>
+</div>
