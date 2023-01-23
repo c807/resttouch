@@ -575,6 +575,14 @@ class Articulo_model extends General_model
 			$this->db->where('a.impuesto_especial IS '.((int)$args['impuesto_especial'] === 0 ? '' : 'NOT ').'NULL');
 		}
 
+		if (isset($args['multiple'])) {
+			$this->db->where('a.multiple', $args['multiple']);
+		}
+
+		if (isset($args['combo'])) {
+			$this->db->where('a.combo', $args['combo']);
+		}
+
 		$tmp = $this->db
 			->select($campos)
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
