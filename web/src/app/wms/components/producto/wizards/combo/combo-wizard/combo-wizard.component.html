@@ -1,91 +1,163 @@
 <mat-stepper linear="true" #stepper>
     <mat-step>
         <ng-template matStepLabel>¡Bienvenido(a)!</ng-template>
-        <p>!Hola! Mi nombre es <strong>ChefBot</strong> y seré su asistente para esta tarea. Si ya está listo(a) para iniciar, por favor presione el botón <i>Siguiente</i> para comenzar.</p>
+        <p>!Hola! Mi nombre es <strong>ChefBot</strong> y seré su asistente para esta tarea. Si ya está listo(a) para
+            iniciar, por favor presione el botón <i>Siguiente</i> para comenzar.</p>
         <div class="espacio" align="end">
-            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>            
+            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>
         </div>
     </mat-step>
     <mat-step [stepControl]="encabezadoFormGroup">
         <ng-template matStepLabel>Datos generales</ng-template>
         <form [formGroup]="encabezadoFormGroup">
-            <p>Aquí llenaremos algunos datos que son requeridos para el combo. ¿Me ayuda a responder las siguientes preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
+            <p>Aquí llenaremos algunos datos que son requeridos para el combo. ¿Me ayuda a responder las siguientes
+                preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
             <mat-form-field appearance="fill" class="fullWidth marginados">
                 <mat-label>¿Cómo se llamará el combo?</mat-label>
-                <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required minlength="1" maxlength="250">
-                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
+                <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required
+                    minlength="1" maxlength="250">
+                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y
+                    puede simplificarle la búsqueda en la comanda.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid">                 
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid">
                 <mat-label>¿En qué subcategoría desea que muestre '{{descripcionArticulo.value}}'?</mat-label>
-                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput formControlName="filtroSubcategoria" required [matAutocomplete]="autoSubcategoria">
-                <mat-autocomplete autoActiveFirstOption #autoSubcategoria="matAutocomplete" [displayWith]="subcategoriaDisplay" (optionSelected)="subcategoriaSelectedEv($event)">
+                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput
+                    formControlName="filtroSubcategoria" required [matAutocomplete]="autoSubcategoria">
+                <mat-autocomplete autoActiveFirstOption #autoSubcategoria="matAutocomplete"
+                    [displayWith]="subcategoriaDisplay" (optionSelected)="subcategoriaSelectedEv($event)">
                     <mat-option *ngFor="let sc of lstSubCategoriasFiltered | async" [value]="sc">
                         {{sc.descripcion}} ({{sc.categoria}})
                     </mat-option>
-                </mat-autocomplete>                
+                </mat-autocomplete>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid" align="end">
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
+                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid" align="end">
                 <mat-label>¿Con qué presentación desea que se muestre '{{descripcionArticulo.value}}'?</mat-label>
-                <input type="text" placeholder="Seleccione una presentación, por favor" matInput formControlName="filtroPresentacion" required [matAutocomplete]="autoPresentacion">
-                <mat-autocomplete autoActiveFirstOption #autoPresentacion="matAutocomplete" [displayWith]="presentacionDisplay" (optionSelected)="presentacionSelectedEv($event)">
-                    <mat-option *ngFor="let p of lstPresentacionesFiltered | async" [value]="p" [disabled]="+p.debaja === 1">
+                <input type="text" placeholder="Seleccione una presentación, por favor" matInput
+                    formControlName="filtroPresentacion" required [matAutocomplete]="autoPresentacion">
+                <mat-autocomplete autoActiveFirstOption #autoPresentacion="matAutocomplete"
+                    [displayWith]="presentacionDisplay" (optionSelected)="presentacionSelectedEv($event)">
+                    <mat-option *ngFor="let p of lstPresentacionesFiltered | async" [value]="p"
+                        [disabled]="+p.debaja === 1">
                         {{p.descripcion}}
                     </mat-option>
                 </mat-autocomplete>
                 <mat-hint>Sugerencia: para combos se suele utilizar la UNIDAD.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
+                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
                 <mat-label>¿A qué precio venderá '{{descripcionArticulo.value}}'?</mat-label>
                 <input matInput type="number" placeholder="Precio" formControlName="precio" required min="0">
-                <mat-hint>Idea: poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de POS para la venta.</mat-hint>
+                <mat-hint>Idea: poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de
+                    POS para la venta.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
+                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
                 <mat-label>¿Con qué código corto identificará '{{descripcionArticulo.value}}'?</mat-label>
-                <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1" maxlength="25">
-                <mat-hint>Idea: este código debe ser único y se utilizará para mantener uniformidad en todas las sedes. Puede ser corto y es alfanumérico. Ej.: CMB001</mat-hint>
+                <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1"
+                    maxlength="25">
+                <mat-hint>Idea: este código debe ser único y se utilizará para mantener uniformidad en todas las sedes.
+                    Puede ser corto y es alfanumérico. Ej.: CMB001</mat-hint>
             </mat-form-field>
 
-            <div class="marginados" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
-                <label id="lblCobroMasCaro">¿Debe cobrarse el producto más caro que contenga '{{descripcionArticulo.value}}'?</label>
+            <div class="marginados" style="margin-top: 25px;"
+                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                <label id="lblCobroMasCaro">¿Debe cobrarse el producto más caro que contenga
+                    '{{descripcionArticulo.value}}'?</label>
                 <mat-radio-group aria-labelledby="lblCobroMasCaro" formControlName="cobro_mas_caro" class="radio-group">
                     <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
                     <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
-                </mat-radio-group>                
-                <mat-hint>Idea: Si responde que 'Sí', RestTouch Pro sustituirá el precio original del combo por el que sea más caro dentro de los productos que integren el combo.</mat-hint>
-            </div>            
+                </mat-radio-group>
+                <mat-hint>Idea: Si responde que 'Sí', RestTouch Pro sustituirá el precio original del combo por el que
+                    sea más caro dentro de los productos que integren el combo.</mat-hint>
+            </div>
 
             <div class="espacio" align="end">
-                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
+                <button mat-raised-button color="accent" matStepperNext
+                    [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
             </div>
         </form>
     </mat-step>
-    <mat-step [stepControl]="detalleFormGroup">
+    <mat-step>
         <ng-template matStepLabel>¿Qué lleva el combo?</ng-template>
-        <p>En este paso es necesario agregar productos al combo. Puede agregar producto terminado o productos en los que se les de la opción a los clientes de seleccionar. Al terminar de agregar lo que lleva el combo, puede dar click en el botón <i>Siguiente</i>.</p>
-        <form [formGroup]="detalleFormGroup">
-            <table formArrayName="detalle" dense>
-                <thead>
-                    <tr></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(1)">Producto terminado</button></td>
-                        <td class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(2)">Opción múltiple</button></td>
-                    </tr>
-                    <tr *ngFor="let det of detalle.controls; let i = index" [formGroupName]="i"></tr>
-                </tbody>
-                <!-- <div *ngFor="let det of detalle.controls; let i = index" [formGroupName]="i"></div> -->
-            </table>
-            <div align="end">
-                <button mat-raised-button matStepperPrevious>Regresar</button>
-                <button mat-raised-button color="accent" matStepperNext [disabled]="detalle.length === 0">Siguiente</button>
-            </div>
-        </form>
+        <p>En este paso es necesario agregar productos al combo. Puede agregar producto terminado o productos en los que
+            se les de la opción a los clientes de seleccionar. Al terminar de agregar lo que lleva el combo, puede dar
+            click en el botón <i>Siguiente</i>.</p>
+        <table>
+            <caption>
+            <tr>
+                <td colspan="2" class="ctxt"><button mat-raised-button color="accent"
+                        (click)="addDetalleCombo(1)">Producto terminado</button></td>
+                <td colspan="2" class="ctxt"><button mat-raised-button color="accent"
+                        (click)="addDetalleCombo(2)">Opción múltiple</button></td>
+            </tr>
+            </caption>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="rtxt">Cantidad</th>
+                    <th>Unidad de medida</th>
+                    <th class="rtxt">Precio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let det of detalleCombo; let i = index">
+                    <td>{{det.descripcion_articulo}}</td>
+                    <td class="rtxt">{{det.cantidad | number: '1.2-2' }}</td>
+                    <td>{{det.descripcion_medida}}</td>
+                    <td class="rtxt">{{det.precio | number: '1.2-2'}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div align="end">
+            <button mat-raised-button matStepperPrevious>Regresar</button>
+            <button mat-raised-button color="accent" matStepperNext
+                [disabled]="detalleCombo.length === 0">Siguiente</button>
+        </div>
     </mat-step>
+
+    <mat-step>
+        <ng-template matStepLabel>Revisión final</ng-template>
+        <p>Ya tengo la información necesaria para crear el combo. ¿Podría revisar si estamos en lo correcto, por favor?
+        </p>
+        <mat-accordion multi>
+            <mat-expansion-panel expanded="true" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>Datos generales</mat-panel-title>
+                    <!-- <mat-panel-description></mat-panel-description> -->
+                </mat-expansion-panel-header>                
+                <span>El combo se llamará <strong>{{descripcionArticulo.value}}</strong>.</span><br />
+                <span>Lo podrá encontrar en la subcategoría <strong>{{filtroSubcategoria.value.descripcion}}</strong> de la categoría <strong>{{filtroSubcategoria.value.categoria}}</strong>.</span><br />
+                <span>Se mostrará con la presentación <strong>{{filtroPresentacion.value.descripcion}}</strong>.</span><br />
+                <span>Tendrá un precio de venta de <strong>{{precioArticulo.value | number:'1.2-2'}}</strong>.</span><br />
+                <span>Se identificará con el código único <strong>{{codigoArticulo.value}}</strong>.</span><br />
+                <span>En este combo <strong>{{+cobro_mas_caro.value === 0 ? 'NO' : 'SÍ'}}</strong> se cobrará el producto más caro.</span>
+            </mat-expansion-panel>
+            <mat-expansion-panel expanded="true" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Contenido del combo
+                    </mat-panel-title>
+                    <!-- <mat-panel-description></mat-panel-description> -->
+                </mat-expansion-panel-header>
+                <ul>
+                    <li *ngFor="let dc of detalleCombo">
+                        &bull;&nbsp;{{dc.descripcion_articulo}},&nbsp;{{+dc.cantidad | number: '1.2-2'}}&nbsp;{{dc.descripcion_medida}}<span *ngIf="+dc.precio !== 0">,&nbsp; se cobrará {{+dc.precio | number: '1.2-2'}}&nbsp;adicional.</span>
+                    </li>
+                </ul>
+            </mat-expansion-panel>
+        </mat-accordion>
+
+        <div class="espacio" align="end">
+            <button mat-raised-button matStepperPrevious>Regresar</button>
+            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>
+        </div>
+    </mat-step>
+
     <mat-step>
         <ng-template matStepLabel>¡Hasta pronto!</ng-template>
         <p>Fue un gusto poder ayudarle. Aquí estaré atento si necesita más ayuda. ¡Hasta pronto!</p>

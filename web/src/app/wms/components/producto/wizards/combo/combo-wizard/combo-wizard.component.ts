@@ -1,21 +1,20 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../../../../admin/services/localstorage.service';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../../../shared/global';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 
-import { DetalleComboWizardComponent } from '../detalle-combo-wizard/detalle-combo-wizard.component';
+import { DetalleComboWizardComponent } from '@wms-components/producto/wizards/combo/detalle-combo-wizard/detalle-combo-wizard.component';
 
-// import { Articulo } from '../../../../interfaces/articulo';
-import { SubCategoriaSimpleSearch } from '../../../../../interfaces/categoria-grupo';
-import { ArticuloService } from '../../../../../services/articulo.service';
-import { Presentacion } from '../../../../../../admin/interfaces/presentacion';
-import { PresentacionService } from '../../../../../../admin/services/presentacion.service';
+// import { Articulo } from '@wms-interfaces/articulo';
+import { SubCategoriaSimpleSearch } from '@wms-interfaces/categoria-grupo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Presentacion } from '@admin-interfaces/presentacion';
+import { PresentacionService } from '@admin-services/presentacion.service';
 
 import { Subscription, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-combo-wizard',
@@ -58,11 +57,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
 
   get cobro_mas_caro(): FormControl {
     return this.encabezadoFormGroup.get('cobro_mas_caro') as FormControl;
-  }
-
-  get detalle(): FormArray {
-    return this.detalleFormGroup.get('detalle') as FormArray;
-  }
+  }  
 
   // public articulo: Articulo;
   public encabezadoFormGroup: FormGroup;
@@ -71,8 +66,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
   public lstSubCategoriasFiltered: Observable<SubCategoriaSimpleSearch[]>;
   public lstPresentaciones: Presentacion[] = [];
   public lstPresentacionesFiltered: Observable<Presentacion[]>;
-  
-  public detalleFormGroup: FormGroup;
+  public detalleCombo: any[] = [];  
 
   private endSubs = new Subscription();
 
@@ -95,17 +89,6 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
       precio: [null, [Validators.required, Validators.min(0)]],
       codigo: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
       cobro_mas_caro: ['0', Validators.required]
-    });
-    
-    this.detalleFormGroup = this.fb.group({      
-      detalle: this.fb.array([
-        this.fb.group({
-          articulo: [],
-          cantidad: [1, Validators.required],
-          medida: [null, Validators.required],
-          precio: [0, Validators.required]
-        })
-      ]),
     });
 
     this.loadSubCategorias();
@@ -137,6 +120,12 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     this.endSubs.add(      
       this.presentacionSrvc.get().subscribe((res: Presentacion[]) => {
         this.lstPresentaciones = res.filter(p => +p.cantidad === 1);
+        const presUnidad = this.lstPresentaciones.find(p => p.descripcion.trim().toLowerCase() === 'unidad');
+        if (presUnidad) {
+          this.presentacion.patchValue(presUnidad.presentacion);
+          this.presentacion_reporte.patchValue(presUnidad.presentacion);
+          this.filtroPresentacion.patchValue(presUnidad);
+        }
       })
     );
   }
@@ -182,8 +171,18 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     });
 
     this.endSubs.add(
-      detComboDialog.afterClosed().subscribe(det => {
-        console.log('DETALLE = ', det);
+      detComboDialog.afterClosed().subscribe(det => {        
+        if (det) {
+          this.detalleCombo.push({
+            articulo: +det.articulo || null,
+            cantidad: +det.cantidad || 1,
+            medida: +det.medida || null,
+            precio: +det.precio || 0,
+            precio_extra: +det.precio_extra || 0,
+            descripcion_articulo: det?.filtroArticulo?.descripcion || '',
+            descripcion_medida: det?.filtroMedida?.descripcion || ''
+          });
+        }
       })
     );
 

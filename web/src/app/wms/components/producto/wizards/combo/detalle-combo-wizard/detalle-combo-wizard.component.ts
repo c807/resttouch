@@ -1,15 +1,16 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../../../shared/global';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { Articulo } from '../../../../../interfaces/articulo';
-import { ArticuloService } from '../../../../../services/articulo.service';
-import { Medida } from '../../../../../../admin/interfaces/medida';
-import { MedidaService } from '../../../../../../admin/services/medida.service';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
 
 import { Subscription, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -54,6 +55,10 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
     return this.productoFrmGrp.get('precio_extra') as FormControl;
   }
 
+  get esOpcionMultiple(): boolean {
+    return +this.data.tipoProducto !== 1;
+  }
+
   public articulos: Articulo[] = [];
   public articulosFiltered: Observable<Articulo[]>;
   public medidas: Medida[] = [];
@@ -70,7 +75,8 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private articuloSrvc: ArticuloService,
     private medidaSrvc: MedidaService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private snackbar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -94,7 +100,7 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
     this.articulosFiltered = this.filtroArticulo.valueChanges.pipe(
       startWith(''),
       map(value => this.filtrarArticulos(value))
-    );
+    );    
   }
 
   ngOnDestroy(): void {
@@ -103,7 +109,17 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
 
   loadMedidas = () => {
     this.endSubs.add(
-      this.medidaSrvc.get().subscribe(lstMedidas => this.medidas = lstMedidas)
+      this.medidaSrvc.get().subscribe(lstMedidas => {
+        this.medidas = lstMedidas;
+        const umunidad: Medida = this.medidas.find(m => m.descripcion.trim().toLowerCase() === 'unidad');
+        if (umunidad) {
+          this.medida.patchValue(umunidad.medida);
+          this.filtroMedida.patchValue(umunidad);
+        } else if (+this.data.tipoProducto === 2) {
+          this.snackbar.open("No logré encontrar la unidad de medida 'UNIDAD'. Es necesaria para agregar este tipo de producto.", (+this.data.tipoProducto === 1 ? 'Producto terminado' : 'Opción múltiple'), { duration: 7000 });
+          this.dialogWizRef.close(null);
+        }
+      })
     );
   }
 
@@ -178,8 +194,7 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
   };
 
   agregarProducto = () => {    
-    this.precio_extra.patchValue(+this.precio.value > 0 ? 1 : 0);
-    // console.log('FORM = ', this.productoFrmGrp.value);
+    this.precio_extra.patchValue(+this.precio.value > 0 ? 1 : 0);    
     this.dialogWizRef.close(this.productoFrmGrp.value);
   };
 

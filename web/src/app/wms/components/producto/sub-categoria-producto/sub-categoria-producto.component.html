@@ -44,14 +44,14 @@
                 <input type="text" matInput *ngIf="esMovil" placeholder="Cuenta contable (si aplica)" name="cuenta_contable" [(ngModel)]="categoriaGrupo.cuenta_contable" minlength="0" maxlength="10">
             </mat-form-field>
 
-            <mat-form-field class="fullWidth">
+            <!-- <mat-form-field class="fullWidth">
                 <mat-label>Anidar dentro de</mat-label>
                 <mat-select name="categoriaGrupoPadre" [(ngModel)]="categoriaGrupo.categoria_grupo_grupo">
                     <mat-option *ngFor="let subcatpadre of categoriasGruposPadre" [value]="subcatpadre.categoria_grupo" [disabled]="+subcatpadre.categoria_grupo === +categoriaGrupo.categoria_grupo">
                         {{subcatpadre.descripcion}}
                     </mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field> -->
 
             <div align="end">
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="onSubmitSubCategoria()" [disabled]="!frmCategoriaGrupo.form.valid || +categoriaGrupo.debaja === 1 || cargando">
