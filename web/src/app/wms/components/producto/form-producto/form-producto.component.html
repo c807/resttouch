@@ -187,16 +187,13 @@
                         <mat-label>Artículo</mat-label>
                         <input type="text" [(ngModel)]="txtArticuloSelected" [ngModelOptions]="{standalone: true}" placeholder="Artículo" matInput [matAutocomplete]="autoArticulos" (keyup)="filtrarArticulos(txtArticuloSelected)" required>
                         <mat-autocomplete #autoArticulos="matAutocomplete" [displayWith]="displayArticulo">
-                            <mat-option *ngFor="let a of filteredArticulos" [value]="a"
-                                [disabled]="disableArticuloReceta(a)">
-                                {{a.descripcion}}{{ a.subcategoria && a.subcategoria.descripcion ? (' (' +
-                                a.subcategoria.descripcion + ')') : '' }}
+                            <mat-option *ngFor="let a of filteredArticulos" [value]="a" [disabled]="disableArticuloReceta(a)">
+                                {{a.descripcion}}{{ a.subcategoria && a.subcategoria.descripcion ? (' (' + a.subcategoria.descripcion + ')') : '' }}
                             </mat-option>
                         </mat-autocomplete>
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
-                        <input matInput placeholder="Cantidad" type="number" step="0.01" name="cantidad" min="0"
-                            [(ngModel)]="receta.cantidad" required>
+                        <input matInput placeholder="Cantidad" type="number" step="0.01" name="cantidad" min="0" [(ngModel)]="receta.cantidad" required>
                     </mat-form-field>
                     <mat-form-field class="fullWidth" *ngIf="receta.precio_extra && receta.precio_extra > 0">
                         <input matInput placeholder="Precio" name="precio" [(ngModel)]="receta.precio" required>
@@ -212,8 +209,7 @@
 
                     <div class="row">
                         <div class="col m3 s3">
-                            <mat-checkbox name="racionable" class="fullWidth" [(ngModel)]="+receta.racionable">¿Es
-                                racionable?</mat-checkbox>
+                            <mat-checkbox name="racionable" class="fullWidth" [(ngModel)]="+receta.racionable">¿Es racionable?</mat-checkbox>
                         </div>
                         <div class="col m3 s3">
                             <mat-checkbox name="extra" class="fullWidth" [(ngModel)]="+receta.precio_extra">

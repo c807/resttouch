@@ -194,7 +194,28 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
   };
 
   agregarProducto = () => {    
-    this.precio_extra.patchValue(+this.precio.value > 0 ? 1 : 0);    
+    this.precio_extra.patchValue(+this.precio.value > 0 ? 1 : 0);
+
+    if (+this.articulo.value > 0) {
+      const artTmp = this.articulos.find(a => +a.articulo === +this.articulo.value);
+      if (artTmp) {
+        this.filtroArticulo.patchValue(artTmp);
+      }
+    } else {
+      this.snackbar.open('Parece que el producto no está en el listado. ¿Podría seleccionar uno del listado, por favor?', 'Paso a paso: combo', { duration: 7000 });
+      return;
+    }
+
+    if (+this.medida.value > 0) {
+      const medTmp = this.medidas.find(m => +m.medida === +this.medida.value);
+      if (medTmp) {
+        this.filtroMedida.patchValue(medTmp);
+      }
+    } else {
+      this.snackbar.open('Parece que la unidad de medida no está en el listado. ¿Podría seleccionar una del listado, por favor?', 'Paso a paso: combo', { duration: 7000 });
+      return;
+    }
+
     this.dialogWizRef.close(this.productoFrmGrp.value);
   };
 

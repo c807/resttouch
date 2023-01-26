@@ -10,20 +10,16 @@
     <mat-step [stepControl]="encabezadoFormGroup">
         <ng-template matStepLabel>Datos generales</ng-template>
         <form [formGroup]="encabezadoFormGroup">
-            <p>Aquí llenaremos algunos datos que son requeridos para el combo. ¿Me ayuda a responder las siguientes
-                preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
+            <p>Aquí llenaremos algunos datos que son requeridos para el combo. ¿Me ayuda a responder las siguientes preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
             <mat-form-field appearance="fill" class="fullWidth marginados">
                 <mat-label>¿Cómo se llamará el combo?</mat-label>
-                <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required
-                    minlength="1" maxlength="250">
-                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y
-                    puede simplificarle la búsqueda en la comanda.</mat-hint>
+                <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required minlength="1" maxlength="250">
+                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid">
                 <mat-label>¿En qué subcategoría desea que muestre '{{descripcionArticulo.value}}'?</mat-label>
-                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput
-                    formControlName="filtroSubcategoria" required [matAutocomplete]="autoSubcategoria">
+                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput formControlName="filtroSubcategoria" required [matAutocomplete]="autoSubcategoria" (blur)="setFocusOnPrecio()">
                 <mat-autocomplete autoActiveFirstOption #autoSubcategoria="matAutocomplete"
                     [displayWith]="subcategoriaDisplay" (optionSelected)="subcategoriaSelectedEv($event)">
                     <mat-option *ngFor="let sc of lstSubCategoriasFiltered | async" [value]="sc">
@@ -35,10 +31,8 @@
             <mat-form-field appearance="fill" class="halfWidth espacio marginados"
                 *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid" align="end">
                 <mat-label>¿Con qué presentación desea que se muestre '{{descripcionArticulo.value}}'?</mat-label>
-                <input type="text" placeholder="Seleccione una presentación, por favor" matInput
-                    formControlName="filtroPresentacion" required [matAutocomplete]="autoPresentacion">
-                <mat-autocomplete autoActiveFirstOption #autoPresentacion="matAutocomplete"
-                    [displayWith]="presentacionDisplay" (optionSelected)="presentacionSelectedEv($event)">
+                <input type="text" placeholder="Seleccione una presentación, por favor" matInput formControlName="filtroPresentacion" required [matAutocomplete]="autoPresentacion">
+                <mat-autocomplete autoActiveFirstOption #autoPresentacion="matAutocomplete" [displayWith]="presentacionDisplay" (optionSelected)="presentacionSelectedEv($event)">
                     <mat-option *ngFor="let p of lstPresentacionesFiltered | async" [value]="p"
                         [disabled]="+p.debaja === 1">
                         {{p.descripcion}}
@@ -47,16 +41,13 @@
                 <mat-hint>Sugerencia: para combos se suele utilizar la UNIDAD.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
-                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
                 <mat-label>¿A qué precio venderá '{{descripcionArticulo.value}}'?</mat-label>
-                <input matInput type="number" placeholder="Precio" formControlName="precio" required min="0">
-                <mat-hint>Idea: poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de
-                    POS para la venta.</mat-hint>
+                <input matInput #txtPrecio type="number" placeholder="Precio" formControlName="precio" required min="0">
+                <mat-hint>Idea: poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de POS para la venta.</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
-                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
                 <mat-label>¿Con qué código corto identificará '{{descripcionArticulo.value}}'?</mat-label>
                 <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1"
                     maxlength="25">
@@ -64,21 +55,17 @@
                     Puede ser corto y es alfanumérico. Ej.: CMB001</mat-hint>
             </mat-form-field>
 
-            <div class="marginados" style="margin-top: 25px;"
-                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
-                <label id="lblCobroMasCaro">¿Debe cobrarse el producto más caro que contenga
-                    '{{descripcionArticulo.value}}'?</label>
+            <div class="marginados" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                <label id="lblCobroMasCaro">¿Debe cobrarse el producto más caro que contenga '{{descripcionArticulo.value}}'?</label>
                 <mat-radio-group aria-labelledby="lblCobroMasCaro" formControlName="cobro_mas_caro" class="radio-group">
                     <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
                     <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
                 </mat-radio-group>
-                <mat-hint>Idea: Si responde que 'Sí', RestTouch Pro sustituirá el precio original del combo por el que
-                    sea más caro dentro de los productos que integren el combo.</mat-hint>
+                <mat-hint>Idea: Si responde que 'Sí', RestTouch Pro sustituirá el precio original del combo por el que sea más caro dentro de los productos que integren el combo.</mat-hint>
             </div>
 
             <div class="espacio" align="end">
-                <button mat-raised-button color="accent" matStepperNext
-                    [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
+                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
             </div>
         </form>
     </mat-step>

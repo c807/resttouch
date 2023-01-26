@@ -2,24 +2,24 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import { saveAs } from 'file-saver';
 
-import { CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
-import { Articulo } from '../../../interfaces/articulo';
-import { ArticuloDetalle } from '../../../interfaces/articulo-detalle';
-import { ArticuloService } from '../../../services/articulo.service';
-import { Medida } from '../../../../admin/interfaces/medida';
-import { MedidaService } from '../../../../admin/services/medida.service';
-import { Presentacion } from '../../../../admin/interfaces/presentacion';
-import { PresentacionService } from '../../../../admin/services/presentacion.service';
-import { ImpuestoEspecial } from '../../../../admin/interfaces/impuesto-especial';
-import { ImpuestoEspecialService } from '../../../../admin/services/impuesto-especial.service';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ReplicarASedesDialogComponent } from '../replicar-a-sedes-dialog/replicar-a-sedes-dialog.component';
-import { ListaPreciosTipoClienteComponent } from '../lista-precios-tipo-cliente/lista-precios-tipo-cliente.component';
+import { CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloDetalle } from '@wms-interfaces/articulo-detalle';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
+import { Presentacion } from '@admin-interfaces/presentacion';
+import { PresentacionService } from '@admin-services/presentacion.service';
+import { ImpuestoEspecial } from '@admin-interfaces/impuesto-especial';
+import { ImpuestoEspecialService } from '@admin-services/impuesto-especial.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { ReplicarASedesDialogComponent } from '@wms-components/producto/replicar-a-sedes-dialog/replicar-a-sedes-dialog.component';
+import { ListaPreciosTipoClienteComponent } from '@wms-components/producto/lista-precios-tipo-cliente/lista-precios-tipo-cliente.component';
 
 import { Subscription } from 'rxjs';
 

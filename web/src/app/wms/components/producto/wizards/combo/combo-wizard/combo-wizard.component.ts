@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -67,6 +67,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('stepper') pasoAPaso: MatStepper;
+  @ViewChild('txtPrecio') txtPrecio: ElementRef;
 
   // public articulo: Articulo;
   public encabezadoFormGroup: FormGroup;
@@ -162,6 +163,15 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
   subcategoriaSelectedEv = (sc: MatAutocompleteSelectedEvent) => {
     const subcat = sc.option.value as SubCategoriaSimpleSearch;
     this.categoriaGrupoArticulo.patchValue(subcat.categoria_grupo);
+    this.setFocusOnPrecio();
+  }
+
+  setFocusOnPrecio = () => {
+    if (+this.presentacion.value > 0 && +this.presentacion_reporte.value > 0 && +this.filtroPresentacion?.value?.presentacion > 0) {
+      if (this.txtPrecio) {
+        this.txtPrecio.nativeElement.focus();
+      }
+    }
   }
 
   private filtrarPresentaciones = (value: string): Presentacion[] => {
@@ -236,8 +246,6 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
       debaja: 0
     }
 
-    // console.log('COMBO = ', this.articulo);
-
     this.endSubs.add(
       this.articuloSrvc.saveArticulo(this.articulo).subscribe(artSvd => {
         if (artSvd.exito) {
@@ -254,9 +262,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
               precio: +detCmb.precio,
               anulado: 0
             };
-
-            // console.log(`DET ${i + 1}`, this.receta);
-
+            
             const detSvd = await this.articuloSrvc.saveArticuloDetalle(this.receta).toPromise();
             if (!detSvd.exito) {
               msgErrores.push(detSvd.mensaje)
