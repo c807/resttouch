@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MultiFiltro } from '../../../../shared/global';
+import { MultiFiltro } from '@shared/global';
 
-import { UltimaFactura } from '../../../interfaces/monitor-cliente';
+import { UltimaFactura } from '@admin-interfaces/monitor-cliente';
 
 @Component({
   selector: 'app-ultima-factura',

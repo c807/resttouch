@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaProveedorComponent } from '../lista-proveedor/lista-proveedor.component';
-import { Proveedor } from '../../../../wms/interfaces/proveedor';
+import { ListaProveedorComponent } from '@admin-components/proveedor/lista-proveedor/lista-proveedor.component';
+import { Proveedor } from '@wms-interfaces/proveedor';
 
 @Component({
   selector: 'app-proveedor',

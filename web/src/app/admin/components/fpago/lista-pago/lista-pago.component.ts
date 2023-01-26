@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { FormaPago } from '../../../interfaces/forma-pago';
-import { FpagoService } from '../../../services/fpago.service';
+import { FormaPago } from '@admin-interfaces/forma-pago';
+import { FpagoService } from '@admin-services/fpago.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-pago',
   templateUrl: './lista-pago.component.html',
   styleUrls: ['./lista-pago.component.css']
 })
-export class ListaPagoComponent implements OnInit {
+export class ListaPagoComponent implements OnInit, OnDestroy {
 
   public listaFpago: FormaPago[];
   public listaFpagoPaged: FormaPago[];
@@ -27,6 +29,8 @@ export class ListaPagoComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private fpagoSrvc: FpagoService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaPagoComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.getFormasPago();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,23 +60,25 @@ export class ListaPagoComponent implements OnInit {
   }
 
   getFormasPago = () => {
-    this.fpagoSrvc.get().subscribe((lst: FormaPago[]) => {
-      if (lst) {
-        if (lst.length > 0) {
-          lst = lst.map(fp => {
-            fp.pedirdocumento = +fp.pedirdocumento;
-            fp.adjuntararchivo = +fp.adjuntararchivo;
-            fp.pedirautorizacion = +fp.pedirautorizacion;
-            fp.sinfactura = +fp.sinfactura;
-            fp.activo = +fp.activo;
-            fp.escobrohabitacion = +fp.escobrohabitacion;
-            return fp;
-          });
-          this.listaFpago = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.fpagoSrvc.get().subscribe((lst: FormaPago[]) => {
+        if (lst) {
+          if (lst.length > 0) {
+            lst = lst.map(fp => {
+              fp.pedirdocumento = +fp.pedirdocumento;
+              fp.adjuntararchivo = +fp.adjuntararchivo;
+              fp.pedirautorizacion = +fp.pedirautorizacion;
+              fp.sinfactura = +fp.sinfactura;
+              fp.activo = +fp.activo;
+              fp.escobrohabitacion = +fp.escobrohabitacion;
+              return fp;
+            });
+            this.listaFpago = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getFpago = (obj: FormaPago) => {

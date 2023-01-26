@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoCliente } from '../../../interfaces/tipo-cliente';
-import { TipoClienteService } from '../../../services/tipo-cliente.service';
+import { TipoCliente } from '@admin-interfaces/tipo-cliente';
+import { TipoClienteService } from '@admin-services/tipo-cliente.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-tipo-cliente',
   templateUrl: './lista-tipo-cliente.component.html',
   styleUrls: ['./lista-tipo-cliente.component.css']
 })
-export class ListaTipoClienteComponent implements OnInit {
+export class ListaTipoClienteComponent implements OnInit, OnDestroy {
 
   public lstTiposCliente: TipoCliente[];
   public lstTiposClientePaged: TipoCliente[];
@@ -27,6 +29,8 @@ export class ListaTipoClienteComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private tipoClienteSrvc: TipoClienteService,
     private ls: LocalstorageService
@@ -34,7 +38,11 @@ export class ListaTipoClienteComponent implements OnInit {
 
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.loadTiposCliente();    
+    this.loadTiposCliente();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaTipoClienteComponent implements OnInit {
   }
 
   loadTiposCliente = () => {
-    this.tipoClienteSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstTiposCliente = lst;
-          this.applyFilter();
+    this.endSubs.add(
+      this.tipoClienteSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstTiposCliente = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getTipoCliente = (obj: TipoCliente) => {
@@ -70,6 +80,6 @@ export class ListaTipoClienteComponent implements OnInit {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
     this.applyFilter(true);
-  }  
+  }
 
 }

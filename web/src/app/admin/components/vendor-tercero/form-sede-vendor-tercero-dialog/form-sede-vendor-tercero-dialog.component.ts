@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { SedeVendorTercero } from '../../../interfaces/vendor-tercero';
+import { SedeVendorTercero } from '@admin-interfaces/vendor-tercero';
 
 interface IDataSedeVendorTercero {
   vendor_tercero: number;

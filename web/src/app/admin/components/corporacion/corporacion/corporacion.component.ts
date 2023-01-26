@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
-import { ListaCorporacionComponent } from '../lista-corporacion/lista-corporacion.component';
-import { ListaEmpresaComponent } from '../../empresa/lista-empresa/lista-empresa.component';
-import { ListaSedeComponent } from '../../sede/lista-sede/lista-sede.component';
-import { Corporacion, Empresa, Sede } from '../../../interfaces/sede';
+
+import { ListaCorporacionComponent } from '@admin-components/corporacion/lista-corporacion/lista-corporacion.component';
+import { ListaEmpresaComponent } from '@admin-components/empresa/lista-empresa/lista-empresa.component';
+import { ListaSedeComponent } from '@admin-components/sede/lista-sede/lista-sede.component';
+import { Corporacion, Empresa, Sede } from '@admin-interfaces/sede';
 
 @Component({
   selector: 'app-corporacion',

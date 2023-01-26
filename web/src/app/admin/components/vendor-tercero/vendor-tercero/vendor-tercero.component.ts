@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaVendorTerceroComponent } from '../lista-vendor-tercero/lista-vendor-tercero.component';
-import { FormVendorTerceroComponent } from '../form-vendor-tercero/form-vendor-tercero.component';
-import { VendorTerceroResponse, VendorTercero } from '../../../interfaces/vendor-tercero';
+import { ListaVendorTerceroComponent } from '@admin-components/vendor-tercero/lista-vendor-tercero/lista-vendor-tercero.component';
+import { FormVendorTerceroComponent } from '@admin-components/vendor-tercero/form-vendor-tercero/form-vendor-tercero.component';
+import { VendorTerceroResponse, VendorTercero } from '@admin-interfaces/vendor-tercero';
 
 @Component({
   selector: 'app-vendor-tercero',

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Correlativo } from '../interfaces/correlativo';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { Correlativo } from '@admin-interfaces/correlativo';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

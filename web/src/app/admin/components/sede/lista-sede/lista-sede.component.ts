@@ -1,16 +1,18 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { Sede, Empresa } from '../../../interfaces/sede';
-import { SedeService } from '../../../services/sede.service';
+import { Sede, Empresa } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-sede',
   templateUrl: './lista-sede.component.html',
   styleUrls: ['./lista-sede.component.css']
 })
-export class ListaSedeComponent implements OnInit {
+export class ListaSedeComponent implements OnInit, OnDestroy {
 
   @Input() empresa: Empresa;
   public listaSede: Sede[];
@@ -25,12 +27,18 @@ export class ListaSedeComponent implements OnInit {
   public pageEvent: PageEvent;
   public txtFiltro = '';
 
+  private endSubs = new Subscription();
+
   constructor(
     private sedeSrv: SedeService
   ) { }
 
   ngOnInit() {
     this.getSedes();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -56,14 +64,16 @@ export class ListaSedeComponent implements OnInit {
   getSedes = () => {
     this.listaSede = []
     this.applyFilter();
-    this.sedeSrv.get({ empresa: this.empresa.empresa }).subscribe((lst: Sede[]) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.listaSede = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.sedeSrv.get({ empresa: this.empresa.empresa }).subscribe((lst: Sede[]) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.listaSede = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getSede = (obj: Sede) => {

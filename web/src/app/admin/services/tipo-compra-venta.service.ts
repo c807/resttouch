@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { TipoCompraVenta } from '../interfaces/tipo-compra-venta';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

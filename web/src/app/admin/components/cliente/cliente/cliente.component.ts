@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaClienteComponent } from '../lista-cliente/lista-cliente.component';
-import { Cliente } from '../../../interfaces/cliente';
+import { ListaClienteComponent } from '@admin-components/cliente/lista-cliente/lista-cliente.component';
+import { Cliente } from '@admin-interfaces/cliente';
 
 @Component({
   selector: 'app-cliente',

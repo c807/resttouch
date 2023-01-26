@@ -1,17 +1,19 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Proveedor } from '../../../../wms/interfaces/proveedor';
-import { ProveedorService } from '../../../../wms/services/proveedor.service';
+import { Proveedor } from '@wms-interfaces/proveedor';
+import { ProveedorService } from '@wms-services/proveedor.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-proveedor',
   templateUrl: './lista-proveedor.component.html',
   styleUrls: ['./lista-proveedor.component.css']
 })
-export class ListaProveedorComponent implements OnInit {
+export class ListaProveedorComponent implements OnInit, OnDestroy {
 
   public lstProveedores: Proveedor[];
   public lstProveedoresPaged: Proveedor[];
@@ -27,6 +29,8 @@ export class ListaProveedorComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private proveedorSrvc: ProveedorService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaProveedorComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadProveedores();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaProveedorComponent implements OnInit {
   }
 
   loadProveedores = () => {
-    this.proveedorSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstProveedores = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.proveedorSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstProveedores = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getProveedor = (obj: Proveedor) => this.getProveedorEv.emit(obj);

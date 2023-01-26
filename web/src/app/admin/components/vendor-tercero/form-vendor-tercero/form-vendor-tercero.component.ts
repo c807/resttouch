@@ -1,21 +1,22 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { VendorTercero } from '../../../interfaces/vendor-tercero';
-import { ComandaOrigen } from '../../../interfaces/comanda-origen';
-import { VendorTerceroService } from '../../../services/vendor-tercero.service';
-import { ComandaOrigenService } from '../../../services/comanda-origen.service';
+import { VendorTercero } from '@admin-interfaces/vendor-tercero';
+import { ComandaOrigen } from '@admin-interfaces/comanda-origen';
+import { VendorTerceroService } from '@admin-services/vendor-tercero.service';
+import { ComandaOrigenService } from '@admin-services/comanda-origen.service';
+import { FormSedeVendorTerceroComponent } from '@admin-components/vendor-tercero/form-sede-vendor-tercero/form-sede-vendor-tercero.component';
 
-import { FormSedeVendorTerceroComponent } from '../form-sede-vendor-tercero/form-sede-vendor-tercero.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-vendor-tercero',
   templateUrl: './form-vendor-tercero.component.html',
   styleUrls: ['./form-vendor-tercero.component.css']
 })
-export class FormVendorTerceroComponent implements OnInit {
+export class FormVendorTerceroComponent implements OnInit, OnDestroy {
 
   @Input() vendorTercero: VendorTercero;
   @Output() vendorTerceroSavedEv = new EventEmitter();
@@ -23,6 +24,8 @@ export class FormVendorTerceroComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public lstComandaOrigen: ComandaOrigen[] = [];
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -36,12 +39,16 @@ export class FormVendorTerceroComponent implements OnInit {
     this.loadComandaOrigen();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadComandaOrigen = () => {
-    this.comandaOrigenSrvc.get().subscribe(res => {
-      if (res) {
-        this.lstComandaOrigen = res;
-      }
-    });
+    this.endSubs.add(      
+      this.comandaOrigenSrvc.get().subscribe(res => {
+        this.lstComandaOrigen = res || [];
+      })
+    );
   }
 
   resetVendorTercero() {
@@ -50,14 +57,16 @@ export class FormVendorTerceroComponent implements OnInit {
   }
 
   onSubmit() {
-    this.vendorTerceroSrvc.save(this.vendorTercero).subscribe((res) => {
-      if (res.exito) {
-        this.resetVendorTercero();
-        this.vendorTerceroSavedEv.emit();
-        this.snackBar.open(res.mensaje, 'Vendor', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Vendor', { duration: 7000 });
-      }
-    });
+    this.endSubs.add(      
+      this.vendorTerceroSrvc.save(this.vendorTercero).subscribe((res) => {
+        if (res.exito) {
+          this.resetVendorTercero();
+          this.vendorTerceroSavedEv.emit();
+          this.snackBar.open(res.mensaje, 'Vendor', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Vendor', { duration: 7000 });
+        }
+      })
+    );
   }
 }

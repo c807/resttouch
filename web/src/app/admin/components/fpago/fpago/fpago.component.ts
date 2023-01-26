@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ListaPagoComponent } from '../lista-pago/lista-pago.component';
-import { FormaPago } from '../../../interfaces/forma-pago';
+
+import { ListaPagoComponent } from '@admin-components/fpago/lista-pago/lista-pago.component';
+import { FormaPago } from '@admin-interfaces/forma-pago';
 
 @Component({
   selector: 'app-fpago',
@@ -29,8 +30,7 @@ export class FpagoComponent implements OnInit {
     };
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
   setFormPago = (cli: FormaPago) => this.fpago = cli;
   refreshFpagoList = () => this.lstFpagoComponent.getFormasPago();

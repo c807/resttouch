@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 import { saveAs } from 'file-saver';
 
-import { UsuarioSede } from '../../../interfaces/acceso';
-import { BitacoraService } from '../../../services/bitacora.service';
-import { AccesoUsuarioService } from '../../../services/acceso-usuario.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { BitacoraService } from '@admin-services/bitacora.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
 
 import { Subscription } from 'rxjs';
 

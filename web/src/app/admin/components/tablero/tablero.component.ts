@@ -1,18 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { IDataOptions, FieldListService, PivotView } from '@syncfusion/ej2-angular-pivotview';
 import { L10n, setCulture, setCurrencyCode } from '@syncfusion/ej2-base';
 import { Button } from '@syncfusion/ej2-buttons';
-import { TableroService } from '../../services/tablero.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { UsuarioSede } from '../../../admin/interfaces/acceso';
-import { AccesoUsuarioService } from '../../../admin/services/acceso-usuario.service';
-import { VentasComponent } from './graficas/ventas/ventas.component';
 
-// import { ChartDataSets, ChartOptions, ChartType } from 'chart.js';
-// import { Color, Label } from 'ng2-charts';
+import { TableroService } from '@admin-services/tablero.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { VentasComponent } from '@admin-components/tablero/graficas/ventas/ventas.component';
+
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-tablero',
@@ -21,7 +21,7 @@ import { VentasComponent } from './graficas/ventas/ventas.component';
     styleUrls: ['./tablero.component.css']
 })
 
-export class TableroComponent implements OnInit {
+export class TableroComponent implements OnInit, OnDestroy {
     public pivotData: IDataOptions;
     public button: Button;
 
@@ -104,6 +104,8 @@ export class TableroComponent implements OnInit {
     @ViewChild('pivotview') public pivotGridObj: PivotView;
     @ViewChild('cmpGraficas') public cmpGraficas: VentasComponent;
 
+    private endSubs = new Subscription();
+
     constructor(
         private snackBar: MatSnackBar,
         private tableroService: TableroService,
@@ -145,6 +147,10 @@ export class TableroComponent implements OnInit {
         this.onSubmit();
     }
 
+    ngOnDestroy(): void {
+        this.endSubs.unsubscribe();
+    }
+
     setPivotData (data) {
         this.pivotData = {
             dataSource: data,
@@ -162,67 +168,73 @@ export class TableroComponent implements OnInit {
     }
 
     getSede = (params: any = {}) => {
-        this.sedeSrvc.getSedes(params).subscribe(res => {
-            this.sedes = res;
-        });
+        this.endSubs.add(            
+            this.sedeSrvc.getSedes(params).subscribe(res => {
+                this.sedes = res;
+            })
+        );
     }
 
     onSubmit() {
         // this.params.sede = [3]; //Esto solo es para pruebas.
         this.cargando = true;
         // this.pivotGridObj.engineModule.fieldList = {};
+        this.endSubs.add(            
+            this.tableroService.getTableroDatos(this.params).subscribe(res => {
+                if (res.exito) {
+                    this.setPivotData(res.datos);
+    
+                    this.ultimosDias = res.ultimos_dias;
+                    this.estadistica = res.estadistica;
+    
+                    this.semanaLabels = res.pie_semana.labels;
+                    this.semanaData = [res.pie_semana];
+    
+                    this.domicilioLabels = res.pie_domicilio.labels;
+                    this.domicilioData = [res.pie_domicilio];
+    
+                    this.horarioData = [res.bar_horario];
+                    this.horarioLabels = res.bar_horario.labels;
+    
+                    this.popularData = [res.bar_popular];
+                    this.popularLabels = res.bar_popular.labels;
+    
+                    this.meseroData = [res.bar_mesero];
+                    this.meseroLabels = res.bar_mesero.labels;
+    
+                    this.sedeData = [res.bar_sede];
+                    this.sedeLabels = res.bar_sede.labels;
+    
+                    this.diasData = [res.line_dias];
+                    this.diasLabels = res.line_dias.labels;
+    
+                    this.wlistaData = [res.line_wlista];
+                    this.wlistaLabels = res.line_wlista.labels;
+                } else {
+                    this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+                }
+    
+                this.cargando = false;
+            })
+        );
 
-        this.tableroService.getTableroDatos(this.params).subscribe(res => {
-            if (res.exito) {
-                this.setPivotData(res.datos);
-
-                this.ultimosDias = res.ultimos_dias;
-                this.estadistica = res.estadistica;
-
-                this.semanaLabels = res.pie_semana.labels;
-                this.semanaData = [res.pie_semana];
-
-                this.domicilioLabels = res.pie_domicilio.labels;
-                this.domicilioData = [res.pie_domicilio];
-
-                this.horarioData = [res.bar_horario];
-                this.horarioLabels = res.bar_horario.labels;
-
-                this.popularData = [res.bar_popular];
-                this.popularLabels = res.bar_popular.labels;
-
-                this.meseroData = [res.bar_mesero];
-                this.meseroLabels = res.bar_mesero.labels;
-
-                this.sedeData = [res.bar_sede];
-                this.sedeLabels = res.bar_sede.labels;
-
-                this.diasData = [res.line_dias];
-                this.diasLabels = res.line_dias.labels;
-
-                this.wlistaData = [res.line_wlista];
-                this.wlistaLabels = res.line_wlista.labels;
-            } else {
-                this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-            }
-
-            this.cargando = false;
-        });
         this.loadDataGraficas();
     }
 
     loadDataGraficas = () => {
-        this.tableroService.getDataGraficas(this.params).subscribe((res: any) => {
-            this.cargando = false;
-            if (res.exito) {
-                this.datosGraficas.porDia = res.pordia;
-                this.datosGraficas.porCategoria = res.porcategoria;
-                this.datosGraficas.porTurno = res.porturno;
-                this.datosGraficas.porMesero = res.pormesero;
-                this.cmpGraficas.setGraficas();
-            } else {
-                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Graficas', { duration: 7000 });
-            }
-        });
+        this.endSubs.add(            
+            this.tableroService.getDataGraficas(this.params).subscribe((res: any) => {
+                this.cargando = false;
+                if (res.exito) {
+                    this.datosGraficas.porDia = res.pordia;
+                    this.datosGraficas.porCategoria = res.porcategoria;
+                    this.datosGraficas.porTurno = res.porturno;
+                    this.datosGraficas.porMesero = res.pormesero;
+                    this.cmpGraficas.setGraficas();
+                } else {
+                    this.snackBar.open(`ERROR: ${res.mensaje}`, 'Graficas', { duration: 7000 });
+                }
+            })
+        );
     }
 }

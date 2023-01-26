@@ -1,21 +1,22 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
-import { UsuarioService } from '../../services/usuario.service';
-import { AppMenuService } from '../../services/app-menu.service';
-import { ConfiguracionService } from '../../services/configuracion.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { SolicitaPinInactividadComponent } from '../solicita-pin-inactividad/solicita-pin-inactividad.component';
-import { AcercaDeComponent } from '../acerca-de/acerca-de.component';
-import { NotificacionesClienteComponent } from '../notificaciones-cliente/notificaciones-cliente.component';
+import { UsuarioService } from '@admin-services/usuario.service';
+import { AppMenuService } from '@admin-services/app-menu.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
 
-import { NotificacionClienteService } from '../../services/notificacion-cliente.service';
-import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
+import { SolicitaPinInactividadComponent } from '@admin-components/solicita-pin-inactividad/solicita-pin-inactividad.component';
+import { AcercaDeComponent } from '@admin-components/acerca-de/acerca-de.component';
+import { NotificacionesClienteComponent } from '@admin-components/notificaciones-cliente/notificaciones-cliente.component';
+
+import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
+import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
 
 import { Subscription } from 'rxjs';
 

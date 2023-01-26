@@ -1,16 +1,18 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { Corporacion, Empresa } from '../../../interfaces/sede';
-import { SedeService } from '../../../services/sede.service';
+import { Corporacion, Empresa } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-empresa',
   templateUrl: './lista-empresa.component.html',
   styleUrls: ['./lista-empresa.component.css']
 })
-export class ListaEmpresaComponent implements OnInit {
+export class ListaEmpresaComponent implements OnInit, OnDestroy {
 
   public listaEmpresa: Empresa[];
   public listaEmpresaPaged: Empresa[];
@@ -25,12 +27,18 @@ export class ListaEmpresaComponent implements OnInit {
   public pageEvent: PageEvent;
   public txtFiltro = '';
 
+  private endSubs = new Subscription();
+
   constructor(
     private sedeSrv: SedeService
   ) { }
 
   ngOnInit() {
     this.getEmpresas();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -57,14 +65,16 @@ export class ListaEmpresaComponent implements OnInit {
     this.listaEmpresa = [];
     this.applyFilter();
     
-    this.sedeSrv.getEmpresa({ corporacion: this.corporacion.corporacion }).subscribe((lst: Empresa[]) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.listaEmpresa = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.sedeSrv.getEmpresa({ corporacion: this.corporacion.corporacion }).subscribe((lst: Empresa[]) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.listaEmpresa = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getEmpresa = (obj: Empresa) => {

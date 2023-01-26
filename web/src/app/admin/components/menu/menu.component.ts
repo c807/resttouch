@@ -1,16 +1,18 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 
-import { NodoAppMenu } from '../../interfaces/acceso-usuario';
-import { AppMenuService } from '../../services/app-menu.service';
+import { NodoAppMenu } from '@admin-interfaces/acceso-usuario';
+import { AppMenuService } from '@admin-services/app-menu.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css']
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
 
   @Output() public elementClicked = new EventEmitter();
   
@@ -18,16 +20,23 @@ export class MenuComponent implements OnInit {
   dataSource = new MatTreeNestedDataSource<NodoAppMenu>();
   public opciones: NodoAppMenu[] = [];
 
+  private endSubs = new Subscription();
+
   constructor(
     private appMenuSrvc: AppMenuService
   ) { }
 
   ngOnInit() {
-    this.appMenuSrvc.getOpciones().subscribe((res: NodoAppMenu[]) => {
-      //console.log('MENU = ', res);
-      this.opciones = res;
-      this.dataSource.data = this.opciones;
-    });
+    this.endSubs.add(      
+      this.appMenuSrvc.getOpciones().subscribe((res: NodoAppMenu[]) => {        
+        this.opciones = res;
+        this.dataSource.data = this.opciones;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   itemClicked() {
@@ -38,8 +47,5 @@ export class MenuComponent implements OnInit {
 
   tieneHijos = (node: NodoAppMenu) => !!node.hijos && node.hijos.length > 0;
 
-  onProductoClicked(opc: NodoAppMenu) {
-    //this.productoClickedEv.emit(producto);
-  }
-
+  onProductoClicked(opc: NodoAppMenu) { }
 }

@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Usuario } from '../../../models/usuario';
-import { UsuarioService } from '../../../services/usuario.service';
+import { Usuario } from '@admin-models/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
 
 import { Subscription } from 'rxjs';
 

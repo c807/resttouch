@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Medida } from '../../../interfaces/medida';
-import { MedidaService } from '../../../services/medida.service';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-medida',
   templateUrl: './lista-medida.component.html',
   styleUrls: ['./lista-medida.component.css']
 })
-export class ListaMedidaComponent implements OnInit {
+export class ListaMedidaComponent implements OnInit, OnDestroy {
 
   public lstMedidas: Medida[];
   public lstMedidasPaged: Medida[];
@@ -26,6 +28,8 @@ export class ListaMedidaComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private medidaSrvc: MedidaService,
     private ls: LocalstorageService
@@ -34,6 +38,10 @@ export class ListaMedidaComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadMedidas();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -48,14 +56,16 @@ export class ListaMedidaComponent implements OnInit {
   }
 
   loadMedidas = () => {
-    this.medidaSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstMedidas = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.medidaSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstMedidas = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getMedida = (obj: Medida) => {

@@ -1,17 +1,20 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Sede, Empresa } from '../../../interfaces/sede';
-import { Certificador } from '../../../interfaces/certificador';
-import { SedeService } from '../../../services/sede.service';
-import { CertificadorService } from '../../../services/certificador.service';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
+
+import { Sede, Empresa } from '@admin-interfaces/sede';
+import { Certificador } from '@admin-interfaces/certificador';
+import { SedeService } from '@admin-services/sede.service';
+import { CertificadorService } from '@admin-services/certificador.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-sede',
   templateUrl: './form-sede.component.html',
   styleUrls: ['./form-sede.component.css']
 })
-export class FormSedeComponent implements OnInit {
+export class FormSedeComponent implements OnInit, OnDestroy {
 
   public sedes: Sede[] = [];
   public certificadores: Certificador[] = [];
@@ -19,6 +22,8 @@ export class FormSedeComponent implements OnInit {
   @Input() sede: Sede;
   @Input() empresa: Empresa;
   @Output() sedeSavedEv = new EventEmitter();
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -31,20 +36,28 @@ export class FormSedeComponent implements OnInit {
     this.getCertificador();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   getSedes = () => {
-    this.sedeSrvc.get().subscribe((lst: Sede[]) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.sedes = lst;
+    this.endSubs.add(      
+      this.sedeSrvc.get().subscribe((lst: Sede[]) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.sedes = lst;
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getCertificador = () => {
-    this.certificadorSrvc.getCertificador().subscribe(res => {
-      this.certificadores = res;
-    });
+    this.endSubs.add(      
+      this.certificadorSrvc.getCertificador().subscribe(res => {
+        this.certificadores = res;
+      })
+    );
   }
 
   resetSede = () => this.sede = {
@@ -75,16 +88,18 @@ export class FormSedeComponent implements OnInit {
 
   guardarSede = () => {
     this.sede.empresa = this.empresa.empresa;  
-    this.sedeSrvc.saveSede(this.sede).subscribe(res => {
-      if (res.exito) {
-        this.sedeSavedEv.emit();
-        this.resetSede();
-        this.getSedes();
-        this.snackBar.open('Sede guardada exitosamente.', 'Sede', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede', { duration: 3000 });
-      }
-    });
+    this.endSubs.add(      
+      this.sedeSrvc.saveSede(this.sede).subscribe(res => {
+        if (res.exito) {
+          this.sedeSavedEv.emit();
+          this.resetSede();
+          this.getSedes();
+          this.snackBar.open('Sede guardada exitosamente.', 'Sede', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede', { duration: 3000 });
+        }
+      })
+    );
   }
 
   validatePhone = (e: any) => {

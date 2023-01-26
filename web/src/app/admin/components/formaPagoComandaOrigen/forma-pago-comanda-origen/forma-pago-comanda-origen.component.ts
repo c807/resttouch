@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, Input } from '@angular/core';
 
-import { ListaFormaPagoComandaOrigenComponent } from '../lista-forma-pago-comanda-origen/lista-forma-pago-comanda-origen.component';
-import { FormFormaPagoComandaOrigenComponent } from '../form-forma-pago-comanda-origen/form-forma-pago-comanda-origen.component';
-import { FormaPagoComandaOrigen, FormaPagoComandaOrigenResponse } from '../../../interfaces/forma-pago';
+import { ListaFormaPagoComandaOrigenComponent } from '@admin-components/formaPagoComandaOrigen/lista-forma-pago-comanda-origen/lista-forma-pago-comanda-origen.component';
+import { FormFormaPagoComandaOrigenComponent } from '@admin-components/formaPagoComandaOrigen/form-forma-pago-comanda-origen/form-forma-pago-comanda-origen.component';
+import { FormaPagoComandaOrigen, FormaPagoComandaOrigenResponse } from '@admin-interfaces/forma-pago';
 
 @Component({
   selector: 'app-forma-pago-comanda-origen',
@@ -22,9 +22,7 @@ export class FormaPagoComandaOrigenComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    // console.log('ORIGEN DESDE DIALGO FORMA PAGO', this.comanda_origen);
-  }
+  ngOnInit(): void { }
 
   setFormaPagoComandaOrigen = (fpco: FormaPagoComandaOrigenResponse) => {
     this.formaPagoComandaOrigen = {

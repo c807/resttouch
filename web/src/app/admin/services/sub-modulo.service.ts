@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-// import { SubModulo } from '../interfaces/sub-modulo';
-// import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -14,25 +12,16 @@ import * as qs from 'qs';
 export class SubModuloService {
 
   private srvcErrHndl: ServiceErrorHandler;
-  // private usrToken: string = null;
 
   constructor(
-    private http: HttpClient,
-    // private ls: LocalstorageService
+    private http: HttpClient
   ) {
     this.srvcErrHndl = new ServiceErrorHandler();
-    // this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;
   }
 
-  get(idmodulo: number, fltr: any = {}): Observable<any[]> {
-    /* const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': this.usrToken
-      })
-    }; */
+  get(idmodulo: number, fltr: any = {}): Observable<any[]> {    
     return this.http.get<any[]>(
-      `${GLOBAL.urlCatalogos}/get_sub_modulo/${idmodulo}/?${qs.stringify(fltr)}`
-      // , httpOptions
+      `${GLOBAL.urlCatalogos}/get_sub_modulo/${idmodulo}/?${qs.stringify(fltr)}`      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

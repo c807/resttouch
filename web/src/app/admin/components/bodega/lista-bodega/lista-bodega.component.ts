@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { BodegaService } from '../../../../wms/services/bodega.service';
-import { Bodega } from '../../../../wms/interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { Bodega } from '@wms-interfaces/bodega';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-bodega',
   templateUrl: './lista-bodega.component.html',
   styleUrls: ['./lista-bodega.component.css']
 })
-export class ListaBodegaComponent implements OnInit {
+export class ListaBodegaComponent implements OnInit, OnDestroy {
 
   public listaBodega: Bodega[];
   public listaBodegaPaged: Bodega[];
@@ -26,6 +28,8 @@ export class ListaBodegaComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private srvBodega: BodegaService,
     private ls: LocalstorageService
@@ -36,11 +40,17 @@ export class ListaBodegaComponent implements OnInit {
     this.getBodegas();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   getBodegas = () => {
-    this.srvBodega.get().subscribe((res: Bodega[]) => {
-      this.listaBodega = res;
-      this.applyFilter();
-    });
+    this.endSubs.add(      
+      this.srvBodega.get().subscribe((res: Bodega[]) => {
+        this.listaBodega = res;
+        this.applyFilter();
+      })
+    );
   }
 
   applyFilter() {

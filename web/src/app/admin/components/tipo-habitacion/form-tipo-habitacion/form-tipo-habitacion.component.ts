@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoHabitacion } from '../../../interfaces/tipo-habitacion';
-import { TipoHabitacionService } from '../../../services/tipo-habitacion.service';
+import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TipoHabitacionService } from '@admin-services/tipo-habitacion.service';
 
-import { TarifaReservaComponent } from '../../../../hotel/components/tarifa-reserva/tarifa-reserva/tarifa-reserva.component';
+import { TarifaReservaComponent } from '@hotel-components/tarifa-reserva/tarifa-reserva/tarifa-reserva.component';
 
 import { Subscription } from 'rxjs';
 

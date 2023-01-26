@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoDocumentoComponent } from '../lista-tipo-documento/lista-tipo-documento.component';
-import { TipoDocumento } from '../../../interfaces/tipo-documento';
+import { ListaTipoDocumentoComponent } from '@admin-components/tipo-documento/lista-tipo-documento/lista-tipo-documento.component';
+import { TipoDocumento } from '@admin-interfaces/tipo-documento';
 
 @Component({
   selector: 'app-tipo-documento',

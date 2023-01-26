@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
-import * as moment from 'moment';
-import { ListaAccesoUsuarioComponent } from '../lista-acceso-usuario/lista-acceso-usuario.component';
-import { FormAccesoUsuarioComponent } from '../form-acceso-usuario/form-acceso-usuario.component';
-import { Usuario } from '../../../interfaces/usuario';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { ListaAccesoUsuarioComponent } from '@admin-components/acceso-usuario/lista-acceso-usuario/lista-acceso-usuario.component';
+import { FormAccesoUsuarioComponent } from '@admin-components/acceso-usuario/form-acceso-usuario/form-acceso-usuario.component';
+import { Usuario } from '@admin-interfaces/usuario';
 
 @Component({
   selector: 'app-acceso-usuario',

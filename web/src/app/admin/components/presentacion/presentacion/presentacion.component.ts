@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaPresentacionComponent } from '../lista-presentacion/lista-presentacion.component';
-import { Presentacion } from '../../../interfaces/presentacion';
+import { ListaPresentacionComponent } from '@admin-components/presentacion/lista-presentacion/lista-presentacion.component';
+import { Presentacion } from '@admin-interfaces/presentacion';
 
 @Component({
   selector: 'app-presentacion',

@@ -2,12 +2,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
-import { LocalstorageService } from '../../../services/localstorage.service';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
-import { EsquemasClientes } from '../../../interfaces/setup';
-import { Configuracion } from '../../../interfaces/configuracion';
-import { SetupService } from '../../../services/setup.service';
+import { EsquemasClientes } from '@admin-interfaces/setup';
+import { SetupService } from '@admin-services/setup.service';
 
 import { Subscription } from 'rxjs';
 

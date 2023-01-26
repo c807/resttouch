@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Impresora } from '../../../interfaces/impresora';
-import { ImpresoraService } from '../../../services/impresora.service';
+import { Impresora } from '@admin-interfaces/impresora';
+import { ImpresoraService } from '@admin-services/impresora.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-impresora',
   templateUrl: './lista-impresora.component.html',
   styleUrls: ['./lista-impresora.component.css']
 })
-export class ListaImpresoraComponent implements OnInit {
+export class ListaImpresoraComponent implements OnInit, OnDestroy {
 
   public lstImpresoras: Impresora[];
   public lstImpresorasPaged: Impresora[];
@@ -27,6 +29,8 @@ export class ListaImpresoraComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private impresoraSrvc: ImpresoraService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaImpresoraComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadImpresoras();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaImpresoraComponent implements OnInit {
   }
 
   loadImpresoras = () => {
-    this.impresoraSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstImpresoras = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.impresoraSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstImpresoras = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getImpresora = (obj: Impresora) => {

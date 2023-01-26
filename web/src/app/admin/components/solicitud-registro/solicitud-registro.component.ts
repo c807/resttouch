@@ -3,9 +3,9 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SolicitudRegistro } from '../../interfaces/solicitud-registro';
-import { SolicitudRegistroService } from '../../services/solicitud-registro.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { SolicitudRegistro } from '@admin-interfaces/solicitud-registro';
+import { SolicitudRegistroService } from '@admin-services/solicitud-registro.service';
 
 import { Subscription } from 'rxjs';
 

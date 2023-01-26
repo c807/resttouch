@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaImpresoraComponent } from '../lista-impresora/lista-impresora.component';
-import { Impresora } from '../../../interfaces/impresora';
+import { ListaImpresoraComponent } from '@admin-components/impresora/lista-impresora/lista-impresora.component';
+import { Impresora } from '@admin-interfaces/impresora';
 
 @Component({
   selector: 'app-impresora',

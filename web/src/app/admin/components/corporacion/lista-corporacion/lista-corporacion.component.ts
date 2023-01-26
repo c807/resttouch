@@ -1,16 +1,18 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { Corporacion } from '../../../interfaces/sede';
-import { SedeService } from '../../../services/sede.service';
+import { Corporacion } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-list-corporacion',
   templateUrl: './lista-corporacion.component.html',
   styleUrls: ['./lista-corporacion.component.css']
 })
-export class ListaCorporacionComponent implements OnInit {
+export class ListaCorporacionComponent implements OnInit, OnDestroy {
 
   public listaCorporacion: Corporacion[];
   public listaCorporacionPaged: Corporacion[];
@@ -24,6 +26,8 @@ export class ListaCorporacionComponent implements OnInit {
   public pageEvent: PageEvent;
   public txtFiltro = '';
 
+  private endSubs = new Subscription();
+
   constructor(
     private sedeSrv: SedeService
   ) { }
@@ -32,7 +36,11 @@ export class ListaCorporacionComponent implements OnInit {
     this.getCorporaciones();
   }
 
-  applyFilter(cambioPagina = false) {
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe()
+  }
+
+  applyFilter() {
     if (this.txtFiltro.length > 0) {
       const tmpList = MultiFiltro(this.listaCorporacion, this.txtFiltro);
       this.length = tmpList.length;
@@ -46,18 +54,20 @@ export class ListaCorporacionComponent implements OnInit {
   pageChange = (e: PageEvent) => {
     this.pageSize = e.pageSize;
     this.pageIndex = e.pageIndex;
-    this.applyFilter(true);
+    this.applyFilter();
   }
 
   getCorporaciones = () => {
-    this.sedeSrv.getCorporacion().subscribe((lst: Corporacion[]) => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.listaCorporacion = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.sedeSrv.getCorporacion().subscribe((lst: Corporacion[]) => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.listaCorporacion = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getCorporacion = (obj: Corporacion) => {

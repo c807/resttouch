@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { RazonAnulacion } from '../interfaces/razon-anulacion';
-// import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -14,39 +13,24 @@ import * as qs from 'qs';
 export class AnulacionService {
 
   private srvcErrHndl: ServiceErrorHandler;
-  private moduleUrl = 'ranulacion';
-  // private usrToken: string = null;
+  private moduleUrl = 'ranulacion';  
 
   constructor(
-    private http: HttpClient,
-    // private ls: LocalstorageService
+    private http: HttpClient    
   ) {
-    this.srvcErrHndl = new ServiceErrorHandler();
-    // this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;
+    this.srvcErrHndl = new ServiceErrorHandler();    
   }
 
-  get(fltr: any = {}): Observable<RazonAnulacion[]> {
-    /* const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': this.usrToken
-      })
-    }; */
+  get(fltr: any = {}): Observable<RazonAnulacion[]> {    
     return this.http.get<RazonAnulacion[]>(
-      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/buscar?${qs.stringify(fltr)}`
-      // , httpOptions
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/buscar?${qs.stringify(fltr)}`      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  save(entidad: RazonAnulacion): Observable<any> {
-    /* const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': this.usrToken
-      })
-    }; */
+  save(entidad: RazonAnulacion): Observable<any> {    
     return this.http.post<any>(
       `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/guardar${!!entidad.razon_anulacion ? ('/' + entidad.razon_anulacion) : ''}`,
-      entidad
-      // , httpOptions
+      entidad      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

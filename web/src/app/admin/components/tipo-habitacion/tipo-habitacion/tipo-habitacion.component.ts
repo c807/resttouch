@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoHabitacionComponent } from '../lista-tipo-habitacion/lista-tipo-habitacion.component';
-import { FormTipoHabitacionComponent } from '../form-tipo-habitacion/form-tipo-habitacion.component';
-import { TipoHabitacion } from '../../../interfaces/tipo-habitacion';
+import { ListaTipoHabitacionComponent } from '@admin-components/tipo-habitacion/lista-tipo-habitacion/lista-tipo-habitacion.component';
+import { FormTipoHabitacionComponent } from '@admin-components/tipo-habitacion/form-tipo-habitacion/form-tipo-habitacion.component';
+import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
 
 @Component({
   selector: 'app-tipo-habitacion',

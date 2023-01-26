@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { InitialSetup } from '../../../interfaces/setup';
-import { SetupService } from '../../../services/setup.service';
+import { InitialSetup } from '@admin-interfaces/setup';
+import { SetupService } from '@admin-services/setup.service';
 
 import { Subscription } from 'rxjs';
 

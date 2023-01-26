@@ -1,16 +1,18 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { Configuracion } from '../../../../interfaces/certificador';
-import { CertificadorService } from '../../../../services/certificador.service';
+import { Configuracion } from '@admin-interfaces/certificador';
+import { CertificadorService } from '@admin-services/certificador.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-lista-certificador-configuracion',
 	templateUrl: './lista-certificador-configuracion.component.html',
 	styleUrls: ['./lista-certificador-configuracion.component.css']
 })
-export class ListaCertificadorConfiguracionComponent implements OnInit {
+export class ListaCertificadorConfiguracionComponent implements OnInit, OnDestroy {
 
 	public lstCertificador: Configuracion[];
 	public lstCertificadorPaged: Configuracion[];
@@ -24,10 +26,16 @@ export class ListaCertificadorConfiguracionComponent implements OnInit {
 	public pageEvent: PageEvent;
 	public txtFiltro = '';
 
+	private endSubs = new Subscription();
+
 	constructor(private CertificadorSrvc: CertificadorService) { }
 
 	ngOnInit() {
 		this.loadCertificador();
+	}
+
+	ngOnDestroy(): void {
+		this.endSubs.unsubscribe();
 	}
 
 	applyFilter(cambioPagina = false) {
@@ -45,14 +53,16 @@ export class ListaCertificadorConfiguracionComponent implements OnInit {
 	}
 
 	loadCertificador = () => {
-		this.CertificadorSrvc.getConfig().subscribe(lst => {
-			if (lst) {
-				if (lst.length > 0) {
-					this.lstCertificador = lst;
-					this.applyFilter();
+		this.endSubs.add(			
+			this.CertificadorSrvc.getConfig().subscribe(lst => {
+				if (lst) {
+					if (lst.length > 0) {
+						this.lstCertificador = lst;
+						this.applyFilter();
+					}
 				}
-			}
-		});
+			})
+		);
 	}
 
 	getCertificador = (obj: Configuracion) => {

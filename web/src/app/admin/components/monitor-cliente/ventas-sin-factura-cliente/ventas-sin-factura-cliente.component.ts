@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { ChartStructure } from '../../../interfaces/monitor-cliente';
+import { ChartStructure } from '@admin-interfaces/monitor-cliente';
 
 @Component({
   selector: 'app-ventas-sin-factura-cliente',

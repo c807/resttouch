@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ListaBodegaComponent } from '../lista-bodega/lista-bodega.component';
-import { FormBodegaComponent } from '../form-bodega/form-bodega.component';
-// import {BodegaService} from '../../../../wms/services/bodega.service';
-import { Bodega } from '../../../../wms/interfaces/bodega';
+import { ListaBodegaComponent } from '@admin-components/bodega/lista-bodega/lista-bodega.component';
+import { FormBodegaComponent } from '@admin-components/bodega/form-bodega/form-bodega.component';
+import { Bodega } from '@wms-interfaces/bodega';
 
 @Component({
   selector: 'app-bodega',

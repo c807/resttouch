@@ -1,20 +1,23 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { SedeService } from '../../../services/sede.service';
-import { Sede } from '../../../interfaces/sede'
-import { Usuario } from '../../../interfaces/usuario';
-import { UsuarioSede } from '../../../interfaces/acceso';
-import { AccesoUsuarioService } from '../../../services/acceso-usuario.service';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+
+import { SedeService } from '@admin-services/sede.service';
+import { Sede } from '@admin-interfaces/sede'
+import { Usuario } from '@admin-interfaces/usuario';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-usuario-sede-form',
 	templateUrl: './usuario-sede-form.component.html',
 	styleUrls: ['./usuario-sede-form.component.css']
 })
-export class UsuarioSedeFormComponent implements OnInit {
+export class UsuarioSedeFormComponent implements OnInit, OnDestroy {
 
 	@Input() usuario: Usuario;
 	@Output() AccesoUsuarioSavedEv = new EventEmitter();
@@ -25,8 +28,10 @@ export class UsuarioSedeFormComponent implements OnInit {
 	public displayedColumns: string[] = ['sede', 'editItem'];
 	public dataSource: MatTableDataSource<UsuarioSede>;
 
+	private endSubs = new Subscription();
+
 	constructor(
-		private _snackBar: MatSnackBar,
+		private snackBar: MatSnackBar,
 		private accesoUsuarioSrvc: AccesoUsuarioService,
 		private sedeSrvc: SedeService,
 		public dialog: MatDialog,
@@ -38,21 +43,25 @@ export class UsuarioSedeFormComponent implements OnInit {
 		this.loadSedes()
 	}
 
+	ngOnDestroy(): void {
+		this.endSubs.unsubscribe();
+	}
+
 	loadAccesos = (idusuario: number = +this.usuario.usuario) => {
-		this.accesoUsuarioSrvc.getSedes({ usuario: idusuario }).subscribe((res: any[]) => {
-			if (res) {
-				this.accesos = res;
-				this.updateTableDataSource();
-			}
-		});
+		this.endSubs.add(			
+			this.accesoUsuarioSrvc.getSedes({ usuario: idusuario }).subscribe((res: any[]) => {
+				this.accesos = res || [];
+				this.updateTableDataSource();				
+			})
+		);
 	}
 
 	loadSedes = () => {
-		this.sedeSrvc.get().subscribe(res => {
-			if (res) {
-				this.sedes = res;
-			}
-		});
+		this.endSubs.add(			
+			this.sedeSrvc.get().subscribe(res => {
+				this.sedes = res || [];
+			})
+		);
 	}
 
 	resetAcceso = () => {
@@ -72,17 +81,17 @@ export class UsuarioSedeFormComponent implements OnInit {
 
 	onSubmit = () => {
 		this.acceso.usuario = this.usuario.usuario;
-
-		this.accesoUsuarioSrvc.saveSedes(this.acceso).subscribe(res => {
-			if (res.exito) {
-				//this.resetAcceso();
-				this.loadAccesos(this.usuario.usuario);
-				this._snackBar.open('Acceso guardado con éxito...', 'Sede Usuario', { duration: 3000 });
-				this.acceso.sede = null;
-			} else {
-				this._snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
-			}
-		})
+		this.endSubs.add(			
+			this.accesoUsuarioSrvc.saveSedes(this.acceso).subscribe(res => {
+				if (res.exito) {					
+					this.loadAccesos(this.usuario.usuario);
+					this.snackBar.open('Acceso guardado con éxito...', 'Sede Usuario', { duration: 3000 });
+					this.acceso.sede = null;
+				} else {
+					this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
+				}
+			})
+		);
 	}
 
 	removerAcceso = (pres: any) => {
@@ -93,20 +102,24 @@ export class UsuarioSedeFormComponent implements OnInit {
 			)
 		});
 
-		dialogRef.afterClosed().subscribe(cnf => {
-			if (cnf) {
-				pres.anulado = 1;
-				this.accesoUsuarioSrvc.saveSedes(pres).subscribe(res => {
-					if (res.exito) {
-						this.resetAcceso();
-						this.loadAccesos(this.usuario.usuario);
-						this._snackBar.open('Removido con éxito...', 'Sede Usuario', { duration: 3000 });
-					} else {
-						this._snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
-					}
-				})
-			}
-		});
+		this.endSubs.add(			
+			dialogRef.afterClosed().subscribe(cnf => {
+				if (cnf) {
+					pres.anulado = 1;
+					this.endSubs.add(						
+						this.accesoUsuarioSrvc.saveSedes(pres).subscribe(res => {
+							if (res.exito) {
+								this.resetAcceso();
+								this.loadAccesos(this.usuario.usuario);
+								this.snackBar.open('Removido con éxito...', 'Sede Usuario', { duration: 3000 });
+							} else {
+								this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
+							}
+						})
+					);
+				}
+			})
+		);
 	}
 
 	updateTableDataSource = () => this.dataSource = new MatTableDataSource(this.accesos);

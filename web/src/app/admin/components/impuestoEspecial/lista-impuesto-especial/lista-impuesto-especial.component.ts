@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ImpuestoEspecial } from '../../../interfaces/impuesto-especial';
-import { ImpuestoEspecialService } from '../../../services/impuesto-especial.service';
+import { ImpuestoEspecial } from '@admin-interfaces/impuesto-especial';
+import { ImpuestoEspecialService } from '@admin-services/impuesto-especial.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-impuesto-especial',
   templateUrl: './lista-impuesto-especial.component.html',
   styleUrls: ['./lista-impuesto-especial.component.css']
 })
-export class ListaImpuestoEspecialComponent implements OnInit {
+export class ListaImpuestoEspecialComponent implements OnInit, OnDestroy {
 
   public lstImpuestosEspeciales: ImpuestoEspecial[];
   public lstImpuestosEspecialesPaged: ImpuestoEspecial[];
@@ -27,6 +29,8 @@ export class ListaImpuestoEspecialComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private impuestoEspcialSrvc: ImpuestoEspecialService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaImpuestoEspecialComponent implements OnInit {
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadImpuestosEspeciales();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaImpuestoEspecialComponent implements OnInit {
   }
 
   loadImpuestosEspeciales = () => {
-    this.impuestoEspcialSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstImpuestosEspeciales = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.impuestoEspcialSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstImpuestosEspeciales = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getImpuestoEspecial = (obj: ImpuestoEspecial) => {

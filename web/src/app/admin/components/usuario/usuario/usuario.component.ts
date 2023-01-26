@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ListaUsuarioComponent } from '../lista-usuario/lista-usuario.component';
-import { Usuario } from '../../../models/usuario';
+
+import { ListaUsuarioComponent } from '@admin-components/usuario/lista-usuario/lista-usuario.component';
+import { Usuario } from '@admin-models/usuario';
 
 @Component({
   selector: 'app-usuario',

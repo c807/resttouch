@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoCompraVenta } from '../../../interfaces/tipo-compra-venta';
-import { TipoCompraVentaService } from '../../../services/tipo-compra-venta.service';
+import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
+import { TipoCompraVentaService } from '@admin-services/tipo-compra-venta.service';
 
 import { Subscription } from 'rxjs';
 

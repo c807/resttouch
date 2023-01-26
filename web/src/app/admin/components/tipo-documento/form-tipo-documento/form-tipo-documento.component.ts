@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoDocumento } from '../../../interfaces/tipo-documento';
-import { TipoDocumentoService } from '../../../services/tipo-documento.service';
+import { TipoDocumento } from '@admin-interfaces/tipo-documento';
+import { TipoDocumentoService } from '@admin-services/tipo-documento.service';
 
 import { Subscription } from 'rxjs';
 

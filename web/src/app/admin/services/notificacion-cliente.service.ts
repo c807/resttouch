@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { NotificacionCliente } from '../interfaces/notificacion-cliente';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 

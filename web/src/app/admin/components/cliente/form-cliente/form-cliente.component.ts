@@ -1,15 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatInput } from '@angular/material/input';
-import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Cliente } from '../../../interfaces/cliente';
-import { ClienteService } from '../../../services/cliente.service';
-import { TipoCliente } from '../../../interfaces/tipo-cliente';
-import { TipoClienteService } from '../../../services/tipo-cliente.service';
-import { Municipio } from '../../../interfaces/municipio';
-import { MunicipioService } from '../../../services/municipio.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteService } from '@admin-services/cliente.service';
+import { TipoCliente } from '@admin-interfaces/tipo-cliente';
+import { TipoClienteService } from '@admin-services/tipo-cliente.service';
+import { Municipio } from '@admin-interfaces/municipio';
+import { MunicipioService } from '@admin-services/municipio.service';
 
 import { Subscription } from 'rxjs';
 

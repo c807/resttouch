@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Usuario } from '../../../interfaces/usuario';
-import { UsuarioService } from '../../../services/usuario.service';
+import { Usuario } from '@admin-interfaces/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-lista-acceso-usuario',
 	templateUrl: './lista-acceso-usuario.component.html',
 	styleUrls: ['./lista-acceso-usuario.component.css']
 })
-export class ListaAccesoUsuarioComponent implements OnInit {
+export class ListaAccesoUsuarioComponent implements OnInit, OnDestroy {
 
 	public lstUsuario: Usuario[];
 	public lstUsuarioPaged: Usuario[];
@@ -26,6 +28,8 @@ export class ListaAccesoUsuarioComponent implements OnInit {
 	public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
 	public esMovil = false;
 
+	private endSubs = new Subscription();
+
 	constructor(
 		private UsuarioSrvc: UsuarioService,
 		private ls: LocalstorageService
@@ -34,6 +38,10 @@ export class ListaAccesoUsuarioComponent implements OnInit {
 	ngOnInit() {
 		this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
 		this.loadUsuario();
+	}
+
+	ngOnDestroy(): void {
+		this.endSubs.unsubscribe();		
 	}
 
 	applyFilter() {
@@ -48,14 +56,16 @@ export class ListaAccesoUsuarioComponent implements OnInit {
 	}
 
 	loadUsuario = () => {
-		this.UsuarioSrvc.getAll().subscribe(lst => {
-			if (lst) {
-				if (lst.length > 0) {
-					this.lstUsuario = lst;
-					this.applyFilter();
+		this.endSubs.add(			
+			this.UsuarioSrvc.getAll().subscribe(lst => {
+				if (lst) {
+					if (lst.length > 0) {
+						this.lstUsuario = lst;
+						this.applyFilter();
+					}
 				}
-			}
-		});
+			})
+		);
 	}
 
 	getUsuario = (obj: Usuario) => {

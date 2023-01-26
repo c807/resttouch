@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ListaRazonAnulacionComponent } from '../lista-razon-anulacion/lista-razon-anulacion.component';
 
-import { RazonAnulacion } from '../../../interfaces/razon-anulacion';
+import { ListaRazonAnulacionComponent } from '@admin-components/razon-anulacion/lista-razon-anulacion/lista-razon-anulacion.component';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
 
 @Component({
   selector: 'app-razon-anulacion',

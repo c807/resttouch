@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaCertificadorConfiguracionComponent } from '../lista-certificador-configuracion/lista-certificador-configuracion.component';
-import { FormCertificadorConfiguracionComponent } from '../form-certificador-configuracion/form-certificador-configuracion.component';
-import { Configuracion } from '../../../../interfaces/certificador';
+import { ListaCertificadorConfiguracionComponent } from '@admin-components/certificador/configuracion/lista-certificador-configuracion/lista-certificador-configuracion.component';
+import { FormCertificadorConfiguracionComponent } from '@admin-components/certificador/configuracion/form-certificador-configuracion/form-certificador-configuracion.component';
+import { Configuracion } from '@admin-interfaces/certificador';
 
 @Component({
   selector: 'app-certificador-configuracion',

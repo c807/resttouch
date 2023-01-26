@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { TableroService } from '../../../services/tablero.service';
+import { TableroService } from '@admin-services/tablero.service';
 
 import { Subscription } from 'rxjs';
 

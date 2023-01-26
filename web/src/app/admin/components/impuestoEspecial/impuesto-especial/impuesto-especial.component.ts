@@ -1,8 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaImpuestoEspecialComponent } from '../lista-impuesto-especial/lista-impuesto-especial.component';
-import { ImpuestoEspecial } from '../../../interfaces/impuesto-especial';
-
+import { ListaImpuestoEspecialComponent } from '@admin-components/impuestoEspecial/lista-impuesto-especial/lista-impuesto-especial.component';
+import { ImpuestoEspecial } from '@admin-interfaces/impuesto-especial';
 
 @Component({
   selector: 'app-impuesto-especial',

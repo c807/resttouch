@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MonitorClienteService } from '../../../services/monitor-cliente.service';
-import { UltimaComandaComponent } from '../ultima-comanda/ultima-comanda.component';
-import { UltimaFacturaComponent } from '../ultima-factura/ultima-factura.component';
-import { FacturacionClienteComponent } from '../facturacion-cliente/facturacion-cliente.component';
-import { VentasSinFacturaClienteComponent } from '../ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
 
-import { Vendido, ChartStructure } from '../../../interfaces/monitor-cliente';
+import { MonitorClienteService } from '@admin-services/monitor-cliente.service';
+import { UltimaComandaComponent } from '@admin-components/monitor-cliente/ultima-comanda/ultima-comanda.component';
+import { UltimaFacturaComponent } from '@admin-components/monitor-cliente/ultima-factura/ultima-factura.component';
+import { FacturacionClienteComponent } from '@admin-components/monitor-cliente/facturacion-cliente/facturacion-cliente.component';
+import { VentasSinFacturaClienteComponent } from '@admin-components/monitor-cliente/ventas-sin-factura-cliente/ventas-sin-factura-cliente.component';
+
+import { Vendido, ChartStructure } from '@admin-interfaces/monitor-cliente';
 
 import { Subscription } from 'rxjs';
 
@@ -25,8 +25,7 @@ export class MonitorClienteComponent implements OnInit, OnDestroy {
 
   private endSubs = new Subscription();
 
-  constructor(
-    private snackBar: MatSnackBar,    
+  constructor(    
     private monitorClienteSrvc: MonitorClienteService
   ) { }
 

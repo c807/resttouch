@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoUsuarioComponent } from '../lista-tipo-usuario/lista-tipo-usuario.component';
-import { FormTipoUsuarioComponent } from '../form-tipo-usuario/form-tipo-usuario.component';
-import { UsuarioTipo } from '../../../interfaces/usuario-tipo';
+import { ListaTipoUsuarioComponent } from '@admin-components/tipo-usuario/lista-tipo-usuario/lista-tipo-usuario.component';
+import { FormTipoUsuarioComponent } from '@admin-components/tipo-usuario/form-tipo-usuario/form-tipo-usuario.component';
+import { UsuarioTipo } from '@admin-interfaces/usuario-tipo';
 
 @Component({
   selector: 'app-tipo-usuario',

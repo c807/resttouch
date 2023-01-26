@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ConfiguracionService } from '../../services/configuracion.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import * as moment from 'moment';
 
-import { LocalstorageService } from '../../services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
 @Component({
   selector: 'app-acerca-de',

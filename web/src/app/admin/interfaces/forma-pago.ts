@@ -1,4 +1,4 @@
-import { ComandaOrigen } from '../interfaces/comanda-origen';
+import { ComandaOrigen } from './comanda-origen';
 
 export interface FormaPago {
     forma_pago: number;

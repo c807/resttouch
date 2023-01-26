@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { Cliente } from '../../../interfaces/cliente';
+import { Cliente } from '@admin-interfaces/cliente';
 
 @Component({
   selector: 'app-form-cliente-dialog',

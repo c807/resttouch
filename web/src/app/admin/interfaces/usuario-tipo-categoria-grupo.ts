@@ -1,5 +1,5 @@
 import { UsuarioTipoJerarquia } from './usuario-tipo';
-import { CategoriaGrupo } from '../../wms/interfaces/categoria-grupo';
+import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
 
 export interface UsuarioTipoCategoriaGrupo {
     usuario_tipo_categoria_grupo: number;

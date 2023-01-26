@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
 import { ChartDataSets } from 'chart.js';
-// import { Color, Label } from 'ng2-charts';
 
 @Component({
   selector: 'app-graficas-ventas',

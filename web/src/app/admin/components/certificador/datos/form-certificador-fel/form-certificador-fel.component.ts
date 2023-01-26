@@ -1,16 +1,18 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { GLOBAL } from '../../../../../shared/global'
-import { Configuracion, Certificador } from '../../../../interfaces/certificador';
-import { CertificadorService } from '../../../../services/certificador.service';
+import { GLOBAL } from '@shared/global'
+import { Configuracion, Certificador } from '@admin-interfaces/certificador';
+import { CertificadorService } from '@admin-services/certificador.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-certificador-fel',
   templateUrl: './form-certificador-fel.component.html',
   styleUrls: ['./form-certificador-fel.component.css']
 })
-export class FormCertificadorFelComponent implements OnInit {
+export class FormCertificadorFelComponent implements OnInit, OnDestroy {
 
   @Input() certificador: Configuracion;
 	@Output() CertificadorSavedEv = new EventEmitter();
@@ -22,14 +24,19 @@ export class FormCertificadorFelComponent implements OnInit {
   public displayedColumns: string[] = ['usuario', 'llave', 'editItem'];
   public dataSource: MatTableDataSource<Certificador>;
 
+  private endSubs = new Subscription();
+
 	constructor(
-		private _snackBar: MatSnackBar,
+		private snackBar: MatSnackBar,
     private certificadorSrvc: CertificadorService
 	) {
 		this.resetCertificador();
 	}
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   resetCertificador = () => {
@@ -49,12 +56,12 @@ export class FormCertificadorFelComponent implements OnInit {
   }
   
   loadCertificadores = (xid: number = +this.certificador.certificador_configuracion) => {
-		this.certificadorSrvc.getCertificador({certificador_configuracion:xid}).subscribe((res: any[]) => {
-			if (res) {
-				this.certificadores = res
-				this.updateTableDataSource();
-			}
-		});
+    this.endSubs.add(      
+      this.certificadorSrvc.getCertificador({certificador_configuracion:xid}).subscribe((res: any[]) => {
+        this.certificadores = res || [];
+        this.updateTableDataSource();
+      })
+    );
   }
   
   setAcceso = (cert: any) => {
@@ -75,16 +82,17 @@ export class FormCertificadorFelComponent implements OnInit {
 
   	onSubmit = () => {
   		this.registro.certificador_configuracion = this.certificador.certificador_configuracion;
-
-  		this.certificadorSrvc.save(this.registro).subscribe(res => {
-  			if (res.exito) {
-  				this.resetCertificador();
-  				this.loadCertificadores(this.certificador.certificador_configuracion);
-  				this._snackBar.open('Certificador guardado con éxito...', 'Certificador', { duration: 3000 });
-  			} else {
-  				this._snackBar.open(`ERROR: ${res.mensaje}`, 'Certificador', { duration: 3000 });
-  			}
-  		})
+      this.endSubs.add(        
+        this.certificadorSrvc.save(this.registro).subscribe(res => {
+          if (res.exito) {
+            this.resetCertificador();
+            this.loadCertificadores(this.certificador.certificador_configuracion);
+            this.snackBar.open('Certificador guardado con éxito...', 'Certificador', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Certificador', { duration: 3000 });
+          }
+        })
+      );
   	}
 
   updateTableDataSource = () => this.dataSource = new MatTableDataSource(this.certificadores);

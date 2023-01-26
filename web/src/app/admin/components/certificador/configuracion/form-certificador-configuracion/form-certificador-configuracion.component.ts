@@ -1,18 +1,22 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Configuracion } from '../../../../interfaces/certificador';
-import { CertificadorService } from '../../../../services/certificador.service';
+import { Configuracion } from '@admin-interfaces/certificador';
+import { CertificadorService } from '@admin-services/certificador.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-certificador-configuracion',
   templateUrl: './form-certificador-configuracion.component.html',
   styleUrls: ['./form-certificador-configuracion.component.css']
 })
-export class FormCertificadorConfiguracionComponent implements OnInit {
+export class FormCertificadorConfiguracionComponent implements OnInit, OnDestroy {
 
   @Input() certificador: Configuracion;
   @Output() certificadorSavedEv = new EventEmitter();
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -21,6 +25,10 @@ export class FormCertificadorConfiguracionComponent implements OnInit {
 
   ngOnInit() {
     this.resetCertificador();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   resetCertificador = () => {
@@ -38,15 +46,17 @@ export class FormCertificadorConfiguracionComponent implements OnInit {
   }
 
   onSubmit = () => {
-    this.certificadorSrvc.saveConfig(this.certificador).subscribe(res => {
-      if (res.exito) {
-        this.certificadorSavedEv.emit();
-        this.resetCertificador();
-        this.snackBar.open('Certificador guardado con éxito...', 'Certificador', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
-      }
-    })
+    this.endSubs.add(      
+      this.certificadorSrvc.saveConfig(this.certificador).subscribe(res => {
+        if (res.exito) {
+          this.certificadorSavedEv.emit();
+          this.resetCertificador();
+          this.snackBar.open('Certificador guardado con éxito...', 'Certificador', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Sede Usuario', { duration: 3000 });
+        }
+      })
+    );
   }
 
 }

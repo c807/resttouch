@@ -1,18 +1,19 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { DocumentoTipo } from '../../../interfaces/documento-tipo';
-import { DocumentoTipoService } from '../../../services/documento-tipo.service';
+import { DocumentoTipo } from '@admin-interfaces/documento-tipo';
+import { DocumentoTipoService } from '@admin-services/documento-tipo.service';
 
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-documento-tipo',
   templateUrl: './lista-documento-tipo.component.html',
   styleUrls: ['./lista-documento-tipo.component.css']
 })
-export class ListaDocumentoTipoComponent implements OnInit {
+export class ListaDocumentoTipoComponent implements OnInit, OnDestroy {
 
   public lstDocumentoTipo: DocumentoTipo[];
   public lstDocumentoTipoPaged: DocumentoTipo[];
@@ -27,6 +28,8 @@ export class ListaDocumentoTipoComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private tipoCompraVentaSrvc: DocumentoTipoService,
     private ls: LocalstorageService
@@ -35,6 +38,10 @@ export class ListaDocumentoTipoComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadDocumentosTipo();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -49,14 +56,16 @@ export class ListaDocumentoTipoComponent implements OnInit {
   }
 
   loadDocumentosTipo = () => {
-    this.tipoCompraVentaSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstDocumentoTipo = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.tipoCompraVentaSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstDocumentoTipo = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getDocumentoTipo = (obj: DocumentoTipo) => {

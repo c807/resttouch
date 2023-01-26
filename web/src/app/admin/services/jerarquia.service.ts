@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Jerarquia } from '../interfaces/jerarquia';
-// import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { Jerarquia } from '@admin-interfaces/jerarquia';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -13,26 +12,17 @@ import * as qs from 'qs';
 })
 export class JerarquiaService {
 
-  private srvcErrHndl: ServiceErrorHandler;
-  // private usrToken: string = null;
+  private srvcErrHndl: ServiceErrorHandler;  
 
   constructor(
-    private http: HttpClient,
-    // private ls: LocalstorageService
+    private http: HttpClient
   ) {
     this.srvcErrHndl = new ServiceErrorHandler();
-    // this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;
   }
 
-  get(fltr: any = {}): Observable<Jerarquia[]> {
-    /* const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': this.usrToken
-      })
-    }; */
+  get(fltr: any = {}): Observable<Jerarquia[]> {    
     return this.http.get<Jerarquia[]>(
-      `${GLOBAL.urlCatalogos}/get_jerarquia?${qs.stringify(fltr)}`
-      // , httpOptions
+      `${GLOBAL.urlCatalogos}/get_jerarquia?${qs.stringify(fltr)}`      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

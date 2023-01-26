@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaMedidaComponent } from '../lista-medida/lista-medida.component';
-import { Medida } from '../../../interfaces/medida';
+import { ListaMedidaComponent } from '@admin-components/medida/lista-medida/lista-medida.component';
+import { Medida } from '@admin-interfaces/medida';
 
 @Component({
   selector: 'app-medida',
@@ -19,8 +19,7 @@ export class MedidaComponent implements OnInit {
     };
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
   setMedida = (cli: Medida) => this.medida = cli;
 

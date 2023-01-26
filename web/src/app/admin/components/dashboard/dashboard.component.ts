@@ -1,11 +1,12 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { LocalstorageService } from '../../services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
-import { UsuarioService } from '../../services/usuario.service';
-import { AppMenuService } from '../../services/app-menu.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+
+import { UsuarioService } from '@admin-services/usuario.service';
+import { AppMenuService } from '@admin-services/app-menu.service';
+import { DesktopNotificationService } from '@shared-services/desktop-notification.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -47,11 +48,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   handleClick = (modulo: string = '') => {
     this.ls.set(GLOBAL.usrLastModuleVar, modulo);
-    const objModulo: any = this.appMenu.find(m => m.nombre === modulo);
-    // console.log(objModulo);
+    const objModulo: any = this.appMenu.find(m => m.nombre === modulo);    
     if (objModulo) {
-      const submodulo: any = this.usrSrvc.transformSubModule(objModulo.submodulo);
-      // console.log(submodulo);
+      const submodulo: any = this.usrSrvc.transformSubModule(objModulo.submodulo);      
       this.appMenuSrvc.updOpciones(submodulo);
       this.snackBar.open(`Cambio al módulo ${modulo}`, 'Módulo', { duration: 5000 });
     }

@@ -1,25 +1,27 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { UsuarioTipo } from '../../../interfaces/usuario-tipo';
-import { UsuarioTipoCategoriaGrupo, UsuarioTipoCGrupo } from '../../../interfaces/usuario-tipo-categoria-grupo';
-import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
+import { UsuarioTipo } from '@admin-interfaces/usuario-tipo';
+import { UsuarioTipoCategoriaGrupo, UsuarioTipoCGrupo } from '@admin-interfaces/usuario-tipo-categoria-grupo';
+import { TipoUsuarioService } from '@admin-services/tipo-usuario.service';
 
-import { Jerarquia } from '../../../interfaces/jerarquia';
-import { JerarquiaService } from '../../../services/jerarquia.service';
+import { Jerarquia } from '@admin-interfaces/jerarquia';
+import { JerarquiaService } from '@admin-services/jerarquia.service';
 
-import { Categoria } from '../../../../wms/interfaces/categoria';
-import { CategoriaGrupoResponse } from '../../../../wms/interfaces/categoria-grupo';
-import { ArticuloService } from '../../../../wms/services/articulo.service';
+import { Categoria } from '@wms-interfaces/categoria';
+import { CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
+import { ArticuloService } from '@wms-services/articulo.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-tipo-usuario',
   templateUrl: './form-tipo-usuario.component.html',
   styleUrls: ['./form-tipo-usuario.component.css']
 })
-export class FormTipoUsuarioComponent implements OnInit {
+export class FormTipoUsuarioComponent implements OnInit, OnDestroy {
 
   @Input() usuarioTipo: UsuarioTipo;
   @Output() usuarioTipoSavedEv = new EventEmitter();
@@ -34,6 +36,8 @@ export class FormTipoUsuarioComponent implements OnInit {
   public txtSubCat: (CategoriaGrupoResponse | string) = undefined;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private snackBar: MatSnackBar,
@@ -50,10 +54,16 @@ export class FormTipoUsuarioComponent implements OnInit {
     this.resetTipoUsuarioCGrupo();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadJerarquia = () => {
-    this.jerarquiaSrvc.get().subscribe(res => {
-      this.jerarquias = res;
-    });
+    this.endSubs.add(      
+      this.jerarquiaSrvc.get().subscribe(res => {
+        this.jerarquias = res;
+      })
+    );
   }
 
   resetTipoUsuario = () => {
@@ -64,51 +74,61 @@ export class FormTipoUsuarioComponent implements OnInit {
   }
 
   onSubmit = () => {
-    this.tipoUsuarioSrvc.save(this.usuarioTipo).subscribe(res => {
-      if (res.exito) {
-        this.usuarioTipoSavedEv.emit();
-        this.resetTipoUsuario();
-        this.snackBar.open('Tipo agregado...', 'Tipo Usuario', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tipo Usuario', { duration: 3000 });
-      }
-    });
+    this.endSubs.add(      
+      this.tipoUsuarioSrvc.save(this.usuarioTipo).subscribe(res => {
+        if (res.exito) {
+          this.usuarioTipoSavedEv.emit();
+          this.resetTipoUsuario();
+          this.snackBar.open('Tipo agregado...', 'Tipo Usuario', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Tipo Usuario', { duration: 3000 });
+        }
+      })
+    );
   }
 
   loadUTCGrupos = (idUsuarioTipo: number = null) => {
-    this.tipoUsuarioSrvc.getUsuarioTipoCGrupo({ usuario_tipo: (idUsuarioTipo || this.usuarioTipo.usuario_tipo) }).subscribe(res => {
-      if (res) {
-        this.utcgrupos = res;
-      }
-    });
+    this.endSubs.add(      
+      this.tipoUsuarioSrvc.getUsuarioTipoCGrupo({ usuario_tipo: (idUsuarioTipo || this.usuarioTipo.usuario_tipo) }).subscribe(res => {
+        if (res) {
+          this.utcgrupos = res;
+        }
+      })
+    );
   }
   loadCategorias = () => {
-    this.articuloSrvc.getCategorias().subscribe(res => {
-      if (res) {
-        this.categorias = res;
-      }
-    });
+    this.endSubs.add(      
+      this.articuloSrvc.getCategorias().subscribe(res => {
+        if (res) {
+          this.categorias = res;
+        }
+      })
+    );
   }
 
   loadCatGrp = (idCategoria: number) => {
-    this.articuloSrvc.getCategoriasGrupos({ categoria: idCategoria }).subscribe(res => {
-      this.cgrupos = res;
-    });
+    this.endSubs.add(      
+      this.articuloSrvc.getCategoriasGrupos({ categoria: idCategoria }).subscribe(res => {
+        this.cgrupos = res;
+      })
+    );
   }
 
   onSubmitUTCGrupo = () => {
     this.utcgrupo.usuario_tipo = this.usuarioTipo.usuario_tipo;
 
     if (this.utcgrupo.usuario_tipo && this.utcgrupo.categoria_grupo) {
-      this.tipoUsuarioSrvc.saveUsuarioTipoCGrupo(this.utcgrupo).subscribe(res => {
-        if (res.exito) {
-          this.resetTipoUsuarioCGrupo();
-          this.loadUTCGrupos(this.utcgrupo.usuario_tipo);
-          this.snackBar.open(res.mensaje, 'Categoría grupo', { duration: 3000 });
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Categoría grupo', { duration: 7000 });
-        }
-      });
+      this.endSubs.add(        
+        this.tipoUsuarioSrvc.saveUsuarioTipoCGrupo(this.utcgrupo).subscribe(res => {
+          if (res.exito) {
+            this.resetTipoUsuarioCGrupo();
+            this.loadUTCGrupos(this.utcgrupo.usuario_tipo);
+            this.snackBar.open(res.mensaje, 'Categoría grupo', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Categoría grupo', { duration: 7000 });
+          }
+        })
+      );
     } else {
       this.snackBar.open('Por favor seleccione una Sub-categoría.', 'Categoría grupo', { duration: 7000 });
     }

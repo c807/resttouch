@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { BodegaService } from '../../../../wms/services/bodega.service';
-import { Bodega } from '../../../../wms/interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { Bodega } from '@wms-interfaces/bodega';
 
 import { Subscription } from 'rxjs';
 

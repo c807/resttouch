@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { LocalstorageService } from '../../admin/services/localstorage.service';
-import { Configuracion } from '../interfaces/configuracion';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { Configuracion } from '@admin-interfaces/configuracion';
 
 @Injectable({
   providedIn: 'root'

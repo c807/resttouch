@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { NotificacionCliente } from '../../interfaces/notificacion-cliente';
+import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
 
 @Component({
   selector: 'app-notificaciones-cliente',

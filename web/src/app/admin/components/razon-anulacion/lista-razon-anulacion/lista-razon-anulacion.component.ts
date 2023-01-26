@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { AnulacionService } from '../../../services/anulacion.service';
-import { RazonAnulacion } from '../../../interfaces/razon-anulacion';
+import { AnulacionService } from '@admin-services/anulacion.service';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-razon-anulacion',
   templateUrl: './lista-razon-anulacion.component.html',
   styleUrls: ['./lista-razon-anulacion.component.css']
 })
-export class ListaRazonAnulacionComponent implements OnInit {
+export class ListaRazonAnulacionComponent implements OnInit, OnDestroy {
 
   public listaRazonAnulacion: RazonAnulacion[];
   public listaRazonAnulacionPaged: RazonAnulacion[];
@@ -27,6 +29,8 @@ export class ListaRazonAnulacionComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private srvAnulacion: AnulacionService,
     private ls: LocalstorageService
@@ -37,11 +41,17 @@ export class ListaRazonAnulacionComponent implements OnInit {
     this.getRazones();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   getRazones = () => {
-    this.srvAnulacion.get().subscribe((res: RazonAnulacion[]) => {
-      this.listaRazonAnulacion = res;
-      this.applyFilter();
-    });
+    this.endSubs.add(      
+      this.srvAnulacion.get().subscribe((res: RazonAnulacion[]) => {
+        this.listaRazonAnulacion = res;
+        this.applyFilter();
+      })
+    );
   }
 
   applyFilter(cambioPagina = false) {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MultiFiltro } from '../../../../shared/global';
+import { MultiFiltro } from '@shared/global';
 
-import { UltimaComanda } from '../../../interfaces/monitor-cliente';
+import { UltimaComanda } from '@admin-interfaces/monitor-cliente';
 
 @Component({
   selector: 'app-ultima-comanda',

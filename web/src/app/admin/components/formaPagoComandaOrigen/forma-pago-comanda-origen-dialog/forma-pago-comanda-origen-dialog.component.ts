@@ -17,9 +17,7 @@ export class FormaPagoComandaOrigenDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: IDataFPComandaOrigen
   ) { }
 
-  ngOnInit(): void {    
-    // console.log('DATA = ', this.data);    
-  }
+  ngOnInit(): void { }
 
   cancelar = () => this.dialogRef.close();
 }

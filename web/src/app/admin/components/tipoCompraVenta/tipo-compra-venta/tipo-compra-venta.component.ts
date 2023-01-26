@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoCompraVentaComponent } from '../lista-tipo-compra-venta/lista-tipo-compra-venta.component';
-import { TipoCompraVenta } from '../../../interfaces/tipo-compra-venta';
+import { ListaTipoCompraVentaComponent } from '@admin-components/tipoCompraVenta/lista-tipo-compra-venta/lista-tipo-compra-venta.component';
+import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
 
 @Component({
   selector: 'app-tipo-compra-venta',

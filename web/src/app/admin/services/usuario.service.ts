@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { usrLogin, usrLogInResponse, Usuario } from '../models/usuario';
-import { AccesoUsuario, SubModulo, NodoAppMenu } from '../interfaces/acceso-usuario';
-import { LocalstorageService } from '../services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { usrLogin, usrLogInResponse, Usuario } from '@admin-models/usuario';
+import { AccesoUsuario, SubModulo, NodoAppMenu } from '@admin-interfaces/acceso-usuario';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import { OnlineService } from '../../shared/services/online.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import * as moment from 'moment';
 
@@ -23,8 +22,7 @@ export class UsuarioService {
 
   constructor(
     private http: HttpClient,
-    private ls: LocalstorageService,
-    private onlineSrvc: OnlineService,
+    private ls: LocalstorageService
   ) {
     this.srvcErrHndl = new ServiceErrorHandler();
     this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;

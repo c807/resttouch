@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { UsuarioTipo } from '../interfaces/usuario-tipo';
-import { UsuarioTipoCategoriaGrupo, UsuarioTipoCGrupo } from '../interfaces/usuario-tipo-categoria-grupo';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { UsuarioTipo } from '@admin-interfaces/usuario-tipo';
+import { UsuarioTipoCategoriaGrupo, UsuarioTipoCGrupo } from '@admin-interfaces/usuario-tipo-categoria-grupo';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

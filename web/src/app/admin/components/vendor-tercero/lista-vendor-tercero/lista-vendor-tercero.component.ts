@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { VendorTerceroResponse, VendorTercero } from '../../../interfaces/vendor-tercero';
-import { VendorTerceroService } from '../../../services/vendor-tercero.service';
+import { VendorTerceroResponse } from '@admin-interfaces/vendor-tercero';
+import { VendorTerceroService } from '@admin-services/vendor-tercero.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-vendor-tercero',
   templateUrl: './lista-vendor-tercero.component.html',
   styleUrls: ['./lista-vendor-tercero.component.css']
 })
-export class ListaVendorTerceroComponent implements OnInit {
+export class ListaVendorTerceroComponent implements OnInit, OnDestroy {
 
   public lstVendorTercero: VendorTerceroResponse[];
   public lstVendorTerceroPaged: VendorTerceroResponse[];
@@ -27,6 +29,8 @@ export class ListaVendorTerceroComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private vendorTerceroSrvc: VendorTerceroService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaVendorTerceroComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadVendorTercero();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaVendorTerceroComponent implements OnInit {
   }
 
   loadVendorTercero = () => {
-    this.vendorTerceroSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstVendorTercero = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.vendorTerceroSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstVendorTercero = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getVendorTercero = (obj: VendorTerceroResponse) => {

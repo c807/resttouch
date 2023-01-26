@@ -1,14 +1,17 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Corporacion, Empresa } from '../../../interfaces/sede';
-import { SedeService } from '../../../services/sede.service';
+
+import { Corporacion, Empresa } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-empresa',
   templateUrl: './form-empresa.component.html',
   styleUrls: ['./form-empresa.component.css']
 })
-export class FormEmpresaComponent implements OnInit {
+export class FormEmpresaComponent implements OnInit, OnDestroy {
 
   @Input() corporacion: Corporacion;
   @Input() empresa: Empresa;
@@ -23,12 +26,18 @@ export class FormEmpresaComponent implements OnInit {
       "descripcion": "Promedio"
     }
   ];
+
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
     private sedeSrvc: SedeService,
   ) { }
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   resetEmpresa = () => this.empresa = {
@@ -56,17 +65,19 @@ export class FormEmpresaComponent implements OnInit {
   }
 
   onSubmit = () => {
-    this.empresa.corporacion = this.corporacion.corporacion;    
+    this.empresa.corporacion = this.corporacion.corporacion;
 
-    this.sedeSrvc.saveEmpresa(this.empresa).subscribe(res => {
-      if (res.exito) {
-        this.empresaSavedEv.emit();
-        this.resetEmpresa();
-        this.snackBar.open('Empresa guardada exitosamente.', 'Empresa', { duration: 3000 });
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Empresa', { duration: 3000 });
-      }
-    });
+    this.endSubs.add(
+      this.sedeSrvc.saveEmpresa(this.empresa).subscribe(res => {
+        if (res.exito) {
+          this.empresaSavedEv.emit();
+          this.resetEmpresa();
+          this.snackBar.open('Empresa guardada exitosamente.', 'Empresa', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Empresa', { duration: 3000 });
+        }
+      })
+    );
   }
 
 }

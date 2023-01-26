@@ -1,17 +1,19 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { FormaPagoComandaOrigenResponse } from '../../../interfaces/forma-pago';
-import { FpagoService } from '../../../services/fpago.service';
+import { FormaPagoComandaOrigenResponse } from '@admin-interfaces/forma-pago';
+import { FpagoService } from '@admin-services/fpago.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-forma-pago-comanda-origen',
   templateUrl: './lista-forma-pago-comanda-origen.component.html',
   styleUrls: ['./lista-forma-pago-comanda-origen.component.css']
 })
-export class ListaFormaPagoComandaOrigenComponent implements OnInit {
+export class ListaFormaPagoComandaOrigenComponent implements OnInit, OnDestroy {
 
   @Input() comanda_origen: number = null;
   @Output() getFormaPagoComandaOrigenEv = new EventEmitter();
@@ -28,6 +30,8 @@ export class ListaFormaPagoComandaOrigenComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private fpagoSrvc: FpagoService,
     private ls: LocalstorageService
@@ -36,6 +40,10 @@ export class ListaFormaPagoComandaOrigenComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadFormasPagoComandaOrigen();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -63,16 +71,16 @@ export class ListaFormaPagoComandaOrigenComponent implements OnInit {
       delete(fltr.comanda_origen);
     }
 
-    // console.log('FILTROS = ', fltr);
-
-    this.fpagoSrvc.getFormaPagoComandaOrigen(fltr).subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstFormasPagoComandaOrigen = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.fpagoSrvc.getFormaPagoComandaOrigen(fltr).subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstFormasPagoComandaOrigen = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getFPComandaOrigen = (obj: FormaPagoComandaOrigenResponse) => {
