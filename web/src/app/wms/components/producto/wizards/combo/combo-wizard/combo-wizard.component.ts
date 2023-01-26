@@ -1,13 +1,16 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatStepper } from '@angular/material/stepper';
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 
 import { DetalleComboWizardComponent } from '@wms-components/producto/wizards/combo/detalle-combo-wizard/detalle-combo-wizard.component';
 
-// import { Articulo } from '@wms-interfaces/articulo';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloDetalle } from '@wms-interfaces/articulo-detalle';
 import { SubCategoriaSimpleSearch } from '@wms-interfaces/categoria-grupo';
 import { ArticuloService } from '@wms-services/articulo.service';
 import { Presentacion } from '@admin-interfaces/presentacion';
@@ -59,14 +62,23 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     return this.encabezadoFormGroup.get('cobro_mas_caro') as FormControl;
   }  
 
+  get todo_correcto(): FormControl {
+    return this.todoCorrectoFormGroup.get('todo_correcto') as FormControl;
+  }
+
+  @ViewChild('stepper') pasoAPaso: MatStepper;
+
   // public articulo: Articulo;
   public encabezadoFormGroup: FormGroup;
+  public todoCorrectoFormGroup: FormGroup;
   public myControl = new FormControl();
   public lstSubCategorias: SubCategoriaSimpleSearch[] = [];
   public lstSubCategoriasFiltered: Observable<SubCategoriaSimpleSearch[]>;
   public lstPresentaciones: Presentacion[] = [];
   public lstPresentacionesFiltered: Observable<Presentacion[]>;
-  public detalleCombo: any[] = [];  
+  public detalleCombo: any[] = [];
+  public articulo: Articulo;
+  public receta: ArticuloDetalle;
 
   private endSubs = new Subscription();
 
@@ -75,7 +87,8 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private articuloSrvc: ArticuloService,
     private presentacionSrvc: PresentacionService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackbar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -90,6 +103,11 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
       codigo: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
       cobro_mas_caro: ['0', Validators.required]
     });
+
+    this.todoCorrectoFormGroup = this.fb.group({
+      todo_correcto: [false, Validators.required]
+    });
+
 
     this.loadSubCategorias();
     this.lstSubCategoriasFiltered = this.filtroSubcategoria.valueChanges.pipe(
@@ -185,7 +203,77 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
 
+  guardarCombo = () => {
+    this.articulo = {
+      articulo: null,
+      categoria_grupo: this.categoriaGrupoArticulo.value as number,
+      descripcion: this.descripcionArticulo.value as string,
+      precio: this.precioArticulo.value as number,
+      presentacion: this.presentacion.value as number,
+      presentacion_reporte: this.presentacion_reporte.value as number,
+      codigo: this.codigoArticulo.value as string,
+      shopify_id: null, 
+      bien_servicio: 'B',
+      rendimiento: 0,
+      cantidad_minima: this.detalleCombo.length,
+      cantidad_maxima: this.detalleCombo.length,
+      stock_minimo: null,
+      stock_maximo: null,
+      impuesto_especial: null,
+      cantidad_gravable: 0,
+      precio_sugerido: 0,
+      produccion: 0,
+      mostrar_pos: 1,
+      combo: 1,
+      multiple: 0,
+      mostrar_inventario: 0,
+      esreceta: 0,
+      cobro_mas_caro: this.cobro_mas_caro.value as number,
+      esextra: 0,
+      costo: 0,
+      debaja: 0
+    }
+
+    // console.log('COMBO = ', this.articulo);
+
+    this.endSubs.add(
+      this.articuloSrvc.saveArticulo(this.articulo).subscribe(artSvd => {
+        if (artSvd.exito) {
+          let msgErrores = []
+          this.detalleCombo.forEach(async (detCmb, i) => {
+            this.receta = {
+              articulo_detalle: null,
+              receta: artSvd.articulo.articulo,
+              articulo: +detCmb.articulo,
+              cantidad: +detCmb.cantidad,
+              precio_extra: +detCmb.precio === 0 ? 0 : 1,
+              medida: +detCmb.medida,
+              racionable: 0,
+              precio: +detCmb.precio,
+              anulado: 0
+            };
+
+            // console.log(`DET ${i + 1}`, this.receta);
+
+            const detSvd = await this.articuloSrvc.saveArticuloDetalle(this.receta).toPromise();
+            if (!detSvd.exito) {
+              msgErrores.push(detSvd.mensaje)
+            }
+
+          });
+          if (msgErrores.length > 0) {
+            this.snackbar.open(`ERROR${msgErrores.length === 1 ? '' : 'ES'}: ${msgErrores.join(', ')}`, 'Paso a paso: combo', { duration: 7000 });
+          } else {
+            this.snackbar.open(`El combo '${this.descripcionArticulo.value}' fue grabado con éxito.`, 'Paso a paso: combo', { duration: 5000 });
+            this.pasoAPaso.next();
+          }
+        } else {
+          this.snackbar.open(`ERROR: ${artSvd.mensaje}`, 'Paso a paso: combo', { duration: 7000 });
+        }
+      })
+    );
   }
 
 }

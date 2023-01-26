@@ -120,7 +120,7 @@
         </div>
     </mat-step>
 
-    <mat-step>
+    <mat-step [stepControl]="todoCorrectoFormGroup">
         <ng-template matStepLabel>Revisión final</ng-template>
         <p>Ya tengo la información necesaria para crear el combo. ¿Podría revisar si estamos en lo correcto, por favor?
         </p>
@@ -130,12 +130,12 @@
                     <mat-panel-title>Datos generales</mat-panel-title>
                     <!-- <mat-panel-description></mat-panel-description> -->
                 </mat-expansion-panel-header>                
-                <span>El combo se llamará <strong>{{descripcionArticulo.value}}</strong>.</span><br />
-                <span>Lo podrá encontrar en la subcategoría <strong>{{filtroSubcategoria.value.descripcion}}</strong> de la categoría <strong>{{filtroSubcategoria.value.categoria}}</strong>.</span><br />
-                <span>Se mostrará con la presentación <strong>{{filtroPresentacion.value.descripcion}}</strong>.</span><br />
-                <span>Tendrá un precio de venta de <strong>{{precioArticulo.value | number:'1.2-2'}}</strong>.</span><br />
-                <span>Se identificará con el código único <strong>{{codigoArticulo.value}}</strong>.</span><br />
-                <span>En este combo <strong>{{+cobro_mas_caro.value === 0 ? 'NO' : 'SÍ'}}</strong> se cobrará el producto más caro.</span>
+                <span>El combo se llamará <strong>{{descripcionArticulo?.value || ''}}</strong>.</span><br />
+                <span>Lo podrá encontrar en la subcategoría <strong>{{filtroSubcategoria?.value?.descripcion || ''}}</strong> de la categoría <strong>{{filtroSubcategoria?.value?.categoria || ''}}</strong>.</span><br />
+                <span>Se mostrará con la presentación <strong>{{filtroPresentacion?.value?.descripcion || ''}}</strong>.</span><br />
+                <span>Tendrá un precio de venta de <strong>{{(precioArticulo?.value | number:'1.2-2') || 0}}</strong>.</span><br />
+                <span>Se identificará con el código único <strong>{{codigoArticulo?.value || ''}}</strong>.</span><br />
+                <span>En este combo <strong>{{+cobro_mas_caro?.value === 0 ? 'NO' : 'SÍ'}}</strong> se cobrará el producto más caro.</span>
             </mat-expansion-panel>
             <mat-expansion-panel expanded="true" hideToggle>
                 <mat-expansion-panel-header>
@@ -151,10 +151,16 @@
                 </ul>
             </mat-expansion-panel>
         </mat-accordion>
+        
+        <div align="center">
+            <form [formGroup]="todoCorrectoFormGroup">
+                <mat-checkbox formControlName="todo_correcto" labelPosition="before" class="confirmacion">Después de revisarlo detenidamente, ¿está todo correcto?</mat-checkbox>
+            </form>
+        </div>
 
         <div class="espacio" align="end">
             <button mat-raised-button matStepperPrevious>Regresar</button>
-            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>
+            <button mat-raised-button color="accent" (click)="guardarCombo()" [disabled]="!todo_correcto.value">Guardar combo</button>
         </div>
     </mat-step>
 
@@ -162,7 +168,7 @@
         <ng-template matStepLabel>¡Hasta pronto!</ng-template>
         <p>Fue un gusto poder ayudarle. Aquí estaré atento si necesita más ayuda. ¡Hasta pronto!</p>
         <div class="espacio" align="end">
-            <button mat-raised-button matStepperPrevious>Regresar</button>
+            <!-- <button mat-raised-button matStepperPrevious>Regresar</button> -->
             <button mat-raised-button color="accent" (click)="stepper.reset()">Reiniciar</button>
         </div>
     </mat-step>
