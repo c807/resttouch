@@ -808,7 +808,7 @@ class Comanda extends CI_Controller
 						"_uno" => true
 					]);
 
-					$comentario = "Anulación: El usuario {$usu->nombres} {$usu->apellidos} anuló la comanda {$comanda} Motivo: {$req['comentario']}.";
+					$comentario = "Anulación: El usuario {$usu->nombres} {$usu->apellidos} canceló el pedido de comanda en línea número {$comanda} Motivo: {$req['comentario']}.";
 					if ($reversaInventario) {
 						$comentario .= " Se reversó el inventario.";
 					}
