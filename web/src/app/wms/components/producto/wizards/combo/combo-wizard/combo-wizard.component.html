@@ -102,6 +102,7 @@
                     <th class="rtxt">Cantidad</th>
                     <th>Unidad de medida</th>
                     <th class="rtxt">Precio</th>
+                    <th>&nbsp;</th>
                 </tr>
             </thead>
             <tbody>
@@ -110,13 +111,13 @@
                     <td class="rtxt">{{det.cantidad | number: '1.2-2' }}</td>
                     <td>{{det.descripcion_medida}}</td>
                     <td class="rtxt">{{det.precio | number: '1.2-2'}}</td>
+                    <th class="ctxt"><button mat-raised-button (click)="detalleCombo.splice(i, 1)">Quitar</button></th>
                 </tr>
             </tbody>
         </table>
         <div align="end">
             <button mat-raised-button matStepperPrevious>Regresar</button>
-            <button mat-raised-button color="accent" matStepperNext
-                [disabled]="detalleCombo.length === 0">Siguiente</button>
+            <button mat-raised-button color="accent" matStepperNext [disabled]="detalleCombo.length === 0">Siguiente</button>
         </div>
     </mat-step>
 
