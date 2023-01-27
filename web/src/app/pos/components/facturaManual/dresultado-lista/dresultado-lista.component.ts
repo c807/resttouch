@@ -1,13 +1,15 @@
-import { Component, OnInit, Inject, OnDestroy } from "@angular/core"
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog"
-import { FacturaService } from "../../../services/factura.service"
-import { DresultadoItemComponent } from '../dresultado-item/dresultado-item.component'
-import { Subscription } from "rxjs"
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core'
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+
+import { FacturaService } from '@pos-services/factura.service'
+import { DresultadoItemComponent } from '@pos-components/facturaManual/dresultado-item/dresultado-item.component'
+
+import { Subscription } from 'rxjs'
 
 @Component({
-	selector: "app-dresultado-lista",
-	templateUrl: "./dresultado-lista.component.html",
-	styleUrls: ["./dresultado-lista.component.css"]
+	selector: 'app-dresultado-lista',
+	templateUrl: './dresultado-lista.component.html',
+	styleUrls: ['./dresultado-lista.component.css']
 })
 export class DresultadoListaComponent implements OnInit, OnDestroy {
 

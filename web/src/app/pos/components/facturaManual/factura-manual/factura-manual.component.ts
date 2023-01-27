@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { ListaFacturaManualComponent } from '../lista-factura-manual/lista-factura-manual.component';
-import { FormFacturaManualComponent } from '../form-factura-manual/form-factura-manual.component';
-import { Factura } from '../../../interfaces/factura';
+
+import { ListaFacturaManualComponent } from '@pos-components/facturaManual/lista-factura-manual/lista-factura-manual.component';
+import { FormFacturaManualComponent } from '@pos-components/facturaManual/form-factura-manual/form-factura-manual.component';
+import { Factura } from '@pos-interfaces/factura';
 
 @Component({
   selector: 'app-factura-manual',

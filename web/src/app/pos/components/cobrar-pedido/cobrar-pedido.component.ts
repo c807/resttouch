@@ -2,37 +2,39 @@ import { Component, Inject, Input, OnDestroy, OnInit, AfterViewInit } from '@ang
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL, isEmail, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL, isEmail, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { Base64 } from 'js-base64';
 import * as moment from 'moment';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../shared/components/check-password/check-password.component';
+
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
 import { Socket } from 'ngx-socket-io';
 
-import { FormaPago } from '../../interfaces/forma-pago';
-import { Cobro } from '../../interfaces/cobro';
-import { FormaPagoService } from '../../services/forma-pago.service';
-import { CobroService } from '../../services/cobro.service';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { FacturaRequest } from '../../interfaces/factura';
-import { FacturaService } from '../../services/factura.service';
-import { Sede } from '../../../admin/interfaces/sede';
-import { SedeService } from '../../../admin/services/sede.service';
-import { ComandaService } from '../../../restaurante/services/comanda.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { Base64 } from 'js-base64';
+import { FormaPago } from '@pos-interfaces/forma-pago';
+import { Cobro } from '@pos-interfaces/cobro';
+import { FormaPagoService } from '@pos-services/forma-pago.service';
+import { CobroService } from '@pos-services/cobro.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { FacturaRequest } from '@pos-interfaces/factura';
+import { FacturaService } from '@pos-services/factura.service';
+import { Sede } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ClienteMasterDireccionResponse, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
+import { TiempoEntrega } from '@callcenter-interfaces/tiempo-entrega';
+import { TiempoEntregaService } from '@callcenter-services/tiempo-entrega.service';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '@callcenter-services/tipo-domicilio.service';
+import { ValidaPwdGerenteTurnoComponent } from '@restaurante-components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
+import { ArticuloTipoCliente } from '@wms-interfaces/articulo-tipo-cliente';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Municipio } from '@admin-interfaces/municipio';
+import { MunicipioService } from '@admin-services/municipio.service';
+
 import { Subscription } from 'rxjs';
-import { ClienteMasterService } from '../../../callcenter/services/cliente-master.service';
-import { ClienteMasterDireccionResponse, ClienteMasterCliente } from '../../../callcenter/interfaces/cliente-master';
-import { TiempoEntrega } from '../../../callcenter/interfaces/tiempo-entrega';
-import { TiempoEntregaService } from '../../../callcenter/services/tiempo-entrega.service';
-import { TipoDomicilio } from '../../../callcenter/interfaces/tipo-domicilio';
-import { TipoDomicilioService } from '../../../callcenter/services/tipo-domicilio.service';
-import { ValidaPwdGerenteTurnoComponent } from "../../../restaurante/components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component";
-import { ArticuloTipoCliente } from '../../../wms/interfaces/articulo-tipo-cliente';
-import { ArticuloService } from '../../../wms/services/articulo.service';
-import { Municipio } from '../../../admin/interfaces/municipio';
-import { MunicipioService } from '../../../admin/services/municipio.service';
 
 interface DatosPedido {
   sede: number;

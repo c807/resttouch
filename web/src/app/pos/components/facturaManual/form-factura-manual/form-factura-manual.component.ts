@@ -1,38 +1,38 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { GLOBAL, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '../../../../shared/global';
-import * as moment from 'moment';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DresultadoListaComponent } from '../dresultado-lista/dresultado-lista.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { GLOBAL, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-
-import { Factura } from '../../../interfaces/factura';
-import { DetalleFactura } from '../../../interfaces/detalle-factura';
-import { FacturaService } from '../../../services/factura.service';
-import { RazonAnulacion } from '../../../../admin/interfaces/razon-anulacion';
-import { AnulacionService } from '../../../../admin/services/anulacion.service';
-
-import { FacturaSerie } from '../../../interfaces/factura-serie';
-import { FacturaSerieService } from '../../../services/factura-serie.service';
-import { Cliente } from '../../../../admin/interfaces/cliente';
-import { ClienteService } from '../../../../admin/services/cliente.service';
-import { Moneda } from '../../../../admin/interfaces/moneda';
-import { MonedaService } from '../../../../admin/services/moneda.service';
-import { Articulo } from '../../../../wms/interfaces/articulo';
-import { ArticuloService } from '../../../../wms/services/articulo.service';
-
-import { Impresora } from '../../../../admin/interfaces/impresora';
-import { ImpresoraService } from '../../../../admin/services/impresora.service';
-import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 import { Base64 } from 'js-base64';
-import { Impresion } from '../../../../restaurante/classes/impresion';
+import * as moment from 'moment';
 
-import { Municipio } from '../../../../admin/interfaces/municipio';
-import { MunicipioService } from '../../../../admin/services/municipio.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { DresultadoListaComponent } from '@pos-components/facturaManual/dresultado-lista/dresultado-lista.component';
+import { Factura } from '@pos-interfaces/factura';
+import { DetalleFactura } from '@pos-interfaces/detalle-factura';
+import { FacturaService } from '@pos-services/factura.service';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
+import { AnulacionService } from '@admin-services/anulacion.service';
+
+import { FacturaSerie } from '@pos-interfaces/factura-serie';
+import { FacturaSerieService } from '@pos-services/factura-serie.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteService } from '@admin-services/cliente.service';
+import { Moneda } from '@admin-interfaces/moneda';
+import { MonedaService } from '@admin-services/moneda.service';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
+
+import { Impresora } from '@admin-interfaces/impresora';
+import { ImpresoraService } from '@admin-services/impresora.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { Impresion } from '@restaurante-classes/impresion';
+
+import { Municipio } from '@admin-interfaces/municipio';
+import { MunicipioService } from '@admin-services/municipio.service';
 
 import { Subscription } from 'rxjs';
 

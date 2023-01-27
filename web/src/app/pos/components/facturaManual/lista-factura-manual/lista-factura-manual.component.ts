@@ -1,19 +1,20 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-
-import { Factura } from '../../../interfaces/factura';
-import { FacturaService } from '../../../services/factura.service';
-
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
 import * as moment from 'moment';
+
+import { Factura } from '@pos-interfaces/factura';
+import { FacturaService } from '@pos-services/factura.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-factura-manual',
   templateUrl: './lista-factura-manual.component.html',
   styleUrls: ['./lista-factura-manual.component.css']
 })
-export class ListaFacturaManualComponent implements OnInit {
+export class ListaFacturaManualComponent implements OnInit, OnDestroy {
 
   public esMovil = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -31,6 +32,8 @@ export class ListaFacturaManualComponent implements OnInit {
   public verTodas = false;
   public rango = { fdel: null, fal: null };
 
+  private endSubs = new Subscription();
+
   constructor(
     private facturaSrvc: FacturaService,
     private ls: LocalstorageService
@@ -41,6 +44,10 @@ export class ListaFacturaManualComponent implements OnInit {
     this.rango.fdel = moment().startOf('month').format(GLOBAL.dbDateFormat);
     this.rango.fal = moment().endOf('month').format(GLOBAL.dbDateFormat);
     this.loadFacturas();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -68,17 +75,18 @@ export class ListaFacturaManualComponent implements OnInit {
       fltr._fal = this.rango.fal
     }
 
-    this.facturaSrvc.get(fltr).subscribe(lst => {
-      // console.log(lst);
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstFacturas = lst;
-        } else {
-          this.lstFacturas = [];
+    this.endSubs.add(
+      this.facturaSrvc.get(fltr).subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstFacturas = lst;
+          } else {
+            this.lstFacturas = [];
+          }
+          this.applyFilter();
         }
-        this.applyFilter();
-      }
-    });
+      })
+    );
   }
 
   cargarFacturas = (obj: any) => this.loadFacturas();

@@ -1,16 +1,18 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { FormaPago } from '../../../interfaces/forma-pago';
-import { FormaPagoService } from '../../../services/forma-pago.service';
+import { FormaPago } from '@pos-interfaces/forma-pago';
+import { FormaPagoService } from '@pos-services/forma-pago.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-forma-pago',
   templateUrl: './lista-forma-pago.component.html',
   styleUrls: ['./lista-forma-pago.component.css']
 })
-export class ListaFormaPagoComponent implements OnInit {
+export class ListaFormaPagoComponent implements OnInit, OnDestroy {
 
   public lstFormasPago: FormaPago[];
   public lstFormasPagoPaged: FormaPago[];
@@ -23,12 +25,18 @@ export class ListaFormaPagoComponent implements OnInit {
   public pageEvent: PageEvent;
   public txtFiltro = '';
 
+  private endSubs = new Subscription();
+
   constructor(
     private formaPagoSrvc: FormaPagoService
   ) { }
 
   ngOnInit() {
     this.loadFormasPago();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter() {
@@ -43,14 +51,16 @@ export class ListaFormaPagoComponent implements OnInit {
   }
 
   loadFormasPago = () => {
-    this.formaPagoSrvc.buscar().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstFormasPago = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.formaPagoSrvc.buscar().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstFormasPago = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getFormaPago = (obj: FormaPago) => {

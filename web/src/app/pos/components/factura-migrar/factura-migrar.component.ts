@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { Subscription } from "rxjs";
-import { UsuarioSede } from "../../../admin/interfaces/acceso";
-import { LocalstorageService } from "../../../admin/services/localstorage.service";
-import { AccesoUsuarioService } from "../../../admin/services/acceso-usuario.service";
-import { FacturaService } from "../../services/factura.service";
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { FacturaService } from '@pos-services/factura.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-factura-migrar',
@@ -16,11 +17,11 @@ import { FacturaService } from "../../services/factura.service";
 })
 export class FacturaMigrarComponent implements OnInit, OnDestroy {
 
-	public params: any          = {}
-	public paramsToSend: any    = {}
-	public lista: any           = []
+	public params: any = {}
+	public paramsToSend: any = {}
+	public lista: any = []
 	public sedes: UsuarioSede[] = []
-	
+
 	public cargando = false
 	private endSubs = new Subscription()
 
@@ -42,7 +43,7 @@ export class FacturaMigrarComponent implements OnInit, OnDestroy {
 
 	resetParams = () => {
 		this.params = {
-			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat),
+			fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			sede: this.ls.get(GLOBAL.usrTokenVar).sede
 		}
@@ -62,18 +63,18 @@ export class FacturaMigrarComponent implements OnInit, OnDestroy {
 		})
 	}
 
-	getLista () {
+	getLista() {
 		if (
-			this.params.fdel && moment(this.params.fdel).isValid() && 
+			this.params.fdel && moment(this.params.fdel).isValid() &&
 			this.params.fal && moment(this.params.fal).isValid()
 		) {
-			this.paramsToSend      = JSON.parse(JSON.stringify(this.params));
-			this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format("YYYY-MM-DD");
-			this.paramsToSend.fal  = moment(this.paramsToSend.fal).format("YYYY-MM-DD");
+			this.paramsToSend = JSON.parse(JSON.stringify(this.params));
+			this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+			this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 
 
 			this.cargando = true
-			this.lista    = []
+			this.lista = []
 
 			this.endSubs.add(
 				this.facturaSrvc.getListaFactura(this.paramsToSend).subscribe(res => {
@@ -81,33 +82,33 @@ export class FacturaMigrarComponent implements OnInit, OnDestroy {
 						if (res.exito) {
 							this.lista = res.items
 						} else {
-							this.snackBar.open(res.mensaje, "Factura", { duration: 3000 })
+							this.snackBar.open(res.mensaje, 'Factura', { duration: 3000 })
 						}
 					} else {
-						this.snackBar.open("No se logró obtener los datos...", "Factura", { duration: 3000 })
+						this.snackBar.open('No se logró obtener los datos...', 'Factura', { duration: 3000 })
 					}
 					this.cargando = false
 				})
 			)
 		} else {
-			this.snackBar.open("Por favor ingrese todos los parámetros.", "Factura", { duration: 7000 })
+			this.snackBar.open('Por favor ingrese todos los parámetros.', 'Factura', { duration: 7000 })
 		}
 	}
 
-	enviarFacturas () {
+	enviarFacturas() {
 		let facturas = this.lista.filter(obj => obj.checked === true).map(obj => obj.factura)
-		
+
 		if (facturas.length === 0) {
-			this.snackBar.open("Debe seleccionar una factura", "Factura", { duration: 3000 })
+			this.snackBar.open('Debe seleccionar una factura', 'Factura', { duration: 3000 })
 		} else {
 			this.cargando = true
 
 			this.endSubs.add(
-				this.facturaSrvc.enviarFacturaConta({facturas: facturas}).subscribe(res => {
+				this.facturaSrvc.enviarFacturaConta({ facturas: facturas }).subscribe(res => {
 					if (res) {
-						this.snackBar.open(res.mensaje, "Factura", { duration: 7000 })
+						this.snackBar.open(res.mensaje, 'Factura', { duration: 7000 })
 					} else {
-						this.snackBar.open("No se logró procesar los datos...", "Factura", { duration: 3000 })
+						this.snackBar.open('No se logró procesar los datos...', 'Factura', { duration: 3000 })
 					}
 					this.cargando = false
 				})

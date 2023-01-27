@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { FacturaSerie } from '../interfaces/factura-serie';
-// import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { FacturaSerie } from '@pos-interfaces/factura-serie';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -14,26 +13,16 @@ import * as qs from 'qs';
 export class FacturaSerieService {
 
   private srvcErrHndl: ServiceErrorHandler;
-  // private moduleUrl: string = 'turno';
-  // private usrToken: string = null;
 
   constructor(
-    private http: HttpClient,
-    // private ls: LocalstorageService
+    private http: HttpClient
   ) {
     this.srvcErrHndl = new ServiceErrorHandler();
-    // this.usrToken = this.ls.get(GLOBAL.usrTokenVar) ? this.ls.get(GLOBAL.usrTokenVar).token : null;
   }
 
-  get(fltr: any = {}): Observable<FacturaSerie[]> {
-    /* const httpOptions = {
-      headers: new HttpHeaders({
-        'Authorization': this.usrToken
-      })
-    }; */
+  get(fltr: any = {}): Observable<FacturaSerie[]> {    
     return this.http.get<FacturaSerie[]>(
-      `${GLOBAL.urlCatalogos}/get_factura_serie?${qs.stringify(fltr)}`
-      // , httpOptions
+      `${GLOBAL.urlCatalogos}/get_factura_serie?${qs.stringify(fltr)}`      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

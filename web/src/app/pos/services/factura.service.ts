@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { FacturaRequest, Factura } from '../interfaces/factura';
-import { DetalleFactura } from '../interfaces/detalle-factura';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { FacturaRequest, Factura } from '@pos-interfaces/factura';
+import { DetalleFactura } from '@pos-interfaces/detalle-factura';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

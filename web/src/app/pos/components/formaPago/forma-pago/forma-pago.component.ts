@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaFormaPagoComponent } from '../lista-forma-pago/lista-forma-pago.component';
-import { FormaPago } from '../../../interfaces/forma-pago';
+import { ListaFormaPagoComponent } from '@pos-components/formaPago/lista-forma-pago/lista-forma-pago.component';
+import { FormaPago } from '@pos-interfaces/forma-pago';
 
 @Component({
   selector: 'app-forma-pago',
