@@ -1,27 +1,27 @@
 import { AfterViewInit, Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL, MultiFiltro } from '../../../shared/global';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
 import { MatTable } from '@angular/material/table';
-import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
-import * as moment from 'moment';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { FormaPagoComandaOrigenDialogComponent } from '../../../admin/components/formaPagoComandaOrigen/forma-pago-comanda-origen-dialog/forma-pago-comanda-origen-dialog.component';
-import { FormSedeVendorTerceroDialogComponent } from '../../../admin/components/vendor-tercero/form-sede-vendor-tercero-dialog/form-sede-vendor-tercero-dialog.component';
-
-import { OrdenGkResponse, OrdenRT, articulo_gk, DatosEntregaGK, DatosFacturaGK } from '../../interfaces/orden-gk';
-import { FormaPago } from '../../../admin/interfaces/forma-pago';
-import { EstatusOrdenGk } from '../../interfaces/estatus-orden-gk';
-import { VendorTercero } from '../../../admin/interfaces/vendor-tercero';
-import { Impresora } from '../../../admin/interfaces/impresora';
-import { OrdenGkService } from '../../services/orden-gk.service';
-import { ImpresoraService } from '../../../admin/services/impresora.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { Socket } from 'ngx-socket-io';
 import { Base64 } from 'js-base64';
+import * as moment from 'moment';
+
+import { DesktopNotificationService } from '@shared-services/desktop-notification.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { FormaPagoComandaOrigenDialogComponent } from '@admin-components/formaPagoComandaOrigen/forma-pago-comanda-origen-dialog/forma-pago-comanda-origen-dialog.component';
+import { FormSedeVendorTerceroDialogComponent } from '@admin-components/vendor-tercero/form-sede-vendor-tercero-dialog/form-sede-vendor-tercero-dialog.component';
+import { OrdenGkResponse, OrdenRT, articulo_gk, DatosEntregaGK, DatosFacturaGK } from '@ghost-kitchen-interfaces/orden-gk';
+import { FormaPago } from '@admin/interfaces/forma-pago';
+import { EstatusOrdenGk } from '@ghost-kitchen-interfaces/estatus-orden-gk';
+import { VendorTercero } from '@admin-interfaces/vendor-tercero';
+import { Impresora } from '@admin-interfaces/impresora';
+import { OrdenGkService } from '@ghost-kitchen-services/orden-gk.service';
+import { ImpresoraService } from '@admin-services/impresora.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+
 import { Subscription } from 'rxjs';
 
 @Component({

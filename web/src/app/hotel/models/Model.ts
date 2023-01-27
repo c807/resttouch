@@ -1,10 +1,10 @@
-import {HabType} from '../components/booker/habitacion/HabTypeE';
-import {RevStat} from '../components/booker/reservacion/RevStat';
+import { HabType } from '@hotel-components/booker/habitacion/HabTypeE';
+import { RevStat } from '@hotel-components/booker/reservacion/RevStat';
 
 export class Reservation {
   id: number;
   fecha: string;
-  room_id : number;
+  room_id: number;
   cancelado: boolean;
   razon: string;
   type: RevStat;

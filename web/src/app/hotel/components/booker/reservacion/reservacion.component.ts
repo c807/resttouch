@@ -1,13 +1,12 @@
 import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
-import { RevStat } from './RevStat';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReservationDialogComponent } from '../reservationd/reservation-dialog.component';
-import { ReservationDialogcancelComponent } from '../reservationc/reservation-dialogcancel.component';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
+import { RevStat } from './RevStat';
 import * as moment from 'moment';
-// import { FakeBakend } from '../FakeBakend';
 
+import { ReservationDialogComponent } from '@hotel-components/booker/reservationd/reservation-dialog.component';
+import { ReservationDialogcancelComponent } from '@hotel-components/booker/reservationc/reservation-dialogcancel.component';
 
 @Component({
   selector: 'app-reservacion',
@@ -27,9 +26,7 @@ export class ReservacionComponent implements AfterViewInit {
   @Input() debaja: number = 0;
   @Input() descripcionHabitacion: string = null;
 
-  public isCanceled(): boolean {
-    // const obj = FakeBakend.RoomReservations.find(element => element.id.toString() === this.resId.toString());
-    // return obj.cancelado;
+  public isCanceled(): boolean {    
     return false
   }
 

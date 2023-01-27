@@ -1,12 +1,13 @@
-import {Component, OnDestroy, OnInit} from "@angular/core";
-
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { saveAs } from 'file-saver';
 import * as moment from 'moment';
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
+
+import { ReporteGkService } from '@ghost-kitchen-services/reporte-gk.service';
+
 import { Subscription } from "rxjs";
-import { LocalstorageService } from "../../../../admin/services/localstorage.service";
-import { saveAs } from "file-saver";
-import { ReporteGkService } from "../../../services/reporte-gk.service";
 
 @Component({
 	selector: "app-venta-marca",

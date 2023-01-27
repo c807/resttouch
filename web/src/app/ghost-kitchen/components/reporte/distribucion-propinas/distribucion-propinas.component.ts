@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 import { saveAs } from 'file-saver';
 
-import { ReporteGkService } from '../../../services/reporte-gk.service';
+import { ReporteGkService } from '@ghost-kitchen-services/reporte-gk.service';
 
 @Component({
   selector: 'app-distribucion-propinas',

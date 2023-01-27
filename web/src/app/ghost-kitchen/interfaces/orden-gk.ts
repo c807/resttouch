@@ -1,7 +1,7 @@
-import { Corporacion, Sede } from '../../admin/interfaces/sede';
-import { ComandaOrigen } from '../../admin/interfaces/comanda-origen';
-import { FormaPago } from '../../admin/interfaces/forma-pago';
-import { EstatusOrdenGk } from '../interfaces/estatus-orden-gk';
+import { Corporacion, Sede } from '@admin-interfaces/sede';
+import { ComandaOrigen } from '@admin-interfaces/comanda-origen';
+import { FormaPago } from '@admin-interfaces/forma-pago';
+import { EstatusOrdenGk } from './estatus-orden-gk';
 
 export interface OrdenGk {
     orden_gk: number;

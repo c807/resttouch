@@ -2,26 +2,24 @@ import { AfterViewInit, Component, OnInit, ViewChild, OnDestroy } from '@angular
 import * as moment from 'moment';
 import { HabType } from './habitacion/HabTypeE';
 import { RevStat } from './reservacion/RevStat';
-// import { FakeBakend } from './FakeBakend';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { ThemePalette } from '@angular/material/core';
-import { FilterComponent } from '../booker/filtro/filter.component';
-import { GLOBAL } from '../../../shared/global';
+import { FilterComponent } from '@hotel-components/booker/filtro/filter.component';
+import { GLOBAL } from '@shared/global';
 
-import { TipoHabitacion } from '../../../admin/interfaces/tipo-habitacion';
-import { TipoHabitacionService } from '../../../admin/services/tipo-habitacion.service';
-import { MesaDisponible } from '../../../restaurante/interfaces/mesa';
-import { MesaService } from '../../../restaurante/services/mesa.service';
-import { ReservaService } from '../../services/reserva.service';
+import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TipoHabitacionService } from '@admin-services/tipo-habitacion.service';
+import { MesaDisponible } from '@restaurante-interfaces/mesa';
+import { MesaService } from '@restaurante-services/mesa.service';
+import { ReservaService } from '@hotel-services/reserva.service';
 
 import { Subscription } from 'rxjs';
-import { Reserva } from '../../interfaces/reserva';
+import { Reserva } from '@hotel-interfaces/reserva';
 
-import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
-import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '../../../shared/classes/custom-date-adapter';
+import { DateAdapter } from '@angular/material/core';
+import { CustomDateAdapter } from '@shared/classes/custom-date-adapter';
 
 export interface DayCalendar {
   martes: (RevStat | string);
@@ -65,13 +63,11 @@ const ELEMENT_DATA: DayCalendar[] = [];
   templateUrl: './booker.component.html',
   styleUrls: ['./booker.component.css'],
   providers: [
-    { provide: DateAdapter, useClass: CustomDateAdapter },
-    // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+    { provide: DateAdapter, useClass: CustomDateAdapter },    
   ]
 })
 export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  // @ViewChild(MatTable, { static: true }) tblReservas: MatTable<any>;
+  
   @ViewChild('tblReservas') tblReservas: MatTable<any>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('fltrTipoHabitacion') fltrTipoHabitacion: FilterComponent;
@@ -82,8 +78,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   public displayedColumns: string[] = ['habitacion', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
   public reservationIdDays: string[] = ['blank', 'resL', 'resM', 'resMi', 'resJ', 'resV', 'resS', 'resD'];
   public dataSource = new MatTableDataSource<DayCalendar>(ELEMENT_DATA);
-  public dataSourceTemp = ELEMENT_DATA;
-  // public roomArr = FakeBakend.RoomArrTypesFilter;
+  public dataSourceTemp = ELEMENT_DATA;  
   public roomArr = [];
   public monDate = new Date();
   public marDate = new Date();
@@ -97,8 +92,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private endSubs = new Subscription();
 
-  constructor(
-    // private _liveAnnouncer: LiveAnnouncer,
+  constructor(    
     private tipoHabitacionSrvc: TipoHabitacionService,
     private mesaSrvc: MesaService,
     private reservaSrvc: ReservaService,
@@ -107,15 +101,13 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.setDates();
-    // this.dateChanged(moment().toDate());    
+    this.setDates();    
     this.setPaginatorAndSort();
   }
 
   ngAfterViewInit() {
     this.loadTiposHabitacion();
-    this.loadReservables();
-    // this.dateChanged(moment().toDate());
+    this.loadReservables();    
     this.setPaginatorAndSort();
   }
 
@@ -135,10 +127,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
             type: tipHab.icono,
             shouldFilter: true
           });
-        }
-        // console.log(this.roomArr);
-        // this.fltrTipoHabitacion.dataSourceR = this.roomArr;
-        // this.fltrTipoHabitacion.setdata();
+        }        
         this.cargando = false;
       })
     );

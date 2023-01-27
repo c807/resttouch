@@ -2,27 +2,27 @@ import { OnInit, AfterViewInit, Component, Inject, OnDestroy } from '@angular/co
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '../../../../shared/classes/custom-date-adapter';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { CustomDateAdapter, CUSTOM_DATE_FORMATS } from '@shared-classes/custom-date-adapter';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
 
 import { FormControl, FormGroup } from '@angular/forms';
-import { RevStat } from '../reservacion/RevStat';
+import { RevStat } from '@hotel-components/booker/reservacion/RevStat';
 import * as moment from 'moment';
 
-import { Reserva } from '../../../interfaces/reserva';
-import { ReservaService } from '../../../services/reserva.service';
-import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
-import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
-import { EstatusReserva } from '../../../interfaces/estatus-reserva';
-import { EstatusReservaService } from '../../../services/estatus-reserva.service';
-import { ClienteMaster } from '../../../../callcenter/interfaces/cliente-master';
-import { ClienteMasterService } from '../../../../callcenter/services/cliente-master.service';
-import { ClienteMasterDialogComponent } from '../../../../callcenter/components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
-import { ComandaService } from '../../../../restaurante/services/comanda.service';
-import { DialogSelectReservableComponent } from '../../dialog-select-reservable/dialog-select-reservable.component';
+import { Reserva } from '@hotel-interfaces/reserva';
+import { ReservaService } from '@hotel-services/reserva.service';
+import { TarifaReserva } from '@hotel-interfaces/tarifa-reserva';
+import { TarifaReservaService } from '@hotel-services/tarifa-reserva.service';
+import { EstatusReserva } from '@hotel-interfaces/estatus-reserva';
+import { EstatusReservaService } from '@hotel-services/estatus-reserva.service';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ClienteMasterDialogComponent } from '@callcenter-components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { DialogSelectReservableComponent } from '@hotel-components/dialog-select-reservable/dialog-select-reservable.component';
 
 import { Subscription } from 'rxjs';
 

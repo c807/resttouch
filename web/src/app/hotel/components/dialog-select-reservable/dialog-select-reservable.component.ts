@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
-import { MesaService } from '../../../restaurante/services/mesa.service';
-import { MesaDisponible } from '../../../restaurante/interfaces/mesa';
+import { MesaService } from '@restaurante-services/mesa.service';
+import { MesaDisponible } from '@restaurante-interfaces/mesa';
 
 import { Subscription } from 'rxjs';
 

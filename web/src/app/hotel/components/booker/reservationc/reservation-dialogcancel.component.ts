@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {RevStat} from '../reservacion/RevStat';
+import {RevStat} from '@hotel-components/booker/reservacion/RevStat';
+import {FakeBakend} from '@hotel/components/booker/FakeBakend';
 import * as moment from 'moment';
-import {FakeBakend} from '../FakeBakend';
 
 export interface DialogData {
   roomId: number;

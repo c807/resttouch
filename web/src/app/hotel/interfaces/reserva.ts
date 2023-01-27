@@ -1,6 +1,6 @@
-import { Mesa, MesaDisponible } from '../../restaurante/interfaces/mesa';
+import { Mesa, MesaDisponible } from '@restaurante-interfaces/mesa';
 import { TarifaReserva } from './tarifa-reserva';
-import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
 
 export interface Reserva {
     reserva: number;

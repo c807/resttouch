@@ -1,4 +1,4 @@
-import { Reservation, Room } from '../../models/Model';
+import { Reservation, Room } from '@hotel-models/Model';
 import { HabType } from './habitacion/HabTypeE';
 import { RevStat } from './reservacion/RevStat';
 

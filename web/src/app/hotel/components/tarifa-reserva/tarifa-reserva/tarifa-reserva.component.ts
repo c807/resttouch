@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoHabitacion } from '../../../../admin/interfaces/tipo-habitacion';
-import { TarifaReserva } from '../../../interfaces/tarifa-reserva';
-import { TarifaReservaService } from '../../../services/tarifa-reserva.service';
-import { ArticuloService } from '../../../../wms/services/articulo.service';
-import { Articulo } from '../../../../wms/interfaces/articulo';
+import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TarifaReserva } from '@hotel-interfaces/tarifa-reserva';
+import { TarifaReservaService } from '@hotel-services/tarifa-reserva.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Articulo } from '@wms-interfaces/articulo';
 
 import { Subscription } from 'rxjs';
 
