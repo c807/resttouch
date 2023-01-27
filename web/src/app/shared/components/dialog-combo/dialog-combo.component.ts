@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { ArticuloService } from '../../../wms/services/articulo.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { ExtraProductoComponent } from '../extra-producto/extra-producto.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ExtraProductoComponent } from '@shared-components/extra-producto/extra-producto.component';
 
 import { Subscription } from 'rxjs';
 
@@ -73,34 +74,36 @@ export class DialogComboComponent implements OnInit, OnDestroy {
 
   getArticulos = () => {
     const fltr: any = { articulo: this.producto.id, debaja: 0 };
-    this.articuloSvr.getArticuloCombo(fltr).subscribe((res) => {
-      let multiple = 0;
-      this.combo = res;
-      for (let i = 0; i < this.combo.receta.length; i++) {
-        this.combo.receta[i].idx = i;
-
-        const element = this.combo.receta[i];
-
-        this.combo.receta[i].seleccionado = false;
-        if (+element.multiple === 1) {
-          multiple++;
-          const list = [];
-          for (let cont = 0; cont < +this.combo.receta[i].cantidad_maxima; cont++) {
-            list.push({
-              id: cont,
-              seleccion: {
-                extras: []
-              }
-            });
+    this.endSubs.add(      
+      this.articuloSvr.getArticuloCombo(fltr).subscribe((res) => {
+        let multiple = 0;
+        this.combo = res;
+        for (let i = 0; i < this.combo.receta.length; i++) {
+          this.combo.receta[i].idx = i;
+  
+          const element = this.combo.receta[i];
+  
+          this.combo.receta[i].seleccionado = false;
+          if (+element.multiple === 1) {
+            multiple++;
+            const list = [];
+            for (let cont = 0; cont < +this.combo.receta[i].cantidad_maxima; cont++) {
+              list.push({
+                id: cont,
+                seleccion: {
+                  extras: []
+                }
+              });
+            }
+            this.combo.receta[i].input = list;
+          } else {
+            this.seleccion.receta.push(this.combo.receta[i]);
           }
-          this.combo.receta[i].input = list;
-        } else {
-          this.seleccion.receta.push(this.combo.receta[i]);
         }
-      }
-
-      // if (+multiple === 0) { this.onConfirm(); } // Se quitó esta validación para poder modificar la cantidad de los combos fijos.
-    });
+  
+        // if (+multiple === 0) { this.onConfirm(); } // Se quitó esta validación para poder modificar la cantidad de los combos fijos.
+      })
+    );
   }
 
   setCantidad = () => {

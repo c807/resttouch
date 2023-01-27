@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { GLOBAL } from '../../global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { ConfiguracionFechas } from '../../interfaces/config-reportes';
+import { ConfiguracionFechas } from '@shared-interfaces/config-reportes';
 
 @Component({
   selector: 'app-rpt-fechas',

@@ -3,8 +3,8 @@ export const PROTOCOLO = window.location.protocol;
 export const ANFITRION = window.location.hostname;
 const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ? 'api' : 'resttouch'}`;
 import * as moment from 'moment';
-import { Municipio } from '../admin/interfaces/municipio';
-import { Cliente } from '../admin/interfaces/cliente';
+import { Municipio } from '@admin-interfaces/municipio';
+import { Cliente } from '@admin-interfaces/cliente';
 
 export const GLOBAL = {
   rtVersion: '2023.01.23.07.49.56',

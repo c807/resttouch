@@ -1,7 +1,9 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { ComandaService } from '../../../restaurante/services/comanda.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+
+import { Subscription } from 'rxjs';
 
 export class ConfigCheckPasswordModel {
   constructor(
@@ -16,9 +18,11 @@ export class ConfigCheckPasswordModel {
   templateUrl: './check-password.component.html',
   styleUrls: ['./check-password.component.css']
 })
-export class CheckPasswordComponent implements OnInit {
+export class CheckPasswordComponent implements OnInit, OnDestroy {
 
   public pwd: string = undefined;
+
+  private endSubs = new Subscription();
 
   constructor(
     private comandaSrvc: ComandaService,
@@ -26,7 +30,10 @@ export class CheckPasswordComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ConfigCheckPasswordModel
   ) { }
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   cancelar = () => this.dialogRef.close();
@@ -38,14 +45,15 @@ export class CheckPasswordComponent implements OnInit {
   }
 
   validarPwdGerenteTurno = () => {
-
-    this.comandaSrvc.validaPwdGerenteTurno(this.pwd).subscribe(res => {
-      if (res.exito) {
-        this.dialogRef.close(res.esgerente);
-      } else {
-        this.dialogRef.close(false);
-      }
-    });
+    this.endSubs.add(
+      this.comandaSrvc.validaPwdGerenteTurno(this.pwd).subscribe(res => {
+        if (res.exito) {
+          this.dialogRef.close(res.esgerente);
+        } else {
+          this.dialogRef.close(false);
+        }
+      })
+    );
   }
 
 }

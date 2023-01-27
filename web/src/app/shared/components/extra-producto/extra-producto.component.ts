@@ -1,10 +1,10 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GLOBAL } from '../../global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ArticuloResponse } from '../../../wms/interfaces/articulo';
-import { ArticuloService } from '../../../wms/services/articulo.service';
+import { ArticuloResponse } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
 
 import { Subscription } from 'rxjs';
 

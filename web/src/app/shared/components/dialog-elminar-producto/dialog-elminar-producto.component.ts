@@ -1,11 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ProductoSelected } from '../../../wms/interfaces/articulo';
-import { DetalleCuentaSimplified } from '../../../restaurante/interfaces/cuenta';
+import { ProductoSelected } from '@wms-interfaces/articulo';
+import { DetalleCuentaSimplified } from '@restaurante-interfaces/cuenta';
 
 export class ElminarProductoModel {
   constructor(

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ComponentFactoryResolver, ApplicationRef, Injector, OnDestroy, Input } from '@angular/core';
 import { CdkPortal, DomPortalHost } from '@angular/cdk/portal';
-import { WindowConfiguration } from '../../interfaces/window-configuration';
+import { WindowConfiguration } from '@shared-interfaces/window-configuration';
 
 @Component({
   selector: 'app-window',

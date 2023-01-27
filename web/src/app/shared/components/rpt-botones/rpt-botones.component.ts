@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 
-import { ConfiguracionBotones } from '../../interfaces/config-reportes';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
 
 @Component({
   selector: 'app-rpt-botones',

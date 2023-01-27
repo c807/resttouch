@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GLOBAL } from '../global';
+import { GLOBAL } from '@shared/global';
 
-import { LocalstorageService } from '../../admin/services/localstorage.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
 @Injectable()
 export class TokenAuthInterceptor implements HttpInterceptor {
