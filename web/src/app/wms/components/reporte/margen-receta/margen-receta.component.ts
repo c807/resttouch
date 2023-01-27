@@ -1,19 +1,20 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { Subscription } from "rxjs";
-import { saveAs } from "file-saver";
-import { ReportePdfService } from "../../../../restaurante/services/reporte-pdf.service";
-import { CategoriaGrupo, CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { ArticuloService } from '../../../services/articulo.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
+import { ArticuloService } from '@wms-services/articulo.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
-	selector: "app-margen-receta",
-	templateUrl: "./margen-receta.component.html",
-	styleUrls: ["./margen-receta.component.css"]
+	selector: 'app-margen-receta',
+	templateUrl: './margen-receta.component.html',
+	styleUrls: ['./margen-receta.component.css']
 })
 export class MargenRecetaComponent implements OnInit, OnDestroy {
 
@@ -27,7 +28,7 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 	};
 
 	public params: any = { _coniva: '0' };
-	public titulo: string = "Margen_receta";
+	public titulo: string = 'Margen_receta';
 	public subCategorias: CategoriaGrupoResponse[] = [];
 	public cargando = false;
 	private endSubs = new Subscription();
@@ -78,10 +79,10 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 		this.endSubs.add(
 			this.pdfServicio.generar_margen_receta(this.params).subscribe(res => {
 				if (res) {
-					const blob = new Blob([res], { type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel") });
-					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+					const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 				} else {
-					this.snackBar.open("No se pudo generar el reporte...", this.titulo, { duration: 3000 });
+					this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 				}
 				this.cargando = false;
 			})

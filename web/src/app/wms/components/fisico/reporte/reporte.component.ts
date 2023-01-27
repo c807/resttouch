@@ -1,20 +1,21 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { Bodega } from '../../../interfaces/bodega';
-import { BodegaService } from '../../../services/bodega.service';
-import { Categoria } from '../../../interfaces/categoria';
-import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
-import { Articulo } from '../../../interfaces/articulo';
-import { ArticuloService } from '../../../services/articulo.service';
-import { FisicoService } from '../../../services/fisico.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
-import { saveAs } from 'file-saver';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
-import * as moment from 'moment';
 import { MatSelectChange } from '@angular/material/select';
-import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
+import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
+
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { Categoria } from '@wms-interfaces/categoria';
+import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { FisicoService } from '@wms-services/fisico.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
 
 import { Subscription } from 'rxjs';
 

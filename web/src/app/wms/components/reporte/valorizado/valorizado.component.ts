@@ -1,14 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { Bodega } from '../../../interfaces/bodega';
-import { BodegaService } from '../../../services/bodega.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
+
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,7 +23,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
   public bodegas: Bodega[] = [];
   public sedes: UsuarioSede[] = [];
   public params: any = {};
-  public titulo: string = "Valorizado";
+  public titulo: string = 'Valorizado';
   public cargando = false;
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true

@@ -1,27 +1,30 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-// import { FormEgresoComponent } from '../egreso/form-egreso/form-egreso.component';
-import { FormIngresoComponent } from '../ingreso/form-ingreso/form-ingreso.component';
+import { FormIngresoComponent } from '@wms-components/ingreso/form-ingreso/form-ingreso.component';
 
-import { TransformacionIngreso } from '../../interfaces/transformacion';
-import { TransformacionService } from '../../services/transformacion.service';
-import { Ingreso } from '../../interfaces/ingreso';
+import { TransformacionIngreso } from '@wms-interfaces/transformacion';
+import { TransformacionService } from '@wms-services/transformacion.service';
+import { Ingreso } from '@wms-interfaces/ingreso';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-produccion',
   templateUrl: './produccion.component.html',
   styleUrls: ['./produccion.component.css']
 })
-export class ProduccionComponent implements OnInit {
+export class ProduccionComponent implements OnInit, OnDestroy {
 
   @ViewChild('frmIngreso') frmIngreso: FormIngresoComponent;
   public ingreso: Ingreso;
   public produccion: TransformacionIngreso;
   public bloqueoBotones = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private ls: LocalstorageService,
@@ -34,6 +37,10 @@ export class ProduccionComponent implements OnInit {
       ingreso: null, tipo_movimiento: null, fecha: moment().format(GLOBAL.dbDateFormat), bodega: null,
       usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), comentario: null, proveedor: null
     };
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   transformar = () => {
@@ -62,16 +69,18 @@ export class ProduccionComponent implements OnInit {
     if (
       !!this.produccion && !!this.produccion.detalle && this.produccion.detalle.length > 0
     ) {
-      this.transformacionSrvc.producir(this.produccion).subscribe(res => {
-        this.bloqueoBotones = false;
-        if (res.exito) {
-          this.frmIngreso.resetIngreso();
-          this.frmIngreso.detallesIngreso = [];
-          this.snackBar.open('Producto generado con éxito...', 'Producción', { duration: 5000 });
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Producción', { duration: 3000 });
-        }
-      });
+      this.endSubs.add(
+        this.transformacionSrvc.producir(this.produccion).subscribe(res => {
+          this.bloqueoBotones = false;
+          if (res.exito) {
+            this.frmIngreso.resetIngreso();
+            this.frmIngreso.detallesIngreso = [];
+            this.snackBar.open('Producto generado con éxito...', 'Producción', { duration: 5000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Producción', { duration: 3000 });
+          }
+        })
+      );
     } else {
       this.bloqueoBotones = false;
       this.snackBar.open(`Faltan datos necesario. Favor complete los datos e intente de nuevo.`, 'Transformación', { duration: 3000 });

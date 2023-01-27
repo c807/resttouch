@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Articulo } from '../../../interfaces/articulo';
-import { ArticuloTipoCliente } from '../../../interfaces/articulo-tipo-cliente';
-import { ArticuloService } from '../../../services/articulo.service';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloTipoCliente } from '@wms-interfaces/articulo-tipo-cliente';
+import { ArticuloService } from '@wms-services/articulo.service';
 
-import { TipoCliente } from '../../../../admin/interfaces/tipo-cliente';
-import { TipoClienteService } from '../../../../admin/services/tipo-cliente.service';
+import { TipoCliente } from '@admin-interfaces/tipo-cliente';
+import { TipoClienteService } from '@admin-services/tipo-cliente.service';
 
 import { Subscription } from 'rxjs';
 

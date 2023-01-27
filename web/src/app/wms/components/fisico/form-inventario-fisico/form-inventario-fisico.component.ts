@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component'
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { FisicoService } from '../../../services/fisico.service';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
+
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component'
+import { FisicoService } from '@wms-services/fisico.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 
 import { Subscription } from 'rxjs';
 

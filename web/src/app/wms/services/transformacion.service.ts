@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Transformacion } from '../interfaces/transformacion';
-import { TransformacionIngreso } from '../interfaces/transformacion';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { Transformacion } from '@wms-interfaces/transformacion';
+import { TransformacionIngreso } from '@wms-interfaces/transformacion';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 

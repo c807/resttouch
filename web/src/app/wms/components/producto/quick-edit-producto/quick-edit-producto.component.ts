@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, MultiFiltro, OrdenarArrayObjetos } from '@shared/global';
 
-import { Categoria } from '../../../interfaces/categoria';
-import { ArticuloFastEdit } from '../../../interfaces/articulo';
-import { ArticuloService } from '../../../services/articulo.service';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL, MultiFiltro, OrdenarArrayObjetos } from '../../../../shared/global';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { Categoria } from '@wms-interfaces/categoria';
+import { ArticuloFastEdit } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
 
 import { Subscription } from 'rxjs';
 

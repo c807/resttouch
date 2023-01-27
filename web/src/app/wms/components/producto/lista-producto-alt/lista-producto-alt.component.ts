@@ -1,12 +1,12 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
 
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { OnlineService } from '../../../../shared/services/online.service';
-import { db } from '../../../../offline/db';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { OnlineService } from '@shared-services/online.service';
+import { db } from '@offline/db';
 
-import { ArbolArticulos, ArbolCategoriaGrupo, Articulo, NodoProducto } from '../../../interfaces/articulo';
-import { ArticuloService } from '../../../services/articulo.service';
+import { ArbolArticulos, ArbolCategoriaGrupo, Articulo, NodoProducto } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
 
 import { Subscription } from 'rxjs';
 

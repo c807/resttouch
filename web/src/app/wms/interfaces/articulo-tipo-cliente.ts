@@ -1,5 +1,5 @@
 import { ArticuloSimplified } from './articulo';
-import { TipoCliente } from '../../admin/interfaces/tipo-cliente';
+import { TipoCliente } from '@admin-interfaces/tipo-cliente';
 
 export interface ArticuloTipoCliente {
     articulo_tipo_cliente: number;

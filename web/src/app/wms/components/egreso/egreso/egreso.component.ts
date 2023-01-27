@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { ListaEgresoComponent } from '../lista-egreso/lista-egreso.component';
-import { FormEgresoComponent } from '../form-egreso/form-egreso.component';
-import { Egreso } from '../../../interfaces/egreso';
+
+import { ListaEgresoComponent } from '@wms-components/egreso/lista-egreso/lista-egreso.component';
+import { FormEgresoComponent } from '@wms-components/egreso/form-egreso/form-egreso.component';
+import { Egreso } from '@wms-interfaces/egreso';
 
 import { Subscription } from 'rxjs';
 

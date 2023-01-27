@@ -1,4 +1,4 @@
-import { Sede } from '../../admin/interfaces/sede';
+import { Sede } from '@admin-interfaces/sede';
 
 export interface Bodega {
   bodega: number;

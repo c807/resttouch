@@ -1,15 +1,16 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import * as moment from 'moment';
-import { Subscription } from 'rxjs';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import { Ingreso } from '../../../interfaces/ingreso';
-import { IngresoService } from '../../../services/ingreso.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { Ingreso } from '@wms-interfaces/ingreso';
+import { IngresoService } from '@wms-services/ingreso.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-ingreso',

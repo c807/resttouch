@@ -1,21 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { Bodega } from '../../../interfaces/bodega';
-import { Articulo, ArticuloCodigo } from '../../../interfaces/articulo';
-import { BodegaService } from '../../../services/bodega.service';
-import { ArticuloService } from '../../../services/articulo.service';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
-import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
+
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { Articulo } from '@wms-interfaces/articulo';
+import { BodegaService } from '@wms-services/bodega.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
+import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
+import { Proveedor } from '@wms-interfaces/proveedor';
+import { ProveedorService } from '@wms-services/proveedor.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+
 import { Subscription } from 'rxjs';
-import { Proveedor } from '../../../interfaces/proveedor';
-import { ProveedorService } from '../../../services/proveedor.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
 
 @Component({
   selector: 'app-rep-ingreso',

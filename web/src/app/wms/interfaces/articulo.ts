@@ -1,5 +1,5 @@
 import { CategoriaGrupo } from './categoria-grupo';
-import { Impresora } from '../../admin/interfaces/impresora';
+import { Impresora } from '@admin-interfaces/impresora';
 
 export interface Articulo {
     articulo: number;

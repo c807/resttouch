@@ -1,24 +1,25 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableDataSource } from '@angular/material/table';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { FormEgresoComponent } from '../egreso/form-egreso/form-egreso.component';
-import { FormIngresoComponent } from '../ingreso/form-ingreso/form-ingreso.component';
+import { FormEgresoComponent } from '@wms-components/egreso/form-egreso/form-egreso.component';
+import { FormIngresoComponent } from '@wms-components/ingreso/form-ingreso/form-ingreso.component';
 
-import { Transformacion, TransformacionDetalleMovimiento } from '../../interfaces/transformacion';
-import { TransformacionService } from '../../services/transformacion.service';
-import { Ingreso } from '../../interfaces/ingreso';
-import { Egreso } from '../../interfaces/egreso';
+import { Transformacion, TransformacionDetalleMovimiento } from '@wms-interfaces/transformacion';
+import { TransformacionService } from '@wms-services/transformacion.service';
+import { Ingreso } from '@wms-interfaces/ingreso';
+import { Egreso } from '@wms-interfaces/egreso';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-transformacion',
   templateUrl: './transformacion.component.html',
   styleUrls: ['./transformacion.component.css']
 })
-export class TransformacionComponent implements OnInit {
+export class TransformacionComponent implements OnInit, OnDestroy {
 
   @ViewChild('frmEgreso') frmEgreso: FormEgresoComponent;
   @ViewChild('frmIngreso') frmIngreso: FormIngresoComponent;
@@ -30,6 +31,8 @@ export class TransformacionComponent implements OnInit {
   public egreso: Egreso;
   public showMerma: boolean = true;
   public bloqueoBotones = false;
+
+  private endSubs = new Subscription();
 
   constructor(
     private ls: LocalstorageService,
@@ -45,6 +48,10 @@ export class TransformacionComponent implements OnInit {
     this.ingreso = {
       ingreso: null, tipo_movimiento: null, fecha: moment().format(GLOBAL.dbDateFormat), bodega: null, usuario: (this.ls.get(GLOBAL.usrTokenVar).idusr || 0), comentario: null, proveedor: null
     };
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   doSomething() { }
@@ -109,20 +116,22 @@ export class TransformacionComponent implements OnInit {
       !!this.transformacion.egreso && !!this.transformacion.egreso.detalle && this.transformacion.egreso.detalle.length > 0 &&
       !!this.transformacion.ingreso && !!this.transformacion.ingreso.detalle && this.transformacion.ingreso.detalle.length > 0
     ) {
-      this.transformacionSrvc.transformar(this.transformacion).subscribe(res => {
-        this.bloqueoBotones = false;
-        if (res.exito) {
-          this.frmEgreso.resetEgreso();
-          this.frmEgreso.detallesEgreso = [];
-          this.frmEgreso.resetDetalleMerma();
-          this.frmEgreso.detallesMerma = [];
-          this.frmIngreso.resetIngreso();
-          this.frmIngreso.detallesIngreso = [];
-          this._snackBar.open('Transformación generada con éxito...', 'Transformación', { duration: 5000 });
-        } else {
-          this._snackBar.open(`ERROR: ${res.mensaje}`, 'Transformación', { duration: 3000 });
-        }
-      });
+      this.endSubs.add(        
+        this.transformacionSrvc.transformar(this.transformacion).subscribe(res => {
+          this.bloqueoBotones = false;
+          if (res.exito) {
+            this.frmEgreso.resetEgreso();
+            this.frmEgreso.detallesEgreso = [];
+            this.frmEgreso.resetDetalleMerma();
+            this.frmEgreso.detallesMerma = [];
+            this.frmIngreso.resetIngreso();
+            this.frmIngreso.detallesIngreso = [];
+            this._snackBar.open('Transformación generada con éxito...', 'Transformación', { duration: 5000 });
+          } else {
+            this._snackBar.open(`ERROR: ${res.mensaje}`, 'Transformación', { duration: 3000 });
+          }
+        })
+      );
     } else {
       this.bloqueoBotones = false;
       this._snackBar.open(`Faltan datos necesario. Favor complete los datos e intente de nuevo.`, 'Transformación', { duration: 3000 });      

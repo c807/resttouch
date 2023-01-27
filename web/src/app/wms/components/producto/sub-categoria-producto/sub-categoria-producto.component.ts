@@ -1,18 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { Impresora } from '../../../interfaces/impresora';
-import { Categoria } from '../../../interfaces/categoria';
-import { CategoriaGrupo } from '../../../interfaces/categoria-grupo';
-import { ArticuloService } from '../../../services/articulo.service';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
-
-import { Bodega } from '../../../interfaces/bodega';
-import { BodegaService } from '../../../services/bodega.service';
+import { Impresora } from '@wms-interfaces/impresora';
+import { Categoria } from '@wms-interfaces/categoria';
+import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
 
 import { Subscription } from 'rxjs';
 

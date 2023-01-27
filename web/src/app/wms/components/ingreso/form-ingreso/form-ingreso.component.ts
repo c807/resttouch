@@ -2,34 +2,34 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL, redondear } from '../../../../shared/global';
+import { MatSelectChange } from '@angular/material/select';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, redondear } from '@shared/global';
+import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
-import { Ingreso } from '../../../interfaces/ingreso';
-import { DetalleIngreso } from '../../../interfaces/detalle-ingreso';
-import { Documento } from '../../../interfaces/documento';
-import { IngresoService } from '../../../services/ingreso.service';
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
-import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
-import { Proveedor } from '../../../interfaces/proveedor';
-import { ProveedorService } from '../../../services/proveedor.service';
-import { Bodega } from '../../../interfaces/bodega';
-import { BodegaService } from '../../../services/bodega.service';
-import { Articulo } from '../../../interfaces/articulo';
-import { ArticuloService } from '../../../services/articulo.service';
-import { Presentacion } from '../../../../admin/interfaces/presentacion';
-import { PresentacionService } from '../../../../admin/services/presentacion.service';
-import { DocumentoTipo } from '../../../../admin/interfaces/documento-tipo';
-import { DocumentoTipoService } from '../../../../admin/services/documento-tipo.service';
-import { TipoCompraVenta } from '../../../../admin/interfaces/tipo-compra-venta';
-import { TipoCompraVentaService } from '../../../../admin/services/tipo-compra-venta.service';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { saveAs } from 'file-saver';
+import { Ingreso } from '@wms-interfaces/ingreso';
+import { DetalleIngreso } from '@wms-interfaces/detalle-ingreso';
+import { Documento } from '@wms-interfaces/documento';
+import { IngresoService } from '@wms-services/ingreso.service';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
+import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
+import { Proveedor } from '@wms-interfaces/proveedor';
+import { ProveedorService } from '@wms-services/proveedor.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Presentacion } from '@admin-interfaces/presentacion';
+import { PresentacionService } from '@admin-services/presentacion.service';
+import { DocumentoTipo } from '@admin-interfaces/documento-tipo';
+import { DocumentoTipoService } from '@admin-services/documento-tipo.service';
+import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
+import { TipoCompraVentaService } from '@admin-services/tipo-compra-venta.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 
 import { Subscription } from 'rxjs';
-import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-form-ingreso',

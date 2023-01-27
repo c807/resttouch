@@ -1,6 +1,6 @@
 import { Ingreso } from './ingreso';
-import { DocumentoTipo } from '../../admin/interfaces/documento-tipo';
-import { TipoCompraVenta } from '../../admin/interfaces/tipo-compra-venta';
+import { DocumentoTipo } from '@admin-interfaces/documento-tipo';
+import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
 
 export interface Documento {
     documento: number;

@@ -1,16 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { Subscription } from "rxjs";
-import { saveAs } from "file-saver";
-import { ReportePdfService } from "../../../../restaurante/services/reporte-pdf.service";
-import { SubCategoriaSimpleSearch } from '../../../interfaces/categoria-grupo';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { ArticuloService } from '../../../services/articulo.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { SubCategoriaSimpleSearch } from '@wms-interfaces/categoria-grupo';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-consumo-articulo',
@@ -30,7 +31,7 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 
 	public params: any = {};
 	public paramsToSend: any = {};
-	public titulo: string = "Consumo_articulo";
+	public titulo: string = 'Consumo_articulo';
 	public subCategorias: SubCategoriaSimpleSearch[] = [];
 	public sedes: UsuarioSede[] = [];
 	public cargando = false;
@@ -55,7 +56,7 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 
 	resetParams = () => {
 		this.params = {
-			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat),
+			fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			sede: this.ls.get(GLOBAL.usrTokenVar).sede,
 			categoria_grupo: null,
@@ -102,8 +103,8 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 		) {
 			this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
 			this.paramsToSend._excel = esExcel;
-			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format("YYYY-MM-DD");
-			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format("YYYY-MM-DD");
+			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 
 			if (this.params.categoria_grupo !== undefined && this.params.categoria_grupo !== null) {
 				let tmpGrupo = this.subCategorias.filter(obj => {
@@ -119,16 +120,16 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 			this.endSubs.add(
 				this.pdfServicio.generar_consumo_articulo(this.paramsToSend).subscribe(res => {
 					if (res) {
-						const blob = new Blob([res], { type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel") });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 					} else {
-						this.snackBar.open("No se pudo generar el reporte...", this.titulo, { duration: 3000 });
+						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}
 					this.cargando = false;
 				})
 			);
 		} else {
-			this.snackBar.open("Por favor ingrese todos los parámetros.", "Resumen consumo articulo", { duration: 7000 });
+			this.snackBar.open('Por favor ingrese todos los parámetros.', 'Resumen consumo articulo', { duration: 7000 });
 		}
 	}
 }

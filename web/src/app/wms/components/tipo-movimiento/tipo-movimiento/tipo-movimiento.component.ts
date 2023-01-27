@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoMovimientoComponent } from '../lista-tipo-movimiento/lista-tipo-movimiento.component';
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
+import { ListaTipoMovimientoComponent } from '@wms-components/tipo-movimiento/lista-tipo-movimiento/lista-tipo-movimiento.component';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
 
 @Component({
   selector: 'app-tipo-movimiento',

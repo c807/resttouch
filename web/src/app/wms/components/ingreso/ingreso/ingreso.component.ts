@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
+import { LocalstorageService } from '@admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { ListaIngresoComponent } from '../lista-ingreso/lista-ingreso.component';
-import { FormIngresoComponent } from '../form-ingreso/form-ingreso.component';
-import { Ingreso } from '../../../interfaces/ingreso';
+
+import { ListaIngresoComponent } from '@wms-components/ingreso/lista-ingreso/lista-ingreso.component';
+import { FormIngresoComponent } from '@wms-components/ingreso/form-ingreso/form-ingreso.component';
+import { Ingreso } from '@wms-interfaces/ingreso';
 
 @Component({
   selector: 'app-ingreso',

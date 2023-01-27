@@ -1,15 +1,16 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import * as moment from 'moment';
-import { Subscription } from 'rxjs';
 import { saveAs } from 'file-saver';
 
-import { Egreso } from '../../../interfaces/egreso';
-import { EgresoService } from '../../../services/egreso.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { Egreso } from '@wms-interfaces/egreso';
+import { EgresoService } from '@wms-services/egreso.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-egreso',

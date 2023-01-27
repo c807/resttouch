@@ -1,22 +1,23 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormProductoComponent } from '../form-producto/form-producto.component';
-import { SubCategoriaProductoComponent } from '../sub-categoria-producto/sub-categoria-producto.component';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL, MultiFiltro } from '../../../../shared/global';
-import { Articulo, ArticuloResponse } from '../../../interfaces/articulo';
-import { Categoria } from '../../../interfaces/categoria';
-import { CategoriaGrupo, CategoriaGrupoResponse } from '../../../interfaces/categoria-grupo';
-import { ArticuloService } from '../../../services/articulo.service';
-import { Subscription } from 'rxjs';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, MultiFiltro } from '@shared/global';
 import { saveAs } from "file-saver";
 import * as moment from 'moment';
 
-import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DialogWizardComponent } from '../wizards/dialog-wizard/dialog-wizard.component';
+import { FormProductoComponent } from '@wms-components/producto/form-producto/form-producto.component';
+import { SubCategoriaProductoComponent } from '@wms-components/producto/sub-categoria-producto/sub-categoria-producto.component';
+import { Articulo, ArticuloResponse } from '@wms-interfaces/articulo';
+import { Categoria } from '@wms-interfaces/categoria';
+import { CategoriaGrupo, CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { DialogWizardComponent } from '@wms-components/producto/wizards/dialog-wizard/dialog-wizard.component';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-producto',

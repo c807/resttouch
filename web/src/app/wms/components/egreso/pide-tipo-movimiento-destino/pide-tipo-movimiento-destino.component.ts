@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
 
 @Component({
   selector: 'app-pide-tipo-movimiento-destino',

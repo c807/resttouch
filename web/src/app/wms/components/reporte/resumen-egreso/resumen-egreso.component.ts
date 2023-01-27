@@ -1,15 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { Subscription } from "rxjs";
-import { saveAs } from "file-saver";
-import { BodegaService } from '../../../services/bodega.service';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
-import { Bodega } from '../../../interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
+import { Bodega } from '@wms-interfaces/bodega';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-resumen-egreso',
@@ -29,15 +30,15 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 
 	public params: any = {};
 	public paramsToSend: any = {};
-	public titulo: string = "Resumen_egreso";
+	public titulo: string = 'Resumen_egreso';
 	public cargando = false;
 	private endSubs = new Subscription();
 
 	public tiposMovimiento: TipoMovimiento[] = [];
 	public bodegas: Bodega[] = [];
 	public estatus = [
-		{id: 1, descripcion: "Abierto"},
-		{id: 2, descripcion: "Confirmado"}
+		{id: 1, descripcion: 'Abierto'},
+		{id: 2, descripcion: 'Confirmado'}
 	];
 
 	constructor(
@@ -59,7 +60,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 
 	resetParams = () => {
 		this.params = {
-			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat), //moment().format(GLOBAL.dbDateFormat),
+			fdel: moment().startOf('month').format(GLOBAL.dbDateFormat), //moment().format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			tipo_egreso: null,
 			estatus_movimiento: null,
@@ -91,8 +92,8 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 		) {
 			this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
 			this.paramsToSend._excel = esExcel;
-			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format("YYYY-MM-DD");
-			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format("YYYY-MM-DD");
+			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 
 			if (this.params.bodega !== undefined && this.params.bodega !== null) {
 				let tmpBodega = this.bodegas.filter(obj => {
@@ -108,16 +109,16 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 			this.endSubs.add(
 				this.pdfServicio.generar_resumen_egreso(this.paramsToSend).subscribe(res => {
 					if (res) {
-						const blob = new Blob([res], { type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel") });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 					} else {
-						this.snackBar.open("No se pudo generar el reporte...", this.titulo, { duration: 3000 });
+						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}
 					this.cargando = false;
 				})
 			);
 		} else {
-			this.snackBar.open("Por favor ingrese todos los parámetros.", "Resumen egreso", { duration: 7000 });
+			this.snackBar.open('Por favor ingrese todos los parámetros.', 'Resumen egreso', { duration: 7000 });
 		}
 	}
 }

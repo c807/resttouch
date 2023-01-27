@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Sede } from '../../../../admin/interfaces/sede';
-import { SedeService } from '../../../../admin/services/sede.service';
-import { ArticuloService } from '../../../services/articulo.service';
-import { Articulo } from '../../../interfaces/articulo';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { Sede } from '@admin-interfaces/sede';
+import { SedeService } from '@admin-services/sede.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Articulo } from '@wms-interfaces/articulo';
 
 import { Subscription } from 'rxjs';
 

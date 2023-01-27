@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { FormInventarioFisicoComponent } from '../form-inventario-fisico/form-inventario-fisico.component'
-import { ReporteComponent } from '../reporte/reporte.component';
+import { FormInventarioFisicoComponent } from '@wms-components/fisico/form-inventario-fisico/form-inventario-fisico.component'
+import { ReporteComponent } from '@wms-components/fisico/reporte/reporte.component';
 
 import { Subscription } from 'rxjs';
 

@@ -38,6 +38,7 @@
       "@hotel-interfaces/*": ["src/app/hotel/interfaces/*"],
       "@hotel-models/*": ["src/app/hotel/models/*"],
       "@hotel-services/*": ["src/app/hotel/services/*"],
+      "@offline/*": ["src/app/offline/*"],
       "@orden-compra/*": ["src/app/orden-compra/*"],
       "@orden-compra-components/*": ["src/app/orden-compra/components/*"],
       "@orden-compra-interfaces/*": ["src/app/orden-compra/interfaces/*"],

@@ -1,4 +1,4 @@
-import { Impresora } from '../../admin/interfaces/impresora';
+import { Impresora } from '@admin-interfaces/impresora';
 import { Categoria } from './categoria';
 import { Articulo } from './articulo';
 

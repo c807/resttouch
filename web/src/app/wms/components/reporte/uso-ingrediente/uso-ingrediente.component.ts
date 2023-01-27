@@ -1,18 +1,19 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { Articulo } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+
 import { Subscription } from 'rxjs';
-import { saveAs } from "file-saver";
-import { Articulo } from "../../../interfaces/articulo";
-import { ArticuloService } from "../../../services/articulo.service";
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
 
 @Component({
-	selector: "app-uso-ingrediente",
-	templateUrl: "./uso-ingrediente.component.html",
-	styleUrls: ["./uso-ingrediente.component.css"]
+	selector: 'app-uso-ingrediente',
+	templateUrl: './uso-ingrediente.component.html',
+	styleUrls: ['./uso-ingrediente.component.css']
 })
 export class UsoIngredienteComponent implements OnInit, OnDestroy {
 
@@ -27,10 +28,10 @@ export class UsoIngredienteComponent implements OnInit, OnDestroy {
 
 	public articulos: Articulo[] = [];
 	public cargando = false;
-	public titulo: string = "Uso_ingrediente";
+	public titulo: string = 'Uso_ingrediente';
 	public params: any = {};
 	private endSubs = new Subscription();
-	
+
 	constructor(
 		private snackBar: MatSnackBar,
 		private pdfServicio: ReportePdfService,
@@ -56,9 +57,7 @@ export class UsoIngredienteComponent implements OnInit, OnDestroy {
 
 		this.endSubs.add(
 			this.articuloSrvc.getArticulos(fltr).subscribe((res: Articulo[]) => {
-				if (res) {
-					this.articulos = res
-				}
+				this.articulos = res || [];
 			})
 		);
 	}
@@ -67,9 +66,7 @@ export class UsoIngredienteComponent implements OnInit, OnDestroy {
 		if (this.params.articulo) {
 			this.params._excel = esExcel;
 
-			let tmpArt = this.articulos.filter(obj => {
-				return obj.articulo == this.params.articulo
-			})[0]
+			let tmpArt = this.articulos.filter(obj => obj.articulo == this.params.articulo)[0];
 
 			if (tmpArt) {
 				this.params.articulo_nombre = tmpArt.descripcion
@@ -79,16 +76,16 @@ export class UsoIngredienteComponent implements OnInit, OnDestroy {
 			this.endSubs.add(
 				this.pdfServicio.generar_uso_ingrediente(this.params).subscribe(res => {
 					if (res) {
-						const blob = new Blob([res], { type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel") });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 					} else {
-						this.snackBar.open("No se pudo generar el reporte...", this.titulo, { duration: 3000 });
+						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}
 					this.cargando = false;
 				})
 			);
 		} else {
-			this.snackBar.open("Por favor ingrese todos los parámetros.", "Uso de ingrediente", { duration: 7000 });
+			this.snackBar.open('Por favor ingrese todos los parámetros.', 'Uso de ingrediente', { duration: 7000 });
 		}
 	}
 }

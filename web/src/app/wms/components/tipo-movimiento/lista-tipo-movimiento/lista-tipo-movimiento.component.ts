@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoMovimiento } from '../../../interfaces/tipo-movimiento';
-import { TipoMovimientoService } from '../../../services/tipo-movimiento.service';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
+import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-tipo-movimiento',
   templateUrl: './lista-tipo-movimiento.component.html',
   styleUrls: ['./lista-tipo-movimiento.component.css']
 })
-export class ListaTipoMovimientoComponent implements OnInit {
+export class ListaTipoMovimientoComponent implements OnInit, OnDestroy {
 
   public lstTiposMovimiento: TipoMovimiento[];
   public lstTiposMovimientoPaged: TipoMovimiento[];
@@ -27,6 +29,8 @@ export class ListaTipoMovimientoComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;  
 
+  private endSubs = new Subscription();
+
   constructor(
     private tipoClienteSrvc: TipoMovimientoService,
     private ls: LocalstorageService
@@ -35,6 +39,10 @@ export class ListaTipoMovimientoComponent implements OnInit {
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.loadTiposMovimiento();    
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -52,14 +60,16 @@ export class ListaTipoMovimientoComponent implements OnInit {
   }
 
   loadTiposMovimiento = () => {
-    this.tipoClienteSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstTiposMovimiento = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.tipoClienteSrvc.get().subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstTiposMovimiento = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getTipoMovimiento = (obj: TipoMovimiento) => {

@@ -1,16 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { Bodega } from '../../../interfaces/bodega';
-import { BodegaService } from '../../../services/bodega.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
-import { ArticuloService } from '../../../services/articulo.service';
-import { SubCategoriaSimpleSearch } from '../../../interfaces/categoria-grupo';
+import { GLOBAL } from '@shared/global';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
 import * as moment from 'moment';
+
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { SubCategoriaSimpleSearch } from '@wms-interfaces/categoria-grupo';
+
 import { Subscription } from 'rxjs';
 
 @Component({

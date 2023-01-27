@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Egreso } from '../interfaces/egreso';
-import { DetalleEgreso } from '../interfaces/detalle-egreso';
-import { Observable, of } from 'rxjs';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { Egreso } from '@wms-interfaces/egreso';
+import { DetalleEgreso } from '@wms-interfaces/detalle-egreso';
+import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
 
