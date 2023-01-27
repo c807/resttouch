@@ -3,21 +3,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { ValidaPwdGerenteTurnoComponent } from '../valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
-import { DialogElminarProductoComponent, ElminarProductoModel } from '../../../shared/components/dialog-elminar-producto/dialog-elminar-producto.component';
-import { NotasGeneralesComandaComponent } from '../../components/notas-generales-comanda/notas-generales-comanda.component';
-import { MAccionesArticuloComandaComponent } from '../mobile/m-acciones-articulo-comanda/m-acciones-articulo-comanda.component';
+import { ValidaPwdGerenteTurnoComponent } from '@restaurante-components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
+import { DialogElminarProductoComponent, ElminarProductoModel } from '@shared-components/dialog-elminar-producto/dialog-elminar-producto.component';
+import { NotasGeneralesComandaComponent } from '@restaurante-components/notas-generales-comanda/notas-generales-comanda.component';
+import { MAccionesArticuloComandaComponent } from '@restaurante-components/mobile/m-acciones-articulo-comanda/m-acciones-articulo-comanda.component';
 import { Socket } from 'ngx-socket-io';
 
-import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
-import { DetalleComanda } from '../../interfaces/detalle-comanda';
-import { ComandaService } from '../../services/comanda.service';
-import { ComandaGetResponse } from '../../interfaces/comanda';
+import { DetalleCuentaSimplified } from '@restaurante-interfaces/cuenta';
+import { DetalleComanda } from '@restaurante-interfaces/detalle-comanda';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { ComandaGetResponse } from '@restaurante-interfaces/comanda';
 
-import { Impresion } from '../../classes/impresion';
+import { Impresion } from '@restaurante-classes/impresion';
 
 import { Observable, Subscription } from 'rxjs';
 

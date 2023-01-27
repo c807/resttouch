@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ListaAreaComponent } from '../lista-area/lista-area.component';
-import { Area } from '../../../interfaces/area';
-
+import { ListaAreaComponent } from '@restaurante-components/area/lista-area/lista-area.component';
+import { Area } from '@restaurante-interfaces/area';
 
 @Component({
   selector: 'app-area',

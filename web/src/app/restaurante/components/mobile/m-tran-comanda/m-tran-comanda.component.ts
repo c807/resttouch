@@ -1,23 +1,21 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import { MatInput } from '@angular/material/input';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSelectChange } from '@angular/material/select';
-// import { GLOBAL } from '../../../../shared/global';
-import { TranComanda } from '../../../classes/tran-comanda';
+import { TranComanda } from '@restaurante-classes/tran-comanda';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { ConfiguracionService } from '@admin/services/configuracion.service';
 
-import { IDatosTranComanda } from '../../../interfaces/comanda';
-import { Articulo, NodoProducto } from '../../../../wms/interfaces/articulo';
+import { IDatosTranComanda } from '@restaurante-interfaces/comanda';
+import { Articulo, NodoProducto } from '@wms-interfaces/articulo';
 
-import { ComandaService } from '../../../services/comanda.service';
-import { ArticuloService } from '../../../../wms/services/articulo.service';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
-import { UsuarioService } from '../../../../admin/services/usuario.service';
-import { CorrelativoService } from '../../../../admin/services/correlativo.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { UsuarioService } from '@admin-services/usuario.service';
+import { CorrelativoService } from '@admin-services/correlativo.service';
 
 @Component({
   selector: 'app-m-tran-comanda',

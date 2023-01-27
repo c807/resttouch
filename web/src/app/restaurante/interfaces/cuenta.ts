@@ -1,5 +1,5 @@
-import { Impresora } from '../../admin/interfaces/impresora';
-import { Articulo, ArticuloImpresion } from '../../wms/interfaces/articulo';
+import { Impresora } from '@admin-interfaces/impresora';
+import { Articulo, ArticuloImpresion } from '@wms-interfaces/articulo';
 
 export interface Cuenta {
     cuenta: number;

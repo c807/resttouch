@@ -5,19 +5,20 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatTable } from '@angular/material/table';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
-import { AccionesComandaEnLineaComponent } from '../acciones-comanda-en-linea/acciones-comanda-en-linea.component';
-import { ComandaService } from '../../services/comanda.service';
-import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
-import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { FacturaService } from '../../../pos/services/factura.service';
-import { Impresion } from '../../classes/impresion';
-import { CorrelativoService } from '../../../admin/services/correlativo.service';
+
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { DesktopNotificationService } from '@shared-services/desktop-notification.service';
+import { AccionesComandaEnLineaComponent } from '@restaurante-components/acciones-comanda-en-linea/acciones-comanda-en-linea.component';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { EstatusCallcenterService } from '@callcenter-services/estatus-callcenter.service';
+import { EstatusCallcenter } from '@callcenter-interfaces/estatus-callcenter';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { FacturaService } from '@pos-services/factura.service';
+import { Impresion } from '@restaurante-classes/impresion';
+import { CorrelativoService } from '@admin-services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 

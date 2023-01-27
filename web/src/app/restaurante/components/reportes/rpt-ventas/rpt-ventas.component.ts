@@ -1,19 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 import * as moment from 'moment';
 
-import { PorCategoria } from '../../../interfaces/reporte-ventas';
-import { ReporteVentasService } from '../../../services/reporte-ventas.service';
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { TipoTurno } from '../../../interfaces/tipo-turno';
-import { TipoTurnoService } from '../../../services/tipo-turno.service';
-import { Usuario } from '../../../../admin/interfaces/usuario';
-import { UsuarioService } from '../../../../admin/services/usuario.service';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { TipoDomicilio } from '../../../../callcenter/interfaces/tipo-domicilio';
-import { TipoDomicilioService } from '../../../../callcenter/services/tipo-domicilio.service';
+import { PorCategoria } from '@restaurante-interfaces/reporte-ventas';
+import { ReporteVentasService } from '@restaurante-services/reporte-ventas.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { TipoTurno } from '@restaurante-interfaces/tipo-turno';
+import { TipoTurnoService } from '@restaurante-services/tipo-turno.service';
+import { Usuario } from '@admin-interfaces/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '@callcenter-services/tipo-domicilio.service';
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';

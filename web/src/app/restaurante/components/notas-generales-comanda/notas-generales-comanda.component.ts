@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { NotaPredefinidaService } from '../../services/nota-predefinida.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { NotaPredefinidaService } from '@restaurante-services/nota-predefinida.service';
 
 import { Subscription, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';

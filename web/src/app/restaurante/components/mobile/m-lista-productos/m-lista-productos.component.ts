@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Articulo } from '../../../../wms/interfaces/articulo';
+import { Articulo } from '@wms-interfaces/articulo';
 
 @Component({
   selector: 'app-m-lista-productos',
@@ -23,9 +22,7 @@ export class MListaProductosComponent implements OnInit {
   @Output() clickEnArticuloEv = new EventEmitter<Articulo>();
   public articulosFiltered: Articulo[] = [];
 
-  constructor(
-    private snackBar: MatSnackBar,
-  ) { }
+  constructor( ) { }
 
   ngOnInit(): void {
   }

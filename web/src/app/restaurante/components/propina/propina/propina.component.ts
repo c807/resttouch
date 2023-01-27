@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaPropinaComponent } from '../lista-propina/lista-propina.component';
-import { Propina } from '../../../interfaces/propina';
+import { ListaPropinaComponent } from '@restaurante-components/propina/lista-propina/lista-propina.component';
+import { Propina } from '@restaurante-interfaces/propina';
 
 @Component({
   selector: 'app-propina',

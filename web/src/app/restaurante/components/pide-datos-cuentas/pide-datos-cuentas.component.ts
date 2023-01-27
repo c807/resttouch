@@ -2,10 +2,10 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { Cuenta } from '../../interfaces/cuenta';
+import { Cuenta } from '@restaurante-interfaces/cuenta';
 
 interface IDataDialog {
   cuentas: Cuenta[];

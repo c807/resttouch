@@ -2,19 +2,19 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+
+import { Turno } from '@restaurante-interfaces/turno';
+import { TurnoService } from '@restaurante-services/turno.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { UsuarioService } from '@admin-services/usuario.service';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
+import { AnulacionService } from '@admin-services/anulacion.service';
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+
 import { Subscription } from 'rxjs';
-
-import { Turno } from '../../interfaces/turno';
-import { TurnoService } from '../../services/turno.service';
-import { ComandaService } from '../../services/comanda.service';
-import { UsuarioService } from '../../../admin/services/usuario.service';
-import { RazonAnulacion } from '../../../admin/interfaces/razon-anulacion';
-import { AnulacionService } from '../../../admin/services/anulacion.service';
-
-import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../shared/components/check-password/check-password.component';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-tran-anula-comanda',

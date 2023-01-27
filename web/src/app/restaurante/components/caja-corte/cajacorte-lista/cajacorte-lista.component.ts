@@ -1,26 +1,26 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
-import { CheckPasswordComponent, ConfigCheckPasswordModel } from '../../../../shared/components/check-password/check-password.component';
-import { CajacorteFormComponent } from '../cajacorte-form/cajacorte-form.component';
-import { CajaCortePreviewComponent } from '../caja-corte-preview/caja-corte-preview.component';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
-
-import { ccGeneral, ccTipo } from '../../../interfaces/cajacorte';
-import { CajacorteService } from '../../../services/cajacorte.service';
-import { Turno } from '../../../interfaces/turno';
-import * as moment from 'moment';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { saveAs } from 'file-saver';
-
-import { ImpresionCorteCaja } from '../../../interfaces/cajacorte';
-import { Impresora } from '../../../../admin/interfaces/impresora';
-import { ImpresoraService } from '../../../../admin/services/impresora.service';
-import { Impresion } from '../../../classes/impresion';
-import { ConfiguracionService } from '../../../../admin/services/configuracion.service';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import * as moment from 'moment';
+
+import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
+import { CajacorteFormComponent } from '@restaurante-components/caja-corte/cajacorte-form/cajacorte-form.component';
+import { CajaCortePreviewComponent } from '@restaurante-components/caja-corte/caja-corte-preview/caja-corte-preview.component';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { ccGeneral, ccTipo } from '@restaurante-interfaces/cajacorte';
+import { CajacorteService } from '@restaurante-services/cajacorte.service';
+import { Turno } from '@restaurante-interfaces/turno';
+import { ImpresionCorteCaja } from '@restaurante-interfaces/cajacorte';
+import { Impresora } from '@admin/interfaces/impresora';
+import { ImpresoraService } from '@admin-services/impresora.service';
+import { Impresion } from '@restaurante-classes/impresion';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cajacorte-lista',

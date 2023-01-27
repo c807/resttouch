@@ -1,11 +1,13 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Comanda, ComandaGetResponse } from '../../interfaces/comanda';
-import { ProductoSelected } from '../../../wms/interfaces/articulo';
+import { Comanda, ComandaGetResponse } from '@restaurante-interfaces/comanda';
+import { ProductoSelected } from '@wms-interfaces/articulo';
 
-import { ComandaService } from '../../services/comanda.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+
+import { Subscription } from 'rxjs';
 
 interface IDialogComanda {
   mesaEnUso: ComandaGetResponse;
@@ -17,12 +19,14 @@ interface IDialogComanda {
   templateUrl: './distribuir-productos-cuentas.component.html',
   styleUrls: ['./distribuir-productos-cuentas.component.css']
 })
-export class DistribuirProductosCuentasComponent implements OnInit {
+export class DistribuirProductosCuentasComponent implements OnInit, OnDestroy {
 
   public comanda: Comanda;
   public cantidadProducto: number[] = [];
   public cpLstProductos: ProductoSelected[] = [];
   public compLstProductos: ProductoSelected[] = [];
+
+  private endSubs = new Subscription();
 
   constructor(
     public dialogRef: MatDialogRef<DistribuirProductosCuentasComponent>,
@@ -63,6 +67,10 @@ export class DistribuirProductosCuentasComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe()
+  }
+
   cancelar = () => this.dialogRef.close(false);
 
   guardar = () => {
@@ -79,15 +87,17 @@ export class DistribuirProductosCuentasComponent implements OnInit {
       idx++;
     }
     if (lstObj.length > 0) {
-      this.comandaSrvc.distribuirCuentas(lstObj).subscribe(res => {
-        if (res.exito) {
-          this.snackBar.open('Productos redistribuidos', 'Cuentas', { duration: 3000 });
-          this.dialogRef.close(true);
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cuentas', { duration: 7000 });
-          this.cancelar();
-        }
-      });
+      this.endSubs.add(        
+        this.comandaSrvc.distribuirCuentas(lstObj).subscribe(res => {
+          if (res.exito) {
+            this.snackBar.open('Productos redistribuidos', 'Cuentas', { duration: 3000 });
+            this.dialogRef.close(true);
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Cuentas', { duration: 7000 });
+            this.cancelar();
+          }
+        })
+      );
     } else {
       this.snackBar.open('Sin cambios en las cuentas.', 'Cuentas', { duration: 7000 });
       this.dialogRef.close(true);

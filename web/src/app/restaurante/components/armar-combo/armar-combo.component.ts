@@ -1,10 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-// import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ContenidoCombo, IOpcion } from '../../../wms/interfaces/articulo';
+import { ContenidoCombo, IOpcion } from '@wms-interfaces/articulo';
 
 interface IDataArmarCombo {
   descripcion: string;

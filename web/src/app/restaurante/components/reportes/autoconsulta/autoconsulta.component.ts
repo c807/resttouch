@@ -1,19 +1,21 @@
-import {Component, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-// import { ReportePdfService } from '../../../services/reporte-pdf.service';
-import {AutoconsultaService} from '../../../services/autoconsulta.service';
-import {Campo} from '../../../interfaces/autoconsulta';
-import {saveAs} from 'file-saver';
-import {ConfiguracionBotones} from '../../../../shared/interfaces/config-reportes';
-import {GLOBAL} from '../../../../shared/global';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { saveAs } from 'file-saver';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
+
+import { AutoconsultaService } from '@restaurante-services/autoconsulta.service';
+import { Campo } from '@restaurante-interfaces/autoconsulta';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-autoconsulta',
   templateUrl: './autoconsulta.component.html',
   styleUrls: ['./autoconsulta.component.css']
 })
-export class AutoconsultaComponent implements OnInit {
+export class AutoconsultaComponent implements OnInit, OnDestroy {
 
   public params: any = {
     fdel: moment().format(GLOBAL.dbDateFormat),
@@ -27,6 +29,8 @@ export class AutoconsultaComponent implements OnInit {
   public fechas: Campo[] = [];
   public orden: Campo[] = [];
   public cargando = false;
+
+  private endSubs = new Subscription();
 
   configBotones = (isFormValid) => {
     const configBotones: ConfiguracionBotones = {
@@ -44,8 +48,12 @@ export class AutoconsultaComponent implements OnInit {
 
   ngOnInit() {
     this.getCampos();
-    this.getCampos({por_fecha: 1}, 2);
-    this.getCampos({ordenar_por: 1}, 3);
+    this.getCampos({ por_fecha: 1 }, 2);
+    this.getCampos({ ordenar_por: 1 }, 3);
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   resetParams = () => {
@@ -62,32 +70,36 @@ export class AutoconsultaComponent implements OnInit {
     for (const key in this.params.campos) {
       this.params.datos.push(this.params.campos[key]);
     }
-    this.autoconsultaSrvc.getReporte(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-        const blob = new Blob([res], {type: 'application/vnd.ms-excel'});
-        saveAs(blob, `${this.titulo}.xls`);
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, {duration: 3000});
-      }
-    });
+    this.endSubs.add(
+      this.autoconsultaSrvc.getReporte(this.params).subscribe(res => {
+        this.cargando = false;
+        if (res) {
+          const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+          saveAs(blob, `${this.titulo}.xls`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+        }
+      })
+    );
   }
 
   getCampos = (params: any = {}, tipo: number = 1) => {
     this.cargando = true;
-    this.autoconsultaSrvc.getCampos(params).subscribe(res => {
-      this.cargando = false;
-      switch (tipo) {
-        case 1:
-          this.campos = res;
-          break;
-        case 2:
-          this.fechas = res;
-          break;
-        case 3:
-          this.orden = res;
-          break;
-      }
-    });
+    this.endSubs.add(
+      this.autoconsultaSrvc.getCampos(params).subscribe(res => {
+        this.cargando = false;
+        switch (tipo) {
+          case 1:
+            this.campos = res;
+            break;
+          case 2:
+            this.fechas = res;
+            break;
+          case 3:
+            this.orden = res;
+            break;
+        }
+      })
+    );
   }
 }

@@ -1,11 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Impresora } from '../../../admin/interfaces/impresora';
-import { Cuenta } from '../../interfaces/cuenta';
+import { Impresora } from '@admin-interfaces/impresora';
+import { Cuenta } from '@restaurante-interfaces/cuenta';
+import { ComandaService } from '@restaurante-services/comanda.service';
 
-import { ComandaService } from '../../services/comanda.service';
+import { Subscription } from 'rxjs';
 
 interface IDatosCuentas {
   lstProductosSeleccionados: [{
@@ -38,10 +39,12 @@ interface IDatosCuentas {
   templateUrl: './unir-cuenta.component.html',
   styleUrls: ['./unir-cuenta.component.css']
 })
-export class UnirCuentaComponent implements OnInit {
+export class UnirCuentaComponent implements OnInit, OnDestroy {
 
   public cuentaDe: Cuenta;
   public cuentaA: Cuenta;
+
+  private endSubs = new Subscription();
 
   constructor(
     public dialogRef: MatDialogRef<UnirCuentaComponent>,
@@ -50,8 +53,10 @@ export class UnirCuentaComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: IDatosCuentas
   ) { }
 
-  ngOnInit() {
-    // console.log('Productos enviados = ', this.data.lstProductosSeleccionados);
+  ngOnInit() { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   cancelar() {
@@ -59,16 +64,15 @@ export class UnirCuentaComponent implements OnInit {
   }
 
   unirCuentas(deCuenta: Cuenta, aCuenta: Cuenta) {
-    // console.log('ORIGEN', deCuenta);
-    // console.log('DESTINO', aCuenta);
-    this.comandaSrvc.unificarCuentas(deCuenta.cuenta, aCuenta.cuenta).subscribe(res => {
-      // console.log(res);
-      if (res.exito) {
-        this.snackBar.open(res.mensaje, 'Cuentas', { duration: 3000 });
-        this.dialogRef.close(true);
-      } else {
-        this.snackBar.open(`ERROR:${res.mensaje}`, 'Cuentas', { duration: 7000 });
-      }
-    });    
+    this.endSubs.add(
+      this.comandaSrvc.unificarCuentas(deCuenta.cuenta, aCuenta.cuenta).subscribe(res => {
+        if (res.exito) {
+          this.snackBar.open(res.mensaje, 'Cuentas', { duration: 3000 });
+          this.dialogRef.close(true);
+        } else {
+          this.snackBar.open(`ERROR:${res.mensaje}`, 'Cuentas', { duration: 7000 });
+        }
+      })
+    );
   }
 }

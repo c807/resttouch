@@ -3,30 +3,30 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import { Impresion } from '../../classes/impresion';
 
-import { NotasGeneralesComandaComponent } from '../notas-generales-comanda/notas-generales-comanda.component';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { Impresion } from '@restaurante-classes/impresion';
+import { NotasGeneralesComandaComponent } from '@restaurante-components/notas-generales-comanda/notas-generales-comanda.component';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { PideRepartidorDialogComponent } from '../../../callcenter/components/pide-repartidor-dialog/pide-repartidor-dialog.component';
+import { PideRepartidorDialogComponent } from '@callcenter-components/pide-repartidor-dialog/pide-repartidor-dialog.component';
 
-import { ComandaService } from '../../services/comanda.service';
-import { OrdenGkService } from '../../../ghost-kitchen/services/orden-gk.service';
-import { FacturaService } from '../../../pos/services/factura.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { EstatusCallcenterService } from '../../../callcenter/services/estatus-callcenter.service';
-import { EstatusCallcenter } from '../../../callcenter/interfaces/estatus-callcenter';
-import { ComandaEnLineaComponent } from '../comanda-en-linea/comanda-en-linea.component';
-import { Impresora } from '../../../admin/interfaces/impresora';
-import { ImpresoraService } from '../../../admin/services/impresora.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { OrdenGkService } from '@ghost-kitchen-services/orden-gk.service';
+import { FacturaService } from '@pos-services/factura.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { EstatusCallcenterService } from '@callcenter-services/estatus-callcenter.service';
+import { EstatusCallcenter } from '@callcenter-interfaces/estatus-callcenter';
+import { ComandaEnLineaComponent } from '@restaurante-components/comanda-en-linea/comanda-en-linea.component';
+import { Impresora } from '@admin-interfaces/impresora';
+import { ImpresoraService } from '@admin-services/impresora.service';
 
-import { RazonAnulacion } from '../../../admin/interfaces/razon-anulacion';
-import { AnulacionService } from '../../../admin/services/anulacion.service';
-import { TrasladoMesaComponent } from '../traslado-mesa/traslado-mesa.component';
-import { CorrelativoService } from '../../../admin/services/correlativo.service';
+import { RazonAnulacion } from '@admin-interfaces/razon-anulacion';
+import { AnulacionService } from '@admin-services/anulacion.service';
+import { TrasladoMesaComponent } from '@restaurante-components/traslado-mesa/traslado-mesa.component';
+import { CorrelativoService } from '@admin-services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 

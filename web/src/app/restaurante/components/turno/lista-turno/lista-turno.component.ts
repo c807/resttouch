@@ -1,17 +1,19 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Turno } from '../../../interfaces/turno';
-import { TurnoService } from '../../../services/turno.service';
+import { Turno } from '@restaurante-interfaces/turno';
+import { TurnoService } from '@restaurante-services/turno.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-turno',
   templateUrl: './lista-turno.component.html',
   styleUrls: ['./lista-turno.component.css']
 })
-export class ListaTurnoComponent implements OnInit {
+export class ListaTurnoComponent implements OnInit, OnDestroy {
 
   public lstTurnos: Turno[];
   public lstTurnosPaged: Turno[];
@@ -25,6 +27,8 @@ export class ListaTurnoComponent implements OnInit {
   public pageEvent: PageEvent;
   public txtFiltro = '';
 
+  private endSubs = new Subscription();
+
   constructor(
     private ls: LocalstorageService,
     private turnoSrvc: TurnoService
@@ -32,6 +36,10 @@ export class ListaTurnoComponent implements OnInit {
 
   ngOnInit() {
     this.loadTurnos();
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   applyFilter(cambioPagina = false) {
@@ -49,14 +57,16 @@ export class ListaTurnoComponent implements OnInit {
   }
 
   loadTurnos = () => {
-    this.turnoSrvc.get({sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0)}).subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstTurnos = lst;
-          this.applyFilter();
+    this.endSubs.add(      
+      this.turnoSrvc.get({sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0)}).subscribe(lst => {
+        if (lst) {
+          if (lst.length > 0) {
+            this.lstTurnos = lst;
+            this.applyFilter();
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   getTurno = (obj: any) => {

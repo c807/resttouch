@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaNotaPredefinidaComponent } from '../lista-nota-predefinida/lista-nota-predefinida.component';
-import { NotaPredefinida } from '../../../interfaces/nota-predefinida';
+import { ListaNotaPredefinidaComponent } from '@restaurante-components/nota-predefinida/lista-nota-predefinida/lista-nota-predefinida.component';
+import { NotaPredefinida } from '@restaurante-interfaces/nota-predefinida';
 
 @Component({
   selector: 'app-nota-predefinida',

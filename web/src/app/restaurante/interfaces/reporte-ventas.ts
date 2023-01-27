@@ -1,4 +1,4 @@
-import { Articulo } from '../../wms/interfaces/articulo';
+import { Articulo } from '@wms-interfaces/articulo';
 
 export interface PorCategoria {
     categoria: number;

@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { ccGeneral } from '../../../interfaces/cajacorte';
-import { CajacorteService } from '../../../services/cajacorte.service';
+import { ccGeneral } from '@restaurante-interfaces/cajacorte';
+import { CajacorteService } from '@restaurante-services/cajacorte.service';
 
 import { Subscription } from 'rxjs';
 

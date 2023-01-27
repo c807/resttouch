@@ -1,7 +1,7 @@
 import { Cuenta } from './cuenta';
-import { Impresora } from '../../admin/interfaces/impresora';
-import { Cliente } from '../../admin/interfaces/cliente';
-import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
+import { Impresora } from '@admin-interfaces/impresora';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
 
 export interface Comanda {
     area: number;

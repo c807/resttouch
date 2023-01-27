@@ -1,24 +1,28 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PideDatosCuentasComponent } from '../pide-datos-cuentas/pide-datos-cuentas.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
-import { Cuenta } from '../../interfaces/cuenta';
-import { Comanda } from '../../interfaces/comanda';
-import { Usuario } from '../../../admin/models/usuario';
-import { UsuarioService } from '../../../admin/services/usuario.service';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { PideDatosCuentasComponent } from '@restaurante-components/pide-datos-cuentas/pide-datos-cuentas.component';
+import { Cuenta } from '@restaurante-interfaces/cuenta';
+import { Comanda } from '@restaurante-interfaces/comanda';
+import { Usuario } from '@admin-models/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-abrir-mesa',
   templateUrl: './abrir-mesa.component.html',
   styleUrls: ['./abrir-mesa.component.css']
 })
-export class AbrirMesaComponent implements OnInit {
+export class AbrirMesaComponent implements OnInit, OnDestroy {
 
   public lstMeseros: Usuario[] = [];
   public esMovil = false;
   public keyboardLayout: string;
+
+  private endSubs = new Subscription();
 
   constructor(
     public dialogRef: MatDialogRef<AbrirMesaComponent>,
@@ -34,12 +38,16 @@ export class AbrirMesaComponent implements OnInit {
     this.loadMeseros();
   }
 
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
+  }
+
   loadMeseros = () => {
-    this.usuarioSrvc.getMeserosTurno().subscribe(res => {
-      if (res) {
-        this.lstMeseros = res;
-      }
-    });
+    this.endSubs.add(      
+      this.usuarioSrvc.getMeserosTurno().subscribe(res => {
+        this.lstMeseros = res || [];
+      })
+    );
   }
 
   pedirDatosDeCuentas(obj: Comanda) {
@@ -50,10 +58,12 @@ export class AbrirMesaComponent implements OnInit {
       data: { cuentas: obj.cuentas, comensales: this.data.comensales }
     });
 
-    pideDatosCuentasRef.afterClosed().subscribe((result: Cuenta[]) => {
-      obj.cuentas = result;
-      this.dialogRef.close(obj);
-    });
+    this.endSubs.add(
+      pideDatosCuentasRef.afterClosed().subscribe((result: Cuenta[]) => {
+        obj.cuentas = result;
+        this.dialogRef.close(obj);
+      })
+    );
 
   }
 

@@ -1,21 +1,23 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Mesa } from '../../interfaces/mesa';
-import { MesaService } from '../../services/mesa.service';
+import { Mesa } from '@restaurante-interfaces/mesa';
+import { MesaService } from '@restaurante-services/mesa.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-mesa',
   templateUrl: './mesa.component.html',
   styleUrls: ['./mesa.component.css']
 })
-export class MesaComponent implements OnInit, AfterViewInit {
+export class MesaComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get imagenMesa(): string {
     let img = '';
 
     if (+this.configuracion.esmostrador === 0) {
-      if(+this.configuracion.eshabitacion === 0) {
+      if (+this.configuracion.eshabitacion === 0) {
         img = 'table_03.svg';
       } else {
         img = 'habitacion.png';
@@ -61,6 +63,8 @@ export class MesaComponent implements OnInit, AfterViewInit {
   public objMesa: HTMLElement;
   public urlImage = '/assets/img/mesas/';
 
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
     private mesaSrvc: MesaService
@@ -69,6 +73,10 @@ export class MesaComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.urlImage += this.imagenMesa;
     // console.log(this.configuracion, this.urlImage);
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   ngAfterViewInit = () => this.objMesa = this.divMesa.nativeElement;
@@ -108,24 +116,26 @@ export class MesaComponent implements OnInit, AfterViewInit {
       estatus: this.configuracion.estatus
     };
     // console.log(updMesa);
-    this.mesaSrvc.save(updMesa).subscribe(res => {
-      // console.log(res);
-      if (res.exito) {
-        if (!!res.mesa) {
-          this.configuracion.mesa = res.mesa.mesa;
-          this.snackBar.open(`Mesa #${res.mesa.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+    this.endSubs.add(
+      this.mesaSrvc.save(updMesa).subscribe(res => {
+        // console.log(res);
+        if (res.exito) {
+          if (!!res.mesa) {
+            this.configuracion.mesa = res.mesa.mesa;
+            this.snackBar.open(`Mesa #${res.mesa.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+          } else {
+            this.snackBar.open(`Mesa #${this.configuracion.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+          }
         } else {
-          this.snackBar.open(`Mesa #${this.configuracion.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+          this.snackBar.open(`ERROR:${res.mensaje}.`, 'Diseño de área', { duration: 3000 });
         }
-      } else {
-        this.snackBar.open(`ERROR:${res.mensaje}.`, 'Diseño de área', { duration: 3000 });
-      }
-      this.dontAllowDrag = false;
-      this.moviendoMesa.emit(false);
-    });
+        this.dontAllowDrag = false;
+        this.moviendoMesa.emit(false);
+      })
+    );
   }
 
   dragStarted = (obj: any) => {
     this.moviendoMesa.emit(true);
-  }  
+  }
 }

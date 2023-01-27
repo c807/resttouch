@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MatDialogRef } from '@angular/material/dialog';
-import { TranComandaAltComponent } from '../tran-comanda-alt/tran-comanda-alt.component';
 
-import { TranComanda } from '../../classes/tran-comanda';
+import { TranComandaAltComponent } from '@restaurante-components/tran-comanda-alt/tran-comanda-alt.component';
+import { TranComanda } from '@restaurante-classes/tran-comanda';
 
 interface ITranComanda {
   tranComanda: TranComanda;

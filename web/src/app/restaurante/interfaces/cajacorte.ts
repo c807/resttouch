@@ -1,4 +1,4 @@
-import { Impresora } from "../../admin/interfaces/impresora";
+import { Impresora } from '@admin-interfaces/impresora';
 
 export interface ccGeneral {
 	caja_corte: number;

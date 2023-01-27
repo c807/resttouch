@@ -1,25 +1,25 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnDestroy, OnChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import { SeleccionaTurnoPrevioComponent } from '../selecciona-turno-previo/selecciona-turno-previo.component';
-import { CajacorteListaComponent } from '../../caja-corte/cajacorte-lista/cajacorte-lista.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { SeleccionaTurnoPrevioComponent } from '@restaurante-components/turno/selecciona-turno-previo/selecciona-turno-previo.component';
+import { CajacorteListaComponent } from '@restaurante-components/caja-corte/cajacorte-lista/cajacorte-lista.component';
 import { MatDialog } from '@angular/material/dialog';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs';
 
-import { TipoTurno } from '../../../interfaces/tipo-turno';
-import { TipoTurnoService } from '../../../services/tipo-turno.service';
-import { Turno } from '../../../interfaces/turno';
-import { DetalleTurno } from '../../../interfaces/detalle-turno';
-import { TurnoService } from '../../../services/turno.service';
-import { UsuarioTipo } from '../../../../admin/interfaces/usuario-tipo';
-import { UsuarioTipoService } from '../../../../admin/services/usuario-tipo.service';
-import { Usuario } from '../../../../admin/models/usuario';
-import { UsuarioService } from '../../../../admin/services/usuario.service';
-import { ccGeneral } from '../../../interfaces/cajacorte';
+import { TipoTurno } from '@restaurante-interfaces/tipo-turno';
+import { TipoTurnoService } from '@restaurante-services/tipo-turno.service';
+import { Turno } from '@restaurante-interfaces/turno';
+import { DetalleTurno } from '@restaurante-interfaces/detalle-turno';
+import { TurnoService } from '@restaurante-services/turno.service';
+import { UsuarioTipo } from '@admin-interfaces/usuario-tipo';
+import { UsuarioTipoService } from '@admin-services/usuario-tipo.service';
+import { Usuario } from '@admin-models/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
+import { ccGeneral } from '@restaurante-interfaces/cajacorte';
 
 @Component({
   selector: 'app-form-turno',

@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { ListaTurnoComponent } from '../lista-turno/lista-turno.component';
-import { FormTurnoComponent } from '../form-turno/form-turno.component';
-import { Turno } from '../../../interfaces/turno';
+import { ListaTurnoComponent } from '@restaurante-components/turno/lista-turno/lista-turno.component';
+import { FormTurnoComponent } from '@restaurante-components/turno/form-turno/form-turno.component';
+import { Turno } from '@restaurante-interfaces/turno';
 
 @Component({
   selector: 'app-turno',

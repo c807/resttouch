@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 
-import { UsuarioSede } from '../../../../admin/interfaces/acceso';
+import { UsuarioSede } from '@admin-interfaces/acceso';
 
 import { saveAs } from 'file-saver';
 

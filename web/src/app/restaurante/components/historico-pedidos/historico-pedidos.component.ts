@@ -1,10 +1,10 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { ClienteMasterService } from '../../../callcenter/services/cliente-master.service';
-import { ComandaService } from '../../services/comanda.service';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
 
 import { Subscription } from 'rxjs';
 

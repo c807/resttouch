@@ -1,7 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-// import { PorArticulo } from '../../../../interfaces/reporte-ventas';
-
 @Component({
   selector: 'app-por-articulo',
   templateUrl: './por-articulo.component.html',

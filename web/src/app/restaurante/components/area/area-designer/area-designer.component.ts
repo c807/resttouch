@@ -2,11 +2,11 @@ import { Component, OnInit, Inject, ViewChild, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { ConfiguraMesaComponent } from '../configura-mesa/configura-mesa.component';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ConfiguraMesaComponent } from '@restaurante-components/area/configura-mesa/configura-mesa.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { Mesa } from '../../../interfaces/mesa';
-import { MesaService } from '../../../services/mesa.service';
+import { Mesa } from '@restaurante-interfaces/mesa';
+import { MesaService } from '@restaurante-services/mesa.service';
 
 import { Subscription } from 'rxjs';
 

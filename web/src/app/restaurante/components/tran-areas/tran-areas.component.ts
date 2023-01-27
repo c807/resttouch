@@ -3,25 +3,27 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTab } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSidenav, MatDrawerToggleResult } from '@angular/material/sidenav';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
-import { PideTelefonoDialogComponent } from '../../../callcenter/components/pide-telefono-dialog/pide-telefono-dialog.component';
-import { DialogSeguimientoCallcenterComponent } from '../../../callcenter/components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
-import { OnlineService } from '../../../shared/services/online.service';
-import { db } from '../../../offline/db';
 
-import { AbrirMesaComponent } from '../abrir-mesa/abrir-mesa.component';
-import { TranComandaComponent } from '../tran-comanda/tran-comanda.component';
-import { TranComandaAltComponent } from '../tran-comanda-alt/tran-comanda-alt.component';
-import { MTranComandaComponent } from '../mobile/m-tran-comanda/m-tran-comanda.component';
-import { Area } from '../../interfaces/area';
-import { AreaService } from '../../services/area.service';
-import { Comanda, ComandaGetResponse } from '../../interfaces/comanda';
-import { ComandaService } from '../../services/comanda.service';
-import { ConfiguracionService } from '../../../admin/services/configuracion.service';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { ClienteMaster } from '../../../callcenter/interfaces/cliente-master';
+import { PideTelefonoDialogComponent } from '@callcenter-components/pide-telefono-dialog/pide-telefono-dialog.component';
+import { DialogSeguimientoCallcenterComponent } from '@callcenter-components/seguimiento-callcenter/dialog-seguimiento-callcenter/dialog-seguimiento-callcenter.component';
+import { OnlineService } from '@shared-services/online.service';
+import { db } from '@offline/db';
+
+import { AbrirMesaComponent } from '@restaurante-components/abrir-mesa/abrir-mesa.component';
+import { TranComandaComponent } from '@restaurante-components/tran-comanda/tran-comanda.component';
+import { TranComandaAltComponent } from '@restaurante-components/tran-comanda-alt/tran-comanda-alt.component';
+import { MTranComandaComponent } from '@restaurante-components/mobile/m-tran-comanda/m-tran-comanda.component';
+import { Area } from '@restaurante-interfaces/area';
+import { AreaService } from '@restaurante-services/area.service';
+import { Comanda, ComandaGetResponse } from '@restaurante-interfaces/comanda';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+
 import { Subscription } from 'rxjs';
 
 @Component({

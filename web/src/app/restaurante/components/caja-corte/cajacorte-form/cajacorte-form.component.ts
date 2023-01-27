@@ -2,13 +2,13 @@ import { Component, OnInit, Input, Output, EventEmitter, Inject, OnDestroy } fro
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { GLOBAL } from '../../../../shared/global';
-import { ConfirmDialogModel, ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { GLOBAL } from '@shared/global';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
-import { ccGeneral, ccTipo, ccNominacion, ccDocumentoRetiro } from '../../../interfaces/cajacorte';
-import { CajacorteService } from '../../../services/cajacorte.service';
-import { FormaPago } from '../../../../admin/interfaces/forma-pago';
-import { FpagoService } from '../../../../admin/services/fpago.service';
+import { ccGeneral, ccTipo, ccNominacion, ccDocumentoRetiro } from '@restaurante-interfaces/cajacorte';
+import { CajacorteService } from '@restaurante-services/cajacorte.service';
+import { FormaPago } from '@admin-interfaces/forma-pago';
+import { FpagoService } from '@admin-services/fpago.service';
 import * as moment from 'moment';
 
 interface IDataCC {

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { CajacorteListaComponent } from '../cajacorte-lista/cajacorte-lista.component';
-import { ccGeneral } from '../../../interfaces/cajacorte';
+import { CajacorteListaComponent } from '@restaurante-components/caja-corte/cajacorte-lista/cajacorte-lista.component';
+import { ccGeneral } from '@restaurante-interfaces/cajacorte';
 
 @Component({
   selector: 'app-cajacorte',

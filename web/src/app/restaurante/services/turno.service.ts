@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Turno } from '../interfaces/turno';
-import { DetalleTurno } from '../interfaces/detalle-turno';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { Turno } from '@restaurante-interfaces/turno';
+import { DetalleTurno } from '@restaurante-interfaces/detalle-turno';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

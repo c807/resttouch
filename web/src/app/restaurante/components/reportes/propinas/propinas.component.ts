@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../services/reporte-pdf.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { saveAs } from 'file-saver';
-import { ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-propinas',
@@ -10,7 +12,7 @@ import { ConfiguracionBotones } from '../../../../shared/interfaces/config-repor
   styleUrls: ['./propinas.component.css']
 })
 
-export class PropinasComponent implements OnInit {
+export class PropinasComponent implements OnInit, OnDestroy {
   public params: any = {};
   public titulo = 'Propinas';
   public configBotones: ConfiguracionBotones = {
@@ -18,12 +20,17 @@ export class PropinasComponent implements OnInit {
   };
   public cargando = false;
 
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
     private pdfServicio: ReportePdfService
   ) { }
 
-  ngOnInit() {
+  ngOnInit() { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();    
   }
 
   resetParams = () => {
@@ -34,29 +41,33 @@ export class PropinasComponent implements OnInit {
   onSubmit() {
     this.params._excel = 0;
     this.cargando = true;
-    this.pdfServicio.getReportePropina(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-        const blob = new Blob([res], { type: 'application/pdf' });
-        saveAs(blob, `${this.titulo}.pdf`);
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-      }
-    });
+    this.endSubs.add(      
+      this.pdfServicio.getReportePropina(this.params).subscribe(res => {
+        this.cargando = false;
+        if (res) {
+          const blob = new Blob([res], { type: 'application/pdf' });
+          saveAs(blob, `${this.titulo}.pdf`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+        }
+      })
+    );
   }
 
   excelClick() {
     this.params._excel = 1;
     this.cargando = true;
-    this.pdfServicio.getReportePropina(this.params).subscribe(res => {
-      this.cargando = false;
-      if (res) {
-        const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
-        saveAs(blob, `${this.titulo}.xls`);
-      } else {
-        this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
-      }
-    });
+    this.endSubs.add(      
+      this.pdfServicio.getReportePropina(this.params).subscribe(res => {
+        this.cargando = false;
+        if (res) {
+          const blob = new Blob([res], { type: 'application/vnd.ms-excel' });
+          saveAs(blob, `${this.titulo}.xls`);
+        } else {
+          this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
+        }
+      })
+    );
   }
 
 }

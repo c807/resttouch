@@ -1,10 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { NotaPredefinida } from '../../../interfaces/nota-predefinida';
-import { NotaPredefinidaService } from '../../../services/nota-predefinida.service';
+import { NotaPredefinida } from '@restaurante-interfaces/nota-predefinida';
+import { NotaPredefinidaService } from '@restaurante-services/nota-predefinida.service';
 
 import { Subscription } from 'rxjs';
 

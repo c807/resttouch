@@ -1,45 +1,45 @@
 import { EventEmitter } from '@angular/core';
-import { WindowConfiguration } from '../../shared/interfaces/window-configuration';
+import { WindowConfiguration } from '@shared-interfaces/window-configuration';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Socket } from 'ngx-socket-io';
-import { LocalstorageService } from '../../admin/services/localstorage.service';
-import { GLOBAL } from '../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import { MatInput } from '@angular/material/input';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 
-import { UnirCuentaComponent } from '../components/unir-cuenta/unir-cuenta.component';
-import { TrasladoMesaComponent } from '../components/traslado-mesa/traslado-mesa.component';
-import { CobrarPedidoComponent } from '../../pos/components/cobrar-pedido/cobrar-pedido.component';
-import { ListaProductoAltComponent } from '../../wms/components/producto/lista-producto-alt/lista-producto-alt.component';
-import { ConfirmDialogModel, DialogPedidoComponent } from '../../shared/components/dialog-pedido/dialog-pedido.component';
-import { ConfirmDialogComboModel, DialogComboComponent } from '../../shared/components/dialog-combo/dialog-combo.component';
-import { NotasGeneralesComandaComponent } from '../components/notas-generales-comanda/notas-generales-comanda.component';
-import { NuevaCuentaComponent } from '../components/nueva-cuenta/nueva-cuenta.component';
-import { DistribuirProductosCuentasComponent } from '../components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
-import { CantidadCombosDialogComponent } from '../components/cantidad-combos-dialog/cantidad-combos-dialog.component';
-import { HistoricoPedidosComponent } from '../components/historico-pedidos/historico-pedidos.component';
-import { PedirCantidadArticuloComponent } from '../components/pedir-cantidad-articulo/pedir-cantidad-articulo.component';
-import { ArmarComboComponent } from '../components/armar-combo/armar-combo.component';
+import { UnirCuentaComponent } from '@restaurante-components/unir-cuenta/unir-cuenta.component';
+import { TrasladoMesaComponent } from '@restaurante-components/traslado-mesa/traslado-mesa.component';
+import { CobrarPedidoComponent } from '@pos-components/cobrar-pedido/cobrar-pedido.component';
+import { ListaProductoAltComponent } from '@wms-components/producto/lista-producto-alt/lista-producto-alt.component';
+import { ConfirmDialogModel, DialogPedidoComponent } from '@shared-components/dialog-pedido/dialog-pedido.component';
+import { ConfirmDialogComboModel, DialogComboComponent } from '@shared-components/dialog-combo/dialog-combo.component';
+import { NotasGeneralesComandaComponent } from '@restaurante-components/notas-generales-comanda/notas-generales-comanda.component';
+import { NuevaCuentaComponent } from '@restaurante-components/nueva-cuenta/nueva-cuenta.component';
+import { DistribuirProductosCuentasComponent } from '@restaurante-components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
+import { CantidadCombosDialogComponent } from '@restaurante-components/cantidad-combos-dialog/cantidad-combos-dialog.component';
+import { HistoricoPedidosComponent } from '@restaurante-components/historico-pedidos/historico-pedidos.component';
+import { PedirCantidadArticuloComponent } from '@restaurante-components/pedir-cantidad-articulo/pedir-cantidad-articulo.component';
+import { ArmarComboComponent } from '@restaurante-components/armar-combo/armar-combo.component';
 
-import { Cuenta, DetalleCuentaSimplified } from '../interfaces/cuenta';
-import { Comanda, ComandaGetResponse } from '../interfaces/comanda';
-import { DetalleComanda } from '../interfaces/detalle-comanda';
-import { ArbolArticulos, Articulo, ArticuloImpresion, NodoProducto, ProductoSelected, ContenidoCombo, IOpcion } from '../../wms/interfaces/articulo';
-import { ArticuloService } from '../../wms/services/articulo.service';
+import { Cuenta, DetalleCuentaSimplified } from '@restaurante-interfaces/cuenta';
+import { Comanda, ComandaGetResponse } from '@restaurante-interfaces/comanda';
+import { DetalleComanda } from '@restaurante-interfaces/detalle-comanda';
+import { ArbolArticulos, Articulo, ArticuloImpresion, NodoProducto, ProductoSelected, ContenidoCombo, IOpcion } from '@wms-interfaces/articulo';
+import { ArticuloService } from '@wms-services/articulo.service';
 
-import { ComandaService } from '../services/comanda.service';
-import { ReportePdfService } from '../services/reporte-pdf.service';
-import { ConfiguracionService } from '../../admin/services/configuracion.service';
-import { Cliente } from '../../admin/interfaces/cliente';
-import { ClienteMaster } from '../../callcenter/interfaces/cliente-master';
-import { Categoria } from '../../wms/interfaces/categoria';
-import { UsuarioService } from '../../admin/services/usuario.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { Categoria } from '@wms-interfaces/categoria';
+import { UsuarioService } from '@admin-services/usuario.service';
 
-import { AccionesComandaComponent } from '../components/acciones-comanda/acciones-comanda.component';
+import { AccionesComandaComponent } from '@restaurante-components/acciones-comanda/acciones-comanda.component';
 import { Base64 } from 'js-base64';
-import { Correlativo } from '../../admin/interfaces/correlativo';
-import { CorrelativoService } from '../../admin/services/correlativo.service';
+import { Correlativo } from '@admin-interfaces/correlativo';
+import { CorrelativoService } from '@admin-services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 

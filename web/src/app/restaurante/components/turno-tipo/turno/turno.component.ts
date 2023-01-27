@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTurnoTipoComponent } from '../lista-turno/lista-turno.component';
-import { TipoTurno } from '../../../interfaces/tipo-turno';
+import { ListaTurnoTipoComponent } from '@restaurante-components/turno-tipo/lista-turno/lista-turno.component';
+import { TipoTurno } from '@restaurante-interfaces/tipo-turno';
 
 @Component({
   selector: 'app-turno-tipo',

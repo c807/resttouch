@@ -2,12 +2,12 @@ import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, OnDestroy } fr
 import { Socket } from 'ngx-socket-io';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../shared/global';
-import { DesktopNotificationService } from '../../../shared/services/desktop-notification.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
+import { DesktopNotificationService } from '@shared-services/desktop-notification.service';
 import * as moment from 'moment';
 
-import { ComandaService } from '../../services/comanda.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
 
 import { Subscription } from 'rxjs';
 

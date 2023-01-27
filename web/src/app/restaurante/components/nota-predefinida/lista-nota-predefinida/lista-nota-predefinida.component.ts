@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { NotaPredefinida } from '../../../interfaces/nota-predefinida';
-import { NotaPredefinidaService } from '../../../services/nota-predefinida.service';
+import { NotaPredefinida } from '@restaurante-interfaces/nota-predefinida';
+import { NotaPredefinidaService } from '@restaurante-services/nota-predefinida.service';
 
 import { Subscription } from 'rxjs';
 

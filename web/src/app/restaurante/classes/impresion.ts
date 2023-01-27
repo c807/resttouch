@@ -1,14 +1,15 @@
 import { Socket } from 'ngx-socket-io';
-import { ProductoSelected } from '../../wms/interfaces/articulo';
-import { LocalstorageService } from '../../admin/services/localstorage.service';
-import { ComandaService } from '../services/comanda.service';
-import { ConfiguracionService } from '../../admin/services/configuracion.service';
-import { GLOBAL } from '../../shared/global';
+import { ProductoSelected } from '@wms-interfaces/articulo';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import { Base64 } from 'js-base64';
 import * as moment from 'moment';
-import { Impresora } from '../../admin/interfaces/impresora';
-import { Correlativo } from '../../admin/interfaces/correlativo';
-import { CorrelativoService } from '../../admin/services/correlativo.service';
+
+import { ConfiguracionService } from '@admin-services/configuracion.service';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { Impresora } from '@admin-interfaces/impresora';
+import { Correlativo } from '@admin-interfaces/correlativo';
+import { CorrelativoService } from '@admin-services/correlativo.service';
 
 export class Impresion {
 

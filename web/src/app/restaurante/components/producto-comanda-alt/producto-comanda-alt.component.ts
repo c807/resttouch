@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { DetalleCuentaSimplified } from '../../interfaces/cuenta';
+import { DetalleCuentaSimplified } from '@restaurante-interfaces/cuenta';
 
 @Component({
   selector: 'app-producto-comanda-alt',

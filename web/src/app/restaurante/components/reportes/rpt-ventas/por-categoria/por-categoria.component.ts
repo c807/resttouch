@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { PorCategoria } from '../../../../interfaces/reporte-ventas';
+import { PorCategoria } from '@restaurante-interfaces/reporte-ventas';
 
 @Component({
   selector: 'app-por-categoria',

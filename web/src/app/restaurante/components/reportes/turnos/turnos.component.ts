@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GLOBAL } from '../../../../shared/global';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
-import { ConfiguracionFechas, ConfiguracionBotones } from '../../../../shared/interfaces/config-reportes';
+import { ConfiguracionFechas, ConfiguracionBotones } from '@shared-interfaces/config-reportes';
 
 @Component({
   selector: 'app-turnos',

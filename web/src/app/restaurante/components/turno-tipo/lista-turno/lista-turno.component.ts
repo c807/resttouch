@@ -1,9 +1,9 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { PaginarArray, MultiFiltro } from '../../../../shared/global';
+import { PaginarArray, MultiFiltro } from '@shared/global';
 
-import { TipoTurno } from '../../../interfaces/tipo-turno';
-import { TipoTurnoService } from '../../../services/tipo-turno.service';
+import { TipoTurno } from '@restaurante-interfaces/tipo-turno';
+import { TipoTurnoService } from '@restaurante-services/tipo-turno.service';
 
 import { Subscription } from 'rxjs';
 

@@ -1,29 +1,30 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ValidaPwdGerenteTurnoComponent } from '../valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
+import { ValidaPwdGerenteTurnoComponent } from '@restaurante-components/valida-pwd-gerente-turno/valida-pwd-gerente-turno.component';
 import { Socket } from 'ngx-socket-io';
 
-import { ProductoSelected } from '../../../wms/interfaces/articulo';
+import { ProductoSelected } from '@wms-interfaces/articulo';
 
-import { DetalleComanda } from '../../interfaces/detalle-comanda';
-import { ComandaService } from '../../services/comanda.service';
-import { DialogElminarProductoComponent, ElminarProductoModel } from 'src/app/shared/components/dialog-elminar-producto/dialog-elminar-producto.component';
+import { DetalleComanda } from '@restaurante-interfaces/detalle-comanda';
+import { ComandaService } from '@restaurante-services/comanda.service';
+import { DialogElminarProductoComponent, ElminarProductoModel } from '@shared-components/dialog-elminar-producto/dialog-elminar-producto.component';
 
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lista-productos-comanda',
   templateUrl: './lista-productos-comanda.component.html',
   styleUrls: ['./lista-productos-comanda.component.css']
 })
-export class ListaProductosComandaComponent implements OnInit {
+export class ListaProductosComandaComponent implements OnInit, OnDestroy {
 
   get cantidadDeProductos() {
     let cntProd = 0;
-    for (const p of this.listaProductos) {      
+    for (const p of this.listaProductos) {
       cntProd += p.cantidad;
     }
     return cntProd;
@@ -49,6 +50,8 @@ export class ListaProductosComandaComponent implements OnInit {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public detalleComanda: DetalleComanda;
 
+  private endSubs = new Subscription();
+
   constructor(
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
@@ -59,6 +62,10 @@ export class ListaProductosComandaComponent implements OnInit {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   removeProducto = (p: ProductoSelected, idx: number, estaAutorizado = false, cantidad?: number) => {
@@ -74,24 +81,26 @@ export class ListaProductosComandaComponent implements OnInit {
       autorizado: estaAutorizado
     };
 
-    if (cantidad){
+    if (cantidad) {
       this.detalleComanda.cantidad = cantidad;
       this.detalleComanda.total = (cantidad * this.detalleComanda.precio)
     }
 
-    this.comandaSrvc.saveDetalle(this.IdComanda, this.IdCuenta, this.detalleComanda).subscribe(res => {
-      if (res.exito) {
-        p.cantidad = this.detalleComanda.cantidad;
-        this.productoRemovedEv.emit({ listaProductos: this.listaProductos, comanda: res.comanda });
-        if (+p.cantidad === 0) {
-          this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
-          this.socket.emit('refrescar:listaCocina', { mesaenuso: this.mesaEnUso });
+    this.endSubs.add(
+      this.comandaSrvc.saveDetalle(this.IdComanda, this.IdCuenta, this.detalleComanda).subscribe(res => {
+        if (res.exito) {
+          p.cantidad = this.detalleComanda.cantidad;
+          this.productoRemovedEv.emit({ listaProductos: this.listaProductos, comanda: res.comanda });
+          if (+p.cantidad === 0) {
+            this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
+            this.socket.emit('refrescar:listaCocina', { mesaenuso: this.mesaEnUso });
+          }
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 3000 });
         }
-      } else {
-        this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 3000 });
-      }
-      this.bloqueoBotones = false;
-    });
+        this.bloqueoBotones = false;
+      })
+    );
   }
 
   deleteProductoFromList = (p: ProductoSelected, idx: number, estaAutorizado = false) => {
@@ -106,26 +115,30 @@ export class ListaProductosComandaComponent implements OnInit {
       width: '40%', disableClose: true
     });
 
-    dialogoRef.afterClosed().subscribe(res => {
-      // console.log(res);
-      if (res) {
-        // this.autorizar = true;
-        //this.deleteProductoFromList(p, idx, true);
-        const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
-          width: '40%', disableClose: true, data: new ElminarProductoModel(p)
-        });
+    this.endSubs.add(
+      dialogoRef.afterClosed().subscribe(res => {
+        // console.log(res);
+        if (res) {
+          // this.autorizar = true;
+          //this.deleteProductoFromList(p, idx, true);
+          const dialogDelete = this.dialog.open(DialogElminarProductoComponent, {
+            width: '40%', disableClose: true, data: new ElminarProductoModel(p)
+          });
 
-        dialogDelete.afterClosed().subscribe(res => {
-          if (res && res.respuesta){
-            this.removeProducto(res.producto, idx, true, res.producto.cantidad)
-            this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });
-          }
-        })        
-      } else {
-        this.snackBar.open('La contraseña no es correcta', 'Comanda', { duration: 5000 });
-      }
-      this.bloqueoBotones = false;
-    });
+          this.endSubs.add(
+            dialogDelete.afterClosed().subscribe(res => {
+              if (res && res.respuesta) {
+                this.removeProducto(res.producto, idx, true, res.producto.cantidad)
+                this.snackBar.open('Se eliminará el producto seleccionado.', 'Comanda', { duration: 5000 });
+              }
+            })
+          );
+        } else {
+          this.snackBar.open('La contraseña no es correcta', 'Comanda', { duration: 5000 });
+        }
+        this.bloqueoBotones = false;
+      })
+    );
   }
 
   toggleShowInputNotas(p: ProductoSelected) {
@@ -140,11 +153,13 @@ export class ListaProductosComandaComponent implements OnInit {
   }
 
   saveNotasProducto = (p: ProductoSelected) => {
-    this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: p.notas }).subscribe(res => {
-      if (res.exito) {
-        this.snackBar.open('Notas de producto guardadas con éxito...', 'Producto', { duration: 3000 });
-      }
-    });
+    this.endSubs.add(
+      this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: p.notas }).subscribe(res => {
+        if (res.exito) {
+          this.snackBar.open('Notas de producto guardadas con éxito...', 'Producto', { duration: 3000 });
+        }
+      })
+    );
   }
 
   doAction(ev: string) {
