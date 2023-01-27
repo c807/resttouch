@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
-import { GLOBAL } from '../../../../shared/global';
-import { ListaOrdenCompraComponent } from '../lista-orden-compra/lista-orden-compra.component';
-import { FormOrdenCompraComponent } from '../form-orden-compra/form-orden-compra.component';
-import { OrdenCompra } from '../../../interfaces/orden-compra';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
+
+import { ListaOrdenCompraComponent } from '@orden-compra-components/orden-compra/lista-orden-compra/lista-orden-compra.component';
+import { FormOrdenCompraComponent } from '@orden-compra-components/orden-compra/form-orden-compra/form-orden-compra.component';
+import { OrdenCompra } from '@orden-compra-interfaces/orden-compra';
 
 @Component({
   selector: 'app-orden-compra',

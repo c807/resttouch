@@ -1,16 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { UsuarioSede } from 'src/app/admin/interfaces/acceso';
-import { ConfiguracionBotones } from 'src/app/shared/interfaces/config-reportes';
-import { Bodega } from 'src/app/wms/interfaces/bodega';
-import { saveAs } from 'file-saver';
-import { GLOBAL } from '../../../../shared/global';
-
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { BodegaService } from 'src/app/wms/services/bodega.service';
-
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
 import * as moment from 'moment';
+
+import { Bodega } from '@wms-interfaces/bodega';
+import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { BodegaService } from '@wms-services/bodega.service';
 
 import { Subscription } from 'rxjs';
 

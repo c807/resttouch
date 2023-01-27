@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { OrdenCompra } from '../interfaces/orden-compra';
-import { DetalleOrdenCompra } from '../interfaces/detalle-orden-compra';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { OrdenCompra } from '@orden-compra-interfaces/orden-compra';
+import { DetalleOrdenCompra } from '@orden-compra-interfaces/detalle-orden-compra';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';

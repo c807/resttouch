@@ -1,31 +1,28 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatTableDataSource} from '@angular/material/table';
-import {MatDialog} from '@angular/material/dialog';
-import {LocalstorageService} from '../../../../admin/services/localstorage.service';
-import {GLOBAL} from '../../../../shared/global';
-
-import {OrdenCompra} from '../../../interfaces/orden-compra';
-import {DetalleOrdenCompra} from '../../../interfaces/detalle-orden-compra';
-import {OrdenCompraService} from '../../../services/orden-compra.service';
-import {Proveedor} from '../../../../wms/interfaces/proveedor';
-import {ProveedorService} from '../../../../wms/services/proveedor.service';
-import {TipoMovimiento} from '../../../../wms/interfaces/tipo-movimiento';
-import {TipoMovimientoService} from '../../../../wms/services/tipo-movimiento.service';
-import {Bodega} from '../../../../wms/interfaces/bodega';
-import {BodegaService} from '../../../../wms/services/bodega.service';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogModel
-} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
-import {ReportePdfService} from '../../../../restaurante/services/reporte-pdf.service';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
 import * as moment from 'moment';
-import {saveAs} from 'file-saver';
 
-import {Subscription} from 'rxjs';
-import {MatSelectChange} from '@angular/material/select';
-import {Articulo} from "../../../../wms/interfaces/articulo";
-import {Presentacion} from "../../../../admin/interfaces/presentacion";
+import { OrdenCompra } from '@orden-compra-interfaces/orden-compra';
+import { DetalleOrdenCompra } from '@orden-compra-interfaces/detalle-orden-compra';
+import { OrdenCompraService } from '@orden-compra-services/orden-compra.service';
+import { Proveedor } from '@wms-interfaces/proveedor';
+import { ProveedorService } from '@wms-services/proveedor.service';
+import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
+import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { Articulo } from '@wms-interfaces/articulo';
+import { Presentacion } from '@admin-interfaces/presentacion';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form-orden-compra',
@@ -161,7 +158,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   loadTiposMovimiento = () => {
     this.endSubs.add(
-      this.tipoMovimientoSrvc.get({ingreso: 1}).subscribe(res => {
+      this.tipoMovimientoSrvc.get({ ingreso: 1 }).subscribe(res => {
         this.tiposMovimiento = res;
       })
     );
@@ -169,7 +166,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
 
   loadBodegas = () => {
     this.endSubs.add(
-      this.bodegaSrvc.get({sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0}).subscribe(res => {
+      this.bodegaSrvc.get({ sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0 }).subscribe(res => {
         this.bodegas = res;
       })
     );
@@ -183,7 +180,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
       sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0)
     };
     this.resetDetalleOrdenCompra();
-    this.txtProveedorSelected = undefined;    
+    this.txtProveedorSelected = undefined;
   }
 
   onSubmit = () => {
@@ -240,7 +237,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   loadDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra) => {
     this.loadArticulos();
     this.endSubs.add(
-      this.ordenCompraSrvc.getDetalle(idoc, {orden_compra: idoc}).subscribe(res => {
+      this.ordenCompraSrvc.getDetalle(idoc, { orden_compra: idoc }).subscribe(res => {
         this.detallesOrdenCompra = res;
         this.updateTableDataSource();
       })
@@ -248,7 +245,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   }
 
   getDetalleOrdenCompra = (idoc: number = +this.ordenCompra.orden_compra, iddetalle: number) => {
-    this.ordenCompraSrvc.getDetalle(idoc, {orden_compra_detalle: iddetalle}).subscribe((res: any[]) => {
+    this.ordenCompraSrvc.getDetalle(idoc, { orden_compra_detalle: iddetalle }).subscribe((res: any[]) => {
       // console.log(res);
       if (res) {
         this.detalleOrdenCompra = {
@@ -354,10 +351,10 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra, +this.ordenCompra.bodega).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], {type: 'application/pdf'});
+          const blob = new Blob([res], { type: 'application/pdf' });
           saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
         } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'OC', {duration: 3000});
+          this.snackBar.open('No se pudo generar el reporte...', 'OC', { duration: 3000 });
         }
       })
     );

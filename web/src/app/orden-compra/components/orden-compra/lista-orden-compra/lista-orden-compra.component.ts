@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { OrdenCompra } from '../../../interfaces/orden-compra';
-import { OrdenCompraService } from '../../../services/orden-compra.service';
+import { OrdenCompra } from '@orden-compra-interfaces/orden-compra';
+import { OrdenCompraService } from '@orden-compra-services/orden-compra.service';
 
 import { Subscription } from 'rxjs';
 

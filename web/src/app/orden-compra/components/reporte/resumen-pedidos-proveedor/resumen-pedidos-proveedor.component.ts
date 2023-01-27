@@ -1,20 +1,21 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
+import * as moment from 'moment';
 
-import * as moment from "moment";
-import { GLOBAL } from "../../../../shared/global";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { Subscription } from "rxjs";
-import { saveAs } from "file-saver";
-import { ReportePdfService } from '../../../../restaurante/services/reporte-pdf.service';
-import { AccesoUsuarioService } from '../../../../admin/services/acceso-usuario.service';
-import { BodegaService } from 'src/app/wms/services/bodega.service';
-import { UsuarioSede } from 'src/app/admin/interfaces/acceso';
-import { Bodega } from 'src/app/wms/interfaces/bodega';
+import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { BodegaService } from '@wms-services/bodega.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { Bodega } from '@wms-interfaces/bodega';
+
+import { Subscription } from 'rxjs';
 
 @Component({
-	selector: "app-resumen-pedidos-proveedor",
-	templateUrl: "./resumen-pedidos-proveedor.component.html",
-	styleUrls: ["./resumen-pedidos-proveedor.component.css"]
+	selector: 'app-resumen-pedidos-proveedor',
+	templateUrl: './resumen-pedidos-proveedor.component.html',
+	styleUrls: ['./resumen-pedidos-proveedor.component.css']
 })
 export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 
@@ -29,7 +30,7 @@ export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 
 	public params: any = {};
 	public paramsToSend: any = {};
-	public titulo: string = "Resumen_pedidos_proveedor";
+	public titulo: string = 'Resumen_pedidos_proveedor';
 	public cargando = false;
 	public bodegas: Bodega[] = [];
 	public sedes: UsuarioSede[] = [];
@@ -86,8 +87,8 @@ export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 		this.cargando            = true;
 		this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
 		this.paramsToSend._excel = esExcel;
-		this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format("YYYY-MM-DD");
-		this.paramsToSend.fal    = moment(this.paramsToSend.fal).format("YYYY-MM-DD");
+		this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+		this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 		this.paramsToSend._alfa    = this.params._alfa;
 		this.paramsToSend.bodega = this.params.bodega;
 
@@ -95,10 +96,10 @@ export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 			this.ReporteSrvc.generar_archivo_pedidos_proveedor(this.paramsToSend).subscribe(res => {
 				this.cargando = false;
 				if (res) {
-					const blob = new Blob([res], {type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel")});
-					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+					const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 				} else {
-					this.snackBar.open("No se pudo generar el reporte...", "Resumen pedidos proveedor.", {duration: 3000});
+					this.snackBar.open('No se pudo generar el reporte...', 'Resumen pedidos proveedor.', {duration: 3000});
 				}
 			})
 		);
