@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { EstatusCallcenter } from '../../../interfaces/estatus-callcenter';
-import { EstatusCallcenterService } from '../../../services/estatus-callcenter.service';
+import { EstatusCallcenter } from '@callcenter-interfaces/estatus-callcenter';
+import { EstatusCallcenterService } from '@callcenter-services/estatus-callcenter.service';
 
 import { Subscription } from 'rxjs';
 

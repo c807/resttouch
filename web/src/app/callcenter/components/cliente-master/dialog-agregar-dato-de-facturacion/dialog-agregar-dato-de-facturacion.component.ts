@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ClienteMaster, ClienteMasterCliente } from '../../../interfaces/cliente-master';
+import { ClienteMaster, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
 
 @Component({
   selector: 'app-dialog-agregar-dato-de-facturacion',

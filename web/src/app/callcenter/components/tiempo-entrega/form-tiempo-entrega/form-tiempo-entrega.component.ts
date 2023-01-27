@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TiempoEntrega } from '../../../interfaces/tiempo-entrega';
-import { TiempoEntregaService } from '../../../services/tiempo-entrega.service';
+import { TiempoEntrega } from '@callcenter-interfaces/tiempo-entrega';
+import { TiempoEntregaService } from '@callcenter-services/tiempo-entrega.service';
 
 import { Subscription } from 'rxjs';
 

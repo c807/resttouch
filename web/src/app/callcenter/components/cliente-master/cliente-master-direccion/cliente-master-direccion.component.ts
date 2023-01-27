@@ -1,22 +1,15 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
-import {GLOBAL} from '../../../../shared/global';
-import {LocalstorageService} from '../../../../admin/services/localstorage.service';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import {
-  ClienteMaster,
-  ClienteMasterDireccion,
-  ClienteMasterDireccionResponse
-} from '../../../interfaces/cliente-master';
-import {ClienteMasterService} from '../../../services/cliente-master.service';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogModel
-} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ClienteMaster, ClienteMasterDireccion, ClienteMasterDireccionResponse } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { AgregaDireccionComponent } from '@callcenter-components/cliente-master/agrega-direccion/agrega-direccion.component';
 
-import {Subscription} from 'rxjs';
-import {AgregaDireccionComponent} from '../agrega-direccion/agrega-direccion.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cliente-master-direccion',
@@ -56,7 +49,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
   loadDirecciones = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.clienteMasterSrvc.buscarDireccion({cliente_master: this.clienteMaster.cliente_master, debaja: 0 }).subscribe(res => {
+      this.clienteMasterSrvc.buscarDireccion({ cliente_master: this.clienteMaster.cliente_master, debaja: 0 }).subscribe(res => {
         this.lstDirecciones = res;
         this.cargando = false;
       })
@@ -68,7 +61,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(AgregaDireccionComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
-      data: {clienteMaster: this.clienteMaster, isEditing: false}
+      data: { clienteMaster: this.clienteMaster, isEditing: false }
     });
     cmdRef.afterClosed().subscribe(() => {
       // Do stuff after the dialog has closed
@@ -98,7 +91,7 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
 
-      data: {clienteMaster: this.clienteMaster, isEditing: true, defData: this.cmDireccion}
+      data: { clienteMaster: this.clienteMaster, isEditing: true, defData: this.cmDireccion }
     });
 
     cmdRef.afterClosed().subscribe(() => {
@@ -114,11 +107,11 @@ export class ClienteMasterDireccionComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.clienteMasterSrvc.desasociarClienteMasterDireccion(direccion.cliente_master_direccion).subscribe(res => {
         if (res.exito) {
-          this.snackBar.open(res.mensaje, 'Direccion desasociada', {duration: 3000});
+          this.snackBar.open(res.mensaje, 'Direccion desasociada', { duration: 3000 });
           this.loadDirecciones();
         } else {
           console.log(`ERROR: ${res.mensaje}`, 'Error al dar debaja la direccion)');
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al dar debaja la direccion', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al dar debaja la direccion', { duration: 7000 });
         }
       })
     );

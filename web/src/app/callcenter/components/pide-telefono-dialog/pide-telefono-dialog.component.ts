@@ -1,19 +1,19 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ClienteService } from '../../../admin/services/cliente.service';
-import { Cliente } from '../../../admin/interfaces/cliente';
-import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion, ClienteMasterDireccionResponse, ClienteMasterCliente } from '../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../services/cliente-master.service';
-import { ClienteMasterDialogComponent } from '../cliente-master/cliente-master-dialog/cliente-master-dialog.component';
-import { TipoDomicilio } from '../../interfaces/tipo-domicilio';
-import { TipoDomicilioService } from '../../services/tipo-domicilio.service';
+import { ClienteService } from '@admin-services/cliente.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccion, ClienteMasterDireccionResponse, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ClienteMasterDialogComponent } from '@callcenter-components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
+import { TipoDomicilioService } from '@callcenter-services/tipo-domicilio.service';
 
-import { DialogClienteMasterDireccionComponent } from '../cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
-import { DialogClienteMasterClienteComponent } from '../cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
+import { DialogClienteMasterDireccionComponent } from '@callcenter-components/cliente-master/dialog-cliente-master-direccion/dialog-cliente-master-direccion.component';
+import { DialogClienteMasterClienteComponent } from '@callcenter-components/cliente-master/dialog-cliente-master-cliente/dialog-cliente-master-cliente.component';
 
 import { Subscription } from 'rxjs';
 

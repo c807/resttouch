@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { ClienteMasterDireccion, ClienteMasterTelefono, ClienteMasterDireccionResponse } from '../../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
+import { ClienteMasterDireccion, ClienteMasterTelefono, ClienteMasterDireccionResponse } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
 
-import { AgregaDireccionComponent } from '../../cliente-master/agrega-direccion/agrega-direccion.component';
+import { AgregaDireccionComponent } from '@callcenter-components/cliente-master/agrega-direccion/agrega-direccion.component';
 
 import { Subscription } from 'rxjs';
 

@@ -1,14 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { GLOBAL, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
 import * as moment from 'moment';
 
-import { SeguimientoCallcenterService } from '../../../services/seguimiento-callcenter.service';
-import { EstatusCallcenter } from '../../../interfaces/estatus-callcenter';
-import { EstatusCallcenterService } from '../../../services/estatus-callcenter.service';
-import { Repartidor } from '../../../interfaces/repartidor';
-import { RepartidorService } from '../../../services/repartidor.service';
+import { SeguimientoCallcenterService } from '@callcenter-services/seguimiento-callcenter.service';
+import { EstatusCallcenter } from '@callcenter-interfaces/estatus-callcenter';
+import { EstatusCallcenterService } from '@callcenter-services/estatus-callcenter.service';
+import { Repartidor } from '@callcenter-interfaces/repartidor';
+import { RepartidorService } from '@callcenter-services/repartidor.service';
 
 import { Subscription } from 'rxjs';
 

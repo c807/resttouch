@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
-import { ClienteMasterTelefono, ClienteMasterCliente } from '../../../interfaces/cliente-master';
+import { ClienteMasterTelefono, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
 
-import { DialogAgregarDatoDeFacturacionComponent } from '../dialog-agregar-dato-de-facturacion/dialog-agregar-dato-de-facturacion.component';
+import { DialogAgregarDatoDeFacturacionComponent } from '@callcenter-components/cliente-master/dialog-agregar-dato-de-facturacion/dialog-agregar-dato-de-facturacion.component';
 
 import { Subscription } from 'rxjs';
 

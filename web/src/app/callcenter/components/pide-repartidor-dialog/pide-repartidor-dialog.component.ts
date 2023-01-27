@@ -1,13 +1,12 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { GLOBAL } from '../../../shared/global';
-import { LocalstorageService } from '../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Repartidor } from '../../../callcenter/interfaces/repartidor';
-import { RepartidorService } from '../../../callcenter/services/repartidor.service';
+import { Repartidor } from '@callcenter-interfaces/repartidor';
+import { RepartidorService } from '@callcenter-services/repartidor.service';
 
 import { Subscription } from 'rxjs';
-
 
 @Component({
   selector: 'app-pide-repartidor-dialog',

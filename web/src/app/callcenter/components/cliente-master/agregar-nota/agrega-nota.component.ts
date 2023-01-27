@@ -1,14 +1,13 @@
-import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {GLOBAL} from '../../../../shared/global';
-import {LocalstorageService} from '../../../../admin/services/localstorage.service';
+import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import {ClienteMaster} from '../../../interfaces/cliente-master';
-import {ClienteMasterService} from '../../../services/cliente-master.service';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
 
-import {Subscription} from 'rxjs';
-import {ConfiguracionService} from '../../../../admin/services/configuracion.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-agrega-nota',
@@ -33,8 +32,7 @@ export class AgregaNotaComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<AgregaNotaComponent>,
     private clienteMasterSrvc: ClienteMasterService,
     private snackBar: MatSnackBar,
-    private ls: LocalstorageService,
-    private configSrvc: ConfiguracionService,
+    private ls: LocalstorageService,    
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }
@@ -68,10 +66,10 @@ export class AgregaNotaComponent implements OnInit, OnDestroy {
       this.clienteMasterSrvc.saveNotaClienteMaster(obj).subscribe(res => {
         if (res.exito) {
           this.dialogRef.close();
-          this.snackBar.open(res.mensaje, 'Nota asociada', {duration: 3000});
+          this.snackBar.open(res.mensaje, 'Nota asociada', { duration: 3000 });
         } else {
           console.log(`ERROR: ${res.mensaje}`, 'Error al agregar nota)');
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar nota', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al agregar nota', { duration: 7000 });
         }
       })
     );

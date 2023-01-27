@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ClienteMaster, ClienteMasterTelefono } from '../../../interfaces/cliente-master';
-import { Telefono } from '../../../interfaces/telefono';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
-import { SeleccionaTelefonoComponent } from '../selecciona-telefono/selecciona-telefono.component';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ClienteMaster, ClienteMasterTelefono } from '@callcenter-interfaces/cliente-master';
+import { Telefono } from '@callcenter-interfaces/telefono';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { SeleccionaTelefonoComponent } from '@callcenter-components/cliente-master/selecciona-telefono/selecciona-telefono.component';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
 import { Subscription } from 'rxjs';
 

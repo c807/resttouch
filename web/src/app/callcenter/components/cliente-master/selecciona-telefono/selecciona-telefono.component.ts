@@ -1,8 +1,8 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { Telefono } from '../../../interfaces/telefono';
-import { ClienteMaster } from '../../../interfaces/cliente-master';
+import { Telefono } from '@callcenter-interfaces/telefono';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
 
 interface ISelectPhone {
   clienteMaster: ClienteMaster

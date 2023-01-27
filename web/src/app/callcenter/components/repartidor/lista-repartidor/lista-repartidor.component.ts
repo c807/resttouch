@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Repartidor } from '../../../interfaces/repartidor';
-import { RepartidorService } from '../../../services/repartidor.service';
+import { Repartidor } from '@callcenter-interfaces/repartidor';
+import { RepartidorService } from '@callcenter-services/repartidor.service';
 
 import { Subscription } from 'rxjs';
 

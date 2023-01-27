@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
-import { GLOBAL, PaginarArray, MultiFiltro } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TiempoEntrega } from '../../../interfaces/tiempo-entrega';
-import { TiempoEntregaService } from '../../../services/tiempo-entrega.service';
+import { TiempoEntrega } from '@callcenter-interfaces/tiempo-entrega';
+import { TiempoEntregaService } from '@callcenter-services/tiempo-entrega.service';
 
 import { Subscription } from 'rxjs';
 

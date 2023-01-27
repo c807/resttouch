@@ -1,20 +1,15 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
-import {GLOBAL} from '../../../../shared/global';
-import {LocalstorageService} from '../../../../admin/services/localstorage.service';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import {
-  ClienteMaster, ClienteMasterNota, ClienteMasterNotaResponse
-} from '../../../interfaces/cliente-master';
-import {ClienteMasterService} from '../../../services/cliente-master.service';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogModel
-} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ClienteMaster, ClienteMasterNota, ClienteMasterNotaResponse } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { AgregaNotaComponent } from '@callcenter-components/cliente-master/agregar-nota/agrega-nota.component';
 
-import {Subscription} from 'rxjs';
-import {AgregaNotaComponent} from '../agregar-nota/agrega-nota.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cliente-master-nota',
@@ -54,7 +49,7 @@ export class ClienteMasterNotaComponent implements OnInit, OnDestroy {
   loadNotas = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.clienteMasterSrvc.buscarNota({debaja: 0, cliente_master: this.clienteMaster.cliente_master }).subscribe(res => {
+      this.clienteMasterSrvc.buscarNota({ debaja: 0, cliente_master: this.clienteMaster.cliente_master }).subscribe(res => {
         this.lstNota = res;
         this.cargando = false;
       })
@@ -66,12 +61,14 @@ export class ClienteMasterNotaComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(AgregaNotaComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
-      data: {clienteMaster: this.clienteMaster, isEditing: false}
+      data: { clienteMaster: this.clienteMaster, isEditing: false }
     });
-    cmdRef.afterClosed().subscribe(() => {
-      // Do stuff after the dialog has closed
-      this.loadNotas();
-    });
+
+    this.endSubs.add(
+      cmdRef.afterClosed().subscribe(() => {
+        this.loadNotas();
+      })
+    );
   }
 
   editarNota = (nota: ClienteMasterNotaResponse) => {
@@ -88,36 +85,30 @@ export class ClienteMasterNotaComponent implements OnInit, OnDestroy {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: true,
 
-      data: {clienteMaster: this.clienteMaster, isEditing: true, defData: this.cmNota}
+      data: { clienteMaster: this.clienteMaster, isEditing: true, defData: this.cmNota }
     });
 
-    cmdRef.afterClosed().subscribe(() => {
-      // Do stuff after the dialog has closed
-      this.loadNotas();
-    });
+    this.endSubs.add(
+      cmdRef.afterClosed().subscribe(() => {
+        this.loadNotas();
+      })
+    );
 
   }
 
   darDeBaja = (nota: ClienteMasterNotaResponse) => {
-
-
     this.endSubs.add(
       this.clienteMasterSrvc.desasociarClienteMasterNota(nota.cliente_master_nota).subscribe(res => {
         if (res.exito) {
-          this.snackBar.open(res.mensaje, 'Nota desasociada', {duration: 3000});
+          this.snackBar.open(res.mensaje, 'Nota desasociada', { duration: 3000 });
           this.loadNotas();
         } else {
           console.log(`ERROR: ${res.mensaje}`, 'Error al dar debaja la nota)');
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al dar debaja la nota', {duration: 7000});
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Error al dar debaja la nota', { duration: 7000 });
         }
       })
     );
   }
-
-  /**
-   * This unsubscribed addresses
-   */
-
 
   eliminarNota = (nota: ClienteMasterNotaResponse) => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {

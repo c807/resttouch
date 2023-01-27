@@ -1,16 +1,16 @@
 import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ClienteMaster, ClienteMasterCliente } from '../../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
-import { ConfirmDialogComponent, ConfirmDialogModel } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ClienteMaster, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { Cliente } from '@admin-interfaces/cliente';
+import { DialogAgregarClienteComponent } from '@callcenter-components/cliente-master/dialog-agregar-cliente/dialog-agregar-cliente.component';
 
 import { Subscription } from 'rxjs';
-import {Cliente} from '../../../../admin/interfaces/cliente';
-import {DialogAgregarClienteComponent} from "../dialog-agregar-cliente/dialog-agregar-cliente.component";
 
 @Component({
   selector: 'app-agregar-dato-de-facturacion',
@@ -59,7 +59,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
     }
   }
 
-  resetTelefono = () => this.ClientefrmDirC = { cliente: 0 , nombre : '', nit: null };
+  resetTelefono = () => this.ClientefrmDirC = { cliente: 0, nombre: '', nit: null };
 
   loadClienteMasterCliente = () => {
     this.cargando = true;
@@ -75,13 +75,13 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
     const cmdRef = this.dialog.open(DialogAgregarClienteComponent, {
       maxWidth: '90vw', maxHeight: '75vh', width: '99vw', height: '85vh',
       disableClose: false,
-      data: {clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: null}
+      data: { clienteMaster: this.clienteMaster, fromClienteMaster: true, nit: null }
     });
     cmdRef.afterClosed().subscribe((res: any) => {
       if (res.recargar) {
         this.loadClienteMasterCliente();
         this.ClientefrmDirC.nit = null;
-        if (this.returnNuevoDatoFactura && res.cliente) {          
+        if (this.returnNuevoDatoFactura && res.cliente) {
           this.returnDatoFacturaEv.emit(res.cliente);
         }
       }
@@ -95,7 +95,7 @@ export class AgregarDatoDeFacturacionComponent implements OnInit, OnDestroy {
       this.clienteMasterSrvc.asasociarClienteMasterCliente({ cliente_master: this.clienteMaster.cliente_master, nit: numberNit }).subscribe(res => {
         this.loadClienteMasterCliente();
         this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Datos', { duration: 5000 });
-        if(!res.exist){
+        if (!res.exist) {
           this.agregarCliente();
         } else {
           this.ClientefrmDirC.nit = null;

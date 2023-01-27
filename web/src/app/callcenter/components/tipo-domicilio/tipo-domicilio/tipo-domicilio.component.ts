@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoDomicilioComponent } from '../lista-tipo-domicilio/lista-tipo-domicilio.component';
-import { TipoDomicilio } from '../../../interfaces/tipo-domicilio';
+import { ListaTipoDomicilioComponent } from '@callcenter-components/tipo-domicilio/lista-tipo-domicilio/lista-tipo-domicilio.component';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
 
 @Component({
   selector: 'app-tipo-domicilio',

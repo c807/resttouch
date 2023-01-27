@@ -1,10 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Repartidor } from '../../../interfaces/repartidor';
-import { RepartidorService } from '../../../services/repartidor.service';
+import { Repartidor } from '@callcenter-interfaces/repartidor';
+import { RepartidorService } from '@callcenter-services/repartidor.service';
 
 import { Subscription } from 'rxjs';
 

@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-import { ClienteMaster } from '../../../interfaces/cliente-master';
-import { FormClienteMasterComponent } from '../form-cliente-master/form-cliente-master.component';
-import { ClienteMasterTelefonoComponent } from '../cliente-master-telefono/cliente-master-telefono.component';
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { FormClienteMasterComponent } from '@callcenter-components/cliente-master/form-cliente-master/form-cliente-master.component';
+import { ClienteMasterTelefonoComponent } from '@callcenter-components/cliente-master/cliente-master-telefono/cliente-master-telefono.component';
 
 interface IDataClienteMasterDialog {
   clienteMaster: ClienteMaster,
@@ -26,8 +26,7 @@ export class ClienteMasterDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: IDataClienteMasterDialog
   ) { }
 
-  ngOnInit(): void {
-    // console.log(this.data);
+  ngOnInit(): void {    
     if (this.data.clienteMaster) {
       this.clienteMaster = this.data.clienteMaster;
     }

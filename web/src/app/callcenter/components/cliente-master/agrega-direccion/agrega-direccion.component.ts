@@ -1,17 +1,17 @@
 import { Component, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ClienteMaster, ClienteMasterDireccion } from '../../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
+import { ClienteMaster, ClienteMasterDireccion } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { TipoDireccionService } from '@callcenter-services/tipo-direccion.service';
+import { TipoDireccion } from '@callcenter-interfaces/tipo-direccion';
+import { SedeService } from '@admin-services/sede.service';
+import { Sede } from '@admin-interfaces/sede';
 
 import { Subscription } from 'rxjs';
-import { TipoDireccionService } from '../../../services/tipo-direccion.service';
-import { TipoDireccion } from '../../../interfaces/tipo-direccion';
-import { SedeService } from "../../../../admin/services/sede.service";
-import { Sede } from "../../../../admin/interfaces/sede";
 
 @Component({
   selector: 'app-agrega-direccion',

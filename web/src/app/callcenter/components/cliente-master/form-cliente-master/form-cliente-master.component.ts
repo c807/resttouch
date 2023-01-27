@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '../../../../shared/global';
-import { LocalstorageService } from '../../../../admin/services/localstorage.service';
+import { GLOBAL } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { ClienteMaster } from '../../../interfaces/cliente-master';
-import { ClienteMasterService } from '../../../services/cliente-master.service';
-import { TipoDocumento } from '../../../../admin/interfaces/tipo-documento';
-import { TipoDocumentoService } from '../../../../admin/services/tipo-documento.service'
+import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { TipoDocumento } from '@admin-interfaces/tipo-documento';
+import { TipoDocumentoService } from '@admin-services/tipo-documento.service'
 
 import { Subscription } from 'rxjs';
 

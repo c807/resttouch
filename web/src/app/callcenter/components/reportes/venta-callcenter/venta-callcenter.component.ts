@@ -1,26 +1,26 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
-import {GLOBAL} from "../../../../shared/global";
-import {UsuarioSedeRPT} from "../../../../admin/interfaces/acceso";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {Usuario} from "../../../../admin/interfaces/usuario";
-import {Subscription} from "rxjs";
-import {TipoDomicilio} from "../../../interfaces/tipo-domicilio";
-import {AccesoUsuarioService} from "../../../../admin/services/acceso-usuario.service";
-import {LocalstorageService} from "../../../../admin/services/localstorage.service";
-import {saveAs} from 'file-saver';
-import {ReportesCallcenter} from "../../../services/reportes-callcenter.service";
-import { ArticuloService } from '../../../../wms/services/articulo.service';
-import { Categoria } from '../../../../wms/interfaces/categoria';
-import { CategoriaGrupo } from '../../../../wms/interfaces/categoria-grupo';
+import { saveAs } from 'file-saver';
+
+import { UsuarioSedeRPT } from '@admin-interfaces/acceso';
+import { Usuario } from '@admin-interfaces/usuario';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { ReportesCallcenter } from '@callcenter-services/reportes-callcenter.service';
+import { ArticuloService } from '@wms-services/articulo.service';
+import { Categoria } from '@wms-interfaces/categoria';
+import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
+
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-venta-callcenter',
 	templateUrl: './venta-callcenter.component.html',
 	styleUrls: ['./venta-callcenter.component.css']
 })
-export class VentaCallcenterComponent implements OnInit {
+export class VentaCallcenterComponent implements OnInit, OnDestroy {
 
 	get configBotones() {
 		const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid();
@@ -38,7 +38,7 @@ export class VentaCallcenterComponent implements OnInit {
 	public sedes: UsuarioSedeRPT[] = [];
 	public categorias: Categoria[] = [];
 	public categoriasGruposPadre: CategoriaGrupo[] = [];
-  	public categoriasGrupos: CategoriaGrupo[] = [];
+	public categoriasGrupos: CategoriaGrupo[] = [];
 	public tituloArticulo = 'venta_callcenter';
 	public cargando = false;
 	public usuarios: Usuario[] = [];
@@ -52,7 +52,6 @@ export class VentaCallcenterComponent implements OnInit {
 		private snackBar: MatSnackBar,
 		private ReporteSrvc: ReportesCallcenter,
 		private sedeSrvc: AccesoUsuarioService,
-		private ls: LocalstorageService,
 		private articuloSrvc: ArticuloService
 	) {
 	}
@@ -70,27 +69,27 @@ export class VentaCallcenterComponent implements OnInit {
 
 	loadSedes = () => {
 		this.endSubs.add(
-			this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+			this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
 				this.sedes = res;
 			})
 		);
 	}
 
 	loadCategorias = () => {
-		this.endSubs.add(      
-			this.articuloSrvc.getCategorias({_todos: true}).subscribe(res => {
+		this.endSubs.add(
+			this.articuloSrvc.getCategorias({ _todos: true }).subscribe(res => {
 				this.categorias = res
 			})
 		);
 	}
 
 	loadSubCategorias = (idcategoria: number) => {
-		this.endSubs.add(      
-			this.articuloSrvc.getCategoriasGrupos({categoria: idcategoria}).subscribe(res => {
+		this.endSubs.add(
+			this.articuloSrvc.getCategoriasGrupos({ categoria: idcategoria }).subscribe(res => {
 				let data = []
 				if (res) {
 					this.categoriasGrupos = this.articuloSrvc.adaptCategoriaGrupoResponse(res);
-					
+
 					let tmpCat = this.categorias.filter(obj => {
 						return obj.categoria == idcategoria
 					})[0]
@@ -108,7 +107,7 @@ export class VentaCallcenterComponent implements OnInit {
 
 					data.push(tmp)
 				}
-				
+
 				this.listaSubCategoria = data
 			})
 		);
@@ -116,8 +115,8 @@ export class VentaCallcenterComponent implements OnInit {
 
 	loadTipoReporte = () => {
 		this.tipoReporte = [
-			{tipo_reporte: 1, descripcion: "Detallado"},
-			{tipo_reporte: 2, descripcion: "Resumido"}
+			{ tipo_reporte: 1, descripcion: 'Detallado' },
+			{ tipo_reporte: 2, descripcion: 'Resumido' }
 		];
 	}
 
@@ -129,11 +128,11 @@ export class VentaCallcenterComponent implements OnInit {
 		this.loadSubCategorias(obj.value);
 	}
 
-	setListaCategoria () {
+	setListaCategoria() {
 		let data = []
 		if (this.params.sede !== undefined) {
 
-			for(var i in this.params.sede) {
+			for (var i in this.params.sede) {
 
 				let tmpSede = this.sedes.filter(obj => {
 					return obj.sede.sede == this.params.sede[i]
@@ -181,7 +180,7 @@ export class VentaCallcenterComponent implements OnInit {
 	resetParams = () => {
 		this.msgGenerandoReporte = null;
 		this.params = {
-			fdel: moment().startOf("month").format(GLOBAL.dbDateFormat), //moment().format(GLOBAL.dbDateFormat),
+			fdel: moment().startOf('month').format(GLOBAL.dbDateFormat), //moment().format(GLOBAL.dbDateFormat),
 			fal: moment().format(GLOBAL.dbDateFormat),
 			sede: undefined,
 			categoria: undefined,
@@ -192,11 +191,11 @@ export class VentaCallcenterComponent implements OnInit {
 	}
 
 	requestPDF = (esExcel = 0) => {
-		this.cargando            = true;
-		this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
+		this.cargando = true;
+		this.paramsToSend = JSON.parse(JSON.stringify(this.params));
 		this.paramsToSend._excel = esExcel;
-		this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-		this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+		this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+		this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 
 		if (this.params.sede !== undefined && this.params.sede !== null) {
 			const idx = this.sedes.findIndex(s => +s.sede.sede === +this.params.sede);
@@ -217,10 +216,10 @@ export class VentaCallcenterComponent implements OnInit {
 				this.cargando = false;
 				if (res) {
 					console.log(res)
-					const blob = new Blob([res], {type: (+esExcel === 0 ? "application/pdf" : "application/vnd.ms-excel")});
-					saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? "pdf" : "xls"}`);
+					const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
+					saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 				} else {
-					this.snackBar.open("No se pudo generar el reporte...", "Reporte ventas Call Center.", {duration: 3000});
+					this.snackBar.open('No se pudo generar el reporte...', 'Reporte ventas Call Center.', { duration: 3000 });
 				}
 			})
 		);

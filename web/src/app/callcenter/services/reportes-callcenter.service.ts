@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import { Repartidor } from '../interfaces/repartidor';
-import { Observable } from 'rxjs';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
 
@@ -12,8 +10,7 @@ import * as qs from 'qs';
 })
 export class ReportesCallcenter {
 
-	private srvcErrHndl: ServiceErrorHandler;
-	//private moduleUrl = 'rpt_pedidos_sede';
+	private srvcErrHndl: ServiceErrorHandler;	
 
 	constructor(
 		private http: HttpClient,

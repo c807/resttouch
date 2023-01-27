@@ -1,19 +1,18 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL } from '@shared/global';
+import { saveAs } from 'file-saver';
 import * as moment from 'moment';
-import {GLOBAL} from "../../../../shared/global";
-import {UsuarioSedeRPT} from "../../../../admin/interfaces/acceso";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {Usuario} from "../../../../admin/interfaces/usuario";
-import {Subscription} from "rxjs";
-import {TipoDomicilio} from "../../../interfaces/tipo-domicilio";
-import {AccesoUsuarioService} from "../../../../admin/services/acceso-usuario.service";
-import {LocalstorageService} from "../../../../admin/services/localstorage.service";
-import {TipoDomicilioService} from "../../../services/tipo-domicilio.service";
-import {saveAs} from 'file-saver';
-import {RtpPedidosService} from "../../../services/rtp_pedidos.service";
 
+import { UsuarioSedeRPT } from '@admin-interfaces/acceso';
+import { Usuario } from '@admin-interfaces/usuario';
+import { TipoDomicilio } from '@callcenter-interfaces/tipo-domicilio';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { TipoDomicilioService } from '@callcenter-services/tipo-domicilio.service';
+import { RtpPedidosService } from '@callcenter-services/rtp_pedidos.service';
 
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-rpt-pedidos-sede',
@@ -66,7 +65,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
 
   loadSedes = () => {
     this.endSubs.add(
-      this.sedeSrvc.getSedes({reporte: true}).subscribe(res => {
+      this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => {
         this.sedes = res;
       })
     );
@@ -83,10 +82,10 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
 
   loadTiposReporte = () => {
     this.tiposReporte = [
-      {tipo_reporte: 1, descripcion: 'Por categoría'},
-      {tipo_reporte: 2, descripcion: 'Por artículo'},
-      {tipo_reporte: 3, descripcion: 'Por categoría agrupado por combo'},
-      {tipo_reporte: 4, descripcion: 'Por mesero'}
+      { tipo_reporte: 1, descripcion: 'Por categoría' },
+      { tipo_reporte: 2, descripcion: 'Por artículo' },
+      { tipo_reporte: 3, descripcion: 'Por categoría agrupado por combo' },
+      { tipo_reporte: 4, descripcion: 'Por mesero' }
     ];
   }
 
@@ -130,10 +129,10 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
         // console.log('Reporte salida ' + JSON.stringify(res));
         this.cargando = false;
         if (res) {
-          const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+          const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
           saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
         } else {
-          this.snackBar.open('No se pudo generar el reporte...', 'Reporte de pedidos.', {duration: 3000});
+          this.snackBar.open('No se pudo generar el reporte...', 'Reporte de pedidos.', { duration: 3000 });
         }
       })
     );

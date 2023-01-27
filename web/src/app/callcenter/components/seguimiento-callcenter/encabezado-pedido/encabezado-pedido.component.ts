@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import * as moment from 'moment';
 
-import { DetalleFormaPagoComponent } from '../detalle-forma-pago/detalle-forma-pago.component';
+import { DetalleFormaPagoComponent } from '@callcenter-components/seguimiento-callcenter/detalle-forma-pago/detalle-forma-pago.component';
 
 import { Subscription } from 'rxjs';
 

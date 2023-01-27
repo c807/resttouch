@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaEstatusCallcenterComponent } from '../lista-estatus-callcenter/lista-estatus-callcenter.component';
-import { EstatusCallcenter } from '../../../interfaces/estatus-callcenter';
+import { ListaEstatusCallcenterComponent } from '@callcenter-components/estatus-callcenter/lista-estatus-callcenter/lista-estatus-callcenter.component';
+import { EstatusCallcenter } from '@callcenter-interfaces/estatus-callcenter';
 
 @Component({
   selector: 'app-estatus-callcenter',

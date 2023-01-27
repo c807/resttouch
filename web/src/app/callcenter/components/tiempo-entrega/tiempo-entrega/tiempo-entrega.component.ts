@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTiempoEntregaComponent } from '../lista-tiempo-entrega/lista-tiempo-entrega.component';
-import { TiempoEntrega } from '../../../interfaces/tiempo-entrega';
+import { ListaTiempoEntregaComponent } from '@callcenter-components/tiempo-entrega/lista-tiempo-entrega/lista-tiempo-entrega.component';
+import { TiempoEntrega } from '@callcenter-interfaces/tiempo-entrega';
 
 @Component({
   selector: 'app-tiempo-entrega',

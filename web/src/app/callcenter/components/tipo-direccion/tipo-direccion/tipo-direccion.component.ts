@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaTipoDireccionComponent } from '../lista-tipo-direccion/lista-tipo-direccion.component';
-import { TipoDireccion } from '../../../interfaces/tipo-direccion';
+import { ListaTipoDireccionComponent } from '@callcenter-components/tipo-direccion/lista-tipo-direccion/lista-tipo-direccion.component';
+import { TipoDireccion } from '@callcenter-interfaces/tipo-direccion';
 
 @Component({
   selector: 'app-tipo-direccion',

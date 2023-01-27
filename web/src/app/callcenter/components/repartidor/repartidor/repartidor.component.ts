@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-import { ListaRepartidorComponent } from '../lista-repartidor/lista-repartidor.component';
-import { Repartidor } from '../../../interfaces/repartidor';
+import { ListaRepartidorComponent } from '@callcenter-components/repartidor/lista-repartidor/lista-repartidor.component';
+import { Repartidor } from '@callcenter-interfaces/repartidor';
 
 @Component({
   selector: 'app-repartidor',

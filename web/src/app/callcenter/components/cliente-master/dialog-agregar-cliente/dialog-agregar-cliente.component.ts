@@ -1,16 +1,17 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild, OnDestroy } from '@angular/core';
-import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '../../../../shared/global';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Cliente } from "../../../../admin/interfaces/cliente";
-import { MatInput } from "@angular/material/input";
-import { Subscription } from "rxjs";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { ClienteService } from "../../../../admin/services/cliente.service";
-import { LocalstorageService } from "../../../../admin/services/localstorage.service";
-import { ClienteMasterService } from "../../../services/cliente-master.service";
+import { MatInput } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GLOBAL, procesarNIT, procesarCUI, procesarPasaporte, isNotNullOrUndefined } from '@shared/global';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { Municipio } from '../../../../admin/interfaces/municipio';
-import { MunicipioService } from '../../../../admin/services/municipio.service';
+import { Cliente } from '@admin-interfaces/cliente';
+import { ClienteService } from '@admin-services/cliente.service';
+import { ClienteMasterService } from '@callcenter-services/cliente-master.service';
+import { Municipio } from '@admin-interfaces/municipio';
+import { MunicipioService } from '@admin-services/municipio.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dialog-agregar-cliente',
@@ -56,10 +57,7 @@ export class DialogAgregarClienteComponent implements OnInit, OnDestroy {
     private municipioSrvc: MunicipioService,
     public dialogRef: MatDialogRef<DialogAgregarClienteComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-  ) {
-  }
-
-
+  ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;

@@ -1,15 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { GLOBAL } from '../../shared/global';
-import { ServiceErrorHandler } from '../../shared/error-handler';
-import {
-  ClienteMaster,
-  ClienteMasterTelefono,
-  ClienteMasterDireccion,
-  ClienteMasterDireccionResponse,
-  ClienteMasterNotaResponse, ClienteMasterCliente
-} from '../interfaces/cliente-master';
-import { Telefono } from '../interfaces/telefono';
+import { GLOBAL } from '@shared/global';
+import { ServiceErrorHandler } from '@shared/error-handler';
+import { ClienteMaster, ClienteMasterTelefono, ClienteMasterDireccionResponse, ClienteMasterNotaResponse, ClienteMasterCliente } from '@callcenter-interfaces/cliente-master';
+import { Telefono } from '@callcenter-interfaces/telefono';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
