@@ -27,7 +27,7 @@
         {{cta.nombre}}
       </mat-chip>
       <mat-chip (click)="nuevaCuenta(dialogRef)"
-                *ngIf="+mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0 && +mesaEnUso.mesa.eshabitacion === 0"
+                *ngIf="+mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0"
                 [disabled]="bloqueoBotones">
         Nueva
       </mat-chip>

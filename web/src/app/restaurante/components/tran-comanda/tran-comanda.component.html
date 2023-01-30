@@ -21,7 +21,7 @@
                 {{cta.nombre}}
             </button>
             <button mat-raised-button type="button" class="btnAccion" (click)="nuevaCuenta()"
-                *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0 && +mesaEnUso.mesa.eshabitacion === 0"
+                *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.escallcenter === 0"
                 [disabled]="bloqueoBotones">
                 Nueva
             </button>
@@ -69,7 +69,7 @@
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
                             (click)="distribuirProductos()" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
-                            *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.eshabitacion === 0">
+                            *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                             Distribuir
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"

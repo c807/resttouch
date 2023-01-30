@@ -9,7 +9,7 @@
         *ngIf="+data.tranComanda.mesaEnUso.mesa.esmostrador === 0">Cuenta</button>
     <button class="accion-comanda mat-elevation-z4" mat-list-item (click)="distribuirProductos()"
         [disabled]="data.tranComanda.mesaEnUso.cuentas.length < 2 || data.tranComanda.bloqueoBotones"
-        *ngIf="+data.tranComanda.mesaEnUso.mesa.esmostrador === 0 && +data.tranComanda.mesaEnUso.mesa.eshabitacion === 0">Distribuir</button>
+        *ngIf="+data.tranComanda.mesaEnUso.mesa.esmostrador === 0">Distribuir</button>
     <button class="accion-comanda mat-elevation-z4" mat-list-item (click)="unirCuentas()"
         [disabled]="data.tranComanda.mesaEnUso.cuentas.length < 2 || data.tranComanda.bloqueoBotones"
         *ngIf="+data.tranComanda.mesaEnUso.mesa.esmostrador === 0 && +data.tranComanda.mesaEnUso.mesa.eshabitacion === 0">Unir
