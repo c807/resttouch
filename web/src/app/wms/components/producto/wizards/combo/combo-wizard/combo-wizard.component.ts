@@ -100,7 +100,7 @@ export class ComboWizardComponent implements OnInit, OnDestroy {
       filtroPresentacion: ['', Validators.required],
       presentacion: [null, Validators.required],
       presentacion_reporte: [null, Validators.required],
-      precio: [null, [Validators.required, Validators.min(0)]],
+      precio: [null, [Validators.required, Validators.min(0), Validators.max(999999.99)]],
       codigo: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
       cobro_mas_caro: ['0', Validators.required]
     });

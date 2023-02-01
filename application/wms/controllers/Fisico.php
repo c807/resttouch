@@ -62,11 +62,17 @@ class Fisico extends CI_Controller
 
 			$req['categoria_grupo'] = $req['categoria_grupo_grupo'];
 		} else {
-			$arts = $this->Catalogo_model->getArticulo([
+			$fltr = [
 				'sede' => $req['sede'],
 				'mostrar_inventario' => 1,
 				'debaja' => 0
-			]);
+			];
+
+			if (isset($req['categoria']) && (int)$req['categoria'] > 0) {
+				$fltr['categoria'] = $req['categoria'];
+			}
+
+			$arts = $this->Catalogo_model->getArticulo($fltr);
 		}
 
 
@@ -88,19 +94,19 @@ class Fisico extends CI_Controller
 					//if ($art->mostrar_inventario == 1) {
 					$art->actualizarExistencia($req);
 					$fisico->setDetalle([
-						"articulo" => $row->articulo,
-						"precio" => $row->precio,
-						"existencia_sistema" => $art->existencias
+						'articulo' => $row->articulo,
+						'precio' => $row->precio,
+						'existencia_sistema' => $art->existencias
 					]);
 				}
 				$datos['exito'] = true;
 				$datos['inventario'] = $fisico->getPK();
-				$datos['mensaje'] = "Proceso realizado exitosamente";
+				$datos['mensaje'] = 'Proceso realizado exitosamente.';
 			} else {
-				$datos['mensaje'] = "Ocurrio un error al generar el proceso";
+				$datos['mensaje'] = 'Ocurrio un error al generar el proceso.';
 			}
 		} else {
-			$datos['mensaje'] = "No hay articulos en la categoria seleccionada";
+			$datos['mensaje'] = 'No hay artículos en la categoría seleccionada.';
 		}
 
 

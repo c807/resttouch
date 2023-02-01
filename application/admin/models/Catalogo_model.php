@@ -184,9 +184,11 @@ class Catalogo_model extends CI_Model
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
 		$activos = isset($args['_activos']) ? true : false;
+		$categoria = isset($args['categoria']) ? (int)$args['categoria'] : false;
 		unset($args['ingreso']);
 		unset($args['sede']);
 		unset($args['_activos']);
+		unset($args['categoria']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -217,12 +219,16 @@ class Catalogo_model extends CI_Model
 			$this->db->group_by('a.articulo');
 		}
 
+		if ($categoria) {
+			$this->db->where('c.categoria', $categoria);
+		}
+
 		$qry = $this->db
-			->select("a.*, c.sede")
-			->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
-			->join("categoria c", "c.categoria = b.categoria")
-			->order_by("a.articulo")
-			->get("articulo a");
+			->select('a.*, c.sede')
+			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->order_by('a.articulo')
+			->get('articulo a');
 
 		$tmp = $this->getCatalogo($qry, $args);
 
@@ -230,15 +236,15 @@ class Catalogo_model extends CI_Model
 			$datos = [];
 			foreach ($tmp as $row) {
 				$row->impresora = $this->db
-					->select("b.*")
-					->join("impresora b", "b.impresora = a.impresora")
-					->where("a.categoria_grupo", $row->categoria_grupo)
-					->get("categoria_grupo a")
+					->select('b.*')
+					->join('impresora b', 'b.impresora = a.impresora')
+					->where('a.categoria_grupo', $row->categoria_grupo)
+					->get('categoria_grupo a')
 					->row();
 
 				$row->presentacion = $this->db
-					->where("presentacion", $row->presentacion)
-					->get("presentacion")
+					->where('presentacion', $row->presentacion)
+					->get('presentacion')
 					->row();
 
 				$datos[] = $row;
@@ -246,19 +252,19 @@ class Catalogo_model extends CI_Model
 			$tmp = $datos;
 		} else if ($tmp) {
 			$tmp->impresora = $this->db
-				->select("b.*")
-				->join("impresora b", "b.impresora = a.impresora")
-				->where("a.categoria_grupo", $tmp->categoria_grupo)
-				->get("categoria_grupo a")
+				->select('b.*')
+				->join('impresora b', 'b.impresora = a.impresora')
+				->where('a.categoria_grupo', $tmp->categoria_grupo)
+				->get('categoria_grupo a')
 				->row();
 
 			$tmp->presentacion = $this->db
-				->where("presentacion", $tmp->presentacion)
-				->get("presentacion")
+				->where('presentacion', $tmp->presentacion)
+				->get('presentacion')
 				->row();
 		}
 
-		return ordenar_array_objetos($tmp, "descripcion");
+		return ordenar_array_objetos($tmp, 'descripcion');
 	}
 
 	public function getUsuario($args = [])

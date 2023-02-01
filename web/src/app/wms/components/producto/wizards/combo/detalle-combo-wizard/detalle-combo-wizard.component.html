@@ -22,7 +22,7 @@
                     {{m.descripcion}}
                 </mat-option>
             </mat-autocomplete>
-            <mat-hint>Sugerencia: para combos se suele utilizar la UNIDAD.</mat-hint>
+            <mat-hint>Sugerencia: Para combos se suele utilizar la UNIDAD.</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="fullWidth" *ngIf="articulo.valid && medida.valid && !esOpcionMultiple">
@@ -32,8 +32,8 @@
 
         <mat-form-field appearance="fill" class="fullWidth" *ngIf="articulo.valid && medida.valid && cantidad.valid && !esOpcionMultiple">
             <mat-label>¿Cuál es el costo adicional (si aplica) de este artículo en el combo?</mat-label>
-            <input matInput type="number" placeholder="Precio" formControlName="precio" required min="0">
-            <mat-hint>Idea: un valor de cero (0) significa que no va a cobrar adicional por este artículo.</mat-hint>
+            <input matInput type="number" placeholder="Precio" formControlName="precio" required min="0" max="999999.99">
+            <mat-hint>Idea: Un valor de cero (0) significa que no va a cobrar adicional por este artículo.</mat-hint>
         </mat-form-field>
     </form>    
 </div>
@@ -41,7 +41,7 @@
     <button mat-raised-button (click)="cancelar()" color="warn">
         Cancelar
     </button>
-    <button mat-raised-button (click)="agregarProducto()" color="accent">
+    <button mat-raised-button (click)="agregarProducto()" color="accent" [disabled]="productoFrmGrp.invalid">
         Terminar
     </button>
 </div>

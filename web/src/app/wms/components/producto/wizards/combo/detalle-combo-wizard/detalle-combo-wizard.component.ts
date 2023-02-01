@@ -86,7 +86,7 @@ export class DetalleComboWizardComponent implements OnInit, OnDestroy {
       cantidad: [1, [Validators.required, Validators.min(1), Validators.max(999999)]],
       filtroMedida: ['', Validators.required],
       medida: [null, Validators.required],
-      precio: [0, Validators.required],
+      precio: [0, [Validators.required, Validators.min(0), Validators.max(999999.99)]],
       precio_extra: [0]
     });    
 

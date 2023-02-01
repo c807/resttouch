@@ -1217,7 +1217,7 @@ class Reporte extends CI_Controller
                     isset($row->mesa->mesa) ? $row->mesa->mesa : '',
                     formatoFecha($row->fecha_factura, 2),
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nit : ''),
-                    $row->receptor->nit,
+                    $row->documento_receptor ?? $row->receptor->nit,
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nombre : 'ANULADA')
                     $row->receptor->nombre
                 ];

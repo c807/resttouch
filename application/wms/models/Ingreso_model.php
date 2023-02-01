@@ -279,7 +279,7 @@ class Ingreso_model extends General_Model
 			->join("categoria c", "c.categoria = b.categoria")
 			->join("bodega_articulo_costo d", "d.articulo = a.articulo", "left")
 			->where("a.mostrar_inventario", 1)
-			->where("d.bodega_articulo_costo is null")
+			->where('(d.bodega_articulo_costo is null OR (d.bodega_articulo_costo IS NOT NULL AND (d.costo_ultima_compra = 0 OR d.costo_promedio = 0)))')
 			->order_by("c.descripcion, b.descripcion, a.descripcion")
 			->get("articulo a")
 			->result();

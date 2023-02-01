@@ -14,7 +14,7 @@
             <mat-form-field appearance="fill" class="fullWidth marginados">
                 <mat-label>¿Cómo se llamará el combo?</mat-label>
                 <input matInput type="text" placeholder="Nombre del combo" formControlName="descripcion" required minlength="1" maxlength="250">
-                <mat-hint>Sugerencia: un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
+                <mat-hint>Sugerencia: Un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid">
@@ -38,20 +38,20 @@
                         {{p.descripcion}}
                     </mat-option>
                 </mat-autocomplete>
-                <mat-hint>Sugerencia: para combos se suele utilizar la UNIDAD.</mat-hint>
+                <mat-hint>Sugerencia: Para combos se suele utilizar la UNIDAD.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
                 <mat-label>¿A qué precio venderá '{{descripcionArticulo.value}}'?</mat-label>
-                <input matInput #txtPrecio type="number" placeholder="Precio" formControlName="precio" required min="0">
-                <mat-hint>Idea: poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de POS para la venta.</mat-hint>
+                <input matInput #txtPrecio type="number" placeholder="Precio" formControlName="precio" required min="0" max="999999.99">
+                <mat-hint>Idea: Poner un precio de 0, implica que no lo venderá, por lo que no aparecerá en el módulo de POS para la venta.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
                 <mat-label>¿Con qué código corto identificará '{{descripcionArticulo.value}}'?</mat-label>
                 <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1"
                     maxlength="25">
-                <mat-hint>Idea: este código debe ser único y se utilizará para mantener uniformidad en todas las sedes.
+                <mat-hint>Idea: Este código debe ser único y se utilizará para mantener uniformidad en todas las sedes.
                     Puede ser corto y es alfanumérico. Ej.: CMB001</mat-hint>
             </mat-form-field>
 

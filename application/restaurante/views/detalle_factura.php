@@ -88,7 +88,7 @@
 								<td style="padding: 5px;"><?php echo formatoFecha($row->fecha_factura,2) ?></td>
 								<td style="padding: 5px;">
 									<!-- <?php //echo (empty($row->fel_uuid_anulacion) ? $row->receptor->nit : '') ?> -->
-									<?php echo $row->receptor->nit ?>
+									<?php echo $row->documento_receptor ?? $row->receptor->nit ?>
 								</td>
 								<td style="padding: 5px;">
 									<!-- <?php //echo (empty($row->fel_uuid_anulacion) ? $row->receptor->nombre : 'ANULADA') ?> -->

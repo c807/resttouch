@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL, OrdenarArrayObjetos } from '../../../../shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global'; 
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -80,6 +80,8 @@ export class ReporteComponent implements OnInit, OnDestroy {
     this.categoriasGruposPadre = [];
     this.categoriasGrupos = [];
     this.params.categoria_grupo_grupo = null;
+    this.params.categoria = null;
+    this.params.articulo = null;
     this.getBodega({ sede: +obj.value });
     this.loadCategorias({ sede: +obj.value });
     this.loadArticulos({ sede: +obj.value });
@@ -101,9 +103,12 @@ export class ReporteComponent implements OnInit, OnDestroy {
     );
   }
 
-  onCategoriaSelected = (obj: MatSelectChange) => {
+  onCategoriaSelected = (obj: MatSelectChange) => {    
+    this.params.categoria = +obj.value.categoria;
+    this.params.categoria_grupo_grupo = null;
+    this.params.articulo = null;
     this.loadSubCategorias(+obj.value.categoria);
-    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.subcategoria.categoria === +obj.value.categoria);    
+    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.subcategoria.categoria === +obj.value.categoria);
   };
 
   loadSubCategorias = (idcategoria: number) => {
@@ -177,16 +182,13 @@ export class ReporteComponent implements OnInit, OnDestroy {
     let momento = moment();
     const hoy = momento.clone();
     const fechaIngresada = moment(`${this.params.fecha} ${momento.format(GLOBAL.timeFormatMilli)}`);
-    const fechaLimite = momento.subtract(this.maxDiasAntiguedadInventarioFisico, 'days');
-    // console.log(`MAX DIAS = ${this.maxDiasAntiguedadInventarioFisico}`);
-    // console.log(`HOY = ${hoy.format(GLOBAL.dateTimeFormat)}`);
-    // console.log(`INGRESADA = ${fechaIngresada.format(GLOBAL.dateTimeFormat)}`);
-    // console.log(`LIMITE = ${fechaLimite.format(GLOBAL.dateTimeFormat)}`);
+    const fechaLimite = momento.subtract(this.maxDiasAntiguedadInventarioFisico, 'days');    
     valida = !(fechaIngresada.isBefore(fechaLimite) || fechaIngresada.isAfter(hoy));
     return valida;
   }
 
   subcategoriaSelectedEv = (obj: MatSelectChange) => {    
     this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);
+    this.params.articulo = null;
   }
 }
