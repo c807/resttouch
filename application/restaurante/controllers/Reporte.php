@@ -1123,7 +1123,7 @@ class Reporte extends CI_Controller
                 'Fecha',
                 'NIT',
                 'Cliente'
-            ];
+            ];            
 
             if ($data['impuesto_especial']) {
                 $nombres[] = 'Impuesto Especial';
@@ -1212,12 +1212,14 @@ class Reporte extends CI_Controller
                     $totalFactura += $total;
                 }
 
+                                
+                $docReceptor = $row->documento_receptor ?? $row->receptor->nit;                
                 $reg = [
                     $row->numero_factura,
                     isset($row->mesa->mesa) ? $row->mesa->mesa : '',
                     formatoFecha($row->fecha_factura, 2),
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nit : ''),
-                    $row->documento_receptor ?? $row->receptor->nit,
+                    is_numeric($docReceptor) ? '=TEXT('.$docReceptor.',"0")' : $docReceptor,
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nombre : 'ANULADA')
                     $row->receptor->nombre
                 ];
@@ -1240,7 +1242,7 @@ class Reporte extends CI_Controller
                 // array_push($reg, (empty($row->fel_uuid_anulacion) ? round($desc, 2) : 0));
                 array_push($reg, (float)$desc === 0.00 ? '0.00' : round($desc, 2));
                 array_push($reg, (empty($row->fel_uuid_anulacion) ? 'ACTIVA' : 'ANULADA'));
-
+                
                 $hoja->fromArray($reg, null, "A{$fila}");
                 $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('left');
                 $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('center');
