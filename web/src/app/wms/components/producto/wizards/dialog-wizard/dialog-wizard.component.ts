@@ -1,7 +1,8 @@
-import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { ComboWizardComponent } from '@wms-components/producto/wizards/combo/combo-wizard/combo-wizard.component'
 
 import { Subscription } from 'rxjs';
 
@@ -17,6 +18,7 @@ interface IDialogWizard {
 export class DialogWizardComponent implements OnInit, OnDestroy {
 
   public tituloPasoAPaso: string = '';
+  @ViewChild('wizCmb') wizCmb: ComboWizardComponent;
 
   private endSubs = new Subscription();
 
@@ -45,7 +47,7 @@ export class DialogWizardComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         `Paso a paso: ${this.tituloPasoAPaso}`,
-        'Esto finalizará el proceso sin haber guardado nada. ¿Desea continuar?',
+        '¿Desea salir? (Si los pasos no están completos no guardará la información)',
         'Sí', 'No', {}, true
       )
     });
