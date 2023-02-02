@@ -2051,7 +2051,9 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("C{$fila}", $fact->numero_factura);
                     $hoja->setCellValue("D{$fila}", $fact->fecha_factura);
                     $hoja->setCellValue("E{$fila}", $fact->cliente);
-                    $hoja->setCellValue("F{$fila}", $fact->nit);
+                    $docReceptor = $fact->documento_receptor ?? $fact->nit;
+                    $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT('.$docReceptor.', "0")' : $docReceptor);
+                    $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
                     $hoja->setCellValue("G{$fila}", $fact->total_factura);
                     $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     $hoja->setCellValue("H{$fila}", $fact->razon_anulacion);
@@ -2270,7 +2272,9 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("C{$fila}", $factura->serie);
                 $hoja->setCellValue("D{$fila}", $factura->numero);
                 $hoja->setCellValue("E{$fila}", $factura->fecha_factura);
-                $hoja->setCellValue("F{$fila}", $factura->nit);
+                $docReceptor = $factura->documento_receptor ?? $factura->nit;
+                $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT('.$docReceptor.', "0")' : $docReceptor);
+                $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
                 $hoja->setCellValue("G{$fila}", $factura->cliente);
                 $hoja->setCellValue("H{$fila}", $factura->anulada);
                 $hoja->setCellValue("I{$fila}", $factura->mesero);

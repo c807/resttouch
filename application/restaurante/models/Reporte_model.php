@@ -456,8 +456,9 @@ class Reporte_model extends CI_Model
 			$this->db->where('a.comanda', $args['comanda']);
 		}
 
-		$select = "f.factura, TRIM(g.nombre) AS cliente, TRIM(g.nit) AS nit, DATE_FORMAT(f.fecha_factura, '%d/%m/%Y') AS fecha_factura, TRIM(f.serie_factura) AS serie_factura, TRIM(f.numero_factura) AS numero_factura, ";
-		$select .= "(SELECT SUM(total) FROM detalle_factura WHERE factura = f.factura) AS total_factura, IF(f.fel_uuid_anulacion IS NULL, 'VIGENTE', 'ANULADA') AS estatus_factura, TRIM(h.descripcion) AS razon_anulacion";
+		$select = 'f.factura, TRIM(g.nombre) AS cliente, TRIM(g.nit) AS nit, DATE_FORMAT(f.fecha_factura, "%d/%m/%Y") AS fecha_factura, TRIM(f.serie_factura) AS serie_factura, TRIM(f.numero_factura) AS numero_factura, ';
+		$select .= '(SELECT SUM(total) FROM detalle_factura WHERE factura = f.factura) AS total_factura, IF(f.fel_uuid_anulacion IS NULL, "VIGENTE", "ANULADA") AS estatus_factura, TRIM(h.descripcion) AS razon_anulacion, ';
+		$select .= 'TRIM(f.documento_receptor) AS documento_receptor';
 
 		$facturas = $this->db
 			->select($select, FALSE)
@@ -527,9 +528,9 @@ class Reporte_model extends CI_Model
 		}
 
 		$campos = 'a.factura, f.nombre AS empresa, e.nombre AS sede, e.alias AS alias_sede, a.serie_factura AS serie, a.numero_factura AS numero, DATE_FORMAT(a.fecha_factura, "%d/%m/%Y") AS fecha_factura, ';
-		$campos .= 'g.nit, g.nombre AS cliente, d.cuenta_cuenta AS cuenta, IF(a.fel_uuid_anulacion IS NULL, "No", "Sí") AS anulada, TRIM(CONCAT(IFNULL(h.nombres, ""), " ", IFNULL(h.apellidos, ""))) AS usuario, ';
+		$campos .= 'TRIM(g.nit) AS nit, g.nombre AS cliente, d.cuenta_cuenta AS cuenta, IF(a.fel_uuid_anulacion IS NULL, "No", "Sí") AS anulada, TRIM(CONCAT(IFNULL(h.nombres, ""), " ", IFNULL(h.apellidos, ""))) AS usuario, ';
 		$campos .= 'TRIM(CONCAT(IFNULL(k.nombres, ""), " ", IFNULL(k.apellidos, ""))) AS mesero, IFNULL(m.etiqueta, m.numero) AS mesa, IFNULL(n.descripcion, "Restaurante") AS tipo, ';
-		$campos .= 'o.descripcion AS razon_anulacion, a.comentario_anulacion';
+		$campos .= 'o.descripcion AS razon_anulacion, a.comentario_anulacion, TRIM(a.documento_receptor) AS documento_receptor';
 
 		$facturas = $this->db
 			->select($campos, FALSE)

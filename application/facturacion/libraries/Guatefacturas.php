@@ -53,9 +53,9 @@ class Guatefacturas
 		return $nodo;
 	}
 
-    private function generaXML() {
+    private function set_receptor() {        
         $this->xml->getElementsByTagName('Nombre')->item(0)->nodeValue = htmlspecialchars($this->factura->receptor->nombre, ENT_XML1);
-
+    
         $documentoReceptor = '';
         $tipoReceptor = 4;
         if ($this->factura->fel_uuid && !is_null($this->factura->fel_uuid) && !empty($this->factura->fel_uuid)) {
@@ -73,18 +73,36 @@ class Guatefacturas
         } else {
             $documentoReceptor = $this->factura->receptor->nit;
             if (!$documentoReceptor || is_null($documentoReceptor) || empty(trim($documentoReceptor))) {
-				$documentoReceptor = $this->factura->receptor->cui;
-				$tipoReceptor = 2;
-				if (!$documentoReceptor || is_null($documentoReceptor) || empty(trim($documentoReceptor))) {
-					$documentoReceptor = $this->factura->receptor->pasaporte;
-					$tipoReceptor = 3;
-				}				
-			}
+                $documentoReceptor = $this->factura->receptor->cui;
+                $tipoReceptor = 2;
+                if (!$documentoReceptor || is_null($documentoReceptor) || empty(trim($documentoReceptor))) {
+                    $documentoReceptor = $this->factura->receptor->pasaporte;
+                    $tipoReceptor = 3;
+                }				
+            }
         }
-
+    
         $this->xml->getElementsByTagName('NitReceptor')->item(0)->nodeValue = $documentoReceptor;
         $this->xml->getElementsByTagName('TipoReceptor')->item(0)->nodeValue = $tipoReceptor;
         $this->xml->getElementsByTagName('Direccion')->item(0)->nodeValue = htmlspecialchars($this->factura->receptor->direccion, ENT_XML1);
+    }
+
+    private function set_infodoc() {
+        $this->xml->getElementsByTagName('TipoVenta')->item(0)->nodeValue = 'B';
+        $this->xml->getElementsByTagName('DestinoVenta')->item(0)->nodeValue = 1;
+        $this->xml->getElementsByTagName('Fecha')->item(0)->nodeValue = formatoFecha($this->factura->fecha, 2);
+        $this->xml->getElementsByTagName('Moneda')->item(0)->nodeValue = (int)$this->factura->moneda;
+        $this->xml->getElementsByTagName('Tasa')->item(0)->nodeValue = 1;
+        $this->xml->getElementsByTagName('Referencia')->item(0)->nodeValue = (int)$this->factura->factura;
+    }
+
+    private function generaEncabezado() {
+        $this->set_receptor();
+        $this->set_infodoc();
+    }
+
+    public function generaXML() {
+        $this->generaEncabezado();
     }
 
 
