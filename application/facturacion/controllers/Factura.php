@@ -12,7 +12,7 @@ class Factura extends CI_Controller
 		parent::__construct();
 		$this->load->add_package_path('application/admin');
 		$this->load->add_package_path('application/restaurante');
-		$this->load->helper('api');
+		$this->load->helper(['api', 'jwt', 'authorization']);
 		$this->load->model([
 			'Dfactura_model',
 			'Usuario_model',
@@ -29,8 +29,7 @@ class Factura extends CI_Controller
 			'Razon_anulacion_model',
 			'Presentacion_model',
 			'Configuracion_model'
-		]);
-		$this->load->helper(['jwt', 'authorization']);
+		]);		
 		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
@@ -620,6 +619,25 @@ class Factura extends CI_Controller
 		$this->output
 			->set_content_type("application/json")
 			->set_output(json_encode($lista));
+	}
+
+	public function test_guatefacturas($idfactura)
+	{
+		$this->load->library('Guatefacturas');
+		$fac = new Factura_model($idfactura);
+		$fac->cargarFacturaSerie();
+		$fac->cargarEmpresa();
+		$fac->cargarMoneda();
+		$fac->cargarReceptor();
+		$fac->cargarSede();
+		$fac->cargarCertificadorFel();
+		$fac->procesar_factura(false);
+
+		$guatefacturas = new Guatefacturas();
+		$guatefacturas->esPrueba = true;
+		$guatefacturas->generaXML($fac);
+		$this->output->set_content_type('application/xml', 'UTF-8');
+		echo $guatefacturas->getXml();
 	}
 }
 
