@@ -29,7 +29,7 @@ class Factura extends CI_Controller
 			'Razon_anulacion_model',
 			'Presentacion_model',
 			'Configuracion_model'
-		]);		
+		]);
 		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
@@ -616,9 +616,7 @@ class Factura extends CI_Controller
 			}
 		}
 
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($lista));
+		$this->output->set_content_type("application/json")->set_output(json_encode($lista));
 	}
 
 	public function test_guatefacturas($idfactura)
@@ -636,8 +634,29 @@ class Factura extends CI_Controller
 		$guatefacturas = new Guatefacturas();
 		$guatefacturas->esPrueba = true;
 		$guatefacturas->generaXML($fac);
-		$this->output->set_content_type('application/xml', 'UTF-8');
-		echo $guatefacturas->getXml();
+		$respuesta = $guatefacturas->enviar();
+
+		if (isset($respuesta['serie_factura']) && isset($respuesta['numero_factura']) && isset($respuesta['fel_uuid']) && isset($respuesta['factura'])) {
+			$fac->serie_factura = $respuesta['serie_factura'];
+			$fac->numero_factura = $respuesta['numero_factura'];
+			$fac->fel_uuid = $respuesta['fel_uuid'];
+			$respuesta['exito'] = $fac->guardar();
+			if ($respuesta['exito']) {
+				$respuesta['mensaje'] = 'Factura firmada con éxito.';
+			} else {
+				$respuesta['mensaje'] = implode('; ', $fac->getMensaje());
+			}
+		} else {
+			$respuesta['exito'] = false;			
+			if (isset($respuesta['errores'])) {
+				$respuesta['mensaje'] = $respuesta['errores'];
+				unset($respuesta['errores']);
+			} else {
+				$respuesta['mensaje'] = 'No se pudo firmar la factura.';				
+			}
+		}
+
+		$this->output->set_content_type("application/json")->set_output(json_encode($respuesta));
 	}
 }
 
