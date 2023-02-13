@@ -2,12 +2,8 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Guatefacturas
-{
-    public $esPrueba = true;
-    private $protocolo = 'https';
-    private $URL_PRUEBA = 'dte.guatefacturas.com/webservices63/feltestSB/Guatefac?WSDL';
-    private $URL = 'dte.guatefacturas.com/webservices63/feltestSB/Guatefac?WSDL';
-    // private $URL = 'dte.guatefacturas.com/webservices63/fel/Guatefac?WSDL';
+{    
+    private $URLWS = 'https://dte.guatefacturas.com/webservices63/feltestSB/Guatefac?WSDL';
     private $USR_BASICO = 'usr_guatefac';
     private $PWD_BASICO = 'usrguatefac';
     private $xml = null;
@@ -16,7 +12,10 @@ class Guatefacturas
     private $detalleFactura = [];
     private $sumas = null;
     private $funcFirma = 'generaDocumento';
-    // private $funcAnula = 'anulaDocumento';
+    private $funcAnula = 'anulaDocumento';
+    private $tipoDTE = ['FACT' => 1, 'FCAM' => 2, 'FPEQ' => 3, 'FCAP' => 4, 'FESP' => 5, 'NABN' => 6, 'RDON' => 7, 'RECI' => 8, 'NDEB' => 9, 'NCRE' => 10];
+    private $certificador;
+
 
     public function __construct()
     {
@@ -28,6 +27,11 @@ class Guatefacturas
         $this->factura = $factura;
         if ($this->factura) {
             $this->detalleFactura = $this->factura->getDetalle([], false);
+
+            $this->certificador = $this->factura->getCertificador();
+            if ($this->certificador) {
+                $this->set_datos_certificador($this->certificador);
+            }
         }
 
         foreach ($configuracion as $config => $valor) {
@@ -40,6 +44,29 @@ class Guatefacturas
         $this->xml = new DOMDocument();
         $this->xml->validateOnParse = true;
         $this->xml->loadXML($this->strXml);
+    }
+
+    private function set_datos_certificador($certificador)
+    {
+        if ($certificador->vinculo_factura) {
+            $this->URLWS = $certificador->vinculo_factura;
+        }
+
+        if ($certificador->firma_llave) {
+            $this->USR_BASICO = $certificador->firma_llave;
+        }
+
+        if ($certificador->firma_codigo) {
+            $this->PWD_BASICO = $certificador->firma_codigo;
+        }
+
+        if ($certificador->vinculo_firma) {
+            $this->funcFirma = $certificador->vinculo_firma;
+        }
+
+        if ($certificador->vinculo_anulacion) {
+            $this->funcAnula = $certificador->vinculo_anulacion;
+        }
     }
 
     private function crearElemento($nombre, $valor = '', $attr = ['SNS' => true], $cdata = false)
@@ -220,7 +247,7 @@ class Guatefacturas
             $productos->appendChild($this->crearElemento('Precio', round((float)$det->precio_unitario_ext, 2)));
             $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : round((float)$det->descuento_ext * 100 / (float)$det->total_ext, 2);
             $productos->appendChild($this->crearElemento('PorcDesc', $porDesc));
-            
+
             $impBruto = (float)$det->precio_unitario_ext * (float)$det->cantidad;
             $productos->appendChild($this->crearElemento('ImpBruto', round($impBruto, 2)));
             $this->sumas->Bruto += $impBruto;
@@ -282,7 +309,8 @@ class Guatefacturas
         return $this->xml->saveXML();
     }
 
-    private function procesaResponse($response) {
+    private function procesaResponse($response)
+    {
 
         $datos = ['response' => $response];
 
@@ -302,9 +330,9 @@ class Guatefacturas
             $datos['factura'] = $tagReferencia->item(0)->nodeValue;
         } else {
             $errores = [];
-            $tagResultado = $xmlRes->getElementsByTagName('Resultado')->item(0);            
+            $tagResultado = $xmlRes->getElementsByTagName('Resultado')->item(0);
             if ($tagResultado->hasChildNodes()) {
-                foreach($tagResultado->childNodes as $tr) {
+                foreach ($tagResultado->childNodes as $tr) {
                     $errores[] = $tr->nodeValue;
                 }
             } else {
@@ -317,24 +345,66 @@ class Guatefacturas
     }
 
     public function enviar()
-    {
-        $ws = "{$this->protocolo}://" . (!$this->esPrueba ? $this->URL : $this->URL_PRUEBA);
+    {        
         $opts = ['authentication' => SOAP_AUTHENTICATION_BASIC, 'login' => $this->USR_BASICO, 'password' => $this->PWD_BASICO];
-        $gtfac = new SoapClient($ws, $opts);
+        $gtfac = new SoapClient($this->URLWS, $opts);
         $parametros = [
-            'pUsuario' => 'WSFEL_100523439',
-            'pPassword' => 'WSFEL_QRUEOVUHP',
-            'pNitEmisor' => '100523439',
+            'pUsuario' => $this->certificador->usuario,
+            'pPassword' => $this->certificador->llave,
+            'pNitEmisor' => $this->factura->empresa->nit,
             'pEstablecimiento' => (int)$this->factura->sedeFactura->fel_establecimiento,
-            'pTipoDoc' => 1,
-            'pIdMaquina' => 1,
+            'pTipoDoc' => $this->tipoDTE[$this->factura->serie->tipo],
+            'pIdMaquina' => $this->certificador->firma_alias,
             'pTipoRespuesta' => 'R',
             'pXml' => $this->getXml(),
         ];
         $response = $gtfac->__soapCall($this->funcFirma, $parametros);
 
-        $respuesta = $this->procesaResponse($response);       
+        $respuesta = $this->procesaResponse($response);
 
         return $respuesta;
+    }
+
+    public function anular($motivoAnulacion = 'Ver bitácora en Rest-Touch Pro.')
+    {
+        $opts = ['authentication' => SOAP_AUTHENTICATION_BASIC, 'login' => $this->USR_BASICO, 'password' => $this->PWD_BASICO];
+        $gtfac = new SoapClient($this->URLWS, $opts);
+        $parametros = [
+            'pUsuario' => $this->certificador->usuario,
+            'pPassword' => $this->certificador->llave,
+            'pNitEmisor' => $this->factura->empresa->nit,
+            'pSerie' => $this->factura->serie_factura,
+            'pPreimpreso' => $this->factura->numero_factura,
+            'pNitComprador' => $this->factura->documento_receptor ?? $this->factura->receptor->nit,
+            'pFechaAnulacion' => Hoy(6),
+            'pMotivoAnulacion' => $motivoAnulacion,
+        ];
+
+        $respuesta = $gtfac->__soapCall($this->funcAnula, $parametros);        
+
+        $datos = ['response' => $respuesta, 'exito' => false];
+
+        $xmlRes = new DOMDocument();
+        $xmlRes->validateOnParse = true;
+        $xmlRes->loadXML($respuesta);
+
+        $tagEstado = $xmlRes->getElementsByTagName('ESTADO');
+
+        if ($tagEstado->length > 0 && strtoupper(trim($tagEstado->item(0)->nodeValue)) == 'ANULADO') {
+            $datos['exito'] = true;
+        } else {
+            $errores = [];
+            $tagResultado = $xmlRes->getElementsByTagName('RESULTADO')->item(0);
+            if ($tagResultado->hasChildNodes()) {
+                foreach ($tagResultado->childNodes as $tr) {
+                    $errores[] = $tr->nodeValue;
+                }
+            } else {
+                $errores[] = $tagResultado->nodeValue;
+            }
+            $datos['errores'] = implode('; ', $errores);
+        }
+
+        return $datos;        
     }
 }

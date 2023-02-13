@@ -220,7 +220,7 @@ class Factura extends CI_Controller
 				if (!empty($fac->numero_factura)) {
 					$fac->certificador_fel = $cer;
 					$fac->detalle = $fac->getDetalle();
-					$fac->fecha_autorizacion = isset($resp->fecha) ? $resp->fecha : $resp->Fecha_DTE;
+					$fac->fecha_autorizacion = isset($resp->fecha) ? $resp->fecha : (isset($resp->Fecha_DTE) ? $resp->Fecha_DTE : $fac->fecha_factura);
 
 					$comanda = $fac->getComanda();
 					$fac->origen_datos = ($comanda) ? $comanda->getOrigenDatos() : null;
@@ -332,7 +332,7 @@ class Factura extends CI_Controller
 
 			$usu = new Usuario_model($data->idusuario);
 			if (empty($fac->fel_uuid_anulacion)) {
-				if (verDato($req, "razon_anulacion")) {
+				if (verDato($req, 'razon_anulacion')) {
 					$motivo = new Razon_anulacion_model($req['razon_anulacion']);
 					$fac->cargarFacturaSerie();
 					$fac->cargarEmpresa();
@@ -342,11 +342,11 @@ class Factura extends CI_Controller
 					$cer = $fac->getCertificador();
 					$funcion = $cer->metodo_anulacion;
 
-					if (!in_array($funcion, ["anularInfilePan"])) {
+					if (!in_array($funcion, ['anularInfilePan', 'enviarGuatefacAnula'])) {
 						$fac->procesarAnulacion($_POST);
 					}
 
-					$resp = $fac->$funcion();
+					$resp = $fac->$funcion($motivo->descripcion);
 
 					$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
 					if (!empty($fac->fel_uuid_anulacion)) {
@@ -632,7 +632,6 @@ class Factura extends CI_Controller
 		$fac->procesar_factura(false);
 
 		$guatefacturas = new Guatefacturas();
-		$guatefacturas->esPrueba = true;
 		$guatefacturas->generaXML($fac);
 		$respuesta = $guatefacturas->enviar();
 

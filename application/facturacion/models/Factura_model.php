@@ -1254,7 +1254,7 @@ class Factura_model extends General_model
 			$datos['exito'] = false;
 			$datos['mensaje'] = "{$jsonToken->error}";
 		}
-	}
+	}	
 
 	public function enviarCCGAnulacion($args = [])
 	{
@@ -1285,6 +1285,62 @@ class Factura_model extends General_model
 			$datos['exito'] = false;
 			$datos['mensaje'] = 'No se logró generar el token para anulación.' . (!is_null($jsonToken) && isset($jsonToken->error)) ? " ERROR: {$jsonToken->error}" : '';
 		}
+	}
+
+	public function enviarGuatefac() {
+		$this->load->library('Guatefacturas');
+		$guatefacturas = new Guatefacturas();
+		$guatefacturas->generaXML($this);
+		$respuesta = $guatefacturas->enviar();
+
+		if (isset($respuesta['serie_factura']) && isset($respuesta['numero_factura']) && isset($respuesta['fel_uuid']) && isset($respuesta['factura'])) {
+			$this->serie_factura = $respuesta['serie_factura'];
+			$this->numero_factura = $respuesta['numero_factura'];
+			$this->fel_uuid = $respuesta['fel_uuid'];
+			$respuesta['exito'] = $this->guardar();
+			if ($respuesta['exito']) {
+				$respuesta['mensaje'] = 'Factura firmada con éxito.';
+			} else {
+				$respuesta['mensaje'] = implode('; ', $this->getMensaje());
+			}
+		} else {
+			$respuesta['exito'] = false;			
+			if (isset($respuesta['errores'])) {
+				$respuesta['mensaje'] = $respuesta['errores'];
+				unset($respuesta['errores']);
+			} else {
+				$respuesta['mensaje'] = 'No se pudo firmar la factura.';				
+			}
+		}
+
+		return $respuesta;
+	}
+
+	public function enviarGuatefacAnula($motivoAnulacion)
+	{
+		$this->load->library('Guatefacturas');
+		$guatefacturas = new Guatefacturas();
+		$guatefacturas->generaXML($this);
+		$respuesta = $guatefacturas->anular($motivoAnulacion);
+		if ($respuesta['exito']) {
+			$this->fel_uuid_anulacion = $this->fel_uuid;
+			$respuesta['exito'] = $this->guardar();
+			if ($respuesta['exito']) {
+				$respuesta['mensaje'] = 'Factura anulada con éxito.';
+			} else {
+				$respuesta['mensaje'] = implode('; ', $this->getMensaje());
+			}
+		} else {
+			if (isset($respuesta['errores'])) {
+				$respuesta['mensaje'] = $respuesta['errores'];
+				$this->setMensaje($respuesta['errores']);
+				unset($respuesta['errores']);
+			} else {
+				$respuesta['mensaje'] = 'No se anular la factura.';
+			}			
+		}
+
+		return $respuesta;
 	}
 
 	public function pdfInfile()

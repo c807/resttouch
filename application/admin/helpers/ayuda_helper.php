@@ -149,7 +149,7 @@ if (!function_exists('url_base')) {
 		} else if (in_array($_SERVER['HTTP_HOST'], ['qa.resttouch.com', '10.0.83.5'])) {
 			return ("http://10.0.83.5/api/{$url}");
 		}
-		
+
 		return ("http://10.0.0.4/api/{$url}");
 	}
 }
@@ -407,6 +407,8 @@ if (!function_exists('Hoy')) {
 				return date('H:i:s');
 			case 5:
 				return date('d/m/Y H:i:s');
+			case 6:
+				return date('Ymd');
 			default:
 				return date('Y-m-d');
 		}
