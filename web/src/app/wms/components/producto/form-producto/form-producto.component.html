@@ -150,7 +150,12 @@
                                 Usar como extra
                             </mat-checkbox>
                         </div>
-                    </div>
+                        <div class="col m3 s3">
+                            <mat-checkbox name="essellado" class="example-margin" [(ngModel)]="+articulo.essellado">
+                                Es sellado
+                            </mat-checkbox>
+                        </div>                        
+                    </div>                    
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
                             Guardar

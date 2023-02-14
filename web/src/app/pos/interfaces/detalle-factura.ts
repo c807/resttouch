@@ -3,6 +3,7 @@ export interface DetalleFactura {
     factura: number;
     articulo: number;
     cantidad: number;
+    cantidad_inventario?: number;
     precio_unitario: number;
     total: number;
     monto_base?: number;

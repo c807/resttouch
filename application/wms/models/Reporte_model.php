@@ -231,7 +231,7 @@ EOT;
 
 		$this->sqlFactura = <<<EOT
 select
-	sum(ifnull(a.cantidad, 0) * p.cantidad) as cantidad,
+	sum(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad) as cantidad,
 	b.articulo  
 	{$select}
 from detalle_factura a

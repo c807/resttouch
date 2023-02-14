@@ -35,6 +35,7 @@ export interface Articulo {
     stock_minimo?: number;
     stock_maximo?: number;
     categoria?: number;
+    essellado?: number;
 }
 
 export interface ArticuloResponse {
@@ -66,6 +67,7 @@ export interface ArticuloResponse {
     stock_minimo?: number;
     stock_maximo?: number;
     bien_servicio?: string;
+    essellado?: number;
 }
 
 export interface ArbolCategoriaGrupo {

@@ -54,7 +54,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
     this.articulo = {
       articulo: null, categoria_grupo: null, presentacion: null, descripcion: null, precio: null, bien_servicio: 'B',
       produccion: 0, presentacion_reporte: null, mostrar_pos: 0, impuesto_especial: null, rendimiento: 1, mostrar_inventario: 0, debaja: 0, usuariobaja: null, fechabaja: null,
-      cobro_mas_caro: 0, esextra: 0, stock_minimo: null, stock_maximo: null
+      cobro_mas_caro: 0, esextra: 0, stock_minimo: null, stock_maximo: null, essellado: 0
     };
   }
   ngOnInit() {
@@ -106,7 +106,8 @@ export class ProductoComponent implements OnInit, OnDestroy {
             esextra: obj.esextra,
             stock_minimo: obj.stock_minimo,
             stock_maximo: obj.stock_maximo,
-            bien_servicio: obj.bien_servicio
+            bien_servicio: obj.bien_servicio,
+            essellado: obj.essellado
           };
 
           this.categoria = this.categorias.find(c => +c.categoria === +obj.categoria_grupo.categoria);

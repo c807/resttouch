@@ -588,7 +588,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
   resetDetalleFactura = () => {
     this.detalleFactura = {
-      detalle_factura: null, factura: (this.factura.factura || 0), articulo: null, cantidad: 1, precio_unitario: null, total: null
+      detalle_factura: null, factura: (this.factura.factura || 0), articulo: null, cantidad: 1, precio_unitario: null, total: null, cantidad_inventario: 1
     };
     this.txtArticuloSelected = undefined;
   }
@@ -619,7 +619,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
             articulo: res[0].articulo.articulo,
             cantidad: +res[0].cantidad,
             precio_unitario: +res[0].precio_unitario,
-            total: +res[0].total
+            total: +res[0].total,
+            cantidad_inventario: +res[0].cantidad_inventario
           };
           this.txtArticuloSelected = res[0].articulo;
           this.showFormDetalle = true;
@@ -637,6 +638,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     this.cargando = true;
     this.detalleFactura.factura = this.factura.factura;
     this.detalleFactura.total = +this.detalleFactura.precio_unitario * +this.detalleFactura.cantidad;
+    this.detalleFactura.cantidad_inventario = +this.detalleFactura.cantidad;
     // console.log(this.detalleFactura);
     this.endSubs.add(
       this.facturaSrvc.saveDetalle(this.detalleFactura).subscribe(res => {

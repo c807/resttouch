@@ -34,6 +34,7 @@ class Articulo_model extends General_model
 	public $esextra = 0;
 	public $stock_minimo = null;
 	public $stock_maximo = null;
+	public $essellado = 0;
 
 	public function __construct($id = '')
 	{
@@ -198,7 +199,7 @@ class Articulo_model extends General_model
 		}
 
 		$facturas = $this->db
-			->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
 			->join('articulo b', 'a.articulo = b.articulo')
 			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 			->join('categoria d', 'd.categoria = c.categoria')
@@ -467,7 +468,7 @@ class Articulo_model extends General_model
 			}
 
 			$facturas = $this->db
-				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')

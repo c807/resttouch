@@ -7,9 +7,9 @@ class Dfactura_model extends General_model {
 	public $factura;
 	public $articulo;
 	public $cantidad;
+	public $cantidad_inventario = 0.00;
 	public $precio_unitario;
-	public $precio_unitario_ext = 0.0000000000;
-	//public $factura_
+	public $precio_unitario_ext = 0.0000000000;	
 	public $total;
 	public $total_ext = 0.0000000000;
 	public $monto_base;

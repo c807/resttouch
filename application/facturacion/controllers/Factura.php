@@ -352,6 +352,7 @@ class Factura extends CI_Controller
 					if (!empty($fac->fel_uuid_anulacion)) {
 
 						$fac->guardar($req);
+						$this->reversa_articulo_sellado($fac);
 						$bit = new Bitacora_model();
 						$acc = $this->Accion_model->buscar([
 							"descripcion" => "Modificacion",
@@ -656,6 +657,36 @@ class Factura extends CI_Controller
 		}
 
 		$this->output->set_content_type("application/json")->set_output(json_encode($respuesta));
+	}
+
+	private function reversa_articulo_sellado($factura)
+	{
+		$detalle = $factura->get_detalle_anulacion();
+		foreach($detalle as $det)
+		{
+			$articulo = new Articulo_model($det->articulo);
+			if ((int)$articulo->essellado === 1) {
+				if ((int)$det->detalle_factura > 0) {
+					$df = new Dfactura_model($det->detalle_factura);
+					$df->cantidad_inventario = 0;
+					$df->guardar();
+				}
+
+				if ((int)$det->detalle_comanda > 0) {
+					$dc = new Dcomanda_model($det->detalle_comanda);
+					$dc->cantidad_inventario = 0;
+					$dc->guardar();
+				}
+			}
+		}
+	}
+
+	public function test_detalle_anulacion($idfactura)
+	{
+		$factura = new Factura_model($idfactura);
+		$detalle = $factura->get_detalle_anulacion();
+
+		$this->output->set_content_type("application/json")->set_output(json_encode($detalle));
 	}
 }
 

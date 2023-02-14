@@ -157,7 +157,8 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       cobro_mas_caro: 0,
       esextra: 0,
       stock_minimo: null,
-      stock_maximo: null
+      stock_maximo: null,
+      essellado: 0
     };    
     this.recetas = [];
     this.resetReceta();

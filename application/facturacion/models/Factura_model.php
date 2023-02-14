@@ -95,6 +95,7 @@ class Factura_model extends General_model
 
 		if ($vnegativo || isset($args['detalle_cuenta']) || empty($menu) || !$validar || $art->existencias >= $cantidad * $pres->cantidad || $art->mostrar_pos == 0) {
 			$nuevo = ($det->getPK() == null);
+			$args['cantidad_inventario'] = $args['cantidad'];
 			$result = $det->guardar($args);
 			$idx = $det->getPK();
 
@@ -124,6 +125,7 @@ class Factura_model extends General_model
 						"factura" => $this->getPK(),
 						"articulo" => $rec->articulo->articulo,
 						"cantidad" => $rec->cantidad,
+						"cantidad_inventario" => $rec->cantidad,
 						"precio_unitario" => 0,
 						"total" => 0,
 						"monto_base" => 0,
@@ -1992,6 +1994,44 @@ class Factura_model extends General_model
 			return $resumen;
 		}
 		return [];
+	}
+
+	private function get_hijos_detalle_anulacion($iddetalle)
+	{
+		$detanula = [];
+		$hijos = $this->db->select('comanda, detalle_comanda, articulo')->where('detalle_comanda_id', $iddetalle)->get('detalle_comanda')->result();
+		foreach($hijos as $hijo) {
+			$detanula[] = (object)[
+				'factura' => null, 'detalle_factura' => null, 'comanda' => $hijo->comanda, 'detalle_comanda' => $hijo->detalle_comanda, 'articulo' => $hijo->articulo
+			];
+			$subhijos = $this->get_hijos_detalle_anulacion($hijo->detalle_comanda);
+			if (is_array($subhijos) && count($subhijos) > 0) {
+				$detanula = array_merge($detanula, $subhijos);
+			}
+		}
+		return $detanula;
+	}
+
+	public function get_detalle_anulacion()
+	{
+		$det = $this->db
+			->select('a.factura, a.detalle_factura, d.comanda, d.detalle_comanda, a.articulo')
+			->join('detalle_factura_detalle_cuenta b', 'a.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta c', 'c.detalle_cuenta = b.detalle_cuenta')
+			->join('detalle_comanda d', 'd.detalle_comanda = c.detalle_comanda')
+			->where('a.factura', $this->getPK())
+			->get('detalle_factura a')
+			->result();
+
+		$hijos = [];
+		foreach($det as $d) {
+			$hd = $this->get_hijos_detalle_anulacion($d->detalle_comanda);
+			if (is_array($hd) && count($hd) > 0) {
+				$hijos = array_merge($hijos, $hd);
+			}
+		}
+
+		return is_array($hijos) && count($hijos) > 0 ? array_merge($det, $hijos) : $det;
 	}
 }
 
