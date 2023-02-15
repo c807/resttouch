@@ -381,15 +381,14 @@ class Factura_model extends General_model
 		return $cntBien >= $cntServ ? 1 : 2;
 	}
 
-	public function getXmlWebhook($raw = false)
+	public function getXmlWebhook($raw = false) 
 	{
-
 		$doc = new stdClass();
 		$config = $this->Configuracion_model->buscar();
 		$dfac = $this->getDetalle();
 		$sumIva = suma_field($dfac, "monto_iva");
 		$sumTotal = suma_field($dfac, "total");
-		$conceptoMayor = get_configuracion($config, "RT_CONCEPTO_MAYOR_VENTA", 2);
+		$conceptoMayor = $this->empresa->concepto_mayor_venta ?? get_configuracion($config, "RT_CONCEPTO_MAYOR_VENTA", 2);
 		/*Datos encabezado*/
 		$enca = new stdClass();
 		$enca->idempresa = $this->empresa->codigo;
@@ -429,7 +428,7 @@ class Factura_model extends General_model
 		$cliente->debe = $sumTotal;
 
 		$iva = new stdClass();
-		$iva->codigo = get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_VENTA", 2);
+		$iva->codigo = $this->empresa->cuenta_contable_iva_venta ?? get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_VENTA", 2);
 		$iva->conceptomayor = $conceptoMayor;
 		$iva->haber = $sumIva;
 		$iva->debe = 0;
@@ -441,12 +440,12 @@ class Factura_model extends General_model
 		$propIva = new stdClass();
 		$propBase = new stdClass();
 		$propIva->haber = 0;
-		$propIva->codigo = get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_PROPINA", 2);
+		$propIva->codigo = $this->empresa->cuenta_contable_iva_propina ?? get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_PROPINA", 2);
 		$propIva->conceptomayor = $conceptoMayor;
 		$propIva->debe = 0;
 
 		$propBase->haber = 0;
-		$propBase->codigo = get_configuracion($config, "RT_CUENTA_CONTABLE_PROPINA", 2);
+		$propBase->codigo = $this->empresa->cuenta_contable_propina ?? get_configuracion($config, "RT_CUENTA_CONTABLE_PROPINA", 2);
 		$propBase->conceptomayor = $conceptoMayor;
 		$propBase->debe = 0;
 

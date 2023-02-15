@@ -45,4 +45,8 @@ export interface Empresa {
     codigo: number;
     metodo_costeo: number;
     leyenda_isr?: string;
+    cuenta_contable_iva_venta?: string;
+    cuenta_contable_propina?: string;
+    cuenta_contable_iva_propina?: string;
+    concepto_mayor_venta?: string;
 }

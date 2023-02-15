@@ -2839,6 +2839,7 @@ CREATE TABLE RT_DATABASE_NAME.articulo_eliminado_comanda (
     REFERENCES RT_DATABASE_NAME.usuario (usuario)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+ALTER TABLE RT_DATABASE_NAME.empresa ADD COLUMN cuenta_contable_iva_venta VARCHAR(10) NULL AFTER leyenda_isr, ADD COLUMN cuenta_contable_propina VARCHAR(10) NULL AFTER cuenta_contable_iva_venta, ADD COLUMN cuenta_contable_iva_propina VARCHAR(10) NULL AFTER cuenta_contable_propina, ADD COLUMN concepto_mayor_venta VARCHAR(500) NULL AFTER cuenta_contable_iva_propina;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

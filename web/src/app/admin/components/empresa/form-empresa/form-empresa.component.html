@@ -65,6 +65,18 @@
             <mat-form-field class="fullWidth">
                 <input matInput type="text" placeholder="Leyenda I.S.R." name="leyenda_isr" [(ngModel)]="empresa.leyenda_isr" minlength="1" maxlength="255">
             </mat-form-field>            
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Cuenta contable del I.V.A. para las ventas" name="cuenta_contable_iva_venta" [(ngModel)]="empresa.cuenta_contable_iva_venta" minlength="1" maxlength="10">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Cuenta contable para la propina" name="cuenta_contable_propina" [(ngModel)]="empresa.cuenta_contable_propina" minlength="1" maxlength="10">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Cuenta contable para el I.V.A. de la propina" name="cuenta_contable_iva_propina" [(ngModel)]="empresa.cuenta_contable_iva_propina" minlength="1" maxlength="10">
+            </mat-form-field>
+            <mat-form-field class="fullWidth">
+                <input matInput type="text" placeholder="Concepto de las ventas para el Diario Mayor General" name="concepto_mayor_venta" [(ngModel)]="empresa.concepto_mayor_venta" minlength="1" maxlength="500">
+            </mat-form-field>
             <mat-checkbox name="agente_retenedor" class="fullWidth" [(ngModel)]="+empresa.agente_retenedor">Agente Retenedor</mat-checkbox>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmEmpresa.form.valid || !corporacion.corporacion">

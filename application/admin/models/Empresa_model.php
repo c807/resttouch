@@ -22,6 +22,10 @@ class Empresa_model extends General_model {
     public $codigo = null;
     public $metodo_costeo = 1;
     public $leyenda_isr;
+    public $cuenta_contable_iva_venta = null;
+    public $cuenta_contable_propina = null;
+    public $cuenta_contable_iva_propina = null;
+    public $concepto_mayor_venta = null;
 
 	public function __construct($id = "")
 	{

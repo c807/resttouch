@@ -61,7 +61,11 @@ export class FormEmpresaComponent implements OnInit, OnDestroy {
     visa_transaction_key: null,
     codigo: null,
     metodo_costeo: 1,
-    leyenda_isr: null
+    leyenda_isr: null,
+    cuenta_contable_iva_venta: null,
+    cuenta_contable_propina: null,
+    cuenta_contable_iva_propina: null,
+    concepto_mayor_venta: null
   }
 
   onSubmit = () => {
