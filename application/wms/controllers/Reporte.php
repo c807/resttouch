@@ -2055,7 +2055,7 @@ class Reporte extends CI_Controller
 		$hoja->setCellValue("{$columna}4", 'Costo Total');
 
 		$fila = 5;
-		$columnaFinal = '';
+		$columnaFinal = $columna;
 		foreach ($datos as $d) {
 			if ($d->total_consumos !== (float)0) {
 				$hoja->setCellValue("A{$fila}", $d->sede);
