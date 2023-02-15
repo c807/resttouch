@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="col m12 s12">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Reporte de artículos eliminados de comandas</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmRptArtElim="ngForm" novalidate>
+                    <div class="row">                        
+                        <div class="col">                            
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="date" placeholder="Del" name="fdel" [(ngModel)]="params.fdel" (change)="chkDates()" required>
+                            </mat-form-field>
+                        </div>
+                        <div class="col">                            
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="date" placeholder="Al" name="fal" [(ngModel)]="params.fal" (change)="chkDates()" required>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col fullWidth">
+                            <mat-form-field class="fullWidth">
+                                <mat-label>Sede</mat-label>
+                                <mat-select name="sede" [(ngModel)]="params.sede">
+                                  <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                                    {{sede.sede.nombre}} ({{sede.sede.alias}})
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col fullWidth">
+                            <mat-form-field class="fullWidth">
+                                <input matInput type="text" placeholder="Comandas (separadas por coma si es más de una)" name="comandas" [(ngModel)]="params.comandas" (keypress)="validateKey($event)">
+                            </mat-form-field>
+                        </div>                        
+                    </div>                    
+                    <app-rpt-botones [configuracion]="configBotones" (excelClick)="excelClick()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+                </form>
+                <app-cargando *ngIf="cargando"></app-cargando>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

@@ -245,6 +245,7 @@ class Factura_model extends General_model
 			}
 			unset($valores['detalle_factura']);
 			$valores['factura'] = $factura;
+			$valores['cantidad_inventario'] = $valores['cantidad'];
 
 			$this->db->insert('detalle_factura', $valores);
 
@@ -2016,18 +2017,20 @@ class Factura_model extends General_model
 	{
 		$det = $this->db
 			->select('a.factura, a.detalle_factura, d.comanda, d.detalle_comanda, a.articulo')
-			->join('detalle_factura_detalle_cuenta b', 'a.detalle_factura = b.detalle_factura')
-			->join('detalle_cuenta c', 'c.detalle_cuenta = b.detalle_cuenta')
-			->join('detalle_comanda d', 'd.detalle_comanda = c.detalle_comanda')
+			->join('detalle_factura_detalle_cuenta b', 'a.detalle_factura = b.detalle_factura', 'left')
+			->join('detalle_cuenta c', 'c.detalle_cuenta = b.detalle_cuenta', 'left')
+			->join('detalle_comanda d', 'd.detalle_comanda = c.detalle_comanda', 'left')
 			->where('a.factura', $this->getPK())
 			->get('detalle_factura a')
 			->result();
 
 		$hijos = [];
 		foreach($det as $d) {
-			$hd = $this->get_hijos_detalle_anulacion($d->detalle_comanda);
-			if (is_array($hd) && count($hd) > 0) {
-				$hijos = array_merge($hijos, $hd);
+			if ((int)$d->detalle_comanda > 0) {
+				$hd = $this->get_hijos_detalle_anulacion($d->detalle_comanda);
+				if (is_array($hd) && count($hd) > 0) {
+					$hijos = array_merge($hijos, $hd);
+				}
 			}
 		}
 

@@ -2814,6 +2814,31 @@ ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN documento_receptor VARCHAR(100) 
 ALTER TABLE RT_DATABASE_NAME.sede ADD COLUMN codigo_postal VARCHAR(25) NULL AFTER alias, ADD COLUMN municipio VARCHAR(100) NULL AFTER codigo_postal, ADD COLUMN departamento VARCHAR(100) NULL AFTER municipio, ADD COLUMN pais_iso_dos CHAR(2) NULL AFTER departamento;
 ALTER TABLE RT_DATABASE_NAME.articulo ADD COLUMN essellado TINYINT(1) NOT NULL DEFAULT 0 AFTER stock_maximo;
 ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD COLUMN cantidad_inventario DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER cantidad;
+CREATE TABLE RT_DATABASE_NAME.articulo_eliminado_comanda (
+  articulo_eliminado_comanda INT NOT NULL AUTO_INCREMENT,
+  comanda INT NOT NULL,
+  articulo INT NOT NULL,
+  usuario INT NOT NULL,
+  fechahora DATETIME NOT NULL,
+  PRIMARY KEY (articulo_eliminado_comanda),
+  INDEX fk_articulo_eliminado_comanda_comanda1_idx (comanda ASC),
+  INDEX fk_articulo_eliminado_comanda_articulo1_idx (articulo ASC),
+  INDEX fk_articulo_eliminado_comanda_usuario1_idx (usuario ASC),
+  CONSTRAINT fk_articulo_eliminado_comanda_comanda1
+    FOREIGN KEY (comanda)
+    REFERENCES RT_DATABASE_NAME.comanda (comanda)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_articulo_eliminado_comanda_articulo1
+    FOREIGN KEY (articulo)
+    REFERENCES RT_DATABASE_NAME.articulo (articulo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_articulo_eliminado_comanda_usuario1
+    FOREIGN KEY (usuario)
+    REFERENCES RT_DATABASE_NAME.usuario (usuario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

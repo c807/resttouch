@@ -20,6 +20,7 @@ import { TranAnulaComandaComponent } from './components/tran-anula-comanda/tran-
 import { ComandaComponent } from './components/reportes/comanda/comanda.component';
 import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-admin.component';
 import { NotaPredefinidaComponent } from './components/nota-predefinida/nota-predefinida/nota-predefinida.component';
+import { ArticulosEliminadosComponent } from './components/reportes/articulos-eliminados/articulos-eliminados.component';
 
 const routes: Routes = [
   { path: 'mantareas', component: AreaComponent, canActivate: [AuthGuard] },
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'rptcomanda', component: ComandaComponent, canActivate: [AuthGuard] },
   { path: 'rptvtasadm', component: VentasAdminComponent, canActivate: [AuthGuard] },
   { path: 'notas_predefinidas', component: NotaPredefinidaComponent, canActivate: [AuthGuard] },
+  { path: 'rptartelim', component: ArticulosEliminadosComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 

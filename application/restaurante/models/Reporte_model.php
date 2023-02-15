@@ -567,6 +567,46 @@ class Reporte_model extends CI_Model
 
 		return ['formas_pago' => $formas_pago, 'facturas' => $facturas];
 	}
+
+	public function get_articulos_eliminados($args = [])
+	{
+		if (isset($args['comandas']) && (int)$args['comandas'] > 0) {
+			$this->db->where("a.comanda IN({$args['comandas']})");
+		}
+
+		if (isset($args['usuario']) && (int)$args['usuario'] > 0) {
+			$this->db->where('a.usuario', $args['usuario']);
+		}
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('e.sede', $args['sede']);
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$this->db->where('DATE(a.fechahora) >=', $args['fdel']);
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$this->db->where('DATE(a.fechahora) <=', $args['fal']);
+		}
+		
+		if (isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$this->db->where('a.articulo', $args['articulo']);
+		}
+
+		$campos = 'CONCAT(e.nombre, IFNULL(CONCAT(" (", e.alias, ")"), "")) AS sede, d.usrname AS usuario, c.descripcion AS articulo, ';
+		$campos.= 'DATE_FORMAT(a.fechahora, "%d/%m/%Y %H:%i:%s") AS fechahora, a.comanda';
+		return $this->db
+			->select($campos)
+			->join('comanda b', 'b.comanda = a.comanda')
+			->join('articulo c', 'c.articulo = a.articulo')
+			->join('usuario d', 'd.usuario = a.usuario')
+			->join('sede e', 'e.sede = b.sede')
+			->get('articulo_eliminado_comanda a')
+			->result();
+	}
+
+
 }
 
 /* End of file Reporte_model.php */

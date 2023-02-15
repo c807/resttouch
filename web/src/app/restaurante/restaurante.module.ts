@@ -102,6 +102,7 @@ import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-
 import { NotaPredefinidaComponent } from './components/nota-predefinida/nota-predefinida/nota-predefinida.component';
 import { FormNotaPredefinidaComponent } from './components/nota-predefinida/form-nota-predefinida/form-nota-predefinida.component';
 import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lista-nota-predefinida/lista-nota-predefinida.component';
+import { ArticulosEliminadosComponent } from './components/reportes/articulos-eliminados/articulos-eliminados.component';
 
 @NgModule({
   declarations: [
@@ -113,7 +114,7 @@ import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lis
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
-    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent, NotaPredefinidaComponent, FormNotaPredefinidaComponent, ListaNotaPredefinidaComponent
+    ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent, NotaPredefinidaComponent, FormNotaPredefinidaComponent, ListaNotaPredefinidaComponent, ArticulosEliminadosComponent
   ],
   imports: [
     CommonModule,

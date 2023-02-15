@@ -329,7 +329,10 @@ class Dcomanda_model extends General_Model
 
 	}
 
-
+	public function add_eliminacion_producto (array $args)
+	{
+		$this->db->insert('articulo_eliminado_comanda', $args);
+	}
 }
 
 /* End of file Dcomanda_model.php */

@@ -2334,6 +2334,75 @@ class Reporte extends CI_Controller
 
         // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
     }
+
+    public function articulos_eliminados()
+    {
+        $params = json_decode(file_get_contents('php://input'), true);
+        $datos = $this->Reporte_model->get_articulos_eliminados($params);
+
+        $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+        \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+        $excel->getProperties()
+            ->setCreator("Resttouch")
+            ->setTitle("Office 2007 xlsx Articulos_Eliminados")
+            ->setSubject("Office 2007 xlsx Articulos_Eliminados")
+            ->setKeywords("office 2007 openxml php");
+
+        $excel->setActiveSheetIndex(0);
+        $hoja = $excel->getActiveSheet();
+
+        $hoja->setCellValue('A1', 'ARTÍCULOS ELIMINADOS');
+        if (isset($params['fdel']) && !empty($params['fdel'])) {
+            $hoja->setCellValue('A2', 'Del ' . formatoFecha($params['fdel'], 2));
+        }
+
+        if (isset($params['fal']) && !empty($params['fal'])) {
+            $hoja->setCellValue('A3', 'Al ' . formatoFecha($params['fal'], 2));
+        }
+
+        $hoja->mergeCells('A1:E1');
+        $hoja->mergeCells('A2:E2');
+        $hoja->mergeCells('A3:E3');
+        $hoja->getStyle('A1:E3')->getFont()->setBold(true);
+
+        $fila = 5;
+
+        $hoja->setCellValue("A{$fila}", 'Sede');
+        $hoja->setCellValue("B{$fila}", 'Usuario');
+        $hoja->setCellValue("C{$fila}", 'Artículo');
+        $hoja->setCellValue("D{$fila}", 'Fecha/Hora');
+        $hoja->setCellValue("E{$fila}", 'Comanda');
+        $hoja->getStyle("A{$fila}:E{$fila}")->getFont()->setBold(true);
+        $hoja->setAutoFilter("A{$fila}:E{$fila}");
+
+        $fila++;
+        foreach($datos as $d) {
+            $hoja->setCellValue("A{$fila}", $d->sede);
+            $hoja->setCellValue("B{$fila}", $d->usuario);
+            $hoja->setCellValue("C{$fila}", $d->articulo);
+            $hoja->setCellValue("D{$fila}", $d->fechahora);
+            $hoja->setCellValue("E{$fila}", $d->comanda);
+            $fila++;
+        }
+
+        foreach (range('A', 'E') as $col) {
+            $hoja->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $hoja->setTitle("Articulos Eliminados");
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment;filename=Articulos_Eliminados_" . date('YmdHis') . ".xlsx");
+        header("Cache-Control: max-age=1");
+        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+        header("Cache-Control: cache, must-revalidate");
+        header("Pragma: public");
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+        $writer->save("php://output");
+
+        // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+    }
 }
 
 /* End of file Reporte.php */

@@ -952,7 +952,7 @@ EOT;
 		return $this->db
 		->select("
 			a.articulo,
-			sum(ifnull(a.cantidad, 0)) as cantidad,
+			sum(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0))) as cantidad,
 			c.codigo,c.descripcion as narticulo,
 			d.descripcion as ndescripcion
 		")

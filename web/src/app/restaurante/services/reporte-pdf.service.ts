@@ -247,4 +247,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getReporteArticulosEliminados(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlAppRestaurante}/reporte/articulos_eliminados`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }
