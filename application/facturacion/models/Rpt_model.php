@@ -106,6 +106,7 @@ class Rpt_model extends General_model
     {
         $combos = [];
         $multiples = [];
+        $extras = [];
         $directos = [];
 
         if (!empty($comandas)) {

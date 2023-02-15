@@ -188,6 +188,7 @@ class Reporte_model extends CI_Model
 				->where('a.fel_uuid IS NOT NULL')
 				->where('a.fel_uuid_anulacion IS NULL')
 				->where('d.detalle_factura_detalle_cuenta IS NULL')
+				->group_by('a.factura')
 				->get('factura a');
 
 			if (!isset($args['propina'])) {
