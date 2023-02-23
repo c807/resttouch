@@ -2,7 +2,8 @@ import { Component, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
-import { ComboWizardComponent } from '@wms-components/producto/wizards/combo/combo-wizard/combo-wizard.component'
+import { ComboWizardComponent } from '@wms-components/producto/wizards/combo/combo-wizard/combo-wizard.component';
+import { RecetaWizardComponent } from '@wms-components/producto/wizards/receta/receta-wizard/receta-wizard.component';
 
 import { Subscription } from 'rxjs';
 
@@ -19,6 +20,7 @@ export class DialogWizardComponent implements OnInit, OnDestroy {
 
   public tituloPasoAPaso: string = '';
   @ViewChild('wizCmb') wizCmb: ComboWizardComponent;
+  @ViewChild('recetaCmb') recetaCmb: RecetaWizardComponent;
 
   private endSubs = new Subscription();
 
@@ -39,6 +41,7 @@ export class DialogWizardComponent implements OnInit, OnDestroy {
   setTituloPasoAPaso = () => {
     switch (+this.data.wizard) {
       case 1: this.tituloPasoAPaso = 'combos'; break;
+      case 2: this.tituloPasoAPaso = 'recetas'; break;
     }
   }
 
@@ -47,7 +50,7 @@ export class DialogWizardComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         `Paso a paso: ${this.tituloPasoAPaso}`,
-        '¿Desea salir? (Si los pasos no están completos no guardará la información)',
+        '¿Desea salir? (Si los pasos no están completos no guardará la información)',
         'Sí', 'No', {}, true
       )
     });

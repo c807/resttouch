@@ -1,0 +1,175 @@
+<mat-stepper linear="true" #stepper>
+    <mat-step>
+        <ng-template matStepLabel>¡Bienvenido(a)!</ng-template>
+        <p>!Hola! Mi nombre es <strong>ChefBot</strong> y seré su asistente para esta tarea. Si ya está listo(a) para
+            iniciar, por favor presione el botón <i>Siguiente</i> para comenzar.</p>
+        <div class="espacio" align="end">
+            <button mat-raised-button color="accent" matStepperNext>Siguiente</button>
+        </div>
+    </mat-step>
+    <mat-step [stepControl]="encabezadoFormGroup">
+        <ng-template matStepLabel>Datos generales</ng-template>
+        <form [formGroup]="encabezadoFormGroup">
+            <p>Aquí llenaremos algunos datos que son requeridos para la receta. ¿Me ayuda a responder las siguientes preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>
+            <mat-form-field appearance="fill" class="fullWidth marginados">
+                <mat-label>¿Cómo se llamará esta receta?</mat-label>
+                <input matInput type="text" placeholder="Nombre de la receta" formControlName="descripcion" required minlength="1" maxlength="250">
+                <mat-hint>Sugerencia: Si es una receta para la venta, un nombre corto y descriptivo puede hacer más fácil que el cliente lo recuerde y puede simplificarle la búsqueda en la comanda.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid">
+                <mat-label>¿En qué subcategoría desea que muestre '{{descripcionArticulo.value}}'?</mat-label>
+                <input type="text" placeholder="Seleccione una subcategoría, por favor" matInput formControlName="filtroSubcategoria" required [matAutocomplete]="autoSubcategoria" (blur)="setFocusOnPrecio()">
+                <mat-autocomplete autoActiveFirstOption #autoSubcategoria="matAutocomplete"
+                    [displayWith]="subcategoriaDisplay" (optionSelected)="subcategoriaSelectedEv($event)">
+                    <mat-option *ngFor="let sc of lstSubCategoriasFiltered | async" [value]="sc">
+                        {{sc.descripcion}} ({{sc.categoria}})
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados"
+                *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid" align="end">
+                <mat-label>¿Con qué presentación desea que se muestre '{{descripcionArticulo.value}}'?</mat-label>
+                <input type="text" placeholder="Seleccione una presentación, por favor" matInput formControlName="filtroPresentacion" required [matAutocomplete]="autoPresentacion">
+                <mat-autocomplete autoActiveFirstOption #autoPresentacion="matAutocomplete" [displayWith]="presentacionDisplay" (optionSelected)="presentacionSelectedEv($event)">
+                    <mat-option *ngFor="let p of lstPresentacionesFiltered | async" [value]="p"
+                        [disabled]="+p.debaja === 1">
+                        {{p.descripcion}}
+                    </mat-option>
+                </mat-autocomplete>
+                <mat-hint>Sugerencia: Para recetas se suele utilizar la UNIDAD.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid">
+                <mat-label>¿A qué precio venderá '{{descripcionArticulo.value}}'?</mat-label>
+                <input matInput #txtPrecio type="number" placeholder="Precio" formControlName="precio" required min="0" max="999999.99">
+                <mat-hint>Idea: Poner un precio de 0, implica que no es un plato que venderá, por lo que no aparecerá en el módulo de POS para la venta.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" class="halfWidth espacio marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid">
+                <mat-label>¿Con qué código corto identificará '{{descripcionArticulo.value}}'?</mat-label>
+                <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1"
+                    maxlength="25">
+                <mat-hint>Idea: Este código debe ser único y se utilizará para mantener uniformidad en todas las sedes. Puede ser corto y es alfanumérico. Ej.: RECSOP001</mat-hint>
+            </mat-form-field>
+
+            <div class="contenedor-radio-buttons">
+                <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                    <label id="lblMostrarInventario">¿Desea que '{{descripcionArticulo.value}}' se incluya en el inventario?</label>
+                    <mat-radio-group aria-labelledby="lblMostrarInventario" formControlName="mostrar_inventario" class="radio-group">
+                        <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
+                        <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
+                    </mat-radio-group>                
+                </div>
+    
+                <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                    <label id="lblEsExtra">¿Desea usar '{{descripcionArticulo.value}}' como extra de otro artículo?</label>
+                    <mat-radio-group aria-labelledby="lblEsExtra" formControlName="esextra" class="radio-group">
+                        <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
+                        <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
+                    </mat-radio-group>                
+                </div>
+
+                <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                    <label id="lblEsSellado">¿Es '{{descripcionArticulo.value}}' un producto sellado?</label>
+                    <mat-radio-group aria-labelledby="lblEsSellado" formControlName="essellado" class="radio-group">
+                        <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
+                        <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
+                    </mat-radio-group>                
+                </div>
+            </div>            
+
+            <div class="espacio" align="end">
+                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
+            </div>
+        </form>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>¿Qué lleva la receta?</ng-template>
+        <p>En este paso es necesario agregar productos a la receta. Puede agregar productos que sean materia prima o producciones. Al terminar de agregar lo que lleva la receta, puede dar click en el botón <i>Siguiente</i>.</p>
+        <table>
+            <caption>
+            <tr>
+                <td colspan="4" class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(1)">Materia prima/Producción</button></td>
+            </tr>
+            </caption>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="rtxt">Cantidad</th>
+                    <th>Unidad de medida</th>
+                    <th class="rtxt">Precio</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let det of detalleReceta; let i = index">
+                    <td>{{det.descripcion_articulo}}</td>
+                    <td class="rtxt">{{det.cantidad | number: '1.2-2' }}</td>
+                    <td>{{det.descripcion_medida}}</td>
+                    <td class="rtxt">{{det.precio | number: '1.2-2'}}</td>
+                    <th class="ctxt"><button mat-raised-button (click)="detalleReceta.splice(i, 1)">Quitar</button></th>
+                </tr>
+            </tbody>
+        </table>
+        <div align="end">
+            <button mat-raised-button matStepperPrevious>Regresar</button>
+            <button mat-raised-button color="accent" matStepperNext [disabled]="detalleReceta.length === 0">Siguiente</button>
+        </div>
+    </mat-step>
+
+    <mat-step [stepControl]="todoCorrectoFormGroup">
+        <ng-template matStepLabel>Revisión final</ng-template>
+        <p>Ya tengo la información necesaria para crear la receta. ¿Podría revisar si estamos en lo correcto, por favor?
+        </p>
+        <mat-accordion multi>
+            <mat-expansion-panel expanded="true" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>Datos generales</mat-panel-title>
+                    <!-- <mat-panel-description></mat-panel-description> -->
+                </mat-expansion-panel-header>                
+                <span>La receta se llamará <strong>{{descripcionArticulo?.value || ''}}</strong>.</span><br />
+                <span>La podrá encontrar en la subcategoría <strong>{{filtroSubcategoria?.value?.descripcion || ''}}</strong> de la categoría <strong>{{filtroSubcategoria?.value?.categoria || ''}}</strong>.</span><br />
+                <span>Se mostrará con la presentación <strong>{{filtroPresentacion?.value?.descripcion || ''}}</strong>.</span><br />
+                <span>Tendrá un precio de venta de <strong>{{(precioArticulo?.value | number:'1.2-2') || 0}}</strong>.</span><br />
+                <span>Se identificará con el código único <strong>{{codigoArticulo?.value || ''}}</strong>.</span><br />
+                <span>La receta <strong>{{+mostrar_inventario?.value === 0 ? 'NO' : 'SÍ'}}</strong> se tomará en cuenta en el inventario.</span>
+                <span>La receta <strong>{{+esextra?.value === 0 ? 'NO' : 'SÍ'}}</strong> se usará como extra para otros artículos.</span>
+                <span>La receta <strong>{{+essellado?.value === 0 ? 'NO' : 'SÍ'}}</strong> es producto sellado.</span>
+            </mat-expansion-panel>
+            <mat-expansion-panel expanded="true" hideToggle>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Contenido de la receta
+                    </mat-panel-title>
+                    <!-- <mat-panel-description></mat-panel-description> -->
+                </mat-expansion-panel-header>
+                <ul>
+                    <li *ngFor="let dc of detalleReceta">
+                        &bull;&nbsp;{{dc.descripcion_articulo}},&nbsp;{{+dc.cantidad | number: '1.2-2'}}&nbsp;{{dc.descripcion_medida}}<span *ngIf="+dc.precio !== 0">,&nbsp; se cobrará {{+dc.precio | number: '1.2-2'}}&nbsp;adicional.</span>
+                    </li>
+                </ul>
+            </mat-expansion-panel>
+        </mat-accordion>
+        
+        <div align="center">
+            <form [formGroup]="todoCorrectoFormGroup">
+                <mat-checkbox formControlName="todo_correcto" labelPosition="before" class="confirmacion">Después de revisar detenidamente, ¿está todo correcto?</mat-checkbox>
+            </form>
+        </div>
+
+        <div class="espacio" align="end">
+            <button mat-raised-button matStepperPrevious>Regresar</button>
+            <button mat-raised-button color="accent" (click)="guardarReceta()" [disabled]="!todo_correcto.value">Guardar receta</button>
+        </div>
+    </mat-step>
+
+    <mat-step>
+        <ng-template matStepLabel>¡Hasta pronto!</ng-template>
+        <p>Fue un gusto poder ayudarle. Aquí estaré atento si necesita más ayuda. ¡Hasta pronto!</p>
+        <div class="espacio" align="end">            
+            <button mat-raised-button color="accent" (click)="stepper.reset()">Reiniciar</button>
+        </div>
+    </mat-step>
+</mat-stepper>

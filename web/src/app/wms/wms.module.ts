@@ -74,6 +74,8 @@ import { ListaTipoMovimientoComponent } from './components/tipo-movimiento/lista
 import { DialogWizardComponent } from './components/producto/wizards/dialog-wizard/dialog-wizard.component';
 import { ComboWizardComponent } from './components/producto/wizards/combo/combo-wizard/combo-wizard.component';
 import { DetalleComboWizardComponent } from './components/producto/wizards/combo/detalle-combo-wizard/detalle-combo-wizard.component';
+import { RecetaWizardComponent } from './components/producto/wizards/receta/receta-wizard/receta-wizard.component';
+import { DetalleRecetaWizardComponent } from './components/producto/wizards/receta/detalle-receta-wizard/detalle-receta-wizard.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +84,7 @@ import { DetalleComboWizardComponent } from './components/producto/wizards/combo
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
     FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
     ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
-    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent
+    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent
   ],
   imports: [
     CommonModule,
