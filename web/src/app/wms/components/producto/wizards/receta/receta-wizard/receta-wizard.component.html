@@ -52,11 +52,21 @@
                 <input matInput type="text" placeholder="Código" formControlName="codigo" required minlength="1"
                     maxlength="25">
                 <mat-hint>Idea: Este código debe ser único y se utilizará para mantener uniformidad en todas las sedes. Puede ser corto y es alfanumérico. Ej.: RECSOP001</mat-hint>
-            </mat-form-field>
+            </mat-form-field>           
 
+            <div class="espacio" align="end">
+                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
+            </div>
+        </form>
+    </mat-step>
+
+    <mat-step [stepControl]="encabezadoFormGroup">
+        <ng-template matStepLabel>Datos generales</ng-template>
+        <form [formGroup]="encabezadoFormGroup">
+            <p>Aquí llenaremos algunos datos que son requeridos para la receta. ¿Me ayuda a responder las siguientes preguntas, por favor? Al terminar, puede dar click en el botón <i>Siguiente</i>.</p>            
             <div class="contenedor-radio-buttons">
                 <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
-                    <label id="lblMostrarInventario">¿Desea que '{{descripcionArticulo.value}}' se incluya en el inventario?</label>
+                    <label id="lblMostrarInventario">¿Desea llevar inventario de esta receta?</label>
                     <mat-radio-group aria-labelledby="lblMostrarInventario" formControlName="mostrar_inventario" class="radio-group">
                         <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
                         <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
@@ -64,7 +74,7 @@
                 </div>
     
                 <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
-                    <label id="lblEsExtra">¿Desea usar '{{descripcionArticulo.value}}' como extra de otro artículo?</label>
+                    <label id="lblEsExtra">¿Desea usar esta receta como extra de otro artículo?</label>
                     <mat-radio-group aria-labelledby="lblEsExtra" formControlName="esextra" class="radio-group">
                         <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
                         <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
@@ -72,26 +82,46 @@
                 </div>
 
                 <div class="espacio marginados-radio-buttons" style="margin-top: 25px;" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
-                    <label id="lblEsSellado">¿Es '{{descripcionArticulo.value}}' un producto sellado?</label>
+                    <label id="lblEsSellado">¿Esta receta es un producto sellado y retornable?</label>
                     <mat-radio-group aria-labelledby="lblEsSellado" formControlName="essellado" class="radio-group">
                         <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
                         <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
                     </mat-radio-group>                
+                </div>                
+            </div>    
+            
+            <div class="contenedor-radio-buttons">
+                <div class="marginados-radio-buttons" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && precioArticulo.valid && codigoArticulo.valid">
+                    <label id="lblProduccion">¿Esta receta es de producción?</label>
+                    <mat-radio-group aria-labelledby="lblProduccion" formControlName="produccion" class="radio-group">
+                        <mat-radio-button class="radio-button" value="1">Sí</mat-radio-button>
+                        <mat-radio-button class="radio-button" value="0">No</mat-radio-button>
+                    </mat-radio-group>
+                    <mat-hint>Idea: a veces las recetas de salsas producen porciones para usar en otros platos pero la receta de una hamburguesa produce una unidad.</mat-hint>
                 </div>
-            </div>            
+            </div>
+
+            <mat-form-field appearance="fill" class="halfWidth marginados" *ngIf="descripcionArticulo.valid && categoriaGrupoArticulo.valid && presentacion.valid && presentacion_reporte.valid && +produccion.value === 1">
+                <mat-label>¿Cuál es el rendimiento de esta receta?</mat-label>
+                <input matInput #txtRendimiento type="number" placeholder="Rendimiento" formControlName="rendimiento" required min="0" max="999999.99">
+                <mat-hint>Ejemplo: una receta con rendimiento de 7.00 y presentación 'Unidad', producirá 7.00 unidades de la receta.</mat-hint>
+            </mat-form-field>
 
             <div class="espacio" align="end">
-                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid">Siguiente</button>
+                <button mat-raised-button matStepperPrevious>Regresar</button>
+                <button mat-raised-button color="accent" matStepperNext [disabled]="encabezadoFormGroup.invalid || (+produccion.value === 1 && +rendimiento.value <= 0)">Siguiente</button>
             </div>
         </form>
     </mat-step>
+
+
     <mat-step>
         <ng-template matStepLabel>¿Qué lleva la receta?</ng-template>
         <p>En este paso es necesario agregar productos a la receta. Puede agregar productos que sean materia prima o producciones. Al terminar de agregar lo que lleva la receta, puede dar click en el botón <i>Siguiente</i>.</p>
         <table>
             <caption>
             <tr>
-                <td colspan="4" class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleCombo(1)">Materia prima/Producción</button></td>
+                <td colspan="4" class="ctxt"><button mat-raised-button color="accent" (click)="addDetalleReceta()">Materia prima/Producción</button></td>
             </tr>
             </caption>
             <thead>
@@ -132,11 +162,15 @@
                 <span>La receta se llamará <strong>{{descripcionArticulo?.value || ''}}</strong>.</span><br />
                 <span>La podrá encontrar en la subcategoría <strong>{{filtroSubcategoria?.value?.descripcion || ''}}</strong> de la categoría <strong>{{filtroSubcategoria?.value?.categoria || ''}}</strong>.</span><br />
                 <span>Se mostrará con la presentación <strong>{{filtroPresentacion?.value?.descripcion || ''}}</strong>.</span><br />
-                <span>Tendrá un precio de venta de <strong>{{(precioArticulo?.value | number:'1.2-2') || 0}}</strong>.</span><br />
+                <ng-container *ngIf="+precioArticulo?.value !== 0">
+                    <span>Tendrá un precio de venta de <strong>{{(precioArticulo?.value | number:'1.2-2') || 0}}</strong>.</span><br />
+                </ng-container>
                 <span>Se identificará con el código único <strong>{{codigoArticulo?.value || ''}}</strong>.</span><br />
-                <span>La receta <strong>{{+mostrar_inventario?.value === 0 ? 'NO' : 'SÍ'}}</strong> se tomará en cuenta en el inventario.</span>
-                <span>La receta <strong>{{+esextra?.value === 0 ? 'NO' : 'SÍ'}}</strong> se usará como extra para otros artículos.</span>
-                <span>La receta <strong>{{+essellado?.value === 0 ? 'NO' : 'SÍ'}}</strong> es producto sellado.</span>
+                <span><strong>{{+mostrar_inventario?.value === 0 ? 'NO' : 'SÍ'}}</strong> se tomará en cuenta en el inventario.</span><br />
+                <span><strong>{{+esextra?.value === 0 ? 'NO' : 'SÍ'}}</strong> se usará como extra para otros artículos.</span><br />
+                <span><strong>{{+essellado?.value === 0 ? 'NO' : 'SÍ'}}</strong> es producto sellado.</span><br />
+                <span><strong>{{+produccion?.value === 0 ? 'NO' : 'SÍ'}}</strong> es producto que debe producirse.</span><br />
+                <span *ngIf="+produccion?.value === 1">Tendrá un rendimiento de: <strong>{{(+rendimiento?.value | number:'1.2-2') || 0}}.</strong></span>
             </mat-expansion-panel>
             <mat-expansion-panel expanded="true" hideToggle>
                 <mat-expansion-panel-header>

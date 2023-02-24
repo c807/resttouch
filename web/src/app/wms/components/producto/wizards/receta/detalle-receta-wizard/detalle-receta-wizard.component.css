@@ -1,0 +1,13 @@
+.contenido {    
+    height: 77%;
+    overflow-y: auto;
+    padding: 0 10px;
+}
+
+.autocomplete-articulo-item {
+    height: 50px;
+}
+
+mat-label {
+    font-size: 13pt;
+}

@@ -314,7 +314,7 @@ export class ProductoComponent implements OnInit, OnDestroy {
 
   openDialogWizard = (wiz: number) => {
     this.dialog.open(DialogWizardComponent, {
-      maxWidth: '100vw', maxHeight: '85vh', width: '97vw', height: '85vh',
+      maxWidth: '100vw', maxHeight: '95vh', width: '97vw', height: '95vh',
       disableClose: true,
       data: { wizard: +wiz }
     });    

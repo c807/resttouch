@@ -70,6 +70,14 @@ export class RecetaWizardComponent implements OnInit, OnDestroy {
     return this.encabezadoFormGroup.get('essellado') as FormControl;
   }
 
+  get produccion(): FormControl {
+    return this.encabezadoFormGroup.get('produccion') as FormControl;
+  }
+
+  get rendimiento(): FormControl {
+    return this.encabezadoFormGroup.get('rendimiento') as FormControl;
+  }
+
   get todo_correcto(): FormControl {
     return this.todoCorrectoFormGroup.get('todo_correcto') as FormControl;
   }
@@ -111,7 +119,9 @@ export class RecetaWizardComponent implements OnInit, OnDestroy {
       codigo: [null, [Validators.required, Validators.minLength(1), Validators.maxLength(25)]],
       mostrar_inventario: ['0', Validators.required],
       esextra: ['0', Validators.required],
-      essellado: ['0', Validators.required]
+      essellado: ['0', Validators.required],
+      produccion: ['0', Validators.required],
+      rendimiento: [0.00, [Validators.required, Validators.min(0), Validators.max(999999.99)]]
     });
 
     this.todoCorrectoFormGroup = this.fb.group({
@@ -201,15 +211,15 @@ export class RecetaWizardComponent implements OnInit, OnDestroy {
     this.presentacion_reporte.patchValue(pres.presentacion);    
   }
 
-  addDetalleCombo = (tipoProducto: number) => {
-    const detComboDialog = this.dialog.open(DetalleRecetaWizardComponent, {
+  addDetalleReceta = () => {
+    const detRecetaDialog = this.dialog.open(DetalleRecetaWizardComponent, {
       width: '75%', height: '55vh',
       disableClose: true,
-      data: { tipoProducto }
+      data: { }
     });
 
     this.endSubs.add(
-      detComboDialog.afterClosed().subscribe(det => {        
+      detRecetaDialog.afterClosed().subscribe(det => {        
         if (det) {
           this.detalleReceta.push({
             articulo: +det.articulo || null,
@@ -226,70 +236,71 @@ export class RecetaWizardComponent implements OnInit, OnDestroy {
   }
 
   guardarReceta = () => {
-    // this.articulo = {
-    //   articulo: null,
-    //   categoria_grupo: this.categoriaGrupoArticulo.value as number,
-    //   descripcion: this.descripcionArticulo.value as string,
-    //   precio: this.precioArticulo.value as number,
-    //   presentacion: this.presentacion.value as number,
-    //   presentacion_reporte: this.presentacion_reporte.value as number,
-    //   codigo: this.codigoArticulo.value as string,
-    //   shopify_id: null, 
-    //   bien_servicio: 'B',
-    //   rendimiento: 0,
-    //   cantidad_minima: this.detalleCombo.length,
-    //   cantidad_maxima: this.detalleCombo.length,
-    //   stock_minimo: null,
-    //   stock_maximo: null,
-    //   impuesto_especial: null,
-    //   cantidad_gravable: 0,
-    //   precio_sugerido: 0,
-    //   produccion: 0,
-    //   mostrar_pos: 1,
-    //   combo: 1,
-    //   multiple: 0,
-    //   mostrar_inventario: 0,
-    //   esreceta: 0,
-    //   cobro_mas_caro: this.cobro_mas_caro.value as number,
-    //   esextra: 0,
-    //   costo: 0,
-    //   debaja: 0
-    // }
+    this.articulo = {
+      articulo: null,
+      categoria_grupo: this.categoriaGrupoArticulo.value as number,
+      descripcion: this.descripcionArticulo.value as string,
+      precio: this.precioArticulo.value as number,
+      presentacion: this.presentacion.value as number,
+      presentacion_reporte: this.presentacion_reporte.value as number,
+      codigo: this.codigoArticulo.value as string,
+      shopify_id: null, 
+      bien_servicio: 'B',
+      rendimiento: +this.produccion.value === 1 ? (this.rendimiento.value as number) : 0,
+      cantidad_minima: this.detalleReceta.length,
+      cantidad_maxima: this.detalleReceta.length,
+      stock_minimo: null,
+      stock_maximo: null,
+      impuesto_especial: null,
+      cantidad_gravable: 0,
+      precio_sugerido: 0,
+      produccion: this.produccion.value as number,
+      mostrar_pos: +this.precioArticulo.value !== 0 ? 1 : 0,
+      combo: 0,
+      multiple: 0,
+      mostrar_inventario: this.mostrar_inventario.value as number,
+      esreceta: 1,
+      cobro_mas_caro: 0,
+      esextra: this.esextra.value as number,
+      essellado: this.essellado.value as number,
+      costo: 0,
+      debaja: 0
+    }
 
-    // this.endSubs.add(
-    //   this.articuloSrvc.saveArticulo(this.articulo).subscribe(artSvd => {
-    //     if (artSvd.exito) {
-    //       let msgErrores = []
-    //       this.detalleCombo.forEach(async (detCmb, i) => {
-    //         this.receta = {
-    //           articulo_detalle: null,
-    //           receta: artSvd.articulo.articulo,
-    //           articulo: +detCmb.articulo,
-    //           cantidad: +detCmb.cantidad,
-    //           precio_extra: +detCmb.precio === 0 ? 0 : 1,
-    //           medida: +detCmb.medida,
-    //           racionable: 0,
-    //           precio: +detCmb.precio,
-    //           anulado: 0
-    //         };
+    this.endSubs.add(
+      this.articuloSrvc.saveArticulo(this.articulo).subscribe(artSvd => {
+        if (artSvd.exito) {
+          let msgErrores = []
+          this.detalleReceta.forEach(async (detRec, i) => {
+            this.receta = {
+              articulo_detalle: null,
+              receta: artSvd.articulo.articulo,
+              articulo: +detRec.articulo,
+              cantidad: +detRec.cantidad,
+              precio_extra: +detRec.precio === 0 ? 0 : 1,
+              medida: +detRec.medida,
+              racionable: 0,
+              precio: +detRec.precio,
+              anulado: 0
+            };
             
-    //         const detSvd = await this.articuloSrvc.saveArticuloDetalle(this.receta).toPromise();
-    //         if (!detSvd.exito) {
-    //           msgErrores.push(detSvd.mensaje)
-    //         }
+            const detSvd = await this.articuloSrvc.saveArticuloDetalle(this.receta).toPromise();
+            if (!detSvd.exito) {
+              msgErrores.push(detSvd.mensaje)
+            }
 
-    //       });
-    //       if (msgErrores.length > 0) {
-    //         this.snackbar.open(`ERROR${msgErrores.length === 1 ? '' : 'ES'}: ${msgErrores.join(', ')}`, 'Paso a paso: combo', { duration: 7000 });
-    //       } else {
-    //         this.snackbar.open(`El combo '${this.descripcionArticulo.value}' fue grabado con éxito.`, 'Paso a paso: combo', { duration: 5000 });
-    //         this.pasoAPaso.next();
-    //       }
-    //     } else {
-    //       this.snackbar.open(`ERROR: ${artSvd.mensaje}`, 'Paso a paso: combo', { duration: 7000 });
-    //     }
-    //   })
-    // );
+          });
+          if (msgErrores.length > 0) {
+            this.snackbar.open(`ERROR${msgErrores.length === 1 ? '' : 'ES'}: ${msgErrores.join(', ')}`, 'Paso a paso: receta', { duration: 7000 });
+          } else {
+            this.snackbar.open(`La receta '${this.descripcionArticulo.value}' fue grabada con éxito.`, 'Paso a paso: receta', { duration: 5000 });
+            this.pasoAPaso.next();
+          }
+        } else {
+          this.snackbar.open(`ERROR: ${artSvd.mensaje}`, 'Paso a paso: receta', { duration: 7000 });
+        }
+      })
+    );
   }
 
 }
