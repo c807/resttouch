@@ -69,8 +69,10 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 			fal: moment().format(GLOBAL.dbDateFormat),
 			tipo_egreso: null,
 			estatus_movimiento: null,
-			bodega: null
-		}
+			bodega: null,
+			sede: null
+		};
+		this.bodegas = [];
 	}
 
 	getTipoMovimiento = () => {
