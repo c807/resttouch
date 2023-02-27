@@ -9,6 +9,8 @@ import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { TipoMovimientoService } from '@wms-services/tipo-movimiento.service';
 import { TipoMovimiento } from '@wms-interfaces/tipo-movimiento';
 import { Bodega } from '@wms-interfaces/bodega';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
 
 import { Subscription } from 'rxjs';
 
@@ -37,21 +39,24 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 	public tiposMovimiento: TipoMovimiento[] = [];
 	public bodegas: Bodega[] = [];
 	public estatus = [
-		{id: 1, descripcion: 'Abierto'},
-		{id: 2, descripcion: 'Confirmado'}
+		{ id: 1, descripcion: 'Abierto' },
+		{ id: 2, descripcion: 'Confirmado' }
 	];
+	public sedes: UsuarioSede[] = [];
 
 	constructor(
 		private snackBar: MatSnackBar,
 		private pdfServicio: ReportePdfService,
 		private bodegaSrvc: BodegaService,
-		private tipoMovimientoSrvc: TipoMovimientoService
+		private tipoMovimientoSrvc: TipoMovimientoService,
+		private sedeSrvc: AccesoUsuarioService
 	) { }
 
 	ngOnInit() {
-		this.getTipoMovimiento()
-		this.getBodega()
-		this.resetParams()
+		this.getTipoMovimiento();
+		// this.getBodega();
+		this.resetParams();
+		this.getSede();
 	}
 
 	ngOnDestroy() {
@@ -76,9 +81,21 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	getBodega = () => {
+	getSede = (params: any = {}) => {
 		this.endSubs.add(
-			this.bodegaSrvc.get({}).subscribe(res => {
+			this.sedeSrvc.getSedes(params).subscribe(res => {
+				this.sedes = res;
+			})
+		);
+	}
+
+	onSedesSelected = (obj: any) => {
+		this.getBodega({ sede: this.params.sede });		
+	}
+
+	getBodega = (params: any = {}) => {
+		this.endSubs.add(
+			this.bodegaSrvc.get(params).subscribe(res => {
 				this.bodegas = res;
 			})
 		);
@@ -86,14 +103,14 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 
 	requestPDF = (esExcel = 0) => {
 		if (
-			this.params.fdel && moment(this.params.fdel).isValid() && 
+			this.params.fdel && moment(this.params.fdel).isValid() &&
 			this.params.fal && moment(this.params.fal).isValid() &&
 			this.params.bodega
 		) {
-			this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
+			this.paramsToSend = JSON.parse(JSON.stringify(this.params));
 			this.paramsToSend._excel = esExcel;
-			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+			this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+			this.paramsToSend.fal = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
 
 			if (this.params.bodega !== undefined && this.params.bodega !== null) {
 				let tmpBodega = this.bodegas.filter(obj => {

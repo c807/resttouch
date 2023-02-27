@@ -1313,7 +1313,12 @@ class Reporte extends CI_Controller
 					$data[$row->egreso]["detalle"][] = $row;
 				}
 			}
-			$params["sede"] = $this->Sede_model->buscar(["sede" => $this->data->sede, "_uno" => true]);
+			
+			if(!isset($params["sede"]) || (int)$params["sede"] === 0) {
+				$params["sede"] = $this->data->sede;
+			}
+
+			$params["sede"] = $this->Sede_model->buscar(["sede" => $params["sede"], "_uno" => true]);
 
 			if (verDato($params, "_excel")) {
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
