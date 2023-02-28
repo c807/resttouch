@@ -244,20 +244,25 @@ class Guatefacturas
             $productos->appendChild($this->crearElemento('Medida', 1));
             $productos->appendChild($this->crearElemento('Cantidad', $det->cantidad));
 
-            $productos->appendChild($this->crearElemento('Precio', round((float)$det->precio_unitario_ext, 5)));
-            $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : round((float)$det->descuento_ext * 100 / (float)$det->total_ext, 5);
+            $productos->appendChild($this->crearElemento('Precio', round((float)$det->precio_unitario_ext, 2)));
+            // $productos->appendChild($this->crearElemento('Precio', bcdiv((float)$det->precio_unitario_ext, 1, 2)));
+            $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : round((float)$det->descuento_ext * 100 / (float)$det->total_ext, 2);
+            // $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : bcdiv((float)$det->descuento_ext * 100 / (float)$det->total_ext, 1, 2);
             $productos->appendChild($this->crearElemento('PorcDesc', $porDesc));
 
             $impBruto = (float)$det->precio_unitario_ext * (float)$det->cantidad;
-            $productos->appendChild($this->crearElemento('ImpBruto', round($impBruto, 5)));
+            $productos->appendChild($this->crearElemento('ImpBruto', round($impBruto, 2)));
+            // $productos->appendChild($this->crearElemento('ImpBruto', bcdiv($impBruto, 1, 2)));
             $this->sumas->Bruto += $impBruto;
 
             $impDescuento = (float)$det->descuento_ext;
-            $productos->appendChild($this->crearElemento('ImpDescuento', round($impDescuento, 5)));
+            $productos->appendChild($this->crearElemento('ImpDescuento', round($impDescuento, 2)));
+            // $productos->appendChild($this->crearElemento('ImpDescuento', bcdiv($impDescuento, 1, 2)));
             $this->sumas->Descuento += $impDescuento;
 
             $impExento = (int)$this->factura->exenta === 1 ? (float)$det->monto_iva_ext : (float)0.00;
-            $productos->appendChild($this->crearElemento('ImpExento', round($impExento, 5)));
+            $productos->appendChild($this->crearElemento('ImpExento', round($impExento, 2)));
+            // $productos->appendChild($this->crearElemento('ImpExento', bcdiv($impExento, 1, 2)));
             $this->sumas->Exento += $impExento;
 
             $impOtros = (float)0.00;
@@ -266,21 +271,25 @@ class Guatefacturas
                     $impOtros += (float)$ie->valor_impuesto_especial_ext;
                 }
             }
-            $productos->appendChild($this->crearElemento('ImpOtros', round($impOtros, 5)));
+            $productos->appendChild($this->crearElemento('ImpOtros', round($impOtros, 2)));
+            // $productos->appendChild($this->crearElemento('ImpOtros', bcdiv($impOtros, 1, 2)));
             $this->sumas->Otros += $impOtros;
 
             $impNeto = ($impBruto - $impDescuento) / 1.12;
-            $productos->appendChild($this->crearElemento('ImpNeto', round($impNeto, 5)));
+            $productos->appendChild($this->crearElemento('ImpNeto', round($impNeto, 2)));
+            // $productos->appendChild($this->crearElemento('ImpNeto', bcdiv($impNeto, 1, 2)));
             $this->sumas->Neto += $impNeto;
 
             $productos->appendChild($this->crearElemento('ImpIsr', (float)0.00));
 
             $impIva = (int)$this->factura->exenta === 1 ? (float)0.00 : $impBruto - $impDescuento - $impNeto;
-            $productos->appendChild($this->crearElemento('ImpIva', round($impIva, 5)));
+            // $productos->appendChild($this->crearElemento('ImpIva', round($impIva, 2)));
+            $productos->appendChild($this->crearElemento('ImpIva', bcdiv($impIva, 1, 2)));
             $this->sumas->Iva += $impIva;
 
             $impTotal = $impNeto + $impIva;
-            $productos->appendChild($this->crearElemento('ImpTotal', round($impTotal, 5)));
+            $productos->appendChild($this->crearElemento('ImpTotal', round($impTotal, 2)));
+            // $productos->appendChild($this->crearElemento('ImpTotal', bcdiv($impTotal, 1, 2)));
             $this->sumas->Total += $impTotal;
 
             $productos->appendChild($this->crearElemento('TipoVentaDet', $det->bien_servicio));
@@ -293,7 +302,11 @@ class Guatefacturas
     {
         $sumasArray = (array)$this->sumas;
         foreach ($sumasArray as $tag => $val) {
-            $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = round($val, 5);
+            if ($tag === 'Iva') {
+                $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = bcdiv($val, 1, 2);
+            } else {
+                $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = round($val, 2);
+            }
         }
     }
 
