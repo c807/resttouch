@@ -634,29 +634,31 @@ class Factura extends CI_Controller
 
 		$guatefacturas = new Guatefacturas();
 		$guatefacturas->generaXML($fac);
-		$respuesta = $guatefacturas->enviar();
+		$respuesta = $guatefacturas->getXml();
+		// $respuesta = $guatefacturas->enviar();
 
-		if (isset($respuesta['serie_factura']) && isset($respuesta['numero_factura']) && isset($respuesta['fel_uuid']) && isset($respuesta['factura'])) {
-			$fac->serie_factura = $respuesta['serie_factura'];
-			$fac->numero_factura = $respuesta['numero_factura'];
-			$fac->fel_uuid = $respuesta['fel_uuid'];
-			$respuesta['exito'] = $fac->guardar();
-			if ($respuesta['exito']) {
-				$respuesta['mensaje'] = 'Factura firmada con éxito.';
-			} else {
-				$respuesta['mensaje'] = implode('; ', $fac->getMensaje());
-			}
-		} else {
-			$respuesta['exito'] = false;			
-			if (isset($respuesta['errores'])) {
-				$respuesta['mensaje'] = $respuesta['errores'];
-				unset($respuesta['errores']);
-			} else {
-				$respuesta['mensaje'] = 'No se pudo firmar la factura.';				
-			}
-		}
+		// if (isset($respuesta['serie_factura']) && isset($respuesta['numero_factura']) && isset($respuesta['fel_uuid']) && isset($respuesta['factura'])) {
+		// 	$fac->serie_factura = $respuesta['serie_factura'];
+		// 	$fac->numero_factura = $respuesta['numero_factura'];
+		// 	$fac->fel_uuid = $respuesta['fel_uuid'];
+		// 	$respuesta['exito'] = $fac->guardar();
+		// 	if ($respuesta['exito']) {
+		// 		$respuesta['mensaje'] = 'Factura firmada con éxito.';
+		// 	} else {
+		// 		$respuesta['mensaje'] = implode('; ', $fac->getMensaje());
+		// 	}
+		// } else {
+		// 	$respuesta['exito'] = false;			
+		// 	if (isset($respuesta['errores'])) {
+		// 		$respuesta['mensaje'] = $respuesta['errores'];
+		// 		unset($respuesta['errores']);
+		// 	} else {
+		// 		$respuesta['mensaje'] = 'No se pudo firmar la factura.';				
+		// 	}
+		// }
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($respuesta));
+		// $this->output->set_content_type('application/json')->set_output(json_encode($respuesta));
+		$this->output->set_content_type('text/xml')->set_output($respuesta);
 	}
 
 	private function reversa_articulo_sellado($factura)
