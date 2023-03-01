@@ -22,4 +22,6 @@ export interface Certificador {
 	frase_retencion_isr: number;
 	frase_retencion_iva: number;
 	certificador_configuracion: number;
+	numero_resolucion?: string;
+	fecha_resolucion?: string;
 }

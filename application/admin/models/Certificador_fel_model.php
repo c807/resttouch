@@ -19,6 +19,8 @@ class Certificador_fel_model extends General_model {
 	public $correo_emisor = null;
 	public $frase_retencion_isr = null;
 	public $frase_retencion_iva = null;
+	public $numero_resolucion = null;
+	public $fecha_resolucion = null;
 	public $vinculo_grafo = null;
 	public $metodo_grafo = null;
 	public $certificador_configuracion;

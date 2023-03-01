@@ -838,10 +838,18 @@ class Factura_model extends General_model
 				}
 
 				if (in_array($this->serie->tipo, array('FCAM', 'FACT'))) {
-					$frases->appendChild($this->crearElemento('dte:Frase', '', array(
-						'TipoFrase'       => 1,
+
+					$atributos = [
+						'TipoFrase' => 1,
 						'CodigoEscenario' => $this->certificador->frase_retencion_isr
-					)));
+					];
+
+					if ((int)$this->certificador->frase_retencion_isr === 3) {
+						$atributos['NumeroResolucion'] = $this->certificador->numero_resolucion;
+						$atributos['FechaResolucion'] = $this->certificador->fecha_resolucion;
+					}
+
+					$frases->appendChild($this->crearElemento('dte:Frase', '', $atributos));
 				}
 			}
 		}

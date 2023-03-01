@@ -51,7 +51,9 @@ export class FormCertificadorFelComponent implements OnInit, OnDestroy {
       correo_emisor: null,
       frase_retencion_isr: null,
       frase_retencion_iva: null,
-      certificador_configuracion: null
+      certificador_configuracion: null,
+      numero_resolucion: null,
+      fecha_resolucion: null
     }
   }
   
@@ -76,7 +78,9 @@ export class FormCertificadorFelComponent implements OnInit, OnDestroy {
       correo_emisor: cert.correo_emisor,
       frase_retencion_isr: +cert.frase_retencion_isr,
       frase_retencion_iva: +cert.frase_retencion_iva,
-      certificador_configuracion: +cert.certificador_configuracion
+      certificador_configuracion: +cert.certificador_configuracion,
+      numero_resolucion: cert.numero_resolucion,
+      fecha_resolucion: cert.fecha_resolucion
 		};
 	}
 

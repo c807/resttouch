@@ -35,6 +35,7 @@
 					</mat-option>
 				</mat-select>
             </mat-form-field>
+
             <mat-form-field class="fullWidth">
 				<mat-label>Frase de retención de I.V.A.</mat-label>
 				<mat-select name="iva" [(ngModel)]="registro.frase_retencion_iva">
@@ -44,6 +45,15 @@
 					</mat-option>
 				</mat-select>
 			</mat-form-field>
+
+			<mat-form-field class="fullWidth" *ngIf="+registro.frase_retencion_isr === 3">
+                <input matInput type="text" placeholder="Número de resolución" name="numero_resolucion" [(ngModel)]="registro.numero_resolucion" minlength="4" maxlength="50" [required]="+registro.frase_retencion_isr === 3">
+            </mat-form-field>
+
+			<mat-form-field class="fullWidth" *ngIf="+registro.frase_retencion_isr === 3">
+                <input matInput type="date" placeholder="Fecha de resolucion" name="fecha_resolucion" [(ngModel)]="registro.fecha_resolucion" [required]="+registro.frase_retencion_isr === 3">
+            </mat-form-field>
+
 			<div align="end">
 				<button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmCertificadorFel.form.valid" 
 				*ngIf="this.certificador.certificador_configuracion">

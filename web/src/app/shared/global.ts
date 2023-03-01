@@ -104,6 +104,10 @@ export const GLOBAL = {
     {
       id: 3,
       descripcion: 'Sujeto a pago directo I.S.R.'
+    },
+    {
+      id: 4,
+      descripcion: 'Exento del I.S.R.'
     }
   ],
   frases_iva: [
