@@ -2841,6 +2841,24 @@ CREATE TABLE RT_DATABASE_NAME.articulo_eliminado_comanda (
     ON UPDATE NO ACTION);
 ALTER TABLE RT_DATABASE_NAME.empresa ADD COLUMN cuenta_contable_iva_venta VARCHAR(10) NULL AFTER leyenda_isr, ADD COLUMN cuenta_contable_propina VARCHAR(10) NULL AFTER cuenta_contable_iva_venta, ADD COLUMN cuenta_contable_iva_propina VARCHAR(10) NULL AFTER cuenta_contable_propina, ADD COLUMN concepto_mayor_venta VARCHAR(500) NULL AFTER cuenta_contable_iva_propina;
 ALTER TABLE RT_DATABASE_NAME.certificador_fel ADD COLUMN numero_resolucion VARCHAR(100) NULL AFTER frase_retencion_iva, ADD COLUMN fecha_resolucion DATE NULL AFTER numero_resolucion;
+CREATE TABLE RT_DATABASE_NAME.forma_pago_sede_cuenta_contable (
+  forma_pago_sede_cuenta_contable INT NOT NULL AUTO_INCREMENT,
+  forma_pago INT NOT NULL,
+  sede INT NOT NULL,
+  cuenta_contable VARCHAR(10) NOT NULL,
+  PRIMARY KEY (forma_pago_sede_cuenta_contable),
+  INDEX fk_forma_pago_sede_cuenta_contable_forma_pago1_idx (forma_pago ASC),
+  INDEX fk_forma_pago_sede_cuenta_contable_sede1_idx (sede ASC),
+  CONSTRAINT fk_forma_pago_sede_cuenta_contable_forma_pago1
+    FOREIGN KEY (forma_pago)
+    REFERENCES RT_DATABASE_NAME.forma_pago (forma_pago)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_forma_pago_sede_cuenta_contable_sede1
+    FOREIGN KEY (sede)
+    REFERENCES RT_DATABASE_NAME.sede (sede)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
