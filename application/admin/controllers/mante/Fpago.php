@@ -1,11 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Allow: GET, POST, OPTIONS, PUT, DELETE');
-
 class Fpago extends CI_Controller {
 
 	public function __construct()
@@ -13,12 +8,13 @@ class Fpago extends CI_Controller {
         parent::__construct();
         $this->load->model([
 			'Fpago_model',
-			'Forma_pago_comanda_origen_model'
+			'Forma_pago_comanda_origen_model',
+			'Forma_pago_sede_cuenta_contable_model'
 		]);
-        $this->output->set_content_type("application/json", "UTF-8");		
+        $this->output->set_content_type('application/json', 'UTF-8');		
 	}
 
-	public function guardar($id = "") 
+	public function guardar($id = '') 
 	{
 		$pago = new Fpago_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -37,16 +33,16 @@ class Fpago extends CI_Controller {
 			if ($continuar) {
 				$datos['exito'] = $pago->guardar($req);
 				if($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['forma_pago'] = $pago;
 				} else {
 					$datos['mensaje'] = $pago->getMensaje();
 				}
 			} else {
-				$datos['mensaje'] = "No puede agregar formas de pago con la propiedad sin factura.";
+				$datos['mensaje'] = 'No puede agregar formas de pago con la propiedad sin factura.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
@@ -61,7 +57,7 @@ class Fpago extends CI_Controller {
 		
 		$datos = $this->Fpago_model->buscar($_GET);
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function get_formas_pago_comanda_origen()
@@ -105,10 +101,56 @@ class Fpago extends CI_Controller {
 				$datos['mensaje'] = 'Esta relación entre la forma de pago y el origen ya existe. Por favor revise sus datos.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}		
 		$this->output->set_output(json_encode($datos));
 	}
+
+	public function get_formas_pago_sede_cuenta_contable()
+	{
+		$datos = $this->Forma_pago_sede_cuenta_contable_model->buscar($_GET);
+		$this->output->set_output(json_encode($datos));
+	}
+
+	public function guardar_fpscc($id = '')
+	{
+		$fpscc = new Forma_pago_sede_cuenta_contable_model($id);
+		$req = json_decode(file_get_contents('php://input'), true);
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$existe = false;
+
+			if (empty($id))
+			{
+				$tmp = $this->Forma_pago_sede_cuenta_contable_model->buscar([
+					'forma_pago' => $req['forma_pago'],
+					'sede' => $req['sede'],
+					'TRIM(cuenta_contable)' => trim($req['cuenta_contable']),
+					'_uno' => true
+				]);
+				if($tmp) {
+					$existe = true;
+				}
+			}
+
+			if (!$existe) 
+			{
+				$req['cuenta_contable'] = trim($req['cuenta_contable']);
+				$datos['exito'] = $fpscc->guardar($req);
+				if($datos['exito']) {
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
+					$datos['forma_pago_sede_cuenta_contable'] = $fpscc;
+				} else {
+					$datos['mensaje'] = $fpscc->getMensaje();
+				}
+			} else {
+				$datos['mensaje'] = 'Esta relación entre la forma de pago y la sede ya existe. Por favor revise sus datos.';
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}		
+		$this->output->set_output(json_encode($datos));		
+	}	
 }
 
 /* End of file Fpago.php */

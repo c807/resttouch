@@ -1,39 +1,73 @@
-<mat-card class="mat-elevation-z4 fullWidth">
-    <mat-card-title>
-        <h4>
-            Forma de pago {{!!fpago.forma_pago ? fpago.descripcion : ''}}
-        </h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmFpago="ngForm" (ngSubmit)="frmFpago.form.valid && onSubmit()" novalidate>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="fpago.descripcion" minlength="1" maxlength="45" required>
-                <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="fpago.descripcion" minlength="1" maxlength="45" required>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Porcentaje de aumento" name="aumento_porcentaje" [(ngModel)]="fpago.aumento_porcentaje" pattern="[0-9.]{1,50}">
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Porcentaje de comisión" name="comision_porcentaje" [(ngModel)]="fpago.comision_porcentaje" pattern="[0-9.]{1,50}">
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje" pattern="[0-9.]{1,50}">
-            </mat-form-field>
-            <mat-checkbox name="descuento" class="btnAccion" [(ngModel)]="+fpago.descuento">¿Es descuento?</mat-checkbox>
-            <mat-checkbox name="pedirdocumento" class="btnAccion" [(ngModel)]="+fpago.pedirdocumento">Pedir número de documento</mat-checkbox>
-            <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
-            <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>
-            <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>
-            <!-- <mat-checkbox name="escobrohabitacion" class="btnAccion" [(ngModel)]="+fpago.escobrohabitacion">Es cobro a habitación</mat-checkbox> -->
-            <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+fpago.activo">Activo</mat-checkbox>
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFpago.form.valid">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetFormaPago()" *ngIf="fpago.forma_pago">
-                    Nueva
-                </button>
-            </div>
-        </form>
-    </mat-card-content>
-</mat-card>
+<mat-tab-group #mtgFPago>
+    <mat-tab label="Forma de pago">        
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>
+                    Forma de pago {{!!fpago.forma_pago ? fpago.descripcion : ''}}
+                </h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmFpago="ngForm" (ngSubmit)="frmFpago.form.valid && onSubmit()" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="fpago.descripcion" minlength="1" maxlength="45" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion" [(ngModel)]="fpago.descripcion" minlength="1" maxlength="45" required>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="number" placeholder="Porcentaje de aumento" name="aumento_porcentaje" [(ngModel)]="fpago.aumento_porcentaje" pattern="[0-9.]{1,50}">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="number" placeholder="Porcentaje de comisión" name="comision_porcentaje" [(ngModel)]="fpago.comision_porcentaje" pattern="[0-9.]{1,50}">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje" pattern="[0-9.]{1,50}">
+                    </mat-form-field>
+                    <mat-checkbox name="descuento" class="btnAccion" [(ngModel)]="+fpago.descuento">¿Es descuento?</mat-checkbox>
+                    <mat-checkbox name="pedirdocumento" class="btnAccion" [(ngModel)]="+fpago.pedirdocumento">Pedir número de documento</mat-checkbox>
+                    <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
+                    <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>
+                    <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>                    
+                    <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+fpago.activo">Activo</mat-checkbox>
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFpago.form.valid">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetFormaPago()" *ngIf="fpago.forma_pago">
+                            Nueva
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+    <mat-tab label="Cuenta contable" [disabled]="!fpago.forma_pago">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>
+                    Cuenta contable de {{!!fpago.forma_pago ? fpago.descripcion : ''}}
+                </h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmFPagoSedeCC="ngForm" (ngSubmit)="frmFPagoSedeCC.form.valid && onSubmitFpscc()" novalidate>
+                    <mat-form-field class="fullWidth" required>
+						<mat-label>Sede</mat-label>
+						<mat-select name="sede" [(ngModel)]="fpscc.sede" (selectionChange)="onSedeSelected($event)"
+						  required>
+						  <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+							{{sede.sede.nombre}} ({{sede.sede.alias}})
+						  </mat-option>
+						</mat-select>
+					  </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Cuenta contable" name="cuenta_contable" [(ngModel)]="fpscc.cuenta_contable" minlength="1" maxlength="10" required>
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Cuenta contable" name="cuenta_contable" [(ngModel)]="fpscc.cuenta_contable" minlength="1" maxlength="10" required>
+                    </mat-form-field>                    
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFPagoSedeCC.form.valid">
+                            Guardar
+                        </button>                        
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>        
+    </mat-tab>
+</mat-tab-group>

@@ -30,3 +30,10 @@ export interface FormaPagoComandaOrigenResponse {
     comanda_origen: ComandaOrigen;
     codigo: string;        
 }
+
+export interface FormaPagoSedeCuentaContable {
+    forma_pago_sede_cuenta_contable: number;
+    forma_pago: number;
+    sede: number;
+    cuenta_contable: string;
+}

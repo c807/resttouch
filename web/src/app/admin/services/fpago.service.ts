@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GLOBAL } from '@shared/global';
 import { ServiceErrorHandler } from '@shared/error-handler';
-import { FormaPago, FormaPagoComandaOrigen, FormaPagoComandaOrigenResponse } from '@admin-interfaces/forma-pago';
+import { FormaPago, FormaPagoComandaOrigen, FormaPagoComandaOrigenResponse, FormaPagoSedeCuentaContable } from '@admin-interfaces/forma-pago';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import * as qs from 'qs';
@@ -46,5 +46,20 @@ export class FpagoService {
       fpco      
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getFormaPagoSedeCuentaContable(fltr: any = {}): Observable<FormaPagoSedeCuentaContable[]> {
+    return this.http.get<FormaPagoSedeCuentaContable[]>(
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/get_formas_pago_sede_cuenta_contable?${qs.stringify(fltr)}`      
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  saveFormaPagoSedeCuentaContable(fpscc: FormaPagoSedeCuentaContable): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/guardar_fpscc${!!fpscc.forma_pago_sede_cuenta_contable ? ('/' + fpscc.forma_pago_sede_cuenta_contable) : ''}`,
+      fpscc
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+
 
 }

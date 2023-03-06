@@ -381,6 +381,50 @@ class Factura_model extends General_model
 		return $cntBien >= $cntServ ? 1 : 2;
 	}
 
+	private function get_distribucion_partida_forma_pago($conceptoMayor, $sumTotal)
+	{
+		$cliente = new stdClass();
+		$cliente->codigo = $this->sedeFactura->cuenta_contable;
+		$cliente->conceptomayor = $conceptoMayor;
+		$cliente->haber = 0;
+		$cliente->debe = $sumTotal;
+
+		$cuenta = $this->db
+			->select('d.cuenta_cuenta as cuenta')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'b.detalle_factura = c.detalle_factura')
+			->join('detalle_cuenta d', 'd.detalle_cuenta = c.detalle_cuenta')
+			->where('a.factura', $this->getPK())
+			->group_by('d.cuenta_cuenta')
+			->get('factura a')
+			->row();
+
+		if ($cuenta && (int)$cuenta->cuenta > 0) {
+			$distribucion = $this->db
+				->select('b.cuenta_contable, SUM(a.monto) AS monto')
+				->join('forma_pago_sede_cuenta_contable b', 'a.forma_pago = b.forma_pago')
+				->where('a.cuenta', $cuenta->cuenta)
+				->where('b.sede', $this->sede)
+				->group_by('b.cuenta_contable')
+				->get('cuenta_forma_pago a')
+				->result();
+
+			if($distribucion && is_array($distribucion) && count($distribucion) > 0) {
+				$cliente = [];
+				foreach($distribucion as $dist) {
+					$cliente[] = (object)[
+						'codigo' => $dist->cuenta_contable,
+						'conceptomayor' => $conceptoMayor,
+						'haber' => 0,
+						'debe' => (float)$dist->monto,
+					];
+				}
+			}
+		}
+
+		return $cliente;
+	}
+
 	public function getXmlWebhook($raw = false) 
 	{
 		$doc = new stdClass();
@@ -421,11 +465,10 @@ class Factura_model extends General_model
 		$det = new stdClass();
 
 
-		$cliente = new stdClass();
-		$cliente->codigo = $this->sedeFactura->cuenta_contable;
-		$cliente->conceptomayor = $conceptoMayor;
-		$cliente->haber = 0;
-		$cliente->debe = $sumTotal;
+		// Inicia modificación para hacer el debe en base a la forma de pago.
+		$this->load->model(['Forma_pago_sede_cuenta_contable_model']);		
+		$cliente = $this->get_distribucion_partida_forma_pago($conceptoMayor, $sumTotal);
+		//Finaliza modificación para hacer el debe en base a la forma de pago.
 
 		$iva = new stdClass();
 		$iva->codigo = $this->empresa->cuenta_contable_iva_venta ?? get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_VENTA", 2);
@@ -433,7 +476,16 @@ class Factura_model extends General_model
 		$iva->haber = $sumIva;
 		$iva->debe = 0;
 		$det->cuenta = [];
-		array_push($det->cuenta, (array) $cliente);
+
+		if (is_array($cliente))
+		{
+			foreach($cliente as $cli) {
+				array_push($det->cuenta, (array) $cli);
+			}
+		} else if(is_object($cliente)) {
+			array_push($det->cuenta, (array) $cliente);
+		}
+
 		$tmpTotal = [];
 
 		/*Propina*/

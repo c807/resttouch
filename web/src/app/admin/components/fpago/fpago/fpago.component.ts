@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { ListaPagoComponent } from '@admin-components/fpago/lista-pago/lista-pago.component';
+import { FormPagoComponent } from '@admin-components/fpago/form-pago/form-pago.component'
 import { FormaPago } from '@admin-interfaces/forma-pago';
 
 @Component({
@@ -12,6 +13,7 @@ export class FpagoComponent implements OnInit {
 
   public fpago: FormaPago;
   @ViewChild('lstFPago') lstFpagoComponent: ListaPagoComponent;
+  @ViewChild('frmFpago') frmFpago: FormPagoComponent;
 
    constructor() {
     this.fpago = {
@@ -32,6 +34,12 @@ export class FpagoComponent implements OnInit {
 
   ngOnInit() { }
 
-  setFormPago = (cli: FormaPago) => this.fpago = cli;
+  setFormPago = (cli: FormaPago) => {
+    this.fpago = cli;
+    this.frmFpago.fpago = this.fpago;
+    this.frmFpago.resetFpscc();
+    this.frmFpago.mtgFPago.selectedIndex = 0;    
+  };
+  
   refreshFpagoList = () => this.lstFpagoComponent.getFormasPago();
 }
