@@ -1297,7 +1297,18 @@ class Factura_model extends General_model
 		}
 	}
 
-	public function enviarGuatefac() {
+	private function actualizaNombreCliente ($nombreCliente)
+	{
+		if(!empty($nombreCliente)) {
+			$this->load->model('Cliente_model');
+			$cli = new Cliente_model($this->cliente);
+			$cli->guardar(['nombre' => $nombreCliente]);
+			$this->cargarReceptor();
+		}
+	}
+
+	public function enviarGuatefac()
+	{
 		$this->load->library('Guatefacturas');
 		$guatefacturas = new Guatefacturas();
 		$guatefacturas->generaXML($this);
@@ -1307,6 +1318,12 @@ class Factura_model extends General_model
 			$this->serie_factura = $respuesta['serie_factura'];
 			$this->numero_factura = $respuesta['numero_factura'];
 			$this->fel_uuid = $respuesta['fel_uuid'];
+
+			if (isset($respuesta['nombre_receptor']) && is_string($respuesta['nombre_receptor']) && !empty(trim($respuesta['nombre_receptor']))) {
+				$this->actualizaNombreCliente(trim($respuesta['nombre_receptor']));
+			}
+
+
 			$respuesta['exito'] = $this->guardar();
 			if ($respuesta['exito']) {
 				$respuesta['mensaje'] = 'Factura firmada con éxito.';
