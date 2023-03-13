@@ -242,54 +242,50 @@ class Guatefacturas
             $productos->appendChild($this->crearElemento('Producto', $det->articulo->articulo));
             $productos->appendChild($this->crearElemento('Descripcion', trim($det->articulo->descripcion)));
             $productos->appendChild($this->crearElemento('Medida', 1));
-            $productos->appendChild($this->crearElemento('Cantidad', $det->cantidad));
 
-            $productos->appendChild($this->crearElemento('Precio', round((float)$det->precio_unitario_ext, 2)));
-            // $productos->appendChild($this->crearElemento('Precio', bcdiv((float)$det->precio_unitario_ext, 1, 2)));
-            $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : round((float)$det->descuento_ext * 100 / (float)$det->total_ext, 2);
-            // $porDesc = (float)$det->descuento_ext === (float)0 ? (float)0.00 : bcdiv((float)$det->descuento_ext * 100 / (float)$det->total_ext, 1, 2);
-            $productos->appendChild($this->crearElemento('PorcDesc', $porDesc));
+            $cantidad = round((float)$det->cantidad, 5);
+            $productos->appendChild($this->crearElemento('Cantidad', $cantidad));
 
-            $impBruto = (float)$det->precio_unitario_ext * (float)$det->cantidad;
-            $productos->appendChild($this->crearElemento('ImpBruto', round($impBruto, 2)));
-            // $productos->appendChild($this->crearElemento('ImpBruto', bcdiv($impBruto, 1, 2)));
+            $precio = round((float)$det->precio_unitario_ext, 6);
+            $productos->appendChild($this->crearElemento('Precio', $precio));            
+            
+            $impBruto = round($cantidad * $precio, 2);
+            $productos->appendChild($this->crearElemento('ImpBruto', $impBruto));            
             $this->sumas->Bruto += $impBruto;
 
-            $impDescuento = (float)$det->descuento_ext;
-            $productos->appendChild($this->crearElemento('ImpDescuento', round($impDescuento, 2)));
-            // $productos->appendChild($this->crearElemento('ImpDescuento', bcdiv($impDescuento, 1, 2)));
+            $impDescuento = round((float)$det->descuento_ext, 2);
+            $porDesc = $impDescuento === (float)0 ? (float)0.0000 : round($impDescuento * 100 / $impBruto, 4);
+            $productos->appendChild($this->crearElemento('PorcDesc', $porDesc));
+            $productos->appendChild($this->crearElemento('ImpDescuento', $impDescuento));            
             $this->sumas->Descuento += $impDescuento;
 
-            $impExento = (int)$this->factura->exenta === 1 ? (float)$det->monto_iva_ext : (float)0.00;
-            $productos->appendChild($this->crearElemento('ImpExento', round($impExento, 2)));
-            // $productos->appendChild($this->crearElemento('ImpExento', bcdiv($impExento, 1, 2)));
+            
+
+            $impExento = (int)$this->factura->exenta === 1 ? round((float)$det->monto_iva_ext, 2) : (float)0.00;
+            $productos->appendChild($this->crearElemento('ImpExento', $impExento));
             $this->sumas->Exento += $impExento;
 
             $impOtros = (float)0.00;
             if ($det->impuesto_especial && is_array($det->impuesto_especial) && count($det->impuesto_especial) > 0) {
                 foreach ($det->impuesto_especial as $ie) {
-                    $impOtros += (float)$ie->valor_impuesto_especial_ext;
+                    $impOtros += round((float)$ie->valor_impuesto_especial_ext, 2);
                 }
             }
-            $productos->appendChild($this->crearElemento('ImpOtros', round($impOtros, 2)));
-            // $productos->appendChild($this->crearElemento('ImpOtros', bcdiv($impOtros, 1, 2)));
+            $productos->appendChild($this->crearElemento('ImpOtros', $impOtros));
             $this->sumas->Otros += $impOtros;
 
-            $impNeto = ($impBruto - $impDescuento) / 1.12;
-            $productos->appendChild($this->crearElemento('ImpNeto', round($impNeto, 2)));
-            // $productos->appendChild($this->crearElemento('ImpNeto', bcdiv($impNeto, 1, 2)));
+            $impNeto = round(($impBruto - $impDescuento) / 1.12, 2);
+            $productos->appendChild($this->crearElemento('ImpNeto', $impNeto));
             $this->sumas->Neto += $impNeto;
 
             $productos->appendChild($this->crearElemento('ImpIsr', (float)0.00));
 
             $impIva = (int)$this->factura->exenta === 1 ? (float)0.00 : $impBruto - $impDescuento - $impNeto;
-            // $productos->appendChild($this->crearElemento('ImpIva', round($impIva, 2)));
-            $productos->appendChild($this->crearElemento('ImpIva', bcdiv($impIva, 1, 2)));
+            $productos->appendChild($this->crearElemento('ImpIva', $impIva));
             $this->sumas->Iva += $impIva;
 
             $impTotal = $impNeto + $impIva;
-            $productos->appendChild($this->crearElemento('ImpTotal', round($impTotal, 2)));
-            // $productos->appendChild($this->crearElemento('ImpTotal', bcdiv($impTotal, 1, 2)));
+            $productos->appendChild($this->crearElemento('ImpTotal', round($impTotal, 2)));            
             $this->sumas->Total += $impTotal;
 
             $productos->appendChild($this->crearElemento('TipoVentaDet', $det->bien_servicio));
@@ -302,11 +298,7 @@ class Guatefacturas
     {
         $sumasArray = (array)$this->sumas;
         foreach ($sumasArray as $tag => $val) {
-            if ($tag === 'Iva') {
-                $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = bcdiv($val, 1, 2);
-            } else {
-                $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = round($val, 2);
-            }
+            $this->xml->getElementsByTagName($tag)->item(0)->nodeValue = $val;
         }
     }
 
@@ -335,12 +327,14 @@ class Guatefacturas
         $tagNumero = $xmlRes->getElementsByTagName('Preimpreso');
         $tagAutorizacion = $xmlRes->getElementsByTagName('NumeroAutorizacion');
         $tagReferencia = $xmlRes->getElementsByTagName('Referencia');
+        $tagNombre = $xmlRes->getElementsByTagName('Nombre');
 
-        if ($tagSerie->length > 0 && $tagNumero->length > 0 && $tagAutorizacion->length > 0 && $tagReferencia->length > 0) {
+        if ($tagSerie->length > 0 && $tagNumero->length > 0 && $tagAutorizacion->length > 0 && $tagReferencia->length > 0 && $tagNombre->length > 0) {
             $datos['serie_factura'] = $tagSerie->item(0)->nodeValue;
             $datos['numero_factura'] = $tagNumero->item(0)->nodeValue;
             $datos['fel_uuid'] = $tagAutorizacion->item(0)->nodeValue;
             $datos['factura'] = $tagReferencia->item(0)->nodeValue;
+            $datos['nombre_receptor'] = $tagNombre->item(0)->nodeValue;
         } else {
             $errores = [];
             $tagResultado = $xmlRes->getElementsByTagName('Resultado')->item(0);
