@@ -22,6 +22,7 @@ export interface Reserva {
     numero_mesa?: number;
     etiqueta_mesa?: string;
     comanda?: number;
+    nombre_cliente?: string;
 }
 
 export interface DetalleReserva {

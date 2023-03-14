@@ -32,7 +32,7 @@
           </div>
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
-          <app-reservacion [resId]='element.resL' [cDate]="monDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.lunes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+          <app-reservacion [resId]='element.resL' [cDate]="monDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.lunes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.lunes) ? element.nombre_cliente : null"></app-reservacion>
         </td>
       </ng-container>
 
@@ -45,7 +45,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resM' [cDate]="marDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.martes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resM' [cDate]="marDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.martes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.martes) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -59,7 +59,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resMi' [cDate]="mierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.miercoles' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resMi' [cDate]="mierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.miercoles' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.miercoles) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -73,7 +73,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resJ' [cDate]="jueDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.jueves' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resJ' [cDate]="jueDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.jueves' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.jueves) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -87,7 +87,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resV' [cDate]="vierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.viernes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resV' [cDate]="vierDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.viernes' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.viernes) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -101,7 +101,7 @@
         </th>
         <td class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resS' [cDate]="sabdDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.sabado' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resS' [cDate]="sabdDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.sabado' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.sabado) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -115,7 +115,7 @@
         </th>
         <td class="cell-d" class="cell-d" mat-cell *matCellDef="let element">
           <div fxLayout="column" fxLayoutAlign="center center">
-            <app-reservacion [resId]='element.resD' [cDate]="domDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.domingo' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta"></app-reservacion>
+            <app-reservacion [resId]='element.resD' [cDate]="domDate" (requestUpdate)="requestUpdate()" [roomIdType]="element.roomIdType" [roomId]='element.roomId' [text]='element.domingo' [idReservacion]="element.idReservacion" [debaja]="element.debaja" [descripcionHabitacion]="element.etiqueta" [nombreCliente]="!Disponible(element.domingo) ? element.nombre_cliente : null"></app-reservacion>
           </div>
         </td>
       </ng-container>
@@ -124,7 +124,7 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
     </table>
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements"> </mat-paginator>
+    <!--<mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements"> </mat-paginator>-->
   </div>
 
 </div>

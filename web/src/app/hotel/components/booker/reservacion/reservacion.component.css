@@ -45,3 +45,13 @@
 .background-d:hover{
   background-color: palegreen;
 }
+
+.nombre-cliente {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+.example-tooltip-red {
+  /* background: #b71c1c; */
+  background: #ff000083;  
+}

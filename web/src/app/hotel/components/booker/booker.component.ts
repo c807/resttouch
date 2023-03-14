@@ -3,7 +3,7 @@ import * as moment from 'moment';
 import { HabType } from './habitacion/HabTypeE';
 import { RevStat } from './reservacion/RevStat';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+// import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '@hotel-components/booker/filtro/filter.component';
@@ -43,6 +43,7 @@ export interface DayCalendar {
   idReservacion?: number;
   debaja?: number;
   etiqueta?: string;
+  nombre_cliente?: string;
 }
 
 /**
@@ -69,7 +70,7 @@ const ELEMENT_DATA: DayCalendar[] = [];
 export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   
   @ViewChild('tblReservas') tblReservas: MatTable<any>;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  // @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild('fltrTipoHabitacion') fltrTipoHabitacion: FilterComponent;
 
   public allComplete = false;
@@ -102,13 +103,13 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.setDates();    
-    this.setPaginatorAndSort();
+    // this.setPaginatorAndSort();
   }
 
   ngAfterViewInit() {
     this.loadTiposHabitacion();
     this.loadReservables();    
-    this.setPaginatorAndSort();
+    // this.setPaginatorAndSort();
   }
 
   ngOnDestroy(): void {
@@ -144,9 +145,9 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  setPaginatorAndSort() {
-    this.dataSource.paginator = this.paginator;
-  }
+  // setPaginatorAndSort() {    
+  //   this.dataSource.paginator = this.paginator;
+  // }
 
   /**
    * This method Select Days to be displayed
@@ -225,7 +226,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
       // console.log('DataSource = ', this.dataSource.data);
       this.dataSourceTemp = null;
       // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
-      this.setPaginatorAndSort();
+      // this.setPaginatorAndSort();
       this.tblReservas.renderRows();
     } else {
       this.snackBar.open(rsrvs.mensaje, 'Reservas', { duration: 7000 })
@@ -265,46 +266,46 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
               for (const det of reserva.detalle) {
                 switch (true) {
                   case det.fecha === moment(this.monDate).format(GLOBAL.dbDateFormat):
-                    resRes.lunes = reserva.descripcion_estatus_reserva;
-                    // resRes.resL = 1;
+                    resRes.lunes = reserva.descripcion_estatus_reserva;                    
                     resRes.resL = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.marDate).format(GLOBAL.dbDateFormat):
-                    resRes.martes = reserva.descripcion_estatus_reserva;
-                    // resRes.resM = 1;
+                    resRes.martes = reserva.descripcion_estatus_reserva;                    
                     resRes.resM = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.mierDate).format(GLOBAL.dbDateFormat):
-                    resRes.miercoles = reserva.descripcion_estatus_reserva;
-                    // resRes.resMi = 1;
+                    resRes.miercoles = reserva.descripcion_estatus_reserva;                    
                     resRes.resMi = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.jueDate).format(GLOBAL.dbDateFormat):
-                    resRes.jueves = reserva.descripcion_estatus_reserva;
-                    // resRes.resJ = 1;
+                    resRes.jueves = reserva.descripcion_estatus_reserva;                    
                     resRes.resJ = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.vierDate).format(GLOBAL.dbDateFormat):
-                    resRes.viernes = reserva.descripcion_estatus_reserva;
-                    // resRes.resV = 1;
+                    resRes.viernes = reserva.descripcion_estatus_reserva;                    
                     resRes.resV = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.sabdDate).format(GLOBAL.dbDateFormat):
-                    resRes.sabado = reserva.descripcion_estatus_reserva;
-                    // resRes.resS = 1;
+                    resRes.sabado = reserva.descripcion_estatus_reserva;                    
                     resRes.resS = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                   case det.fecha === moment(this.domDate).format(GLOBAL.dbDateFormat):
-                    resRes.domingo = reserva.descripcion_estatus_reserva;
-                    // resRes.resD = 1;
+                    resRes.domingo = reserva.descripcion_estatus_reserva;                    
                     resRes.resD = +reserva.reserva;
                     resRes.idReservacion = +reserva.reserva;
+                    resRes.nombre_cliente = reserva.nombre_cliente;
                     break;
                 }
               }
@@ -315,5 +316,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return resRes;
   }
+
+  public Disponible = (texto: string): boolean => texto === RevStat.DISPONIBLE;
 
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '@shared/global';
@@ -12,6 +12,7 @@ import { ReservationDialogcancelComponent } from '@hotel-components/booker/reser
   selector: 'app-reservacion',
   templateUrl: './reservacion.component.html',
   styleUrls: ['./reservacion.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class ReservacionComponent implements AfterViewInit {
@@ -25,6 +26,7 @@ export class ReservacionComponent implements AfterViewInit {
   @Input() idReservacion: number = null;
   @Input() debaja: number = 0;
   @Input() descripcionHabitacion: string = null;
+  @Input() nombreCliente: string = null;
 
   public isCanceled(): boolean {    
     return false

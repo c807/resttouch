@@ -5,10 +5,11 @@
   'background-nd':NoDisponible(),
   'background-ch':CheckIn(),
   'background-cho':CheckOut()
-  }" class="cell " fxLayout="column" fxLayoutAlign="center center">
+  }" class="cell " fxLayout="column" fxLayoutAlign="center center" [matTooltip]="nombreCliente" matTooltipPosition="below" matTooltipClass="example-tooltip-red">
   <mat-icon *ngIf="Reservada()" aria-hidden="false" aria-label="Example home icon">event_available</mat-icon>
   <mat-icon *ngIf="CheckIn()" aria-hidden="false" aria-label="Example home icon">how_to_reg</mat-icon>
   <mat-icon *ngIf="CheckOut()" aria-hidden="false" aria-label="Example home icon">person_off</mat-icon>
   <mat-icon *ngIf="Mantenimiento()" style="color: white;" aria-hidden="false" aria-label="Example home icon">engineering</mat-icon>
   <mat-icon *ngIf="NoDisponible()" aria-hidden="false" aria-label="Example home icon">do_not_disturb</mat-icon>
+  <span *ngIf="!!nombreCliente && !Disponible()" class="nombre-cliente">{{nombreCliente | truncar:10}}</span>
 </div>

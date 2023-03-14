@@ -31,7 +31,7 @@ class Reserva_model extends General_model
 	public function get_reservas($fecha, $vigentes = true)
 	{
 		$camposReserva = $this->getCampos(false, 'a.', 'reserva');
-		$campos = "{$camposReserva}, b.descripcion AS descripcion_estatus_reserva, b.color";
+		$campos = "{$camposReserva}, b.descripcion AS descripcion_estatus_reserva, b.color, c.nombre AS nombre_cliente";
 
 		if ($vigentes) {
 			$this->db->where('a.estatus_reserva <> 4');
@@ -40,6 +40,7 @@ class Reserva_model extends General_model
 		$reservas = $this->db
 			->select($campos)
 			->join('estatus_reserva b', 'b.estatus_reserva = a.estatus_reserva')
+			->join('cliente_master c', 'c.cliente_master = a.cliente_master')
 			->where("'{$fecha}' BETWEEN a.fecha_del AND a.fecha_al", NULL, FALSE)
 			->get('reserva a')
 			->result();
