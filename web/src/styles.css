@@ -144,3 +144,7 @@ button .mat-icon {
     color: red;
     font-weight: bold;
 }
+
+.half-width {
+    width: 50%;
+}

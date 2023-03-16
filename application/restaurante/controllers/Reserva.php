@@ -10,7 +10,7 @@ class Reserva extends CI_Controller
 		$this->load->model([
 			'Reserva_model', 'Dreserva_model', 'Mesa_model', 'Tarifa_reserva_model',
 			'Comanda_model', 'Cuenta_model', 'Dcomanda_model', 'Articulo_model',
-			'Receta_model', 'Dcuenta_model'
+			'Receta_model', 'Dcuenta_model', 'Sede_model'
 		]);
 		$this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
@@ -202,6 +202,133 @@ class Reserva extends CI_Controller
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
+		$this->output->set_output(json_encode($datos));
+	}
+
+	public function info_reserva($id)
+	{
+		$datos = ['exito' => false];
+		if(!empty($id)) {
+			$datos['exito'] = true;
+			$datos['reserva'] = $this->Reserva_model->get_info_reserva($id);
+		}
+		$this->output->set_output(json_encode($datos));		
+	}
+
+	private function getResumenReservablesHistorial($reservas, $topN = 0) 
+	{
+		$cantidadReservas = count($reservas);
+		$reservables = [];
+		foreach($reservas as $reserva) {
+			$existe = false;
+			$i = null;
+			foreach ($reservables as $key => $reservable) {
+				if((int)$reservable['idreservable'] === (int)$reserva->idmesa) {
+					$i = (int)$key;
+					$existe = true;
+					break;
+				}
+			}
+
+			if($existe) {
+				$reservables[$i]['cantidad']++;
+				$reservables[$i]['porcentaje'] = round($reservables[$i]['cantidad'] * 100 / $cantidadReservas, 2);
+				$reservables[$i]['orderby'] = "{$reservables[$i]['cantidad']}-{$reservables[$i]['reservable']}";
+			} else {
+				$reservables[] = [
+					'idreservable' => (int)$reserva->idmesa, 
+					'reservable' => "{$reserva->area} - {$reserva->reservable}", 
+					'cantidad' => 1, 
+					'porcentaje' => round(100 / $cantidadReservas, 2),
+					'orderby' => "1-{$reserva->area}-{$reserva->reservable}"
+				];
+			}
+		}
+
+		$reservables = ordenar_array_objetos($reservables, 'orderby', 2, 'desc');
+
+		return $topN === 0 ? $reservables : array_slice($reservables, 0, $topN);
+	}
+
+	private function getResumenClienteHistorial($reservas, $topN = 0)
+	{
+		$cantidadReservas = count($reservas);
+		$clientes = [];
+		foreach($reservas as $reserva) {
+			$existe = false;
+			$i = null;
+			foreach ($clientes as $key => $reservable) {
+				if((int)$reservable['idcliente'] === (int)$reserva->idcliente) {
+					$i = (int)$key;
+					$existe = true;
+					break;
+				}
+			}
+
+			if($existe) {
+				$clientes[$i]['cantidad']++;
+				$clientes[$i]['porcentaje'] = round($clientes[$i]['cantidad'] * 100 / $cantidadReservas, 2);
+				$clientes[$i]['orderby'] = "{$clientes[$i]['cantidad']}-{$clientes[$i]['cliente']}";
+			} else {
+				$clientes[] = [
+					'idcliente' => (int)$reserva->idcliente,
+					'cliente' => $reserva->cliente,
+					'cantidad' => 1,
+					'porcentaje' => round(100 / $cantidadReservas, 2),
+					'orderby' => "1-{$reserva->cliente}"
+				];
+			}
+		}
+
+		$clientes = ordenar_array_objetos($clientes, 'orderby', 2, 'desc');
+		
+		return $topN === 0 ? $clientes : array_slice($clientes, 0, $topN);
+	}
+
+	public function historial_reservas()
+	{
+		$req = json_decode(file_get_contents('php://input'), true);
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post' && isset($req['fdel'])  && isset($req['fal'])) {
+			$topN = 0;
+			if(isset($req['topn']) && (int)$req['topn'] > 0) {
+				$topN = (int)$req['topn'];
+			}
+			
+			if(!isset($req['sede']) || (int)$req['sede'] === 0) {
+				$req['sede'] = (int)$this->data->sede;
+			}
+
+			$sede = new Sede_model($req['sede']);
+			$datos['sede'] = "{$sede->nombre} ($sede->alias)";
+			$empresa = $sede->getEmpresa();
+			$datos['empresa'] = $empresa->nombre;
+			$datos['fdel'] = formatoFecha($req['fdel'], 2);
+			$datos['fal'] = formatoFecha($req['fal'], 2);
+			$datos['topn'] = $topN;
+			
+			$historial = $this->Reserva_model->get_historial_reservas($req);
+			$datos['resumen_reservables'] = $this->getResumenReservablesHistorial($historial, $topN);
+			$datos['resumen_clientes'] = $this->getResumenClienteHistorial($historial, $topN);
+			$datos['detalle'] = $historial;
+			$datos['exito'] = true;
+
+			if (verDato($req, '_excel')) {
+
+			} else {
+				$this->output->set_content_type('application/pdf', 'UTF-8');
+				$mpdf = new \Mpdf\Mpdf([
+					'tempDir' => sys_get_temp_dir(),
+					'format' => 'letter'
+				]);
+				$mpdf->WriteHTML($this->load->view('historial_reservas', $datos, true));
+				$mpdf->Output('Historial_reservas_'.date('YmdHis').'.pdf', 'D');
+				// $this->output->set_output(json_encode($datos));
+			}			
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+
 		$this->output->set_output(json_encode($datos));
 	}
 }

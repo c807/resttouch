@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '@shared/global';
@@ -7,6 +7,7 @@ import * as moment from 'moment';
 
 import { ReservationDialogComponent } from '@hotel-components/booker/reservationd/reservation-dialog.component';
 import { ReservationDialogcancelComponent } from '@hotel-components/booker/reservationc/reservation-dialogcancel.component';
+import { DialogInfoReservacionComponent } from '@hotel-components/dialog-info-reservacion/dialog-info-reservacion.component';
 
 @Component({
   selector: 'app-reservacion',
@@ -15,7 +16,7 @@ import { ReservationDialogcancelComponent } from '@hotel-components/booker/reser
   encapsulation: ViewEncapsulation.None
 })
 
-export class ReservacionComponent implements AfterViewInit {
+export class ReservacionComponent {
 
   @Input() text: string;
   @Input() resId: string;
@@ -28,7 +29,7 @@ export class ReservacionComponent implements AfterViewInit {
   @Input() descripcionHabitacion: string = null;
   @Input() nombreCliente: string = null;
 
-  public isCanceled(): boolean {    
+  public isCanceled(): boolean {
     return false
   }
 
@@ -75,6 +76,8 @@ export class ReservacionComponent implements AfterViewInit {
       this.cancelReservation();
     } else if (this.NoDisponible()) {
       this.cancelReservation();
+    } else if (this.CheckOut()) {
+      this.showCheckOutInfo(+this.idReservacion);
     }
 
   }
@@ -83,7 +86,7 @@ export class ReservacionComponent implements AfterViewInit {
     if (+this.debaja === 0 || (+this.debaja === 1 && +reservacionId > 0)) {
       const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
       const fselected = moment(`${moment(this.cDate).format(GLOBAL.dbDateFormat)} 00:00:00`);
-  
+
       if (fselected.isBefore(hoy) && (reservacionId === null || reservacionId === undefined)) {
         this.snackBar.open('No puede hacer reservas con fechas pasadas.', 'Reserva', { duration: 7000 });
       } else {
@@ -91,11 +94,11 @@ export class ReservacionComponent implements AfterViewInit {
           width: '75%',
           data: { roomId: this.roomId, cDate: this.cDate, roomIdType: this.roomIdType, idReservacion: reservacionId, descripcionHabitacion: this.descripcionHabitacion },
         });
-  
+
         dialogRef.afterClosed().toPromise().then(() => this.requestUpdate.emit());
       }
     } else {
-      this.snackBar.open('La habitación fue dada de baja, no puede reservar en esta habitación.', 'Reserva', { duration: 7000 });      
+      this.snackBar.open('La habitación fue dada de baja, no puede reservar en esta habitación.', 'Reserva', { duration: 7000 });
     }
   }
 
@@ -113,8 +116,16 @@ export class ReservacionComponent implements AfterViewInit {
     dialogRef.afterClosed().toPromise().then(() => this.requestUpdate.emit());
   }
 
-  ngAfterViewInit(): void {
+  showCheckOutInfo = (idReservacion: number) => {    
+    this.dialog.open(DialogInfoReservacionComponent, {
+      maxWidth: '100vw', 
+      maxHeight: '88vh', 
+      width: '98vw', 
+      height: '88vh',
+      data: {
+        idReservacion: idReservacion
+      }
+    });
   }
-
 
 }

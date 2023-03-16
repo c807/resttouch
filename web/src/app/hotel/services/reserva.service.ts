@@ -54,4 +54,10 @@ export class ReservaService {
       params
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
+
+  getInfoReserva(idReservacion: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/info_reserva/${idReservacion}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }
