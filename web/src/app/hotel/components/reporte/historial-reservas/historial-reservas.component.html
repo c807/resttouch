@@ -1,0 +1,39 @@
+<div class="row">
+    <div class="col m12 s12">
+      <mat-card class="mat-elevation-z4 fullWidth">
+        <mat-card-title>
+          <h4>Reporte de existencias</h4>
+        </mat-card-title>
+        <mat-card-content>
+          <form #frmRptExistencias="ngForm" novalidate>
+  
+            <mat-form-field class="fullWidth">
+              <input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel" [ngModelOptions]="{standalone: true}" required>
+            </mat-form-field>
+  
+            <mat-form-field class="fullWidth">
+              <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}" required>
+            </mat-form-field>            
+
+            <mat-form-field class="fullWidth">
+                <mat-label>Sede</mat-label>
+                <mat-select name="sede" [(ngModel)]="params.sede">
+                  <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                    {{sede.sede.nombre}} ({{sede.sede.alias}})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+            <mat-form-field class="fullWidth">                
+                <input matInput type="number" placeholder="Top n" [(ngModel)]="params.topn" [ngModelOptions]="{standalone: true}">
+            </mat-form-field>
+  
+            <div align="end">
+              <app-rpt-botones [configuracion]="configBotones" (excelClick)="onSubmit(1)" (pdfClick)="onSubmit()" (resetParamsClick)="resetParams()"></app-rpt-botones>
+            </div>
+          </form>
+          <app-cargando *ngIf="cargando"></app-cargando>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>

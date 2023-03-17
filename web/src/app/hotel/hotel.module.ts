@@ -47,6 +47,7 @@ import { ReservationDialogcancelComponent } from './components/booker/reservatio
 import { TarifaReservaComponent } from './components/tarifa-reserva/tarifa-reserva/tarifa-reserva.component';
 import { DialogSelectReservableComponent } from './components/dialog-select-reservable/dialog-select-reservable.component';
 import { DialogInfoReservacionComponent } from './components/dialog-info-reservacion/dialog-info-reservacion.component';
+import { HistorialReservasComponent } from './components/reporte/historial-reservas/historial-reservas.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { DialogInfoReservacionComponent } from './components/dialog-info-reserva
     ReservationDialogcancelComponent,
     TarifaReservaComponent,
     DialogSelectReservableComponent,
-    DialogInfoReservacionComponent
+    DialogInfoReservacionComponent,
+    HistorialReservasComponent
   ],
   imports: [
     CommonModule,

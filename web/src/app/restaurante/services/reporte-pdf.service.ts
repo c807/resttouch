@@ -255,4 +255,12 @@ export class ReportePdfService {
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getHistorialReservas(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlAppRestaurante}/reserva/historial_reservas`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

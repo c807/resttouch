@@ -477,7 +477,12 @@ $config['menu'] = [
 			],
 			2 => [
 				'nombre' => 'Reportes',
-				'opciones' => []
+				'opciones' => [
+					1 => [
+						'nombre' => 'Historial de reservas',
+						'link' => '/hotel/rpthistrsrv'
+					]
+				]
 			],
 			3 => [
 				'nombre' => 'Mantenimiento',
