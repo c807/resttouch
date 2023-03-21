@@ -48,6 +48,9 @@ import { TarifaReservaComponent } from './components/tarifa-reserva/tarifa-reser
 import { DialogSelectReservableComponent } from './components/dialog-select-reservable/dialog-select-reservable.component';
 import { DialogInfoReservacionComponent } from './components/dialog-info-reservacion/dialog-info-reservacion.component';
 import { HistorialReservasComponent } from './components/reporte/historial-reservas/historial-reservas.component';
+import { AbonoComponent } from './components/abono/abono/abono.component';
+import { ListaAbonoComponent } from './components/abono/lista-abono/lista-abono.component';
+import { FormAbonoComponent } from './components/abono/form-abono/form-abono.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +63,10 @@ import { HistorialReservasComponent } from './components/reporte/historial-reser
     TarifaReservaComponent,
     DialogSelectReservableComponent,
     DialogInfoReservacionComponent,
-    HistorialReservasComponent
+    HistorialReservasComponent,
+    AbonoComponent,
+    ListaAbonoComponent,
+    FormAbonoComponent
   ],
   imports: [
     CommonModule,

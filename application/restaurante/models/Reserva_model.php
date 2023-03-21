@@ -110,7 +110,7 @@ class Reserva_model extends General_model
 			->join('tarifa_reserva e', 'e.tarifa_reserva = a.tarifa_reserva')
 			->join('tipo_habitacion f', 'f.tipo_habitacion = e.tipo_habitacion')
 			->join('cliente_master g', 'g.cliente_master = a.cliente_master')
-			->join('tipo_documento h', 'h.tipo_documento = g.tipo_documento')
+			->join('tipo_documento h', 'h.tipo_documento = g.tipo_documento', 'left')
 			->join('estatus_reserva i', 'i.estatus_reserva = a.estatus_reserva')
 			->where('a.reserva', $idReserva)
 			->get('reserva a')
