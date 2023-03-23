@@ -23,6 +23,7 @@ import { ClienteMasterService } from '@callcenter-services/cliente-master.servic
 import { ClienteMasterDialogComponent } from '@callcenter-components/cliente-master/cliente-master-dialog/cliente-master-dialog.component';
 import { ComandaService } from '@restaurante-services/comanda.service';
 import { DialogSelectReservableComponent } from '@hotel-components/dialog-select-reservable/dialog-select-reservable.component';
+import { DialogFormAbonoComponent } from '@hotel-components/abono/dialog-form-abono/dialog-form-abono.component';
 
 import { Subscription } from 'rxjs';
 
@@ -381,5 +382,12 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
     const fecha = moment(`${moment(d).format(GLOBAL.dbDateFormat)} 00:00:00`);
     return hoy.isBefore(fecha) || hoy.isSame(fecha);
+  }
+
+  addAbono = () => {
+    const abonoDialogRef = this.dialog.open(DialogFormAbonoComponent, {
+      width: '75%', height: '85vh',
+      data: { reserva: +this.reserva.reserva }
+    });
   }
 }

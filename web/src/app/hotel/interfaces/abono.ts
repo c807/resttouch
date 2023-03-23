@@ -8,11 +8,11 @@ export interface Abono {
     reserva?: (number | Reserva);
     factura?: (number | Factura);
     fecha: string;
-    fhcrecion: string;
+    fhcrecion?: string;
     usuario: (number | Usuario);
     anulado: number;
-    fecha_anulacion: string;
-    anuladopor: (number | Usuario);
+    fecha_anulacion?: string;
+    anuladopor?: (number | Usuario);
 }
 
 export interface AbonoFormaPago {
@@ -28,6 +28,13 @@ export interface AbonoFormaPago {
     vuelto_para?: number;
     vuelto?: number;
     tarjeta_respuesta?: string;
+}
+
+export interface IDataAbono {
+    reserva?: number;
+    factura?: number;
+    serie_factura?: string;
+    numero_factura?: string;
 }
 
 

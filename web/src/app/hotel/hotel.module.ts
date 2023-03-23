@@ -51,6 +51,7 @@ import { HistorialReservasComponent } from './components/reporte/historial-reser
 import { AbonoComponent } from './components/abono/abono/abono.component';
 import { ListaAbonoComponent } from './components/abono/lista-abono/lista-abono.component';
 import { FormAbonoComponent } from './components/abono/form-abono/form-abono.component';
+import { DialogFormAbonoComponent } from './components/abono/dialog-form-abono/dialog-form-abono.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { FormAbonoComponent } from './components/abono/form-abono/form-abono.com
     HistorialReservasComponent,
     AbonoComponent,
     ListaAbonoComponent,
-    FormAbonoComponent
+    FormAbonoComponent,
+    DialogFormAbonoComponent
   ],
   imports: [
     CommonModule,

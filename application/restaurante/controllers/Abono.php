@@ -56,4 +56,27 @@ class Abono extends CI_Controller
 
         $this->output->set_output(json_encode($datos));
     }
+
+    public function guardar_detalle($id = '') {
+        $datos = ['exito' => false];		
+		if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
+			if (isset($req['abono']) && (int)$req['abono'] > 0) {
+                $afp = new Abono_forma_pago_model($id);
+                $datos['exito'] = $afp->guardar($req);
+                if ($datos['exito']) {
+                    $datos['mensaje'] = 'Detalle de abono guardado con éxito.';
+                    $datos['abono_forma_pago'] = $afp;
+                } else {
+                    $datos['mensaje'] = implode('; ', $afp->getMensaje());
+                }
+			} else {
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';
+			}
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));        
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '@shared/global';
@@ -9,6 +9,8 @@ import { ReservationDialogComponent } from '@hotel-components/booker/reservation
 import { ReservationDialogcancelComponent } from '@hotel-components/booker/reservationc/reservation-dialogcancel.component';
 import { DialogInfoReservacionComponent } from '@hotel-components/dialog-info-reservacion/dialog-info-reservacion.component';
 
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-reservacion',
   templateUrl: './reservacion.component.html',
@@ -16,7 +18,7 @@ import { DialogInfoReservacionComponent } from '@hotel-components/dialog-info-re
   encapsulation: ViewEncapsulation.None
 })
 
-export class ReservacionComponent {
+export class ReservacionComponent implements OnInit, OnDestroy {
 
   @Input() text: string;
   @Input() resId: string;
@@ -28,6 +30,8 @@ export class ReservacionComponent {
   @Input() debaja: number = 0;
   @Input() descripcionHabitacion: string = null;
   @Input() nombreCliente: string = null;
+
+  private endSubs = new Subscription();
 
   public isCanceled(): boolean {
     return false
@@ -61,6 +65,12 @@ export class ReservacionComponent {
     return !(this.text === RevStat.DISPONIBLE);
   }
 
+  ngOnInit(): void { }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();    
+  }
+
   constructor(
     public dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -77,7 +87,7 @@ export class ReservacionComponent {
     } else if (this.NoDisponible()) {
       this.cancelReservation();
     } else if (this.CheckOut()) {
-      this.showCheckOutInfo(+this.idReservacion);
+      this.showCheckOutInfo(+this.resId);
     }
 
   }
