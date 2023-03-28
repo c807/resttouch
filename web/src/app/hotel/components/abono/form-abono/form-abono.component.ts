@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
@@ -12,7 +13,6 @@ import { FormaPago } from '@admin/interfaces/forma-pago';
 import { FpagoService } from '@admin/services/fpago.service';
 
 import { Subscription } from 'rxjs';
-import { GLOBAL } from '@shared/global';
 
 @Component({
   selector: 'app-form-abono',

@@ -1,1 +1,15 @@
-<p>lista-abono works!</p>
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-content>
+        <mat-form-field class="fullWidth">
+            <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" (input)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+            <input matInput *ngIf="esMovil" (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
+        <mat-nav-list>
+            <mat-list-item *ngFor="let element of lstAbonos" (click)="getAbono(element)">
+                <mat-icon mat-list-icon>payments</mat-icon>
+                <h5 mat-line>{{element.fecha | date:'dd/MM/yyyy'}}</h5>
+                <span mat-line>Por: {{element.monto | number:'1.2-2'}}</span>
+            </mat-list-item>
+        </mat-nav-list>        
+    </mat-card-content>
+</mat-card>

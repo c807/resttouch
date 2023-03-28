@@ -1,6 +1,14 @@
 <h1 mat-dialog-title>{{titulo}}</h1>
 <div mat-dialog-content class="contenido">
-    <app-form-abono [data]="data" (abonoSavedEv)="dialogRef.close()"></app-form-abono>
+    <div class="row">
+        <div class="col m5 s12">
+            <!-- <app-lista-abono #lstAbono (getClienteEv)="setCliente($event)"></app-lista-abono> -->
+            <app-lista-abono #lstAbono [data]="data"></app-lista-abono>
+        </div>
+        <div class="col m7 s12">            
+            <app-form-abono [data]="data" (abonoSavedEv)="dialogRef.close()"></app-form-abono>
+        </div>
+    </div>
 </div>
 <div mat-dialog-actions align="end">
     <button mat-raised-button color="warn" (click)="dialogRef.close()">Cancelar</button>

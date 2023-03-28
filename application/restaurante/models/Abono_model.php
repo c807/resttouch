@@ -62,5 +62,17 @@ class Abono_model extends General_model {
         return $usr;
     }
 
+    public function get_monto($idAbono = null)
+    {
+        if (empty($idAbono)) {
+            $idAbono = $this->getPK();
+        }
+        $suma = $this->db->select('SUM(monto) AS monto')->where('abono', $idAbono)->get('abono_forma_pago')->row();
 
+        if ($suma) {
+            return (float)$suma->monto;
+        }
+
+        return (float)0;
+    }
 }

@@ -386,7 +386,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   addAbono = () => {
     const abonoDialogRef = this.dialog.open(DialogFormAbonoComponent, {
-      width: '75%', height: '85vh',
+      maxWidth: '100vw', width: '95vw', height: '85vh',
       data: { reserva: +this.reserva.reserva }
     });
   }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { IDataAbono } from '@hotel/interfaces/abono';
 
@@ -10,7 +10,7 @@ import { IDataAbono } from '@hotel/interfaces/abono';
 })
 export class DialogFormAbonoComponent implements OnInit {
 
-  public titulo = 'Abono para la';
+  public titulo = 'Abonos de la';
 
   constructor(
     public dialogRef: MatDialogRef<DialogFormAbonoComponent>,
