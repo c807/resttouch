@@ -75,6 +75,12 @@
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!abono.fecha || formasPagoAbono.length === 0">
                     Guardar
                 </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="facturarAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0">
+                    Facturar
+                </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="resetAbono()" *ngIf="abono?.abono">
+                    Nuevo
+                </button>
             </div>
         </form>
     </mat-card-content>

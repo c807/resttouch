@@ -4,11 +4,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Mesa } from '@restaurante-interfaces/mesa';
 import { Impresora } from '@admin-interfaces/impresora';
-import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
 
 import { MesaService } from '@restaurante-services/mesa.service';
 import { ImpresoraService } from '@admin-services/impresora.service';
-import { TipoHabitacionService } from '@admin-services/tipo-habitacion.service';
+import { TipoHabitacionService } from '@hotel-services/tipo-habitacion.service';
 
 import { Subscription } from 'rxjs';
 

@@ -79,6 +79,6 @@ import { DresultadoItemComponent } from './components/facturaManual/dresultado-i
     EcoFabSpeedDialModule,
     MatTooltipModule
   ],
-  exports: [CobrarPedidoComponent]
+  exports: [CobrarPedidoComponent, FormFacturaManualComponent]
 })
 export class PosModule { }

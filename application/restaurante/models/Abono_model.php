@@ -9,6 +9,8 @@ class Abono_model extends General_model {
 	public $fecha;
 	public $fhcreacion;
     public $usuario;
+    public $fhactualizacion = null;
+    public $actualizadopor = null;
     public $anulado = 0;
     public $fecha_anulacion = null;
     public $anuladopor = null;
@@ -74,5 +76,11 @@ class Abono_model extends General_model {
         }
 
         return (float)0;
+    }
+
+    public function limpia_detalle()
+    {
+        $this->db->delete('abono_forma_pago', array('abono' => $this->getPK()));
+        return $this->db->affected_rows();
     }
 }

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
-import { HotelModule } from '../hotel/hotel.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatListModule } from '@angular/material/list';
@@ -143,9 +142,6 @@ import { MetabaseDashboardComponent } from './components/metabase/metabase-dashb
 import { TipoDocumentoComponent } from './components/tipo-documento/tipo-documento/tipo-documento.component';
 import { FormTipoDocumentoComponent } from './components/tipo-documento/form-tipo-documento/form-tipo-documento.component';
 import { ListaTipoDocumentoComponent } from './components/tipo-documento/lista-tipo-documento/lista-tipo-documento.component';
-import { TipoHabitacionComponent } from './components/tipo-habitacion/tipo-habitacion/tipo-habitacion.component';
-import { FormTipoHabitacionComponent } from './components/tipo-habitacion/form-tipo-habitacion/form-tipo-habitacion.component';
-import { ListaTipoHabitacionComponent } from './components/tipo-habitacion/lista-tipo-habitacion/lista-tipo-habitacion.component';
 
 @NgModule({
   declarations: [
@@ -167,14 +163,17 @@ import { ListaTipoHabitacionComponent } from './components/tipo-habitacion/lista
     FormTipoCompraVentaComponent, ListaTipoCompraVentaComponent, DocumentoTipoComponent, ListaDocumentoTipoComponent,
     FormDocumentoTipoComponent, NotificacionesClienteComponent, FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent,
     FormFormaPagoComandaOrigenComponent, FormaPagoComandaOrigenDialogComponent, VendorTerceroComponent, ListaVendorTerceroComponent, FormVendorTerceroComponent, 
-    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, TipoHabitacionComponent, FormTipoHabitacionComponent, ListaTipoHabitacionComponent
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, 
+    SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, 
+    CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
+    VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatCardModule, MatDividerModule, MatTabsModule, MatTableModule, MatSelectModule, MatCheckboxModule, MatButtonModule,
     MatSnackBarModule, MatToolbarModule, MatMenuModule, MatGridListModule, MatPaginatorModule, MatTreeModule, MatDialogModule,
     MatProgressBarModule, PivotViewAllModule, PivotFieldListAllModule, FlexLayoutModule, ChartModule, NgIdleKeepaliveModule.forRoot(),
-    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, HotelModule
+    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,

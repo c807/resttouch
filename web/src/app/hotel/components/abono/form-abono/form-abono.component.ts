@@ -6,6 +6,7 @@ import { GLOBAL } from '@shared/global';
 import * as moment from 'moment';
 
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { DialogFacturarAbonoComponent } from '@hotel-components/abono/dialog-facturar-abono/dialog-facturar-abono.component'
 import { IDataAbono } from '@hotel/interfaces/abono';
 import { Abono, AbonoFormaPago } from '@hotel/interfaces/abono';
 import { AbonoService } from '@hotel/services/abono.service';
@@ -72,8 +73,11 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
       usuario: +this.ls.get(GLOBAL.usrTokenVar).idusr,
       anulado: 0,
       fecha_anulacion: null,
-      anuladopor: null
+      anuladopor: null,
+      monto: null
     }
+    this.resetAbonoFormaPago();
+    this.formasPagoAbono = [];
   }
 
   loadFormasPago = () => {
@@ -105,7 +109,7 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
       maxWidth: '400px',
       data: new ConfirmDialogModel(
         'Abono',
-        `Esto generará un abono por ${this.totalDeAbono.toFixed(2)} que se descontarán de la cuenta final. ¿Desea continuar?`,
+        `Esto guardará un abono por ${this.totalDeAbono.toFixed(2)} que se descontarán de la cuenta final. ¿Desea continuar?`,
         'Sí', 'No'
       )
     });
@@ -118,23 +122,27 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
             this.abonoSrvc.save(this.abono).subscribe(res => {
               if (res.exito && +(res.abono as Abono).abono > 0) {
                 const idAbono = +(res.abono as Abono).abono;
-                let errores = [];
-                this.formasPagoAbono.forEach(async (fp) => {
-                  fp.abono = idAbono;
-                  const resDet = await this.abonoSrvc.saveDetalle(fp).toPromise();
-                  if (!resDet.exito) {
-                    errores.push(resDet.mensaje);
-                  }
-                });
-                if (errores.length === 0) {
-                  this.snackBar.open(`Abono guardado con éxito.`, 'Abono', { duration: 7000 });
-                  if (this.infoAbono) {
-                    this.abonoSavedEv.emit();
-                  }
-                } else {
-                  this.snackBar.open(`ERROR: ${errores.join(';')}`, 'Abono', { duration: 7000 });
-                }
-                this.cargando = false;
+                this.endSubs.add(
+                  this.abonoSrvc.limpiaDetalle(idAbono).subscribe(() => {
+                    let errores = [];
+                    this.formasPagoAbono.forEach(async (fp) => {
+                      fp.abono = idAbono;
+                      const resDet = await this.abonoSrvc.saveDetalle(fp).toPromise();
+                      if (!resDet.exito) {
+                        errores.push(resDet.mensaje);
+                      }
+                    });
+                    if (errores.length === 0) {
+                      this.snackBar.open(`Abono guardado con éxito.`, 'Abono', { duration: 7000 });
+                      if (this.infoAbono) {
+                        this.abonoSavedEv.emit();
+                      }
+                    } else {
+                      this.snackBar.open(`ERROR: ${errores.join(';')}`, 'Abono', { duration: 7000 });
+                    }
+                    this.cargando = false;
+                  })
+                );
               } else {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Abono', { duration: 7000 });
                 this.cargando = false;
@@ -146,6 +154,42 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadDetalleAbono = () => {
+    this.endSubs.add(
+      this.abonoSrvc.getDetalle({ abono: +this.abono.abono}).subscribe(res => this.formasPagoAbono = res)
+    );    
+  }
 
+  facturarAbono = () => {
+    const confDialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Abono',
+        `Con este proceso creará una factura por el abono y no podrá modificarlo después. ¿Desea continuar?`,
+        'Sí', 'No'
+      )
+    });
 
+    this.endSubs.add(
+      confDialogRef.afterClosed().subscribe((resCnf) => {
+        if (resCnf) {
+          const factAbonoDialogRef = this.dialog.open(DialogFacturarAbonoComponent, {
+            width: '70vw', height: '90vh', disableClose: true,
+            data: {
+              abono: this.abono
+            }
+          });
+          this.endSubs.add(
+            factAbonoDialogRef.afterClosed().subscribe(resFactura => {
+              console.log(resFactura);
+              if (resFactura) {
+                
+              }
+            })
+          )
+        }
+      })
+    );
+
+  }
 }

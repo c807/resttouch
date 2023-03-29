@@ -9,8 +9,8 @@ import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '@hotel-components/booker/filtro/filter.component';
 import { GLOBAL } from '@shared/global';
 
-import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
-import { TipoHabitacionService } from '@admin-services/tipo-habitacion.service';
+import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
+import { TipoHabitacionService } from '@hotel-services/tipo-habitacion.service';
 import { MesaDisponible } from '@restaurante-interfaces/mesa';
 import { MesaService } from '@restaurante-services/mesa.service';
 import { ReservaService } from '@hotel-services/reserva.service';

@@ -21,7 +21,7 @@ export class AbonoService {
     this.srvcErrHndl = new ServiceErrorHandler();
   }
 
-  get(fltr: any = {}): Observable<any> {
+  get(fltr: any = {}): Observable<Abono[]> {
     return this.http.get<Abono[]>(
       `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/buscar?${qs.stringify(fltr)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
@@ -39,6 +39,18 @@ export class AbonoService {
       `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar_detalle${!!entidad.abono_forma_pago ? ('/' + entidad.abono_forma_pago) : ''}`,
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getDetalle(fltr: any = {}): Observable<AbonoFormaPago[]> {
+    return this.http.get<AbonoFormaPago[]>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/buscar_detalle?${qs.stringify(fltr)}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
+  limpiaDetalle(idAbono: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/limpia_detalle_abono/${idAbono}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
 
 }

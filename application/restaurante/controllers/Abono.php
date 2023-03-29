@@ -26,6 +26,10 @@ class Abono extends CI_Controller
             $req = json_decode(file_get_contents('php://input'), true);
             if ((isset($req['reserva']) && (int)$req['reserva'] > 0) || (isset($req['factura']) && (int)$req['factura'] > 0)) {
                 $abono = new Abono_model($id);
+                if (!empty($id)) {
+                    $req['fhactualizacion'] = Hoy(3);
+                    $req['actualizadopor'] = $this->data->idusuario;
+                }
                 $datos['exito'] = $abono->guardar($req);
                 if ($datos['exito']) {
                     $datos['mensaje'] = 'Abono guardado con éxito.';
@@ -81,5 +85,17 @@ class Abono extends CI_Controller
             $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
+    }
+
+    public function buscar_detalle()
+    {
+        $datos = $this->Abono_forma_pago_model->buscar($_GET);
+        $this->output->set_output(json_encode($datos));
+    }
+
+    public function limpia_detalle_abono($idAbono) {
+        $abono = new Abono_model($idAbono);
+        $ar = $abono->limpia_detalle();
+        $this->output->set_output(json_encode(['exito' => true, 'eliminados' => $ar]));
     }
 }

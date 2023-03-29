@@ -1,7 +1,8 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { IDataAbono } from '@hotel/interfaces/abono';
+import { FormAbonoComponent } from '@hotel-components/abono/form-abono/form-abono.component';
+import { Abono, IDataAbono } from '@hotel/interfaces/abono';
 
 @Component({
   selector: 'app-dialog-form-abono',
@@ -9,6 +10,8 @@ import { IDataAbono } from '@hotel/interfaces/abono';
   styleUrls: ['./dialog-form-abono.component.css']
 })
 export class DialogFormAbonoComponent implements OnInit {
+
+  @ViewChild('frmAbono') frmAbono: FormAbonoComponent;
 
   public titulo = 'Abonos de la';
 
@@ -32,4 +35,8 @@ export class DialogFormAbonoComponent implements OnInit {
     }
   }
 
+  setAbono = (obj: Abono) => {    
+    this.frmAbono.abono = obj;
+    this.frmAbono.loadDetalleAbono();
+  }
 }

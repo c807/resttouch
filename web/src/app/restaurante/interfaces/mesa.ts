@@ -1,5 +1,5 @@
 import { Impresora } from '@admin-interfaces/impresora';
-import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
 
 export interface Mesa {
     mesa: number;

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../shared/shared.module';
+import { PosModule } from '../pos/pos.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MatListModule } from '@angular/material/list';
@@ -52,6 +53,10 @@ import { AbonoComponent } from './components/abono/abono/abono.component';
 import { ListaAbonoComponent } from './components/abono/lista-abono/lista-abono.component';
 import { FormAbonoComponent } from './components/abono/form-abono/form-abono.component';
 import { DialogFormAbonoComponent } from './components/abono/dialog-form-abono/dialog-form-abono.component';
+import { DialogFacturarAbonoComponent } from './components/abono/dialog-facturar-abono/dialog-facturar-abono.component';
+import { TipoHabitacionComponent } from './components/tipo-habitacion/tipo-habitacion/tipo-habitacion.component';
+import { FormTipoHabitacionComponent } from './components/tipo-habitacion/form-tipo-habitacion/form-tipo-habitacion.component';
+import { ListaTipoHabitacionComponent } from './components/tipo-habitacion/lista-tipo-habitacion/lista-tipo-habitacion.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +73,9 @@ import { DialogFormAbonoComponent } from './components/abono/dialog-form-abono/d
     AbonoComponent,
     ListaAbonoComponent,
     FormAbonoComponent,
-    DialogFormAbonoComponent
+    DialogFormAbonoComponent,
+    DialogFacturarAbonoComponent,
+    TipoHabitacionComponent, FormTipoHabitacionComponent, ListaTipoHabitacionComponent
   ],
   imports: [
     CommonModule,
@@ -77,6 +84,7 @@ import { DialogFormAbonoComponent } from './components/abono/dialog-form-abono/d
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
+    PosModule,
     FlexLayoutModule,
     MatListModule,
     MatIconModule,
@@ -109,8 +117,6 @@ import { DialogFormAbonoComponent } from './components/abono/dialog-form-abono/d
     MatTooltipModule,
     MatAutocompleteModule
   ],
-  exports: [
-    TarifaReservaComponent
-  ]
+  exports: []
 })
 export class HotelModule { }

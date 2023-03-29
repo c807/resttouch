@@ -3,8 +3,8 @@ import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
-import { TipoHabitacionService } from '@admin-services/tipo-habitacion.service';
+import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
+import { TipoHabitacionService } from '@hotel-services/tipo-habitacion.service';
 
 import { Subscription } from 'rxjs';
 

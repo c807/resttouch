@@ -10,9 +10,12 @@ export interface Abono {
     fecha: string;
     fhcrecion?: string;
     usuario: (number | Usuario);
+    fhactualizacion?: string;
+    actualizadopor?: (number | Usuario);
     anulado: number;
     fecha_anulacion?: string;
     anuladopor?: (number | Usuario);
+    monto?: number;
 }
 
 export interface AbonoFormaPago {

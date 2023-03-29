@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { TipoHabitacion } from '@admin-interfaces/tipo-habitacion';
+import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
 import { TarifaReserva } from '@hotel-interfaces/tarifa-reserva';
 import { TarifaReservaService } from '@hotel-services/tarifa-reserva.service';
 import { ArticuloService } from '@wms-services/articulo.service';

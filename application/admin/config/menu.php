@@ -493,7 +493,7 @@ $config['menu'] = [
 					],
 					2 => [
 						'nombre' => 'Tipos de habitación',
-						'link' => '/admin/tipo_habitacion'
+						'link' => '/hotel/tipo_habitacion'
 					]
 				]
 			]

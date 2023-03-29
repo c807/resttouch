@@ -34,6 +34,8 @@ import { Impresion } from '@restaurante-classes/impresion';
 import { Municipio } from '@admin-interfaces/municipio';
 import { MunicipioService } from '@admin-services/municipio.service';
 
+import { Abono } from '@hotel/interfaces/abono';
+
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -74,6 +76,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   }
 
   @Input() factura: Factura;
+  @Input() abono: Abono;
   @Output() facturaSavedEv = new EventEmitter();
 
   public showForm = true;
@@ -137,6 +140,10 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid);
       this.socket.on('reconnect', () => this.socket.emit('joinRestaurant', this.ls.get(GLOBAL.usrTokenVar).sede_uuid));
     }
+
+    if (this.abono?.abono) {
+      console.log('ABONO = ', this.abono);
+    }    
   }
 
   ngOnDestroy() {

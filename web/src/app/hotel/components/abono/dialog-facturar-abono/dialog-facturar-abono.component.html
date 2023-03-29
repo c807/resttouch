@@ -1,0 +1,7 @@
+<h1 mat-dialog-title>Facturar abono</h1>
+<div mat-dialog-content class="contenido">
+    <app-form-factura-manual [abono]="data.abono"></app-form-factura-manual>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button color="warn" (click)="dialogRef.close()">Cancelar</button>
+</div>
