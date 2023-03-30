@@ -53,6 +53,7 @@ class Abono extends CI_Controller
 
         foreach ($datos as $dato) {
             $dato->monto = $this->Abono_model->get_monto($dato->abono);
+            $dato->info_factura = $this->Abono_model->get_factura_abono($dato->abono);
             if (isset($_GET['_fulldata']) && (int)$_GET['_fulldata'] === 1) {
                 $dato->reserva = (int)$dato->reserva > 0 ? $this->Abono_model->get_reserva((int)$dato->reserva) : null;
                 $dato->factura = (int)$dato->factura > 0 ? $this->Abono_model->get_factura((int)$dato->factura) : null;

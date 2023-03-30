@@ -24,14 +24,15 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
 
   get totalDeAbono(): number {
     let total = 0;
-    for(const fpa of this.formasPagoAbono) {
+    for (const fpa of this.formasPagoAbono) {
       total += +fpa.monto;
     }
     return total;
-  }  
+  }
 
   @Input() data: IDataAbono = null;
   @Output() abonoSavedEv = new EventEmitter();
+  @Output() loadAbonosEv = new EventEmitter();
   public infoAbono: IDataAbono = null;
   public abono: Abono;
   public formasPagoAbono: AbonoFormaPago[] = [];
@@ -89,14 +90,14 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
   resetAbonoFormaPago = () => {
     this.formaPagoAbono = {
       abono_forma_pago: null,
-      abono: +this.abono?.abono || null, 
-      forma_pago: null, 
+      abono: +this.abono?.abono || null,
+      forma_pago: null,
       monto: null
     }
   }
 
-  agregarMonto = () => {    
-    this.formasPagoAbono.push(this.formaPagoAbono);    
+  agregarMonto = () => {
+    this.formasPagoAbono.push(this.formaPagoAbono);
     this.resetAbonoFormaPago();
   }
 
@@ -114,7 +115,7 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       dialogRef.afterClosed().subscribe(conf => {
         if (conf) {
           this.cargando = true;
@@ -156,40 +157,40 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
 
   loadDetalleAbono = () => {
     this.endSubs.add(
-      this.abonoSrvc.getDetalle({ abono: +this.abono.abono}).subscribe(res => this.formasPagoAbono = res)
-    );    
+      this.abonoSrvc.getDetalle({ abono: +this.abono.abono }).subscribe(res => this.formasPagoAbono = res)
+    );
+  }
+
+  showFacturaAbono = () => {
+    const factAbonoDialogRef = this.dialog.open(DialogFacturarAbonoComponent, {
+      width: '70vw', height: '90vh', disableClose: true,
+      data: {
+        abono: this.abono
+      }
+    });
+    this.endSubs.add(factAbonoDialogRef.afterClosed().subscribe(() => this.loadAbonosEv.emit()));
   }
 
   facturarAbono = () => {
-    const confDialogRef = this.dialog.open(ConfirmDialogComponent, {
-      maxWidth: '400px',
-      data: new ConfirmDialogModel(
-        'Abono',
-        `Con este proceso creará una factura por el abono y no podrá modificarlo después. ¿Desea continuar?`,
-        'Sí', 'No'
-      )
-    });
+    if (!this.abono.info_factura.factura) {
+      const confDialogRef = this.dialog.open(ConfirmDialogComponent, {
+        maxWidth: '400px',
+        data: new ConfirmDialogModel(
+          'Abono',
+          `Con este proceso creará una factura manual por el abono y no podrá modificarlo después de firmar la factura. ¿Desea continuar?`,
+          'Sí', 'No'
+        )
+      });
 
-    this.endSubs.add(
-      confDialogRef.afterClosed().subscribe((resCnf) => {
-        if (resCnf) {
-          const factAbonoDialogRef = this.dialog.open(DialogFacturarAbonoComponent, {
-            width: '70vw', height: '90vh', disableClose: true,
-            data: {
-              abono: this.abono
-            }
-          });
-          this.endSubs.add(
-            factAbonoDialogRef.afterClosed().subscribe(resFactura => {
-              console.log(resFactura);
-              if (resFactura) {
-                
-              }
-            })
-          )
-        }
-      })
-    );
-
+      this.endSubs.add(
+        confDialogRef.afterClosed().subscribe((resCnf) => {
+          if (resCnf) {
+            this.showFacturaAbono();
+          }
+        })
+      );
+    } else {
+      this.showFacturaAbono();
+    }
   }
 }

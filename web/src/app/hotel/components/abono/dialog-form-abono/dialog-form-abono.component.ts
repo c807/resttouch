@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+import { ListaAbonoComponent } from '@hotel-components/abono/lista-abono/lista-abono.component';
 import { FormAbonoComponent } from '@hotel-components/abono/form-abono/form-abono.component';
 import { Abono, IDataAbono } from '@hotel/interfaces/abono';
 
@@ -11,6 +12,7 @@ import { Abono, IDataAbono } from '@hotel/interfaces/abono';
 })
 export class DialogFormAbonoComponent implements OnInit {
 
+  @ViewChild('lstAbono') lstAbono: ListaAbonoComponent;
   @ViewChild('frmAbono') frmAbono: FormAbonoComponent;
 
   public titulo = 'Abonos de la';
@@ -38,5 +40,10 @@ export class DialogFormAbonoComponent implements OnInit {
   setAbono = (obj: Abono) => {    
     this.frmAbono.abono = obj;
     this.frmAbono.loadDetalleAbono();
+  }
+
+  refrescarListaAbonos = () => {
+    this.lstAbono.loadAbonos();
+    this.frmAbono.resetAbono();
   }
 }

@@ -3,6 +3,12 @@ import { Factura } from '@pos-interfaces/factura';
 import { Usuario } from '@admin-models/usuario';
 import { FormaPago } from '@admin-interfaces/forma-pago';
 
+export interface InfoFacturaAbono {
+    factura: number;
+    firmada: boolean;
+    anulada: boolean;
+}
+
 export interface Abono {
     abono: number;
     reserva?: (number | Reserva);
@@ -16,6 +22,7 @@ export interface Abono {
     fecha_anulacion?: string;
     anuladopor?: (number | Usuario);
     monto?: number;
+    info_factura?: InfoFacturaAbono;
 }
 
 export interface AbonoFormaPago {

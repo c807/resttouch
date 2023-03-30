@@ -29,6 +29,7 @@ class Factura_model extends General_model
 	public $factura_serie_correlativo = null;
 	public $documento_receptor = null;
 	public $tipo_documento_receptor = null;
+	public $abono = null;
 
 	public function __construct($id = '')
 	{

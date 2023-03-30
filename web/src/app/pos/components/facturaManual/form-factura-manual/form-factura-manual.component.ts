@@ -64,8 +64,13 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     }
   }
 
-  get noPuedeFirmar() {    
-    const idCliente: number = +this.clienteOriginal?.cliente || +this.factura?.cliente || 0;    
+  get noPuedeFirmar() {
+    if (this.abono?.abono) {
+      if (+this.totalDeFactura !== +this.abono.monto) {
+        return true;
+      }
+    }
+    const idCliente: number = +this.clienteOriginal?.cliente || +this.factura?.cliente || 0;
     if (idCliente > 0) {
       const cli = this.clientes.find(c => +c.cliente === idCliente);
       if (cli) {
@@ -142,7 +147,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     }
 
     if (this.abono?.abono) {
-      console.log('ABONO = ', this.abono);
+      // console.log('ABONO = ', this.abono);
+      this.loadFactura();
     }    
   }
 
@@ -283,6 +289,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   onSubmit = () => {
     this.cargando = true;
     // console.log(this.factura); return;    
+    this.factura.abono = this.abono?.abono || null;
     if (this.refacturacion) {
       this.endSubs.add(
         this.facturaSrvc.refacturar(this.factura).subscribe(res => {
@@ -712,5 +719,49 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     const objImpresion = new Impresion(this.socket);
     objImpresion.impresoraPorDefecto = this.impresoraPorDefecto;
     objImpresion.anulacionDeFactura(fact, anulacion);
-  }  
+  }
+
+  loadFactura = () => {
+    const fltr: any = { _todas: 1 };
+
+    if (this.abono?.abono) {
+      fltr.abono = +this.abono.abono;
+    }
+
+    if (this.factura?.factura) {
+      fltr.factura = +this.factura.factura;
+    }
+
+    this.cargando = true;
+    this.endSubs.add(
+      this.facturaSrvc.get(fltr).subscribe(res => {
+        if (res && res.length > 0) {
+          const fact: any = res[0];
+          this.factura = {
+            factura: fact.factura,
+            factura_serie: fact.factura_serie.factura_serie,
+            cliente: fact.cliente.cliente,
+            fecha_factura: fact.fecha_factura,
+            moneda: fact.moneda.moneda,
+            exenta: fact.exenta,
+            notas: fact.notas,
+            usuario: fact.usuario.usuario,
+            numero_factura: fact.numero_factura,
+            serie_factura: fact.serie_factura,
+            fel_uuid: fact.fel_uuid,
+            fel_uuid_anulacion: fact.fel_uuid_anulacion,
+            certificador_fel: fact.certificador_fel,
+            enviar_descripcion_unica: fact.enviar_descripcion_unica,
+            descripcion_unica: fact.descripcion_unica,
+            abono: fact.abono
+          };
+          this.clienteSelected = fact.cliente;
+          this.clienteOriginal = JSON.parse(JSON.stringify(fact.cliente));
+          this.loadDetalleFactura(+this.factura.factura);
+          this.resetDetalleFactura();
+        }
+        this.cargando = false;
+      })
+    );
+  }
 }

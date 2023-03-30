@@ -103,7 +103,7 @@
                 <button mat-raised-button type="button" color="accent" class="btnAccion" *ngIf="!!factura.fel_uuid_anulacion" (click)="refacturar()" [disabled]="noPuedeFirmar || cargando">
                     Refacturar
                 </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetFactura()" *ngIf="factura.factura">
+                <button mat-raised-button type="button" color="accent" (click)="resetFactura()" *ngIf="factura.factura && !abono">
                     Nueva
                 </button>
 

@@ -83,4 +83,19 @@ class Abono_model extends General_model {
         $this->db->delete('abono_forma_pago', array('abono' => $this->getPK()));
         return $this->db->affected_rows();
     }
+
+    public function get_factura_abono($idAbono = null)
+    {
+        if (empty($idAbono)) {
+            $idAbono = $this->getPK();
+        }
+
+        $factura = $this->db->select('factura, fel_uuid, fel_uuid_anulacion')->where('abono', $idAbono)->get('factura')->row();
+        
+        if ($factura) {
+            return (object)['factura' => $factura->factura, 'firmada' => !empty($factura->fel_uuid), 'anulada' => !empty($factura->fel_uuid_anulacion)];
+        }
+
+        return (object)['factura' => null, 'firmada' => false, 'anulada' => false];
+    }
 }
