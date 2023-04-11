@@ -5,18 +5,21 @@
         </span>
   </div>
   <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">
-    <button mat-raised-button type="button" color="warn" (click)="abrirAccionesComanda(dialogRef)"
-            [disabled]="bloqueoBotones">
+    <button mat-raised-button type="button" color="warn" (click)="abrirAccionesComanda(dialogRef)" [disabled]="bloqueoBotones">
       Acciones
     </button>
-    <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="cerrar()"
-            [disabled]="bloqueoBotones">
+    <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="cerrar()" [disabled]="bloqueoBotones">
       Cerrar
     </button>
   </div>
 </div>
 
 <div mat-dialog-content class="contenido">
+  <div align="center" *ngIf="mesaEnUso?.abonado && +mesaEnUso?.abonado > 0">
+    <span class="bld" style="font-size: 12pt; margin-left: 10px; color: lightslategray;">
+      Esta comanda tiene abonos por un total de {{+mesaEnUso?.abonado | number: '1.2-2'}}
+    </span>
+  </div>
   <!-- Div de cuentas-->
   <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="center center" class="divSeparacion">
     <mat-chip-list>

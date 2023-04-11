@@ -7,6 +7,9 @@ export interface InfoFacturaAbono {
     factura: number;
     firmada: boolean;
     anulada: boolean;
+    numero_factura: string;
+    serie_factura: string;
+    fecha_factura: string;
 }
 
 export interface Abono {

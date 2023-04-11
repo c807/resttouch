@@ -3,11 +3,10 @@
         <span class="bld" style="font-size: 16pt; margin-left: 10px;" *ngIf="mesaEnUso">
             {{mesaEnUso.mesa.area.nombre}} - {{+mesaEnUso.mesa.eshabitacion === 1 ? 'Habitación' : 'Mesa'}} {{mesaEnUso.mesa.etiqueta || mesaEnUso.mesa.numero}} - Comanda
             {{mesaEnUso.comanda | number:'1.0-0'}}
-        </span>
+        </span>        
     </div>
     <div fxFlex="50%" fxFelx.xs="100%" fxLayoutAlign="end start">
-        <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="closeSideNavEv.emit()"
-            [disabled]="bloqueoBotones">
+        <button mat-raised-button type="button" color="accent" style="margin-left: 8px;" (click)="closeSideNavEv.emit()" [disabled]="bloqueoBotones">
             Cerrar Panel
         </button>
     </div>
@@ -15,6 +14,9 @@
 <div class="divFullSize">
     <div class="row">
         <div class="col m12 s12" align="center" style="padding: 0 !important;" *ngIf="mesaEnUso">
+            <span class="bld" style="font-size: 12pt; margin-left: 10px; color: lightslategray;" *ngIf="mesaEnUso?.abonado && +mesaEnUso?.abonado > 0">
+                Esta comanda tiene abonos por un total de {{+mesaEnUso?.abonado | number: '1.2-2'}}
+            </span><br *ngIf="mesaEnUso?.abonado && +mesaEnUso?.abonado > 0"/>
             <button mat-raised-button type="button" color="accent" class="btnAccion"
                 *ngFor="let cta of mesaEnUso.cuentas" [disabled]="+cta.cerrada == 1 || bloqueoBotones"
                 (click)="setSelectedCuenta(cta.numero)">

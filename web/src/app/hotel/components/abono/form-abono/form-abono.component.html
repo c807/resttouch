@@ -75,6 +75,9 @@
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!abono.fecha || formasPagoAbono.length === 0 || abono.info_factura.firmada">
                     Guardar
                 </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0">
+                    Imprimir
+                </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="facturarAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0">
                     Factura{{abono.info_factura.factura ? '' : 'r'}}
                 </button>

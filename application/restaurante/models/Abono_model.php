@@ -90,12 +90,19 @@ class Abono_model extends General_model {
             $idAbono = $this->getPK();
         }
 
-        $factura = $this->db->select('factura, fel_uuid, fel_uuid_anulacion')->where('abono', $idAbono)->get('factura')->row();
+        $datos = ['factura' => null, 'firmada' => false, 'anulada' => false, 'numero_factura' => null, 'serie_factura' => null, 'fecha_factura' => null];
+
+        $factura = $this->db->select('factura, fel_uuid, fel_uuid_anulacion, numero_factura, serie_factura, fecha_factura')->where('abono', $idAbono)->get('factura')->row();
         
-        if ($factura) {
-            return (object)['factura' => $factura->factura, 'firmada' => !empty($factura->fel_uuid), 'anulada' => !empty($factura->fel_uuid_anulacion)];
+        if ($factura) {            
+            $datos['factura'] = $factura->factura;
+            $datos['firmada'] = !empty($factura->fel_uuid);
+            $datos['anulada'] = !empty($factura->fel_uuid_anulacion);
+            $datos['numero_factura'] = $factura->numero_factura;
+            $datos['serie_factura'] = $factura->serie_factura;
+            $datos['fecha_factura'] = $factura->fecha_factura;
         }
 
-        return (object)['factura' => null, 'firmada' => false, 'anulada' => false];
+        return (object)$datos;
     }
 }

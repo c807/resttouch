@@ -57,6 +57,7 @@ export interface ComandaGetResponse {
     numero_pedido?: string;
     notas_generales?: string;
     cliente_master?: number;
+    abonado?: number;
 }
 
 export interface IDatosTranComanda {

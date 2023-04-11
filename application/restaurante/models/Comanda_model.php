@@ -612,6 +612,7 @@ class Comanda_model extends General_Model
         $estatusCC = $this->get_estatus_callcenter();
         $tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
         $tmp->formas_pago = $this->get_forma_pago();
+        $tmp->abonado = $this->get_monto_abonado_comanda();
         return $tmp;
     }
 
@@ -1296,6 +1297,30 @@ class Comanda_model extends General_Model
         $cntCuentasCerradas = $this->db->select('COUNT(cuenta) AS cantidad_cuentas_cerradas')->where('comanda', $idcomanda)->where('cerrada', 1)->get('cuenta')->row();
 
         return (int)$cntCuentasCerradas->cantidad_cuentas_cerradas === (int)$cntCuentas->cantidad_cuentas;
+    }
+
+    public function get_monto_abonado_comanda($idComanda = null)
+    {
+        if(empty($idComanda)) {
+            $idComanda = $this->getPK();
+        }
+
+        $abonos = $this->db
+            ->select('SUM(d.monto) AS abonado')
+            ->join('reserva b', 'b.reserva = a.reserva')
+            ->join('abono c', 'b.reserva = c.reserva')
+            ->join('abono_forma_pago d', 'c.abono = d.abono')
+            ->where('a.comanda', $idComanda)
+            ->where('c.anulado', 0)
+            ->group_by('a.comanda')
+            ->get('comanda a')
+            ->row();
+
+        if ($abonos && $abonos->abonado) {
+            return (float)$abonos->abonado;
+        }
+
+        return (float)0;
     }
 }
 
