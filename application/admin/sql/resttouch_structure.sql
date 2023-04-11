@@ -2860,6 +2860,51 @@ CREATE TABLE RT_DATABASE_NAME.forma_pago_sede_cuenta_contable (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 ALTER TABLE RT_DATABASE_NAME.articulo ADD COLUMN cuenta_contable VARCHAR(10) NULL AFTER essellado;
+CREATE TABLE RT_DATABASE_NAME.abono (
+  abono int(11) NOT NULL AUTO_INCREMENT,
+  reserva int(11) DEFAULT NULL,
+  factura int(11) DEFAULT NULL,
+  fecha date NOT NULL,
+  fhcreacion timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  usuario int(11) NOT NULL,
+  fhactualizacion datetime DEFAULT NULL,
+  actualizadopor int(11) DEFAULT NULL,
+  anulado tinyint(1) NOT NULL DEFAULT '0',
+  fecha_anulacion date DEFAULT NULL,
+  anuladopor int(11) DEFAULT NULL,
+  PRIMARY KEY (abono),
+  KEY fk_abono_reserva1_idx (reserva),
+  KEY fk_abono_factura1_idx (factura),
+  KEY fk_abono_usuario1_idx (usuario),
+  KEY fk_abono_usuario2_idx (anuladopor),
+  KEY fk_abono_usuario3_idx (actualizadopor),
+  CONSTRAINT fk_abono_factura1 FOREIGN KEY (factura) REFERENCES RT_DATABASE_NAME.factura (factura) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_abono_reserva1 FOREIGN KEY (reserva) REFERENCES RT_DATABASE_NAME.reserva (reserva) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_abono_usuario1 FOREIGN KEY (usuario) REFERENCES RT_DATABASE_NAME.usuario (usuario) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_abono_usuario2 FOREIGN KEY (anuladopor) REFERENCES RT_DATABASE_NAME.usuario (usuario) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_abono_usuario3 FOREIGN KEY (actualizadopor) REFERENCES RT_DATABASE_NAME.usuario (usuario) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE RT_DATABASE_NAME.abono_forma_pago (
+  abono_forma_pago int(11) NOT NULL AUTO_INCREMENT,
+  abono int(11) NOT NULL,
+  forma_pago int(11) NOT NULL,
+  monto decimal(10,2) NOT NULL DEFAULT '0.00',
+  documento varchar(1000) DEFAULT NULL,
+  observaciones varchar(150) DEFAULT NULL,
+  propina decimal(10,2) NOT NULL DEFAULT '0.00',
+  comision_monto decimal(10,2) NOT NULL DEFAULT '0.00',
+  retencion_monto decimal(10,2) NOT NULL DEFAULT '0.00',
+  vuelto_para decimal(10,2) DEFAULT '0.00',
+  vuelto decimal(10,2) DEFAULT '0.00',
+  tarjeta_respuesta text,
+  PRIMARY KEY (abono_forma_pago),
+  KEY fk_abono_forma_pago_abono1_idx (abono),
+  KEY fk_abono_forma_pago_forma_pago1_idx (forma_pago),
+  CONSTRAINT fk_abono_forma_pago_abono1 FOREIGN KEY (abono) REFERENCES RT_DATABASE_NAME.abono (abono) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_abono_forma_pago_forma_pago1 FOREIGN KEY (forma_pago) REFERENCES RT_DATABASE_NAME.forma_pago (forma_pago) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN abono INT NULL AFTER tipo_documento_receptor, ADD INDEX fk_factura_abono1_idx (abono ASC);
+ALTER TABLE RT_DATABASE_NAME.factura ADD CONSTRAINT fk_factura_abono1 FOREIGN KEY (abono) REFERENCES RT_DATABASE_NAME.abono (abono) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
