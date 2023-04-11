@@ -33,17 +33,17 @@
                         <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="articulo.precio" required min="0" max="999999.99">
                     </mat-form-field>
 
-                    <mat-form-field class="fullWidth">
+                    <!-- <mat-form-field class="fullWidth">
                         <mat-label>Presentación Venta</mat-label>
                         <mat-select name="presentacion" [(ngModel)]="articulo.presentacion" required>
                             <mat-option *ngFor="let p of presentaciones" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
-                    </mat-form-field>
+                    </mat-form-field> -->
                     <mat-form-field class="fullWidth">
-                        <mat-label>Presentación Reportes</mat-label>
-                        <mat-select name="presentacion_reporte" [(ngModel)]="articulo.presentacion_reporte" required>
+                        <mat-label>Presentación</mat-label>
+                        <mat-select name="presentacion_reporte" [(ngModel)]="articulo.presentacion_reporte" (selectionChange)="presentacionReporteChanged($event)" required>
                             <mat-option *ngFor="let p of presentacionesFiltered" [value]="p.presentacion" [disabled]="+p.debaja === 1">
                                 {{p.descripcion}}
                             </mat-option>

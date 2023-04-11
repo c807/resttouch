@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSelectChange } from '@angular/material/select';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { GLOBAL } from '@shared/global';
 import { saveAs } from 'file-saver';
@@ -30,7 +31,7 @@ import { Subscription } from 'rxjs';
 })
 export class FormProductoComponent implements OnInit, OnDestroy {
 
-  get disableEsReceta() {    
+  get disableEsReceta() {
     return (+this.articulo.combo === 1 || +this.articulo.multiple === 1 || +this.articulo.produccion === 1);
   }
 
@@ -46,14 +47,13 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     return (artSel: Articulo) => {
       let dar = false;
       if (
-        +artSel.articulo === +this.articulo.articulo || 
-        (+artSel.multiple === 1 && +this.articulo.multiple === 1) || 
+        +artSel.articulo === +this.articulo.articulo ||
+        (+artSel.multiple === 1 && +this.articulo.multiple === 1) ||
         (+artSel.combo === 1 && +this.articulo.combo === 1) ||
         (+artSel.combo === 1 && +this.articulo.multiple === 1) ||
         (+this.articulo.cobro_mas_caro === 1 && +artSel.multiple === 1 && (+artSel.cantidad_minima !== 2 || +artSel.cantidad_maxima !== 2)) ||
         +artSel.debaja === 1
-        )
-      {
+      ) {
         dar = true;
       }
       return dar;
@@ -83,7 +83,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     return this.lblPrecioPorTipo.trim() === '' || this.articulo === null || this.articulo === undefined || +this.articulo.mostrar_pos === 0;
   }
 
-  @Input() articulo: Articulo;  
+  @Input() articulo: Articulo;
   @Output() articuloSvd = new EventEmitter();
   @ViewChild('lstPreciosTipoCliente') lstPreciosTipoCliente: ListaPreciosTipoClienteComponent;
   private titulo = 'Receta';
@@ -159,7 +159,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       stock_minimo: null,
       stock_maximo: null,
       essellado: 0
-    };    
+    };
     this.recetas = [];
     this.resetReceta();
     this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));
@@ -169,7 +169,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
 
   onSubmit = () => {
     // console.log(this.articulo);
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.saveArticulo(this.articulo).subscribe(res => {
         // console.log(res);
         if (res.exito) {
@@ -189,7 +189,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadMedidas = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.medidaSrvc.get().subscribe(res => {
         if (res) {
           this.medidasFull = res;
@@ -199,16 +199,16 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadPresentaciones = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.presentacionSrvc.get().subscribe(res => {
         this.presentaciones = res || [];
-        this.filtrarPresentaciones();        
+        this.filtrarPresentaciones();
       })
     );
   }
 
   loadSubCategorias = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
         this.lstSubCategorias = res.map(r => {
           r.categoria_grupo = +r.categoria_grupo;
@@ -220,15 +220,15 @@ export class FormProductoComponent implements OnInit, OnDestroy {
 
   filtrarPresentaciones = (art: Articulo = null) => {
     if (this.presentaciones && this.presentaciones.length > 0) {
-      if (art?.articulo) {        
-        this.endSubs.add(          
+      if (art?.articulo) {
+        this.endSubs.add(
           this.articuloSrvc.tieneMovimientos(art.articulo).subscribe(res => {
             if (res.exito) {
               if (res.tiene_movimientos) {
-                const presReporte = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);                
+                const presReporte = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);
                 this.presentacionesFiltered = this.presentaciones.filter(p => +p.medida.medida === +presReporte.medida.medida);
               } else {
-                this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));              
+                this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));
               }
             } else {
               this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 7000 });
@@ -242,7 +242,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadArticulos = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getArticulos().subscribe(res => {
         if (res) {
           this.articulos = res;
@@ -252,7 +252,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadImpuestosEspeciales = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.impuestoEspecialSrvc.get().subscribe(res => {
         if (res) {
           this.impuestosEspeciales = res;
@@ -302,7 +302,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       precio_extra: 0,
       precio: 0
     };
-    this.txtArticuloSelected = undefined;    
+    this.txtArticuloSelected = undefined;
     this.updateTableDataSource();
   }
 
@@ -318,7 +318,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   getReceta = (idarticulo: number = +this.articulo.articulo, iddetalle: number) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getArticuloDetalle(idarticulo, { articulo_detalle: iddetalle }).subscribe((res: any[]) => {
         // console.log(res);
         if (res) {
@@ -352,12 +352,12 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
           item.anulado = 1;
           item.articulo = item.articulo.articulo;
-          this.endSubs.add(            
+          this.endSubs.add(
             this.articuloSrvc.saveArticuloDetalle(item).subscribe(res => {
               // console.log(res);
               this.loadRecetas();
@@ -373,7 +373,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     this.receta.receta = this.articulo.articulo;
     // console.log(this.articulo);
     // console.log(this.receta); return;
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.saveArticuloDetalle(this.receta).subscribe(res => {
         // console.log(res);
         if (res) {
@@ -392,7 +392,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   imprimirReceta = (conIva: number = 0) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptSrvc.imprimirReceta(this.articulo.articulo, conIva).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: 'application/pdf' });
@@ -417,7 +417,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       data: { articulo: this.articulo }
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       replicarASedesRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
         }
@@ -451,14 +451,14 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   apagaCombo = () => {
     if (+this.articulo.mostrar_inventario === 1) {
       this.articulo.combo = 0;
-      this.articulo.multiple = 0;      
+      this.articulo.multiple = 0;
     }
   }
 
   setOpcComboOff = () => {
     if (+this.articulo.esreceta === 1) {
       this.articulo.combo = 0;
-      this.articulo.multiple = 0;      
+      this.articulo.multiple = 0;
     }
   }
 
@@ -470,7 +470,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   };
 
   setMultipleOff = () => {
-    if (+this.articulo.mostrar_pos === 1) {      
+    if (+this.articulo.mostrar_pos === 1) {
       this.articulo.multiple = 0;
     }
   }
@@ -486,7 +486,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
       )
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
           this.endSubs.add(
@@ -495,17 +495,19 @@ export class FormProductoComponent implements OnInit, OnDestroy {
                 res.articulo.categoria_grupo = +res.articulo.categoria_grupo;
                 this.articulo = res.articulo;
               }
-              this.snackBar.open(`${res.exito ? '': 'ERROR:'} ${res.mensaje}`, 'Artículo', { duration: 5000 });
+              this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Artículo', { duration: 5000 });
             })
           );
         }
       })
-    );    
+    );
   }
 
   loadPreciosPorTipoDeCliente = (art: Articulo) => {
     this.lstPreciosTipoCliente.articulo = art;
     this.lstPreciosTipoCliente.loadArticulosTipoCliente(art.articulo);
   }
+
+  presentacionReporteChanged = (obj: MatSelectChange) => this.articulo.presentacion = obj.value;
 
 }

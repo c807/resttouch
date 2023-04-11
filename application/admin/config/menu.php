@@ -30,7 +30,7 @@ $config['menu'] = [
 					],
 					6 => [
 						'nombre' => 'Medidas',
-						'link' => '/admin/medida'
+						'link' => '/admin/presentacion'
 					],
 					7  => [
 						'nombre' => 'Impresoras',
