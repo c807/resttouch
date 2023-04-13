@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import * as moment from 'moment';
 
 // import { Reserva } from '@hotel-interfaces/reserva';
 import { ReservaService } from '@hotel-services/reserva.service';
@@ -16,6 +17,23 @@ export interface DialogData {
   styleUrls: ['./dialog-info-reservacion.component.css']
 })
 export class DialogInfoReservacionComponent implements OnInit, OnDestroy {
+
+  get cantidadNoches(): number {
+    let noches: number = null;
+
+    if (moment(this.reserva.fecha_del).isValid && moment(this.reserva.fecha_al).isValid()) {
+      if (moment(this.reserva.fecha_al).isAfter(moment(this.reserva.fecha_del))) {
+        noches = moment(this.reserva.fecha_al).diff(moment(this.reserva.fecha_del), 'days') + 1;
+        if (noches === 0) {
+          noches = 1;
+        }
+      } else if (moment(this.reserva.fecha_al).isSame(moment(this.reserva.fecha_del))) {
+        noches = 1;
+      }
+    }
+
+    return noches;
+  }
 
   public reserva: any = {};
   

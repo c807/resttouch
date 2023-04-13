@@ -9,9 +9,9 @@
             </mat-card-header>
             <mat-card-content>
                 <p>
-                    Ubicado en <strong>{{reserva.area}} - {{reserva.reservable}} ({{reserva.tipo_habitacion}})</strong> las noches del <strong>{{reserva.fecha_del | date:'dd/MM/yyyy'}}</strong> al <strong>{{reserva.fecha_al | date:'dd/MM/yyyy'}}</strong>.<br/>
+                    Ubicado en <strong>{{reserva.area}} - {{reserva.reservable}} ({{reserva.tipo_habitacion}})</strong> las noches del <strong>{{reserva.fecha_del | date:'dd/MM/yyyy'}}</strong> al <strong>{{reserva.fecha_al | date:'dd/MM/yyyy'}} - {{cantidadNoches}}</strong> noche{{cantidadNoches === 1 ? '' : 's'}}.<br/>
                     Registrado con el documento <strong>{{reserva.tipo_documento}} - {{reserva.numero_documento}}</strong> con <strong>{{reserva.cantidad_adultos}}</strong> adulto{{+reserva.cantidad_adultos === 1 ? '' : 's'}} y <strong>{{reserva.cantidad_menores}}</strong> menor{{+reserva.cantidad_menores === 1 ? '' : 'es'}}.<br/>
-                    Se le aplicó la tarifa de tipo de habitacion <strong>{{reserva.tipo_habitacion_reserva}}</strong> por <strong>{{reserva.monto | number:'1.2-2'}}</strong> con <strong>{{(reserva.monto_adicional_adulto || 0) | number:'1.2-2'}}</strong> adicional por adulto y <strong>{{(reserva.monto_adicional_menor || 0) | number:'1.2-2'}}</strong> adicional por menor.<br/>
+                    Se le aplicó la tarifa de tipo de habitación <strong>{{reserva.tipo_habitacion_reserva}}</strong> por <strong>{{reserva.monto | number:'1.2-2'}}</strong> para <strong>{{reserva.cantidad_adultos_reserva}}</strong> adulto{{+reserva.cantidad_adultos === 1 ? '' : 's'}} y <strong>{{reserva.cantidad_menores_reserva}}</strong> menor{{+reserva.cantidad_menores_reserva === 1 ? '' : 'es'}} con <strong>{{(reserva.monto_adicional_adulto || 0) | number:'1.2-2'}}</strong> adicional por adulto y <strong>{{(reserva.monto_adicional_menor || 0) | number:'1.2-2'}}</strong> adicional por menor.<br/>
                     El cliente <strong>{{reserva.enlistanegra | lowercase}}</strong> está en lista negra.
                 </p>
             </mat-card-content>

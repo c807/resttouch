@@ -152,10 +152,13 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     this.lstEstatusReserva = await this.estatusReservaSrvc.get().toPromise();
   }
 
-  loadClientesMaster = async () => {
+  loadClientesMaster = async (cm: ClienteMaster = null) => {
     const listaCM = await this.clienteMasterSrvc.get().toPromise();
     this.lstClientesMaster = OrdenarArrayObjetos(listaCM, 'nombre');
     this.filteredLstClientesMaster = JSON.parse(JSON.stringify(this.lstClientesMaster));
+    if (cm) {
+      this.txtClienteMasterSelected = cm;
+    }
   }
 
   resetReserva = () => {
@@ -356,8 +359,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     });
 
     this.endSubs.add(
-      cmdRef.afterClosed().subscribe(() => {
-        this.loadClientesMaster();
+      cmdRef.afterClosed().subscribe((res: ClienteMaster) => {
+        // console.log('CLIENTE MASTER = ', res);        
+        this.loadClientesMaster(res);
       })
     );
   }
