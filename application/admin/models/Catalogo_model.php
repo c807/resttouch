@@ -289,9 +289,11 @@ class Catalogo_model extends CI_Model
 		$raiz = isset($args['raiz']);
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$todo = isset($args['_todo']);
+		$mostrarDebaja = isset($args['_mostrar_debaja']);
 		unset($args['raiz']);
 		unset($args['sede']);
 		unset($args['_todo']);
+		unset($args['_mostrar_debaja']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -306,6 +308,10 @@ class Catalogo_model extends CI_Model
 		$buscarArt = [];
 		if (!$todo) {
 			$buscarArt["mostrar_pos"] = "1";
+		}
+
+		if ($mostrarDebaja) {
+			$buscarArt['_activos'] = true;
 		}
 
 		$qry = $this->db

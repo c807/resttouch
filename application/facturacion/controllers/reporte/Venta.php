@@ -234,8 +234,10 @@ class Venta extends CI_Controller
 		$categorias = [];
 		foreach ($cat as $row) {
 			$grupo = $this->Catalogo_model->getCategoriaGrupo([
-				"categoria" => $row->categoria,
-				"categoria_grupo_grupo" => null
+				'categoria' => $row->categoria,
+				'categoria_grupo_grupo' => null,
+				'_todo' => true,
+				'_mostrar_debaja' => true
 			]);
 			$row->categoria_grupo = $grupo;
 
