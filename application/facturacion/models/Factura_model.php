@@ -1623,7 +1623,8 @@ class Factura_model extends General_model
 		}
 
 		if (isset($args['turno_tipo'])) {
-			$this->db->where("(g.turno_tipo = {$args['turno_tipo']} OR g.turno_tipo IS NULL)");
+			// $this->db->where("(g.turno_tipo = {$args['turno_tipo']} OR g.turno_tipo IS NULL)");
+			$this->db->where("g.turno_tipo = {$args['turno_tipo']}");
 			unset($args['turno_tipo']);
 		}
 
