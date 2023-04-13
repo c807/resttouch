@@ -111,7 +111,7 @@ class Rpt_model extends General_model
 
         if (!empty($comandas)) {
             $combos = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + aumento) AS total')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
@@ -142,7 +142,7 @@ class Rpt_model extends General_model
                 ->result();
 
             $extras = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total', false)
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total', false)
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
@@ -156,7 +156,7 @@ class Rpt_model extends General_model
                 ->result();
     
             $directos = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total) AS total')
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
@@ -164,6 +164,7 @@ class Rpt_model extends General_model
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)
                 ->where('a.total >', 0)
+                // ->where('a.total <>', 0)
                 ->where('a.cantidad >', 0)
                 ->where('b.esextra', 0)
                 // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
@@ -208,7 +209,7 @@ class Rpt_model extends General_model
 
         if (!empty($comandas)) {
             $combos = $this->db
-                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, a.total, a.precio, b.combo')
+                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, (a.total + a.aumento) AS total, a.precio, b.combo')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
@@ -224,7 +225,7 @@ class Rpt_model extends General_model
                 ->result();
 
             $directos = $this->db
-                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, a.total, a.precio, b.combo')
+                ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, (a.total + a.aumento) AS total, a.precio, b.combo')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
@@ -234,6 +235,7 @@ class Rpt_model extends General_model
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)
                 ->where('a.total >', 0)
+                // ->where('a.total <>', 0)
                 ->where('a.cantidad >', 0)
                 // ->where('DATE(e.fhcreacion) >=', $args['fdel'])
                 // ->where('DATE(e.fhcreacion) <=', $args['fal'])
@@ -318,7 +320,7 @@ class Rpt_model extends General_model
             $this->db->group_by('a.mesero');
             $this->db->order_by('b.nombres, b.apellidos');
         } else {
-            $this->db->select('d.descripcion, SUM(c.cantidad) AS cantidad, SUM(c.total) AS total');
+            $this->db->select('d.descripcion, SUM(c.cantidad) AS cantidad, SUM(c.total + c.aumento) AS total');
             $this->db->group_by('c.articulo');
             $this->db->order_by('3 DESC, d.descripcion');
         }
@@ -328,7 +330,8 @@ class Rpt_model extends General_model
             ->join('detalle_comanda c', 'a.comanda = c.comanda')
             ->join('articulo d', 'd.articulo = c.articulo')
             ->where('c.cantidad >', 0)
-            ->where('c.total >', 0)
+            // ->where('c.total >', 0)
+            ->where('c.total <>', 0)
             ->where("a.comanda IN({$comandas})")
             ->get('comanda a')->result();
 
