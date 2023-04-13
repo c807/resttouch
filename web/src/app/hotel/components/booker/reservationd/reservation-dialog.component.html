@@ -1,5 +1,6 @@
 <h1 mat-dialog-title>
   {{+reserva?.reserva > 0 ? 'Editar' : 'Nueva'}} reservación
+  <span *ngIf="+reserva?.reserva > 0"> - Número {{reserva?.reserva}}</span>
   <span *ngIf="+reserva?.reserva > 0"> - Habitación {{reserva.etiqueta_mesa || reserva.numero_mesa }}</span>
   <span *ngIf="!reserva || +reserva?.reserva === 0"> - Habitación {{data.descripcionHabitacion}}</span>
   <span *ngIf="+reserva.comanda > 0"> - Comanda {{reserva.comanda}}</span>
@@ -15,7 +16,7 @@
     <mat-date-range-picker #picker></mat-date-range-picker>
     <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Fecha de inicio inválida.</mat-error>
     <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Fecha de finalización inválida.</mat-error>
-    <mat-hint align="start" *ngIf="diaSalida">Día de salida: {{diaSalida}}</mat-hint>
+    <mat-hint align="start" *ngIf="diaSalida">Día de salida: {{diaSalida}}<span> - {{cantidadNoches}} noche{{cantidadNoches !== 1 ? 's' : ''}}</span></mat-hint>
   </mat-form-field>
 
   <mat-form-field style="width: 45%;" appearance="fill" *ngIf="+reserva.reserva > 0">

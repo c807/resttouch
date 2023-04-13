@@ -400,7 +400,9 @@ class Reserva extends CI_Controller
 				$fila++;
 				foreach($datos['detalle'] as $det) {
 					$hoja->setCellValue("A{$fila}", formatoFecha($det->fecha_del, 2));
+					$hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
 					$hoja->setCellValue("B{$fila}", formatoFecha($det->fecha_al, 2));
+					$hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
 					$hoja->setCellValue("C{$fila}", $det->reserva);
 					$hoja->getStyle("A{$fila}:C{$fila}")->getAlignment()->setHorizontal('center');
 					$hoja->setCellValue("D{$fila}", "{$det->area} - {$det->reservable}");

@@ -49,10 +49,27 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   get reservaLista() {
     return moment(this.range.value.start).isValid && moment(this.range.value.end).isValid() && this.reserva.cantidad_adultos >= 0 && this.reserva.cantidad_menores >= 0 && +this.reserva.cliente_master > 0 && +this.reserva.tarifa_reserva > 0;
-  }  
+  }
 
   get diaSalida() {
     return moment(this.range.value.end).isValid() ? moment(this.range.value.end).add(1, 'day').format(GLOBAL.dateFormat) : null;
+  }
+
+  get cantidadNoches(): number {
+    let noches: number = null;
+
+    if (moment(this.range.value.start).isValid && moment(this.range.value.end).isValid()) {
+      if (moment(this.range.value.end).isAfter(moment(this.range.value.start))) {
+        noches = moment(this.range.value.end).diff(moment(this.range.value.start), 'days') + 1;
+        if (noches === 0) {
+          noches = 1;
+        }
+      } else if (moment(this.range.value.end).isSame(moment(this.range.value.start))) {
+        noches = 1;
+      }
+    }
+
+    return noches;
   }
 
   public range = new FormGroup({
@@ -73,7 +90,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   public lstClientesMaster: ClienteMaster[] = [];
   public filteredLstClientesMaster: ClienteMaster[] = [];
   public txtClienteMasterSelected: (ClienteMaster | string) = undefined;
-  public lstEstatusReserva: EstatusReserva[] = [];  
+  public lstEstatusReserva: EstatusReserva[] = [];
   public startDate = moment().toDate();
   public idEstatusReservaInicial = 0;
 
@@ -115,7 +132,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       await this.loadReservacion(+this.data.idReservacion);
     } else {
       this.resetReserva();
-    }    
+    }
   }
 
   ngOnDestroy(): void {
@@ -183,12 +200,11 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
     const msgCheckIn = this.reserva && +this.reserva.estatus_reserva === 2 ? ' Al hacer el check-in se abrirá automáticamente una cuenta para el cliente. ' : '';
     let continuar = true;
 
-    if (this.reserva && +this.reserva.estatus_reserva === 2)
-    {
+    if (this.reserva && +this.reserva.estatus_reserva === 2) {
       const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
       const fechaInicioReserva = moment(`${moment(this.reserva.fecha_del).format(GLOBAL.dbDateFormat)} 00:00:00`);
       if (hoy.isBefore(fechaInicioReserva)) {
-        continuar = false;        
+        continuar = false;
       }
     }
 
@@ -201,7 +217,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
           'Sí', 'No'
         )
       });
-  
+
       this.endSubs.add(
         dialogRef.afterClosed().subscribe(res => {
           if (res) {
@@ -354,7 +370,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   cambiarHabitacion = () => {
     const dialogRef = this.dialog.open(DialogSelectReservableComponent, {
       width: '50%',
-      data: { }
+      data: {}
     });
 
     this.endSubs.add(
@@ -362,7 +378,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
         if (+habitacion_destino > 0) {
           const obj = {
             reserva: +this.reserva.reserva,
-            mesa_destino: +habitacion_destino            
+            mesa_destino: +habitacion_destino
           }
           this.endSubs.add(
             this.reservaSrvc.cambiarHabitacion(obj).subscribe(res => {
