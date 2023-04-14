@@ -185,10 +185,12 @@ class Catalogo_model extends CI_Model
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
 		$activos = isset($args['_activos']) ? true : false;
 		$categoria = isset($args['categoria']) ? (int)$args['categoria'] : false;
+		$sinPropina = isset($args['_sin_propina']);
 		unset($args['ingreso']);
 		unset($args['sede']);
 		unset($args['_activos']);
 		unset($args['categoria']);
+		unset($args['_sin_propina']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -221,6 +223,10 @@ class Catalogo_model extends CI_Model
 
 		if ($categoria) {
 			$this->db->where('c.categoria', $categoria);
+		}
+
+		if ($sinPropina) {
+			$this->db->not_like('TRIM(a.descripcion)', 'propin', 'after', NULL);
 		}
 
 		$qry = $this->db
@@ -290,10 +296,12 @@ class Catalogo_model extends CI_Model
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$todo = isset($args['_todo']);
 		$mostrarDebaja = isset($args['_mostrar_debaja']);
+		$sinPropina = isset($args['_sin_propina']);
 		unset($args['raiz']);
 		unset($args['sede']);
 		unset($args['_todo']);
 		unset($args['_mostrar_debaja']);
+		unset($args['_sin_propina']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -312,6 +320,10 @@ class Catalogo_model extends CI_Model
 
 		if ($mostrarDebaja) {
 			$buscarArt['_activos'] = true;
+		}
+
+		if ($sinPropina) {
+			$buscarArt['_sin_propina'] = true;
 		}
 
 		$qry = $this->db
@@ -449,7 +461,7 @@ class Catalogo_model extends CI_Model
 			->get("sede a");
 
 		return $this->getCatalogo($qry, $args);
-	}	
+	}
 
 	public function getTipoUsuario($args = [])
 	{
@@ -687,7 +699,7 @@ class Catalogo_model extends CI_Model
 			->get('articulo_detalle a')
 			->result();
 
-		foreach($articulos as $art) {
+		foreach ($articulos as $art) {
 			$art->opciones = [];
 			if ((int)$art->multiple === 1) {
 				$art->opciones = $this->get_contenido_combo($art->articulo);
@@ -700,9 +712,9 @@ class Catalogo_model extends CI_Model
 	private function get_campos_tabla($tabla, $prefijo = '')
 	{
 		$lista = $this->db
-			->select('GROUP_CONCAT(CONCAT("'.$prefijo.'", column_name) ORDER BY ordinal_position SEPARATOR ",") AS campos')
+			->select('GROUP_CONCAT(CONCAT("' . $prefijo . '", column_name) ORDER BY ordinal_position SEPARATOR ",") AS campos')
 			->where('table_schema', $this->db->database)
-			->where('table_name', $tabla)			
+			->where('table_name', $tabla)
 			->get('information_schema.columns')
 			->row();
 		return $lista ? $lista->campos : '';
@@ -731,13 +743,13 @@ class Catalogo_model extends CI_Model
 	}
 
 	private function buscarObjetoEnLista($lista, $campo, $valor)
-	{		
-		foreach($lista as $item) {
+	{
+		foreach ($lista as $item) {
 			if ((int)$item->{$campo} === (int)$valor) {
 				return $item;
 			}
 		}
-		return null;		
+		return null;
 	}
 
 	public function getArticulo_v2($args = [])
@@ -808,7 +820,6 @@ class Catalogo_model extends CI_Model
 
 		return ordenar_array_objetos($tmp, 'descripcion');
 	}
-
 }
 
 /* End of file Catalogo_model.php */

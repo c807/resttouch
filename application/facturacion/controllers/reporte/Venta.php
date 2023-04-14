@@ -237,7 +237,8 @@ class Venta extends CI_Controller
 				'categoria' => $row->categoria,
 				'categoria_grupo_grupo' => null,
 				'_todo' => true,
-				'_mostrar_debaja' => true
+				'_mostrar_debaja' => true,
+				'_sin_propina' => true
 			]);
 			$row->categoria_grupo = $grupo;
 

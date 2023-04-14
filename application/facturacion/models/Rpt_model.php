@@ -111,7 +111,7 @@ class Rpt_model extends General_model
 
         if (!empty($comandas)) {
             $combos = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + aumento) AS total')
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
@@ -126,7 +126,7 @@ class Rpt_model extends General_model
                 ->result();
     
             $multiples = $this->db
-                ->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, COUNT(a.articulo) * a.precio AS total', false)
+                ->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, SUM(a.total + a.aumento) AS total', false)
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
