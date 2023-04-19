@@ -178,7 +178,17 @@ class Reserva_model extends General_model
 					->where('a.comanda', $idComanda)
 					->group_by('e.factura')
 					->get('detalle_comanda a')
+					->result();	
+				
+				$facturasDeAbonos = $this->db
+					->select($campos, false)
+					->join('cliente f', 'f.cliente = e.cliente')
+					->join('abono c', 'c.abono = e.abono')
+					->where('c.reserva', $idReserva)
+					->get('factura e')
 					->result();
+
+				$facturas = array_merge($facturas, $facturasDeAbonos);
 	
 				foreach($facturas as $factura) {
 					$detalle = $this->db
@@ -204,6 +214,33 @@ class Reserva_model extends General_model
 				}
 				
 				$reserva->facturas = $facturas;
+
+				$reserva->sin_factura = [];				
+				$campos = 'c.descripcion AS forma_pago, SUM(a.monto) AS monto, SUM(a.propina) AS propina';
+				$sinFactura = $this->db
+					->select($campos)
+					->join('cuenta b', 'b.cuenta = a.cuenta')
+					->join('forma_pago c', 'c.forma_pago = a.forma_pago')
+					->where('b.comanda', $idComanda)
+					->where('c.sinfactura', 1)
+					->group_by('c.forma_pago')
+					->order_by('c.descripcion')
+					->get('cuenta_forma_pago a')
+					->result();
+
+				if ($sinFactura) {
+					$campos = '"TOTAL" AS forma_pago, SUM(a.monto) AS monto, SUM(a.propina) AS propina';
+					$sumaSinFactura = $this->db
+						->select($campos, false)
+						->join('cuenta b', 'b.cuenta = a.cuenta')
+						->join('forma_pago c', 'c.forma_pago = a.forma_pago')
+						->where('b.comanda', $idComanda)
+						->where('c.sinfactura', 1)
+						->get('cuenta_forma_pago a')
+						->result();
+
+					$reserva->sin_factura = array_merge($sinFactura, $sumaSinFactura);
+				}
 			}
 		}
 

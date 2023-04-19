@@ -56,7 +56,7 @@
                                 </mat-form-field>
                             </td>
                             <td class="ctxt">
-                                <button mat-raised-button type="button" color="accent" (click)="quitarMonto(i)" class="btnAccion" [disabled]="abono.info_factura.firmada">
+                                <button mat-raised-button type="button" color="accent" (click)="quitarMonto(i)" class="btnAccion" [disabled]="abono.info_factura?.firmada">
                                     Quitar
                                 </button>    
                             </td>
@@ -72,14 +72,14 @@
                 </tfoot>
             </table>
             <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!abono.fecha || formasPagoAbono.length === 0 || abono.info_factura.firmada">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!abono.fecha || formasPagoAbono.length === 0 || abono.info_factura?.firmada || !fechaAbonoValida">
                     Guardar
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0">
                     Imprimir
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="facturarAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0">
-                    Factura{{abono.info_factura.factura ? '' : 'r'}}
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="facturarAbono()" *ngIf="abono?.abono" [disabled]="formasPagoAbono.length === 0 || hayFormasPagoSinFactura">
+                    Factura{{abono.info_factura?.factura ? '' : 'r'}}
                 </button>
                 <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="resetAbono()" *ngIf="abono?.abono">
                     Nuevo

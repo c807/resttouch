@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angu
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 import { Socket } from 'ngx-socket-io';
 import * as moment from 'moment';
 
@@ -36,6 +36,28 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
       total += +fpa.monto;
     }
     return total;
+  }
+
+  get fechaAbonoValida(): boolean {
+    let esValida = false;
+    if (moment(this.abono.fecha).isValid) {
+      const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+      const fecha = moment(`${moment(this.abono.fecha).format(GLOBAL.dbDateFormat)} 00:00:00`);
+      esValida = hoy.isSameOrAfter(fecha);
+    }
+    return esValida;
+  }
+
+  get hayFormasPagoSinFactura(): boolean {
+    let hfpsf = false;
+    for(const fpa of this.formasPagoAbono) {
+      const fp: FormaPago = this.formasPago.find(f => +f.forma_pago === +fpa.forma_pago);
+      if (fp && +fp.sinfactura === 1) {
+        hfpsf = true;
+        break;      
+      }
+    }
+    return hfpsf;
   }
 
   @Input() data: IDataAbono = null;
@@ -102,7 +124,7 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
 
   loadFormasPago = () => {
     this.endSubs.add(
-      this.fpagoSrvc.get({ activo: 1, descuento: 0 }).subscribe(res => this.formasPago = res)
+      this.fpagoSrvc.get({ activo: 1, descuento: 0 }).subscribe(res => this.formasPago = OrdenarArrayObjetos(res, 'descripcion'))
     );
   }
 
@@ -271,5 +293,5 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
     const objImpresion = new Impresion(this.socket);
     objImpresion.impresoraPorDefecto = this.impresoraPorDefecto;
     objImpresion.imprimirAbono(data_abono);
-  }
+  }  
 }

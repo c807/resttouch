@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import * as moment from 'moment';
 
-// import { Reserva } from '@hotel-interfaces/reserva';
 import { ReservaService } from '@hotel-services/reserva.service';
 
 import { Subscription } from 'rxjs';
