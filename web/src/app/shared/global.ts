@@ -7,7 +7,7 @@ import { Municipio } from '@admin-interfaces/municipio';
 import { Cliente } from '@admin-interfaces/cliente';
 
 export const GLOBAL = {
-  rtVersion: '2023.04.19.11.26.21',
+  rtVersion: '2023.04.20.08.02.56',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
