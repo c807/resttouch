@@ -216,15 +216,19 @@
       <table class="table table-sm table-borderless">
         <tbody>
           <tr>
-            <td class="text-right font-weight-bold">TOTAL DE CUENTA:</td>
-            <td class="text-right font-weight-bold totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta | number:'1.2-2'}}</td>
+            <td class="rtxt bld">TOTAL DE CUENTA:</td>
+            <td class="rtxt bld totalCuenta" style="max-width: 15%;">{{inputData.totalDeCuenta | number:'1.2-2'}}</td>
           </tr>
           <tr>
-            <td class="text-right font-weight-bold">PENDIENTE:</td>
-            <td class="text-right font-weight-bold" style="max-width: 15%;">
-              <span
-                [ngClass]="{'saldo-pendiente': +inputData.saldo > 0, 'saldo-exacto': +inputData.saldo == 0, 'saldo-extra': +inputData.saldo < 0 }">{{inputData.saldo
-                | number:'1.2-2'}}</span>
+            <td class="rtxt bld">PENDIENTE:</td>
+            <td class="rtxt bld" style="max-width: 15%;">
+              <span [ngClass]="{'saldo-pendiente': +inputData.saldo > 0, 'saldo-exacto': +inputData.saldo == 0, 'saldo-extra': +inputData.saldo < 0 }">{{inputData.saldo | number:'1.2-2'}}</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="rtxt bld">TOTAL DE CUENTA CON PROPINA:</td>
+            <td class="rtxt bld" style="max-width: 15%;">
+              <span class="">{{totalDeCuentaConPropina | number:'1.2-2'}}</span>
             </td>
           </tr>
         </tbody>

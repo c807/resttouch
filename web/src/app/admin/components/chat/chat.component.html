@@ -1,0 +1,22 @@
+<div class="contenedor">
+    <div align="end">
+        <button type="button" mat-icon-button color="accent" (click)="closeChat()">
+            <mat-icon style="font-size: 24px;">close</mat-icon>
+        </button>
+    </div>
+    <div id="divConversacion" class="mat-elevation-z4 div-conversacion">
+        <p align="justify" [innerHTML]="conversacion"></p>
+        <app-cargando *ngIf="cargando" [configuracion]="configuracion"></app-cargando>
+    </div>
+    <div>
+        <form #frmChat="ngForm" autocomplete="off" novalidate>
+            <mat-form-field class="fullWidth">
+                <input matInput #txtMensaje type="text" placeholder="Escriba su pregunta..." name="mensaje" [(ngModel)]="mensaje" maxlength="100" (keyup.enter)="mensaje && mensaje.length > 0 && sendQuery()" autocomplete="mensaje-new">
+                <button type="button" matSuffix mat-icon-button color="accent" (click)="sendQuery()" [disabled]="!mensaje || mensaje.length === 0 || cargando">
+                    <mat-icon style="font-size: 24px;">send</mat-icon>
+                </button>
+                <mat-hint align="end">{{mensaje.length}} / 100</mat-hint>
+            </mat-form-field>
+        </form>
+    </div>
+</div>

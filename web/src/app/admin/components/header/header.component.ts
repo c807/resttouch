@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 import { LocalstorageService } from '@admin-services/localstorage.service';
@@ -14,6 +15,7 @@ import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { SolicitaPinInactividadComponent } from '@admin-components/solicita-pin-inactividad/solicita-pin-inactividad.component';
 import { AcercaDeComponent } from '@admin-components/acerca-de/acerca-de.component';
 import { NotificacionesClienteComponent } from '@admin-components/notificaciones-cliente/notificaciones-cliente.component';
+import { ChatComponent } from '@admin-components/chat/chat.component';
 
 import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
 import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
@@ -38,6 +40,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public timedOut = false;
   public lastPing?: Date = null;
   public notificaciones: NotificacionCliente[] = [];
+  public conversacion: string = '';
+  public mensaje: string = '';
 
   private endSubs = new Subscription();
 
@@ -50,6 +54,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     private idle: Idle,
     private keepalive: Keepalive,
     private configSrvc: ConfiguracionService,
+    private mbs: MatBottomSheet,
     public dialog: MatDialog,
     public notificacionClienteSrvc: NotificacionClienteService
   ) {
@@ -169,12 +174,16 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   acercaDe = () => {
-    const aboutRef = this.dialog.open(AcercaDeComponent, {
+    this.dialog.open(AcercaDeComponent, {
       width: '50%',
       hasBackdrop: true,
       autoFocus: true,
       data: null
     });    
+  }
+
+  openChat = () => {
+    this.mbs.open(ChatComponent);
   }
 
 }
