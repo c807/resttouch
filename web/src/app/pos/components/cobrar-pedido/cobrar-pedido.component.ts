@@ -33,6 +33,7 @@ import { ArticuloTipoCliente } from '@wms-interfaces/articulo-tipo-cliente';
 import { ArticuloService } from '@wms-services/articulo.service';
 import { Municipio } from '@admin-interfaces/municipio';
 import { MunicipioService } from '@admin-services/municipio.service';
+import { ComandaGetResponse } from '@restaurante/interfaces/comanda';
 
 import { Subscription } from 'rxjs';
 
@@ -99,6 +100,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     return +this.inputData.totalDeCuenta + this.montoPropina;
   }
 
+  get excedeMontoMaximo(): boolean {
+    let excede = false;
+    // const mnt: number = +this.formaPago?.monto || 0;
+    // const saldoCuenta: number = +this.inputData?.saldo || 0;
+
+
+    return excede;
+  }
+
   @Input() inputData: any = {};
   public inputDataOriginal: any = {};
   public lstFormasPago: FormaPago[] = [];
@@ -143,6 +153,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public varClienteFactura = `${GLOBAL.rtClienteFactura}_`;
   public permiteDetalleFacturaPersonalizado = true;
   public municipios: Municipio[] = [];
+  public mesaEnUso: ComandaGetResponse = null;
 
   private endSubs = new Subscription();
 
@@ -251,6 +262,9 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.data = this.inputData;
     }
+
+    this.mesaEnUso = this.inputData.mesaenuso as ComandaGetResponse;
+    console.log('MESA EN USO = ', this.mesaEnUso);
 
     this.inputData.porcentajePropina = +this.porcentajePropina;
     this.inputDataOriginal = JSON.parse(JSON.stringify(this.inputData));
@@ -749,6 +763,11 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         this.porcentajeAumento = 1;
         this.bloqueaMonto = false;
       }
+      
+      if (+this.lstFormasPago[idx].esabono === 1) {
+
+      }
+
       this.calculaTotalDeCuenta();
       this.actualizaSaldo();
     }

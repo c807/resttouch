@@ -15,6 +15,7 @@ export interface FormaPago {
     esefectivo?: number;
     montocc?: number;
     escobrohabitacion?: number;
+    esabono?: number;
 }
 
 export interface FormaPagoComandaOrigen {

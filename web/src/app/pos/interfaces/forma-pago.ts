@@ -11,5 +11,6 @@ export interface FormaPago {
     pedirautorizacion?: number;
     sinfactura?: number;
     esefectivo?: number;
+    esabono?: number;
     montocc?: number;
 }

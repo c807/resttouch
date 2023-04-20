@@ -1,11 +1,13 @@
 <h1 mat-dialog-title>
-  Cobrar cuenta de {{data.cuenta}}
-  <small *ngIf="clienteSelected && !!clienteSelected.cliente">
-    - Factura a nombre de {{clienteSelected.nombre}}
-  </small>
+  Cobrar cuenta de {{data.cuenta}}<small *ngIf="clienteSelected && !!clienteSelected.cliente"> - Factura a nombre de {{clienteSelected.nombre}}</small>
 </h1>
 <!-- <div mat-dialog-content style="height: 650px;"> -->
 <div mat-dialog-content class="contenido">
+  <div class="row" *ngIf="+mesaEnUso.abonado !== 0">
+    <div class="col m12 s12">
+      <strong>La comanda tiene abonos por un total de {{+mesaEnUso.abonado | number:'1.2-2'}}. A esta cuenta le puede abonar un máximo de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</strong>
+    </div>
+  </div>
   <div class="row">
     <div class="col m5 s12 mat-elevation-z4 colHeight" style="overflow-y: auto;">
       <app-lista-cliente #lstClientes (getClienteEv)="setClienteFacturar($event)" [showAddButton]="true" [totalDeCuenta]="totalDeCuentaConPropina">
@@ -26,49 +28,32 @@
       <form #frmFormasPago="ngForm" novalidate>
         <mat-form-field class="fullWidth">
           <mat-label>Forma de pago</mat-label>
-          <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial
-            (selectionChange)="onSelectionChangeFP($event)" required>
-            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago"
-              [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento">
+          <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial (selectionChange)="onSelectionChangeFP($event)" required>
+            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago" [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento">
               {{mofp.descripcion}}
             </mat-option>
           </mat-select>
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto"
-            [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
-          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto"
-            [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
+          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
         <mat-form-field class="fullWidth">
-          <input
-            [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)"
-            matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina"
-            [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
-          <input
-            [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)"
-            matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina"
-            [(ngModel)]="formaPago.propina">
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina">
           <!-- Warning Icon ,Tip Quantity Exceed -->
-
-          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left"
-            [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
-          <mat-icon (click)="autorizaCambioPropina()" *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip"
-            matTooltipPosition="left" style="color:orange;" matSuffix>lock</mat-icon>
+          <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
+          <mat-icon (click)="autorizaCambioPropina()" *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip" matTooltipPosition="left" style="color:orange;" matSuffix>lock</mat-icon>
         </mat-form-field>
         <!--Fin de input de propina por forma de pago-->
 
         <!-- Inicia vuelto para -->
         <mat-form-field class="fullWidth" *ngIf="esEfectivo">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Vuelto para" name="vuelto_para"
-            [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0"
-            (input)="calculaVuelto(formaPago)">
-          <input matInput *ngIf="esMovil" placeholder="Vuelto para" name="vuelto_para"
-            [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0"
-            (keyup)="calculaVuelto(formaPago)">
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (input)="calculaVuelto(formaPago)">
+          <input matInput *ngIf="esMovil" placeholder="Vuelto para" name="vuelto_para" [(ngModel)]="formaPago.vuelto_para" pattern="[0-9.]{1,10}" max="200" min="0" (keyup)="calculaVuelto(formaPago)">
         </mat-form-field>
         <!-- <mat-form-field class="fullWidth" *ngIf="esEfectivo">
           <input matInput placeholder="Vuelto" name="vuelto" [(ngModel)]="formaPago.vuelto" disabled="true">
@@ -86,8 +71,7 @@
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">
-          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()"
-            [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0">
+          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()" [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0 || excedeMontoMaximo">
             Agregar
           </button>
         </div>

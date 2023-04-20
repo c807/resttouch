@@ -22,6 +22,7 @@
                         <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje" pattern="[0-9.]{1,50}">
                     </mat-form-field>
                     <mat-checkbox name="descuento" class="btnAccion" [(ngModel)]="+fpago.descuento">¿Es descuento?</mat-checkbox>
+                    <mat-checkbox name="esabono" class="btnAccion" [(ngModel)]="+fpago.esabono">Para abonos</mat-checkbox>
                     <mat-checkbox name="pedirdocumento" class="btnAccion" [(ngModel)]="+fpago.pedirdocumento">Pedir número de documento</mat-checkbox>
                     <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
                     <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>

@@ -613,6 +613,8 @@ class Comanda_model extends General_Model
         $tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
         $tmp->formas_pago = $this->get_forma_pago();
         $tmp->abonado = $this->get_monto_abonado_comanda();
+        $tmp->monto_abono_usado = $this->get_monto_abono_usado();
+        $tmp->saldo_abono = $tmp->abonado - $tmp->monto_abono_usado;
         return $tmp;
     }
 
@@ -1318,6 +1320,28 @@ class Comanda_model extends General_Model
 
         if ($abonos && $abonos->abonado) {
             return (float)$abonos->abonado;
+        }
+
+        return (float)0;
+    }
+
+    public function get_monto_abono_usado($idComanda = null)
+    {
+        if(empty($idComanda)) {
+            $idComanda = $this->getPK();
+        }
+
+        $mau = $this->db
+            ->select('IFNULL(SUM(a.monto), 0.00) AS monto_abono_usado', false)
+            ->join('cuenta b', 'b.cuenta = a.cuenta')
+            ->join('forma_pago c', 'c.forma_pago = a.forma_pago')
+            ->where('b.comanda', $idComanda)
+            ->where('c.esabono', 1)
+            ->get('cuenta_forma_pago a')
+            ->row();
+
+        if ($mau && $mau->monto_abono_usado) {
+            return (float)$mau->monto_abono_usado;
         }
 
         return (float)0;

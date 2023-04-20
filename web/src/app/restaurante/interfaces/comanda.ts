@@ -58,6 +58,8 @@ export interface ComandaGetResponse {
     notas_generales?: string;
     cliente_master?: number;
     abonado?: number;
+    monto_abono_usado?: number;
+    saldo_abono?: number;
 }
 
 export interface IDatosTranComanda {
