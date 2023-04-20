@@ -1332,7 +1332,7 @@ class Comanda_model extends General_Model
         }
 
         $mau = $this->db
-            ->select('IFNULL(SUM(a.monto), 0.00) AS monto_abono_usado', false)
+            ->select('IFNULL(SUM(a.monto + a.propina), 0.00) AS monto_abono_usado', false)
             ->join('cuenta b', 'b.cuenta = a.cuenta')
             ->join('forma_pago c', 'c.forma_pago = a.forma_pago')
             ->where('b.comanda', $idComanda)

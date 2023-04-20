@@ -40,8 +40,8 @@
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
         <mat-form-field class="fullWidth" [ngClass]="{'excede-monto': excedeMontoMaximo}">
-          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
-          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
+          <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago); setPropina()" required>
+          <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago); setPropina()" required>
           <mat-hint *ngIf="excedeMontoMaximo">El monto para esta forma de pago no puede exceder de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</mat-hint>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->

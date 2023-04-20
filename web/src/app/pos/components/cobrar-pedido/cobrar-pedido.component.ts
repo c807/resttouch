@@ -89,10 +89,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get montoPropina(): number {
-    let mntProp = 0;    
-    for(const fp of this.formasPagoDeCuenta) {
+    let mntProp = 0;
+    for (const fp of this.formasPagoDeCuenta) {
       mntProp += +fp.propina;
-    }    
+    }
     return mntProp;
   }
 
@@ -187,7 +187,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.RT_AUTORIZA_CAMBIO_PROPINA = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean;
     this.RT_AUTORIZA_CAMBIO_PROPINA_ICON = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUTORIZA_CAMBIO_PROPINA) as boolean;
     this.aceptaPropinaEnCallCenter = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PROPINA_EN_CALLCENTER) as boolean;
-    this.permiteDetalleFacturaPersonalizado = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PERMITE_DETALLE_FACTURA_PERSONALIZADO) as boolean;    
+    this.permiteDetalleFacturaPersonalizado = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PERMITE_DETALLE_FACTURA_PERSONALIZADO) as boolean;
 
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
       this.varDireccionEntrega += `${this.data.mesaenuso.mesa.mesa}`;
@@ -225,7 +225,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (+this.data.mesaenuso.mesa.escallcenter === 1) {
-      Promise.resolve(null).then(() => this.setDatosPedido());      
+      Promise.resolve(null).then(() => this.setDatosPedido());
     }
   }
 
@@ -430,8 +430,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.inputData.saldo = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
     this.formaPago = {
       monto: this.inputData.saldo,
-      forma_pago: this.formaPago?.forma_pago || null      
-    };    
+      forma_pago: this.formaPago?.forma_pago || null
+    };
   }
 
   cancelar = () => this.dialogRef.close();
@@ -766,15 +766,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         this.porcentajeAumento = 1;
         this.bloqueaMonto = false;
       }
-      
-      if (+this.lstFormasPago[idx].esabono === 1) {
-
-      }
-
       this.calculaTotalDeCuenta();
       this.actualizaSaldo();
     }
     this.calcTipAuto();
+
+    if (+this.lstFormasPago[idx].esabono === 1) {
+      this.formaPago.propina = 0.00;
+    }
   }
 
   vaciaDescripcionUnica = () => {
@@ -862,7 +861,22 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     //Datos de facturacion
     const datosFact: ClienteMasterCliente = this.ls.get(this.varClienteFactura) || null;
     if (datosFact) {
-      this.setClienteFacturar(datosFact.cliente);      
+      this.setClienteFacturar(datosFact.cliente);
+    }
+  }
+
+  setPropina = () => {
+    if (this.SET_PROPINA_AUTOMATICA) {
+      const tipPorcentaje = +this.porcentajePropina / 100;
+      const tipAmount = +this.formaPago.monto * tipPorcentaje;
+      this.formaPago.propina = tipAmount.toFixed(2);
+    }
+
+    if (this.formaPago && +this.formaPago.forma_pago > 0) {
+      const fp = this.lstFormasPago.find(f => +f.forma_pago === +this.formaPago.forma_pago);
+      if (fp && +fp.esabono === 1) {
+        this.formaPago.propina = 0.00;
+      }
     }
   }
 }

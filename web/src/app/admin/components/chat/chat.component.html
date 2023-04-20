@@ -11,11 +11,11 @@
     <div>
         <form #frmChat="ngForm" autocomplete="off" novalidate>
             <mat-form-field class="fullWidth">
-                <input matInput #txtMensaje type="text" placeholder="Escriba su pregunta..." name="mensaje" [(ngModel)]="mensaje" maxlength="100" (keyup.enter)="mensaje && mensaje.length > 0 && sendQuery()" autocomplete="mensaje-new">
+                <input matInput #txtMensaje type="text" placeholder="Escriba su pregunta..." name="mensaje" [(ngModel)]="mensaje" maxlength="250" (keyup.enter)="mensaje && mensaje.length > 0 && sendQuery()" autocomplete="mensaje-new">
                 <button type="button" matSuffix mat-icon-button color="accent" (click)="sendQuery()" [disabled]="!mensaje || mensaje.length === 0 || cargando">
                     <mat-icon style="font-size: 24px;">send</mat-icon>
                 </button>
-                <mat-hint align="end">{{mensaje.length}} / 100</mat-hint>
+                <mat-hint align="end">{{mensaje.length}} / 250</mat-hint>
             </mat-form-field>
         </form>
     </div>
