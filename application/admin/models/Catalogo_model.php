@@ -185,10 +185,12 @@ class Catalogo_model extends CI_Model
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
 		$activos = isset($args['_activos']) ? true : false;
 		$categoria = isset($args['categoria']) ? (int)$args['categoria'] : false;
+		$sinPropina = isset($args['_sin_propina']);
 		unset($args['ingreso']);
 		unset($args['sede']);
 		unset($args['_activos']);
 		unset($args['categoria']);
+		unset($args['_sin_propina']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -221,6 +223,10 @@ class Catalogo_model extends CI_Model
 
 		if ($categoria) {
 			$this->db->where('c.categoria', $categoria);
+		}
+
+		if ($sinPropina) {
+			$this->db->not_like('TRIM(a.descripcion)', 'propin', 'after', NULL);
 		}
 
 		$qry = $this->db
@@ -290,10 +296,12 @@ class Catalogo_model extends CI_Model
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$todo = isset($args['_todo']);
 		$mostrarDebaja = isset($args['_mostrar_debaja']);
+		$sinPropina = isset($args['_sin_propina']);
 		unset($args['raiz']);
 		unset($args['sede']);
 		unset($args['_todo']);
 		unset($args['_mostrar_debaja']);
+		unset($args['_sin_propina']);
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -312,6 +320,10 @@ class Catalogo_model extends CI_Model
 
 		if ($mostrarDebaja) {
 			$buscarArt['_activos'] = true;
+		}
+
+		if ($sinPropina) {
+			$buscarArt['_sin_propina'] = true;
 		}
 
 		$qry = $this->db
