@@ -48,6 +48,28 @@
         </mat-card>
     </div>
     <hr/>
+    <div class="fullWidth" *ngIf="reserva.abonos && reserva.abonos.length > 0">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-header>
+                <mat-card-title>Abonos</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>                
+                <table>                    
+                        <tr>
+                            <th style="width: 10%;">Fecha</th>
+                            <th>Forma de pago</th>
+                            <th class="rtxt" style="width: 10%;">Monto</th>                            
+                        </tr>
+                        <tr *ngFor="let abrsv of reserva.abonos; last as isLast">
+                            <td [ngClass]="{'bld': isLast}">{{abrsv.fecha ? (abrsv.fecha | date:'dd/MM/yyyy') : ''}}</td>
+                            <td [ngClass]="{'bld': isLast}">{{abrsv.forma_pago}}</td>
+                            <td class="rtxt" [ngClass]="{'bld': isLast}">{{abrsv.monto | number:'1.2-2'}}</td>
+                        </tr>
+                    </table>
+            </mat-card-content>
+        </mat-card>        
+    </div>
+    <hr/>
     <div class="fullWidth" *ngIf="reserva.facturas && reserva.facturas.length > 0">
         <ng-container *ngFor="let factura of reserva.facturas; last as isLastFactura">
             <mat-card class="mat-elevation-z4 fullWidth">
@@ -83,6 +105,7 @@
             <hr *ngIf="!isLastFactura"/> 
         </ng-container>       
     </div>
+    <hr/>
     <div class="fullWidth" *ngIf="reserva.sin_factura && reserva.sin_factura.length > 0">
         <mat-card class="mat-elevation-z4 fullWidth">
             <mat-card-header>

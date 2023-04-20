@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, AfterViewInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import * as moment from 'moment';
 
@@ -15,7 +15,7 @@ export interface DialogData {
   templateUrl: './dialog-info-reservacion.component.html',
   styleUrls: ['./dialog-info-reservacion.component.css']
 })
-export class DialogInfoReservacionComponent implements OnInit, OnDestroy {
+export class DialogInfoReservacionComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get cantidadNoches(): number {
     let noches: number = null;
@@ -45,6 +45,9 @@ export class DialogInfoReservacionComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+  }
+  
+  ngAfterViewInit(): void {
     this.loadInfoReserva();    
   }
 

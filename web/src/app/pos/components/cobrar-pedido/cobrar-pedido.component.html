@@ -5,7 +5,11 @@
 <div mat-dialog-content class="contenido">
   <div class="row" *ngIf="+mesaEnUso.abonado !== 0">
     <div class="col m12 s12">
-      <strong>La comanda tiene abonos por un total de {{+mesaEnUso.abonado | number:'1.2-2'}}. A esta cuenta le puede abonar un máximo de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</strong>
+      <strong>
+        La comanda tiene abonos por un total de {{+mesaEnUso.abonado | number:'1.2-2'}}.
+        <span *ngIf="+mesaEnUso.saldo_abono !== 0"> A esta cuenta le puede abonar un máximo de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</span>
+        <span *ngIf="+mesaEnUso.saldo_abono === 0"> Ya no tiene saldo de abono para asignar.</span>
+      </strong>
     </div>
   </div>
   <div class="row">
@@ -29,15 +33,16 @@
         <mat-form-field class="fullWidth">
           <mat-label>Forma de pago</mat-label>
           <mat-select name="forma_pago" [(ngModel)]="formaPago.forma_pago" cdkFocusInitial (selectionChange)="onSelectionChangeFP($event)" required>
-            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago" [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento">
+            <mat-option *ngFor="let mofp of lstFormasPago" [value]="mofp.forma_pago" [disabled]="deshabilitaFormaPagoConAumento(mofp) || deshabilitaFormaPagoSinAumento || (+mofp.esabono === 1 && +mesaEnUso.saldo_abono === 0)">
               {{mofp.descripcion}}
             </mat-option>
           </mat-select>
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
-        <mat-form-field class="fullWidth">
+        <mat-form-field class="fullWidth" [ngClass]="{'excede-monto': excedeMontoMaximo}">
           <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago)" required>
           <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago)" required>
+          <mat-hint *ngIf="excedeMontoMaximo">El monto para esta forma de pago no puede exceder de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</mat-hint>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
@@ -63,11 +68,8 @@
 
         <!-- Inicia input de documento -->
         <mat-form-field class="fullWidth" *ngIf="pideDocumento">
-          <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento"
-            name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1"
-            maxlength="1000">
-          <input matInput type="text" *ngIf="esMovil" placeholder="Documento" name="documento"
-            [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
+          <input matInput type="text" *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
+          <input matInput type="text" *ngIf="esMovil" placeholder="Documento" name="documento" [(ngModel)]="formaPago.documento" [required]="pideDocumento" minlength="1" maxlength="1000">
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">

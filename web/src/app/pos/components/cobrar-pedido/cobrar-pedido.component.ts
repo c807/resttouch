@@ -101,12 +101,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get excedeMontoMaximo(): boolean {
-    let excede = false;
-    // const mnt: number = +this.formaPago?.monto || 0;
-    // const saldoCuenta: number = +this.inputData?.saldo || 0;
-
-
-    return excede;
+    if (this.formaPago && +this.formaPago.forma_pago > 0) {
+      const fp = this.lstFormasPago.find(f => +f.forma_pago === +this.formaPago.forma_pago);
+      if (fp && +fp.esabono === 1) {
+        const mnt: number = +this.formaPago?.monto || 0;
+        const saldoAbono: number = +this.mesaEnUso?.saldo_abono || 0;
+        return mnt > saldoAbono;
+      }
+    }
+    return false;
   }
 
   @Input() inputData: any = {};
@@ -264,7 +267,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.mesaEnUso = this.inputData.mesaenuso as ComandaGetResponse;
-    console.log('MESA EN USO = ', this.mesaEnUso);
+    // console.log('MESA EN USO = ', this.mesaEnUso);
 
     this.inputData.porcentajePropina = +this.porcentajePropina;
     this.inputDataOriginal = JSON.parse(JSON.stringify(this.inputData));

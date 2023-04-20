@@ -124,7 +124,7 @@ export class FormAbonoComponent implements OnInit, OnDestroy {
 
   loadFormasPago = () => {
     this.endSubs.add(
-      this.fpagoSrvc.get({ activo: 1, descuento: 0 }).subscribe(res => this.formasPago = OrdenarArrayObjetos(res, 'descripcion'))
+      this.fpagoSrvc.get({ activo: 1, descuento: 0, esabono: 0 }).subscribe(res => this.formasPago = OrdenarArrayObjetos(res, 'descripcion'))
     );
   }
 
