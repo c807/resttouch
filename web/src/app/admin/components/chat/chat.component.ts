@@ -54,7 +54,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.conversacion += `<strong>${this.usuario}:</strong> ${msg}<hr/>`;
     this.updateDivConversacionScroll();
     this.endSubs.add(
-      this.chatSrvc.queryChefbot(msg).subscribe(async (res) => {
+      this.chatSrvc.askRtChefbot(msg).subscribe(async (res) => {
         this.writeMessage(res.mensaje);
         this.cargando = false;
         this.updateDivConversacionScroll();

@@ -7,7 +7,7 @@ import { Municipio } from '@admin-interfaces/municipio';
 import { Cliente } from '@admin-interfaces/cliente';
 
 export const GLOBAL = {
-  rtVersion: '2023.04.20.08.02.56',
+  rtVersion: '2023.04.21.16.00.27',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -28,6 +28,7 @@ export const GLOBAL = {
   urlFacturacion: `${urlBase}/facturacion.php`,
   urlGhostKitchen: `${urlBase}/ghost_kitchen.php`,
   urlCallCenter: `${urlBase}/call_center.php`,
+  urlRtChefBot: 'http://localhost:7071/api/ask_rt_chefbot',
   usrTokenVar: 'rttoken',
   usrUnlockVar: 'rtunlock',
   rtClientePedido: 'rt_cliente_pedido',

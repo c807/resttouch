@@ -25,4 +25,11 @@ export class ChatService {
       { prompt: prompt }
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  askRtChefbot(prompt: string): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlRtChefBot}`,
+      { prompt: prompt }
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
 }
