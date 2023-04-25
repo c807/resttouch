@@ -227,12 +227,15 @@
 								<td style="padding: 5px;" class="text-right">
 									<?php echo number_format($granTotal - $monto_descuento + $monto_propinas, 2) ?>
 								</td>
-							</tr>							
+							</tr>								
 						</tfoot>
 					</table>
 				<?php endif ?>
 			</div>
 		</div>
+	</div>
+	<div>
+		<span>NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.</span>
 	</div>
 </body>
 </body>

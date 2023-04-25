@@ -108,6 +108,9 @@
 			</table>
 		</div>
 	<?php endforeach; ?>
+	<div>
+		<span>NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.</span>
+	</div>
 </body>
 
 </html>

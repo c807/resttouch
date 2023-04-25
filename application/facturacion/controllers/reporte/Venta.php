@@ -479,7 +479,8 @@ class Venta extends CI_Controller
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 			}
 
-			$fila++;
+			$fila+=3;
+			$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 			$hoja->setTitle('Ventas por Categoría');
 
 			header('Content-Type: application/vnd.ms-excel');
@@ -1014,6 +1015,8 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A4:D4');
 				$hoja->mergeCells('A5:D5');
 
+				$fila += 3;
+				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 				$hoja->setTitle("Ventas por artículo");
 
 				header("Content-Type: application/vnd.ms-excel");
@@ -1314,6 +1317,8 @@ class Venta extends CI_Controller
 				// $hoja->setCellValue("C{$fila}", "Mem datos: {$memAfter}MB");
 				// $hoja->setCellValue("D{$fila}", "Mem excel: {$memAfterExcel}MB");
 
+				$fila += 3;
+				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 				$hoja->setTitle("Ventas por categoría");
 
 				header("Content-Type: application/vnd.ms-excel");
@@ -1457,6 +1462,8 @@ class Venta extends CI_Controller
 				$hoja->mergeCells('A4:D4');
 				$hoja->mergeCells('A5:D5');
 
+				$fila += 3;
+				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 				$hoja->setTitle("Ventas por mesero");
 
 				header("Content-Type: application/vnd.ms-excel");
