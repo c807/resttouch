@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 import { saveAs } from 'file-saver';
 
 import { CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
@@ -21,6 +21,7 @@ import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
 import { ReplicarASedesDialogComponent } from '@wms-components/producto/replicar-a-sedes-dialog/replicar-a-sedes-dialog.component';
 import { ListaPreciosTipoClienteComponent } from '@wms-components/producto/lista-precios-tipo-cliente/lista-precios-tipo-cliente.component';
+import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
 
 import { Subscription } from 'rxjs';
 
@@ -218,7 +219,17 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     );
   }
 
-  filtrarPresentaciones = (art: Articulo = null) => {
+  setNewPresentacion = (presentacionASetear: Presentacion = null) => {    
+    if (presentacionASetear) {
+      const existe = this.presentacionesFiltered.findIndex(p => +p.presentacion === +presentacionASetear.presentacion) > -1;
+      if (existe) {
+        this.articulo.presentacion = presentacionASetear.presentacion;
+        this.articulo.presentacion_reporte = presentacionASetear.presentacion;
+      }
+    }
+  }
+
+  filtrarPresentaciones = (art: Articulo = null, presentacionASetear: Presentacion = null) => {
     if (this.presentaciones && this.presentaciones.length > 0) {
       if (art?.articulo) {
         this.endSubs.add(
@@ -227,8 +238,11 @@ export class FormProductoComponent implements OnInit, OnDestroy {
               if (res.tiene_movimientos) {
                 const presReporte = this.presentaciones.find(p => +p.presentacion === +art.presentacion_reporte);
                 this.presentacionesFiltered = this.presentaciones.filter(p => +p.medida.medida === +presReporte.medida.medida);
+                this.setNewPresentacion(presentacionASetear);
               } else {
                 this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));
+                this.setNewPresentacion(presentacionASetear);
+
               }
             } else {
               this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 7000 });
@@ -237,6 +251,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         );
       } else {
         this.presentacionesFiltered = JSON.parse(JSON.stringify(this.presentaciones));
+        this.setNewPresentacion(presentacionASetear);
       }
     }
   }
@@ -509,5 +524,25 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   presentacionReporteChanged = (obj: MatSelectChange) => this.articulo.presentacion = obj.value;
+
+  openNuevaPresentacion = () => {
+    const dialogPresRef = this.dialog.open(DialogFormPresentacionComponent, {
+      width: '75vw', height: '55vh',
+      data: {}
+    });
+
+    this.endSubs.add(
+      dialogPresRef.afterClosed().subscribe((res: Presentacion) => {        
+        if (res && +res.presentacion > 0) {
+          const um = this.medidasFull.find(m => +m.medida === +res.medida);
+          res.medida = um ? um : res.medida;
+          this.presentaciones.push(res);
+          this.presentaciones = OrdenarArrayObjetos(this.presentaciones, 'descripcion');          
+          this.filtrarPresentaciones(this.articulo, res);
+        }
+      })
+    );
+
+  }
 
 }

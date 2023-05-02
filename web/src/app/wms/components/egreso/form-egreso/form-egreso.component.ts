@@ -23,6 +23,9 @@ import { PresentacionService } from '@admin-services/presentacion.service';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 import { PideTipoMovimientoDestinoComponent } from '@wms-components/egreso/pide-tipo-movimiento-destino/pide-tipo-movimiento-destino.component';
+import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
@@ -72,6 +75,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public usuarioConfirmaEgresos = false;
   public presentacionArticuloDisabled = true;
   public esRequisicion = false;
+  public medidas: Medida[] = [];
 
   private endSubs = new Subscription();
 
@@ -86,7 +90,8 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     private transformacionSrvc: TransformacionService,
     private presentacionSrvc: PresentacionService,
     private pdfServicio: ReportePdfService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private medidaSrvc: MedidaService
   ) { }
 
   ngOnInit() {
@@ -97,6 +102,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.loadBodegas();
     this.loadProveedores();
     this.loadPresentaciones();
+    this.loadMedidas();
     if (!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
     }
@@ -157,6 +163,16 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  loadMedidas = () => {
+    this.endSubs.add(
+      this.medidaSrvc.get().subscribe(res => {
+        if (res) {
+          this.medidas = res;
+        }
+      })
+    );
+  }  
 
   resetEgreso = () => {
     this.egreso = {
@@ -505,5 +521,29 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   }
 
   getPrecioTotal = () => this.detallesEgreso.map(d => +d.precio_total).reduce((acc, curr) => acc + curr, 0);
+
+  openNuevaPresentacion = () => {
+    const dialogPresRef = this.dialog.open(DialogFormPresentacionComponent, {
+      width: '75vw', height: '55vh',
+      data: {}
+    });
+
+    this.endSubs.add(
+      dialogPresRef.afterClosed().subscribe((res: Presentacion) => {
+        if (res && +res.presentacion > 0) {
+          const um = this.medidas.find(m => +m.medida === +res.medida);
+          res.medida = um ? um : res.medida;
+          this.presentaciones.push(res);
+          this.setPresentaciones();
+
+          const existe = this.fltrPresentaciones.findIndex(p => +p.presentacion === +res.presentacion) > -1;
+          if (existe) {
+            this.detalleEgreso.presentacion = res.presentacion;            
+          }
+        }
+      })
+    );
+
+  }
 
 }

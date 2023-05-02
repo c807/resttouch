@@ -134,8 +134,11 @@
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
-                        <button type="button" *ngIf="presentacionArticuloDisabled && +detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="presentacionArticuloDisabled = false">
+                        <button type="button" *ngIf="presentacionArticuloDisabled && +detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="$event.stopPropagation(); presentacionArticuloDisabled = false;">
                             <mat-icon class="iconFontSizeDisableBtn">change_circle</mat-icon>
+                        </button>
+                        <button type="button" *ngIf="+detalleIngreso.articulo > 0" mat-button matSuffix mat-icon-button (click)="$event.stopPropagation(); openNuevaPresentacion();">
+                            <mat-icon class="iconFontSizeDisableBtn">add</mat-icon>
                         </button>
                     </mat-form-field>
 

@@ -21,6 +21,9 @@ import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/c
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { Articulo } from '@wms-interfaces/articulo';
 import { Presentacion } from '@admin-interfaces/presentacion';
+import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
 
 import { Subscription } from 'rxjs';
 
@@ -57,6 +60,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   public txtArticuloSelected: (Articulo | string) = undefined;
   public filteredProveedores: Proveedor[] = [];
   public presentacionArticuloDisabled = true;
+  public medidas: Medida[] = [];
 
   private endSubs = new Subscription();
 
@@ -68,7 +72,8 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     private tipoMovimientoSrvc: TipoMovimientoService,
     private bodegaSrvc: BodegaService,
     public dialog: MatDialog,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private medidaSrvc: MedidaService
   ) {
   }
 
@@ -86,6 +91,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.loadProveedores();
     this.loadBodegas();
     this.loadTiposMovimiento();
+    this.loadMedidas();
   }
 
   /**
@@ -171,6 +177,16 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  loadMedidas = () => {
+    this.endSubs.add(
+      this.medidaSrvc.get().subscribe(res => {
+        if (res) {
+          this.medidas = res;
+        }
+      })
+    );
+  }  
 
   resetOrdenCompra = () => {
     this.ordenCompra = {
@@ -361,4 +377,28 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
   }
 
   getTotal = () => this.detallesOrdenCompra.map(d => +d.total).reduce((acc, curr) => acc + curr, 0);
+
+  openNuevaPresentacion = () => {
+    const dialogPresRef = this.dialog.open(DialogFormPresentacionComponent, {
+      width: '75vw', height: '55vh',
+      data: {}
+    });
+
+    this.endSubs.add(
+      dialogPresRef.afterClosed().subscribe((res: Presentacion) => {
+        if (res && +res.presentacion > 0) {
+          const um = this.medidas.find(m => +m.medida === +res.medida);
+          res.medida = um ? um : res.medida;
+          this.presentaciones.push(res);          
+
+          const existe = this.fltrPresentaciones.findIndex(p => +p.presentacion === +res.presentacion) > -1;
+          if (existe) {
+            this.detalleOrdenCompra.presentacion = res.presentacion;            
+          }
+        }
+      })
+    );
+
+  }
+  
 }

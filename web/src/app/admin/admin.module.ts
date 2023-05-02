@@ -144,6 +144,7 @@ import { TipoDocumentoComponent } from './components/tipo-documento/tipo-documen
 import { FormTipoDocumentoComponent } from './components/tipo-documento/form-tipo-documento/form-tipo-documento.component';
 import { ListaTipoDocumentoComponent } from './components/tipo-documento/lista-tipo-documento/lista-tipo-documento.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { DialogFormPresentacionComponent } from './components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
 
 @NgModule({
   declarations: [
@@ -168,7 +169,8 @@ import { ChatComponent } from './components/chat/chat.component';
     FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, ReporteBitacoraComponent, TipoClienteComponent, FormTipoClienteComponent, ListaTipoClienteComponent, 
     SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, 
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
-    VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent
+    VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
+    DialogFormPresentacionComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,
@@ -179,7 +181,8 @@ import { ChatComponent } from './components/chat/chat.component';
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,
-    FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent, FormFormaPagoComandaOrigenComponent, FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent
+    FormaPagoComandaOrigenComponent, ListaFormaPagoComandaOrigenComponent, FormFormaPagoComandaOrigenComponent, 
+    FormSedeVendorTerceroComponent, FormSedeVendorTerceroDialogComponent, DialogFormPresentacionComponent
   ],
   providers: [
     LineSeriesService, CategoryService, LegendService, DataLabelService, TooltipService

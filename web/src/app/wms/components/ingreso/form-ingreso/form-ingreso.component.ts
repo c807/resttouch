@@ -28,6 +28,9 @@ import { TipoCompraVenta } from '@admin-interfaces/tipo-compra-venta';
 import { TipoCompraVentaService } from '@admin-services/tipo-compra-venta.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
+import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
+import { Medida } from '@admin-interfaces/medida';
+import { MedidaService } from '@admin-services/medida.service';
 
 import { Subscription } from 'rxjs';
 
@@ -70,6 +73,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public tiposCompraVenta: TipoCompraVenta[] = [];
   public usuarioConfirmaIngresos = false;
   public presentacionArticuloDisabled = true;
+  public medidas: Medida[] = [];
 
   private endSubs = new Subscription();
 
@@ -85,7 +89,8 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     private presentacinSrvc: PresentacionService,
     private documentoTipoSrvc: DocumentoTipoService,
     private tipoCompraVentaSrvc: TipoCompraVentaService,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private medidaSrvc: MedidaService
   ) { }
 
   ngOnInit() {
@@ -100,6 +105,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.loadPresentaciones();
     this.loadDocumentosTipo();
     this.loadTiposCompraVenta();
+    this.loadMedidas();
     if (!this.bodega) {
       this.displayedColumns = ['cantidad_utilizada', 'articulo', 'presentacion', 'cantidad', 'deleteItem'];
     }
@@ -159,6 +165,16 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.tipoCompraVentaSrvc.get().subscribe(res => {
         this.tiposCompraVenta = res;
+      })
+    );
+  }
+
+  loadMedidas = () => {
+    this.endSubs.add(
+      this.medidaSrvc.get().subscribe(res => {
+        if (res) {
+          this.medidas = res;
+        }
       })
     );
   }
@@ -545,13 +561,42 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     );
   }
 
-  cambioPresentacion = (obj: MatSelectChange) => {
+  seCambioLaPresentacion = (idPresentacion: number) => {
     if (this.detalleIngreso.costo_unitario_halado && +this.detalleIngreso.costo_unitario_halado !== 0) {
-      const presR = this.presentaciones.find(p => +p.presentacion === +obj.value);
+      const presR = this.presentaciones.find(p => +p.presentacion === +idPresentacion);
       this.detalleIngreso.costo_unitario_pr = redondear(this.detalleIngreso.costo_unitario_halado * (+presR?.cantidad || 0), 2);
       this.detalleIngreso.precio_total = redondear(+this.detalleIngreso.cantidad * this.detalleIngreso.costo_unitario_pr, 2);
       this.calculaCostoUnitario();
     }
+  }
+
+  cambioPresentacion = (obj: MatSelectChange) => {
+    this.seCambioLaPresentacion(+obj.value);
+  }
+
+  openNuevaPresentacion = () => {
+    const dialogPresRef = this.dialog.open(DialogFormPresentacionComponent, {
+      width: '75vw', height: '55vh',
+      data: {}
+    });
+
+    this.endSubs.add(
+      dialogPresRef.afterClosed().subscribe((res: Presentacion) => {
+        if (res && +res.presentacion > 0) {
+          const um = this.medidas.find(m => +m.medida === +res.medida);
+          res.medida = um ? um : res.medida;
+          this.presentaciones.push(res);
+          this.setPresentaciones(+this.detalleIngreso?.ingreso_detalle > 0);
+
+          const existe = this.fltrPresentaciones.findIndex(p => +p.presentacion === +res.presentacion) > -1;
+          if (existe) {
+            this.detalleIngreso.presentacion = res.presentacion;
+            this.seCambioLaPresentacion(+res.presentacion);
+          }
+        }
+      })
+    );
+
   }
 
 }

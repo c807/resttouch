@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>AGREGAR PRESENTACIÓN</h1>
+<div mat-dialog-content class="contenido">
+    <app-form-presentacion #frmPresentacion (presentacionSavedEv)="dialogRef.close($event)"></app-form-presentacion>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="dialogRef.close()" color="warn">
+        Cerrar
+    </button>
+</div>

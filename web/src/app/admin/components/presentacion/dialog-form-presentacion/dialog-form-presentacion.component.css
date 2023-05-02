@@ -1,0 +1,5 @@
+.contenido {
+    max-height: 38vh !important;
+    height: 100%;
+    overflow-y: auto;   
+}

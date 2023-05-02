@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SharedModule } from '../shared/shared.module';
+import { AdminModule } from '../admin/admin.module';
 
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -119,7 +120,8 @@ import { DetalleRecetaWizardComponent } from './components/producto/wizards/rece
     ScrollingModule,
     MatStepperModule,
     MatRadioModule,
-    MatExpansionModule
+    MatExpansionModule,
+    AdminModule
   ],
   providers: [ ],
   exports: [

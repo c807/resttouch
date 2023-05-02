@@ -57,7 +57,7 @@ export class FormPresentacionComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.presentacionSrvc.save(this.presentacion).subscribe(res => {
         if (res.exito) {
-          this.presentacionSavedEv.emit();
+          this.presentacionSavedEv.emit(res.presentacion || null);
           this.resetPresentacion();
           this.snackBar.open(res.mensaje, 'Presentación', { duration: 3000 });
         } else {

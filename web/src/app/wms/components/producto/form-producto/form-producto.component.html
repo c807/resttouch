@@ -48,6 +48,9 @@
                                 {{p.descripcion}}
                             </mat-option>
                         </mat-select>
+                        <button type="button" mat-button matSuffix mat-icon-button (click)="$event.stopPropagation(); openNuevaPresentacion()">
+                            <mat-icon style="font-size: 24pt;">add</mat-icon>
+                        </button>
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
                         <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Código" name="codigo" [(ngModel)]="articulo.codigo" minlength="1" maxlength="25" required>
