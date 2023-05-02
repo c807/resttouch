@@ -1,7 +1,8 @@
 const LOCALHOST = ['localhost', '127.0.0.1'];
 export const PROTOCOLO = window.location.protocol;
 export const ANFITRION = window.location.hostname;
-const urlBase = `${PROTOCOLO}//${ANFITRION}/${LOCALHOST.indexOf(ANFITRION) < 0 ? 'api' : 'resttouch'}`;
+export const ES_QA_PROD = LOCALHOST.indexOf(ANFITRION) < 0;
+const urlBase = `${PROTOCOLO}//${ANFITRION}/${ES_QA_PROD ? 'api' : 'resttouch'}`;
 import * as moment from 'moment';
 import { Municipio } from '@admin-interfaces/municipio';
 import { Cliente } from '@admin-interfaces/cliente';
@@ -28,7 +29,7 @@ export const GLOBAL = {
   urlFacturacion: `${urlBase}/facturacion.php`,
   urlGhostKitchen: `${urlBase}/ghost_kitchen.php`,
   urlCallCenter: `${urlBase}/call_center.php`,
-  urlRtChefBot: LOCALHOST.indexOf(ANFITRION) < 0 ? 'https://ask-rt-chefbot.azurewebsites.net/api/ask_rt_chefbot' : 'http://localhost:7071/api/ask_rt_chefbot',
+  urlRtChefBot: ES_QA_PROD ? 'https://ask-rt-chefbot.azurewebsites.net/api/ask_rt_chefbot' : 'http://localhost:7071/api/ask_rt_chefbot',
   usrTokenVar: 'rttoken',
   usrUnlockVar: 'rtunlock',
   rtClientePedido: 'rt_cliente_pedido',
