@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">        
+        <app-lista-conocimiento #lstConocimiento (getConocimientoEv)="setConocimiento($event)"></app-lista-conocimiento>
+    </div>
+    <div class="col m7 s12">
+        <app-form-conocimiento #frmConocimiento [conocimiento]="conocimiento" (conocimientoSavedEv)="refreshConocimientoList()"></app-form-conocimiento>
+    </div>
+</div>

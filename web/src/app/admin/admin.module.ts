@@ -36,6 +36,8 @@ import {
   ChartModule, LineSeriesService, CategoryService, LegendService, DataLabelService, TooltipService
 } from '@syncfusion/ej2-angular-charts';
 
+import { RichTextEditorModule } from '@syncfusion/ej2-angular-richtexteditor';
+
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 
 import { ChartsModule } from 'ng2-charts';
@@ -145,6 +147,9 @@ import { FormTipoDocumentoComponent } from './components/tipo-documento/form-tip
 import { ListaTipoDocumentoComponent } from './components/tipo-documento/lista-tipo-documento/lista-tipo-documento.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { DialogFormPresentacionComponent } from './components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
+import { ConocimientoComponent } from './components/conocimiento/conocimiento/conocimiento.component';
+import { FormConocimientoComponent } from './components/conocimiento/form-conocimiento/form-conocimiento.component';
+import { ListaConocimientoComponent } from './components/conocimiento/lista-conocimiento/lista-conocimiento.component';
 
 @NgModule({
   declarations: [
@@ -170,14 +175,14 @@ import { DialogFormPresentacionComponent } from './components/presentacion/dialo
     SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, 
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
     VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
-    DialogFormPresentacionComponent
+    DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,
     MatInputModule, MatCardModule, MatDividerModule, MatTabsModule, MatTableModule, MatSelectModule, MatCheckboxModule, MatButtonModule,
     MatSnackBarModule, MatToolbarModule, MatMenuModule, MatGridListModule, MatPaginatorModule, MatTreeModule, MatDialogModule,
     MatProgressBarModule, PivotViewAllModule, PivotFieldListAllModule, FlexLayoutModule, ChartModule, NgIdleKeepaliveModule.forRoot(),
-    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, MatBottomSheetModule
+    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, MatBottomSheetModule, RichTextEditorModule
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,
