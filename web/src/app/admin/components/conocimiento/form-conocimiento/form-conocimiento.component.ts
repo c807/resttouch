@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToolbarService, LinkService, ImageService, HtmlEditorService } from '@syncfusion/ej2-angular-richtexteditor';
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
@@ -12,8 +11,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-form-conocimiento',
   templateUrl: './form-conocimiento.component.html',
-  styleUrls: ['./form-conocimiento.component.css'],
-  providers: [ToolbarService, LinkService, ImageService, HtmlEditorService]
+  styleUrls: ['./form-conocimiento.component.css']
 })
 export class FormConocimientoComponent implements OnInit, OnDestroy {
 

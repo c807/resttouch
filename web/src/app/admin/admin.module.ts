@@ -36,8 +36,6 @@ import {
   ChartModule, LineSeriesService, CategoryService, LegendService, DataLabelService, TooltipService
 } from '@syncfusion/ej2-angular-charts';
 
-import { RichTextEditorModule } from '@syncfusion/ej2-angular-richtexteditor';
-
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 
 import { ChartsModule } from 'ng2-charts';
@@ -182,7 +180,7 @@ import { ListaConocimientoComponent } from './components/conocimiento/lista-cono
     MatInputModule, MatCardModule, MatDividerModule, MatTabsModule, MatTableModule, MatSelectModule, MatCheckboxModule, MatButtonModule,
     MatSnackBarModule, MatToolbarModule, MatMenuModule, MatGridListModule, MatPaginatorModule, MatTreeModule, MatDialogModule,
     MatProgressBarModule, PivotViewAllModule, PivotFieldListAllModule, FlexLayoutModule, ChartModule, NgIdleKeepaliveModule.forRoot(),
-    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, MatBottomSheetModule, RichTextEditorModule
+    MatAutocompleteModule, ChartsModule, MatKeyboardModule, ScrollingModule, ReactiveFormsModule, MatBottomSheetModule
   ],
   exports: [
     HeaderComponent, MenuComponent, ListaClienteComponent, FormClienteComponent, FormClienteDialogComponent,
