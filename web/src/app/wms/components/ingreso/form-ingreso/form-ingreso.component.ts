@@ -272,9 +272,9 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.bloqueoBotones = true;
     this.detalleIngreso.ingreso = this.ingreso.ingreso;
     this.detalleIngreso.precio_total = +this.detalleIngreso.cantidad * +this.detalleIngreso.precio_unitario;
-    if (+this.detalleIngreso.cantidad < 1) {
-      this.detalleIngreso.cantidad = 1;
-    }
+    // if (+this.detalleIngreso.cantidad < 1) {
+    //   this.detalleIngreso.cantidad = 1;
+    // }
     this.endSubs.add(
       this.ingresoSrvc.saveDetalle(this.detalleIngreso).subscribe(res => {
         if (res) {
@@ -297,9 +297,9 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     art = this.articulos.filter(p => +p.articulo == this.detalleIngreso.articulo);
     this.detalleIngreso.presentacion = art[0].presentacion_reporte;
 
-    if (+this.detalleIngreso.cantidad < 1 && !this.produccion) {
-      this.detalleIngreso.cantidad = 1;
-    }
+    // if (+this.detalleIngreso.cantidad < 1 && !this.produccion) {
+    //   this.detalleIngreso.cantidad = 1;
+    // }
 
     this.detallesIngreso.push(this.detalleIngreso);
     this.resetDetalleIngreso();
