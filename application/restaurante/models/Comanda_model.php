@@ -41,7 +41,7 @@ class Comanda_model extends General_Model
             $this->fhcreacion = date('Y-m-d H:i:s');
         }
 
-        $this->load->library('AsyncTasks');
+        $this->load->model(['BodegaArticuloCosto_model']);
     }
 
     public function getMesas()
@@ -170,7 +170,6 @@ class Comanda_model extends General_Model
         $validar = true;
         $cantidad = 0;
         $articulo = $det->articulo;
-        // $at = new AsyncTasks();
         if (empty($id)) {
             $articulo = $args['articulo'];
             $cantidad = $args['cantidad'];
@@ -215,6 +214,15 @@ class Comanda_model extends General_Model
             // $art->existencias = $art->get_existencia_bodega(['bodega' => $args['bodega']]);
         }
 
+        // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+        if ((int)$art->mostrar_inventario === 1) {
+            $bac = new BodegaArticuloCosto_model();
+            $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+            $args['costo_unitario'] = (float)$pu ?? (float)0;
+            $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
+        }
+        // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
+
         if ($vnegativo || empty($menu) || (!$validar || (float)$art->existencias >= ((float)$cantidad * (float)$cantPres))) {
             $nuevo = ($det->getPK() == null);
             $result = $det->guardar($args);
@@ -251,6 +259,17 @@ class Comanda_model extends General_Model
                     $artR = new Articulo_model($rec->articulo->articulo);
                     $bodegaR = $artR->getBodega();
 
+                    // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+                    $costo_unitario_rec = 0;
+                    $costo_total_rec = 0;
+                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
+                        $bac = new BodegaArticuloCosto_model();
+                        $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        $costo_unitario_rec = (float)$pu ?? (float)0;
+                        $costo_total_rec = $costo_unitario_rec * (float)$rec->cantidad;
+                    }
+                    // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
+
                     $detr = new Dcomanda_model();
                     $dato = [
                         'comanda' => $this->getPK(),
@@ -262,7 +281,9 @@ class Comanda_model extends General_Model
                         'presentacion' => $presR->presentacion,
                         'detalle_comanda_id' => $idx,
                         'bodega' => $bodegaR ? $bodegaR->bodega : null,
-                        'cantidad_inventario' => $rec->cantidad
+                        'cantidad_inventario' => $rec->cantidad,
+                        'costo_unitario' => $costo_unitario_rec,
+                        'costo_total' => $costo_total_rec
                     ];
                     $detr->guardar($dato);
                 }
@@ -348,6 +369,15 @@ class Comanda_model extends General_Model
             $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
 
+        // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+        if ((int)$art->mostrar_inventario === 1) {
+            $bac = new BodegaArticuloCosto_model();
+            $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+            $args['costo_unitario'] = (float)$pu ?? (float)0;
+            $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
+        }
+        // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
+
         if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
             $nuevo = ($det->getPK() == null);
             $result = $det->guardar($args);
@@ -376,6 +406,17 @@ class Comanda_model extends General_Model
                     $artR = new Articulo_model($rec->articulo->articulo);
                     $bodegaR = $artR->getBodega();
 
+                    // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+                    $costo_unitario_rec = 0;
+                    $costo_total_rec = 0;
+                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
+                        $bac = new BodegaArticuloCosto_model();
+                        $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        $costo_unitario_rec = (float)$pu ?? (float)0;
+                        $costo_total_rec = $costo_unitario_rec * (float)$rec->cantidad;
+                    }
+                    // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
+
                     $detr = new Dcomanda_model();
                     $dato = [
                         'comanda' => $this->getPK(),
@@ -387,7 +428,9 @@ class Comanda_model extends General_Model
                         'presentacion' => $presR->presentacion,
                         'detalle_comanda_id' => $idx,
                         'bodega' => $bodegaR ? $bodegaR->bodega : null,
-                        'cantidad_inventario' => $rec->cantidad
+                        'cantidad_inventario' => $rec->cantidad,
+                        'costo_unitario' => $costo_unitario_rec,
+                        'costo_total' => $costo_total_rec
                     ];
                     $detr->guardar($dato);
                 }
@@ -1303,7 +1346,7 @@ class Comanda_model extends General_Model
 
     public function get_monto_abonado_comanda($idComanda = null)
     {
-        if(empty($idComanda)) {
+        if (empty($idComanda)) {
             $idComanda = $this->getPK();
         }
 
@@ -1327,7 +1370,7 @@ class Comanda_model extends General_Model
 
     public function get_monto_abono_usado($idComanda = null)
     {
-        if(empty($idComanda)) {
+        if (empty($idComanda)) {
             $idComanda = $this->getPK();
         }
 

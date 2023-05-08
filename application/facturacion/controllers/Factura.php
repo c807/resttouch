@@ -12,6 +12,7 @@ class Factura extends CI_Controller
 		parent::__construct();
 		$this->load->add_package_path('application/admin');
 		$this->load->add_package_path('application/restaurante');
+		$this->load->add_package_path('application/wms');
 		$this->load->helper(['api', 'jwt', 'authorization']);
 		$this->load->model([
 			'Dfactura_model',
@@ -28,7 +29,8 @@ class Factura extends CI_Controller
 			'ImpuestoEspecial_model',
 			'Razon_anulacion_model',
 			'Presentacion_model',
-			'Configuracion_model'
+			'Configuracion_model',
+			'BodegaArticuloCosto_model'
 		]);
 		$this->output->set_content_type("application/json", "UTF-8");
 	}
@@ -122,6 +124,14 @@ class Factura extends CI_Controller
 				$req['monto_iva_ext'] = $req['total_ext'] - $req['monto_base_ext'];
 				$req['bien_servicio'] = $art->bien_servicio;
 				$req["bodega"] = $art->getCategoriaGrupo()->bodega;
+
+				if ((int)$art->mostrar_inventario === 1) {
+					$bac = new BodegaArticuloCosto_model();
+					$pu = $bac->get_costo($req['bodega'], $art->articulo, $req['presentacion']);
+					$req['costo_unitario'] = (float)$pu ?? (float)0;
+					$req['costo_total'] = $req['costo_unitario'] * (float)$req['cantidad_inventario'];
+				}
+
 				$det = $fac->setDetalle($req, $id);
 
 				if ($det) {

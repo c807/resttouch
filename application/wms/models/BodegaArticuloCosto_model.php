@@ -21,7 +21,8 @@ class BodegaArticuloCosto_model extends General_model {
         
         $this->load->model([ 
             'Articulo_model',
-            'Sede_model'
+            'Sede_model',
+            'Empresa_model'
         ]);
     }
     
@@ -80,6 +81,6 @@ class BodegaArticuloCosto_model extends General_model {
             }
         }
 
-        return 0.00;
+        return (float)0;
     }
 }

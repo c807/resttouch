@@ -666,25 +666,25 @@ class Articulo_model extends General_model
 				$tmp = false;
 			}
 		} else if ($emp->metodo_costeo == 2) {
-			//Old method
-			$tmp = $this->db
-				->select('
-							sum(c.precio_total) / sum(c.cantidad*d.cantidad) as precio_unitario,
-							c.articulo, 
-							a.fecha,
-							c.presentacion')
-				->join('bodega b', 'a.bodega = b.bodega')
-				->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
-				->join('presentacion d', 'c.presentacion = d.presentacion')
-				->where('c.articulo', $this->getPK())
-				->where('a.ajuste', 0)
-				->where('a.estatus_movimiento', 2)
-				->group_by('c.articulo')
-				->get('ingreso a')
-				->row();
+			// Método anterior
+			// $tmp = $this->db
+			// 	->select('
+			// 				sum(c.precio_total) / sum(c.cantidad*d.cantidad) as precio_unitario,
+			// 				c.articulo, 
+			// 				a.fecha,
+			// 				c.presentacion')
+			// 	->join('bodega b', 'a.bodega = b.bodega')
+			// 	->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
+			// 	->join('presentacion d', 'c.presentacion = d.presentacion')
+			// 	->where('c.articulo', $this->getPK())
+			// 	->where('a.ajuste', 0)
+			// 	->where('a.estatus_movimiento', 2)
+			// 	->group_by('c.articulo')
+			// 	->get('ingreso a')
+			// 	->row();
 
-			//New method (05/05/2023)
-			// $tmp = $this->getCostoPromedio($args);
+			// Nuevo método (08/05/2023)
+			$tmp = $this->getCostoPromedio($args);
 		} else {
 			$tmp = false;
 		}
@@ -1324,14 +1324,14 @@ class Articulo_model extends General_model
 
 		$qComandas = 'SELECT IFNULL(c.costo_total, 0) * -1 AS precio_total, c.cantidad_inventario * d.cantidad * -1 AS cantidad, c.articulo, DATE(a.fhcreacion) AS fecha, c.presentacion ';
 		$qComandas.= 'FROM comanda a JOIN detalle_comanda c ON a.comanda = c.comanda JOIN bodega b ON b.bodega = c.bodega JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qComandas.= "WHERE c.articulo = {$idArticulo} AND c.cantidad_inventario <> 0 ";
+		$qComandas.= "WHERE c.articulo = {$idArticulo} AND c.cantidad_inventario <> 0 AND c.costo_total IS NOT NULL ";
 		$qComandas.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
 		$qComandas.= isset($args['fal']) && !empty($args['fal']) ? " AND DATE(a.fhcreacion) <= '{$args['fal']}' " : '';
 
 		$qFactSinComanda = 'SELECT IFNULL(b.costo_total, 0) * -1 AS precio_total, b.cantidad_inventario * e.cantidad * -1 AS cantidad, b.articulo, a.fecha_factura AS fecha, b.presentacion	';
 		$qFactSinComanda.= 'FROM factura a INNER JOIN detalle_factura b ON a.factura = b.factura INNER JOIN articulo c ON c.articulo = b.articulo INNER JOIN bodega d ON d.bodega = b.bodega ';
 		$qFactSinComanda.= 'INNER JOIN presentacion e ON e.presentacion = b.presentacion LEFT JOIN detalle_factura_detalle_cuenta i ON b.detalle_factura = i.detalle_factura ';
-		$qFactSinComanda.= "WHERE i.detalle_factura_detalle_cuenta IS NULL AND c.descripcion NOT LIKE '%prop%' AND b.articulo = {$idArticulo} AND b.cantidad_inventario <> 0 ";
+		$qFactSinComanda.= "WHERE i.detalle_factura_detalle_cuenta IS NULL AND c.descripcion NOT LIKE '%prop%' AND b.articulo = {$idArticulo} AND b.cantidad_inventario <> 0 AND b.costo_total IS NOT NULL ";
 		$qFactSinComanda.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND d.bodega = {$args['bodega']} " : '';
 		$qFactSinComanda.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha_factura <= '{$args['fal']}' " : '';
 
