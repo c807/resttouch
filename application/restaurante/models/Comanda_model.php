@@ -39,9 +39,7 @@ class Comanda_model extends General_Model
             $this->cargar($id);
         } else {
             $this->fhcreacion = date('Y-m-d H:i:s');
-        }
-
-        $this->load->model(['BodegaArticuloCosto_model']);
+        }        
     }
 
     public function getMesas()

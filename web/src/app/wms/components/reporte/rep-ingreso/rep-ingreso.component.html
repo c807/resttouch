@@ -29,7 +29,7 @@
 						<mat-select name="sede" multiple [(ngModel)]="params.sede" (selectionChange)="onSedesSelected($event)"
 						required>
 							<mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-								{{sede.sede.nombre}}
+								{{sede.sede.nombre}} ({{sede.sede.alias}})
 							</mat-option>
 						</mat-select>
 					</mat-form-field>

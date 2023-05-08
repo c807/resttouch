@@ -9,6 +9,7 @@ class Comanda extends CI_Controller
 		parent::__construct();
 		//$this->datos = [];
 		$this->load->add_package_path('application/facturacion');
+		$this->load->add_package_path('application/wms');
 
 		$this->load->model([
 			'Comanda_model',
@@ -27,7 +28,8 @@ class Comanda extends CI_Controller
 			'Presentacion_model',
 			'Configuracion_model',
 			'Tipo_usuario_cgrupo_model',
-			'Accion_model'
+			'Accion_model',
+			'BodegaArticuloCosto_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);

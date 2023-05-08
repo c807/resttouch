@@ -684,6 +684,7 @@ class Articulo_model extends General_model
 			// 	->row();
 
 			// Nuevo método (08/05/2023)
+			$this->db->reset_query();
 			$tmp = $this->getCostoPromedio($args);
 		} else {
 			$tmp = false;

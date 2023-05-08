@@ -29,6 +29,8 @@ class Dfactura_model extends General_model {
 	public $cantidad_gravable = 0.00;
 	public $precio_sugerido = 0.00;
 	public $precio_sugerido_ext = 0.0000000000;
+	public $costo_unitario = null;
+	public $costo_total = null;
 
 	public function __construct($id = '')
 	{

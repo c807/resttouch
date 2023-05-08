@@ -23,11 +23,11 @@ class BodegaArticuloCosto_model extends General_model {
             'Articulo_model',
             'Sede_model',
             'Empresa_model'
-        ]);
+        ]);        
     }
     
     public function guardar_costos($idBodega, $idArticulo)
-    {
+    {        
         $obj = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
         $bac = new BodegaArticuloCosto_model($obj ? $obj->bodega_articulo_costo : '');
         $art = new Articulo_model($idArticulo);

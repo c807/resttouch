@@ -176,14 +176,9 @@ class General_model extends CI_Model
 		if (is_null($tabla) || !is_string($tabla) || empty(trim($tabla))) {
 			$tabla = $this->_tabla;
 		}
-
-		$campos = $this->db
-			->select('column_name AS campo')
-			->where('table_schema', $this->db->database)
-			->where('table_name', $tabla)
-			->order_by('ordinal_position')
-			->get('information_schema.columns')
-			->result();
+		
+		$query = "SELECT column_name AS campo FROM information_schema.columns WHERE table_schema = '{$this->db->database}' AND table_name = '{$tabla}' ORDER BY ordinal_position";
+		$campos = $this->db->query($query)->result();
 		
 		if($asArray) {
 			return $campos;

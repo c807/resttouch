@@ -25,6 +25,8 @@ class Dcomanda_model extends General_Model
 	public $detalle_comanda_id;
 	public $bodega;
 	public $cantidad_inventario = null;
+	public $costo_unitario = null;
+	public $costo_total = null;
 
 	public function __construct($id = '')
 	{
