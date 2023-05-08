@@ -573,7 +573,7 @@ class Articulo_model extends General_model
 		}
 
 		if (isset($args['impuesto_especial'])) {
-			$this->db->where('a.impuesto_especial IS '.((int)$args['impuesto_especial'] === 0 ? '' : 'NOT ').'NULL');
+			$this->db->where('a.impuesto_especial IS ' . ((int)$args['impuesto_especial'] === 0 ? '' : 'NOT ') . 'NULL');
 		}
 
 		if (isset($args['multiple'])) {
@@ -666,6 +666,7 @@ class Articulo_model extends General_model
 				$tmp = false;
 			}
 		} else if ($emp->metodo_costeo == 2) {
+			//Old method
 			$tmp = $this->db
 				->select('
 							sum(c.precio_total) / sum(c.cantidad*d.cantidad) as precio_unitario,
@@ -681,6 +682,9 @@ class Articulo_model extends General_model
 				->group_by('c.articulo')
 				->get('ingreso a')
 				->row();
+
+			//New method (05/05/2023)
+			// $tmp = $this->getCostoPromedio($args);
 		} else {
 			$tmp = false;
 		}
@@ -1299,8 +1303,44 @@ class Articulo_model extends General_model
 		}
 
 		$tarifa = $this->db->select('tarifa_reserva')->where('articulo', $idArticulo)->get('tarifa_reserva')->row();
-		
+
 		return $tarifa && (int)$tarifa->tarifa_reserva > 0 ? true : false;
+	}
+
+	public function getCostoPromedio($args = [])
+	{
+		$idArticulo = $this->getPK();
+		$qIngresos = 'SELECT c.precio_total, c.cantidad * d.cantidad as cantidad, c.articulo, a.fecha, c.presentacion ';
+		$qIngresos.= 'FROM ingreso a JOIN bodega b ON a.bodega = b.bodega JOIN ingreso_detalle c ON a.ingreso = c.ingreso JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qIngresos.= "WHERE c.articulo = {$idArticulo} AND a.ajuste = 0 AND a.estatus_movimiento = 2 ";
+		$qIngresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qIngresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
+
+		$qEgresos = 'SELECT c.precio_total * -1, c.cantidad * d.cantidad * -1 AS cantidad, c.articulo, a.fecha, c.presentacion ';
+		$qEgresos.= 'FROM egreso a JOIN bodega b ON a.bodega = b.bodega JOIN egreso_detalle c ON a.egreso = c.egreso JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.ajuste = 0 AND a.estatus_movimiento = 2 ";
+		$qEgresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qEgresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
+
+		$qComandas = 'SELECT IFNULL(c.costo_total, 0) * -1 AS precio_total, c.cantidad_inventario * d.cantidad * -1 AS cantidad, c.articulo, DATE(a.fhcreacion) AS fecha, c.presentacion ';
+		$qComandas.= 'FROM comanda a JOIN detalle_comanda c ON a.comanda = c.comanda JOIN bodega b ON b.bodega = c.bodega JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qComandas.= "WHERE c.articulo = {$idArticulo} AND c.cantidad_inventario <> 0 ";
+		$qComandas.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qComandas.= isset($args['fal']) && !empty($args['fal']) ? " AND DATE(a.fhcreacion) <= '{$args['fal']}' " : '';
+
+		$qFactSinComanda = 'SELECT IFNULL(b.costo_total, 0) * -1 AS precio_total, b.cantidad_inventario * e.cantidad * -1 AS cantidad, b.articulo, a.fecha_factura AS fecha, b.presentacion	';
+		$qFactSinComanda.= 'FROM factura a INNER JOIN detalle_factura b ON a.factura = b.factura INNER JOIN articulo c ON c.articulo = b.articulo INNER JOIN bodega d ON d.bodega = b.bodega ';
+		$qFactSinComanda.= 'INNER JOIN presentacion e ON e.presentacion = b.presentacion LEFT JOIN detalle_factura_detalle_cuenta i ON b.detalle_factura = i.detalle_factura ';
+		$qFactSinComanda.= "WHERE i.detalle_factura_detalle_cuenta IS NULL AND c.descripcion NOT LIKE '%prop%' AND b.articulo = {$idArticulo} AND b.cantidad_inventario <> 0 ";
+		$qFactSinComanda.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND d.bodega = {$args['bodega']} " : '';
+		$qFactSinComanda.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha_factura <= '{$args['fal']}' " : '';
+
+		$qUnido = "{$qIngresos} UNION ALL {$qEgresos} UNION ALL {$qComandas} UNION ALL {$qFactSinComanda} ORDER BY 4";
+
+		$query = 'SELECT SUM(z.precio_total) / SUM(z.cantidad) AS precio_unitario, z.articulo, MAX(z.fecha) AS fecha, z.presentacion ';
+		$query.= "FROM ({$qUnido}) z GROUP BY z.articulo";
+
+		return $this->db->query($query)->row();
 	}
 }
 

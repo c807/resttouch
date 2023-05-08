@@ -867,6 +867,17 @@ class Articulo extends CI_Controller
 			'comentario' => $comentario
 		]);
 	}
+
+	public function test_costo_promedio($idArticulo, $bodega, $fal = null)
+	{
+		$articulo = new Articulo_model($idArticulo);
+		$args = ['bodega' => $bodega];
+		if ($fal) {
+			$args['fal'] = $fal;
+		}
+		$datos = $articulo->getCostoPromedio($args);
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Articulo.php */
