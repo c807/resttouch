@@ -21,7 +21,7 @@ class Tipo_cliente extends CI_Controller
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
 
-            $fltr = ['TRIM(UPPER(descripcion))' => trim(strtoupper($req['descripcion']))];
+            $fltr = ['TRIM(UPPER(descripcion))' => trim(strtoupper($req['descripcion'])), '_uno' => true];
             if (!empty($id)) {
                 $fltr['tipo_cliente <>'] = $id;
             }

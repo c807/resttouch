@@ -1,0 +1,8 @@
+<div class="row">
+    <div class="col m5 s12">
+        <app-lista-rol #lstRol (getRolEv)="setRol($event)"></app-lista-rol>
+    </div>
+    <div class="col m7 s12">
+        <app-form-rol #frmRol [rol]="rol" (rolSavedEv)="refreshRolList()"></app-form-rol>
+    </div>
+</div>

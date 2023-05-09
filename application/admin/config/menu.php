@@ -99,6 +99,10 @@ $config['menu'] = [
 					23 => [
 						'nombre' => 'Tipo de documento de identificación',
 						'link' => '/admin/tipo_documento'
+					],
+					24 => [
+						'nombre' => 'Rol de usuario',
+						'link' => '/admin/rol_usuario'
 					]
 				]
 			],

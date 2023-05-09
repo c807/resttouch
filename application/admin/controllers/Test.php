@@ -62,4 +62,40 @@ class Test extends CI_Controller
 
         $this->output->set_output(json_encode($d));
     }
+
+    public function test_menu()
+    {
+        $menu = $this->config->item('menu');
+
+        $arbol = [];
+        foreach ($menu as $mKey => $modulo) {
+            if ($mKey !== 3) {
+                $arbol[] = (object)[
+                    'modulo' => $mKey,
+                    'descripcion' => $modulo['nombre'],
+                    'submodulos' => []
+                ];
+
+                $mIdx = count($arbol) - 1;
+                foreach ($modulo['submodulo'] as $smKey => $submodulo) {
+                    $arbol[$mIdx]->submodulos[] = (object)[
+                        'submodulo' => $smKey,
+                        'descripcion' => $submodulo['nombre'],
+                        'opciones' => []
+                    ];
+
+                    $smIdx = count($arbol[$mIdx]->submodulos) - 1;
+                    foreach ($submodulo['opciones'] as $oKey => $opcion) {
+                        $arbol[$mIdx]->submodulos[$smIdx]->opciones[] = (object)[
+                            'opcion' => $oKey,
+                            'descripcion' => $opcion['nombre'],
+                            'incluido' => 0
+                        ];
+                    }
+                }
+            }
+        }
+
+        $this->output->set_output(json_encode($arbol));
+    }
 }

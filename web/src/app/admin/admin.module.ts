@@ -149,6 +149,9 @@ import { DialogFormPresentacionComponent } from './components/presentacion/dialo
 import { ConocimientoComponent } from './components/conocimiento/conocimiento/conocimiento.component';
 import { FormConocimientoComponent } from './components/conocimiento/form-conocimiento/form-conocimiento.component';
 import { ListaConocimientoComponent } from './components/conocimiento/lista-conocimiento/lista-conocimiento.component';
+import { RolComponent } from './components/rol/rol/rol.component';
+import { FormRolComponent } from './components/rol/form-rol/form-rol.component';
+import { ListaRolComponent } from './components/rol/lista-rol/lista-rol.component';
 
 @NgModule({
   declarations: [
@@ -174,7 +177,7 @@ import { ListaConocimientoComponent } from './components/conocimiento/lista-cono
     SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, 
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
     VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
-    DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent
+    DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent, RolComponent, FormRolComponent, ListaRolComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

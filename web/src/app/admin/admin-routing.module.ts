@@ -35,6 +35,7 @@ import { DoctoresComponent } from './components/doctores/doctores/doctores.compo
 import { MonitorClienteComponent } from './components/monitor-cliente/monitor-cliente/monitor-cliente.component';
 import { MetabaseComponent } from './components/metabase/metabase/metabase.component';
 import { TipoDocumentoComponent } from './components/tipo-documento/tipo-documento/tipo-documento.component';
+import { RolComponent } from './components/rol/rol/rol.component';
 
 const dataTokenVar = localStorage.getItem(GLOBAL.usrTokenVar) || '{}';
 const cnfRoute: string = (JSON.parse(dataTokenVar)?.cnf || moment().format('YYYYMMDD')) as string;
@@ -69,6 +70,7 @@ const routes: Routes = [
   { path: 'monitor_cliente', component: MonitorClienteComponent, canActivate: [AuthGuard] },
   { path: 'metabase', component: MetabaseComponent, canActivate: [AuthGuard] },
   { path: 'tipo_documento', component: TipoDocumentoComponent, canActivate: [AuthGuard] },  
+  { path: 'rol_usuario', component: RolComponent, canActivate: [AuthGuard] },
   { path: `cnf${cnfRoute}`, component: SetupComponent, canActivate: [AuthGuard] },  
   { path: 'solicitud_registro', component: SolicitudRegistroComponent },
   { path: '**', redirectTo: '/dashboard', pathMatch: 'full' }
