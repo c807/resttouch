@@ -2926,6 +2926,8 @@ ALTER TABLE RT_DATABASE_NAME.factura ADD COLUMN abono INT NULL AFTER tipo_docume
 ALTER TABLE RT_DATABASE_NAME.factura ADD CONSTRAINT fk_factura_abono1 FOREIGN KEY (abono) REFERENCES RT_DATABASE_NAME.abono (abono) ON DELETE NO ACTION ON UPDATE NO ACTION;
 UPDATE RT_DATABASE_NAME.acceso SET activo = 0 WHERE modulo = 1 AND submodulo = 1 AND opcion = 6;
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN esabono TINYINT(1) NOT NULL DEFAULT 0 AFTER escobrohabitacion;
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN costo_unitario DECIMAL(10,2) NULL AFTER cantidad_inventario, ADD COLUMN costo_total DECIMAL(10,2) NULL AFTER costo_unitario;
+ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD COLUMN costo_unitario DECIMAL(10,2) NULL AFTER precio_sugerido_ext, ADD COLUMN costo_total DECIMAL(10,2) NULL AFTER costo_unitario;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
