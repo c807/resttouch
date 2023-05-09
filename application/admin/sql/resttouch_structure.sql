@@ -2928,6 +2928,30 @@ UPDATE RT_DATABASE_NAME.acceso SET activo = 0 WHERE modulo = 1 AND submodulo = 1
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN esabono TINYINT(1) NOT NULL DEFAULT 0 AFTER escobrohabitacion;
 ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN costo_unitario DECIMAL(10,2) NULL AFTER cantidad_inventario, ADD COLUMN costo_total DECIMAL(10,2) NULL AFTER costo_unitario;
 ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD COLUMN costo_unitario DECIMAL(10,2) NULL AFTER precio_sugerido_ext, ADD COLUMN costo_total DECIMAL(10,2) NULL AFTER costo_unitario;
+CREATE TABLE RT_DATABASE_NAME.rol (
+  rol int(11) NOT NULL AUTO_INCREMENT,
+  descripcion varchar(50) NOT NULL,
+  PRIMARY KEY (rol),
+  KEY DescripcionASC (descripcion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE RT_DATABASE_NAME.rol_acceso (
+  rol_acceso INT NOT NULL AUTO_INCREMENT,
+  rol INT NOT NULL,
+  modulo INT NOT NULL,
+  submodulo INT NOT NULL,
+  opcion INT NOT NULL,
+  incluido TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (rol_acceso),
+  INDEX fk_rol_acceso_rol1_idx (rol ASC),
+  INDEX ModuloSubmoduloOpcionASC (modulo ASC, submodulo ASC, opcion ASC),
+  INDEX IncluidoASC (incluido ASC),
+  CONSTRAINT fk_rol_acceso_rol1
+    FOREIGN KEY (rol)
+    REFERENCES RT_DATABASE_NAME.rol (rol)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);	
+ALTER TABLE RT_DATABASE_NAME.usuario ADD COLUMN rol INT NULL AFTER confirmar_egreso, ADD INDEX fk_usuario_rol1_idx (rol ASC);
+ALTER TABLE RT_DATABASE_NAME.usuario ADD CONSTRAINT fk_usuario_rol1 FOREIGN KEY (rol) REFERENCES RT_DATABASE_NAME.rol (rol) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
