@@ -10,6 +10,8 @@ import { Sede } from '@admin-interfaces/sede';
 import { SedeService } from '@admin-services/sede.service';
 import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { Rol } from '@admin-interfaces/rol';
+import { RolService } from '@admin-services/rol.service';
 
 import { Subscription } from 'rxjs';
 
@@ -24,12 +26,17 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
     return (+this.ls.get(GLOBAL.usrTokenVar).idusr === +this.usuario.usuario);
   }
 
+  get disableRol() {
+    return this.usuario?.rol && (+this.ls.get(GLOBAL.usrTokenVar).idusr === +this.usuario.usuario);
+  }
+
   @Input() usuario: Usuario;
   @Output() usrSavedEv = new EventEmitter();
   public sedes: Sede[] = [];
   public habilitaBloqueo = false;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public roles: Rol[] = [];
 
   private endSubs = new Subscription();
 
@@ -40,12 +47,14 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private ls: LocalstorageService,
     public dialog: MatDialog,
+    private rolSrvc: RolService
   ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.loadSedes();
     this.habilitaBloqueo = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_HABILITA_BLOQUEO_INACTIVIDAD) as boolean;
+    this.loadSedes();
+    this.loadRoles();
   }
 
   ngOnDestroy(): void {
@@ -55,13 +64,21 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
   loadSedes = () => {
     this.endSubs.add(
       this.sedeSrvc.get().subscribe(res => {
-        this.sedes = res;        
+        this.sedes = res;
       })
     );
   }
 
+  loadRoles = () => {
+    this.endSubs.add(
+      this.rolSrvc.get().subscribe(res => {
+        this.roles = res;
+      })
+    );  
+  }  
+
   resetUsuario() {
-    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0);    
+    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0, null);
   }
 
   onSubmit() {
@@ -74,7 +91,7 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
           'De baja', `¿Está seguro(a) de dar de baja a ${this.usuario.nombres + ' ' + this.usuario.apellidos}?`, 'Sí', 'No'
         )
       });
-      this.endSubs.add(        
+      this.endSubs.add(
         dialogRef.afterClosed().subscribe(cnf => {
           if (cnf) {
             this.guardarUsuario();
@@ -85,7 +102,7 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
   }
 
   guardarUsuario = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.usuarioSrvc.save(this.usuario).subscribe((res) => {
         this.resetUsuario();
         this.usrSavedEv.emit();

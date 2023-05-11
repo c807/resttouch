@@ -15,6 +15,7 @@ class Usuario_model extends General_model
     public $usatecladovirtual = 0;
     public $confirmar_ingreso = 0;
     public $confirmar_egreso = 0;
+    public $rol = null;
 
     public function __construct($id = '')
     {
@@ -81,7 +82,7 @@ class Usuario_model extends General_model
                     c.visa_merchant_id,
                     CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, 
                     a.usatecladovirtual, 
-                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso")
+                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso, a.rol")
                 ->from("{$this->tabla} a")
                 ->join("sede b", "b.sede = a.sede")
                 ->join("empresa c", "c.empresa = b.empresa")
@@ -114,7 +115,8 @@ class Usuario_model extends General_model
                         'usuario' => $dbusr->usrname,
                         'inicia' => date('Y-m-d H:i:s'),
                         'hasta' => date('Y-m-d H:i:s', strtotime("+{$horasValidezToken} hours")),
-                        'dominio' => $credenciales['dominio']
+                        'dominio' => $credenciales['dominio'],
+                        'rol' => $dbusr->rol ?? 0,
                     );
                     return array(
                         'mensaje' => 'El usuario tiene acceso.',
@@ -141,7 +143,8 @@ class Usuario_model extends General_model
                         'wms' => (object)[
                             'confirmar_ingreso' => $dbusr->confirmar_ingreso,
                             'confirmar_egreso' => $dbusr->confirmar_egreso
-                        ]
+                        ],
+                        'rol' => $dbusr->rol ?? 0,
                     );
                 } else {
                     return array(
@@ -255,7 +258,7 @@ class Usuario_model extends General_model
         }
 
         return $this->db
-            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
+            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol')
             ->from($this->tabla)
             ->where("sede", $data->sede)
             ->get()
@@ -273,7 +276,7 @@ class Usuario_model extends General_model
         }
 
         $tmp = $this->db
-            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso')
+            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol')
             ->from($this->tabla)
             ->get();
 
@@ -309,5 +312,19 @@ class Usuario_model extends General_model
             }
         }
         return '';
+    }
+
+    public function setAccesosRolUsuario($idUsuario, $idRol)
+    {
+        // Elimino permisos existentes
+        $this->db->where('usuario', $idUsuario)->delete('acceso');
+
+        // Agrego permisos nuevos según el rol asignado
+        $query = 'INSERT INTO acceso(usuario, modulo, submodulo, opcion, activo) ';
+        $query.= "SELECT {$idUsuario}, modulo, submodulo, opcion, incluido AS activo ";
+        $query.= 'FROM rol_acceso ';
+        $query.= "WHERE incluido = 1 AND rol = {$idRol} ";
+        $query.= 'ORDER BY modulo, submodulo, opcion';
+        $this->db->query($query);
     }
 }

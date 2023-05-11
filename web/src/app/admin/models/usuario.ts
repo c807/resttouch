@@ -20,7 +20,8 @@ export class usrLogInResponse {
         public restaurante: any,
         public usatecladovirtual: number,
         public dominio: string,
-        public wms: any
+        public wms: any,
+        public rol: number
     ) { }
 }
 
@@ -38,5 +39,6 @@ export class Usuario {
         public usatecladovirtual: number,
         public confirmar_ingreso?: number,
         public confirmar_egreso?: number,
+        public rol?: number
     ) { }
 }

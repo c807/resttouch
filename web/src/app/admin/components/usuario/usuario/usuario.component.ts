@@ -14,7 +14,7 @@ export class UsuarioComponent implements OnInit {
   @ViewChild('lstUsuarioComponent') lstUsuarioComponent: ListaUsuarioComponent;
 
   constructor() {
-    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0);
+    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0, null);
   }
 
   ngOnInit() {

@@ -133,6 +133,11 @@ class Usuario extends CI_Controller
             ->set_output(json_encode($this->Usuario_model->findAll($debaja)));
     }
 
+    private function set_permisos_rol_usuario($idUsuario, $idRol)
+    {
+        $this->Usuario_model->setAccesosRolUsuario($idUsuario, $idRol);
+    }
+
     public function guardar_usuario($id = '')
     {
         $datos = ['status' => false];
@@ -142,15 +147,19 @@ class Usuario extends CI_Controller
 
             if (empty($id)) {
                 $datos = $usu->crear($req);
+                $this->set_permisos_rol_usuario($usu->getPK(), (int)$req['rol']);
             } else {
+                $rolOriginal = (int)$usu->rol;
                 $datos = $usu->actualizar($req);
+                if ($rolOriginal !== (int)$req['rol']) {
+                    $this->set_permisos_rol_usuario($usu->getPK(), (int)$req['rol']);
+                }
             }
         } else {
-            $datos['error'] = "Parametros invalidos";
+            $datos['error'] = 'Parámetros inválidos';
         }
 
-        $this->output
-            ->set_output(json_encode($datos));
+        $this->output->set_output(json_encode($datos));
     }
 
     public function usuarios_post()

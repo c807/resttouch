@@ -3,27 +3,27 @@
         <h4>Usuario</h4>
     </mat-card-title>
     <mat-card-content>
-        <form #frmUsuario="ngForm" (ngSubmit)="frmUsuario.form.valid && onSubmit()" novalidate>
+        <form #frmUsuario="ngForm" (ngSubmit)="frmUsuario.form.valid && onSubmit()" autocomplete="off" novalidate>
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required>
-                <input matInput *ngIf="esMovil" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required>
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-1">
+                <input matInput *ngIf="esMovil" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-2">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required>
-                <input matInput *ngIf="esMovil" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required>
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-1">
+                <input matInput *ngIf="esMovil" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-2">
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required>
-                <input matInput *ngIf="esMovil" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required>
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-1">
+                <input matInput *ngIf="esMovil" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-2">
             </mat-form-field>
             <mat-form-field class="fullWidth separacionPorHint">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario">
-                <input matInput *ngIf="esMovil" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
+                <input matInput *ngIf="esMovil" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
                 <mat-hint align="start"><strong>La contraseña debe tener entre 4 y 10 caracteres. Se recomienda una contraseña segura pero fácil de recordar.</strong></mat-hint>
             </mat-form-field>
             <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo">
-                <input matInput *ngIf="esMovil" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-1">
+                <input matInput *ngIf="esMovil" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-2">
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <mat-label>Sede</mat-label>
@@ -32,6 +32,15 @@
                         {{s.nombre}} ({{s.alias}})
                     </mat-option>
                 </mat-select>
+            </mat-form-field>
+            <mat-form-field class="fullWidth" style="margin-bottom: 20px;">
+                <mat-label>Rol del usuario</mat-label>
+                <mat-select name="rol" [(ngModel)]="usuario.rol" [disabled]="disableRol">
+                    <mat-option *ngFor="let r of roles" [value]="r.rol">
+                        {{r.descripcion}}
+                    </mat-option>
+                </mat-select>
+                <mat-hint align="start"><strong>NOTA: Cambiar el rol del usuario eliminará los permisos que tiene actualmente y asignará los que tenga configurado el rol.</strong></mat-hint>
             </mat-form-field>
             <mat-checkbox name="esmesero" [(ngModel)]="+usuario.esmesero" class="fontFamily">Es mesero</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <mat-checkbox name="usatecladovirtual" [(ngModel)]="+usuario.usatecladovirtual" class="fontFamily">Usa teclado virtual</mat-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
