@@ -7,7 +7,7 @@ class Rol extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['Rol_model', 'Rol_acceso_model']);
+        $this->load->model(['Rol_model', 'Rol_acceso_model', 'Catalogo_model']);
 
         $headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
@@ -18,33 +18,42 @@ class Rol extends CI_Controller
     {
         $menu = $this->config->item('menu');
         $arbol = [];
-        foreach ($menu as $mKey => $modulo) {
-            if ($mKey !== 3) {
-                $arbol[] = (object)[
-                    'modulo' => $mKey,
-                    'descripcion' => $modulo['nombre'],
-                    'submodulos' => []
-                ];
 
-                $mIdx = count($arbol) - 1;
-                foreach ($modulo['submodulo'] as $smKey => $submodulo) {
-                    $arbol[$mIdx]->submodulos[] = (object)[
-                        'submodulo' => $smKey,
-                        'descripcion' => $submodulo['nombre'],
-                        'opciones' => []
+        $modulosCorporacion = $this->Catalogo_model->getModulo();
+        if (!empty($modulosCorporacion)) {
+            $arrModulos = [];
+            foreach ($modulosCorporacion as $mod) {
+                $arrModulos[] = (int)$mod->modulo;
+            }
+            foreach ($menu as $mKey => $modulo) {
+                if ($mKey !== 3 && in_array($mKey, $arrModulos)) {
+                    $arbol[] = (object)[
+                        'modulo' => $mKey,
+                        'descripcion' => $modulo['nombre'],
+                        'submodulos' => []
                     ];
 
-                    $smIdx = count($arbol[$mIdx]->submodulos) - 1;
-                    foreach ($submodulo['opciones'] as $oKey => $opcion) {
-                        $arbol[$mIdx]->submodulos[$smIdx]->opciones[] = (object)[
-                            'opcion' => $oKey,
-                            'descripcion' => $opcion['nombre'],
-                            'incluido' => 0
+                    $mIdx = count($arbol) - 1;
+                    foreach ($modulo['submodulo'] as $smKey => $submodulo) {
+                        $arbol[$mIdx]->submodulos[] = (object)[
+                            'submodulo' => $smKey,
+                            'descripcion' => $submodulo['nombre'],
+                            'opciones' => []
                         ];
+
+                        $smIdx = count($arbol[$mIdx]->submodulos) - 1;
+                        foreach ($submodulo['opciones'] as $oKey => $opcion) {
+                            $arbol[$mIdx]->submodulos[$smIdx]->opciones[] = (object)[
+                                'opcion' => $oKey,
+                                'descripcion' => $opcion['nombre'],
+                                'incluido' => 0
+                            ];
+                        }
                     }
                 }
             }
         }
+
         return $arbol;
     }
 
@@ -149,7 +158,7 @@ class Rol extends CI_Controller
 
     public function guardar_detalle()
     {
-        $req = json_decode(file_get_contents('php://input'), true);       
+        $req = json_decode(file_get_contents('php://input'), true);
 
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
