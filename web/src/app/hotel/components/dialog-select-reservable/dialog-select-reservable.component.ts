@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { LocalstorageService } from '@admin-services/localstorage.service';
+import { GLOBAL } from '@shared/global';
 
 import { MesaService } from '@restaurante-services/mesa.service';
 import { MesaDisponible } from '@restaurante-interfaces/mesa';
@@ -21,7 +23,8 @@ export class DialogSelectReservableComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogSelectReservableComponent>,
-    private mesaSrvc: MesaService
+    private mesaSrvc: MesaService,
+    private ls: LocalstorageService
   ) { }
 
   ngOnInit(): void {
@@ -34,7 +37,7 @@ export class DialogSelectReservableComponent implements OnInit {
   loadReservables = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.mesaSrvc.getMesaFullData({ esreservable: 1, estatus: 1 }).subscribe(res => {
+      this.mesaSrvc.getMesaFullData({ _sede: this.ls.get(GLOBAL.usrTokenVar).sede, esreservable: 1, estatus: 1 }).subscribe(res => {
         this.reservables = res;        
         this.cargando = false;
       })

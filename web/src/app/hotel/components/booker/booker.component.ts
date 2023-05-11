@@ -7,6 +7,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '@hotel-components/booker/filtro/filter.component';
+import { LocalstorageService } from '@admin-services/localstorage.service';
 import { GLOBAL } from '@shared/global';
 
 import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
@@ -104,7 +105,8 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
     private tipoHabitacionSrvc: TipoHabitacionService,
     private mesaSrvc: MesaService,
     private reservaSrvc: ReservaService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private ls: LocalstorageService
   ) {
   }
 
@@ -144,7 +146,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
   loadReservables = () => {
     this.cargando = true;
     this.endSubs.add(
-      this.mesaSrvc.getMesaFullData({ esreservable: 1 }).subscribe(res => {
+      this.mesaSrvc.getMesaFullData({ _sede: this.ls.get(GLOBAL.usrTokenVar).sede, esreservable: 1 }).subscribe(res => {
         this.reservables = res;
         this.dateChanged(moment().toDate());
         this.cargando = false;
