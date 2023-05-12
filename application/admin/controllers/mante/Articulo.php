@@ -785,6 +785,41 @@ class Articulo extends CI_Controller
 		}
 	}
 
+	private function procesa_recetas($sheet_data = [])
+	{
+		$art = new Articulo_model();
+		foreach ($sheet_data as $row => $col) {
+			if ($row != 0) {
+				$receta = $art->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[0]), '_uno' => true]);
+				if ($receta) {
+					$articulo = $art->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[1]), '_uno' => true]);
+					if ($articulo) {
+						$medida = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[3]), '_uno' => true]);
+						if ($medida) {
+							$entidad = [
+								'receta' => (int)$receta->articulo,
+								'articulo' => (int)$articulo->articulo,
+								'cantidad' => (float)$col[2],
+								'medida' => (int)$medida->medida,
+								'anulado' => (int)$col[4],
+								'precio_extra' => (int)$col[5],
+								'precio' => (int)$col[6],
+							];
+							$existente = $this->Receta_model->buscar(['receta' => $entidad['receta'], 'articulo' => $entidad['articulo'], '_uno' => true]);
+							$nuevaReceta = null;
+							if ($existente) {
+								$nuevaReceta = new Receta_model($existente->articulo_detalle);
+							} else {
+								$nuevaReceta = new Receta_model();
+							}
+							$nuevaReceta->guardar($entidad);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	public function load_from_file()
 	{
 		set_time_limit(0);
@@ -807,7 +842,7 @@ class Articulo extends CI_Controller
 			try {
 				$spreadsheet = $reader->load($file_name);
 
-				$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS'];
+				$sheet_names = ['MEDIDAS', 'PRESENTACIONES', 'CATEGORIAS', 'SUBCATEGORIAS', 'ARTICULOS', 'RECETAS'];
 				$sheet_data = [];
 				foreach ($sheet_names as $sheetName) {
 					$sheet = $spreadsheet->getSheetByName($sheetName);
@@ -828,6 +863,9 @@ class Articulo extends CI_Controller
 								break;
 							case $sheet_names[4]:
 								$this->procesa_articulos($sheet_data);
+								break;
+							case $sheet_names[5]:
+								$this->procesa_recetas($sheet_data);
 								break;
 						}
 					}
