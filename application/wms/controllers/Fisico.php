@@ -188,11 +188,12 @@ class Fisico extends CI_Controller
 							$articulo = new Articulo_model($art->articulo);
 							$pres = $articulo->getPresentacionReporte();
 							$existencias = $art->existencia_sistema / $pres->cantidad;
-							$diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
-
-							if (round($diferencia, 2) == 0) {
-								continue;
-							}
+							
+							// Implementación solicitó quitar esta validación. 15/05/2023 15:21
+							// $diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
+							// if (round($diferencia, 2) == 0) {
+							// 	continue;
+							// }
 
 							$reg = [
 								$art->narticulo,
