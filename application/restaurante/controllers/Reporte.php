@@ -1937,8 +1937,9 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("L{$fila}", 'Notas de comanda');
             $hoja->setCellValue("M{$fila}", 'Razón de anulación de comanda');
             $hoja->setCellValue("N{$fila}", 'Total de comanda');
-            $hoja->getStyle("A{$fila}:N{$fila}")->getFont()->setBold(true);
-            $hoja->getStyle("A{$fila}:N{$fila}")->getAlignment()->setHorizontal('center');
+            $hoja->setCellValue("O{$fila}", 'Comensales');
+            $hoja->getStyle("A{$fila}:O{$fila}")->getFont()->setBold(true);
+            $hoja->getStyle("A{$fila}:O{$fila}")->getAlignment()->setHorizontal('center');
             $fila++;
             $hoja->setCellValue("A{$fila}", $cmd->sede);
             $hoja->setCellValue("B{$fila}", $cmd->orden_gk);
@@ -1955,6 +1956,7 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("L{$fila}", $cmd->notas_generales);
             $hoja->setCellValue("M{$fila}", $cmd->razon_anulacion);
             $hoja->setCellValue("N{$fila}", $cmd->total_detalle);
+            $hoja->setCellValue("O{$fila}", $cmd->comensales);
             $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
             $fila++;
             // Detalle de comanda

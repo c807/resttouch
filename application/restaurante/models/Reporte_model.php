@@ -377,7 +377,7 @@ class Reporte_model extends CI_Model
 		$select .= "DATE_FORMAT(e.fecha, '%d/%m/%Y %H:%i:%s') AS fecha_turno, ";
 		$select .= "TRIM(f.descripcion) AS turno_tipo, DATE_FORMAT(e.inicio, '%d/%m/%Y %H:%i:%s') AS inicio_turno, DATE_FORMAT(e.fin, '%d/%m/%Y %H:%i:%s') AS fin_turno, ";
 		$select .= "TRIM(CONCAT(IFNULL(c.nombres, ''), ' ', IFNULL(c.apellidos, ''))) AS mesero, DATE_FORMAT(a.fhcreacion, '%d/%m/%Y %H:%i:%s') AS fecha_comanda, TRIM(a.notas_generales) AS notas_generales, ";
-		$select .= "a.orden_gk, TRIM(g.descripcion) AS razon_anulacion";
+		$select .= "a.orden_gk, TRIM(g.descripcion) AS razon_anulacion, a.comensales";
 
 		return $this->db
 			->select($select)
