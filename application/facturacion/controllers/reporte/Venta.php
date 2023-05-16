@@ -917,7 +917,8 @@ class Venta extends CI_Controller
 				'fdel' => $req['fdel'],
 				'fal' => $req['fal'],
 				'turno' => isset($req['turno_tipo']) && (int)$req['turno_tipo'] > 0 ? new TurnoTipo_model($req['turno_tipo']) : null,
-				'sedes' => $datos
+				'sedes' => $datos,
+				'_wms' => isset($req['_wms']) && (int)$req['_wms'] === 1,
 			];
 
 			if (isset($req['_titulocc'])) {
@@ -938,7 +939,7 @@ class Venta extends CI_Controller
 
 				$hoja->setCellValue('A1', 'Reporte de ventas');
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
-				$hoja->setCellValue('A3', 'Por artículo');
+				$hoja->setCellValue('A3', 'Por artículo'.(isset($req['_wms']) && (int)$req['_wms'] === 1 ? ' (coparativo para WMS)' : ''));
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
 				if (isset($req['_titulocc'])) {
 					$hoja->setCellValue('A5', $req['_titulocc']);

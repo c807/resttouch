@@ -96,6 +96,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.tiposReporte = [
       { tipo_reporte: 1, descripcion: 'Por categoría' },
       { tipo_reporte: 2, descripcion: 'Por artículo' },
+      { tipo_reporte: 5, descripcion: 'Por artículo (comparativo para WMS)' },
       { tipo_reporte: 3, descripcion: 'Por categoría agrupado por combo' },
       { tipo_reporte: 4, descripcion: 'Por mesero' }
     ];
@@ -138,9 +139,10 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   getPdf = () => {
     switch (this.params.tipo_reporte) {
       case 1: this.getPorCategoriaPdf(); break;
-      case 2: this.getPorArticuloPdf(); break;
+      case 2: this.getPorArticuloPdf(0); break;
       case 3: this.getPorCatAgrupadoCombo(); break;
       case 4: this.getPorMesero(); break;
+      case 5: this.getPorArticuloPdf(0, 1); break;
     }
   }
 
@@ -150,6 +152,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
       case 2: this.getPorArticuloPdf(1); break;
       case 3: this.getPorCatAgrupadoCombo(1); break;
       case 4: this.getPorMesero(1); break;
+      case 5: this.getPorArticuloPdf(1, 1); break;
     }
   }
 
@@ -188,8 +191,9 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     );
   }
 
-  getPorArticuloPdf = (esExcel = 0) => {
+  getPorArticuloPdf = (esExcel = 0, _wms = 0) => {
     this.paramsToSend._excel = esExcel;
+    this.paramsToSend._wms = _wms;
     this.cargando = true;
     this.cleanParams();
     this.endSubs.add(      

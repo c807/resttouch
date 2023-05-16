@@ -15,7 +15,7 @@
 			<?php if (isset($turno)) : ?>
 				<h4>Turno: <?php echo $turno->descripcion ?> </h4>
 			<?php endif ?>
-			<span>Por Artículo</span>
+			<span>Por Artículo<?php echo ($_wms ? ' (comparativo par WMS)' : '') ?></span>
 		</div>
 	</div>
 
