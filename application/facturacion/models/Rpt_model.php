@@ -124,9 +124,14 @@ class Rpt_model extends General_model
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
-    
-            $multiples = $this->db
-                ->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, SUM(a.total + a.aumento) AS total', false)
+                
+            if (isset($args['_wms']) && (int)$args['_wms'] === 1) {
+                $this->db->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total', false);
+            } else {
+                $this->db->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, SUM(a.total + a.aumento) AS total', false);
+            }
+
+            $multiples = $this->db                
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->where("a.comanda IN({$comandas})")
