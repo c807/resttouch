@@ -30,7 +30,8 @@ class Factura extends CI_Controller
 			'Razon_anulacion_model',
 			'Presentacion_model',
 			'Configuracion_model',
-			'BodegaArticuloCosto_model'
+			'BodegaArticuloCosto_model',
+			'Webhook_model'
 		]);
 		$this->output->set_content_type("application/json", "UTF-8");
 	}
@@ -345,9 +346,10 @@ class Factura extends CI_Controller
 				if (verDato($req, 'razon_anulacion')) {
 					$motivo = new Razon_anulacion_model($req['razon_anulacion']);
 					$fac->cargarFacturaSerie();
-					$fac->cargarEmpresa();
 					$fac->cargarMoneda();
 					$fac->cargarReceptor();
+					$fac->cargarSede();
+					$fac->cargarEmpresa();
 					$fac->cargarCertificadorFel();
 					$cer = $fac->getCertificador();
 					$funcion = $cer->metodo_anulacion;
@@ -378,6 +380,27 @@ class Factura extends CI_Controller
 							"registro" => $fac->getPK(),
 							"comentario" => $comentario
 						]);
+
+						$webhook = $this->Webhook_model->buscar([
+							'evento' => 'RTEV_FIRMA_FACTURA',
+							'_uno' => true
+						]);
+
+						if ($webhook) {
+							$this->load->library('Webhook');
+							if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
+								$req = $fac->getXmlWebhook();
+
+							} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
+								$this->load->helper('api');
+								$req = $fac->getXmlWebhook(true);
+							}
+
+							$web = new Webhook($webhook);
+							$web->setRequest($req);
+							$web->setEvento();
+						}
+
 						$datos['exito'] = true;
 						$datos['factura'] = $fac;
 						$datos['mensaje'] = "Datos actualizados con exito";
