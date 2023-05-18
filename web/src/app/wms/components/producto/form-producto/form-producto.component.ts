@@ -105,6 +105,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   public esMovil = false;
   public txtArticuloSelected: (Articulo | string) = undefined;
   public lstSubCategorias: CategoriaGrupoResponse[] = [];
+  public cargando = false;  
 
   private endSubs = new Subscription();
 
@@ -170,6 +171,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
 
   onSubmit = () => {
     // console.log(this.articulo);
+    this.cargando = true;
     this.endSubs.add(
       this.articuloSrvc.saveArticulo(this.articulo).subscribe(res => {
         // console.log(res);
@@ -185,36 +187,43 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Articulo', { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }
 
   loadMedidas = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.medidaSrvc.get().subscribe(res => {
         if (res) {
           this.medidasFull = res;
         }
+        this.cargando = false;
       })
     );
   }
 
   loadPresentaciones = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.presentacionSrvc.get().subscribe(res => {
         this.presentaciones = res || [];
         this.filtrarPresentaciones();
+        this.cargando = false;
       })
     );
   }
 
   loadSubCategorias = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
         this.lstSubCategorias = res.map(r => {
           r.categoria_grupo = +r.categoria_grupo;
           return r;
         });
+        this.cargando = false;
       })
     );
   }
@@ -232,6 +241,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   filtrarPresentaciones = (art: Articulo = null, presentacionASetear: Presentacion = null) => {
     if (this.presentaciones && this.presentaciones.length > 0) {
       if (art?.articulo) {
+        this.cargando = true;
         this.endSubs.add(
           this.articuloSrvc.tieneMovimientos(art.articulo).subscribe(res => {
             if (res.exito) {
@@ -247,6 +257,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
             } else {
               this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 7000 });
             }
+            this.cargando = false;
           })
         );
       } else {
@@ -257,21 +268,21 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadArticulos = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.articuloSrvc.getArticulos().subscribe(res => {
-        if (res) {
-          this.articulos = res;
-        }
+        this.articulos = res;        
+        this.cargando = false;
       })
     );
   }
 
   loadImpuestosEspeciales = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.impuestoEspecialSrvc.get().subscribe(res => {
-        if (res) {
-          this.impuestosEspeciales = res;
-        }
+        this.impuestosEspeciales = res;        
+        this.cargando = false;
       })
     );
   }
@@ -322,17 +333,18 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   loadRecetas = (idarticulo: number = +this.articulo.articulo) => {
+    this.cargando = true;    
     this.endSubs.add(
       this.articuloSrvc.getArticuloDetalle(+idarticulo, { receta: +idarticulo }).subscribe(res => {
-        if (res) {
-          this.recetas = res;
-          this.updateTableDataSource();
-        }
+        this.recetas = res;
+        this.updateTableDataSource();        
+        this.cargando = false;
       })
     );
   }
 
   getReceta = (idarticulo: number = +this.articulo.articulo, iddetalle: number) => {
+    this.cargando = true;
     this.endSubs.add(
       this.articuloSrvc.getArticuloDetalle(idarticulo, { articulo_detalle: iddetalle }).subscribe((res: any[]) => {
         // console.log(res);
@@ -351,6 +363,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
           this.txtArticuloSelected = res[0].articulo;
           this.showDetalleForm = true;
         }
+        this.cargando = false;
       })
     );
   }
@@ -372,11 +385,13 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         if (conf) {
           item.anulado = 1;
           item.articulo = item.articulo.articulo;
+          this.cargando = true;
           this.endSubs.add(
             this.articuloSrvc.saveArticuloDetalle(item).subscribe(res => {
               // console.log(res);
               this.loadRecetas();
               this.resetReceta();
+              this.cargando = false;
             })
           );
         }
@@ -385,6 +400,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   onSubmitDetail = () => {
+    this.cargando = true;
     this.receta.receta = this.articulo.articulo;
     // console.log(this.articulo);
     // console.log(this.receta); return;
@@ -402,11 +418,13 @@ export class FormProductoComponent implements OnInit, OnDestroy {
             this.snackBar.open(`ERROR: ${res.mensaje}`, 'Artículo', { duration: 3000 });
           }
         }
+        this.cargando = false;
       })
     );
   }
 
   imprimirReceta = (conIva: number = 0) => {
+    this.cargando = true;
     this.endSubs.add(
       this.rptSrvc.imprimirReceta(this.articulo.articulo, conIva).subscribe(res => {
         if (res) {
@@ -415,6 +433,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }
@@ -427,17 +446,18 @@ export class FormProductoComponent implements OnInit, OnDestroy {
   }
 
   replicarASedes = () => {
-    const replicarASedesRef = this.dialog.open(ReplicarASedesDialogComponent, {
+    // const replicarASedesRef = 
+    this.dialog.open(ReplicarASedesDialogComponent, {
       width: '50%',
       data: { articulo: this.articulo }
     });
 
-    this.endSubs.add(
-      replicarASedesRef.afterClosed().subscribe((conf: boolean) => {
-        if (conf) {
-        }
-      })
-    );
+    // this.endSubs.add(
+    //   replicarASedesRef.afterClosed().subscribe((conf: boolean) => {
+    //     if (conf) {
+    //     }
+    //   })
+    // );
   }
 
   applyFilter = (filter: string) => {
@@ -504,6 +524,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       confirmRef.afterClosed().subscribe((conf: boolean) => {
         if (conf) {
+          this.cargando = true;
           this.endSubs.add(
             this.articuloSrvc.darDeBajaArticulo(+this.articulo.articulo).subscribe(res => {
               if (res.exito && res.articulo) {
@@ -511,6 +532,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
                 this.articulo = res.articulo;
               }
               this.snackBar.open(`${res.exito ? '' : 'ERROR:'} ${res.mensaje}`, 'Artículo', { duration: 5000 });
+              this.cargando = false;
             })
           );
         }

@@ -160,16 +160,16 @@
                         </div>                        
                     </div>                    
                     <div align="end">
-                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmArticulo.form.valid || !articulo.categoria_grupo || +articulo.debaja === 1 || cargando">
                             Guardar
                         </button>
-                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="replicarASedes()" [disabled]="+articulo.debaja === 1" *ngIf="articulo.articulo">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="replicarASedes()" [disabled]="+articulo.debaja === 1 || cargando" *ngIf="articulo.articulo">
                             Replicar a sedes
                         </button>
-                        <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1" *ngIf="+articulo.articulo > 0">
+                        <button mat-raised-button type="button" color="warn" class="btnAccion" (click)="darDeBaja()" [disabled]="+articulo.debaja === 1 || cargando" *ngIf="+articulo.articulo > 0">
                             Dar de baja
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="resetArticulo()" *ngIf="articulo.articulo">
+                        <button mat-raised-button type="button" color="accent" (click)="resetArticulo()" *ngIf="articulo.articulo" [disabled]="cargando">
                             Nuevo
                         </button>
                     </div>
@@ -226,18 +226,16 @@
                         </div>
                     </div>
                     <div align="end">
-                        <button mat-raised-button type="submit" color="accent" class="btnAccion"
-                            [disabled]="!frmDetalleArticulo.form.valid || +receta.cantidad < 0 || +articulo.debaja === 1">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmDetalleArticulo.form.valid || +receta.cantidad < 0 || +articulo.debaja === 1 || cargando">
                             Guardar
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="resetReceta()"
-                            *ngIf="receta.articulo_detalle">
+                        <button mat-raised-button type="button" color="accent" (click)="resetReceta()" *ngIf="receta.articulo_detalle" [disabled]="cargando">
                             Nuevo
                         </button>
-                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirReceta()" *ngIf="recetas.length > 0">
+                        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirReceta()" *ngIf="recetas.length > 0" [disabled]="cargando">
                             Imprimir
                         </button>
-                        <button mat-raised-button type="button" color="accent" (click)="imprimirReceta(1)" *ngIf="recetas.length > 0">
+                        <button mat-raised-button type="button" color="accent" (click)="imprimirReceta(1)" *ngIf="recetas.length > 0" [disabled]="cargando">
                             Imprimir (con I.V.A.)
                         </button>
                     </div>
@@ -269,13 +267,10 @@
                     <ng-container matColumnDef="editItem">
                         <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
                         <td mat-cell *matCellDef="let element" class="text-wrap">
-                            <button mat-raised-button type="button" color="accent" class="btnAccion"
-                                (click)="getReceta(element.receta, element.articulo_detalle)"
-                                [disabled]="+articulo.debaja === 1">
+                            <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="getReceta(element.receta, element.articulo_detalle)" [disabled]="+articulo.debaja === 1 || cargando">
                                 Editar
                             </button>
-                            <button mat-raised-button type="button" color="accent" (click)="eliminaReceta(element)"
-                                [disabled]="+articulo.debaja === 1">
+                            <button mat-raised-button type="button" color="accent" (click)="eliminaReceta(element)" [disabled]="+articulo.debaja === 1 || cargando">
                                 Eliminar
                             </button>
                         </td>

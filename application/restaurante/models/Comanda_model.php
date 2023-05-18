@@ -194,6 +194,8 @@ class Comanda_model extends General_Model
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
                         $cantResta = (float)$det->cantidad - (float)$args['cantidad'];
                         $args['cantidad_inventario'] = (float)$det->cantidad_inventario - $cantResta;
+                    } else {
+                        $args['cantidad_inventario'] = $det->cantidad_inventario;
                     }
                 }
             }
@@ -351,6 +353,8 @@ class Comanda_model extends General_Model
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
                         $cantResta = (float)$det->cantidad - (float)$args['cantidad'];
                         $args['cantidad_inventario'] = (float)$det->cantidad_inventario - $cantResta;
+                    } else {
+                        $args['cantidad_inventario'] = $det->cantidad_inventario;
                     }
                 }
             }
