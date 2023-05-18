@@ -216,6 +216,9 @@ class Comanda_model extends General_Model
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
         if ((int)$art->mostrar_inventario === 1) {
+            if (!isset($args['cantidad_inventario'])) {
+                $args['cantidad_inventario'] = $det->cantidad_inventario;
+            }
             $bac = new BodegaArticuloCosto_model();
             $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
             $args['costo_unitario'] = (float)$pu ?? (float)0;
@@ -373,6 +376,9 @@ class Comanda_model extends General_Model
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
         if ((int)$art->mostrar_inventario === 1) {
+            if (!isset($args['cantidad_inventario'])) {
+                $args['cantidad_inventario'] = $det->cantidad_inventario;
+            }
             $bac = new BodegaArticuloCosto_model();
             $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
             $args['costo_unitario'] = (float)$pu ?? (float)0;
