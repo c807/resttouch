@@ -183,8 +183,9 @@ export class DialogAgregarClienteComponent implements OnInit, OnDestroy {
   validarReceptor = (): boolean => {
     this.cliente.nit = procesarNIT(this.cliente?.nit);
     this.cliente.cui = procesarCUI(this.cliente?.cui, this.municipios || []);
-    this.cliente.pasaporte = procesarPasaporte(this.cliente?.pasaporte);
-    this.cliente.nombre = this.cliente?.nombre.replace(/[^0-9a-zñ*-.,/() ]+/gi, '').trim();
+    this.cliente.pasaporte = procesarPasaporte(this.cliente?.pasaporte);    
+    this.cliente.nombre = this.cliente?.nombre.replace(/[^0-9a-zñáéíóúüÁÉÍÓÚÜ*-.,/() ]+/gi, '').trim();
+
     return this.receptorValido;
   }
 
