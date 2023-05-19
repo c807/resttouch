@@ -10,7 +10,7 @@ class Reserva extends CI_Controller
 		$this->load->model([
 			'Reserva_model', 'Dreserva_model', 'Mesa_model', 'Tarifa_reserva_model',
 			'Comanda_model', 'Cuenta_model', 'Dcomanda_model', 'Articulo_model',
-			'Receta_model', 'Dcuenta_model', 'Sede_model'
+			'Receta_model', 'Dcuenta_model', 'Sede_model', 'Turno_model'
 		]);
 		$this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
@@ -36,7 +36,8 @@ class Reserva extends CI_Controller
 					$cmdAbierta = $rsrv->get_numero_comanda_reserva(null, true);
 					$mesa = new Mesa_model($req['mesa']);
 					$cmdAbiertaDeMesa = $mesa->get_comanda(['estatus' => 1]);
-					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa;
+					$turnoAbierto = $this->Turno_model->getTurno(['sede' => $this->data->sede, 'abierto' => true, '_uno' => true]);
+					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa && $turnoAbierto;
 				}
 
 				if ($continuar) {
@@ -52,7 +53,7 @@ class Reserva extends CI_Controller
 						$datos['mensaje'] = $rsrv->getMensaje();
 					}
 				} else {
-					$datos['mensaje'] = 'Esta habitación tiene una comanda abierta. Debe cerrarla primero para poder hacer check in.';
+					$datos['mensaje'] = 'Esta habitación tiene una comanda abierta o no hay un turno abierto en la sede.';
 				}
 			}
 		} else {
