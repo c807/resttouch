@@ -110,17 +110,25 @@ class Rpt_model extends General_model
         $directos = [];
 
         if (!empty($comandas)) {
+
+            // Select para quitar productos de facturas anuladas. 18/05/2023 18:37
+            $fltr = 'SELECT z.detalle_comanda, w.fel_uuid_anulacion ';
+            $fltr.= 'FROM detalle_cuenta z INNER JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta INNER JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura ';
+            $fltr.= 'INNER JOIN factura w ON w.factura = x.factura INNER JOIN cuenta v ON v.cuenta = z.cuenta_cuenta ';
+            $fltr.= "WHERE v.comanda IN({$comandas}) ";
+            $fltr.= 'GROUP BY z.detalle_comanda, w.fel_uuid, w.fel_uuid_anulacion';
+
             $combos = $this->db
                 ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
+                ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('b.multiple', 0)
                 ->where('b.combo', 1)
                 ->where('a.cantidad >', 0)
-                ->where('b.esextra', 0)
-                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
-                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->where('b.esextra', 0)                
+                ->where('d.fel_uuid_anulacion IS NULL')
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
@@ -134,14 +142,14 @@ class Rpt_model extends General_model
             $multiples = $this->db                
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
+                ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NOT NULL')
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)                
                 ->where('a.cantidad >', 0)
-                ->where('b.esextra', 0)
-                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
-                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->where('b.esextra', 0)                
+                ->where('d.fel_uuid_anulacion IS NULL')
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
@@ -150,12 +158,14 @@ class Rpt_model extends General_model
                 ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total', false)
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
+                ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NOT NULL')
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)                
                 ->where('a.cantidad >', 0)                
                 ->where('b.esextra', 1)
+                ->where('d.fel_uuid_anulacion IS NULL')
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
@@ -164,16 +174,15 @@ class Rpt_model extends General_model
                 ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
+                ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NULL')
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)
-                ->where('a.total >', 0)
-                // ->where('a.total <>', 0)
+                ->where('a.total >', 0)                
                 ->where('a.cantidad >', 0)
-                ->where('b.esextra', 0)
-                // ->where('DATE(c.fhcreacion) >=', $args['fdel'])
-                // ->where('DATE(c.fhcreacion) <=', $args['fal'])
+                ->where('b.esextra', 0)                
+                ->where('d.fel_uuid_anulacion IS NULL')
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
                 ->result();
@@ -281,11 +290,18 @@ class Rpt_model extends General_model
 
     public function get_suma_descuentos($comandas) 
     {
+        // Select para quitar productos de facturas anuladas. 18/05/2023 18:37
+        $fltr = 'SELECT v.cuenta ';
+        $fltr.= 'FROM detalle_cuenta z INNER JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta INNER JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura ';
+        $fltr.= 'INNER JOIN factura w ON w.factura = x.factura INNER JOIN cuenta v ON v.cuenta = z.cuenta_cuenta ';
+        $fltr.= "WHERE v.comanda IN({$comandas}) AND w.fel_uuid_anulacion IS NOT NULL ";
+        $fltr.= 'GROUP BY v.cuenta';
+
         $descuentos = 0;
         $mnt = $this->db->select_sum('a.monto')
             ->join('forma_pago b', 'b.forma_pago = a.forma_pago')
             ->where('b.descuento', 1)
-            ->where("cuenta IN(SELECT cuenta FROM cuenta WHERE comanda IN({$comandas}))", NULL, FALSE)
+            ->where("cuenta IN(SELECT a.cuenta FROM cuenta a WHERE a.comanda IN({$comandas}) AND a.cuenta NOT IN({$fltr}))", NULL, FALSE)
             ->get('cuenta_forma_pago a')
             ->row();
         
@@ -298,8 +314,16 @@ class Rpt_model extends General_model
     public function get_suma_propinas($comandas)
     {
         $propina = 0;
+
+        // Select para quitar productos de facturas anuladas. 18/05/2023 18:37
+        $fltr = 'SELECT v.cuenta ';
+        $fltr.= 'FROM detalle_cuenta z INNER JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta INNER JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura ';
+        $fltr.= 'INNER JOIN factura w ON w.factura = x.factura INNER JOIN cuenta v ON v.cuenta = z.cuenta_cuenta ';
+        $fltr.= "WHERE v.comanda IN({$comandas}) AND w.fel_uuid_anulacion IS NOT NULL ";
+        $fltr.= 'GROUP BY v.cuenta';
+
         $mnt = $this->db->select_sum('propina')
-            ->where("cuenta IN(SELECT cuenta FROM cuenta WHERE comanda IN({$comandas}))", NULL, FALSE)
+            ->where("cuenta IN(SELECT a.cuenta FROM cuenta a WHERE a.comanda IN({$comandas}) AND a.cuenta NOT IN({$fltr}))", NULL, FALSE)
             ->get('cuenta_forma_pago')
             ->row();
         

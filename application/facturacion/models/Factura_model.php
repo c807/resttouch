@@ -1669,6 +1669,10 @@ class Factura_model extends General_model
 			$this->db->where('DATE(d.fhcreacion) <=', $args['fal']);
 		}
 
+		if (isset($args['sede'])) {
+			$this->db->where('d.sede =', $args['sede']);
+		}
+
 		$ventas = 0;
 		$mnt = $this->db->select_sum('a.monto')
 			->join('forma_pago b', 'b.forma_pago = a.forma_pago')
