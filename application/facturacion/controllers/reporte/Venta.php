@@ -888,6 +888,9 @@ class Venta extends CI_Controller
 			if (!isset($req['fal'])) {
 				$req['fal'] = date('Y-m-d');
 			}
+
+			$_WMS = isset($req['_wms']) && (int)$req['_wms'] === 1;
+
 			$rpt = new Rpt_model();
 
 			$req = $this->addFiltersCallCenter($req);
@@ -918,12 +921,14 @@ class Venta extends CI_Controller
 				'fal' => $req['fal'],
 				'turno' => isset($req['turno_tipo']) && (int)$req['turno_tipo'] > 0 ? new TurnoTipo_model($req['turno_tipo']) : null,
 				'sedes' => $datos,
-				'_wms' => isset($req['_wms']) && (int)$req['_wms'] === 1,
+				'_wms' => $_WMS,
 			];
 
 			if (isset($req['_titulocc'])) {
 				$data['_titulocc'] = $req['_titulocc'];
 			}
+
+			
 
 			if (verDato($req, "_excel")) {
 				$data = (object)$data;
@@ -939,7 +944,7 @@ class Venta extends CI_Controller
 
 				$hoja->setCellValue('A1', 'Reporte de ventas');
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
-				$hoja->setCellValue('A3', 'Por artículo'.(isset($req['_wms']) && (int)$req['_wms'] === 1 ? ' (coparativo para WMS)' : ''));
+				$hoja->setCellValue('A3', 'Por artículo'.($_WMS ? ' (coparativo para WMS)' : ''));
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
 				if (isset($req['_titulocc'])) {
 					$hoja->setCellValue('A5', $req['_titulocc']);
@@ -948,11 +953,16 @@ class Venta extends CI_Controller
 				$hoja->setCellValue('A7', 'Sede');
 				$hoja->setCellValue('B7', 'Descripción');
 				$hoja->setCellValue('C7', 'Cantidad');
-				$hoja->setCellValue('D7', 'Total (sin desct., sin propina)');
+				$columna = 'D';
+				if ($_WMS) {
+					$hoja->setCellValue('D7', 'Presentación');
+					$columna = 'E';
+				}
+				$hoja->setCellValue("{$columna}7", 'Total (sin desct., sin propina)');
 				$hoja->getStyle('A7:B7')->getAlignment()->setHorizontal('center');
-				$hoja->getStyle('C7:D7')->getAlignment()->setHorizontal('right');
-				$hoja->getStyle('A7:D7')->getFont()->setBold(true);
-				$hoja->setAutoFilter('A7:D7');
+				$hoja->getStyle("C7:{$columna}7")->getAlignment()->setHorizontal('right');
+				$hoja->getStyle("A7:{$columna}7")->getFont()->setBold(true);
+				$hoja->setAutoFilter("A7:{$columna}7");
 
 				$fila = 8;
 				foreach ($data->sedes as $sede) {
@@ -961,60 +971,61 @@ class Venta extends CI_Controller
 						$hoja->setCellValue("A{$fila}", $sede->nombre);
 						$hoja->setCellValue("B{$fila}", $venta->descripcion);
 						$hoja->setCellValue("C{$fila}", (float)$venta->cantidad);
-						$hoja->setCellValue("D{$fila}", (float)$venta->total);
+						if ($_WMS) {
+							$hoja->setCellValue("D{$fila}", $venta->presentacion);
+						}
+						$hoja->setCellValue("{$columna}{$fila}", (float)$venta->total);
 						$totalSede += (float)$venta->total;
 						$fila++;
 					}
 					$hoja->setCellValue("A{$fila}", $sede->nombre);
 					$hoja->setCellValue("C{$fila}", 'Sub-total (sin descuentos):');
-					$hoja->setCellValue("D{$fila}", $totalSede);
-					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
-					$hoja->getStyle("C{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("{$columna}{$fila}", $totalSede);
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 					$fila++;
 					$hoja->setCellValue("A{$fila}", $sede->nombre);
 					$hoja->setCellValue("C{$fila}", 'Descuentos:');
-					$hoja->setCellValue("D{$fila}", $sede->suma_descuentos);
-					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
-					$hoja->getStyle("C{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("{$columna}{$fila}", $sede->suma_descuentos);
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 					$fila++;
 					$hoja->setCellValue("A{$fila}", $sede->nombre);
 					$hoja->setCellValue("C{$fila}", 'Sub-total (con descuentos):');
-					$hoja->setCellValue("D{$fila}", $totalSede - $sede->suma_descuentos);
-					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
-					$hoja->getStyle("C{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("{$columna}{$fila}", $totalSede - $sede->suma_descuentos);
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 					$fila++;
 					$hoja->setCellValue("A{$fila}", $sede->nombre);
 					$hoja->setCellValue("C{$fila}", 'Propinas:');
-					$hoja->setCellValue("D{$fila}", $sede->suma_propinas);
-					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
-					$hoja->getStyle("C{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("{$columna}{$fila}", $sede->suma_propinas);
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 					$fila++;
 					$hoja->setCellValue("A{$fila}", $sede->nombre);
 					$hoja->setCellValue("C{$fila}", 'Total (Ingresos):');
-					$hoja->setCellValue("D{$fila}", $totalSede - $sede->suma_descuentos + $sede->suma_propinas);
-					$hoja->getStyle("C{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
-					$hoja->getStyle("C{$fila}:D{$fila}")->getFont()->setBold(true);
+					$hoja->setCellValue("{$columna}{$fila}", $totalSede - $sede->suma_descuentos + $sede->suma_propinas);
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+					$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
 					$fila++;
 				}
 				$fila--;
 				// $SUMRANGE = "D7:D{$fila}";
 				// $fila++;				
-				$hoja->getStyle("C8:D{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-				$hoja->getStyle("A7:D{$fila}")->getBorders()->getAllBorders()
+				$hoja->getStyle("C8:{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+				$hoja->getStyle("A7:{$columna}{$fila}")->getBorders()->getAllBorders()
 					->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
 					->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
 
-
-
-				foreach (range('A', 'D') as $col) {
+				foreach (range('A', $columna) as $col) {
 					$hoja->getColumnDimension($col)->setAutoSize(true);
 				}
 
-				$hoja->mergeCells('A1:D1');
-				$hoja->mergeCells('A2:D2');
-				$hoja->mergeCells('A3:D3');
-				$hoja->mergeCells('A4:D4');
-				$hoja->mergeCells('A5:D5');
+				$hoja->mergeCells("A1:{$columna}1");
+				$hoja->mergeCells("A2:{$columna}2");
+				$hoja->mergeCells("A3:{$columna}3");
+				$hoja->mergeCells("A4:{$columna}4");
+				$hoja->mergeCells("A5:{$columna}5");
 
 				$fila += 3;
 				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');

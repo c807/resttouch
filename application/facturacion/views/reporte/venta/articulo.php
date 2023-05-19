@@ -37,11 +37,15 @@
 			<table class="table table-bordered" style="padding: 5px">
 				<thead>
 					<tr>
-						<th colspan="3" style="padding: 5px;" class="text-center"><?php echo $sede->nombre ?></th>
+						<?php $col = $_wms ? 4 : 3 ?>
+						<th colspan="<?php echo $col ?>" style="padding: 5px;" class="text-center"><?php echo $sede->nombre ?></th>
 					</tr>
 					<tr>
 						<th style="padding: 5px;" class="text-center">Descripción</th>
 						<th style="padding: 5px;" class="text-right">Cantidad</th>
+						<?php if ($_wms) : ?>
+							<th style="padding: 5px;" class="text-right">Presentación</th>
+						<?php endif ?>
 						<th style="padding: 5px;" class="text-right">Total (sin desct., sin propina)</th>
 					</tr>
 				</thead>
@@ -56,6 +60,11 @@
 							<td style="padding: 5px;" class="text-right">
 								<?php echo number_format($det->cantidad, 2) ?>
 							</td>
+							<?php if ($_wms) : ?>
+								<td style="padding: 5px;" class="text-right">
+									<?php echo $det->presentacion ?>
+								</td>
+							<?php endif ?>
 							<td style="padding: 5px;" class="text-right">
 								<?php echo number_format((float)$det->total, 2) ?>
 							</td>
@@ -63,8 +72,9 @@
 					<?php endforeach ?>
 				</tbody>
 				<tfoot>
+					<?php $col = $_wms ? 3 : 2 ?>
 					<tr>
-						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+						<td style="padding: 5px;font-weight: bold;" colspan="<?php echo $col ?>" class="text-right">
 							<b>Sub-total (sin descuentos):</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">
@@ -72,7 +82,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+						<td style="padding: 5px;font-weight: bold;" colspan="<?php echo $col ?>" class="text-right">
 							<b>Descuentos:</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">
@@ -80,7 +90,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+						<td style="padding: 5px;font-weight: bold;" colspan="<?php echo $col ?>" class="text-right">
 							<b>Sub-total (con descuentos):</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">
@@ -89,7 +99,7 @@
 					</tr>
 
 					<tr>
-						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+						<td style="padding: 5px;font-weight: bold;" colspan="<?php echo $col ?>" class="text-right">
 							<b>Propinas:</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">
@@ -97,7 +107,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="padding: 5px;font-weight: bold;" colspan="2" class="text-right">
+						<td style="padding: 5px;font-weight: bold;" colspan="<?php echo $col ?>" class="text-right">
 							<b>Total (Ingresos):</b>
 						</td>
 						<td style="padding: 5px;" class="text-right">

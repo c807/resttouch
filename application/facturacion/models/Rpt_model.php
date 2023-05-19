@@ -119,10 +119,11 @@ class Rpt_model extends General_model
             $fltr.= 'GROUP BY z.detalle_comanda, w.fel_uuid, w.fel_uuid_anulacion';
 
             $combos = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total, IFNULL(e.descripcion, "") AS presentacion')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
+                ->join('presentacion e', 'e.presentacion = a.presentacion', 'left')
                 ->where("a.comanda IN({$comandas})")
                 ->where('b.multiple', 0)
                 ->where('b.combo', 1)
@@ -134,15 +135,16 @@ class Rpt_model extends General_model
                 ->result();
                 
             if (isset($args['_wms']) && (int)$args['_wms'] === 1) {
-                $this->db->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total', false);
+                $this->db->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total, IFNULL(e.descripcion, "") AS presentacion', false);
             } else {
-                $this->db->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, SUM(a.total + a.aumento) AS total', false);
+                $this->db->select('a.articulo, b.descripcion, COUNT(a.articulo) AS cantidad, SUM(a.total + a.aumento) AS total, IFNULL(e.descripcion, "") AS presentacion', false);
             }
 
             $multiples = $this->db                
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
+                ->join('presentacion e', 'e.presentacion = a.presentacion', 'left')
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NOT NULL')
                 ->where('b.multiple', 0)
@@ -155,10 +157,11 @@ class Rpt_model extends General_model
                 ->result();
 
             $extras = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total', false)
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total, IFNULL(e.descripcion, "") AS presentacion', false)
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
+                ->join('presentacion e', 'e.presentacion = a.presentacion', 'left')
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NOT NULL')
                 ->where('b.multiple', 0)
@@ -171,10 +174,11 @@ class Rpt_model extends General_model
                 ->result();
     
             $directos = $this->db
-                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total')
+                ->select('a.articulo, b.descripcion, SUM(a.cantidad) AS cantidad, SUM(a.total + a.aumento) AS total, IFNULL(e.descripcion, "") AS presentacion')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('comanda c', 'c.comanda = a.comanda')
                 ->join("({$fltr}) d", 'a.detalle_comanda = d.detalle_comanda', 'left', false)
+                ->join('presentacion e', 'e.presentacion = a.presentacion', 'left')
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NULL')
                 ->where('b.multiple', 0)
@@ -192,10 +196,11 @@ class Rpt_model extends General_model
 
         if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
             $facturas_manuales = $this->db
-                ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total) AS total')
+                ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total) AS total, IFNULL(g.descripcion, "") AS presentacion')
                 ->join('detalle_factura b', 'a.factura = b.factura')
                 ->join('articulo c', 'c.articulo = b.articulo')                
                 ->join('detalle_factura_detalle_cuenta f', 'b.detalle_factura = f.detalle_factura', 'left')
+                ->join('presentacion g', 'g.presentacion = b.presentacion', 'left')                
                 ->where('a.sede', $args['idsede'])
                 ->where('a.fel_uuid IS NOT NULL')
                 ->where('a.fel_uuid_anulacion IS NULL')
