@@ -63,22 +63,6 @@
 	</mat-grid-tile>
 </mat-grid-list>
 
-<!-- <mat-grid-list cols="1" rowHeight="400px">
-  <mat-grid-tile>
-  	<mat-card>
-  		<mat-card-title>Últimos {{ ultimosDias }} días</mat-card-title>
-			<mat-card-content>
-				<canvas baseChart
-					[datasets]="diasData"
-					[labels]="diasLabels"
-					[options]="chartOptions"
-					[chartType]="'line'">
-				</canvas>
-			</mat-card-content>
-		</mat-card>
-  </mat-grid-tile>
-</mat-grid-list> -->
-
 <mat-grid-list cols="3" rowHeight="350px">
   <mat-grid-tile>
   	<mat-card>
@@ -121,72 +105,11 @@
 				</canvas>
     	</mat-card-content>
 		</mat-card>
-  </mat-grid-tile>
-  <!-- <mat-grid-tile>
-  	<mat-card>
-  		<mat-card-title>A domicilio</mat-card-title>
-			<mat-card-content>
-				<canvas baseChart
-					[datasets]="domicilioData"
-					[labels]="domicilioLabels"
-					[options]="pieOptions"
-					[chartType]="'pie'">
-				</canvas>
-			</mat-card-content>
-		</mat-card>
-  </mat-grid-tile> -->
+  </mat-grid-tile>  
 </mat-grid-list>
 
-<!-- <mat-grid-list cols="2" rowHeight="450px">
-  <mat-grid-tile>
-  	<mat-card>
-  		<mat-card-title>Mesero</mat-card-title>
-			<mat-card-content>
-				<canvas baseChart
-					[datasets]="meseroData"
-					[labels]="meseroLabels"
-					[options]="horizontalOptions"
-					[chartType]="'horizontalBar'">
-				</canvas>
-			</mat-card-content>
-		</mat-card>
-  </mat-grid-tile> -->
-
-  <!-- <mat-grid-tile>
-  	<mat-card>
-  		<mat-card-title>Sede</mat-card-title>
-			<mat-card-content>
-				<canvas baseChart
-					[datasets]="sedeData"
-					[labels]="sedeLabels"
-					[options]="horizontalOptions"
-					[chartType]="'horizontalBar'">
-				</canvas>
-			</mat-card-content>
-		</mat-card>
-  </mat-grid-tile>
-</mat-grid-list> -->
-
-<!-- <mat-grid-list cols="1" rowHeight="425px">
-  <mat-grid-tile>
-  	<mat-card>
-  		<mat-card-title>Por semanas</mat-card-title>
-			<mat-card-content>
-				<canvas baseChart
-					[datasets]="wlistaData"
-					[labels]="wlistaLabels"
-					[options]="chartOptions"
-					[chartType]="'line'">
-				</canvas>
-			</mat-card-content>
-		</mat-card>
-  </mat-grid-tile>
-</mat-grid-list> -->
-
-<!-- <div class="row">
-</div> -->
-
 <mat-card style="height: 815px; margin-left: 10px;">
+	<mat-card-title>Ventas</mat-card-title>
 	<mat-card-content style="width: 100%;">
 		<div class="row">			
 			<div class="col m12 s12">		
@@ -196,6 +119,22 @@
 		<div class="row">
 			<div class="col m12 s12">		
 				<ejs-pivotview #pivotview id='PivotView' [dataSourceSettings]="pivotData" width='100%' allowExcelExport='true' [showFieldList]='true' [showTooltip]='false'></ejs-pivotview>
+			</div>
+		</div>
+	</mat-card-content>	
+</mat-card>
+
+<mat-card style="height: 820px; margin-left: 10px; margin-top: 10px;">
+	<mat-card-title>WMS</mat-card-title>
+	<mat-card-content style="width: 100%;">
+		<div class="row">			
+			<div class="col m12 s12">		
+				<button ej-button id='exportWMS'>Excel</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col m12 s12">		
+				<ejs-pivotview #pivotviewWMS id='PivotViewWMS' [dataSourceSettings]="pivotDataWMS" width='100%' allowExcelExport='true' [showFieldList]='true' [showTooltip]='false'></ejs-pivotview>
 			</div>
 		</div>
 	</mat-card-content>	

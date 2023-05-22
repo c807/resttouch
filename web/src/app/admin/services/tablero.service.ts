@@ -45,4 +45,9 @@ export class TableroService {
       params
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
+
+  getDataWMS = (params: object) => {   
+    return this.http.get<any>(`${GLOBAL.url}/tablero/get_datos_wms?${qs.stringify(params)}`    
+    ).pipe( retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

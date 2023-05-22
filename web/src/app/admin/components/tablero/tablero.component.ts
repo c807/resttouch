@@ -22,8 +22,22 @@ import { Subscription } from 'rxjs';
 })
 
 export class TableroComponent implements OnInit, OnDestroy {
+
+    get tengoWMS():boolean {
+        const accesos: any[] = this.ls.get(GLOBAL.usrTokenVar).acceso || [];
+        for(const acceso of accesos) {
+            if(acceso.nombre.trim().toUpperCase() === 'WMS') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public pivotData: IDataOptions;
+    public pivotDataWMS: IDataOptions;
     public button: Button;
+    public buttonWMS: Button;
 
     public params: any = {
         sede: []
@@ -35,7 +49,7 @@ export class TableroComponent implements OnInit, OnDestroy {
     public datosGraficas: any = {};
     public sedes: UsuarioSede[] = [];
     public grupos = GLOBAL.grupos;
-    public chartTooltips: Object = { 
+    public chartTooltips: Object = {
         callbacks: {
             label: (item, data) => {
                 let label = data.datasets[item.datasetIndex].labels[item.index] || '';
@@ -66,7 +80,7 @@ export class TableroComponent implements OnInit, OnDestroy {
         aspectRatio: 1,
         tooltips: this.chartTooltips
     }
-    
+
     public pieOptions: Object = {
         responsive: true,
         legend: {
@@ -85,7 +99,7 @@ export class TableroComponent implements OnInit, OnDestroy {
 
     public horarioData: any[] = [];
     public horarioLabels: string[] = [];
-    
+
     public popularData: any[] = [];
     public popularLabels: string[] = [];
 
@@ -102,6 +116,7 @@ export class TableroComponent implements OnInit, OnDestroy {
     public wlistaLabels: string[] = [];
 
     @ViewChild('pivotview') public pivotGridObj: PivotView;
+    @ViewChild('pivotviewWMS') public pivotviewWMS: PivotView;
     @ViewChild('cmpGraficas') public cmpGraficas: VentasComponent;
 
     private endSubs = new Subscription();
@@ -130,9 +145,16 @@ export class TableroComponent implements OnInit, OnDestroy {
 
         this.button.element.onclick = (): void => { this.pivotGridObj.excelExport(); };
 
+        if (this.tengoWMS) {
+            this.buttonWMS = new Button({ isPrimary: true });
+            this.buttonWMS.appendTo('#exportWMS');
+    
+            this.buttonWMS.element.onclick = (): void => { this.pivotviewWMS.excelExport(); };
+        }
+
         if (!this.params.fdel) {
-            // this.params.fdel = '2021-12-13'; // Esto solo es para pruebas.
-            this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);            
+            // this.params.fdel = '2023-01-01'; // Esto solo es para pruebas.
+            this.params.fdel = moment().subtract(6, 'day').format(GLOBAL.dbDateFormat);
         }
 
         if (!this.params.sede && this.params.sede.length === 0) {
@@ -151,7 +173,7 @@ export class TableroComponent implements OnInit, OnDestroy {
         this.endSubs.unsubscribe();
     }
 
-    setPivotData (data) {
+    setPivotData(data) {
         this.pivotData = {
             dataSource: data,
             type: 'JSON',
@@ -168,7 +190,7 @@ export class TableroComponent implements OnInit, OnDestroy {
     }
 
     getSede = (params: any = {}) => {
-        this.endSubs.add(            
+        this.endSubs.add(
             this.sedeSrvc.getSedes(params).subscribe(res => {
                 this.sedes = res;
             })
@@ -179,50 +201,53 @@ export class TableroComponent implements OnInit, OnDestroy {
         // this.params.sede = [3]; //Esto solo es para pruebas.
         this.cargando = true;
         // this.pivotGridObj.engineModule.fieldList = {};
-        this.endSubs.add(            
+        this.endSubs.add(
             this.tableroService.getTableroDatos(this.params).subscribe(res => {
                 if (res.exito) {
                     this.setPivotData(res.datos);
-    
+
                     this.ultimosDias = res.ultimos_dias;
                     this.estadistica = res.estadistica;
-    
+
                     this.semanaLabels = res.pie_semana.labels;
                     this.semanaData = [res.pie_semana];
-    
+
                     this.domicilioLabels = res.pie_domicilio.labels;
                     this.domicilioData = [res.pie_domicilio];
-    
+
                     this.horarioData = [res.bar_horario];
                     this.horarioLabels = res.bar_horario.labels;
-    
+
                     this.popularData = [res.bar_popular];
                     this.popularLabels = res.bar_popular.labels;
-    
+
                     this.meseroData = [res.bar_mesero];
                     this.meseroLabels = res.bar_mesero.labels;
-    
+
                     this.sedeData = [res.bar_sede];
                     this.sedeLabels = res.bar_sede.labels;
-    
+
                     this.diasData = [res.line_dias];
                     this.diasLabels = res.line_dias.labels;
-    
+
                     this.wlistaData = [res.line_wlista];
                     this.wlistaLabels = res.line_wlista.labels;
                 } else {
                     this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
                 }
-    
+
                 this.cargando = false;
             })
         );
 
         this.loadDataGraficas();
+        if (this.tengoWMS) {
+            this.loadDataWMS();
+        }
     }
 
     loadDataGraficas = () => {
-        this.endSubs.add(            
+        this.endSubs.add(
             this.tableroService.getDataGraficas(this.params).subscribe((res: any) => {
                 this.cargando = false;
                 if (res.exito) {
@@ -234,6 +259,36 @@ export class TableroComponent implements OnInit, OnDestroy {
                 } else {
                     this.snackBar.open(`ERROR: ${res.mensaje}`, 'Graficas', { duration: 7000 });
                 }
+            })
+        );
+    }
+
+    setPivotDataWMS(data) {
+        this.pivotDataWMS = {
+            dataSource: data,
+            type: 'JSON',
+            expandAll: false,
+            filters: [],
+            columns: [{ name: 'dia', caption: 'Día' }],
+            rows: [
+                { name: 'movimiento', caption: 'Movimiento' },
+                { name: 'tipo_movimiento', caption: 'Tipo de Movimiento' },
+                { name: 'articulo', caption: 'Producto' }
+            ],
+            values: [{ name: 'precio_total', caption: 'Total' }],
+            formatSettings: [{ name: 'precio_total', format: 'N2' }]
+        };
+    }
+
+    loadDataWMS = () => {
+        this.endSubs.add(
+            this.tableroService.getDataWMS(this.params).subscribe((res: any) => {
+                this.cargando = false;
+                if (res.exito) {
+                    this.setPivotDataWMS(res.datos);
+                } else {
+                    this.snackBar.open(`ERROR: ${res.mensaje}`, 'Graficas', { duration: 7000 });
+                }            
             })
         );
     }

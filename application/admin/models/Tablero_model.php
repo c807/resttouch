@@ -5,7 +5,8 @@ class Tablero_model extends General_model
 {
 
 
-	public function getServiciosSinFactura($args = []) {
+	public function getServiciosSinFactura($args = [])
+	{
 		$this->db->query("SET @@lc_time_names = 'es_GT'");
 
 		if (isset($args["fdel"])) {
@@ -40,7 +41,7 @@ class Tablero_model extends General_model
 			->join('sede i', 'i.sede = f.sede')
 			->join('turno j', 'j.turno = f.turno')
 			->join('turno_tipo k', 'k.turno_tipo = j.turno_tipo')
-			/* Mesero */ 
+			/* Mesero */
 			->join('usuario mr', 'mr.usuario = f.mesero', 'left')
 			->where('e.detalle_comanda_id IS NULL')
 			->where('c.sinfactura', 1)
@@ -97,7 +98,7 @@ class Tablero_model extends General_model
 			->join("comanda i", "i.comanda = h.comanda", "left")
 			->join("turno j", "j.turno = i.turno", "left")
 			->join("turno_tipo k", "k.turno_tipo = j.turno_tipo", "left")
-			/* Mesero */ 
+			/* Mesero */
 			->join('usuario mr', 'mr.usuario = i.mesero', 'left')
 			->where("b.fel_uuid is not null")
 			->where("b.fel_uuid_anulacion is null")
@@ -171,7 +172,7 @@ class Tablero_model extends General_model
 
 		if (verDato($args, "_grupo", 0) == 2) {
 			$this->db->group_by('a.sede');
-		}	
+		}
 
 		$facturados = $this->db
 			->select('
@@ -186,31 +187,26 @@ class Tablero_model extends General_model
 			->order_by('a.fecha_factura')
 			->get()
 			->result();
-		
+
 		$q = $this->db->last_query();
 
-		$sinFactura = $this->getVentasPorDiaSinFactura($args);	
+		$sinFactura = $this->getVentasPorDiaSinFactura($args);
 
 		if (count($facturados) > 0 && count($sinFactura) > 0) {
-			foreach($sinFactura as $sf) 
-			{	
+			foreach ($sinFactura as $sf) {
 				$existente = false;
-				foreach($facturados as $f)
-				{
-					if($f->fecha === $sf->fecha && (int)$f->sede === (int)$sf->sede)
-					{
+				foreach ($facturados as $f) {
+					if ($f->fecha === $sf->fecha && (int)$f->sede === (int)$sf->sede) {
 						$f->venta = (float)$f->venta + (float)$sf->venta;
 						$existente = true;
 					}
 				}
-				if (!$existente) 
-				{
+				if (!$existente) {
 					$facturados[] = $sf;
 				}
 			}
 			$facturados = ordenar_array_objetos($facturados, 'fecha');
-		} else if (count($facturados) === 0 && count($sinFactura) > 0)
-		{
+		} else if (count($facturados) === 0 && count($sinFactura) > 0) {
 			$facturados = $sinFactura;
 		}
 
@@ -308,32 +304,27 @@ class Tablero_model extends General_model
 			->get()
 			->result();
 
-		$sinFactura = $this->getVentasPorCategoriaSinFactura($args);	
+		$sinFactura = $this->getVentasPorCategoriaSinFactura($args);
 
 		if (count($facturados) > 0 && count($sinFactura) > 0) {
-			foreach($sinFactura as $sf) 
-			{	
+			foreach ($sinFactura as $sf) {
 				$existente = false;
-				foreach($facturados as $f)
-				{
-					if($f->categoria === $sf->categoria && (int)$f->sede === (int)$sf->sede)
-					{
+				foreach ($facturados as $f) {
+					if ($f->categoria === $sf->categoria && (int)$f->sede === (int)$sf->sede) {
 						$f->venta = (float)$f->venta + (float)$sf->venta;
 						$existente = true;
 					}
 				}
-				if (!$existente) 
-				{
+				if (!$existente) {
 					$facturados[] = $sf;
 				}
 			}
 			$facturados = ordenar_array_objetos($facturados, 'categoria');
-		} else if (count($facturados) === 0 && count($sinFactura) > 0)
-		{
+		} else if (count($facturados) === 0 && count($sinFactura) > 0) {
 			$facturados = $sinFactura;
 		}
 
-		return $facturados;		
+		return $facturados;
 	}
 
 	public function getVentasPorTurnoSinFactura($args = [])
@@ -423,29 +414,24 @@ class Tablero_model extends General_model
 		$sinFactura = $this->getVentasPorTurnoSinFactura($args);
 
 		if (count($facturados) > 0 && count($sinFactura) > 0) {
-			foreach($sinFactura as $sf) 
-			{	
+			foreach ($sinFactura as $sf) {
 				$existente = false;
-				foreach($facturados as $f)
-				{
-					if($f->turno === $sf->turno && (int)$f->sede === (int)$sf->sede)
-					{
+				foreach ($facturados as $f) {
+					if ($f->turno === $sf->turno && (int)$f->sede === (int)$sf->sede) {
 						$f->venta = (float)$f->venta + (float)$sf->venta;
 						$existente = true;
 					}
 				}
-				if (!$existente) 
-				{
+				if (!$existente) {
 					$facturados[] = $sf;
 				}
 			}
 			$facturados = ordenar_array_objetos($facturados, 'turno');
-		} else if (count($facturados) === 0 && count($sinFactura) > 0)
-		{
+		} else if (count($facturados) === 0 && count($sinFactura) > 0) {
 			$facturados = $sinFactura;
 		}
 
-		return $facturados;		
+		return $facturados;
 	}
 
 	public function getVentasPorMeseroSinFactura($args = [])
@@ -476,13 +462,14 @@ class Tablero_model extends General_model
 			->select(
 				'TRIM(CONCAT(IFNULL(g.nombres, ""), " ", IFNULL(g.apellidos, ""))) AS mesero, 
 				SUM(e.total) AS venta,
-				f.sede')
+				f.sede'
+			)
 			->from('cuenta a')
 			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
 			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
 			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
 			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
-			->join('comanda f', 'f.comanda = e.comanda')			
+			->join('comanda f', 'f.comanda = e.comanda')
 			->join('usuario g', 'g.usuario = f.mesero')
 			->where('c.sinfactura', 1)
 			->where('c.descuento', 0)
@@ -521,14 +508,15 @@ class Tablero_model extends General_model
 			->select(
 				'TRIM(CONCAT(IFNULL(g.nombres, ""), " ", IFNULL(g.apellidos, ""))) AS mesero, 
 				SUM(e.total - e.descuento + ifnull(e.valor_impuesto_especial, 0)) AS venta,
-				a.sede')
+				a.sede'
+			)
 			->from('comanda a')
 			->join('detalle_comanda b', 'a.comanda = b.comanda')
 			->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
 			->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
 			->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura')
 			->join('factura f', 'f.factura = e.factura')
-			->join('usuario g', 'g.usuario = a.mesero')			
+			->join('usuario g', 'g.usuario = a.mesero')
 			->where('f.fel_uuid IS NOT NULL')
 			->where('f.fel_uuid_anulacion IS NULL')
 			->group_by('g.usuario')
@@ -539,32 +527,27 @@ class Tablero_model extends General_model
 		$sinFactura = $this->getVentasPorMeseroSinFactura($args);
 
 		if (count($facturados) > 0 && count($sinFactura) > 0) {
-			foreach($sinFactura as $sf) 
-			{	
+			foreach ($sinFactura as $sf) {
 				$existente = false;
-				foreach($facturados as $f)
-				{
-					if($f->mesero === $sf->mesero && (int)$f->sede === (int)$sf->sede)
-					{
+				foreach ($facturados as $f) {
+					if ($f->mesero === $sf->mesero && (int)$f->sede === (int)$sf->sede) {
 						$f->venta = (float)$f->venta + (float)$sf->venta;
 						$existente = true;
 					}
 				}
-				if (!$existente) 
-				{
+				if (!$existente) {
 					$facturados[] = $sf;
 				}
 			}
 			$facturados = ordenar_array_objetos($facturados, 'venta', 1, 'desc');
-		} else if (count($facturados) === 0 && count($sinFactura) > 0)
-		{
+		} else if (count($facturados) === 0 && count($sinFactura) > 0) {
 			$facturados = $sinFactura;
 		}
 
 		return $facturados;
 	}
 
-	public function agruparDatos($datos, $grupo=1)
+	public function agruparDatos($datos, $grupo = 1)
 	{
 		$res = [];
 		foreach ($datos as $row) {
@@ -573,9 +556,9 @@ class Tablero_model extends General_model
 					$res[$row->sede]["datos"][] = $row;
 				} else {
 					$tmp = $this->db
-						 		->where("sede", $row->sede)
-						 		->get("sede")
-						 		->row();
+						->where("sede", $row->sede)
+						->get("sede")
+						->row();
 
 					$res[$row->sede] = [
 						"nombre" => $tmp->nombre,
@@ -602,6 +585,94 @@ class Tablero_model extends General_model
 	{
 		$token = JWT::encode($args['payload'], $args['RT_METABASE_SECRET_KEY']);
 		return "{$args['RT_METABASE_SITE_URL']}/embed/{$args['tipo']}/{$token}#bordered=true&titled=true";
+	}
+
+	public function get_movimientos_wms($args = [])
+	{
+		$this->db->query("SET @@lc_time_names = 'es_GT'");
+
+		if (isset($args["fdel"])) {
+			$this->db->where('a.fecha >= ', $args["fdel"]);
+		}
+
+		if (isset($args["fal"])) {
+			$this->db->where('a.fecha <= ', $args["fal"]);
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('d.sede', $args['sede']);
+			} else {
+				$this->db->where('d.sede', $args['sede']);
+			}
+		}
+
+		$qryDetalleIngresos = 'SELECT z.ingreso, v.descripcion AS categoria, w.descripcion AS subcategoria, y.descripcion AS articulo, x.descripcion AS presentacion, ';
+		$qryDetalleIngresos .= 'IFNULL(z.cantidad, 0.00) AS cantidad, IFNULL(ROUND((z.precio_total + z.precio_costo_iva) / z.cantidad, 4), 0.00) AS precio_unitario, IFNULL((z.precio_total + z.precio_costo_iva), 0.00) AS precio_total ';
+		$qryDetalleIngresos .= 'FROM ingreso_detalle z INNER JOIN articulo y ON y.articulo = z.articulo INNER JOIN presentacion x ON x.presentacion = z.presentacion ';
+		$qryDetalleIngresos .= 'INNER JOIN categoria_grupo w ON w.categoria_grupo = y.categoria_grupo INNER JOIN categoria v ON v.categoria = w.categoria';
+
+		$campos = '"Ingreso" AS movimiento, a.ingreso AS idmovimiento, b.descripcion AS tipo_movimiento, a.fecha, a.creacion, CONCAT(d.nombre, IFNULL(CONCAT(" (", d.alias, ")"), "")) AS sede, c.descripcion AS bodega, ';
+		$campos .= 'e.usrname AS usuario, IFNULL(CONCAT(i.nombre, IFNULL(CONCAT(" (", i.alias, ")"), "")), "") AS sede_origen, IFNULL(h.descripcion, "") AS bodega_origen, "" AS sede_destino, "" AS bodega_destino, ';
+		$campos .= 'IFNULL(a.comentario, "") AS comentario, f.razon_social AS proveedor, g.descripcion AS estatus_movimiento, IF(a.ajuste = 0, "", "AJUSTE POR INVENTARIO FÍSICO") AS ajuste_automatico, ';
+		$campos .= 'MONTHNAME(a.fecha) AS mes, CONCAT(YEAR(a.fecha), "-", WEEK(a.fecha)) AS semana, CONCAT(DAYOFWEEK(a.fecha), "-", DAYNAME(a.fecha)) as dia, ';
+		$campos .= 'j.categoria, j.subcategoria, j.articulo, j.cantidad, j.presentacion, j.precio_unitario, j.precio_total';
+
+		$ingresos = $this->db
+			->select($campos, false)
+			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
+			->join('bodega c', 'c.bodega = a.bodega')
+			->join('sede d', 'd.sede = c.sede')
+			->join('usuario e', 'e.usuario = a.usuario')
+			->join('proveedor f', 'f.proveedor = a.proveedor')
+			->join('estatus_movimiento g', 'g.estatus_movimiento = a.estatus_movimiento')
+			->join('bodega h', 'h.bodega = a.bodega_origen', 'left')
+			->join('sede i', 'i.sede = h.sede', 'left')
+			->join("({$qryDetalleIngresos}) j", 'a.ingreso = j.ingreso', 'inner', false)
+			->get('ingreso a')
+			->result();
+
+		if (isset($args["fdel"])) {
+			$this->db->where('a.fecha >= ', $args["fdel"]);
+		}
+
+		if (isset($args["fal"])) {
+			$this->db->where('a.fecha <= ', $args["fal"]);
+		}
+
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('d.sede', $args['sede']);
+			} else {
+				$this->db->where('d.sede', $args['sede']);
+			}
+		}
+
+		$qryDetalleEgresos = 'SELECT z.egreso, v.descripcion AS categoria, w.descripcion AS subcategoria, y.descripcion AS articulo, x.descripcion AS presentacion, ';
+		$qryDetalleEgresos .= 'IFNULL(z.cantidad, 0.00) AS cantidad, ROUND(IFNULL(z.precio_unitario, 0.00), 4) AS precio_unitario, IFNULL(z.precio_total, 0.00) AS precio_total ';
+		$qryDetalleEgresos .= 'FROM egreso_detalle z INNER JOIN articulo y ON y.articulo = z.articulo INNER JOIN presentacion x ON x.presentacion = z.presentacion ';
+		$qryDetalleEgresos .= 'INNER JOIN categoria_grupo w ON w.categoria_grupo = y.categoria_grupo INNER JOIN categoria v ON v.categoria = w.categoria';
+
+		$campos = '"Egreso" AS movimiento, a.egreso AS idmovimiento, b.descripcion AS tipo_movimiento, a.fecha, a.creacion, CONCAT(d.nombre, IFNULL(CONCAT(" (", d.alias, ")"), "")) AS sede, c.descripcion AS bodega, ';
+		$campos .= 'e.usrname AS usuario, "" AS sede_origen, "" AS bodega_origen, IFNULL(CONCAT(i.nombre, IFNULL(CONCAT(" (", i.alias, ")"), "")), "") AS sede_destino, IFNULL(h.descripcion, "") AS bodega_destino, ';
+		$campos .= 'IFNULL(a.comentario, "") AS comentario, "" AS proveedor, g.descripcion AS estatus_movimiento, IF(a.ajuste = 0, "", "AJUSTE POR INVENTARIO FÍSICO") AS ajuste_automatico, MONTHNAME(a.fecha) AS mes, ';
+		$campos .= 'CONCAT(YEAR(a.fecha), "-", WEEK(a.fecha)) AS semana, CONCAT(DAYOFWEEK(a.fecha), "-", DAYNAME(a.fecha)) as dia, ';
+		$campos .= 'j.categoria, j.subcategoria, j.articulo, j.cantidad, j.presentacion, j.precio_unitario, j.precio_total';
+
+		$egresos = $this->db
+			->select($campos, false)
+			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
+			->join('bodega c', 'c.bodega = a.bodega')
+			->join('sede d', 'd.sede = c.sede')
+			->join('usuario e', 'e.usuario = a.usuario')
+			->join('estatus_movimiento g', 'g.estatus_movimiento = a.estatus_movimiento')
+			->join('bodega h', 'h.bodega = a.bodega_destino', 'left')
+			->join('sede i', 'i.sede = h.sede', 'left')
+			->join("({$qryDetalleEgresos}) j", 'a.egreso = j.egreso', 'inner', false)
+			->get('egreso a')
+			->result();
+
+		return array_merge($ingresos, $egresos);
 	}
 }
 

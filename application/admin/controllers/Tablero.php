@@ -162,8 +162,7 @@ class Tablero extends CI_Controller {
 			$res["exito"] = true;
 		}
 
-		$this->output
-		->set_output(json_encode($res));
+		$this->output->set_output(json_encode($res));
 	}
 
 	public function get_datos_graficas_ventas()
@@ -219,5 +218,21 @@ class Tablero extends CI_Controller {
 		$params['payload'] = $cuerpo->payload;
 		$res = $this->Tablero_model->sign_url_for_metabase($params);
 		$this->output->set_output(json_encode(['url' => $res]));
+	}
+
+	public function get_datos_wms()
+	{
+		$res = ["exito" => false];
+
+		if ($this->input->get('fdel') && $this->input->get('fal')) {
+			if (isset($_GET['sede']) && $_GET['sede'] == 0) {
+				unset($_GET['sede']);
+			}
+
+			$res['datos'] = $this->Tablero_model->get_movimientos_wms($_GET);
+			$res['exito'] = true;
+		}
+
+		$this->output->set_output(json_encode($res));
 	}
 }
