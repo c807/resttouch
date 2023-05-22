@@ -29,6 +29,7 @@ class Monitor_cliente_model extends General_model {
             ->join("(SELECT MAX(comanda) AS ultima_comanda FROM {$schema}.comanda GROUP BY sede) c", 'a.comanda = c.ultima_comanda')
             ->join("{$schema}.empresa d", 'd.empresa = b.empresa')
             ->join("{$schema}.corporacion e", 'e.corporacion = d.corporacion')
+            ->where('b.debaja_monitor', 0)
             ->order_by('a.fhcreacion DESC')
             ->get("{$schema}.comanda a")
             ->result();
@@ -50,6 +51,7 @@ class Monitor_cliente_model extends General_model {
             ->join("(SELECT MAX(factura) AS ultima_factura FROM {$schema}.factura GROUP by sede) c", 'a.factura = c.ultima_factura')
             ->join("{$schema}.empresa d", 'd.empresa = b.empresa')
             ->join("{$schema}.corporacion e", 'e.corporacion = d.corporacion')
+            ->where('b.debaja_monitor', 0)
             ->order_by('a.fecha_factura DESC')
             ->get("{$schema}.factura a")
             ->result();
@@ -99,6 +101,7 @@ class Monitor_cliente_model extends General_model {
                 ->where('b.fel_uuid_anulacion is null')
                 ->where('b.fecha_factura >=', $args['fdel'])
                 ->where('b.fecha_factura <=', $args['fal'])
+                ->where('c.debaja_monitor', 0)
                 ->group_by('b.sede')
                 ->get("{$schema->SCHEMA_NAME}.detalle_factura a")
                 ->result();
@@ -141,6 +144,7 @@ class Monitor_cliente_model extends General_model {
                 ->where('a.cantidad <>', 0)
                 ->where('DATE(b.fhcreacion) >=', $args['fdel'])
                 ->where('DATE(b.fhcreacion) <=', $args['fal'])
+                ->where('f.debaja_monitor', 0)
                 ->group_by('b.sede')
                 ->get("{$schema->SCHEMA_NAME}.detalle_comanda a")
                 ->result();

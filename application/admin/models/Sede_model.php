@@ -19,6 +19,8 @@ class Sede_model extends General_model {
 	public $municipio = null;
     public $departamento = null;
     public $pais_iso_dos = null;
+	public $debaja_monitor = 0;
+	public $fechabaja = null;
 
 	public function __construct($id = "")
 	{
