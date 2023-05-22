@@ -110,7 +110,6 @@ class Rpt_model extends General_model
         $directos = [];
 
         if (!empty($comandas)) {
-
             // Select para quitar productos de facturas anuladas. 18/05/2023 18:37
             $fltr = 'SELECT z.detalle_comanda, w.fel_uuid_anulacion ';
             $fltr.= 'FROM detalle_cuenta z INNER JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta INNER JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura ';
@@ -227,18 +226,25 @@ class Rpt_model extends General_model
         $directos = [];
 
         if (!empty($comandas)) {
+            // Select para quitar productos de facturas anuladas. 18/05/2023 18:37
+            $fltr = 'SELECT z.detalle_comanda, w.fel_uuid_anulacion ';
+            $fltr.= 'FROM detalle_cuenta z INNER JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta INNER JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura ';
+            $fltr.= 'INNER JOIN factura w ON w.factura = x.factura INNER JOIN cuenta v ON v.cuenta = z.cuenta_cuenta ';
+            $fltr.= "WHERE v.comanda IN({$comandas}) ";
+            $fltr.= 'GROUP BY z.detalle_comanda, w.fel_uuid, w.fel_uuid_anulacion';
+
             $combos = $this->db
                 ->select('a.detalle_comanda, d.categoria AS idcat, d.descripcion AS categoria, c.categoria_grupo AS idsubcat, c.descripcion AS subcategoria, b.articulo AS idarticulo, b.descripcion AS articulo, a.cantidad, (a.total + a.aumento) AS total, a.precio, b.combo')
                 ->join('articulo b', 'b.articulo = a.articulo')
                 ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
                 ->join('comanda e', 'e.comanda = a.comanda')
+                ->join("({$fltr}) f", 'a.detalle_comanda = f.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('b.multiple', 0)
                 ->where('b.combo', 1)
-                ->where('a.cantidad >', 0)
-                // ->where('DATE(e.fhcreacion) >=', $args['fdel'])
-                // ->where('DATE(e.fhcreacion) <=', $args['fal'])
+                ->where('a.cantidad >', 0)                
+                ->where('f.fel_uuid_anulacion IS NULL')
                 ->order_by('d.descripcion, c.descripcion, b.descripcion')
                 ->get('detalle_comanda a')
                 ->result();
@@ -249,15 +255,14 @@ class Rpt_model extends General_model
                 ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
                 ->join('categoria d', 'd.categoria = c.categoria')
                 ->join('comanda e', 'e.comanda = a.comanda')
+                ->join("({$fltr}) f", 'a.detalle_comanda = f.detalle_comanda', 'left', false)
                 ->where("a.comanda IN({$comandas})")
                 ->where('a.detalle_comanda_id IS NULL')
                 ->where('b.multiple', 0)
                 ->where('b.combo', 0)
-                ->where('a.total >', 0)
-                // ->where('a.total <>', 0)
-                ->where('a.cantidad >', 0)
-                // ->where('DATE(e.fhcreacion) >=', $args['fdel'])
-                // ->where('DATE(e.fhcreacion) <=', $args['fal'])
+                ->where('a.total >', 0)                
+                ->where('a.cantidad >', 0)             
+                ->where('f.fel_uuid_anulacion IS NULL')   
                 ->order_by('d.descripcion, c.descripcion, b.descripcion')
                 ->get('detalle_comanda a')
                 ->result();
@@ -265,10 +270,7 @@ class Rpt_model extends General_model
 
         $facturas_manuales = [];
 
-        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
-            // if(!empty($facturas)) {            
-            //     $this->db->where("b.factura NOT IN({$facturas})");
-            // }    
+        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {            
             $facturas_manuales = $this->db
                 ->select('0 AS detalle_comanda, e.categoria AS idcat, e.descripcion AS categoria, d.categoria_grupo AS idsubcat, d.descripcion AS subcategoria, c.articulo AS idarticulo, c.descripcion AS articulo, b.cantidad, b.total, b.precio_unitario AS precio', false)
                 ->join('detalle_factura b', 'a.factura = b.factura')
