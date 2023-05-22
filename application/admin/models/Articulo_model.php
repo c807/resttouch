@@ -233,6 +233,8 @@ class Articulo_model extends General_model
 		if ($this->getPK()) {
 			$receta = $this->getReceta();
 			$principal = $this->getReceta(['_principal' => true]);
+			// La siguiente validación es la que debería ponerse. Se decidió hacer el cambio más adelante. 21/05/2023 17:42.
+			// if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
 			if (count($receta) > 0 && $this->produccion == 0) {
 				$grupos = [];
 				//$venta = $this->getVentaReceta();
@@ -1247,9 +1249,12 @@ class Articulo_model extends General_model
 		return $costo;
 	}
 
-	public function recalcular_costos($idSede)
+	public function recalcular_costos($idSede, $idArticulo = null, $idBodega = null)
 	{
 		//Halar artículos de inventario de la sede
+		if ((int)$idArticulo > 0) {
+			$this->db->where('a.articulo', $idArticulo);
+		}
 		$articulosInventario = $this->db
 			->select('a.articulo')
 			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
@@ -1268,10 +1273,16 @@ class Articulo_model extends General_model
 				$idsArticulosInventario .= $ai->articulo;
 			}
 			//Eliminar datos de la tabla de costos
+			if ((int)$idBodega > 0) {
+				$this->db->where('bodega', $idBodega);
+			}
 			$this->db->where("articulo IN({$idsArticulosInventario})")->delete('bodega_articulo_costo');
-			//Dejar en 0 los costos en la tabla de articulo
+			//Dejar en 0 los costos en la tabla de articulo			
 			$this->db->where("articulo IN({$idsArticulosInventario})")->update('articulo', ['costo' => 0]);
 			//Obtengo las bodegas de la sede
+			if ((int)$idBodega > 0) {
+				$this->db->where('bodega', $idBodega);
+			}
 			$bodegas = $this->db->select('bodega')->where('sede', $idSede)->get('bodega')->result();
 			foreach ($articulosInventario as $ai) {
 				$articulo = new Articulo_model($ai->articulo);

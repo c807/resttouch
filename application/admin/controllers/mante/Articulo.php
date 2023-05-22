@@ -65,18 +65,22 @@ class Articulo extends CI_Controller
 					$pre = new Presentacion_model($req['presentacion']);
 					$preRep = new Presentacion_model($req['presentacion_reporte']);
 					if ($pre->medida == $preRep->medida) {
-						$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
-						$comentario = "El usuario {$usr->usrname} modificó el artículo '{$art->descripcion}' desde el mantenimiento de artículos. Registro original: " . json_encode($art);
-						$datos['exito'] = $art->guardar($req);
-						if ($datos['exito']) {
-							$this->add_to_bitacora($art->getPK(), $comentario);
-							$datos['mensaje'] = "Datos Actualizados con Exito";
-							$datos['articulo'] = $art;
+						if ((int)$req['produccion'] === 0 && (int)$req['esreceta'] === 1 && (int)$req['mostrar_inventario'] === 1 && ((float)$preRep->cantidad !== (float)1 || (float)$pre->cantidad !== (float)1)) {
+							$datos['mensaje'] = 'La configuración de este artículo solo permite presentaciones que su cantidad sea igual a uno (1).';
 						} else {
-							$datos['mensaje'] = $art->getMensaje();
+							$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+							$comentario = "El usuario {$usr->usrname} modificó el artículo '{$art->descripcion}' desde el mantenimiento de artículos. Registro original: " . json_encode($art);
+							$datos['exito'] = $art->guardar($req);
+							if ($datos['exito']) {
+								$this->add_to_bitacora($art->getPK(), $comentario);
+								$datos['mensaje'] = "Datos Actualizados con Exito";
+								$datos['articulo'] = $art;
+							} else {
+								$datos['mensaje'] = $art->getMensaje();
+							}
 						}
 					} else {
-						$datos['mensaje'] = "Las unidades de medida no coinciden";
+						$datos['mensaje'] = 'Las unidades de medida no coinciden';
 					}
 				} else {
 					$datos['mensaje'] = 'El rendimiento de la producción debe ser mayor o igual a 0.01.';

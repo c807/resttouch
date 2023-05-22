@@ -441,6 +441,7 @@ class Fisico extends CI_Controller
 				// Termina código para actualizar campo diferencia
 
 				if ($esFisico) {
+					$idsArticulos = [];
 					// Inicia código para generar salidas de ajuste
 					if (count($egreso) > 0) {
 						$gegreso = [
@@ -457,6 +458,9 @@ class Fisico extends CI_Controller
 							foreach ($egreso as $row) {
 								$bac = new BodegaArticuloCosto_model();
 								$art = new Articulo_model($row->articulo);
+								if (!in_array($row->articulo, $idsArticulos)) {
+									$idsArticulos[] = (int)$row->articulo;
+								}
 								$pres = $art->getPresentacionReporte();
 
 								$costo = $bac->get_costo($egr->bodega, $row->articulo, $pres->presentacion);
@@ -493,6 +497,9 @@ class Fisico extends CI_Controller
 							foreach ($ingreso as $row) {
 								$bac = new BodegaArticuloCosto_model();
 								$articulo = new Articulo_model($row->articulo);
+								if (!in_array($row->articulo, $idsArticulos)) {
+									$idsArticulos[] = (int)$row->articulo;
+								}
 								$pres = $articulo->getPresentacionReporte();
 								$costo = $bac->get_costo($ing->bodega, $row->articulo, $pres->presentacion);
 
@@ -510,6 +517,11 @@ class Fisico extends CI_Controller
 						}
 					}
 					// Termina código para generar ingresos de ajuste
+					if (count($idsArticulos) > 0) {
+						foreach($idsArticulos as $idArticulo) {
+							$this->Articulo_model->recalcular_costos((int)$inv->sede, $idArticulo, (int)$inv->bodega);
+						}
+					}
 				}
 
 				$datos['exito'] = true;

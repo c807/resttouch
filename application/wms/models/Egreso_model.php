@@ -131,14 +131,13 @@ class Egreso_model extends General_Model
 							"_uno" => true
 						]);
 
-						if ($bac && $bac->bodega_articulo_costo)
-						{
+						if ($bac && $bac->bodega_articulo_costo) {
 							$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
 						}
 
 						$row->cantidad = ((float)$presR->cantidad == 0) ? 0 : ((($row->cantidad * $item->cantidad) / $presR->cantidad)) / (int)$particion;
 						$costo = ($bac && $bac->bodega_articulo_costo) ? $bac->get_costo($this->bodega, $rec->getPK(), $presR->presentacion) : 0;
-						$total = ($costo * $row->cantidad);						
+						$total = ($costo * $row->cantidad);
 						$this->setDetalle([
 							"cantidad" => $row->cantidad,
 							"articulo" => $row->articulo->articulo,
@@ -257,7 +256,7 @@ class Egreso_model extends General_Model
 
 	public function trasladar($args = [])
 	{
-		$prov = $this->Proveedor_model->buscar([ 'razon_social' => 'Interno', '_uno' => true ]);
+		$prov = $this->Proveedor_model->buscar(['razon_social' => 'Interno', '_uno' => true]);
 		if (!$prov) {
 			$obj = new Proveedor_model();
 			$obj->guardar([
@@ -294,8 +293,12 @@ class Egreso_model extends General_Model
 				$porIVA = (float)$emp->porcentaje_iva ?? 0.12;
 			}
 
+			$sede = $this->db->select('sede')->where('bodega', $ing->bodega)->get('bodega')->row();
+			$idsArticulos = [];
+
 			foreach ($this->getDetalle() as $row) {
 				$row->articulo = $row->articulo->articulo;
+				$idsArticulos[] = (int)$row->articulo;
 				$row->precio_costo_iva = (float)$row->precio_total * $porIVA;
 				$det = $ing->setDetalle((array) $row);
 				if ($det) {
@@ -305,6 +308,13 @@ class Egreso_model extends General_Model
 						->insert("traslado_detalle");
 				}
 			}
+
+			if ($sede && (int)$sede->sede > 0 && count($idsArticulos) > 0) {
+				foreach ($idsArticulos as $idArticulo) {
+					$this->Articulo_model->recalcular_costos((int)$sede->sede, $idArticulo, (int)$ing->bodega);
+				}
+			}
+
 			return $ing;
 		} else {
 			$this->mensaje = $ing->getMensaje();
@@ -316,7 +326,7 @@ class Egreso_model extends General_Model
 	public function traslado_externo($args = [])
 	{
 		$this->load->model(['Categoria_model', 'Cgrupo_model', 'Receta_model']);
-		$prov = $this->Proveedor_model->buscar([ 'razon_social' => 'Interno', '_uno' => true ]);
+		$prov = $this->Proveedor_model->buscar(['razon_social' => 'Interno', '_uno' => true]);
 		if (!$prov) {
 			$obj = new Proveedor_model();
 			$obj->guardar([
@@ -367,11 +377,11 @@ class Egreso_model extends General_Model
 					->where('TRIM(a.codigo)', trim($artOrigen->codigo))
 					->get('articulo a')
 					->row();
-				
-				if(!$artDest) {
+
+				if (!$artDest) {
 					$artDest = new stdClass();
 					$artDest->articulo = $artOrigen->copiar($args['sede_destino']);
-					if((int)$artDest->articulo > 0) {
+					if ((int)$artDest->articulo > 0) {
 						$artOrigen->copiarDetalle($args['sede_destino']);
 					}
 				}
