@@ -204,7 +204,7 @@
                         <input matInput placeholder="Cantidad" type="number" step="0.01" name="cantidad" min="0" [(ngModel)]="receta.cantidad" required>
                     </mat-form-field>
                     <mat-form-field class="fullWidth" *ngIf="receta.precio_extra && receta.precio_extra > 0">
-                        <input matInput placeholder="Precio" name="precio" [(ngModel)]="receta.precio" required min="0" max="999999.99">
+                        <input matInput type="number" placeholder="Precio" name="precio" [(ngModel)]="receta.precio" required min="0" max="999999.99">
                     </mat-form-field>
                     <mat-form-field class="fullWidth">
                         <mat-label>Unidad de medida</mat-label>
@@ -216,9 +216,9 @@
                     </mat-form-field>
 
                     <div class="row">
-                        <div class="col m3 s3">
+                        <!-- <div class="col m3 s3">
                             <mat-checkbox name="racionable" class="fullWidth" [(ngModel)]="+receta.racionable">¿Es racionable?</mat-checkbox>
-                        </div>
+                        </div> -->
                         <div class="col m3 s3">
                             <mat-checkbox name="extra" class="fullWidth" [(ngModel)]="+receta.precio_extra">
                                 Precio Extra
