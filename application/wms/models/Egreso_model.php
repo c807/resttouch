@@ -222,7 +222,7 @@ class Egreso_model extends General_Model
 
 			return $result;
 		} else {
-			$this->setMensaje("No hay existencias suficientes para este articulo, existencia {$art->existencias}");
+			$this->setMensaje("No hay existencias suficientes para este artículo, existencia {$art->existencias}");
 		}
 
 		return false;

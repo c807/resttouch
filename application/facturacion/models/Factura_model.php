@@ -179,7 +179,7 @@ class Factura_model extends General_model
 				return false;
 			}
 		} else {
-			$this->setMensaje("No hay existencias suficientes para este articulo, existencia {$art->existencias}");
+			$this->setMensaje("No hay existencias suficientes para este artículo, existencia {$art->existencias}");
 		}
 
 		return false;

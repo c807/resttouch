@@ -312,7 +312,7 @@ class Comanda_model extends General_Model
 
             return $result;
         } else {
-            $this->setMensaje('No hay existencias suficientes para este articulo');
+            $this->setMensaje('No hay existencias suficientes para este artículo');
         }
     }
 
@@ -459,7 +459,7 @@ class Comanda_model extends General_Model
             $this->mensaje = $det->getMensaje();
             return $result;
         } else {
-            $this->setMensaje('No hay existencias suficientes para este articulo');
+            $this->setMensaje('No hay existencias suficientes para este artículo');
         }
     }
 
