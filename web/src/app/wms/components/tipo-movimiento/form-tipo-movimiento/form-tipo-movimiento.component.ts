@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
@@ -53,5 +54,7 @@ export class FormTipoMovimientoComponent implements OnInit, OnDestroy {
       })
     );
   }  
+
+  chgEsRequisicion = (obj: MatCheckboxChange) => this.tipoMovimiento.egreso = obj.checked ? 1 : 0;
 
 }

@@ -64,12 +64,12 @@ export class ConfiguraMesaComponent implements OnInit, OnDestroy {
       this.mesaSrvc.save(this.mesa).subscribe(res => {
         if (res.exito) {
           if (!!res.mesa) {
-            this.snackBar.open(`Mesa #${res.mesa.numero} actualizada...`, 'Configuración de mesa', { duration: 3000 });
+            this.snackBar.open(`${+res.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} #${res.mesa.numero} actualizada...`, 'Configuración de mesa/habitación', { duration: 3000 });
           } else {
-            this.snackBar.open(`Mesa #${this.mesa.numero} actualizada...`, 'Configuración de mesa', { duration: 3000 });
+            this.snackBar.open(`${+this.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación'} #${this.mesa.numero} actualizada...`, 'Configuración de mesa/habitación', { duration: 3000 });
           }
         } else {
-          this.snackBar.open(`ERROR:${res.mensaje}.`, 'Configuración de mesa', { duration: 7000 });
+          this.snackBar.open(`ERROR:${res.mensaje}.`, 'Configuración de mesa/habitación', { duration: 7000 });
         }
         this.dialogRef.close(true);
       })

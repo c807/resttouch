@@ -12,7 +12,7 @@
             </mat-form-field>
             <mat-checkbox name="ingreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.ingreso">Para ingresos</mat-checkbox>
             <mat-checkbox name="egreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.egreso">Para egresos</mat-checkbox>
-            <mat-checkbox name="requisicion" class="fullWidth" [(ngModel)]="+tipoMovimiento.requisicion">Para requisiciones</mat-checkbox>
+            <mat-checkbox name="requisicion" class="fullWidth" [(ngModel)]="+tipoMovimiento.requisicion" (change)="chgEsRequisicion($event)">Para requisiciones</mat-checkbox>
 
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoMovimiento.form.valid">

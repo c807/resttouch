@@ -81,7 +81,7 @@ export class AreaDesignerComponent implements OnInit, OnDestroy {
             this.mesas[pos] = res.mesa;
           }
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa/Habitación', { duration: 7000 });
         }
         this.cargando = false;
       })
@@ -131,11 +131,11 @@ export class AreaDesignerComponent implements OnInit, OnDestroy {
                   if (idx > -1) {
                     this.mesas[idx] = res.mesa;
                   }
-                  this.snackBar.open(res.mensaje, 'Mesa', { duration: 3000 });
+                  this.snackBar.open(res.mensaje, 'Mesa/Habitación', { duration: 3000 });
                 }
               } else {
                 item.debaja = +deBaja === 0 ? 1 : 0;
-                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa', { duration: 7000 });
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Mesa/Habitación', { duration: 7000 });
               }
             })
           );
