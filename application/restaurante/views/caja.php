@@ -82,7 +82,7 @@
 										<?php echo number_format($row->propina, 2) ?>
 									</td>
 									<td style="padding: 5px;" class="text-right">
-										<?php echo number_format($row->propina + $row->monto, 2) ?>
+										<?php echo (((float)$row->propina + (float)$row->monto) !== (float)0) ? number_format($row->propina + $row->monto, 2) : "0.00" ?>
 									</td>
 									<?php if ($_validar) : ?>
 										<td style="padding: 5px;" class="text-right">
@@ -122,7 +122,9 @@
 										<td style="padding: 5px;" class="text-right">
 											<?php echo number_format(0.00, 2) ?>
 										</td>
-										<td></td>
+										<td style="padding: 5px;" class="text-right">
+											<?php echo number_format(0.00, 2) ?>
+										</td>
 										<td style="padding: 5px;" class="text-right">
 											<?php
 											$rec = isset($pagos[$row->forma_pago]) ? $pagos[$row->forma_pago] : 0;
@@ -233,8 +235,12 @@
 										<td style="padding: 5px;" class="text-right">
 											<?php echo number_format(0.00, 2) ?>
 										</td>
-										<td></td>
-										<td></td>
+										<td style="padding: 5px;" class="text-right">
+											<?php echo number_format(0.00, 2) ?>
+										</td>
+										<td style="padding: 5px;" class="text-right">
+											<?php echo number_format(0.00, 2) ?>
+										</td>
 										<?php if ($_validar) : ?>
 											<td style="padding: 5px;" class="text-right">
 												<?php

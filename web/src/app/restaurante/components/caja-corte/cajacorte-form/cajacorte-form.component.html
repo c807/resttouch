@@ -6,31 +6,33 @@
       <div class="row">
         <div class="col m6 s12">
           <!-- Efectivo -->
-          <table class="tbl tblNominaciones">
-            <thead>
-              <tr>
-                <th class="ctxt" style="width: 25%;"></th>
-                <th class="rtxt" style="width: 35%;">Cantidad</th>
-                <th class="rtxt">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let ccn of ccorteNomi; index as i">
-                <td class="rtxt bld" style="width: 25%;">{{ccn.nombre}}</td>
-                <td style="width: 35%;">
-                  <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{i}}" matInput type="number" placeholder="Cantidad" name="cantidad"
-                    [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)" (keyup.enter)="moveNextElement($event)">
-                </td>
-                <td class="rtxt bld">{{ccn.total | number:'1.2-2'}}</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td class="rtxt bld" colspan="2">Efectivo:</td>
-                <td class="rtxt bld suma-total">{{totalEfectivo | number:'1.2-2'}}</td>
-              </tr>
-            </tfoot>
-          </table>
+          <form #frmEfectivoCaja="ngForm" novalidate>
+            <table class="tbl tblNominaciones">
+              <thead>
+                <tr>
+                  <th class="ctxt" style="width: 25%;"></th>
+                  <th class="rtxt" style="width: 35%;">Cantidad</th>
+                  <th class="rtxt">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let ccn of ccorteNomi; index as i">
+                  <td class="rtxt bld" style="width: 25%;">{{ccn.nombre}}</td>
+                  <td style="width: 35%;">
+                    <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{i}}" matInput type="number" placeholder="Cantidad" name="cantidad_{{i}}"
+                      [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)" (keyup.enter)="moveNextElement($event)" max="999999">
+                  </td>
+                  <td class="rtxt bld">{{ccn.total | number:'1.2-2'}}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td class="rtxt bld" colspan="2">Efectivo:</td>
+                  <td class="rtxt bld suma-total">{{totalEfectivo | number:'1.2-2'}}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </form>
         </div>
         <div class="col m6 s12">
           <!-- Otras formas de pago -->
@@ -85,7 +87,7 @@
   <button mat-raised-button (click)="cancelar()" color="warn" class="btnAccion">
       Cancelar
   </button>
-  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion" [disabled]="noGuardar">
+  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion" [disabled]="noGuardar || !frmEfectivoCaja.form.valid">
     Guardar
 </button>
 </div>

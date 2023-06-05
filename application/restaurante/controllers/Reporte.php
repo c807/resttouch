@@ -102,9 +102,11 @@ class Reporte extends CI_Controller
 
         $desc = array_result($data['descuentos'], "forma_pago");
         $data['descuento_sin_fact'] = [];
-        foreach ($descuentos as $row) {
-            if (!in_array($row->forma_pago, $desc)) {
-                $data['descuento_sin_fact'][] = $row;
+        if(!empty($desc)) {
+            foreach ($descuentos as $row) {
+                if (!in_array($row->forma_pago, $desc)) {
+                    $data['descuento_sin_fact'][] = $row;
+                }
             }
         }
 
@@ -709,13 +711,13 @@ class Reporte extends CI_Controller
                     if ($data['_validar']) {
                         $rec = verDato($data['pagos'], $row->forma_pago, '0.00');
                         $recIng += $rec;
-                        array_push($regs, round($rec, 2));
+                        array_push($regs, (float)$rec !== (float)0 ? round($rec, 2): '0.00');
 
                         $clase = "";
                         $ing = $row->monto + $row->propina;
                         $dif = $ing - $rec;
 
-                        array_push($regs, round($dif, 2));
+                        array_push($regs, (float)$dif !== (float)0 ? round($dif, 2): '0.00');
                     }
 
                     $hoja->fromArray($regs, null, "A{$fila}");
@@ -734,13 +736,13 @@ class Reporte extends CI_Controller
 
                         $rec = verDato($data['pagos'], $row->forma_pago, '0.00');
                         $recIng += $rec;
-                        array_push($regs, (float)$rec !== 0 ? round($rec, 2) : '0.00');
+                        array_push($regs, (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
                         $clase = "";
                         $ing = (isset($row->monto) ? $row->monto : '0.00') + (isset($row->propina) ? $row->propina : '0.00');
                         $dif = $ing - $rec;
 
-                        array_push($regs, (float)$dif !== 0 ? round($dif, 2) : '0.00');
+                        array_push($regs, (float)$dif !== (float)0 ? round($dif, 2) : '0.00');
 
                         $hoja->fromArray($regs, null, "A{$fila}");
                         $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -754,7 +756,7 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("B{$fila}", round($ing, 2));
 
                 $prop = suma_field($data['ingresos'], "propina");
-                $hoja->setCellValue("C{$fila}", round($prop, 2));
+                $hoja->setCellValue("C{$fila}", (float)$prop !== (float)0 ? round($prop, 2) : '0.00');
 
                 $hoja->setCellValue("D{$fila}", round($ing + $prop, 2));
 
@@ -777,20 +779,22 @@ class Reporte extends CI_Controller
                     $fila++;
                     $hoja->setCellValue("A{$fila}", $row->descripcion);
 
+                    $row->monto = (float)$row->monto;
                     $hoja->setCellValue("B{$fila}", round($row->monto, 2));
+                    
+                    $row->propina = (float)$row->propina;
+                    $hoja->setCellValue("C{$fila}", (float)$row->propina !== (float)0 ? round($row->propina, 2) : '0.00');
 
-                    $hoja->setCellValue("C{$fila}", round($row->propina, 2));
-
-                    $hoja->setCellValue("D{$fila}", round($row->monto + $row->propina, 2));
+                    $hoja->setCellValue("D{$fila}", (float)($row->monto + $row->propina) !== (float)0 ? round($row->monto + $row->propina, 2) : '0.00');
 
                     if ($data['_validar']) {
                         $rec = verDato($data['pagos'], $row->forma_pago, "0");
                         $recDesc += $rec;
-                        $hoja->setCellValue("E{$fila}", round($rec, 2));
+                        $hoja->setCellValue("E{$fila}", (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
                         // $dif = abs($row->monto - $rec);
                         $dif = $row->monto + $row->propina - $rec;
-                        $hoja->setCellValue("F{$fila}", round($dif, 2));
+                        $hoja->setCellValue("F{$fila}", (float)$dif !== (float)0 ? round($dif, 2) : '0.00');
                     }
                     $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 }
@@ -800,15 +804,17 @@ class Reporte extends CI_Controller
                         $fila++;
                         $hoja->setCellValue("A{$fila}", $row->descripcion);
                         $hoja->setCellValue("B{$fila}", round("0.00", 2));
+                        $hoja->setCellValue("C{$fila}", round("0.00", 2));
+                        $hoja->setCellValue("D{$fila}", round("0.00", 2));
 
                         if ($data['_validar']) {
                             $rec = verDato($data['pagos'], $row->forma_pago, "0");
                             $recDesc += $rec;
-                            $hoja->setCellValue("E{$fila}", $rec);
+                            $hoja->setCellValue("E{$fila}", (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
                             // $dif = abs(0 - $rec);
                             $dif = 0 - $rec;
-                            $hoja->setCellValue("F{$fila}", round($dif, 2));
+                            $hoja->setCellValue("F{$fila}", (float)$dif !== (float)0 ? round($dif, 2) : '0.00');
                         }
                         $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     }
