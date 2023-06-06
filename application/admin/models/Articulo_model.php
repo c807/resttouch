@@ -1324,13 +1324,15 @@ class Articulo_model extends General_model
 		$idArticulo = $this->getPK();
 		$qIngresos = 'SELECT c.precio_total, c.cantidad * d.cantidad as cantidad, c.articulo, a.fecha, c.presentacion ';
 		$qIngresos.= 'FROM ingreso a JOIN bodega b ON a.bodega = b.bodega JOIN ingreso_detalle c ON a.ingreso = c.ingreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qIngresos.= "WHERE c.articulo = {$idArticulo} AND a.ajuste = 0 AND a.estatus_movimiento = 2 ";
+		$qIngresos.= "WHERE c.articulo = {$idArticulo} AND a.estatus_movimiento = 2 ";
+		// $qIngresos.= "AND a.ajuste = 0 ";
 		$qIngresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
 		$qIngresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 
 		$qEgresos = 'SELECT c.precio_total * -1, c.cantidad * d.cantidad * -1 AS cantidad, c.articulo, a.fecha, c.presentacion ';
 		$qEgresos.= 'FROM egreso a JOIN bodega b ON a.bodega = b.bodega JOIN egreso_detalle c ON a.egreso = c.egreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.ajuste = 0 AND a.estatus_movimiento = 2 AND a.idcomandafox IS NULL ";
+		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.estatus_movimiento = 2 AND a.idcomandafox IS NULL ";
+		// $qIngresos.= "AND a.ajuste = 0 ";
 		$qEgresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
 		$qEgresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 
