@@ -61,6 +61,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
   public documento: ccDocumentoRetiro = {
     serie: null, numero: null, fecha: moment().format(GLOBAL.dbDateFormat), descripcion_documento: null
   };
+  public cargando = false;
 
   private endSubs = new Subscription();
 
@@ -83,6 +84,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
   }
 
   loadNominaciones = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.cajacorteSrvc.getCajaCorteNominacion().subscribe(res => {
         this.ccorteNomi = res.map(r => {
@@ -92,24 +94,29 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
         });
         // setTimeout(() => document.getElementById(`txtCantidad_${this.ccorteNomi[0].caja_corte_nominacion}`).focus());
         setTimeout(() => document.getElementById('txtCantidad_0').focus());
+        this.cargando = false;
       })
     );
   }
 
   loadFormasPago = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.fpagoSrvc.get({ activo: 1, esefectivo: 0 }).subscribe(res => {
         this.formasPago = res.map(r => {
           r.montocc = null;
           return r;
         });
+        this.cargando = false;
       })
     );
   }
 
   guardar = () => {
+    this.cargando = true;
     const confRef = this.dialog.open(ConfirmDialogComponent, {
-      maxWidth: '400px',
+      maxWidth: '400px', 
+      disableClose: true,
       data: new ConfirmDialogModel(
         `CAJA ${this.data.tipo.descripcion.toUpperCase()}`,
         'Una vez guardado los datos, no podrá modificar. ¿Desea continuar?',
@@ -136,9 +143,12 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
               } else {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Caja', { duration: 3000 });
               }
+              this.cargando = false;
               this.dialogRef.close();
             })
           );
+        } else {
+          this.cargando = false;
         }
       })
     );

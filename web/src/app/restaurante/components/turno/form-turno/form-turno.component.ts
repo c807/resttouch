@@ -54,6 +54,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   public facturas: any[] = [];
   public pendientes = false;
   public listacc: ccGeneral[] = [];
+  public cargando = false;
 
   private endSubs = new Subscription();
 
@@ -86,31 +87,31 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadTiposTurno = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.tipoTurnoSrvc.get().subscribe(res => {
-        if (res) {
-          this.tiposTurno = res;
-        }
+        this.tiposTurno = res;        
+        this.cargando = false;
       })
     );
   }
 
   loadTiposUsuario = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.usuarioTipoSrvc.get().subscribe(res => {
-        if (res) {
-          this.tiposUsuario = res;
-        }
+        this.tiposUsuario = res;
+        this.cargando = false;
       })
     );
   }
 
   loadUsuarios = () => {
+    this.cargando = true;
     this.endSubs.add(
       this.usuarioSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0), debaja: 0 }).subscribe(res => {
-        if (res) {
-          this.usuarios = res;
-        }
+        this.usuarios = res;
+        this.cargando = false;
       })
     );
   }
@@ -139,6 +140,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   saveInfoTurno = () => {
+    this.cargando = true;
     this.pendientes = false;
     this.endSubs.add(
       this.turnoSrvc.save(this.turno).subscribe(res => {
@@ -157,6 +159,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
           }
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Turno', { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }
@@ -176,6 +179,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onSubmit = () => {
+    this.cargando = true;
     if (moment(this.turno.fin).isValid()) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         maxWidth: '400px',
@@ -189,7 +193,10 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
               this.saveInfoTurno();
             } else {
               this.snackBar.open('No puede cerrar el turno si no tiene saldo final de caja.', 'Turno', { duration: 7000 });
+              this.cargando = false;
             }
+          } else {
+            this.cargando = false;
           }
         })
       );
@@ -203,6 +210,8 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
         dialogRef.afterClosed().subscribe(res => {
           if (res) {
             this.saveInfoTurno();
+          } else {
+            this.cargando = false;
           }
         })
       );
@@ -214,17 +223,20 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   resetDetalleTurno = () => this.detalleTurno = { turno: !!this.turno.turno ? this.turno.turno : null, usuario: null, usuario_tipo: null };
 
   loadDetalleTurno = (idturno: number = +this.turno.turno) => {
+    this.cargando = true;
     this.endSubs.add(
       this.turnoSrvc.getDetalle(idturno, { turno: idturno }).subscribe(res => {
         if (res) {
           this.detallesTurno = res;
           this.updateTableDataSource();
         }
+        this.cargando = false;
       })
     );
   }
 
   onSubmitDetail = () => {
+    this.cargando = true;
     this.detalleTurno.turno = this.turno.turno;
     this.endSubs.add(
       this.turnoSrvc.saveDetalle(this.detalleTurno).subscribe(res => {
@@ -235,11 +247,13 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Turno', { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }
 
   anularDetalleTurno = (obj: any) => {
+    this.cargando = true;
     this.endSubs.add(
       this.turnoSrvc.anularDetalle({ turno: obj.turno, usuario: obj.usuario.usuario, usuario_tipo: obj.usuario_tipo.usuario_tipo }).subscribe(res => {
         if (res.exito) {
@@ -249,6 +263,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Turno', { duration: 3000 });
         }
+        this.cargando = false;
       })
     );
   }

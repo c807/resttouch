@@ -87,7 +87,7 @@
   <button mat-raised-button (click)="cancelar()" color="warn" class="btnAccion">
       Cancelar
   </button>
-  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion" [disabled]="noGuardar || !frmEfectivoCaja.form.valid">
+  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion" [disabled]="cargando || noGuardar || !frmEfectivoCaja.form.valid">
     Guardar
 </button>
 </div>

@@ -47,7 +47,7 @@
                         </mat-form-field>                
                     </div>
                     <div role="group" align="end">
-                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid || cargando">
                             Guardar
                         </button>
                         <button mat-raised-button type="button" color="accent" (click)="resetTurno()" *ngIf="turno.turno">
