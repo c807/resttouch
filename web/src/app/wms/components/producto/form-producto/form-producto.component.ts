@@ -488,6 +488,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     if (+this.articulo.mostrar_inventario === 1) {
       this.articulo.combo = 0;
       this.articulo.multiple = 0;
+      this.articulo.esreceta = 0;
     }
   }
 
@@ -495,6 +496,7 @@ export class FormProductoComponent implements OnInit, OnDestroy {
     if (+this.articulo.esreceta === 1) {
       this.articulo.combo = 0;
       this.articulo.multiple = 0;
+      this.articulo.mostrar_inventario = 0;
     }
   }
 
