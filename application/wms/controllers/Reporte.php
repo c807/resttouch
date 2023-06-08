@@ -436,6 +436,7 @@ class Reporte extends CI_Controller
 	public function valorizado()
 	{
 		$req = json_decode(file_get_contents('php://input'), true);
+		$soloConfirmados = !isset($req['_sinconfirmar']) || (isset($req['_sinconfirmar']) && (int)$req['_sinconfirmar'] === 0);
 
 		$articulos = $this->Ingreso_model->get_articulos_con_ingresos($req);
 
@@ -473,7 +474,7 @@ class Reporte extends CI_Controller
 							$pathSubcat = $art->get_path_subcategorias();
 							$receta = $art->getReceta();
 							if (count($receta) === 0 || (int)$art->produccion === 1 || (count($receta) > 0 && (int)$art->mostrar_inventario === 1)) {
-								$art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode]);
+								$art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)]);
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
 
