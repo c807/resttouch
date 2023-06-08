@@ -157,6 +157,7 @@ export class CajaComponent implements OnInit, OnDestroy {
     this.params._pagos = this.fpagos;
     this.params._excel = enExcel;
     this.params._encomandera = enComandera;
+    this.params._digital = true;
 
     if (this.params.porTurno) {
       console.log("Printing por turno");
@@ -200,7 +201,8 @@ export class CajaComponent implements OnInit, OnDestroy {
       Ingresos: res.ingresos || [],
       FacturasSinComanda: res.facturas_sin_comanda || [],
       Descuentos: res.descuentos || [],
-      TipoVenta: res.tipo_venta || []
+      TipoVenta: res.tipo_venta || [],
+      Digital: true
     }
 
     const imprimir = new Impresion(this.socket, this.ls, null, this.configSrvc);

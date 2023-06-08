@@ -24,11 +24,15 @@
 	<div class="row">
 		<div class="col-sm-12 text-center">
 			<h2>Reporte de Caja</h2>
-			<?php if (isset($detalle)) : ?>
-				<h3>--Detalle--</h3>
-			<?php else : ?>
-				<h3>--Resumen--</h3>
-			<?php endif ?>
+			<?php if(empty($_tipo_cc)): ?>
+				<?php if (isset($detalle)) : ?>
+					<h3>--Detalle--</h3>
+				<?php else : ?>
+					<h3>--Resumen--</h3>
+				<?php endif ?>
+			<?php else: ?>
+				<h3><?php echo $_tipo_cc ?></h3>
+			<?php endif ?>			
 			<?php if (isset($turno)) : ?>
 				<h4>Turno: <?php echo $turno->descripcion ?> </h4>
 			<?php endif ?>
@@ -552,8 +556,16 @@
 		</div>
 	<?php endif ?>
 
-	<footer class="text-right">
-		<span style="font-weight: bold;">Impresión: <?php echo $fhimpresion ?></span>
+	<footer>
+		<?php if($_digital): ?>
+			<div class="text-center">
+				<span style="font-weight: bold;">Este reporte no toma en cuenta los montos de la caja física<br/>(Saldo inicial, Arqueos, Retiros o Saldo final)</span>
+			</div>
+			<br/>
+		<?php endif ?>
+		<div class="text-right">
+			<span style="font-weight: bold;">Impresión: <?php echo $fhimpresion ?></span>
+		</div>
 	</footer>
 </body>
 

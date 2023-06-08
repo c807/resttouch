@@ -166,6 +166,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
   }
 
   imprimirCC = (obj: ccGeneral, _excel = 0, enComandera = 0) => {
+    // console.log(obj);
     const params = {
       _validar: true,
       _excel,
@@ -176,7 +177,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       _pagos: [],
       _saldo_actual: this.calcularSaldo(obj),
       _fecha_caja: obj.creacion,
-      _encomandera: enComandera
+      _encomandera: enComandera,
+      _tipo_cc: obj.caja_corte_tipo.descripcion
     }
 
     this.endSubs.add(
@@ -235,7 +237,8 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       Ingresos: res.ingresos || [],
       FacturasSinComanda: res.facturas_sin_comanda || [],
       Descuentos: res.descuentos || [],
-      TipoVenta: res.tipo_venta || []
+      TipoVenta: res.tipo_venta || [],
+      TipoCorte: res._tipo_cc || ''
     }
 
     const imprimir = new Impresion(this.socket, this.ls, null, this.configSrvc);

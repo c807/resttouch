@@ -65,4 +65,6 @@ export interface ImpresionCorteCaja {
 	FacturasSinComanda: any[];
 	Descuentos: any[];
 	TipoVenta: any[];
+	TipoCorte?: string;
+	Digital?: boolean;
 }

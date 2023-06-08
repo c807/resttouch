@@ -668,11 +668,16 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("A2", $data['nsede']);
             $hoja->setCellValue("B3", "Reporte de Caja");
 
-            if (isset($data['detalle'])) {
-                $hoja->setCellValue("B4", "--Detalle--");
+            if (empty($data['_tipo_cc'])) {
+                if (isset($data['detalle'])) {
+                    $hoja->setCellValue('B4', '--Detalle--');
+                } else {
+                    $hoja->setCellValue('B4', '--Resumen--');
+                }
             } else {
-                $hoja->setCellValue("B4", "--Resumen--");
+                $hoja->setCellValue('B4', $data['_tipo_cc']);
             }
+            
 
             if (isset($data['turno'])) {
                 $hoja->setCellValue("B5", $data['turno']->descripcion);
@@ -1010,6 +1015,18 @@ class Reporte extends CI_Controller
             }
 
             $fila += 3;
+
+            if ($data['_digital']) {
+                $hoja->setCellValue("A{$fila}", 'Este reporte no toma en cuenta los montos de la caja física.');
+                $hoja->mergeCells("A{$fila}:D{$fila}");
+                $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
+                $fila++;
+                $hoja->setCellValue("A{$fila}", '(Saldo inicial, Arqueos, Retiros o Saldo final)');
+                $hoja->mergeCells("A{$fila}:D{$fila}");
+                $hoja->getStyle("A{$fila}")->getFont()->setBold(true);                
+                $fila += 3;
+            }
+
             $hoja->setCellValue("A{$fila}", "Impresión: {$data['fhimpresion']}");
             // $hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode('dd/mm/yyyy h:mm:ss');
             $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
