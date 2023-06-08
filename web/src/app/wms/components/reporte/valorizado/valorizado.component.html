@@ -36,6 +36,8 @@
               </mat-select>
             </mat-form-field>
 
+            <mat-checkbox name="esmesero" [(ngModel)]="+params._sinconfirmar" class="fontFamily">Calcular costos incluyendo movimientos sin confirmar</mat-checkbox>
+
             <div align="end">
               <app-rpt-botones [configuracion]="configBotones" (excelClick) = "onSubmit(1)" (pdfClick)="onSubmit()" (resetParamsClick)="resetParams()"></app-rpt-botones>
             </div>

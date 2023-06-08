@@ -41,6 +41,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.params.fecha = moment().format(GLOBAL.dbDateFormat);
     this.params._coniva = '0';
+    this.params._sinconfirmar = '0';
     this.getSede();
     this.getBodega();
   }
@@ -69,6 +70,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
     if (this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 && this.params.fecha && moment(this.params.fecha).isValid()) {
       this.params._excel = esExcel;      
       this.cargando = true;
+      this.params._sinconfirmar = +this.params._sinconfirmar;
       this.endSubs.add(
         this.pdfServicio.getReporteValorizado(this.params).subscribe(res => {
           this.cargando = false;
@@ -92,7 +94,8 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
   resetParams = () => {
     this.params = {
       fecha: moment().format(GLOBAL.dbDateFormat),
-      _coniva: '0'
+      _coniva: '0',
+      _sinconfirmar: '0'
     };
     this.cargando = false;
   }

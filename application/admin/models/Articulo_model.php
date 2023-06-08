@@ -276,6 +276,10 @@ class Articulo_model extends General_model
 			$this->db->where('f.merma', 0);
 		}
 
+		if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
+			$this->db->where('e.estatus_movimiento', 2);
+		}
+
 		if (verDato($args, 'fecha')) {
 			$this->db->where('date(e.fecha) <=', $args['fecha']);
 		}
@@ -289,8 +293,7 @@ class Articulo_model extends General_model
 			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)
-			->where('e.estatus_movimiento', 2)
+			->where('a.articulo', $articulo)			
 			->get('ingreso_detalle a')
 			->row(); //total ingresos
 
@@ -312,6 +315,10 @@ class Articulo_model extends General_model
 			}
 		}
 
+		if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
+			$this->db->where('e.estatus_movimiento', 2);
+		}
+
 		if (verDato($args, 'fecha')) {
 			$this->db->where('date(e.fecha) <=', $args['fecha']);
 		}
@@ -325,8 +332,7 @@ class Articulo_model extends General_model
 			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)
-			->where('e.estatus_movimiento', 2)
+			->where('a.articulo', $articulo)			
 			->get('egreso_detalle a')
 			->row(); //total egresos wms
 
@@ -633,6 +639,11 @@ class Articulo_model extends General_model
 			$emp->metodo_costeo = $args['metodo_costeo'];
 		}
 
+		$soloConfirmados = !isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0);
+		if ($soloConfirmados) {
+			$this->db->where('a.estatus_movimiento', 2);
+		}
+
 		if ($emp->metodo_costeo == 1) {
 			$det = $this->db
 				->select('max(c.ingreso_detalle) as id')
@@ -640,14 +651,16 @@ class Articulo_model extends General_model
 				->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
 				->where('c.articulo', $this->getPK())
 				->where('b.sede', $sede->getPK())
-				->where('a.ajuste', 0)
-				->where('a.estatus_movimiento', 2)
+				->where('a.ajuste', 0)				
 				->where("c.precio_total > 0")
 				->group_by('c.articulo')
 				->get('ingreso a')
 				->row();
 
 			if ($det) {
+				if ($soloConfirmados) {
+					$this->db->where('a.estatus_movimiento', 2);
+				}
 				$tmp = $this->db
 					->select('c.ingreso_detalle, 
 								c.articulo, 
@@ -659,8 +672,7 @@ class Articulo_model extends General_model
 					->join('presentacion d', 'c.presentacion = d.presentacion')
 					->where('c.articulo', $this->getPK())
 					->where('b.sede', $sede->getPK())
-					->where('c.ingreso_detalle', $det->id)
-					->where('a.estatus_movimiento', 2)
+					->where('c.ingreso_detalle', $det->id)					
 					->group_by('c.articulo')
 					->get('ingreso a')
 					->row();
@@ -1321,18 +1333,19 @@ class Articulo_model extends General_model
 
 	public function getCostoPromedio($args = [])
 	{
+		$soloConfirmados = !isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0);
 		$idArticulo = $this->getPK();
 		$qIngresos = 'SELECT c.precio_total, c.cantidad * d.cantidad as cantidad, c.articulo, a.fecha, c.presentacion ';
 		$qIngresos.= 'FROM ingreso a JOIN bodega b ON a.bodega = b.bodega JOIN ingreso_detalle c ON a.ingreso = c.ingreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qIngresos.= "WHERE c.articulo = {$idArticulo} AND a.estatus_movimiento = 2 ";
-		// $qIngresos.= "AND a.ajuste = 0 ";
+		$qIngresos.= "WHERE c.articulo = {$idArticulo} ";
+		$qIngresos.= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
 		$qIngresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
 		$qIngresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 
 		$qEgresos = 'SELECT c.precio_total * -1, c.cantidad * d.cantidad * -1 AS cantidad, c.articulo, a.fecha, c.presentacion ';
 		$qEgresos.= 'FROM egreso a JOIN bodega b ON a.bodega = b.bodega JOIN egreso_detalle c ON a.egreso = c.egreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.estatus_movimiento = 2 AND a.idcomandafox IS NULL ";
-		// $qIngresos.= "AND a.ajuste = 0 ";
+		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.idcomandafox IS NULL ";
+		$qIngresos.= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
 		$qEgresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
 		$qEgresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 

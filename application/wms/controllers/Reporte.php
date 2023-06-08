@@ -36,7 +36,7 @@ class Reporte extends CI_Controller
 
 	public function existencia()
 	{
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio,');
+		$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',inicio,');
 		ini_set('pcre.backtrack_limit', '15000000');
 		$data = [];
 		$_POST = json_decode(file_get_contents('php://input'), true);
@@ -106,7 +106,7 @@ class Reporte extends CI_Controller
 			}
 		}
 
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',medio,');
+		$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',medio,');
 
 		if (verDato($_POST, '_excel')) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -197,7 +197,7 @@ class Reporte extends CI_Controller
 
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save("php://output");
-			$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin (excel),'.json_encode($_POST));
+			$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (excel),' . json_encode($_POST));
 		} else {
 
 			$pdf = new \Mpdf\Mpdf([
@@ -213,7 +213,7 @@ class Reporte extends CI_Controller
 			$pdf->WriteHTML($vista);
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 			$pdf->Output("Existencias_{$rand}.pdf", "D");
-			$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin (pdf),'.json_encode($_POST));
+			$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (pdf),' . json_encode($_POST));
 			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($args));
 		}
 	}
@@ -477,25 +477,30 @@ class Reporte extends CI_Controller
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
 
-								$bcosto = $this->BodegaArticuloCosto_model->buscar([
-									'bodega' => $bode,
-									'articulo' => $row->articulo,
-									'_uno' => true
-								]);
+								if (!isset($req['_sinconfirmar']) || (isset($req['_sinconfirmar']) && (int)$req['_sinconfirmar'] === 0)) {
+									$bcosto = $this->BodegaArticuloCosto_model->buscar([
+										'bodega' => $bode,
+										'articulo' => $row->articulo,
+										'_uno' => true
+									]);
 
-								if ($bcosto) {
-									if ($empresa->metodo_costeo == 1) {
-										$row->precio_unitario = $bcosto->costo_ultima_compra;
-									} else if ($empresa->metodo_costeo == 2) {
-										$row->precio_unitario = $bcosto->costo_promedio;
+									if ($bcosto) {
+										if ($empresa->metodo_costeo == 1) {
+											$row->precio_unitario = $bcosto->costo_ultima_compra;
+										} else if ($empresa->metodo_costeo == 2) {
+											$row->precio_unitario = $bcosto->costo_promedio;
+										} else {
+											$row->precio_unitario = 0;
+										}
 									} else {
-										$row->precio_unitario = 0;
+										$row->precio_unitario = $art->getCosto(['bodega' => $bode]);
+										$nvoBac = new BodegaArticuloCosto_model();
+										$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo);
 									}
 								} else {
-									$row->precio_unitario = $art->getCosto(['bodega' => $bode]);
-									$nvoBac = new BodegaArticuloCosto_model();
-									$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo);
+									$row->precio_unitario = $art->getCosto(['bodega' => $bode, '_sinconfirmar' => (int)$req['_sinconfirmar']]);
 								}
+
 
 								$row->precio_unitario = ($row->precio_unitario * $porIva) * $pres->cantidad;
 
@@ -1313,8 +1318,8 @@ class Reporte extends CI_Controller
 					$data[$row->egreso]["detalle"][] = $row;
 				}
 			}
-			
-			if(!isset($params["sede"]) || (int)$params["sede"] === 0) {
+
+			if (!isset($params["sede"]) || (int)$params["sede"] === 0) {
 				$params["sede"] = $this->data->sede;
 			}
 
