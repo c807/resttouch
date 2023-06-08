@@ -122,9 +122,11 @@ export class MesaComponent implements OnInit, AfterViewInit, OnDestroy {
         if (res.exito) {
           if (!!res.mesa) {
             this.configuracion.mesa = res.mesa.mesa;
-            this.snackBar.open(`Mesa #${res.mesa.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+            const tipoMesa = +res.mesa.esmostrador === 0 ? (+res.mesa.eshabitacion === 0 ? 'Mesa' : 'Habitación') : 'Mostrador';
+            this.snackBar.open(`${tipoMesa} #${res.mesa.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
           } else {
-            this.snackBar.open(`Mesa #${this.configuracion.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
+            const tipoMesa = +this.configuracion.esmostrador === 0 ? (+this.configuracion.eshabitacion === 0 ? 'Mesa' : 'Habitación') : 'Mostrador';
+            this.snackBar.open(`${tipoMesa} #${this.configuracion.numero} actualizada...`, 'Diseño de área', { duration: 3000 });
           }
         } else {
           this.snackBar.open(`ERROR:${res.mensaje}.`, 'Diseño de área', { duration: 3000 });
