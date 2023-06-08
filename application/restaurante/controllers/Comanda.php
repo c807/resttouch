@@ -29,7 +29,8 @@ class Comanda extends CI_Controller
 			'Configuracion_model',
 			'Tipo_usuario_cgrupo_model',
 			'Accion_model',
-			'BodegaArticuloCosto_model'
+			'BodegaArticuloCosto_model',
+			'Reserva_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -720,7 +721,7 @@ class Comanda extends CI_Controller
 
 	public function cerrar_mesa($mesa = null)
 	{
-		$res = ["exito" => false];
+		$res = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$this->load->helper(['jwt', 'authorization']);
 			$headers = $this->input->request_headers();
@@ -738,24 +739,29 @@ class Comanda extends CI_Controller
 						}
 
 						if ($cntConCantidad == 0) {
-							$_mesa->guardar(["estatus" => 1]);
-							$com->guardar(["estatus" => 2]);
+							if ($_mesa && (int)$_mesa->eshabitacion === 1 && (int)$com->reserva > 0) {
+								$rsvr = new Reserva_model($com->reserva);
+								$rsvr->guardar(['estatus_reserva' => 3]);
+							}
+
+							$_mesa->guardar(['estatus' => 1]);
+							$com->guardar(['estatus' => 2]);
 							$res['exito'] = true;
-							$res['mensaje'] = "Datos actualizados con exito";
+							$res['mensaje'] = 'Datos actualizados con éxito';
 						} else {
-							$res['mensaje'] = "La comanda no debe tener productos";
+							$res['mensaje'] = 'La comanda no debe tener productos';
 						}
 					} else {
-						$res['mensaje'] = "La mesa debe tener una comanda activa";
+						$res['mensaje'] = 'La mesa debe tener una comanda activa';
 					}
 				} else {
-					$res['mensaje'] = "La mesa debe estar en estatus Abierto";
+					$res['mensaje'] = 'La mesa debe estar en estatus Abierto';
 				}
 			} else {
-				$res['mensaje'] = "Debe seleccionar una mesa";
+				$res['mensaje'] = 'Debe seleccionar una mesa';
 			}
 		} else {
-			$res['mensaje'] = "Metodo de envío invalido";
+			$res['mensaje'] = 'Método de envío inválido';
 		}
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($res));

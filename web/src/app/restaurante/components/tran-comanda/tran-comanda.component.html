@@ -104,10 +104,8 @@
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.eshabitacion === 0">
                             Trasladar todo
                         </button>
-                        <button mat-mini-fab type="button" color="warn" class="btnAccionComanda" (click)="cerrarMesa()"
-                            *ngIf="mesaEnUso && lstProductosSeleccionados.length <= 0 && +mesaEnUso.mesa.eshabitacion === 0" [disabled]="bloqueoBotones">
-                            Cerrar {{+mesaEnUso.mesa.esmostrador === 0 ? 'Mesa' : (+mesaEnUso.mesa.escallcenter === 0 ?
-                            'Mostrador' : 'Pedido')}}
+                        <button mat-mini-fab type="button" color="warn" class="btnAccionComanda" (click)="cerrarMesa()" *ngIf="mesaEnUso && lstProductosSeleccionados.length <= 0" [disabled]="bloqueoBotones">
+                            Cerrar {{+mesaEnUso.mesa.eshabitacion === 0 ? (+mesaEnUso.mesa.esmostrador === 0 ? 'Mesa' : (+mesaEnUso.mesa.escallcenter === 0 ? 'Mostrador' : 'Pedido')) : 'Habitacion'}}
                         </button>
                     </eco-fab-speed-dial-actions>
                 </eco-fab-speed-dial>
