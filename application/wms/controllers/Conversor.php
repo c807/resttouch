@@ -82,7 +82,13 @@ class Conversor extends CI_Controller {
 
 				$req['ingreso']['proveedor'] = $idProv;
 				$req['egreso']['proveedor'] = $idProv;
-				$req['ingreso']['bodega'] = $req['egreso']['bodega'];
+
+				if (isset($req['egreso']['bodega_destino']) && (int)$req['egreso']['bodega_destino'] > 0) {
+					$req['ingreso']['bodega'] = $req['egreso']['bodega_destino'];
+				} else {
+					$req['ingreso']['bodega'] = $req['egreso']['bodega'];
+				}
+
 				$req['egreso']['estatus_movimiento'] = 2;
 				$req['ingreso']['estatus_movimiento'] = 2;
 				$req['ingreso']['tipo_movimiento'] = $tipoMov;
@@ -91,7 +97,7 @@ class Conversor extends CI_Controller {
 				$continuar = true;
 
 				if (isset($req['merma']) && is_array($req['merma'])) {
-					$bodMerma = $this->Catalogo_model->getBodega(['merma' => 1, "_uno" => true]);
+					$bodMerma = $this->Catalogo_model->getBodega(['sede' => $sede->getPK(),'merma' => 1, "_uno" => true]);
 					if(!$bodMerma) {
 						$continuar = false;
 					}

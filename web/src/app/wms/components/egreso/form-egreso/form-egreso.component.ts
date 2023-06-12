@@ -136,12 +136,16 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.bodegaSrvc.get({ _todas: 1 }).subscribe(res => {
         const sedeActual = (this.ls.get(GLOBAL.usrTokenVar).sede || 0) as number;
-        this.bodegasFull = res;
+        this.bodegasFull = JSON.parse(JSON.stringify(res));
         if (this.esRequisicion) {
-          this.bodegas = res;
+          this.bodegas = JSON.parse(JSON.stringify(res));
           this.bodegasDestino = this.bodegas.filter(b => +b.sede === +sedeActual);
         } else {
-          this.bodegasDestino = res;
+          if (this.enTransformacion) {
+            this.bodegasDestino = this.bodegasFull.filter(b => +b.sede === +sedeActual);
+          } else {
+            this.bodegasDestino = JSON.parse(JSON.stringify(res));
+          }
           this.bodegas = this.bodegasDestino.filter(b => +b.sede === +sedeActual);
         }
       })
@@ -151,7 +155,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   loadProveedores = () => {
     this.endSubs.add(
       this.proveedorSrvc.get().subscribe(res => {
-        this.proveedores = res;        
+        this.proveedores = res;
       })
     );
   }
@@ -159,7 +163,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   loadPresentaciones = () => {
     this.endSubs.add(
       this.presentacionSrvc.get().subscribe(res => {
-        this.presentaciones = res;        
+        this.presentaciones = res;
       })
     );
   }
@@ -172,7 +176,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         }
       })
     );
-  }  
+  }
 
   resetEgreso = () => {
     this.egreso = {
@@ -538,7 +542,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
 
           const existe = this.fltrPresentaciones.findIndex(p => +p.presentacion === +res.presentacion) > -1;
           if (existe) {
-            this.detalleEgreso.presentacion = res.presentacion;            
+            this.detalleEgreso.presentacion = res.presentacion;
           }
         }
       })
