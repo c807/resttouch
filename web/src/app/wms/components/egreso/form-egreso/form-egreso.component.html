@@ -42,6 +42,7 @@
                         <span *ngIf="esRequisicion">{{bodeDest.descripcion}}</span>
                     </mat-option>
                 </mat-select>
+                <mat-hint *ngIf="enTransformacion"><strong>Esta bodega no es para la merma.</strong></mat-hint>
             </mat-form-field>
             <mat-form-field class="fullWidth">
                 <input matInput placeholder="Comentarios" name="comentario" [(ngModel)]="egreso.comentario" maxlength="500">
