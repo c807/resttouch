@@ -96,7 +96,7 @@ class Conversor extends CI_Controller {
 				
 				$continuar = true;
 
-				if (isset($req['merma']) && is_array($req['merma'])) {
+				if (isset($req['merma']) && is_array($req['merma']) && count($req['merma']) > 0) {
 					$bodMerma = $this->Catalogo_model->getBodega(['sede' => $sede->getPK(),'merma' => 1, "_uno" => true]);
 					if(!$bodMerma) {
 						$continuar = false;
