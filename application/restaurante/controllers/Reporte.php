@@ -641,6 +641,9 @@ class Reporte extends CI_Controller
 
         // $data = json_decode(file_get_contents('php://input'), true);
         $data = $this->get_info_corte_caja(json_decode(file_get_contents('php://input'), true));
+        if(!isset($data['_digital'])) {
+            $data['_digital'] = false;
+        }
         $data['tipo_venta'] = $this->get_por_tipo_venta($data);
 
         if (verDato($data, "_excel")) {
