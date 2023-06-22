@@ -112,6 +112,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     return false;
   }
 
+  get excedeMontoMaximoDescuento(): boolean {
+    if (this.porcentajeMaximoDescuento !== 0) {      
+      return +this.formaPago.monto > (+this.inputData.totalDeCuenta * this.porcentajeMaximoDescuento) || +this.formaPago.monto > +this.inputData.saldo ;
+    }
+    return false;
+  }
+
   @Input() inputData: any = {};
   public inputDataOriginal: any = {};
   public lstFormasPago: FormaPago[] = [];
@@ -157,6 +164,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public permiteDetalleFacturaPersonalizado = true;
   public municipios: Municipio[] = [];
   public mesaEnUso: ComandaGetResponse = null;
+  public porcentajeMaximoDescuento: number = 0.00;
 
   private endSubs = new Subscription();
 
@@ -756,6 +764,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     const idx = this.lstFormasPago.findIndex(lfp => +lfp.forma_pago === +msc.value);
     if (idx > -1) {
       // console.log(this.lstFormasPago[idx]);
+
+      if (+this.lstFormasPago[idx].porcentaje_maximo_descuento !== 0) {
+        this.porcentajeMaximoDescuento = +this.lstFormasPago[idx].porcentaje_maximo_descuento / 100;
+      } else {
+        this.porcentajeMaximoDescuento = 0.00;
+      }
+
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
       this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
@@ -823,6 +838,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (huboCambioPrecio) {
       this.formasPagoDeCuenta = [];
+      this.porcentajeMaximoDescuento = 0.00;
       this.calculaTotalDeCuenta();
       this.calculaPropina();
       this.actualizaSaldo();
@@ -837,6 +853,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   resetPreciosProductosACobrar = () => {
     this.inputData.productosACobrar = JSON.parse(JSON.stringify(this.inputDataOriginal.productosACobrar));
     this.formasPagoDeCuenta = [];
+    this.porcentajeMaximoDescuento = 0.00;
     this.calculaTotalDeCuenta();
     this.calculaPropina();
     this.actualizaSaldo();

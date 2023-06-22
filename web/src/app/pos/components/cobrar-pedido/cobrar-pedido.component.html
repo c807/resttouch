@@ -39,10 +39,11 @@
           </mat-select>
         </mat-form-field>
         <!--Inicia input de monto por forma de pago-->
-        <mat-form-field class="fullWidth" [ngClass]="{'excede-monto': excedeMontoMaximo}">
+        <mat-form-field class="fullWidth" [ngClass]="{'excede-monto': excedeMontoMaximo || excedeMontoMaximoDescuento}">
           <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago); setPropina()" required>
           <input matInput *ngIf="esMovil" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" [disabled]="bloqueaMonto" (keyup)="calculaVuelto(formaPago); setPropina()" required>
           <mat-hint *ngIf="excedeMontoMaximo">El monto para esta forma de pago no puede exceder de {{+mesaEnUso.saldo_abono | number:'1.2-2'}}.</mat-hint>
+          <mat-hint *ngIf="excedeMontoMaximoDescuento">El monto para esta forma de pago no puede exceder de {{(+inputData.totalDeCuenta * porcentajeMaximoDescuento) | number:'1.2-2'}} o del saldo pendiente.</mat-hint>
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
@@ -73,7 +74,7 @@
         </mat-form-field>
         <!-- Fin de input de documento -->
         <div align="end">
-          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()" [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0 || excedeMontoMaximo">
+          <button mat-raised-button type="button" color="accent" (click)="addFormaPago()" [disabled]="!frmFormasPago.form.valid || inputData.saldo <= 0 || excedeMontoMaximo || excedeMontoMaximoDescuento">
             Agregar
           </button>
         </div>
