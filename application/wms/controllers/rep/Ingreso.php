@@ -109,7 +109,8 @@ class Ingreso extends CI_Controller {
 					"documento" => $tmp->documento->numero ?? "",
 					"fecha_doc" => $tmp->documento->fecha ?? "",
 					"total"     => round($total, 2),
-					'ordenar' => "{$tmp->proveedor}-{$tmp->fecha}"
+					'ordenar' => "{$tmp->proveedor}-{$tmp->fecha}",
+					'egreso_origen' => $tmp->egreso_origen ?? ''
 				];
 			}
 
@@ -134,6 +135,7 @@ class Ingreso extends CI_Controller {
 				"Número",
 				"Estatus ingreso",
 				"Tipo",
+				'Egreso/Requisición',
 				"Sede",
 				"Bodega",
 				"Proveedor",
@@ -143,8 +145,8 @@ class Ingreso extends CI_Controller {
 				"Total"
 			];
 			$hoja->fromArray($titulo, null, "A4");
-			$hoja->getStyle("K4")->getAlignment()->setHorizontal("right");
-			$hoja->getStyle("A4:K4")->getFont()->setBold(true);
+			$hoja->getStyle("L4")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("A4:L4")->getFont()->setBold(true);
 
 			$pos   = 5;
 			$total = 0;
@@ -155,6 +157,7 @@ class Ingreso extends CI_Controller {
 					$row->numero,
 					$row->estatus,
 					$row->tipo,
+					$row->egreso_origen,
 					$row->sede,
 					$row->bodega,
 					$row->proveedor,
@@ -178,17 +181,17 @@ class Ingreso extends CI_Controller {
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 			}
 
-			$hoja->getStyle("A{$pos}:K{$pos}")->getFont()->setBold(true);
-			$hoja->getStyle("A{$pos}:K{$pos}")->getAlignment()->setHorizontal("right");
+			$hoja->getStyle("A{$pos}:L{$pos}")->getFont()->setBold(true);
+			$hoja->getStyle("A{$pos}:L{$pos}")->getAlignment()->setHorizontal("right");
 			$hoja->mergeCells("A{$pos}:J{$pos}");
 			$hoja->setCellValue("A{$pos}", "Total");
-			$hoja->setCellValue("K{$pos}", number_format((float)$total, 2, ".", ""));
+			$hoja->setCellValue("L{$pos}", number_format((float)$total, 2, ".", ""));
 			
 			$hoja->getStyle("K{$pos}")
 			->getNumberFormat()
 			->setFormatCode("0.00");
 
-			$hoja->getStyle("A{$pos}:K{$pos}")->applyFromArray([
+			$hoja->getStyle("A{$pos}:L{$pos}")->applyFromArray([
 				"borders" => [
 					"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
 					"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
