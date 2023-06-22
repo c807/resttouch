@@ -32,12 +32,14 @@ class Reserva extends CI_Controller
 			} else {
 				$continuar = true;
 				$cmdAbierta = 0;
+				$generaComanda = false;
 				if ((int)$req['estatus_reserva'] === 2) {
 					$cmdAbierta = $rsrv->get_numero_comanda_reserva(null, true);
 					$mesa = new Mesa_model($req['mesa']);
 					$cmdAbiertaDeMesa = $mesa->get_comanda(['estatus' => 1]);
 					$turnoAbierto = $this->Turno_model->getTurno(['sede' => $this->data->sede, 'abierto' => true, '_uno' => true]);
-					$continuar = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa && $turnoAbierto;
+					$generaComanda = (int)$cmdAbierta === 0 && !$cmdAbiertaDeMesa;
+					$continuar = $turnoAbierto;
 				}
 
 				if ($continuar) {
@@ -49,11 +51,12 @@ class Reserva extends CI_Controller
 						$rsrv->numero_mesa = $habitacion->numero;
 						$datos['reserva'] = $rsrv;
 						$datos['mensaje'] = 'Datos actualizados con éxito.';
+						$datos['genera_comanda'] = $generaComanda;
 					} else {
 						$datos['mensaje'] = $rsrv->getMensaje();
 					}
 				} else {
-					$datos['mensaje'] = 'Esta habitación tiene una comanda abierta o no hay un turno abierto en la sede.';
+					$datos['mensaje'] = 'No hay un turno abierto en la sede. Por favor abra un turno antes de continuar.';
 				}
 			}
 		} else {

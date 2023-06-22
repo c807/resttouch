@@ -228,7 +228,9 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
               this.reservaSrvc.save(this.reserva).subscribe(res => {
                 this.snackBar.open((res.exito ? '' : 'ERROR: ') + res.mensaje, 'Reserva', { duration: 7000 });
                 if (res.exito && res.reserva && +res.reserva.estatus_reserva === 2) {
-                  this.abrirComandaDeHabitacion(res.reserva as Reserva);
+                  if (res.genera_comanda) {
+                    this.abrirComandaDeHabitacion(res.reserva as Reserva);
+                  }
                 } else {
                   this.dialogRef.close();
                 }
