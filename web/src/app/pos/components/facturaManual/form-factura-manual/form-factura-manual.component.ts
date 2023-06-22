@@ -109,6 +109,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public cargando = false;
   public clienteOriginal: Cliente = null;
   public totalFacturaOriginal: number = 0;
+  public permiteDetalleFacturaPersonalizado = true;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
 
@@ -132,6 +133,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+    this.permiteDetalleFacturaPersonalizado = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PERMITE_DETALLE_FACTURA_PERSONALIZADO) as boolean;
     this.refacturacion = false;
     this.resetFactura();
     this.loadFacturaSeries();

@@ -62,15 +62,17 @@
                     <input matInput *ngIf="esMovil" type="text" placeholder="Notas" name="notas" [(ngModel)]="factura.notas">
                 </mat-form-field>                
             </div>
-            <div class="form-group">
-                <mat-checkbox name="enviar_descripcion_unica" class="fullWidth" [(ngModel)]="+factura.enviar_descripcion_unica" [disabled]="!!factura.fel_uuid || !!factura.fel_uuid_anulacion" (change)="vaciaDescripcionUnica()">Personalizar descripción</mat-checkbox>
+            <div *ngIf="permiteDetalleFacturaPersonalizado">                
+                <div class="form-group">
+                    <mat-checkbox name="enviar_descripcion_unica" class="fullWidth" [(ngModel)]="+factura.enviar_descripcion_unica" [disabled]="!!factura.fel_uuid || !!factura.fel_uuid_anulacion" (change)="vaciaDescripcionUnica()">Personalizar descripción</mat-checkbox>
+                </div>
+                <div class="form-group">
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion_unica" [(ngModel)]="factura.descripcion_unica" [disabled]="+factura.enviar_descripcion_unica === 0 || !!factura.fel_uuid || !!factura.fel_uuid_anulacion" [required]="+factura.enviar_descripcion_unica === 1">
+                        <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion_unica" [(ngModel)]="factura.descripcion_unica" [disabled]="+factura.enviar_descripcion_unica === 0 || !!factura.fel_uuid || !!factura.fel_uuid_anulacion" [required]="+factura.enviar_descripcion_unica === 1">
+                    </mat-form-field>                
+                </div>            
             </div>
-            <div class="form-group">
-                <mat-form-field class="fullWidth">
-                    <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Descripción" name="descripcion_unica" [(ngModel)]="factura.descripcion_unica" [disabled]="+factura.enviar_descripcion_unica === 0 || !!factura.fel_uuid || !!factura.fel_uuid_anulacion" [required]="+factura.enviar_descripcion_unica === 1">
-                    <input matInput *ngIf="esMovil" type="text" placeholder="Descripción" name="descripcion_unica" [(ngModel)]="factura.descripcion_unica" [disabled]="+factura.enviar_descripcion_unica === 0 || !!factura.fel_uuid || !!factura.fel_uuid_anulacion" [required]="+factura.enviar_descripcion_unica === 1">
-                </mat-form-field>                
-            </div>            
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion"
                     [disabled]="!frmFactura.form.valid || !!factura.fel_uuid || !!factura.fel_uuid_anulacion || !factura.cliente || cargando || (refacturacion && noPuedeFirmar)">
