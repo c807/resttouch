@@ -275,13 +275,15 @@ class Reporte extends CI_Controller
 								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->egresos += ((int)$row->tipo_salida === 1) ? (float)$row->cantidad : 0;
 								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->comandas += ((int)$row->tipo_salida === 2) ? (float)$row->cantidad : 0;
 								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->facturas += ((int)$row->tipo_salida === 3) ? (float)$row->cantidad : 0;
-								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->detalle[] = (object)[
-									'id' => (int)$row->id,
-									'tipo' => (int)$row->tipo,
-									'cantidad' => (float)$row->cantidad,
-									'fecha' => $row->fecha,
-									'tipo_movimiento' => $row->tipo_movimiento,
-								];
+								if ((float)$row->cantidad !== (float)0) {
+									$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->detalle[] = (object)[
+										'id' => (int)$row->id,
+										'tipo' => (int)$row->tipo,
+										'cantidad' => (float)$row->cantidad,
+										'fecha' => $row->fecha,
+										'tipo_movimiento' => $row->tipo_movimiento,
+									];
+								}
 							}
 							usort($datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->detalle, function ($a, $b) {
 								return strtotime($b->fecha) < strtotime($a->fecha);
