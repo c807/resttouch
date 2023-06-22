@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } 
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
 import { MatTabGroup } from '@angular/material/tabs';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
@@ -63,7 +64,7 @@ export class FormPagoComponent implements OnInit, OnDestroy {
     this.fpago = {
       forma_pago: null, descripcion: null, activo: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
       retencion_porcentaje: 0.00, pedirdocumento: 0, adjuntararchivo: 0, pedirautorizacion: 0,
-      sinfactura: 0, escobrohabitacion: 0
+      sinfactura: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00
     };
     this.resetFpscc();
   }
@@ -112,5 +113,11 @@ export class FormPagoComponent implements OnInit, OnDestroy {
         }        
       })
     );
+  }
+
+  esDescuentoChecked = (obj: MatCheckboxChange) =>{
+    if (!obj.checked) {
+      this.fpago.porcentaje_maximo_descuento = 0.00;
+    }
   }
 }

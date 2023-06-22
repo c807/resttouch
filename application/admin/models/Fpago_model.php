@@ -17,6 +17,7 @@ class Fpago_model extends General_model {
 	public $esefectivo = 0;
 	public $escobrohabitacion = 0;
 	public $esabono = 0;
+	public $porcentaje_maximo_descuento = 0.00;
 
 	public function __construct($id = "")
 	{

@@ -28,7 +28,8 @@ export class FpagoComponent implements OnInit {
       adjuntararchivo: 0,
       sinfactura: 0,
       activo: 1,
-      escobrohabitacion: 0
+      escobrohabitacion: 0,
+      porcentaje_maximo_descuento: 0.00
     };
   }
 

@@ -13,9 +13,10 @@ export interface FormaPago {
     pedirautorizacion?: number;
     sinfactura?: number;
     esefectivo?: number;
+    esabono?: number;
     montocc?: number;
     escobrohabitacion?: number;
-    esabono?: number;
+    porcentaje_maximo_descuento?: number;
 }
 
 export interface FormaPagoComandaOrigen {
