@@ -118,7 +118,7 @@
 								<td style="padding: 5px;" class="text-right">
 									<?php 
 										echo number_format($row->propina, 2);
-										if (empty($row->fel_uuid_anulacion)) {
+										if (empty($row->fel_uuid_anulacion) || (isset($_anuladas) && filter_var($_anuladas, FILTER_VALIDATE_BOOLEAN))) {
 											$totalPropina += $row->propina;
 										}
 									?>
@@ -127,7 +127,7 @@
 									<?php 
 										$desc = suma_field($detalle, "descuento");
 										echo number_format($desc, 2);
-										if (empty($row->fel_uuid_anulacion)) {
+										if (empty($row->fel_uuid_anulacion) || (isset($_anuladas) && filter_var($_anuladas, FILTER_VALIDATE_BOOLEAN))) {
 											$totalDescuento += $desc;											
 											$totalFactura += $total;
 										}
@@ -229,6 +229,7 @@
 					</tfoot>
 				</table>
 			</div>
+			<?php if (!(isset($_anuladas) && filter_var($_anuladas, FILTER_VALIDATE_BOOLEAN))): ?>
 			<div class="table-responsive">
 				<table class="table table-bordered" style="padding: 5px">
 					<caption>
@@ -264,6 +265,7 @@
 					</tfoot>
 				</table>								
 			</div>
+			<?php endif ?>
 		</div>
 	</div>
 </body>
