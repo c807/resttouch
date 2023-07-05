@@ -4,4 +4,5 @@ export interface TipoMovimiento {
     ingreso: number;
     egreso: number;
     requisicion: number;
+    esajuste_cp?: number;
 }

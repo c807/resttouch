@@ -11,6 +11,7 @@
                 <span mat-line *ngIf="+element.ingreso === 1">Para ingresos</span>
                 <span mat-line *ngIf="+element.egreso === 1">Para egresos</span>
                 <span mat-line *ngIf="+element.requisicion === 1">Para requisiciones</span>
+                <span mat-line *ngIf="+element.esajuste_cp === 1">Para ajuste de costo promedio</span>
             </mat-list-item>
         </mat-nav-list>
         <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>

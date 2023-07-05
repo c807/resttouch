@@ -8,6 +8,7 @@ class Tipo_movimiento_model extends General_model {
 	public $ingreso = 0;
 	public $egreso = 0;
 	public $requisicion = 0;
+	public $esajuste_cp = 0;
 
 	public function __construct($id = "")
 	{

@@ -20,6 +20,7 @@ export class FormTipoMovimientoComponent implements OnInit, OnDestroy {
   @Output() tipoMovimientoSavedEv = new EventEmitter();
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public empresaMetodoCosteo = 0;
 
   private endSubs = new Subscription();
 
@@ -31,6 +32,7 @@ export class FormTipoMovimientoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
+    this.empresaMetodoCosteo = (this.ls.get(GLOBAL.usrTokenVar).empresa.metodo_costeo as number) || 0;
   }
 
   ngOnDestroy(): void {
@@ -38,7 +40,7 @@ export class FormTipoMovimientoComponent implements OnInit, OnDestroy {
   }
 
   resetTipoMovimiento() {
-    this.tipoMovimiento = { tipo_movimiento: null, descripcion: null, ingreso: 0, egreso: 0, requisicion: 0 };
+    this.tipoMovimiento = { tipo_movimiento: null, descripcion: null, ingreso: 0, egreso: 0, requisicion: 0, esajuste_cp: 0 };
   }
 
   onSubmit() {

@@ -14,7 +14,7 @@ export class TipoMovimientoComponent implements OnInit {
   @ViewChild('lstTipoMovimiento') lstTipoMovimiento: ListaTipoMovimientoComponent;
 
   constructor() {
-    this.tipoMovimiento = { tipo_movimiento: null, descripcion: null, ingreso: 0, egreso: 0, requisicion: 0 };
+    this.tipoMovimiento = { tipo_movimiento: null, descripcion: null, ingreso: 0, egreso: 0, requisicion: 0, esajuste_cp: 0 };
   }
 
   ngOnInit(): void {

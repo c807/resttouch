@@ -82,7 +82,7 @@ class Usuario_model extends General_model
                     c.visa_merchant_id,
                     CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, 
                     a.usatecladovirtual, 
-                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso, a.rol")
+                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo")
                 ->from("{$this->tabla} a")
                 ->join("sede b", "b.sede = a.sede")
                 ->join("empresa c", "c.empresa = b.empresa")
@@ -137,7 +137,8 @@ class Usuario_model extends General_model
                         'empresa' => [
                             "visa_merchant_id" => $dbusr->visa_merchant_id,
                             "nombre" => $dbusr->empresa_nombre,
-                            "nit" => $dbusr->empresa_nit
+                            "nit" => $dbusr->empresa_nit,
+                            'metodo_costeo' => (int)$dbusr->metodo_costeo
                         ],
                         'dominio' => $credenciales['dominio'],
                         'wms' => (object)[
