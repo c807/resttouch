@@ -1,0 +1,27 @@
+<mat-card class="mat-elevation-z4 fullWidth" style="height: 100% important;">
+    <mat-card-content>
+        <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Del" [(ngModel)]="params.fdel" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
+        <mat-form-field class="fullWidth">
+            <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>        
+        <button mat-raised-button type="button" color="accent" style="margin-bottom: 5px;" (click)="loadAjustesCostoPromedio()">
+            Buscar
+        </button><br/>
+        <mat-form-field class="fullWidth">
+            <input matInput (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+        </mat-form-field>        
+        <mat-nav-list>
+            <mat-list-item *ngFor="let element of lstAjustesCostoPromedioPaged" (click)="getAjusteCostoPromedio(element)">
+                <mat-icon mat-list-icon>tune</mat-icon>
+                <h5 mat-line>No. {{element.ajuste_costo_promedio}}</h5><br/>
+                <span mat-line><strong>Fecha: </strong>{{element.fecha | date: 'dd/MM/yyyy'}}</span>
+                <span mat-line><strong>Sede: </strong>{{element.descripcion_sede}}</span>
+                <span mat-line><strong>Bodega: </strong>{{element.descripcion_bodega}}</span>
+                <span mat-line><strong>{{+element.confirmado === 0 ? 'No c' : 'C'}}onfirmado</strong></span>
+            </mat-list-item>
+        </mat-nav-list>
+        <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons></mat-paginator>
+    </mat-card-content>
+</mat-card>

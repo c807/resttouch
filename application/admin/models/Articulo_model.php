@@ -592,6 +592,10 @@ class Articulo_model extends General_model
 			$this->db->where('a.combo', $args['combo']);
 		}
 
+		if (isset($args['mostrar_inventario'])) {
+			$this->db->where('a.mostrar_inventario', $args['mostrar_inventario']);
+		}
+
 		$tmp = $this->db
 			->select($campos)
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')

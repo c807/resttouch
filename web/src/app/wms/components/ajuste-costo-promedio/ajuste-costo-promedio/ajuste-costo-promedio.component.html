@@ -1,0 +1,13 @@
+<div class="row" *ngIf="usaCostoPromedio">
+    <div class="col m5 s12">
+        <app-lista-ajuste-costo-promedio #lstAjusteCostoPromedio (getAjusteCostoPromedioEv)="setAjusteCostoPromedio($event)"></app-lista-ajuste-costo-promedio>        
+    </div>
+    <div class="col m7 s12">
+        <app-form-ajuste-costo-promedio #frmAjusteCostoPromedio [ajusteCostoPromedio]="ajusteCostoPromedio" (ajusteCostoPromedioSavedEv)="refreshAjusteCostoPromedioList()"></app-form-ajuste-costo-promedio>        
+    </div>
+</div>
+<div class="row" *ngIf="!usaCostoPromedio">
+    <div class="col m12 s12" align="center">
+        <h2>Esta funcionalidad solo está habilitada para empresas que usen costo promedio.</h2>
+    </div>
+</div>

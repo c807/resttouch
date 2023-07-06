@@ -77,6 +77,9 @@ import { ComboWizardComponent } from './components/producto/wizards/combo/combo-
 import { DetalleComboWizardComponent } from './components/producto/wizards/combo/detalle-combo-wizard/detalle-combo-wizard.component';
 import { RecetaWizardComponent } from './components/producto/wizards/receta/receta-wizard/receta-wizard.component';
 import { DetalleRecetaWizardComponent } from './components/producto/wizards/receta/detalle-receta-wizard/detalle-receta-wizard.component';
+import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
+import { FormAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/form-ajuste-costo-promedio/form-ajuste-costo-promedio.component';
+import { ListaAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/lista-ajuste-costo-promedio/lista-ajuste-costo-promedio.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +88,7 @@ import { DetalleRecetaWizardComponent } from './components/producto/wizards/rece
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
     FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
     ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
-    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent
+    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent, AjusteCostoPromedioComponent, FormAjusteCostoPromedioComponent, ListaAjusteCostoPromedioComponent
   ],
   imports: [
     CommonModule,

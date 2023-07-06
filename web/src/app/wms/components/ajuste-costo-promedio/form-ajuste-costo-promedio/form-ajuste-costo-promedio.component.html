@@ -1,0 +1,65 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>Ajuste de costo promedio</h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmAjusteCostoPromedio="ngForm" (ngSubmit)="frmAjusteCostoPromedio.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth">
+                <mat-label>Sede</mat-label>
+                <mat-select name="sede" [(ngModel)]="ajusteCostoPromedio.sede" (selectionChange)="onSedeSelected($event)" required>
+                  <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                    {{sede.sede.nombre}} ({{sede.sede.alias}})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+    
+              <mat-form-field class="fullWidth">
+                <mat-label>Bodega</mat-label>
+                <mat-select name="bodega" [(ngModel)]="ajusteCostoPromedio.bodega" required>
+                  <mat-option *ngFor="let bod of bodegas" [value]="bod.bodega">
+                    {{bod.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+    
+              <mat-form-field class="fullWidth">
+                <mat-label>Categoría</mat-label>
+                <mat-select name="categoria" (selectionChange)="onCategoriaSelected($event)">
+                  <mat-option *ngFor="let cat of categorias" [value]="cat">
+                    {{cat.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field class="fullWidth">
+                <mat-label>Sub-categoría</mat-label>
+                <mat-select name="categoriaGrupoPadre" [(ngModel)]="ajusteCostoPromedio.categoria_grupo" (selectionChange)="subcategoriaSelectedEv($event)">
+                  <mat-option *ngFor="let subcatpadre of categoriasGruposPadre" [value]="subcatpadre.categoria_grupo">
+                    {{subcatpadre.descripcion}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+    
+              <mat-form-field class="fullWidth">
+                <mat-label>Artículo</mat-label>
+                <mat-select name="articulo" [(ngModel)]="ajusteCostoPromedio.articulo">
+                  <mat-option *ngFor="let art of lstArticulos" [value]="art.articulo">
+                    {{art.descripcion}} ({{art.subcategoria.descripcion}})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+    
+              <mat-form-field class="fullWidth">
+                <input name="fecha" matInput type="date" placeholder="Fecha" [(ngModel)]="ajusteCostoPromedio.fecha" required>
+              </mat-form-field>            
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmAjusteCostoPromedio.form.valid">
+                    Guardar
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio">
+                    Nuevo
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

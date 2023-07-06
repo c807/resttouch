@@ -281,6 +281,10 @@ $config['menu'] = [
 					7 => [
 						'nombre' => 'Requisiciones',
 						'link' => '/wms/requisiciones'
+					],
+					8 => [
+						'nombre' => 'Ajuste de costo promedio',
+						'link' => '/wms/ajuste_costo_promedio'
 					]
 				]
 			],
