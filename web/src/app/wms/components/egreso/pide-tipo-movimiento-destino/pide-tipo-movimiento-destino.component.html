@@ -4,7 +4,7 @@
         <mat-form-field class="fullWidth">
             <mat-label>¿Qué tipo de movimiento va a generar en la bodega de destino?</mat-label>
             <mat-select name="tipo_movimiento_destino" [(ngModel)]="tipo_movimiento_destino" required>
-                <mat-option *ngFor="let tmD of data" [value]="tmD.tipo_movimiento">
+                <mat-option *ngFor="let tmD of data" [value]="tmD.tipo_movimiento" [disabled]="+tmD.esajuste_cp === 1">
                     {{tmD.descripcion}}
                 </mat-option>
             </mat-select>

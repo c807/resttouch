@@ -5,10 +5,22 @@
         </mat-form-field>
         <mat-form-field class="fullWidth">
             <input matInput type="date" placeholder="Al" [(ngModel)]="params.fal" [ngModelOptions]="{standalone: true}">
-        </mat-form-field>        
-        <button mat-raised-button type="button" color="accent" style="margin-bottom: 5px;" (click)="loadAjustesCostoPromedio()">
+        </mat-form-field>
+        <mat-form-field class="fullWidth">
+            <mat-label>Sede</mat-label>
+            <mat-select [(ngModel)]="params.sede" [ngModelOptions]="{standalone: true}">
+              <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>        
+        <button mat-raised-button type="button" color="accent" style="margin-bottom: 5px;" class="btnAccion" (click)="loadAjustesCostoPromedio()">
             Buscar
-        </button><br/>
+        </button>
+        <button mat-raised-button type="button" color="accent" style="margin-bottom: 5px;" class="btnAccion" (click)="resetParams()">
+            Restaurar
+        </button>
+        <br/>
         <mat-form-field class="fullWidth">
             <input matInput (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
         </mat-form-field>        

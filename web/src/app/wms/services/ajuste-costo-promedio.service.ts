@@ -41,9 +41,9 @@ export class AjusteCostoPromedioService {
   }
 
   saveDetalle(entidad: DetalleAjusteCostoPromedio) {
-    // return this.http.post<any>(`${GLOBAL.urlWms}/${this.acpUrl}/guardar${entidad.ajuste_costo_promedio ? ('/' + entidad.ajuste_costo_promedio) : ''}`,
-    //   entidad
-    // ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+    return this.http.post<any>(`${GLOBAL.urlWms}/${this.acpUrl}/guardar_detalle${entidad.detalle_ajuste_costo_promedio ? ('/' + entidad.detalle_ajuste_costo_promedio) : ''}`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
     
 }

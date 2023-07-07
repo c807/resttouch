@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
+import { GLOBAL, MultiFiltro, OrdenarArrayObjetos } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import * as moment from 'moment';
 
@@ -38,6 +38,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   @Input() ajusteCostoPromedio: AjusteCostoPromedio;
   @Output() ajusteCostoPromedioSavedEv = new EventEmitter();
   public detalleAjusteCostoPromedio: DetalleAjusteCostoPromedio[] = [];
+  public detalleAjusteCostoPromedioOriginal: DetalleAjusteCostoPromedio[] = [];
   public bodegas: Bodega[] = [];
   public sedes: UsuarioSede[] = [];
   public categorias: Categoria[] = [];
@@ -46,6 +47,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   public lstArticulosOriginal: Articulo[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public txtFiltro = '';
 
   private endSubs = new Subscription();
 
@@ -114,7 +116,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   loadSubCategorias = (idcategoria: number) => {
     this.endSubs.add(      
       this.articuloSrvc.getCategoriasGrupos({ categoria: +idcategoria }).subscribe(res => {
-        this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);                  
+        this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);        
       })
     );
   }
@@ -137,7 +139,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   resetAjusteCostoPromedio() {
     this.ajusteCostoPromedio = {
       ajuste_costo_promedio: null,
-      sede: this.sedeActual,
+      sede: null,
       usuario: this.usuarioActual,
       categoria_grupo: null,
       bodega: null,
@@ -145,6 +147,9 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
       notas: null,
       confirmado: 0
     };
+
+    this.detalleAjusteCostoPromedio = [];
+    this.detalleAjusteCostoPromedioOriginal = [];
   }
 
   onSubmit() {
@@ -168,8 +173,41 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     }
 
     this.endSubs.add(
-      this.ajusteCostoPromedioSrvc.getDetalle({ ajuste_costo_promedio: idAjusteCostoPromedio }).subscribe((res) => {
-        this.detalleAjusteCostoPromedio = res;
+      this.ajusteCostoPromedioSrvc.getDetalle({ ajuste_costo_promedio: idAjusteCostoPromedio }).subscribe((res) => {        
+        this.detalleAjusteCostoPromedioOriginal = res;
+        this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(this.detalleAjusteCostoPromedioOriginal));
+      })
+    );
+  }
+
+  applyFilter() {
+    if (this.txtFiltro.length > 0) {
+      const tmpList = MultiFiltro(this.detalleAjusteCostoPromedioOriginal, this.txtFiltro);      
+      this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(tmpList));
+    } else {
+      this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(this.detalleAjusteCostoPromedioOriginal));
+    }    
+  }
+
+  moveNextElement = (objKeybEv: KeyboardEvent, obj: DetalleAjusteCostoPromedio) => {        
+    this.endSubs.add(
+      this.ajusteCostoPromedioSrvc.saveDetalle(obj).subscribe((res) => {
+        if (res.exito) {
+          this.snackBar.open(res.mensaje, 'Detalle de ajuste de costo promedio', { duration: 3000 });
+        } else {
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Detalle de ajuste de costo promedio', { duration: 5000 });
+        }
+        const srcElem = objKeybEv.target as HTMLInputElement;
+        const idx = +srcElem.id.split('_')[1];
+        let nextElement = document.getElementById(`costoPromedioCorrecto_${idx + 1}`);    
+        if (nextElement) {
+          nextElement.focus();
+        } else {
+          nextElement = document.getElementById('costoPromedioCorrecto_0');
+          if (nextElement) {
+            nextElement.focus();
+          }
+        }      
       })
     );
   }

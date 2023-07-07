@@ -1,5 +1,4 @@
 import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
-// import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
@@ -7,6 +6,8 @@ import * as moment from 'moment';
 
 import { AjusteCostoPromedio } from '@wms-interfaces/ajuste-costo-promedio';
 import { AjusteCostoPromedioService } from '@wms-services/ajuste-costo-promedio.service';
+import { UsuarioSede } from '@admin-interfaces/acceso';
+import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
 
 import { Subscription } from 'rxjs';
 
@@ -32,28 +33,42 @@ export class ListaAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   public pageIndex = 0;
   public pageEvent: PageEvent;
   public txtFiltro = '';
-
-  public params = {
-    fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
-    fal: moment().endOf('month').format(GLOBAL.dbDateFormat),
-    sede: null
-  }
+  public sedes: UsuarioSede[] = [];
+  public params: any = {};
 
   private endSubs = new Subscription();
 
   constructor(
     private ajusteCostoPromedioSrvc: AjusteCostoPromedioService,    
-    private ls: LocalstorageService,
-    // private snackBar: MatSnackBar    
+    private ls: LocalstorageService,    
+    private sedeSrvc: AccesoUsuarioService
   ) { }
 
   ngOnInit(): void {
-    this.params.sede = this.sedeActual;
+    this.resetParams();
+    this.loadSedes();
     this.loadAjustesCostoPromedio();  
   }
 
   ngOnDestroy() {
     this.endSubs.unsubscribe();
+  }
+
+  resetParams = () => {
+    this.params = {
+      fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
+      fal: moment().endOf('month').format(GLOBAL.dbDateFormat),
+      sede: this.sedeActual.toString()
+    }    
+    this.loadAjustesCostoPromedio();
+  }
+
+  loadSedes = (params: any = {}) => {
+    this.endSubs.add(      
+      this.sedeSrvc.getSedes(params).subscribe(res => {
+        this.sedes = res;
+      })
+    );
   }
 
   applyFilter(cambioPagina = false) {

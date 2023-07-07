@@ -17,7 +17,7 @@
             <mat-form-field class="fullWidth" *ngIf = "saveToDB">
                 <mat-label>Tipo de movimiento</mat-label>
                 <mat-select name="tipo_movimiento" [(ngModel)]="egreso.tipo_movimiento" required>
-                    <mat-option *ngFor="let tm of tiposMovimiento" [value]="tm.tipo_movimiento">
+                    <mat-option *ngFor="let tm of tiposMovimiento" [value]="tm.tipo_movimiento" [disabled]="+tm.esajuste_cp === 1">
                         {{tm.descripcion}}
                     </mat-option>
                 </mat-select>

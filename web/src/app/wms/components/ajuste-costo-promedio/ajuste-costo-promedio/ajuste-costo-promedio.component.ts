@@ -48,13 +48,15 @@ export class AjusteCostoPromedioComponent implements OnInit {
   }
 
   setAjusteCostoPromedio = (acp: AjusteCostoPromedio) => {
+    this.frmAjusteCostoPromedio.resetAjusteCostoPromedio();
     this.ajusteCostoPromedio = acp;
     this.frmAjusteCostoPromedio.ajusteCostoPromedio = this.ajusteCostoPromedio;
     this.frmAjusteCostoPromedio.loadBodegas({ sede: this.ajusteCostoPromedio.sede });
     this.frmAjusteCostoPromedio.loadCategorias({ sede: this.ajusteCostoPromedio.sede });
     this.frmAjusteCostoPromedio.loadArticulos({ sede: this.ajusteCostoPromedio.sede });
 
-    if (+this.ajusteCostoPromedio.categoria_grupo) {
+    if (+this.ajusteCostoPromedio.categoria_grupo > 0) {
+      this.ajusteCostoPromedio.categoria_grupo = +this.ajusteCostoPromedio.categoria_grupo;
       this.frmAjusteCostoPromedio.loadSubCategorias(+this.ajusteCostoPromedio.categoria);
     }
 

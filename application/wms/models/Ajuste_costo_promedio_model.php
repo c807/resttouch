@@ -39,6 +39,10 @@ class Ajuste_costo_promedio_model extends General_model {
 			$this->db->where('a.fecha <=', $args['fal']);
 		}
 
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('a.sede', $args['sede']);
+		}
+
 		$campos = 'a.ajuste_costo_promedio, a.sede, TRIM(CONCAT(b.nombre, " ", CONCAT("(", IFNULL(b.alias, ""), ")"))) AS descripcion_sede, a.usuario, c.usrname AS usuario_creacion, ';
 		$campos.= 'a.categoria_grupo, CONCAT(e.descripcion, " (", f.descripcion, ")") AS subcategoria, a.bodega, d.descripcion AS descripcion_bodega, a.fhcreacion, a.fecha, a.notas, ';
 		$campos.= 'a.confirmado, a.confirmado_fecha, a.articulo, g.descripcion AS descripcion_articulo, f.categoria';

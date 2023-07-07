@@ -92,4 +92,29 @@ class Ajuste_costo_promedio extends CI_Controller
         $data = $this->Detalle_ajuste_costo_promedio_model->buscar_detalle($_GET);
         $this->output->set_output(json_encode($data));
     }
+
+    public function guardar_detalle($id = '')
+    {
+        $dacp = new Detalle_ajuste_costo_promedio_model($id);
+        $req = json_decode(file_get_contents('php://input'), true);
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            if (empty($id) || (int)$req['confirmado'] === 0) {
+                $datos['exito'] = $dacp->guardar($req);
+
+                if ($datos['exito']) {
+                    $datos['mensaje'] = 'Datos actualizados con éxito.';
+                    $datos['detalle_ajuste_costo_promedio'] = $dacp;
+                } else {
+                    $datos['mensaje'] = implode('<br>', $dacp->getMensaje());
+                }
+            } else {
+                $datos['mensaje'] = 'Solo puede editar ajustes de costo promedio sin confirmar.';
+            }
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+
+        $this->output->set_output(json_encode($datos));
+    }    
 }
