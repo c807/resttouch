@@ -45,5 +45,11 @@ export class AjusteCostoPromedioService {
       entidad
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+  
+  confirmar(idAjusteCostoPromedio: number): Observable<any> {
+    return this.http.get<any>(
+      `${GLOBAL.urlWms}/${this.acpUrl}/confirmar/${idAjusteCostoPromedio}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
     
 }

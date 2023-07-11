@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { GLOBAL, MultiFiltro, OrdenarArrayObjetos } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import * as moment from 'moment';
@@ -16,6 +17,7 @@ import { Categoria } from '@wms-interfaces/categoria';
 import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
 import { Articulo } from '@wms-interfaces/articulo';
 import { ArticuloService } from '@wms-services/articulo.service';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
 import { Subscription } from 'rxjs';
 import { MatSelectChange } from '@angular/material/select';
@@ -57,7 +59,8 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private bodegaSrvc: BodegaService,
     private sedeSrvc: AccesoUsuarioService,
-    private articuloSrvc: ArticuloService
+    private articuloSrvc: ArticuloService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {    
@@ -210,5 +213,30 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
         }      
       })
     );
+  }
+
+  confirmarAjusteCostoPromedio = () => {
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Ajuste de costo promedio', 'Esto confirmará el ajuste de costo promedio y ya no podrá modificarlo. ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe((confirma: boolean) => {
+        if (confirma) {
+          this.endSubs.add(
+            this.ajusteCostoPromedioSrvc.confirmar(this.ajusteCostoPromedio.ajuste_costo_promedio).subscribe((res) => {
+              if (res.exito) {
+                this.ajusteCostoPromedio.confirmado = 1;
+                this.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
+                this.snackBar.open(res.mensaje, 'Ajuste de costo promedio', { duration: 5000 });
+              } else {
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste de costo promedio', { duration: 5000 });
+              }                          
+            })            
+          );          
+        }
+      })
+    );    
   }
 }
