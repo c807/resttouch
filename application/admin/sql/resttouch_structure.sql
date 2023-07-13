@@ -1701,6 +1701,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_ACTUALIZA_CORREO_CF', '3', '0', 'Habilita/Deshabilita actualización automática de correo del cliente cuando el NIT es CF.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_HORAS_VALIDEZ_TOKEN', '1', '12', 'Establece cantidad de horas de validez del token del usuario. 12 horas por defecto.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUTO_FIRMA_DTE_COMANDA_LINEA', '3', '0', 'Habilita/Desahabilita la firma automática desde comanda en línea.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_INCLUYE_SALDO_INICIAL', '3', '0', 'Habilita/Deshabilita tomar en cuenta el saldo inicial de caja en arqueos y saldos finales.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 
@@ -2953,6 +2954,63 @@ CREATE TABLE RT_DATABASE_NAME.rol_acceso (
 ALTER TABLE RT_DATABASE_NAME.usuario ADD COLUMN rol INT NULL AFTER confirmar_egreso, ADD INDEX fk_usuario_rol1_idx (rol ASC);
 ALTER TABLE RT_DATABASE_NAME.usuario ADD CONSTRAINT fk_usuario_rol1 FOREIGN KEY (rol) REFERENCES RT_DATABASE_NAME.rol (rol) ON DELETE NO ACTION ON UPDATE NO ACTION;
 ALTER TABLE RT_DATABASE_NAME.sede ADD COLUMN debaja_monitor TINYINT(1) NULL DEFAULT 0, ADD COLUMN fechabaja DATE NULL;
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN porcentaje_maximo_descuento DECIMAL(10,2) NULL DEFAULT 0.00;
+ALTER TABLE RT_DATABASE_NAME.tipo_movimiento ADD COLUMN esajuste_cp TINYINT(1) NOT NULL DEFAULT 0;
+CREATE TABLE RT_DATABASE_NAME.ajuste_costo_promedio (
+  ajuste_costo_promedio INT NOT NULL AUTO_INCREMENT,
+  sede INT NOT NULL,
+  usuario INT NOT NULL,
+  categoria_grupo INT NULL,
+  bodega INT NOT NULL,
+  fhcreacion TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  fecha DATE NULL,
+  notas VARCHAR(500) NULL,
+  confirmado TINYINT(1) NOT NULL DEFAULT 0,
+  confirmado_fecha DATETIME NULL,
+  PRIMARY KEY (ajuste_costo_promedio),
+  INDEX fk_ajuste_costo_promedio_sede1_idx (sede ASC),
+  INDEX fk_ajuste_costo_promedio_usuario1_idx (usuario ASC),
+  INDEX fk_ajuste_costo_promedio_categoria_grupo1_idx (categoria_grupo ASC),
+  INDEX fk_ajuste_costo_promedio_bodega1_idx (bodega ASC),
+  CONSTRAINT fk_ajuste_costo_promedio_sede1
+    FOREIGN KEY (sede)
+    REFERENCES RT_DATABASE_NAME.sede (sede)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_ajuste_costo_promedio_usuario1
+    FOREIGN KEY (usuario)
+    REFERENCES RT_DATABASE_NAME.usuario (usuario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_ajuste_costo_promedio_categoria_grupo1
+    FOREIGN KEY (categoria_grupo)
+    REFERENCES RT_DATABASE_NAME.categoria_grupo (categoria_grupo)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_ajuste_costo_promedio_bodega1
+    FOREIGN KEY (bodega)
+    REFERENCES RT_DATABASE_NAME.bodega (bodega)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+	
+ALTER TABLE RT_DATABASE_NAME.ajuste_costo_promedio ADD COLUMN articulo INT NULL AFTER bodega, ADD INDEX fk_ajuste_costo_promedio_articulo1_idx (articulo ASC);
+ALTER TABLE RT_DATABASE_NAME.ajuste_costo_promedio ADD CONSTRAINT fk_ajuste_costo_promedio_articulo1 FOREIGN KEY (articulo) REFERENCES RT_DATABASE_NAME.articulo (articulo) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+CREATE TABLE RT_DATABASE_NAME.detalle_ajuste_costo_promedio (
+  detalle_ajuste_costo_promedio int(11) NOT NULL AUTO_INCREMENT,
+  ajuste_costo_promedio int(11) NOT NULL,
+  articulo int(11) NOT NULL,
+  presentacion int(11) NOT NULL,
+  costo_promedio_sistema decimal(10,5) DEFAULT NULL,
+  costo_promedio_correcto decimal(10,5) DEFAULT NULL,
+  PRIMARY KEY (detalle_ajuste_costo_promedio),
+  KEY fk_detalle_ajuste_costo_promedio_ajuste_costo_promedio1_idx (ajuste_costo_promedio),
+  KEY fk_detalle_ajuste_costo_promedio_articulo1_idx (articulo),
+  KEY fk_detalle_ajuste_costo_promedio_presentacion1_idx (presentacion),
+  CONSTRAINT fk_detalle_ajuste_costo_promedio_ajuste_costo_promedio1 FOREIGN KEY (ajuste_costo_promedio) REFERENCES RT_DATABASE_NAME.ajuste_costo_promedio (ajuste_costo_promedio) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_detalle_ajuste_costo_promedio_articulo1 FOREIGN KEY (articulo) REFERENCES RT_DATABASE_NAME.articulo (articulo) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_detalle_ajuste_costo_promedio_presentacion1 FOREIGN KEY (presentacion) REFERENCES RT_DATABASE_NAME.presentacion (presentacion) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -54,11 +54,14 @@ class Ajuste_costo_promedio_model extends General_model {
 			->join('categoria_grupo e', 'e.categoria_grupo = a.categoria_grupo', 'left')
 			->join('categoria f', 'f.categoria = e.categoria', 'left')
 			->join('articulo g', 'g.articulo = a.articulo', 'left')
-			->order_by('a.fecha', 'desc')
-			->get('ajuste_costo_promedio a')
-			->result();
+			->order_by('a.fecha DESC, a.ajuste_costo_promedio DESC')
+			->get('ajuste_costo_promedio a');
 
-		return $ajustes;
+		if (isset($args['_uno']) && $args['_uno']) {
+			return $ajustes->row();
+		}
+
+		return $ajustes->result();
 	}
 
 	public function genera_detalle($args)
@@ -75,15 +78,27 @@ class Ajuste_costo_promedio_model extends General_model {
 			foreach ($articulos as $articulo) {
 				$art = new Articulo_model($articulo->articulo);
 				$pres = $art->getPresentacionReporte();
-				$costo_promedio = $art->getCostoPromedio(['bodega' => $args['bodega']]);
-				$cp = $costo_promedio && isset($costo_promedio->precio_unitario) ? (float)$costo_promedio->precio_unitario : null;
+
+				$bcosto = $this->BodegaArticuloCosto_model->buscar([
+					'bodega' => $args['bodega'],
+					'articulo' => $articulo->articulo,
+					'_uno' => true
+				]);
+
+				if ($bcosto) {
+					$costo_promedio = $bcosto->costo_promedio;
+				} else {
+					$costo_promedio = $art->getCosto(['bodega' => $args['bodega']]);
+				}
+				
+				$cp = (float)$costo_promedio;
 
 				$dacp = new Detalle_ajuste_costo_promedio_model();
 				$dacp->guardar([
 					'ajuste_costo_promedio' => $id_acp,
 					'articulo' => $articulo->articulo,
 					'presentacion' => $pres->presentacion,
-					'costo_promedio_sistema' => $cp ? ($cp * $args['por_iva'] * (float)$pres->cantidad) : (float)0,
+					'costo_promedio_sistema' => (($cp * $args['por_iva']) * (float)$pres->cantidad),
 					'costo_promedio_correcto' => null
 				]);
 			}

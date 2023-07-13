@@ -58,7 +58,7 @@
         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmAjusteCostoPromedio.form.valid">
           Guardar
         </button>
-        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" [disabled]="+ajusteCostoPromedio.confirmado === 1">
+        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" [disabled]="noSePuedeConfirmar || +ajusteCostoPromedio.confirmado === 1">
           Confirmar
         </button>
         <button mat-raised-button type="button" color="accent" (click)="resetAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio">
@@ -83,19 +83,28 @@
       <thead>
         <tr>
           <th>Artículo</th>
+          <th>Presentación</th>
           <th class="rtxt">Costo del sistema<br/>(con IVA)</th>
           <th class="rtxt">Costo correcto<br/>(con IVA)</th>          
+          <th class="ctxt">&nbsp;</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let detacp of detalleAjusteCostoPromedio; index as i">
           <td>{{detacp.descripcion_articulo}}</td>
+          <td>{{detacp.descripcion_presentacion}}</td>
           <td class="rtxt">{{detacp.costo_promedio_sistema | number:'1.2-5' }}</td>
           <td class="rtxt">
             <mat-form-field class="fullWidth" *ngIf="+detacp.confirmado === 0">
-              <input id="costoPromedioCorrecto_{{i}}" name="costo_promedio_correcto_{{i}}" matInput type="number" min="0.00001" max="999999.99999" placeholder="Costo promedio correcto" [(ngModel)]="detacp.costo_promedio_correcto" (keyup.enter)="moveNextElement($event, detacp)">
+              <input id="costoPromedioCorrecto_{{i}}" name="costo_promedio_correcto_{{i}}" matInput type="number" min="0.00001" max="999999.99999" placeholder="Costo promedio correcto" [(ngModel)]="detacp.costo_promedio_correcto">
             </mat-form-field>
             <span *ngIf="+detacp.confirmado === 1">{{detacp.costo_promedio_correcto | number:'1.2-5' }}</span>
+          </td>
+          <td class="ctxt">
+            <button mat-raised-button type="button" color="accent" (click)="saveDetalleAjusteCostoPromedio(detacp)" *ngIf="+detacp.confirmado === 0">
+              Guardar
+            </button>
+            <span *ngIf="+detacp.confirmado === 1">&nbsp;</span>
           </td>
         </tr>
       </tbody>

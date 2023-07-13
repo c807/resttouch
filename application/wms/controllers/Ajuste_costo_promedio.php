@@ -25,7 +25,8 @@ class Ajuste_costo_promedio extends CI_Controller
             'Empresa_model',
             'Usuario_model',
             'Bitacora_model',
-            'Bodega_model'
+            'Bodega_model',
+            'Accion_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -72,6 +73,10 @@ class Ajuste_costo_promedio extends CI_Controller
 
                     if (isset($req['categoria_grupo']) && (int)$req['categoria_grupo'] > 0) {
                         $args['categoria_grupo'] = $req['categoria_grupo'];
+                    }
+
+                    if (isset($req['articulo']) && (int)$req['articulo'] > 0) {
+                        $args['articulo'] = $req['articulo'];
                     }
 
                     $acp->genera_detalle($args);
@@ -128,6 +133,8 @@ class Ajuste_costo_promedio extends CI_Controller
         if ((int)$acp->confirmado === 0) {
             $detalle = $this->Detalle_ajuste_costo_promedio_model->buscar_detalle(['ajuste_costo_promedio' => $acp->getPK()]);
             if ($detalle && is_array($detalle) && count($detalle) > 0) {
+                set_time_limit(3600);
+                ini_set('memory_limit', '512M');
                 // Creación del ingreso
                 $tm = $this->Tipo_movimiento_model->buscar(['ingreso' => 1, 'esajuste_cp' => 1, '_uno' => true]);
                 if ($tm && (int)$tm->tipo_movimiento > 0) {
@@ -145,7 +152,7 @@ class Ajuste_costo_promedio extends CI_Controller
                         $idProv = $prov->proveedor;
                     }
 
-                    $usuario = $this->Usuario_model->buscar(['usuario' => $this->data->usuario, '_uno' => true]);
+                    $usuario = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
                     $nombreUsuario = trim("{$usuario->nombres} {$usuario->apellidos}");
 
                     $ingreso = new Ingreso_model();
@@ -153,7 +160,7 @@ class Ajuste_costo_promedio extends CI_Controller
                         'tipo_movimiento' => $tm->tipo_movimiento,
                         'fecha' => date('Y-m-d'),
                         'bodega' => $acp->bodega,
-                        'usuario' => $this->data->usuario,
+                        'usuario' => $this->data->idusuario,
                         'proveedor' => $idProv,
                         'estatus_movimiento' => 2,
                         'ajuste' => 0,
@@ -162,7 +169,7 @@ class Ajuste_costo_promedio extends CI_Controller
                     if ($ingreso->guardar($dataIng)) {
                         $sede = new Sede_model($acp->sede);
                         $empresa = $sede->getEmpresa();
-                        $porIva = $empresa ? ((float)$empresa->porcentaje_iva ?? 0.12) : 0.12;
+                        $porIva = $empresa ? ((float)$empresa->porcentaje_iva ?? (float)0.12) : (float)0.12;
                         $idsArticulos = [];
                         foreach ($detalle as $d) {
                             $art = new Articulo_model($d->articulo);
@@ -170,7 +177,7 @@ class Ajuste_costo_promedio extends CI_Controller
                             $pres = $art->getPresentacionReporte();
                             $art->existencias = (float)$art->existencias / (float)$pres->cantidad;
                             $precioUnitarioConIVA = ((float)$d->costo_promedio_correcto * ($art->existencias + (float)1)) - ($art->existencias * (float)$d->costo_promedio_sistema);
-                            $precioUnitarioSinIVA = $precioUnitarioConIVA / (1 + $porIva);
+                            $precioUnitarioSinIVA = $precioUnitarioConIVA / ((float)1 + $porIva);
 
                             $det = [
                                 'articulo' => $d->articulo,
@@ -197,7 +204,7 @@ class Ajuste_costo_promedio extends CI_Controller
                             'tipo_movimiento' => $tm->tipo_movimiento,
                             'fecha' => date('Y-m-d'),
                             'bodega' => $acp->bodega,
-                            'usuario' => $this->data->usuario,
+                            'usuario' => $this->data->idusuario,
                             'estatus_movimiento' => 2,
                             'ajuste' => 0,
                             'comentario' => "Egreso automático generado por el proceso de ajuste de costo promedio No. {$acp->ajuste_costo_promedio}., usuario: {$nombreUsuario}, {$usuario->usrname}."
@@ -207,8 +214,21 @@ class Ajuste_costo_promedio extends CI_Controller
                             foreach ($detalle as $d) {
                                 $art = new Articulo_model($d->articulo);
                                 $pres = $art->getPresentacionReporte();
-                                $costo_promedio = $art->getCostoPromedio(['bodega' => $acp->bodega]);
-                                $cp = $costo_promedio && isset($costo_promedio->precio_unitario) ? (float)$costo_promedio->precio_unitario : 0;
+                                // $costo_promedio = $art->getCostoPromedio(['bodega' => $acp->bodega]);
+
+                                $bcosto = $this->BodegaArticuloCosto_model->buscar([
+                                    'bodega' => $acp->bodega,
+                                    'articulo' => $d->articulo,
+                                    '_uno' => true
+                                ]);
+
+                                if ($bcosto) {
+                                    $costo_promedio = $bcosto->costo_promedio;
+                                } else {
+                                    $costo_promedio = $art->getCosto(['bodega' => $acp->bodega]);
+                                }
+
+                                $cp = (float)$costo_promedio;
                                 $precioUnitario = $cp * (float)$pres->cantidad;
 
                                 $det = [
@@ -219,6 +239,11 @@ class Ajuste_costo_promedio extends CI_Controller
                                     'precio_total' => $precioUnitario,
                                 ];
                                 $egreso->setDetalle($det);
+                            }
+
+                            // Recálculo de costos de los artículos...
+                            foreach ($idsArticulos as $idArticulo) {
+                                $this->Articulo_model->recalcular_costos((int)$acp->sede, $idArticulo, (int)$acp->bodega);
                             }
 
                             $datos['exito'] = $acp->guardar([
@@ -235,22 +260,23 @@ class Ajuste_costo_promedio extends CI_Controller
                                 ]);
 
                                 $comentario = "El usuario {$nombreUsuario}, {$usuario->usrname}, realizó un ajuste en los costos de los artículos, ";
-                                $comentario.= "generando un ingreso automático No. {$ingreso->getPK()} y un egreso automático No. {$egreso->getPK()} ";
-                                $comentario.= "en la sede {$sede->nombre} ($sede->alias)";
+                                $comentario .= "generando un ingreso automático No. {$ingreso->getPK()} y un egreso automático No. {$egreso->getPK()} ";
+                                $comentario .= "en la sede {$sede->nombre} ($sede->alias)";
 
                                 $objBodega = $this->Bodega_model->buscar(['bodega' => $acp->bodega, '_uno' => true]);
 
-                                $comentario.= ($objBodega && $objBodega->descripcion ? " en la bodega {$objBodega->descripcion}" : "").".";
+                                $comentario .= ($objBodega && $objBodega->descripcion ? " en la bodega {$objBodega->descripcion}" : "") . ".";
 
                                 $bit->guardar([
                                     "accion" => $acc->accion,
-                                    "usuario" => $this->data->usuario,
+                                    "usuario" => $this->data->idusuario,
                                     "tabla" => 'ajuste_costo_promedio',
                                     "registro" => $acp->getPK(),
                                     "comentario" => $comentario
                                 ]);
 
                                 $datos['mensaje'] = 'El ajuste de costo promedio fue confirmado con éxito.';
+                                $datos['ajuste_costo_promedio'] = $this->Ajuste_costo_promedio_model->buscar(['ajuste_costo_promedio' => $acp->ajuste_costo_promedio, '_uno' => true]);
                             } else {
                                 $datos['mensaje'] = implode(';', $acp->getMensaje());
                             }
