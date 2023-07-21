@@ -73,8 +73,10 @@ class Usuario extends CI_Controller
         $acceso = $this->Acceso_model->buscar($args);
         foreach ($acceso as $row) {
             $tmp[$row->modulo]['nombre'] = $menu[$row->modulo]['nombre'];
+            $tmp[$row->modulo]['dispositivo'] = $menu[$row->modulo]['dispositivo'];
 
             $tmp[$row->modulo]['submodulo'][$row->submodulo]['nombre'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['nombre'];
+            $tmp[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'];
 
             $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = $menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
         }
