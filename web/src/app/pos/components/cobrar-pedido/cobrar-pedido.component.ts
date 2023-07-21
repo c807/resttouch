@@ -2,7 +2,7 @@ import { Component, Inject, Input, OnDestroy, OnInit, AfterViewInit } from '@ang
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL, isEmail, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '@shared/global';
+import { GLOBAL, isEmail, isNotNullOrUndefined, redondear, seleccionaDocumentoReceptor } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Base64 } from 'js-base64';
 import * as moment from 'moment';
@@ -112,9 +112,14 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     return false;
   }
 
+  get montoMaximoDescuento(): number {
+    return redondear(+this.inputData.totalDeCuenta * this.porcentajeMaximoDescuento, 2)    
+  }
+
   get excedeMontoMaximoDescuento(): boolean {
     if (this.porcentajeMaximoDescuento !== 0) {      
-      return +this.formaPago.monto > (+this.inputData.totalDeCuenta * this.porcentajeMaximoDescuento) || +this.formaPago.monto > +this.inputData.saldo ;
+      // console.log(`Monto: ${+this.formaPago.monto}; Total: ${+this.inputData.totalDeCuenta}; % max: ${this.porcentajeMaximoDescuento}; Saldo: ${+this.inputData.saldo}; Total * % max: ${this.montoMaximoDescuento}`);
+      return +this.formaPago.monto > this.montoMaximoDescuento || +this.formaPago.monto > +this.inputData.saldo ;
     }
     return false;
   }
