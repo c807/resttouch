@@ -37,6 +37,22 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     return this.ls.get(GLOBAL.usrTokenVar).idusr as number;
   }
 
+  get noSePuedeConfirmar(): boolean {
+    let noConfirmable = false;
+    if (this.detalleAjusteCostoPromedioOriginal.length === 0) {
+      return true;
+    }
+
+    for (const detalleacp of this.detalleAjusteCostoPromedioOriginal) {
+      if (!detalleacp || !detalleacp.costo_promedio_correcto || +detalleacp.costo_promedio_correcto <= 0) {
+        noConfirmable = true;
+        break;
+      }
+    }
+
+    return noConfirmable;
+  }
+
   @Input() ajusteCostoPromedio: AjusteCostoPromedio;
   @Output() ajusteCostoPromedioSavedEv = new EventEmitter();
   public detalleAjusteCostoPromedio: DetalleAjusteCostoPromedio[] = [];
@@ -63,18 +79,18 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     public dialog: MatDialog
   ) { }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
     this.resetAjusteCostoPromedio();
-    this.loadSedes();    
+    this.loadSedes();
   }
 
-  ngOnDestroy(): void {    
+  ngOnDestroy(): void {
     this.endSubs.unsubscribe();
   }
 
   loadSedes = (params: any = {}) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.sedeSrvc.getSedes(params).subscribe(res => {
         this.sedes = res;
       })
@@ -83,10 +99,10 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
 
   onSedeSelected = (obj: MatSelectChange) => {
     this.bodegas = [];
-    this.ajusteCostoPromedio.bodega = null;    
+    this.ajusteCostoPromedio.bodega = null;
     this.categorias = [];
-    this.categoriasGruposPadre = [];    
-    this.ajusteCostoPromedio.categoria_grupo = null;    
+    this.categoriasGruposPadre = [];
+    this.ajusteCostoPromedio.categoria_grupo = null;
     this.ajusteCostoPromedio.articulo = null;
     this.loadBodegas({ sede: +obj.value });
     this.loadCategorias({ sede: +obj.value });
@@ -94,7 +110,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   }
 
   loadBodegas = (params: any = {}) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.bodegaSrvc.get(params).subscribe(res => {
         this.bodegas = res;
       })
@@ -102,14 +118,14 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   }
 
   loadCategorias = (params: any = {}) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategorias(params).subscribe(res => {
         this.categorias = res;
       })
     );
   }
 
-  onCategoriaSelected = (obj: MatSelectChange) => {        
+  onCategoriaSelected = (obj: MatSelectChange) => {
     this.ajusteCostoPromedio.categoria_grupo = null;
     this.ajusteCostoPromedio.articulo = null;
     this.loadSubCategorias(+obj.value.categoria);
@@ -117,14 +133,14 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   };
 
   loadSubCategorias = (idcategoria: number) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.articuloSrvc.getCategoriasGrupos({ categoria: +idcategoria }).subscribe(res => {
-        this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);        
+        this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);
       })
     );
   }
 
-  subcategoriaSelectedEv = (obj: MatSelectChange) => {    
+  subcategoriaSelectedEv = (obj: MatSelectChange) => {
     this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);
     this.ajusteCostoPromedio.articulo = null;
   }
@@ -162,9 +178,9 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
           this.ajusteCostoPromedio = res.ajuste_costo_promedio as AjusteCostoPromedio;
           this.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
           this.ajusteCostoPromedioSavedEv.emit();
-          this.snackBar.open(res.mensaje, 'Ajuste de costo promedio', { duration: 5000 });
+          this.snackBar.open(res.mensaje, 'Ajuste', { duration: 5000 });
         } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste de costo promedio', { duration: 5000 });
+          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
         }
       })
     );
@@ -176,7 +192,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     }
 
     this.endSubs.add(
-      this.ajusteCostoPromedioSrvc.getDetalle({ ajuste_costo_promedio: idAjusteCostoPromedio }).subscribe((res) => {        
+      this.ajusteCostoPromedioSrvc.getDetalle({ ajuste_costo_promedio: idAjusteCostoPromedio }).subscribe((res) => {
         this.detalleAjusteCostoPromedioOriginal = res;
         this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(this.detalleAjusteCostoPromedioOriginal));
       })
@@ -185,34 +201,50 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
 
   applyFilter() {
     if (this.txtFiltro.length > 0) {
-      const tmpList = MultiFiltro(this.detalleAjusteCostoPromedioOriginal, this.txtFiltro);      
+      const tmpList = MultiFiltro(this.detalleAjusteCostoPromedioOriginal, this.txtFiltro);
       this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(tmpList));
     } else {
       this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(this.detalleAjusteCostoPromedioOriginal));
-    }    
+    }
   }
 
-  moveNextElement = (objKeybEv: KeyboardEvent, obj: DetalleAjusteCostoPromedio) => {        
-    this.endSubs.add(
-      this.ajusteCostoPromedioSrvc.saveDetalle(obj).subscribe((res) => {
-        if (res.exito) {
-          this.snackBar.open(res.mensaje, 'Detalle de ajuste de costo promedio', { duration: 3000 });
-        } else {
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Detalle de ajuste de costo promedio', { duration: 5000 });
-        }
-        const srcElem = objKeybEv.target as HTMLInputElement;
-        const idx = +srcElem.id.split('_')[1];
-        let nextElement = document.getElementById(`costoPromedioCorrecto_${idx + 1}`);    
-        if (nextElement) {
-          nextElement.focus();
-        } else {
-          nextElement = document.getElementById('costoPromedioCorrecto_0');
-          if (nextElement) {
-            nextElement.focus();
+  moveNextElement = (objKeybEv: KeyboardEvent) => {
+    const srcElem = objKeybEv.target as HTMLInputElement;
+    const idx = +srcElem.id.split('_')[1];
+    let nextElement = document.getElementById(`costoPromedioCorrecto_${idx + 1}`);
+    if (nextElement) {
+      nextElement.focus();
+    } else {
+      nextElement = document.getElementById('costoPromedioCorrecto_0');
+      if (nextElement) {
+        nextElement.focus();
+      }
+    }
+  }
+
+  saveDetalleAjusteCostoPromedio = (obj: DetalleAjusteCostoPromedio) => {
+    if (obj && obj.costo_promedio_correcto && +obj.costo_promedio_correcto > 0) {
+      this.endSubs.add(
+        this.ajusteCostoPromedioSrvc.saveDetalle(obj).subscribe((res) => {
+          if (res.exito) {
+            const resDetAcp = res.detalle_ajuste_costo_promedio as DetalleAjusteCostoPromedio;
+            let idx = this.detalleAjusteCostoPromedio.findIndex(d => +d.detalle_ajuste_costo_promedio === +obj.detalle_ajuste_costo_promedio);
+            if (idx >= 0) {
+              this.detalleAjusteCostoPromedio[idx].costo_promedio_correcto = +resDetAcp.costo_promedio_correcto;
+            }
+            idx = this.detalleAjusteCostoPromedioOriginal.findIndex(d => +d.detalle_ajuste_costo_promedio === +obj.detalle_ajuste_costo_promedio);
+            if (idx >= 0) {
+              this.detalleAjusteCostoPromedioOriginal[idx].costo_promedio_correcto = +resDetAcp.costo_promedio_correcto;
+            }
+            this.snackBar.open(res.mensaje, 'Ajuste', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
           }
-        }      
-      })
-    );
+        })
+      );
+    } else {
+      this.snackBar.open(`ERROR: El costo promedio correcto debe ser mayor a cero (0).`, 'Ajuste', { duration: 5000 });
+    }
   }
 
   confirmarAjusteCostoPromedio = () => {
@@ -227,16 +259,16 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
           this.endSubs.add(
             this.ajusteCostoPromedioSrvc.confirmar(this.ajusteCostoPromedio.ajuste_costo_promedio).subscribe((res) => {
               if (res.exito) {
-                this.ajusteCostoPromedio.confirmado = 1;
+                this.ajusteCostoPromedio = res.ajuste_costo_promedio as AjusteCostoPromedio;
                 this.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
-                this.snackBar.open(res.mensaje, 'Ajuste de costo promedio', { duration: 5000 });
+                this.snackBar.open(res.mensaje, 'Ajuste', { duration: 5000 });
               } else {
-                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste de costo promedio', { duration: 5000 });
-              }                          
-            })            
-          );          
+                this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
+              }
+            })
+          );
         }
       })
-    );    
+    );
   }
 }

@@ -318,7 +318,7 @@ class Guatefacturas
     {
 
         $datos = ['response' => $response];
-
+        
         $xmlRes = new DOMDocument();
         $xmlRes->validateOnParse = true;
         $xmlRes->loadXML($response);
@@ -367,6 +367,13 @@ class Guatefacturas
         ];
         $response = $gtfac->__soapCall($this->funcFirma, $parametros);
 
+        $response = str_replace('&', '&amp;', $response);
+        
+        $pos = strpos($response, 'version');
+        if ($pos === false) {
+            $response = "<?xml version='1.0'?>{$response}";
+        }
+
         $respuesta = $this->procesaResponse($response);
 
         return $respuesta;
@@ -387,7 +394,9 @@ class Guatefacturas
             'pMotivoAnulacion' => $motivoAnulacion,
         ];
 
-        $respuesta = $gtfac->__soapCall($this->funcAnula, $parametros);        
+        $respuesta = $gtfac->__soapCall($this->funcAnula, $parametros);
+
+        $respuesta = str_replace('&', '&amp;', $respuesta);
 
         $datos = ['response' => $respuesta, 'exito' => false];
 
