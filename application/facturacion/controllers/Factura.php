@@ -354,7 +354,7 @@ class Factura extends CI_Controller
 					$cer = $fac->getCertificador();
 					$funcion = $cer->metodo_anulacion;
 
-					if (!in_array($funcion, ['anularInfilePan', 'enviarGuatefacAnula'])) {
+					if (!in_array($funcion, ['anularInfilePan', 'enviarGuatefacAnula', 'anularInfileSv'])) {
 						$fac->procesarAnulacion($_POST);
 					}
 

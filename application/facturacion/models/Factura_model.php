@@ -2118,6 +2118,79 @@ class Factura_model extends General_model
 
 		return is_array($hijos) && count($hijos) > 0 ? array_merge($det, $hijos) : $det;
 	}
+
+	
+	public function enviarInfileSv()
+	{
+		$this->load->library("Felfacsv");
+
+		$lib = new Felfacsv();
+		$lib->set_factura($this);
+		$lib->set_serie($this->serie);
+		$lib->set_empresa($this->empresa);
+		$lib->set_receptor($this->receptor);
+		$lib->set_sede($this->sedeFactura);
+		$lib->set_certificador($this->getCertificador());
+		$lib->set_servicios($this->getDetalle([], true));
+		$lib->procesar_factura();
+		$respuesta = $lib->enviar();
+
+		$fel = $respuesta;
+
+		if ($respuesta->exito) {
+			$fel = $respuesta->fe;
+			
+			$data["fel_uuid"]       = $fel->respuesta->codigoGeneracion;
+			$data["numero_factura"] = $fel->respuesta->codigoGeneracion;
+			$data["serie_factura"]  = $this->serie->serie;
+
+			$this->guardar($data);
+		} else {
+			$this->setMensaje($respuesta->error);
+		}
+
+		return $fel;
+	}
+
+	public function anularInfileSv($motivo="")
+	{
+		$this->load->library("Felfacsv");
+
+		$comentario = "ERROR DE EMISIÓN";
+
+		if (!empty($motivo)) {
+			$comentario = $motivo;
+		}
+
+		$lib = new Felfacsv();
+		$lib->set_factura($this);
+		$lib->set_receptor($this->receptor);
+		$lib->set_empresa($this->empresa);
+		$lib->set_sede($this->sedeFactura);
+		$lib->set_certificador($this->getCertificador());
+		$respuesta = $lib->anular($comentario);
+
+		$fel = $respuesta;
+
+		if ($respuesta->exito) {
+			$fel = $respuesta->fe;
+			
+			$data["fel_uuid_anulacion"] = $fel->respuesta->codigoGeneracion;
+			$this->guardar($data);
+		} else {
+			$this->setMensaje($respuesta->error);
+		}
+
+		return $fel;
+	}
+
+	public function pdfInfileSv()
+	{
+		return [
+			"documento" => "{$this->certificador->vinculo_grafo}{$this->fel_uuid}&formato=pdf",
+			"tipo"      => "link"
+		];
+	}
 }
 
 /* End of file Factura_model.php */
