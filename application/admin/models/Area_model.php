@@ -10,6 +10,7 @@ class Area_model extends General_Model {
 	public $impresora;
 	public $impresora_factura = 0;
 	public $escallcenter = 0;
+	public $mesas_fila_area = 3;
 
 	public function __construct($id = "")
 	{
