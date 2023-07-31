@@ -569,7 +569,13 @@ class Articulo_model extends General_model
 		}
 
 		if (isset($args['descripcion'])) {
-			$this->db->where('TRIM(a.descripcion)', trim($args['descripcion']));
+			if (isset($args['_tolower']) && $args['_tolower']) {
+				$this->db->where('TRIM(LOWER(a.descripcion))', trim(strtolower($args['descripcion'])));
+			} else if (isset($args['_toupper']) && $args['_toupper']) {
+				$this->db->where('TRIM(UPPER(a.descripcion))', trim(strtoupper($args['descripcion'])));
+			} else {
+				$this->db->where('TRIM(a.descripcion)', trim($args['descripcion']));
+			}
 		}
 
 		if (isset($args['mostrar_pos'])) {
