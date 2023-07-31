@@ -685,7 +685,7 @@ class Articulo extends CI_Controller
 				if ($row != 0) {
 					if (!empty(trim($col[0]))) {
 						$entidad['descripcion'] = trim($col[0]);
-						$result = $this->Categoria_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+						$result = $this->Categoria_model->buscar(['sede' => $entidad['sede'],'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
 						if (!$result) {
 							$categoria = new Categoria_model();
 							$categoria->guardar($entidad);
@@ -795,12 +795,13 @@ class Articulo extends CI_Controller
 
 	private function procesa_recetas($sheet_data = [])
 	{
+		$sede = (int)$this->data->sede;
 		$art = new Articulo_model();
 		foreach ($sheet_data as $row => $col) {
 			if ($row != 0) {
-				$receta = $art->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[0]), '_uno' => true]);
+				$receta = $art->buscarArticulo(['sede' => $sede, 'descripcion' => $col[0], '_tolower' => true]);
 				if ($receta) {
-					$articulo = $art->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[1]), '_uno' => true]);
+					$articulo = $art->buscarArticulo(['sede' => $sede, 'descripcion' => $col[1], '_tolower' => true]);
 					if ($articulo) {
 						$medida = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[3]), '_uno' => true]);
 						if ($medida) {
