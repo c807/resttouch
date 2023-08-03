@@ -346,7 +346,7 @@ class Api extends CI_Controller
 														//Inicia fix para los descuentos que son por monto fijo. JA 20/08/2020.
 														if (isset($req['discount_codes']) && is_array($req['discount_codes'])) {
 															foreach ($req['discount_codes'] as $desc) {
-																$tipos = ['fixed_amount', 'shipping'];
+																$tipos = ['fixed_amount', 'shipping', 'percentage'];
 																if (in_array(strtolower($desc['type']), $tipos)) {
 																	$descuento += $desc['amount'];
 																	//$pdescuento += $desc['amount'];
