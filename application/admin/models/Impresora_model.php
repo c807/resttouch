@@ -32,6 +32,17 @@ class Impresora_model extends General_model {
 		$this->db->update('impresora');
 	}
 
+	public function get_lista($args = [])
+	{
+		$campos = $this->getCampos(false, '', 'impresora');
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('sede', $args['sede']);
+		}
+
+		return $this->db->select($campos)->get('impresora')->result();
+	}
+
 }
 
 /* End of file Impresora_model.php */

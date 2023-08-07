@@ -19,4 +19,10 @@ class Estatus_callcenter_model extends General_model {
 			$this->cargar($id);
 		}
 	}
+
+	public function get_lista()
+	{
+		$campos = $this->getCampos(false, '', 'estatus_callcenter');
+		return $this->db->select($campos)->get('estatus_callcenter')->result();
+	}
 }

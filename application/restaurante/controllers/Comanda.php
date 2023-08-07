@@ -30,7 +30,10 @@ class Comanda extends CI_Controller
 			'Tipo_usuario_cgrupo_model',
 			'Accion_model',
 			'BodegaArticuloCosto_model',
-			'Reserva_model'
+			'Reserva_model',
+			'Tipo_domicilio_model',
+			'Estatus_callcenter_model',
+			'Sede_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -100,12 +103,13 @@ class Comanda extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	private function join_accounts($cuentaDe, $cuentaA) {
+	private function join_accounts($cuentaDe, $cuentaA)
+	{
 		$deCuenta = new Cuenta_model($cuentaDe);
 		$aCuenta = new Cuenta_model($cuentaA);
 		$datos = ['exito' => false];
 		if ($deCuenta->cerrada == 0) {
-			if ($aCuenta->cerrada == 0) {				
+			if ($aCuenta->cerrada == 0) {
 				$detOrigen = $deCuenta->get_plain_detalle_cuenta();
 				if (count($detOrigen) > 0) {
 					foreach ($detOrigen as $do) {
@@ -167,11 +171,11 @@ class Comanda extends CI_Controller
 					if ($todasCuentasCerradas) {
 						$e1 = $cmd->guardar(['estatus' => 2]); // Cierra la comanda
 						if (!$e1) {
-							$datos['mensaje'] = "{$datos['mensaje']}. ".implode(';', $cmd->getMensaje());
+							$datos['mensaje'] = "{$datos['mensaje']}. " . implode(';', $cmd->getMensaje());
 						}
 						$e2 = $mesaOrigen->guardar(['estatus' => 1]); // Libera la mesa de origen
 						if (!$e2) {
-							$datos['mensaje'] = "{$datos['mensaje']}. ".implode(';', $mesaOrigen->getMensaje());
+							$datos['mensaje'] = "{$datos['mensaje']}. " . implode(';', $mesaOrigen->getMensaje());
 						}
 					}
 				} else {
@@ -477,14 +481,22 @@ class Comanda extends CI_Controller
 
 	function get_comanda($mesa = '')
 	{
-		$this->load->helper(['jwt', 'authorization']);
+		$this->load->helper(['jwt', 'authorization', 'api']);		
 		$headers = $this->input->request_headers();
 		$data = AUTHORIZATION::validateToken($headers['Authorization']);
 
 		$datos = [];
 
+		$lstAreas = $this->Area_model->get_lista();
+		$lstImpresoras = $this->Impresora_model->get_lista();
+		$lstImpresorasSede = $this->Impresora_model->get_lista(['sede' => $data->sede]);
+		$lstTipoDomicilio = $this->Tipo_domicilio_model->get_lista();
+		$lstEstatusCallCenter = $this->Estatus_callcenter_model->get_lista();
+		$urlBaseWs = get_url_websocket();
+		// $sede_uuid = $this->Sede_model->get_sede_uuid($data->sede);
+
 		if (empty($mesa)) {
-			ini_set('memory_limit', '512M');
+			// ini_set('memory_limit', '512M');
 			$params = ['domicilio' => 1, 'sede' => $data->sede];
 
 			if (isset($_GET['callcenter'])) {
@@ -492,9 +504,18 @@ class Comanda extends CI_Controller
 			}
 
 			$tmp = $this->Comanda_model->getComandas($params);
-			foreach ($tmp as $row) {
+			foreach ($tmp as $row) {				
 				$comanda = new Comanda_model($row->comanda);
-				$datos[] = $comanda->getComanda(['_usuario' => $data->idusuario]);
+				$item = $comanda->getComanda([
+					'_usuario' => $data->idusuario,
+					'_lstAreas' => $lstAreas,
+					'_lstImpresoras' => $lstImpresoras,
+					'_lstTipoDomicilio' => $lstTipoDomicilio,
+					'_lstEstatusCallCenter' => $lstEstatusCallCenter,
+					'_lstImpresorasSede' => $lstImpresorasSede
+				]);
+				$datos[] = $item;
+				// $res = json_decode(post_request("{$urlBaseWs}/api/updcmdenlinea", json_encode(['sede_uuid' => $sede_uuid, 'comanda' => $item])));
 			}
 		} else {
 			$mesa = new Mesa_model($mesa);
@@ -505,12 +526,16 @@ class Comanda extends CI_Controller
 				$comanda->comandaenuso = 0;
 
 				$_GET['_usuario'] = $data->idusuario;
+				$_GET['_lstAreas'] = $lstAreas;
+				$_GET['_lstImpresoras'] = $lstImpresoras;
+				$_GET['_lstTipoDomicilio'] = $lstTipoDomicilio;
+				$_GET['_lstEstatusCallCenter'] = $lstEstatusCallCenter;
+				$_GET['_lstImpresorasSede'] = $lstImpresorasSede;
 
-				// $datos = $comanda->getComanda(['_usuario' => $data->idusuario]);
 				$datos = $comanda->getComanda($_GET);
 				$datos->exito = true;
 			} else if ($this->input->get('qr')) {
-				$com = new Comanda_model();
+				// $com = new Comanda_model();
 				$config = $this->Configuracion_model->buscar();
 				$mesero = get_configuracion($config, 'RT_MESERO_POR_DEFECTO', 1);
 
@@ -523,20 +548,26 @@ class Comanda extends CI_Controller
 					'mesa' => $mesa->getPK()
 				]);
 				if ($res['exito']) {
-					$this->load->helper('api');
+					// $this->load->helper('api');
 					$tmp = $mesa->get_comanda(['estatus' => 1, 'sede' => $data->sede]);
 					$comanda = new Comanda_model($tmp->comanda);
 					$comanda->comandaenuso = 0;
 
-					$datos = $comanda->getComanda(['_usuario' => $data->idusuario]);
+					$datos = $comanda->getComanda([
+						'_usuario' => $data->idusuario,
+						'_lstAreas' => $lstAreas,
+						'_lstImpresoras' => $lstImpresoras,
+						'_lstTipoDomicilio' => $lstTipoDomicilio,
+						'_lstEstatusCallCenter' => $lstEstatusCallCenter,
+						'_lstImpresorasSede' => $lstImpresorasSede
+					]);
 					$datos->exito = true;
-					$urlBaseWs = get_url_websocket();					
+					// $urlBaseWs = get_url_websocket();
 					$updlst = json_decode(get_request("{$urlBaseWs}/api/updlstareas", []));
 					$datos->msgws = $updlst;
 				}
-			}
+			}			
 		}
-
 		$this->output->set_output(json_encode($datos));
 	}
 

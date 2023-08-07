@@ -46,9 +46,13 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
 
   get audioUrl() {
     const nombreAudio = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_AUDIO_NOTIFICACION) || 'notificacion.wav';
-    const urlAudio = `${GLOBAL.sonidos_rt}/${nombreAudio}`;    
+    const urlAudio = `${GLOBAL.sonidos_rt}/${nombreAudio}`;
     return urlAudio;
-  }  
+  }
+
+  get sedeActual(): string {
+    return (this.ls.get(GLOBAL.usrTokenVar).sede_uuid || '') as string;
+  }
 
   @ViewChild('tblPedidos') tblPedidos: MatTable<any[]>;
   @ViewChild('audioNotificacion') audioNotificacion: ElementRef;
@@ -60,7 +64,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
   public lstEstatusCallCenter: EstatusCallcenter[] = [];
   public ingresoPedidoNuevo = false;
   public intentosDeFirmarTodo = 0;
-  
+
   private endSubs = new Subscription();
 
   constructor(
@@ -116,11 +120,30 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         this.loadComandasEnLinea();
         this.snackBar.open(`ERROR: ${mensaje}`, 'Firmar', { duration: 10000 });
       });
+
+      // this.socket.on('callcenter:updcmdenlinea', (obj: any) => {
+      //   if (obj.sede_uuid === this.sedeActual) {
+      //     if (obj.comanda) {
+      //       // console.log(obj);
+      //       this.comandasEnLinea.push(obj.comanda);
+      //       // this.dataSource = [...this.comandasEnLinea];
+      //       this.dataSource.push(obj.comanda);
+      //       try {
+      //         this.tblPedidos.renderRows();
+      //       } catch (err) {
+
+      //       } finally {
+      //         this.autoImprimir();
+      //       }
+      //     }
+      //   }
+      // });
     }
 
     this.loadEstatusCallCenter();
-    this.loadComandasEnLinea();
-  }  
+    // this.loadComandasEnLinea();
+    setTimeout(() => this.loadComandasEnLinea(), 500);
+  }
 
   avisoSocketIOEvent = (aviso: string = '') => {
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
@@ -139,10 +162,10 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         dir: 'auto'
       };
       this.dns.createNotification('Rest-Touch Pro', 10000, opciones);
-    } catch(e) {      
+    } catch (e) {
       console.log(e);
     } finally {
-      if(this.audioNotificacion.nativeElement.paused) {
+      if (this.audioNotificacion.nativeElement.paused) {
         // this.audioNotificacion.nativeElement.play().then(() => {}).catch((e) => { console.log(e); });
       }
     }
@@ -184,7 +207,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
       this.loadComandasEnLinea();
     } else if (this.intentosDeFirmarTodo > 5) {
       this.snackBar.dismiss();
-      this.snackBar.open('Se intentó firmar automáticamente más de 5 veces y no se logró. Si dese intentar de nuevo, por favor refresque la página con CTRL + SHIFT + R.', 'Facturación', { duration: 10000 });      
+      this.snackBar.open('Se intentó firmar automáticamente más de 5 veces y no se logró. Si dese intentar de nuevo, por favor refresque la página con CTRL + SHIFT + R.', 'Facturación', { duration: 10000 });
     }
   }
 
@@ -192,7 +215,7 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.comandaSrvc.getComandasOnLIne({ callcenter: 1 }).subscribe((res: any[]) => {
         this.comandasEnLinea = res;
-        this.dataSource = this.comandasEnLinea;
+        this.dataSource = [...this.comandasEnLinea];
         this.autoImprimir();
       })
     );
@@ -241,5 +264,5 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     }
     this.snackBar.open(res.mensaje, 'Facturación', { duration: (res.exito ? 3000 : 10000) });
   }
-    
+
 }

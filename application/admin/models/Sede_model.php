@@ -36,6 +36,24 @@ class Sede_model extends General_model {
 	{
 		return new Empresa_model($this->empresa);
 	}
+
+	public function get_sede_uuid($idSede = null)
+	{
+		if(empty($idSede))
+		{
+			$idSede = $this->getPK();
+		}
+
+		$valor = $this->db
+			->select('CONCAT(c.admin_llave, "-",b.empresa, "-", a.sede) AS sede_uuid')
+			->join('empresa b', 'b.empresa = a.empresa')
+			->join('corporacion c', 'c.corporacion = b.corporacion')
+			->where('a.sede', $idSede)
+			->get('sede a')
+			->row();
+
+		return $valor && $valor->sede_uuid ? $valor->sede_uuid : '';
+	}
 }
 
 /* End of file Sede_model.php */
