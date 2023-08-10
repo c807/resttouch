@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { GLOBAL, isNotNullOrUndefined, seleccionaDocumentoReceptor } from '@shared/global';
+import { GLOBAL, isNotNullOrUndefined, redondear, seleccionaDocumentoReceptor } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
 import { Base64 } from 'js-base64';
@@ -396,21 +396,27 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
 
     if (edu === 1 && descripcionUnica) {
       let total = 0;
+      let totalSinDescuento = 0;
       for (const det of detalle) {
         total += +det.total;
+        totalSinDescuento += +det.total + +det.descuento;
       }
       detFact.push({
         Cantidad: 1,
         Descripcion: descripcionUnica,
         Total: total,
-        PrecioUnitario: total
+        PrecioUnitario: total,
+        TotalSinDescuento: redondear(totalSinDescuento),
+        PrecioUnitarioSinDescuento: redondear(totalSinDescuento)
       });
     } else {
       detalle.forEach(d => detFact.push({
         Cantidad: parseInt(d.cantidad),
         Descripcion: d.articulo.descripcion,
         Total: +d.total,
-        PrecioUnitario: +d.precio_unitario
+        TotalSinDescuento: redondear(+d.total + +d.descuento),
+        PrecioUnitario: +d.precio_unitario,
+        PrecioUnitarioSinDescuento: redondear(+d.precio_unitario)
       }));
     }
 
@@ -429,12 +435,19 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     return suma;
   }
 
+  getTotalDescuento = (detalle: any[]): number => {
+    let suma = 0.00;
+    detalle.forEach(d => suma += +d.descuento);
+    return suma;
+  }
+
   imprimirFactura = () => {
     // console.log(this.factura);
     this.cargando = true;
     this.facturaSrvc.imprimir(+this.factura.factura).subscribe(res => {
       if (res.factura) {
         // console.log(res.factura);
+        const totalDeDescuento = this.getTotalDescuento(res.factura.detalle);
         const datosAImprimir = {
           IdFactura: +res.factura.factura,
           NombreEmpresa: res.factura.empresa.nombre,
@@ -448,6 +461,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
           Serie: res.factura.serie_factura,
           Numero: res.factura.numero_factura,
           Total: this.getTotalDetalle(res.factura.detalle) + this.getTotalImpuestosAdicionales((res.factura.impuestos_adicionales || [])),
+          TotalSinDescuento: 0,
           NoAutorizacion: res.factura.fel_uuid,
           NombreCertificador: res.factura.certificador_fel.nombre,
           NitCertificador: res.factura.certificador_fel.nit,
@@ -460,8 +474,13 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
           EsReimpresion: true,
           Comanda: res.factura.comanda || 0,
           Cuenta: res.factura.cuenta || 0,
-          DatosComanda: res.factura.datos_comanda || null
+          DatosComanda: res.factura.datos_comanda || null,
+          TotalDescuento: redondear(totalDeDescuento)
         };
+
+        datosAImprimir.TotalSinDescuento = redondear(+datosAImprimir.Total + totalDeDescuento);
+
+        // console.log(datosAImprimir);
 
         if (this.impresoraPorDefecto) {
           if (+this.impresoraPorDefecto.bluetooth === 0) {

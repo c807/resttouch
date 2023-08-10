@@ -174,7 +174,7 @@ export const OrdenarArrayObjetos = (objs: any[], campo: string, tipo = 2) => {
 
 export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-export const redondear = (numero: number, decimalPlaces: number) => {
+export const redondear = (numero: number, decimalPlaces: number = 2) => {
   const factor = Math.pow(10, decimalPlaces);
   return Math.round((numero + Number.EPSILON) * factor) / factor;
 }

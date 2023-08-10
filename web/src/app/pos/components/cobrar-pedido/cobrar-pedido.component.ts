@@ -629,21 +629,27 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (edu === 1 && descripcionUnica) {
       let total = 0;
+      let totalSinDescuento = 0;
       for (const det of detalle) {
         total += +det.total;
+        totalSinDescuento += +det.total + +det.descuento;
       }
       detFact.push({
         Cantidad: 1,
         Descripcion: descripcionUnica,
         Total: total,
-        PrecioUnitario: total
+        PrecioUnitario: total,
+        TotalSinDescuento: redondear(totalSinDescuento),
+        PrecioUnitarioSinDescuento: redondear(totalSinDescuento)
       });
     } else {
       detalle.forEach(d => detFact.push({
         Cantidad: parseInt(d.cantidad),
         Descripcion: d.articulo.descripcion,
         Total: +d.total + (esRecibo ? +d.monto_extra : 0),
-        PrecioUnitario: (!!d.precio_unitario ? +d.precio_unitario : +d.precio) + (esRecibo ? +d.monto_extra : 0)
+        TotalSinDescuento: redondear((+d.total + (esRecibo ? +d.monto_extra : 0)) + +d.descuento),
+        PrecioUnitario: (!!d.precio_unitario ? +d.precio_unitario : +d.precio) + (esRecibo ? +d.monto_extra : 0),
+        PrecioUnitarioSinDescuento: redondear((!!d.precio_unitario ? +d.precio_unitario : +d.precio) + (esRecibo ? +d.monto_extra : 0))
       }));
     }
 
@@ -662,6 +668,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     return suma;
   }
 
+  getTotalDescuento = (detalle: any[]): number => {
+    let suma = 0.00;
+    detalle.forEach(d => suma += +d.descuento);
+    return suma;
+  }
+
   printFactura = (factura: any, cuenta: any = null) => {
     // console.log('FACTURA = ', factura);
     this.endSubs.add(
@@ -670,6 +682,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
           // console.log('FACTURA = ', res.factura);
           // console.log('CUENTA = ', cuenta);
           // console.log('MESA = ', this.data.mesaenuso);
+          const totalDeDescuento = this.getTotalDescuento(res.factura.detalle);
           const msgToPrint = {
             IdFactura: +res.factura.factura || 0,
             NombreEmpresa: res.factura.empresa.nombre,
@@ -683,6 +696,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             Serie: res.factura.serie_factura,
             Numero: res.factura.numero_factura,
             Total: this.getTotalDetalle(res.factura.detalle) + this.getTotalImpuestosAdicionales((res.factura.impuestos_adicionales || [])),
+            TotalSinDescuento: 0,
             NoAutorizacion: res.factura.fel_uuid,
             NombreCertificador: res.factura.certificador_fel.nombre,
             NitCertificador: res.factura.certificador_fel.nit,
@@ -695,8 +709,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             EsReimpresion: false,
             Comanda: +cuenta.comanda || 0,
             Cuenta: +cuenta.cuenta || 0,
-            DatosComanda: res.factura.datos_comanda || null
+            DatosComanda: res.factura.datos_comanda || null,
+            TotalDescuento: redondear(totalDeDescuento)
           };
+          msgToPrint.TotalSinDescuento = redondear(+msgToPrint.Total + totalDeDescuento);
+
+          // console.log('FACTURA = ', msgToPrint);
 
           if (!!this.data.impresora) {
             if (+this.data.impresora.bluetooth === 0) {

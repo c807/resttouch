@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Socket } from 'ngx-socket-io';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, redondear } from '@shared/global';
 import * as moment from 'moment';
 
 import { Impresion } from '@restaurante-classes/impresion';
@@ -308,6 +308,7 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       Serie: fact.serie_factura,
       Numero: fact.numero_factura,
       Total: 0.00,
+      TotalSinDescuento: 0,
       NoAutorizacion: fact.fel_uuid,
       NombreCertificador: fact.certificador_fel.nombre,
       NitCertificador: fact.certificador_fel.nit,
@@ -318,7 +319,8 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
       Comanda: comanda.comanda || 0,
       Cuenta: comanda.cuentas[0].cuenta || 0,
       DatosComanda: fact.datos_comanda || null,
-      Impresora: (null as Impresora)
+      Impresora: (null as Impresora),
+      TotalDescuento: 0
     };
 
     for (const det of fact.detalle) {
@@ -326,10 +328,17 @@ export class AccionesComandaEnLineaComponent implements OnInit, OnDestroy {
         Cantidad: parseInt(det.cantidad),
         Descripcion: det.articulo.descripcion,
         Total: parseFloat(det.total),
-        PrecioUnitario: +det.precio_unitario
+        TotalSinDescuento: redondear(+det.total + +det.descuento),
+        PrecioUnitario: +det.precio_unitario,
+        PrecioUnitarioSinDescuento: redondear(+det.precio_unitario)
       });
       dataToPrint.Total += parseFloat(det.total);
+      dataToPrint.TotalSinDescuento += +det.total + +det.descuento;
+      dataToPrint.TotalDescuento = +det.descuento;
     }
+
+    dataToPrint.TotalSinDescuento = redondear(dataToPrint.TotalSinDescuento);
+    dataToPrint.TotalDescuento = redondear(dataToPrint.TotalDescuento);
 
     if (this.impresoraPorDefectoFactura || this.impresoraPorDefecto) {
       dataToPrint.Impresora = this.impresoraPorDefectoFactura || this.impresoraPorDefecto;
