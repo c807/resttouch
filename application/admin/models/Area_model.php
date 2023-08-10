@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Area_model extends General_Model {
+class Area_model extends General_Model
+{
 
 	public $area;
 	public $sede;
@@ -17,20 +18,27 @@ class Area_model extends General_Model {
 		parent::__construct();
 		$this->setTabla("area");
 
-		if(!empty($id)) {
+		if (!empty($id)) {
 			$this->cargar($id);
 		}
 	}
 
-	public function get_mesas($verDeBaja = false) {
+	public function get_mesas($verDeBaja = false)
+	{
 		if (!$verDeBaja) {
 			$this->db->where('debaja', 0);
 		}
 
 		return $this->db
-					->where("area", $this->area)
-					->get("mesa")
-					->result();
+			->where("area", $this->area)
+			->get("mesa")
+			->result();
+	}
+
+	public function get_lista()
+	{
+		$campos = $this->getCampos(false, '', 'area');
+		return $this->db->select($campos)->get('area')->result();
 	}
 }
 

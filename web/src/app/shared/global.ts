@@ -36,7 +36,7 @@ export const GLOBAL = {
   rtTipoDomicilio: 'rt_tipo_domicilio',
   rtDireccionEntrega: 'rt_direccion_entrega',
   rtClienteFactura: 'rt_cliente_factura',
-  usrLastModuleVar: 'rtlastmodule',
+  usrLastModuleVar: 'rtlastmodule',  
   reintentos: 0,
   IDIOMA_TECLADO: 'Español',
   DEEP_LINK_ANDROID: 'intent://scan/impresion/__INFOBASE64__#Intent;scheme=restouch;package=com.restouch.impresion;end',

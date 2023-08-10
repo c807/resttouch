@@ -521,13 +521,16 @@ class Comanda_model extends General_Model
 
     public function getCuentas($args = [])
     {
+        $campos = $this->getCampos(false, '', 'cuenta');
+
         if (isset($args['_cuenta'])) {
             $this->db->where('cuenta', $args['_cuenta']);
         }
         $cuentas = [];
         $tmp = $this->db
-            ->where("comanda", $this->comanda)
-            ->get("cuenta")
+            ->select($campos)
+            ->where('comanda', $this->comanda)
+            ->get('cuenta')
             ->result();
 
         foreach ($tmp as $row) {
@@ -555,14 +558,9 @@ class Comanda_model extends General_Model
 
     public function getTurno()
     {
+        $campos = $this->getCampos(false, 't.', 'turno');
         return $this->db
-            ->select("
-		a.comanda,
-		a.usuario,
-		a.sede,
-		a.estatus,
-		a.domicilio,
-		t.*")
+            ->select("a.comanda, a.usuario, a.sede, a.estatus, a.domicilio, {$campos}")
             ->where("a.comanda", $this->comanda)
             ->join("turno t", "a.turno = t.turno")
             ->get("comanda a")
@@ -577,6 +575,40 @@ class Comanda_model extends General_Model
         return $this->db->select('estatus_callcenter, descripcion, color, orden, pedir_repartidor, esultimo')->where('estatus_callcenter', $idEstatusCC)->get("estatus_callcenter")->row();
     }
 
+    private function buscar_en_lista($lista, $campo, $valor, $single = true, $asNumero = true)
+    {
+        $objeto = [];
+
+        if ($asNumero && !is_numeric($valor)) {
+            $valor = '0';
+        }
+
+        foreach($lista as $item) {
+            if (is_object($item)) {
+                if ($asNumero && is_numeric($item->$campo) && is_numeric($valor)) {
+                    if ((int)$item->$campo === (int)$valor) {
+                        $objeto[] = clone $item;
+                    }
+                } else {
+                    if ($item->$campo == $valor) {
+                        $objeto[] = clone $item;
+                    }
+                }
+            } else if (is_array($item)) {
+                if($asNumero && is_numeric($item[$campo]) && is_numeric($valor)) {
+                    if ((int)$item[$campo] === (int)$valor) {
+                        $objeto[] = clone $item;
+                    }
+                } else {
+                    if ($item[$campo] == $valor) {
+                        $objeto[] = clone $item;
+                    }
+                }
+            }
+        }
+        return $single ? (count($objeto) > 0 ? $objeto[0] : null) : $objeto;
+    }
+
     public function getComanda($args = [])
     {
         $tmp = $this->getTurno();
@@ -584,11 +616,23 @@ class Comanda_model extends General_Model
         $tmp->orden_gk = $this->orden_gk;
 
         if ($mesa) {
-            $area = $this->Area_model->buscar(["area" => $mesa->area, "_uno" => true]);
-            $area->impresora = $this->Impresora_model->buscar(['impresora' => $area->impresora, "_uno" => true]);
-            $area->impresora_factura = $this->Impresora_model->buscar(['impresora' => $area->impresora_factura, "_uno" => true]);
+            $area = new stdClass();
+            if (isset($args['_lstAreas']) && is_array($args['_lstAreas']) && count($args['_lstAreas']) > 0) {
+                $area = $this->buscar_en_lista($args['_lstAreas'], 'area', $mesa->area);
+            } else {
+                $area = $this->Area_model->buscar(['area' => $mesa->area, '_uno' => true]);
+            }
+
+            if (isset($args['_lstImpresoras']) && is_array($args['_lstImpresoras']) && count($args['_lstImpresoras']) > 0) {
+                $area->impresora = $this->buscar_en_lista($args['_lstImpresoras'], 'impresora', $area->impresora);
+                $area->impresora_factura = $this->buscar_en_lista($args['_lstImpresoras'], 'impresora', $area->impresora_factura);
+                $mesa->impresora = $this->buscar_en_lista($args['_lstImpresoras'], 'impresora', $mesa->impresora);
+            } else {
+                $area->impresora = $this->Impresora_model->buscar(['impresora' => $area->impresora, "_uno" => true]);
+                $area->impresora_factura = $this->Impresora_model->buscar(['impresora' => $area->impresora_factura, "_uno" => true]);
+                $mesa->impresora = $this->Impresora_model->buscar(['impresora' => $mesa->impresora, "_uno" => true]);
+            }
             $mesa->area = $area;
-            $mesa->impresora = $this->Impresora_model->buscar(['impresora' => $mesa->impresora, "_uno" => true]);
             $tmp->mesa = $mesa;
         }
         $buscar = $args;
@@ -636,7 +680,8 @@ class Comanda_model extends General_Model
         $tmp->turno_rol = [];
 
         if (isset($args["_usuario"])) {
-            foreach ($turno->getUsuarios() as $row) {
+            $usuariosTurno = $turno->getUsuarios(['usuario' => $args["_usuario"]]);
+            foreach ($usuariosTurno as $row) {
                 if ($row->usuario->usuario == $args["_usuario"]) {
                     $tmp->turno_rol[] = $row->usuario_tipo->descripcion;
                 }
@@ -649,10 +694,22 @@ class Comanda_model extends General_Model
             $args['_totalCero'] = true;
         }
 
-        $tmp->impresora_defecto = $this->db->where('sede', $this->sede)->where('pordefecto', 1)->get('impresora')->row();
-        $tmp->impresora_defecto_cuenta = $this->db->where('sede', $this->sede)->where('pordefectocuenta', 1)->get('impresora')->row();
-        $tmp->impresora_defecto_factura = $this->db->where('sede', $this->sede)->where('pordefectofactura', 1)->get('impresora')->row();
-        $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
+        if (isset($args['_lstImpresorasSede']) && is_array($args['_lstImpresorasSede']) && count($args['_lstImpresorasSede']) > 0) {
+            $tmp->impresora_defecto = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefecto', '1');
+            $tmp->impresora_defecto_cuenta = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefectocuenta', '1');
+            $tmp->impresora_defecto_factura = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefectofactura', '1');
+        } else {
+            $tmp->impresora_defecto = $this->db->where('sede', $this->sede)->where('pordefecto', 1)->get('impresora')->row();
+            $tmp->impresora_defecto_cuenta = $this->db->where('sede', $this->sede)->where('pordefectocuenta', 1)->get('impresora')->row();
+            $tmp->impresora_defecto_factura = $this->db->where('sede', $this->sede)->where('pordefectofactura', 1)->get('impresora')->row();
+        }        
+
+        if (isset($args['_lstTipoDomicilio']) && is_array($args['_lstTipoDomicilio']) && count($args['_lstTipoDomicilio']) > 0) {
+            $tmp->tipo_domicilio = $this->buscar_en_lista($args['_lstTipoDomicilio'], 'tipo_domicilio', $this->tipo_domicilio);
+        } else {
+            $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
+        }
+
         $tmp->cuentas = $this->getCuentas($args);
         $tmp->factura = $this->getFactura();
         $tmp->datos_facturacion = ($tmp->factura && isset($tmp->factura->cliente) && (int)$tmp->factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $tmp->factura->cliente)->get('cliente')->row() : null;
@@ -660,7 +717,12 @@ class Comanda_model extends General_Model
         $tmp->fhcreacion = empty($tmp->origen_datos['fhcreacion']) ? $this->fhcreacion : $tmp->origen_datos['fhcreacion'];
         $tmp->numero_pedido = $this->numero_pedido;
         $tmp->notas_generales = $this->notas_generales;
-        $estatusCC = $this->get_estatus_callcenter();
+        $estatusCC = null;
+        if (isset($args['_lstEstatusCallCenter']) && is_array($args['_lstEstatusCallCenter']) && count($args['_lstEstatusCallCenter']) > 0) {
+            $estatusCC = $this->buscar_en_lista($args['_lstEstatusCallCenter'], 'estatus_callcenter', ((int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : '0'));
+        } else {
+            $estatusCC = $this->get_estatus_callcenter();        
+        }        
         $tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
         $tmp->formas_pago = $this->get_forma_pago();
         $tmp->abonado = $this->get_monto_abonado_comanda();
@@ -692,29 +754,41 @@ class Comanda_model extends General_Model
         $this->db
             ->select('a.comanda')
             ->from('comanda a')
-            ->join('turno t', 'a.turno = t.turno')
+            ->join('turno t', 't.turno = a.turno')
             ->where('t.sede', $args['sede'])
             ->group_by('a.comanda');
 
         if (isset($args['domicilio']) || isset($args['cocinado'])) {
             if (!isset($args['callcenter'])) {
-                $this->db->where('f.fel_uuid is null');
+                // $this->db->where('f.fel_uuid is null');
+                $this->db->where('y.fel_uuid is null');
             }
 
             if (isset($args['callcenter'])) {
                 // $this->db->select('f.fel_uuid');
                 $this->db->join('estatus_callcenter h', 'h.estatus_callcenter = a.estatus_callcenter', 'left');
                 $this->db->where('(h.esultimo IS NULL or h.esultimo = 0)');
-                $this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid_anulacion IS NULL AND (f.fel_uuid IS NULL OR f.fel_uuid IS NOT NULL)))');
+                // $this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid_anulacion IS NULL AND (f.fel_uuid IS NULL OR f.fel_uuid IS NOT NULL)))');
+                // $this->db->where('IF(h.estatus_callcenter IS NULL, f.fel_uuid IS NULL, (f.fel_uuid_anulacion IS NULL AND f.fel_uuid IS NULL))');
+                $this->db->join('cuenta k', 'a.comanda = k.comanda');
+                $this->db->where('IF(h.estatus_callcenter IS NULL, y.fel_uuid IS NULL, (h.estatus_callcenter NOT IN(9) AND y.fel_uuid_anulacion IS NULL AND (y.fel_uuid IS NULL OR y.fel_uuid IS NOT NULL)))');
             }
+
+            $subquery = 'SELECT z.comanda, z.cuenta, f.fel_uuid, f.fel_uuid_anulacion ';
+            $subquery.= 'FROM factura f INNER JOIN detalle_factura e ON f.factura = e.factura ';
+            $subquery.= 'LEFT JOIN detalle_factura_detalle_cuenta d ON e.detalle_factura = d.detalle_factura ';
+            $subquery.= 'LEFT JOIN detalle_cuenta c ON c.detalle_cuenta = d.detalle_cuenta ';
+            $subquery.= 'LEFT JOIN cuenta z ON z.cuenta = c.cuenta_cuenta ';
+            $subquery.= 'WHERE z.comanda IS NOT NULL';
 
             $this->db
                 ->join('detalle_comanda b', 'a.comanda = b.comanda')
-                ->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
-                ->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta', 'left')
-                ->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura', (isset($args['cocinado']) ? 'left' : ''))
-                ->join('factura f', 'f.factura = e.factura', 'left')
-                ->join('articulo g', 'b.articulo = g.articulo');
+                // ->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+                // ->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta', 'left')
+                // ->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura', (isset($args['cocinado']) ? 'left' : ''))
+                // ->join('factura f', 'f.factura = e.factura', 'left')
+                ->join("({$subquery}) y", 'a.comanda = y.comanda', 'left', false)
+                ->join('articulo g', 'g.articulo = b.articulo');
 
             if (isset($args['domicilio'])) {
                 $this->db->where('a.domicilio', $args['domicilio']);
@@ -745,18 +819,25 @@ class Comanda_model extends General_Model
         }
 
         $lista = [];
+        $numerosComanda = $this->db->get()->result();
 
-        foreach ($this->db->get()->result() as $row) {
-            $com = new Comanda_model($row->comanda);
-            if (isset($row->numero)) {
-                $com->numero = $row->numero;
+        if(
+            isset($args['callcenter']) && (int)$args['callcenter'] === 1 &&
+            isset($args['domicilio']) && (int)$args['domicilio'] === 1
+        ) {
+            $lista = $numerosComanda;
+        } else {
+            foreach ($numerosComanda as $row) {
+                $com = new Comanda_model($row->comanda);
+                if (isset($row->numero)) {
+                    $com->numero = $row->numero;
+                }
+    
+                $com->origen_datos = $com->getOrigenDatos();
+    
+                $lista[] = $com;
             }
-
-            $com->origen_datos = $com->getOrigenDatos();
-
-            $lista[] = $com;
         }
-
         return $lista;
     }
 

@@ -15,4 +15,10 @@ class Tipo_domicilio_model extends General_model {
 		}
 	}
 
+	public function get_lista()
+	{
+		$campos = $this->getCampos(false, '', 'tipo_domicilio');
+		return $this->db->select($campos)->get('tipo_domicilio')->result();
+	}
+
 }
