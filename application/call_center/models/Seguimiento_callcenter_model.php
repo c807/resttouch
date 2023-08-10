@@ -35,6 +35,8 @@ class Seguimiento_callcenter_model extends CI_Model
             ->join('estatus_callcenter f', 'f.estatus_callcenter = a.estatus_callcenter')
             ->join('tipo_domicilio g', 'g.tipo_domicilio = a.tipo_domicilio')
             ->join('repartidor h', 'h.repartidor = a.repartidor', 'left')
+            ->where('a.tiempo_entrega IS NOT NULL')
+            ->where('a.tipo_domicilio IS NOT NULL')
             ->order_by('a.fhcreacion', 'DESC')
             ->get('comanda a')
             ->result();

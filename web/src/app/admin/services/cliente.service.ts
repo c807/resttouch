@@ -12,6 +12,8 @@ import * as qs from 'qs';
 })
 export class ClienteService {
 
+  public lstClientes: Cliente[] = [];
+
   private srvcErrHndl: ServiceErrorHandler;
   private moduleUrl = 'cliente';
 

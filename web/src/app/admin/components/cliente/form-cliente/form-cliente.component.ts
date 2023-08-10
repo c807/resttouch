@@ -107,6 +107,14 @@ export class FormClienteComponent implements OnInit, OnDestroy {
         this.clienteSrvc.save(this.cliente).subscribe(res => {
           // console.log(res);
           if (res.exito) {
+            if (isNotNullOrUndefined(this.cliente.cliente) && +this.cliente.cliente > 0) {
+              const idx = this.clienteSrvc.lstClientes.findIndex(c => +c.cliente === +this.cliente.cliente);
+              if (idx > 0) {
+                this.clienteSrvc.lstClientes[idx] = {...(res.cliente as Cliente)}
+              }
+            } else if (this.clienteSrvc.lstClientes.length > 0) {
+              this.clienteSrvc.lstClientes.push(res.cliente as Cliente);
+            }
             this.clienteSavedEv.emit(res.cliente);
             this.resetCliente();
             this.snackBar.open(res.mensaje, 'Cliente', { duration: 3000 });

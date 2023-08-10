@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LocalstorageService } from '@admin-services/localstorage.service';
@@ -7,15 +7,20 @@ import { GLOBAL } from '@shared/global';
 import { UsuarioService } from '@admin-services/usuario.service';
 import { AppMenuService } from '@admin-services/app-menu.service';
 import { DesktopNotificationService } from '@shared-services/desktop-notification.service';
+import { ClienteService } from '@admin-services/cliente.service';
+
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public appMenu: any[];
+
+  private endSubs = new Subscription();
 
   constructor(
     private router: Router,
@@ -23,7 +28,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     private snackBar: MatSnackBar,
     private usrSrvc: UsuarioService,
     private appMenuSrvc: AppMenuService,
-    private dns: DesktopNotificationService
+    private dns: DesktopNotificationService,
+    private clienteSrvc: ClienteService
   ) { }
 
   ngOnInit() {
@@ -32,6 +38,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.dns.requestPermission();
       }
     });
+
+    this.endSubs.add(
+      this.clienteSrvc.get().subscribe(res => this.clienteSrvc.lstClientes = res)
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.endSubs.unsubscribe();
   }
 
   ngAfterViewInit(): void {

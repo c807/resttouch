@@ -112,6 +112,9 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
             this.endSubs.add(
               this.clienteSrvc.save(tmpCliente).subscribe(resNvoCliente => {
                 if (resNvoCliente.exito) {
+                  if (this.clienteSrvc.lstClientes.length > 0) {
+                    this.clienteSrvc.lstClientes.push(resNvoCliente.cliente as Cliente);
+                  }
                   this.loadClientes();
                   this.getCliente(resNvoCliente.cliente);
                   this.snackBar.open(`${res.mensaje}. Cliente agregado.`, 'Cliente', { duration: 3000 });
@@ -129,14 +132,16 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
   }
 
   loadClientes = () => {
-    this.clienteSrvc.get().subscribe(lst => {
-      if (lst) {
-        if (lst.length > 0) {
-          this.lstClientes = lst;
-          this.applyFilter();
-        }
-      }
-    });
+    this.lstClientes = this.clienteSrvc.lstClientes || [];
+    if (this.lstClientes.length === 0) {
+      this.clienteSrvc.get().subscribe(lst => {
+        this.lstClientes = lst;
+        this.clienteSrvc.lstClientes = [...this.lstClientes];
+        this.applyFilter();
+      });
+    } else {
+      this.applyFilter();
+    }
   }
 
   loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
@@ -153,6 +158,14 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
       addClienteRef.afterClosed().subscribe(result => {
         if (result) {
           // console.log(result);
+          if (!(+idx > 0) && this.clienteSrvc.lstClientes.length > 0) {
+            const indice = this.clienteSrvc.lstClientes.findIndex(c => +c.cliente === +(result as Cliente).cliente);
+            if (indice > 0) {
+              this.clienteSrvc.lstClientes[indice] = {...(result as Cliente)};
+            } else {
+              this.clienteSrvc.lstClientes.push(result as Cliente);
+            }
+          }
           this.loadClientes();
           this.getCliente(result);
           this.txtFiltro = (result as Cliente).nombre;
