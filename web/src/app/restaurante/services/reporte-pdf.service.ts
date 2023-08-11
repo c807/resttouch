@@ -147,16 +147,16 @@ export class ReportePdfService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getIngreso(idIngreso: number) {
+  getIngreso(idIngreso: number, excel: number = 0) {
     return this.http.get<string>(
-      `${GLOBAL.urlWms}/reporte/ingreso/${idIngreso}`,
+      `${GLOBAL.urlWms}/reporte/ingreso/${idIngreso}/${excel}`,
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getEgreso(idEgreso: number) {
+  getEgreso(idEgreso: number, excel: number = 0) {
     return this.http.get<string>(
-      `${GLOBAL.urlWms}/reporte/egreso/${idEgreso}`,
+      `${GLOBAL.urlWms}/reporte/egreso/${idEgreso}/${excel}`,
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }

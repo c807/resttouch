@@ -477,12 +477,13 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     }
   }
 
-  imprimirIngreso = () => {
+  imprimirIngreso = (excel: number = 0) => {
+    const esPDF = +excel === 0;
     this.endSubs.add(
-      this.pdfServicio.getIngreso(+this.ingreso.ingreso).subscribe(res => {
+      this.pdfServicio.getIngreso(+this.ingreso.ingreso, excel).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+          const blob = new Blob([res], { type: esPDF ? 'application/pdf' : 'application/vnd.ms-excel' });
+          saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ingreso', { duration: 3000 });
         }

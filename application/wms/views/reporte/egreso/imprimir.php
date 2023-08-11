@@ -34,7 +34,7 @@
     <table class="encabezado">
         <tr>
             <th class="text-right" style="width: 16.66%;">Número:</th>
-            <td style="width: 16.67%;"><?php echo number_format($egreso); ?></td>
+            <td style="width: 16.67%;"><?php echo $excel ? $egreso : number_format($egreso); ?></td>
             <th class="text-right" style="width: 16.66%;">Fecha:</th>
             <td style="width: 16.67%;"><?php echo $fecha; ?></td>
             <th class="text-right" style="width: 16.66%;"></th>
@@ -83,12 +83,12 @@
             <?php $montoTotal = 0; ?>
             <?php foreach ($detalle as $det) : ?>
                 <tr>
-                    <td><?php echo $det->codigo; ?></td>
+                    <td><?php echo (string)$det->codigo; ?></td>
                     <td><?php echo $det->articulo; ?></td>
                     <td><?php echo $det->presentacion; ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->cantidad, 2); ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->costo_unitario, 2); ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->costo_total, 2); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->cantidad : number_format((float)$det->cantidad, 2); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->costo_unitario : number_format((float)$det->costo_unitario, 2); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->costo_total : number_format((float)$det->costo_total, 2); ?></td>
                 </tr>
                 <?php $montoTotal += (float)$det->costo_total; ?>
             <?php endforeach; ?>

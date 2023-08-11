@@ -58,8 +58,11 @@
                     [disabled]="!frmEgreso.form.valid || [2, 3].indexOf(+egreso.estatus_movimiento) >= 0">
                     Confirmar
                 </button>
-                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirEgreso()" *ngIf="egreso.egreso">
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirEgreso(0)" *ngIf="egreso.egreso">
                     PDF
+                </button>
+                <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="imprimirEgreso(1)" *ngIf="egreso.egreso">
+                    Excel
                 </button>
                 <button mat-raised-button type="button" color="accent" (click)="resetEgreso()" *ngIf="egreso.egreso">
                     Nuevo

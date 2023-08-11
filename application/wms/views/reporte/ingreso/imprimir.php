@@ -34,7 +34,7 @@
     <table class="encabezado">
         <tr>
             <th class="text-right" style="width: 16.66%;">Número:</th>
-            <td style="width: 16.67%;"><?php echo number_format($ingreso); ?></td>
+            <td style="width: 16.67%;"><?php echo $excel ? $ingreso : number_format($ingreso); ?></td>
             <th class="text-right" style="width: 16.66%;">Fecha:</th>
             <td style="width: 16.67%;"><?php echo $fecha; ?></td>
             <th class="text-right" style="width: 16.66%;"></th>
@@ -94,12 +94,12 @@
             <?php $montoTotal = 0; ?>
             <?php foreach ($detalle as $det) : ?>
                 <tr>
-                    <td><?php echo $det->codigo; ?></td>
+                    <td><?php echo (string)$det->codigo; ?></td>
                     <td><?php echo $det->articulo; ?></td>
                     <td><?php echo $det->presentacion; ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->cantidad, 2); ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->costo_unitario_con_iva, 4); ?></td>
-                    <td class="text-right"><?php echo number_format((float)$det->costo_total_con_iva, 2); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->cantidad : number_format((float)$det->cantidad, 2); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->costo_unitario_con_iva : number_format((float)$det->costo_unitario_con_iva, 4); ?></td>
+                    <td class="text-right"><?php echo $excel ? $det->costo_total_con_iva : number_format((float)$det->costo_total_con_iva, 2); ?></td>
                 </tr>
                 <?php $montoTotal += (float)$det->costo_total_con_iva; ?>
             <?php endforeach; ?>
@@ -108,7 +108,11 @@
     <br />
     <table>
         <tr>
-            <td class="text-right bld">Total: <?php echo number_format((float)$montoTotal, 2); ?></td>
+            <?php if($excel): ?>
+                <td class="text-right bld" colspan="6">Total: <?php echo $montoTotal; ?></td>
+            <?php else: ?>
+                <td class="text-right bld">Total: <?php echo $excel ? $montoTotal : number_format((float)$montoTotal, 2); ?></td>
+            <?php endif; ?>
         </tr>
     </table>
     <br /><br /><br /><br /><br />

@@ -934,39 +934,135 @@ class Reporte extends CI_Controller
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egresos));
 	}
 
-	public function ingreso($id)
+	public function ingreso($id, $excel = 0)
 	{
 		$rpt = new Reporte_model();
 		$ingreso = $rpt->get_ingreso($id);
+		$ingreso->excel = (int)$excel === 1;
 
 		$vista = $this->load->view('reporte/ingreso/imprimir', $ingreso, true);
 
-		$mpdf = new \Mpdf\Mpdf([
-			'tempDir' => sys_get_temp_dir(), //Produccion
-			'format' => 'Letter'
-		]);
+		$nombre = 'Ingreso_'.date('YmdHis');
 
-		$mpdf->WriteHTML($vista);
-		$mpdf->Output('Ingreso_' . date('YmdHis') . '.pdf', "D");
+		if ((int)$excel === 1) {
+			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$xlsx = $reader->loadFromString($vista);
+			$xlsx->setActiveSheetIndex(0);
+			$hoja = $xlsx->getActiveSheet();
+
+			$hoja->mergeCells('A1:F1');
+			$hoja->mergeCells('A2:F2');
+			$hoja->mergeCells('A3:F3');
+			$hoja->mergeCells('A4:F4');
+			$hoja->getStyle('A1:F4')->getFont()->setBold(true);
+			
+			$hoja->getStyle('A')->getAlignment()->setHorizontal('left');
+			$hoja->getStyle('B')->getAlignment()->setHorizontal('left');
+			$hoja->getStyle('C')->getAlignment()->setHorizontal('left');
+			
+			$hoja->getStyle('A7:A10')->getFont()->setBold(true);
+			$hoja->getStyle('C7')->getFont()->setBold(true);
+			$hoja->getStyle('C9')->getFont()->setBold(true);
+
+			$hoja->getStyle('A13:F13')->getFont()->setBold(true);
+
+			$hoja->getStyle('D')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('D')->getAlignment()->setHorizontal('right');
+			$hoja->getStyle('E')->getNumberFormat()->setFormatCode('0.0000');
+			$hoja->getStyle('E')->getAlignment()->setHorizontal('right');
+			$hoja->getStyle('F')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('F')->getAlignment()->setHorizontal('right');
+			
+			foreach (range('A', 'Z') as $col) {
+				$hoja->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombre}.xlsx");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
+			$writer->save('php://output');
+		} else {
+			$mpdf = new \Mpdf\Mpdf([
+				'tempDir' => sys_get_temp_dir(), //Produccion
+				'format' => 'Letter'
+			]);
+
+			$mpdf->WriteHTML($vista);
+			$mpdf->Output($nombre.'.pdf', 'D');
+		}
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingreso));
 	}
 
-	public function egreso($id)
+	public function egreso($id, $excel = 0)
 	{
 		$rpt = new Reporte_model();
 		$egreso = $rpt->get_egreso($id);
+		$egreso->excel = (int)$excel === 1;
 
 		$vista = $this->load->view('reporte/egreso/imprimir', $egreso, true);
 
-		$mpdf = new \Mpdf\Mpdf([
-			'tempDir' => sys_get_temp_dir(), //Produccion
-			'format' => 'Letter'
-		]);
+		$nombre = 'Egreso_'.date('YmdHis');
 
-		$mpdf->WriteHTML($vista);
-		$mpdf->Output('Egreso_' . date('YmdHis') . '.pdf', "D");
+		if ((int)$excel === 1) {
+			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$xlsx = $reader->loadFromString($vista);
+			$xlsx->setActiveSheetIndex(0);
+			$hoja = $xlsx->getActiveSheet();
 
+			$hoja->mergeCells('A1:F1');
+			$hoja->mergeCells('A2:F2');
+			$hoja->mergeCells('A3:F3');
+			$hoja->mergeCells('A4:F4');
+			$hoja->getStyle('A1:F4')->getFont()->setBold(true);
+			
+			$hoja->getStyle('A')->getAlignment()->setHorizontal('left');
+			$hoja->getStyle('B')->getAlignment()->setHorizontal('left');
+			$hoja->getStyle('C')->getAlignment()->setHorizontal('left');
+			
+			$hoja->getStyle('A7:A12')->getFont()->setBold(true);
+			$hoja->getStyle('C7')->getFont()->setBold(true);
+			$hoja->getStyle('C9')->getFont()->setBold(true);
+			$hoja->getStyle('E9')->getFont()->setBold(true);
+
+			$hoja->getStyle('A15:F15')->getFont()->setBold(true);
+
+			$hoja->getStyle('D')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('D')->getAlignment()->setHorizontal('right');
+			$hoja->getStyle('E')->getNumberFormat()->setFormatCode('0.0000');
+			$hoja->getStyle('E')->getAlignment()->setHorizontal('right');
+			$hoja->getStyle('F')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('F')->getAlignment()->setHorizontal('right');
+			
+			foreach (range('A', 'Z') as $col) {
+				$hoja->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombre}.xlsx");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
+			$writer->save('php://output');
+		} else {
+			$mpdf = new \Mpdf\Mpdf([
+				'tempDir' => sys_get_temp_dir(), //Produccion
+				'format' => 'Letter'
+			]);
+	
+			$mpdf->WriteHTML($vista);
+			$mpdf->Output($nombre.'.pdf', 'D');
+		}
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egreso));
 	}
 

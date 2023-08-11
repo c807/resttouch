@@ -487,12 +487,13 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     this.dataSource.filter = filter;
   }
 
-  imprimirEgreso = () => {
+  imprimirEgreso = (excel: number = 0) => {
+    const esPDF = +excel === 0;
     this.endSubs.add(
-      this.pdfServicio.getEgreso(+this.egreso.egreso).subscribe(res => {
+      this.pdfServicio.getEgreso(+this.egreso.egreso, excel).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+          const blob = new Blob([res], { type: esPDF ? 'application/pdf' : 'application/vnd.ms-excel' });
+          saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Egreso', { duration: 3000 });
         }
