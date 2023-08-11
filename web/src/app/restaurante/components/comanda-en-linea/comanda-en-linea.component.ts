@@ -197,11 +197,13 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
         objImprimir.marcarComoImpresa(obj);
       }
       this.comandasEnLinea[i].impresa = 1;
-
+      
       if (autoFirmar) {
         await this.firmarAutomaticamente(obj, objImprimir);
       }
     });
+    this.dataSource = [...this.comandasEnLinea];
+    this.tblPedidos.renderRows();    
     if (autoImprimir && autoFirmar && this.intentosDeFirmarTodo <= 5) {
       this.intentosDeFirmarTodo++;
       this.loadComandasEnLinea();
@@ -244,10 +246,11 @@ export class ComandaEnLineaComponent implements OnInit, OnDestroy {
     let idx = this.comandasEnLinea.findIndex(o => +o.comanda === +pedido.comanda);
     if (idx > -1) {
       if (+pedido.estatus_callcenter?.esultimo === 0) {
-        this.comandasEnLinea[idx] = pedido;
+        this.comandasEnLinea[idx] = {...pedido};
       } else {
         this.comandasEnLinea.splice(idx, 1);
       }
+      this.dataSource = [...this.comandasEnLinea];
       this.tblPedidos.renderRows();
     }
   }
