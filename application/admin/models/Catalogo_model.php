@@ -621,11 +621,7 @@ class Catalogo_model extends CI_Model
 		}
 
 		$tmp = $this->db
-			->select("
-						db_hostname,
-						db_username,
-						db_password,
-						db_database")
+			->select('db_hostname, db_username, db_password, db_database, bloqueado')
 			->from('cliente_corporacion')
 			->get();
 		//return $this->getCatalogo($tmp, $args);

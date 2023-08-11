@@ -34,24 +34,28 @@ class Usuario extends CI_Controller
 
             $datosDb = $this->Catalogo_model->getCredenciales(['dominio' => $usr[0]]);
             if ($datosDb) {
-                $conn = [
-                    'host' => $datosDb->db_hostname,
-                    'user' => $datosDb->db_username,
-                    'password' => $datosDb->db_password,
-                    'database' => $datosDb->db_database
-                ];
-    
-                $db = conexion_db($conn);
-    
-                $this->db = $this->load->database($db, true);
-    
-                $credenciales['dominio'] = $usr[0];
-                $logged = $this->Usuario_model->logIn($credenciales);
-    
-                if (!empty($logged['token'])) {                    
-                    $datos = $this->set_accesos_usuario($logged);
-                    $logged['acceso'] = array_values($datos);
-                    $logged['status'] = true;
+                if ((int)$datosDb->bloqueado === 0) {
+                    $conn = [
+                        'host' => $datosDb->db_hostname,
+                        'user' => $datosDb->db_username,
+                        'password' => $datosDb->db_password,
+                        'database' => $datosDb->db_database
+                    ];
+        
+                    $db = conexion_db($conn);
+        
+                    $this->db = $this->load->database($db, true);
+        
+                    $credenciales['dominio'] = $usr[0];
+                    $logged = $this->Usuario_model->logIn($credenciales);
+        
+                    if (!empty($logged['token'])) {                    
+                        $datos = $this->set_accesos_usuario($logged);
+                        $logged['acceso'] = array_values($datos);
+                        $logged['status'] = true;
+                    }
+                } else {
+                    $logged['mensaje'] = "Los usuarios del dominio '{$usr[0]}' han sido bloqueados por falta de pago. Por favor comuníquese con el área Comercial de Rest-Touch Pro.";
                 }
             } else {
                 $logged['mensaje'] = "El dominio '{$usr[0]}' no existe, por favor revise las credenciales.";
