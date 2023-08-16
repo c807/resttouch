@@ -354,6 +354,11 @@ $config['menu'] = [
 						'nombre' => 'Ajuste de costo promedio',
 						'link' => '/wms/ajuste_costo_promedio',
 						'dispositivo' => 1
+					],
+					9 => [
+						'nombre' => 'Ajuste de costo y existencia',
+						'link' => '/wms/ajuste_costo_existencia',
+						'dispositivo' => 1
 					]
 				]
 			],

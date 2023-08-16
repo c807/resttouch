@@ -4,6 +4,7 @@ import { GLOBAL } from '@shared/global';
 import { ServiceErrorHandler } from '@shared/error-handler';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { retry, catchError } from 'rxjs/operators';
+import * as qs from 'qs';
 
 @Injectable({
   providedIn: 'root'
@@ -260,6 +261,13 @@ export class ReportePdfService {
     return this.http.post<string>(
       `${GLOBAL.urlAppRestaurante}/reserva/historial_reservas`,
       params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  getFormatoExcelAjusteCostoExistencia(fltr: Object) {
+    return this.http.get<string>(
+      `${GLOBAL.urlWms}/bodegaarticulocosto/descargar_articulos_excel?${qs.stringify(fltr)}`,      
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }

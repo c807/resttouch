@@ -22,6 +22,7 @@ import { MargenRecetaComponent } from './components/reporte/margen-receta/margen
 import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
 import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
 import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
+import { AjusteCostoExistenciaComponent } from './components/ajuste-costo-existencia/ajuste-costo-existencia.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -46,6 +47,7 @@ const routes: Routes = [
   { path: 'requisiciones', component: EgresoComponent, canActivate: [AuthGuard] },
   { path: 'tipo_movimiento', component: TipoMovimientoComponent, canActivate: [AuthGuard] },
   { path: 'ajuste_costo_promedio', component: AjusteCostoPromedioComponent, canActivate: [AuthGuard] },
+  { path: 'ajuste_costo_existencia', component: AjusteCostoExistenciaComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
