@@ -169,7 +169,10 @@ $config['menu'] = [
 					],
 					2 => [
 						'nombre' => 'Anular comandas',
+<<<<<<< HEAD
 						// 'link' => '/restaurante/anulacomanda',
+=======
+>>>>>>> master
 						'link' => '/admin/dashboard',
 						'dispositivo' => 1
 					]
