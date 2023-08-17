@@ -175,7 +175,7 @@ class BodegaArticuloCosto extends CI_Controller
                         }
                     } else {
                         $titulos = [
-                            'Sede', 'Categoría', 'Bodega', 'Nombre de Bodega', 'Artículo',
+                            'Sede', 'Categoría', 'Subcategoría', 'Bodega', 'Nombre de Bodega', 'Artículo',
                             'Nombre del Artículo', 'Presentación', 'Costo Unitario', 'Existencia'
                         ];
                         foreach ($col as $titulo) {
