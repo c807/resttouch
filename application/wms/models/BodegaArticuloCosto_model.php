@@ -51,38 +51,69 @@ class BodegaArticuloCosto_model extends General_model
         return $bac->guardar();
     }
 
-    public function get_costo($idBodega, $idArticulo, $idPresentacion)
+    public function get_datos_costo($idBodega, $idArticulo)
     {
-        $pres = $this->db->where("presentacion", $idPresentacion)->get("presentacion")->row();
-
-        $sede = $this->db
-            ->select("c.sede")
-            ->join("categoria_grupo b", "a.categoria_grupo = b.categoria_grupo")
-            ->join("categoria c", "c.categoria = b.categoria")
-            ->where("a.articulo", $idArticulo)
-            ->get("articulo a")
+        return $this->db
+            ->select('a.bodega_articulo_costo, f.metodo_costeo, a.costo_ultima_compra, a.costo_promedio, g.cantidad AS cantidad_presentacion, a.existencia')
+            ->join('articulo b', 'b.articulo = a.articulo')
+            ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+            ->join('categoria d', 'd.categoria = c.categoria')
+            ->join('sede e', 'e.sede = d.sede')
+            ->join('empresa f', 'f.empresa = e.empresa')
+            ->join('presentacion g', 'g.presentacion = b.presentacion_reporte')
+            ->where('a.bodega', $idBodega)
+            ->where('a.articulo', $idArticulo)
+            ->order_by('a.fecha DESC, a.bodega_articulo_costo DESC')
+            ->limit(1)
+            ->get('bodega_articulo_costo a')
             ->row();
+    }
 
-        $sede = new Sede_model($sede->sede);
-        $emp = $sede->getEmpresa();
+    public function get_costo($idBodega, $idArticulo, $idPresentacion = null)
+    {
+        $datos_costo = $this->get_datos_costo($idBodega, $idArticulo);
 
-        $bac = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
-
-        if ($bac) {
-            if ($emp->metodo_costeo == 1) {
-                return $bac->costo_ultima_compra * $pres->cantidad;
-            } else if ($emp->metodo_costeo == 2) {
-                return $bac->costo_promedio * $pres->cantidad;
+        if ($datos_costo) {
+            if ((int)$datos_costo->metodo_costeo === 1) {
+                return (float)$datos_costo->costo_ultima_compra * (float)$datos_costo->cantidad_presentacion;
+            } else if ((int)$datos_costo->metodo_costeo === 2) {
+                return (float)$datos_costo->costo_promedio * (float)$datos_costo->cantidad_presentacion;
             }
         } else {
-            $this->load->model(['Articulo_model']);
-            $art = new Articulo_model($idArticulo);
-            $costo = $art->getCosto(['bodega' => $idBodega]);
-            if ($costo && (float)$costo > (float)0) {
-                return (float)$costo * $pres->cantidad;
+            // $pres = $this->db->where('presentacion', $idPresentacion)->get('presentacion')->row();
+            // $sede = new Sede_model($sede->sede);
+            // $emp = $sede->getEmpresa();
+
+            $bac = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
+
+            if ($bac) {
+                $dc = $this->db
+                    ->select('c.sede, e.metodo_costeo, f.cantidad AS cantidad_presentacion')
+                    ->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
+                    ->join('categoria c', 'c.categoria = b.categoria')
+                    ->join('sede d', 'd.sede = c.sede')
+                    ->join('empresa e', 'e.empresa = d.empresa')
+                    ->join('presentacion f', 'f.presentacion = a.presentacion_reporte')
+                    ->where('a.articulo', $idArticulo)
+                    ->get('articulo a')
+                    ->row();
+
+                if ((int)$dc->metodo_costeo === 1) {
+                    return (float)$bac->costo_ultima_compra * (float)$dc->cantidad_presentacion;
+                } else if ((int)$dc->metodo_costeo == 2) {
+                    return (float)$bac->costo_promedio * (float)$dc->cantidad_presentacion;
+                }
             } else {
-                $costo = $art->getCosto();
-                return (float)$costo * $pres->cantidad;
+                $this->load->model(['Articulo_model']);
+                $art = new Articulo_model($idArticulo);
+                $pres = $this->db->select('cantidad')->where('presentacion', (int)$art->presentacion_reporte)->get('presentacion')->row();
+                $costo = $art->getCosto(['bodega' => $idBodega]);
+                if ($costo && (float)$costo > (float)0) {
+                    return (float)$costo * (float)$pres->cantidad;
+                } else {
+                    $costo = $art->getCosto();
+                    return (float)$costo * (float)$pres->cantidad;
+                }
             }
         }
 
@@ -93,7 +124,7 @@ class BodegaArticuloCosto_model extends General_model
     {
         if (count($args) > 0) {
             foreach ($args as $key => $row) {
-                if (substr($key, 0, 1) != "_") {
+                if (substr($key, 0, 1) != '_') {
                     if (trim($key) === 'bodega') {
                         $key = 'a.bodega';
                     }
@@ -136,7 +167,7 @@ class BodegaArticuloCosto_model extends General_model
         }
 
         $campos = 'TRIM(CONCAT(d.nombre, IFNULL(CONCAT(" (", d.alias, ")"), ""))) AS descripcion_sede, c.descripcion AS descripcion_categoria, b.descripcion AS descripcion_subcategoria, ';
-        $campos .= 'f.bodega, f.descripcion AS descripcion_bodega, a.articulo, a.descripcion AS descripcion_articulo, e.descripcion AS descripcion_presentacion, 0.00000 AS costo_unitario, 0.00 AS existencia';        
+        $campos .= 'f.bodega, f.descripcion AS descripcion_bodega, a.articulo, a.descripcion AS descripcion_articulo, e.descripcion AS descripcion_presentacion, 0.00000 AS costo_unitario, 0.00 AS existencia';
         return $this->db
             ->select($campos, false)
             ->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
