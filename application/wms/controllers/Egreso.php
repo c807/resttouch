@@ -20,9 +20,8 @@ class Egreso extends CI_Controller {
 			'Proveedor_model',
 			'Bodega_model'
         ]);
-        $this->output
-		->set_content_type("application/json", "UTF-8");
-	}
+        $this->output->set_content_type('application/json', 'UTF-8');
+	}	
 
 	public function guardar($id = '')
 	{
@@ -32,21 +31,24 @@ class Egreso extends CI_Controller {
 			$egr = new Egreso_model($id);
 			if (empty($id) || $egr->estatus_movimiento == 1) {
 				$datos['exito'] = $egr->guardar($req);
-				if ((int)$egr->estatus_movimiento === 2 && (int)$egr->traslado === 1) {
-					$bodegaOrigen = $this->Bodega_model->buscar(['bodega' => $egr->bodega, '_uno' => true]);
-					$bodegaDestino = $this->Bodega_model->buscar(['bodega' => $egr->bodega_destino, '_uno' => true]);
-					if((int)$bodegaOrigen->sede === (int)$bodegaDestino->sede) {
-						$ing = $egr->trasladar($req);
-					} else {
-						$req['sede_origen'] = (int)$bodegaOrigen->sede;
-						$req['sede_destino'] = (int)$bodegaDestino->sede;
-						$ing = $egr->traslado_externo($req);
-					}
-					if ($ing) {
-						$ing->detalle = $ing->getDetalle();
-						$datos['ingreso'] = $ing;
-					} else {
-						$datos['exito'] = false;
+				if ((int)$egr->estatus_movimiento === 2) {
+					$egr->actualiza_costo_existencia();
+					if ((int)$egr->traslado === 1) {
+						$bodegaOrigen = $this->Bodega_model->buscar(['bodega' => $egr->bodega, '_uno' => true]);
+						$bodegaDestino = $this->Bodega_model->buscar(['bodega' => $egr->bodega_destino, '_uno' => true]);
+						if((int)$bodegaOrigen->sede === (int)$bodegaDestino->sede) {
+							$ing = $egr->trasladar($req);
+						} else {
+							$req['sede_origen'] = (int)$bodegaOrigen->sede;
+							$req['sede_destino'] = (int)$bodegaDestino->sede;
+							$ing = $egr->traslado_externo($req);
+						}
+						if ($ing) {
+							$ing->detalle = $ing->getDetalle();
+							$datos['ingreso'] = $ing;
+						} else {
+							$datos['exito'] = false;
+						}
 					}
 				}
 				if($datos['exito']) {

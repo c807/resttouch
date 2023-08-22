@@ -319,17 +319,18 @@ class Ingreso extends CI_Controller
 					$idArticulo = $det->articulo->articulo;
 					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $idArticulo);
 					if ($datos_costo) {
-						$cantidad_presentacion = (float)$datos_costo->cantidad_presentacion;
-						$precio_unitario = (float)$det->precio_unitario;
-						$existencia_anterior = (float)$datos_costo->existencia;
-						$cp_unitario_anterior = (float)$datos_costo->costo_promedio;
-						$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
+						// $cantidad_presentacion = (float)$datos_costo->cantidad_presentacion;
+						$cantidad_presentacion = round((float)$pres->cantidad, 2);
+						$precio_unitario = round((float)$det->precio_unitario, 5);
+						$existencia_anterior = round((float)$datos_costo->existencia, 2);
+						$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
+						$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 						$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);
-						$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
+						$costo_total_nuevo = $costo_total_anterior + round((float)$det->precio_total, 5);
 
 						$nvaData = [
-							'bodega'=> (int)$ing->bodega,
-							'articulo' => (int) $idArticulo,
+							'bodega' => (int)$ing->bodega,
+							'articulo' => (int)$idArticulo,
 							'cuc_ingresado' => 0,
 							'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
 							'cp_ingresado' => 0,
@@ -345,14 +346,14 @@ class Ingreso extends CI_Controller
 						$art->actualizarExistencia(['bodega' => $ing->bodega, 'sede' => $bod->sede]);
 						$bcosto = $this->BodegaArticuloCosto_model->buscar(['bodega' => $ing->bodega, 'articulo' => $idArticulo, '_uno' => true]);
 						$costo = $art->getCosto(['bodega' => $ing->bodega]);
-	
+
 						if ($bcosto) {
 							$bac->cargar($bcosto->bodega_articulo_costo);
 							/*Ultima compra*/
 							$costo_uc = $art->getCosto(['bodega' => $ing->bodega, 'metodo_costeo' => 1]);
 							$bac->costo_ultima_compra = $costo_uc;
-	
-							/*Costo promedio*/						
+
+							/*Costo promedio*/
 							$costo_prom = $art->getCosto(['bodega' => $ing->bodega, 'metodo_costeo' => 2]);
 							$bac->costo_promedio = $costo_prom;
 						} else {
@@ -361,7 +362,7 @@ class Ingreso extends CI_Controller
 							$bac->costo_ultima_compra = $costo;
 							$bac->costo_promedio = $costo;
 						}
-	
+
 						$art->guardar(['costo' => $costo]);
 						$bac->guardar();
 					}
