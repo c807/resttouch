@@ -62,7 +62,7 @@ class Articulo extends CI_Controller
 				}
 
 				if ($continuar) {
-					if ((int)$req['mostrar_inventario'] === 1 && (int)$req['esreceta'] === 1) {
+					if ((int)$req['produccion'] === 0 && (int)$req['mostrar_inventario'] === 1 && (int)$req['esreceta'] === 1) {
 						$datos['mensaje'] = 'El artículo no puede ser receta y ser de inventario.';
 					} else {
 						$pre = new Presentacion_model($req['presentacion']);

@@ -82,7 +82,9 @@ class Usuario extends CI_Controller
             $tmp[$row->modulo]['submodulo'][$row->submodulo]['nombre'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['nombre'];
             $tmp[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'];
 
-            $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = $menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
+            if (isset($menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion])) {
+                $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = $menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
+            }
         }
 
         foreach ($tmp as $row) {
