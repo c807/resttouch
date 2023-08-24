@@ -434,7 +434,7 @@ class Egreso_model extends General_Model
 		$detalle = $this->db
 			->select('a.egreso_detalle, a.cantidad, a.articulo, a.precio_unitario, a.precio_total, a.presentacion, b.cantidad AS cantidad_presentacion')
 			->join('presentacion b', 'b.presentacion = a.presentacion')
-			->where('egreso', $this->getPK())
+			->where('a.egreso', $this->getPK())
 			->get('egreso_detalle a')
 			->result();
 		

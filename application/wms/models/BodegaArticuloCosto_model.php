@@ -73,17 +73,24 @@ class BodegaArticuloCosto_model extends General_model
     {
         $datos_costo = $this->get_datos_costo($idBodega, $idArticulo);
 
+        $cantidad_presentacion = (float)0;
+        if ((int)$idPresentacion > 0) {
+            $pres = $this->db->select('cantidad')->where('presentacion', $idPresentacion)->get('presentacion')->row();
+            $cantidad_presentacion = (float)$pres->cantidad;
+        }
+
         if ($datos_costo) {
+            if ($cantidad_presentacion === (float)0) {
+                $cantidad_presentacion = (float)$datos_costo->cantidad_presentacion;
+            }
+
             if ((int)$datos_costo->metodo_costeo === 1) {
-                return (float)$datos_costo->costo_ultima_compra * (float)$datos_costo->cantidad_presentacion;
+                return (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
             } else if ((int)$datos_costo->metodo_costeo === 2) {
-                return (float)$datos_costo->costo_promedio * (float)$datos_costo->cantidad_presentacion;
+                return (float)$datos_costo->costo_promedio * $cantidad_presentacion;
             }
         } else {
-            // $pres = $this->db->where('presentacion', $idPresentacion)->get('presentacion')->row();
-            // $sede = new Sede_model($sede->sede);
-            // $emp = $sede->getEmpresa();
-
+            
             $bac = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
 
             if ($bac) {
@@ -98,10 +105,14 @@ class BodegaArticuloCosto_model extends General_model
                     ->get('articulo a')
                     ->row();
 
+                if ($cantidad_presentacion === (float)0) {
+                    $cantidad_presentacion = (float)$dc->cantidad_presentacion;
+                }
+
                 if ((int)$dc->metodo_costeo === 1) {
-                    return (float)$bac->costo_ultima_compra * (float)$dc->cantidad_presentacion;
+                    return (float)$bac->costo_ultima_compra * $cantidad_presentacion;
                 } else if ((int)$dc->metodo_costeo == 2) {
-                    return (float)$bac->costo_promedio * (float)$dc->cantidad_presentacion;
+                    return (float)$bac->costo_promedio * $cantidad_presentacion;
                 }
             } else {
                 $this->load->model(['Articulo_model']);

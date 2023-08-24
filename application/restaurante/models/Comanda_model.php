@@ -39,7 +39,7 @@ class Comanda_model extends General_Model
             $this->cargar($id);
         } else {
             $this->fhcreacion = date('Y-m-d H:i:s');
-        }        
+        }
     }
 
     public function getMesas()
@@ -215,12 +215,40 @@ class Comanda_model extends General_Model
         }
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+        // Actualizado el 23/08/2023
         if ((int)$art->mostrar_inventario === 1) {
             if (!isset($args['cantidad_inventario'])) {
                 $args['cantidad_inventario'] = $det->cantidad_inventario;
             }
-            $bac = new BodegaArticuloCosto_model();
-            $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+
+            $pu = (float)0;
+            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
+            if ($datos_costo) {
+                $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
+                $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                $nvaData = [
+                    'bodega' => (int)$args['bodega'],
+                    'articulo' => (int)$art->articulo,
+                    'cuc_ingresado' => 0,
+                    'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                    'cp_ingresado' => 0,
+                    'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                    'existencia_ingresada' => 0,
+                    'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                    'fecha' => date('Y-m-d H:i:s')
+                ];
+                $nvoBac = new BodegaArticuloCosto_model();
+                $nvoBac->guardar($nvaData);
+
+                if ((int)$datos_costo->metodo_costeo === 1) {
+                    $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                } else if ((int)$datos_costo->metodo_costeo === 2) {
+                    $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                }
+            } else {
+                $bac = new BodegaArticuloCosto_model();
+                $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+            }
             $args['costo_unitario'] = (float)$pu ?? (float)0;
             $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
         }
@@ -263,11 +291,38 @@ class Comanda_model extends General_Model
                     $bodegaR = $artR->getBodega();
 
                     // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+                    // Actualizado el 23/08/2023
                     $costo_unitario_rec = 0;
                     $costo_total_rec = 0;
                     if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
-                        $bac = new BodegaArticuloCosto_model();
-                        $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        $pu = (float)0;
+                        $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
+                        if ($datos_costo) {
+                            $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
+                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $nvaData = [
+                                'bodega' => (int)$bodegaR->bodega,
+                                'articulo' => (int)$rec->articulo->articulo,
+                                'cuc_ingresado' => 0,
+                                'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                                'cp_ingresado' => 0,
+                                'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                                'existencia_ingresada' => 0,
+                                'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                                'fecha' => date('Y-m-d H:i:s')
+                            ];
+                            $nvoBac = new BodegaArticuloCosto_model();
+                            $nvoBac->guardar($nvaData);
+
+                            if ((int)$datos_costo->metodo_costeo === 1) {
+                                $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                            } else if ((int)$datos_costo->metodo_costeo === 2) {
+                                $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                            }
+                        } else {
+                            $bac = new BodegaArticuloCosto_model();
+                            $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        }
                         $costo_unitario_rec = (float)$pu ?? (float)0;
                         $costo_total_rec = $costo_unitario_rec * (float)$rec->cantidad;
                     }
@@ -375,12 +430,40 @@ class Comanda_model extends General_Model
         }
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+        // Actualizado el 23/08/2023
         if ((int)$art->mostrar_inventario === 1) {
             if (!isset($args['cantidad_inventario'])) {
                 $args['cantidad_inventario'] = $det->cantidad_inventario;
             }
-            $bac = new BodegaArticuloCosto_model();
-            $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+
+            $pu = (float)0;
+            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
+            if ($datos_costo) {
+                $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
+                $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                $nvaData = [
+                    'bodega' => (int)$args['bodega'],
+                    'articulo' => (int)$art->articulo,
+                    'cuc_ingresado' => 0,
+                    'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                    'cp_ingresado' => 0,
+                    'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                    'existencia_ingresada' => 0,
+                    'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                    'fecha' => date('Y-m-d H:i:s')
+                ];
+                $nvoBac = new BodegaArticuloCosto_model();
+                $nvoBac->guardar($nvaData);
+
+                if ((int)$datos_costo->metodo_costeo === 1) {
+                    $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                } else if ((int)$datos_costo->metodo_costeo === 2) {
+                    $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                }
+            } else {
+                $bac = new BodegaArticuloCosto_model();
+                $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+            }
             $args['costo_unitario'] = (float)$pu ?? (float)0;
             $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
         }
@@ -415,11 +498,38 @@ class Comanda_model extends General_Model
                     $bodegaR = $artR->getBodega();
 
                     // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+                    // Actualizado el 23/08/2023
                     $costo_unitario_rec = 0;
                     $costo_total_rec = 0;
                     if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
-                        $bac = new BodegaArticuloCosto_model();
-                        $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        $pu = (float)0;
+                        $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
+                        if ($datos_costo) {
+                            $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
+                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $nvaData = [
+                                'bodega' => (int)$bodegaR->bodega,
+                                'articulo' => (int)$rec->articulo->articulo,
+                                'cuc_ingresado' => 0,
+                                'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                                'cp_ingresado' => 0,
+                                'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                                'existencia_ingresada' => 0,
+                                'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                                'fecha' => date('Y-m-d H:i:s')
+                            ];
+                            $nvoBac = new BodegaArticuloCosto_model();
+                            $nvoBac->guardar($nvaData);
+
+                            if ((int)$datos_costo->metodo_costeo === 1) {
+                                $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                            } else if ((int)$datos_costo->metodo_costeo === 2) {
+                                $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                            }
+                        } else {
+                            $bac = new BodegaArticuloCosto_model();
+                            $pu = $bac->get_costo($bodegaR->bodega, $rec->articulo->articulo, $presR->presentacion);
+                        }
                         $costo_unitario_rec = (float)$pu ?? (float)0;
                         $costo_total_rec = $costo_unitario_rec * (float)$rec->cantidad;
                     }
@@ -583,7 +693,7 @@ class Comanda_model extends General_Model
             $valor = '0';
         }
 
-        foreach($lista as $item) {
+        foreach ($lista as $item) {
             if (is_object($item)) {
                 if ($asNumero && is_numeric($item->$campo) && is_numeric($valor)) {
                     if ((int)$item->$campo === (int)$valor) {
@@ -595,7 +705,7 @@ class Comanda_model extends General_Model
                     }
                 }
             } else if (is_array($item)) {
-                if($asNumero && is_numeric($item[$campo]) && is_numeric($valor)) {
+                if ($asNumero && is_numeric($item[$campo]) && is_numeric($valor)) {
                     if ((int)$item[$campo] === (int)$valor) {
                         $objeto[] = clone $item;
                     }
@@ -702,7 +812,7 @@ class Comanda_model extends General_Model
             $tmp->impresora_defecto = $this->db->where('sede', $this->sede)->where('pordefecto', 1)->get('impresora')->row();
             $tmp->impresora_defecto_cuenta = $this->db->where('sede', $this->sede)->where('pordefectocuenta', 1)->get('impresora')->row();
             $tmp->impresora_defecto_factura = $this->db->where('sede', $this->sede)->where('pordefectofactura', 1)->get('impresora')->row();
-        }        
+        }
 
         if (isset($args['_lstTipoDomicilio']) && is_array($args['_lstTipoDomicilio']) && count($args['_lstTipoDomicilio']) > 0) {
             $tmp->tipo_domicilio = $this->buscar_en_lista($args['_lstTipoDomicilio'], 'tipo_domicilio', $this->tipo_domicilio);
@@ -721,8 +831,8 @@ class Comanda_model extends General_Model
         if (isset($args['_lstEstatusCallCenter']) && is_array($args['_lstEstatusCallCenter']) && count($args['_lstEstatusCallCenter']) > 0) {
             $estatusCC = $this->buscar_en_lista($args['_lstEstatusCallCenter'], 'estatus_callcenter', ((int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : '0'));
         } else {
-            $estatusCC = $this->get_estatus_callcenter();        
-        }        
+            $estatusCC = $this->get_estatus_callcenter();
+        }
         $tmp->estatus_callcenter = $estatusCC ? $estatusCC : (object)['color' => 'none'];
         $tmp->formas_pago = $this->get_forma_pago();
         $tmp->abonado = $this->get_monto_abonado_comanda();
@@ -775,11 +885,11 @@ class Comanda_model extends General_Model
             }
 
             $subquery = 'SELECT z.comanda, z.cuenta, f.fel_uuid, f.fel_uuid_anulacion ';
-            $subquery.= 'FROM factura f INNER JOIN detalle_factura e ON f.factura = e.factura ';
-            $subquery.= 'LEFT JOIN detalle_factura_detalle_cuenta d ON e.detalle_factura = d.detalle_factura ';
-            $subquery.= 'LEFT JOIN detalle_cuenta c ON c.detalle_cuenta = d.detalle_cuenta ';
-            $subquery.= 'LEFT JOIN cuenta z ON z.cuenta = c.cuenta_cuenta ';
-            $subquery.= 'WHERE z.comanda IS NOT NULL';
+            $subquery .= 'FROM factura f INNER JOIN detalle_factura e ON f.factura = e.factura ';
+            $subquery .= 'LEFT JOIN detalle_factura_detalle_cuenta d ON e.detalle_factura = d.detalle_factura ';
+            $subquery .= 'LEFT JOIN detalle_cuenta c ON c.detalle_cuenta = d.detalle_cuenta ';
+            $subquery .= 'LEFT JOIN cuenta z ON z.cuenta = c.cuenta_cuenta ';
+            $subquery .= 'WHERE z.comanda IS NOT NULL';
 
             $this->db
                 ->join('detalle_comanda b', 'a.comanda = b.comanda')
@@ -821,7 +931,7 @@ class Comanda_model extends General_Model
         $lista = [];
         $numerosComanda = $this->db->get()->result();
 
-        if(
+        if (
             isset($args['callcenter']) && (int)$args['callcenter'] === 1 &&
             isset($args['domicilio']) && (int)$args['domicilio'] === 1
         ) {
@@ -832,9 +942,9 @@ class Comanda_model extends General_Model
                 if (isset($row->numero)) {
                     $com->numero = $row->numero;
                 }
-    
+
                 $com->origen_datos = $com->getOrigenDatos();
-    
+
                 $lista[] = $com;
             }
         }

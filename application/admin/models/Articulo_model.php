@@ -733,26 +733,31 @@ class Articulo_model extends General_model
 		$receta = $this->getReceta();
 		$costo = 0;
 		if (count($receta) > 0) {
-
 			foreach ($receta as $row) {
 				$art = new Articulo_model($row->articulo->articulo);
-				$tmp = $art->getCostoReceta($args);
+				$args['presentacion'] = $art->presentacion_reporte;
+				$tmp = $art->getCostoReceta($args);				
+				unset($args['presentacion']);
 				$costo += $tmp * ($row->cantidad);
 			}
 		} else {
+			if (!isset($args['presentacion'])) {
+				$args['presentacion'] = $this->presentacion_reporte;
+			}
 			if (isset($args['bodega']) && isset($args['presentacion'])) {
-				$bac = $this->BodegaArticuloCosto_model->buscar([
-					'articulo' => $this->getPK(),
-					'bodega' => $args['bodega'],
-					'_uno' => true
-				]);
-				if ($bac) {
-					$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
-				} else {
-					$bac = new BodegaArticuloCosto_model();
-					$bac->guardar_costos($args['bodega'], $this->getPK());
-				}
-				$costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
+				// $bac = $this->BodegaArticuloCosto_model->buscar([
+				// 	'articulo' => $this->getPK(),
+				// 	'bodega' => $args['bodega'],
+				// 	'_uno' => true
+				// ]);
+				// if ($bac) {
+				// 	$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
+				// } else {
+				// 	$bac = new BodegaArticuloCosto_model();
+				// 	$bac->guardar_costos($args['bodega'], $this->getPK());
+				// }
+				// $costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
+				$costo = $this->BodegaArticuloCosto_model->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
 			} else {
 				$costo = $this->getCosto($args);
 			}
