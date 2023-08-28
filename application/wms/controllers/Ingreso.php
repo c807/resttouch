@@ -318,15 +318,14 @@ class Ingreso extends CI_Controller
 				if ($pres->medida == $presArt->medida) {
 					$idArticulo = $det->articulo->articulo;
 					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $idArticulo);
-					if ($datos_costo) {
-						// $cantidad_presentacion = (float)$datos_costo->cantidad_presentacion;
+					if ($datos_costo) {						
 						$cantidad_presentacion = round((float)$pres->cantidad, 2);
 						$precio_unitario = round((float)$det->precio_unitario, 5);
 						$existencia_anterior = round((float)$datos_costo->existencia, 2);
 						$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 						$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 						$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);
-						$costo_total_nuevo = $costo_total_anterior + round((float)$det->precio_total, 5);
+						$costo_total_nuevo = $costo_total_anterior + round((float)$det->precio_total / $cantidad_presentacion, 5);
 
 						$nvaData = [
 							'bodega' => (int)$ing->bodega,
