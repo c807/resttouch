@@ -246,7 +246,7 @@ class Factura_model extends General_model
 			}
 			unset($valores['detalle_factura']);
 			$valores['factura'] = $factura;
-			$valores['cantidad_inventario'] = $valores['cantidad'];
+			$valores['cantidad_inventario'] = is_null($valores['cantidad_inventario_backup']) ? $valores['cantidad'] : $valores['cantidad_inventario_backup'];
 
 			$this->db->insert('detalle_factura', $valores);
 

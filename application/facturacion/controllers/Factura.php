@@ -316,6 +316,7 @@ class Factura extends CI_Controller
 				if ($refac->guardar($req)) {
 					$fac->copiarDetalle($refac->getPK());
 					$datos = facturar($refac);
+					$this->rebaja_inventario_refacturacion($refac);
 				} else {
 					$datos['mensaje'] = 'Ocurrió un error al guardar la factura';
 				}
@@ -390,8 +391,7 @@ class Factura extends CI_Controller
 							$this->load->library('Webhook');
 							if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
 								$req = $fac->getXmlWebhook();
-
-							} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
+							} else if (strtolower(trim($webhook->tipo_llamada)) == 'json') {
 								$this->load->helper('api');
 								$req = $fac->getXmlWebhook(true);
 							}
@@ -697,20 +697,77 @@ class Factura extends CI_Controller
 	private function reversa_articulo_sellado($factura)
 	{
 		$detalle = $factura->get_detalle_anulacion();
-		foreach($detalle as $det)
-		{
+		foreach ($detalle as $det) {
 			$articulo = new Articulo_model($det->articulo);
 			if ((int)$articulo->essellado === 1) {
 				if ((int)$det->detalle_factura > 0) {
 					$df = new Dfactura_model($det->detalle_factura);
+					$df->cantidad_inventario_backup = (float)$df->cantidad_inventario;
 					$df->cantidad_inventario = 0;
 					$df->guardar();
+					if ((int)$df->bodega > 0) {
+						$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo);
+						if ($datos_costo_df) {
+							$pres = new Presentacion_model($df->presentacion);
+							$cantidad_presentacion = round((float)$pres->cantidad, 2);
+							$existencia_anterior = round((float)$datos_costo_df->existencia, 2);
+							$cp_unitario_anterior = round((float)$datos_costo_df->costo_promedio, 5);
+							$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+							$existencia_nueva = $existencia_anterior + ((float)$df->cantidad_inventario_backup * $cantidad_presentacion);
+							$precio_total = ((float)$df->cantidad_inventario_backup * $cantidad_presentacion) * $cp_unitario_anterior;
+							$costo_total_nuevo = $costo_total_anterior + $precio_total;
+
+							$nvaData = [
+								'bodega' => (int)$df->bodega,
+								'articulo' => (int)$df->articulo,
+								'cuc_ingresado' => 0,
+								'costo_ultima_compra' => (float)$datos_costo_df->costo_ultima_compra,
+								'cp_ingresado' => 0,
+								'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+								'existencia_ingresada' => 0,
+								'existencia' => $existencia_nueva,
+								'fecha' => date('Y-m-d H:i:s')
+							];
+
+							$nvoBac = new BodegaArticuloCosto_model();
+							$nvoBac->guardar($nvaData);
+						}
+					}
 				}
 
 				if ((int)$det->detalle_comanda > 0) {
 					$dc = new Dcomanda_model($det->detalle_comanda);
+					$dc->cantidad_inventario_backup = (float)$dc->cantidad_inventario;
 					$dc->cantidad_inventario = 0;
 					$dc->guardar();
+					if ((int)$dc->bodega > 0) {
+						$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo);
+						if ($datos_costo_dc) {
+							$pres = new Presentacion_model($dc->presentacion);
+							$cantidad_presentacion = round((float)$pres->cantidad, 2);
+							$existencia_anterior = round((float)$datos_costo_dc->existencia, 2);
+							$cp_unitario_anterior = round((float)$datos_costo_dc->costo_promedio, 5);
+							$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+							$existencia_nueva = $existencia_anterior + ((float)$dc->cantidad_inventario_backup * $cantidad_presentacion);
+							$precio_total = ((float)$dc->cantidad_inventario_backup * $cantidad_presentacion) * $cp_unitario_anterior;
+							$costo_total_nuevo = $costo_total_anterior + $precio_total;
+
+							$nvaData = [
+								'bodega' => (int)$dc->bodega,
+								'articulo' => (int)$dc->articulo,
+								'cuc_ingresado' => 0,
+								'costo_ultima_compra' => (float)$datos_costo_dc->costo_ultima_compra,
+								'cp_ingresado' => 0,
+								'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+								'existencia_ingresada' => 0,
+								'existencia' => $existencia_nueva,
+								'fecha' => date('Y-m-d H:i:s')
+							];
+
+							$nvoBac = new BodegaArticuloCosto_model();
+							$nvoBac->guardar($nvaData);
+						}
+					}
 				}
 			}
 		}
@@ -722,6 +779,69 @@ class Factura extends CI_Controller
 		$detalle = $factura->get_detalle_anulacion();
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($detalle));
+	}
+
+	private function rebaja_inventario_refacturacion($factura)
+	{
+		$detalle = $factura->get_detalle_anulacion();
+		foreach ($detalle as $det) {
+			$articulo = new Articulo_model($det->articulo);
+			if ((int)$articulo->essellado === 1) {
+				if ((int)$det->detalle_factura > 0) {
+					$df = new Dfactura_model($det->detalle_factura);
+					$df->cantidad_inventario = !is_null($df->cantidad_inventario_backup) ? $df->cantidad_inventario_backup : 0;
+					$df->cantidad_inventario_backup = null;
+					$df->guardar();
+					if ((int)$df->bodega > 0) {
+						$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo);
+						if ($datos_costo_df) {
+							$pres = new Presentacion_model($df->presentacion);
+							$nvaData = [
+								'bodega' => (int)$df->bodega,
+								'articulo' => (int)$df->articulo,
+								'cuc_ingresado' => 0,
+								'costo_ultima_compra' => (float)$datos_costo_df->costo_ultima_compra,
+								'cp_ingresado' => 0,
+								'costo_promedio' => (float)$datos_costo_df->costo_promedio,
+								'existencia_ingresada' => 0,
+								'existencia' => (float)$datos_costo_df->existencia - ((float)$df->cantidad_inventario * (float)$pres->cantidad),
+								'fecha' => date('Y-m-d H:i:s')
+							];
+
+							$nvoBac = new BodegaArticuloCosto_model();
+							$nvoBac->guardar($nvaData);
+						}
+					}
+				}
+
+				if ((int)$det->detalle_comanda > 0) {
+					$dc = new Dcomanda_model($det->detalle_comanda);
+					$dc->cantidad_inventario = !is_null($dc->cantidad_inventario_backup) ? $dc->cantidad_inventario_backup : 0;
+					$dc->cantidad_inventario_backup = null;
+					$dc->guardar();
+					if ((int)$dc->bodega > 0) {
+						$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo);
+						if ($datos_costo_dc) {
+							$pres = new Presentacion_model($dc->presentacion);
+							$nvaData = [
+								'bodega' => (int)$dc->bodega,
+								'articulo' => (int)$dc->articulo,
+								'cuc_ingresado' => 0,
+								'costo_ultima_compra' => (float)$datos_costo_dc->costo_ultima_compra,
+								'cp_ingresado' => 0,
+								'costo_promedio' => (float)$datos_costo_dc->costo_promedio,
+								'existencia_ingresada' => 0,
+								'existencia' => (float)$datos_costo_dc->existencia - ((float)$dc->cantidad_inventario * (float)$pres->cantidad),
+								'fecha' => date('Y-m-d H:i:s')
+							];
+
+							$nvoBac = new BodegaArticuloCosto_model();
+							$nvoBac->guardar($nvaData);
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

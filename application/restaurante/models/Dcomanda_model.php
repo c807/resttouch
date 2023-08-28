@@ -27,6 +27,7 @@ class Dcomanda_model extends General_Model
 	public $cantidad_inventario = null;
 	public $costo_unitario = null;
 	public $costo_total = null;
+	public $cantidad_inventario_backup = null;
 
 	public function __construct($id = '')
 	{
