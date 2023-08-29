@@ -89,46 +89,9 @@ class Ingreso extends CI_Controller
 					]);
 					$det = $ing->setDetalle($req, $id);
 					if ($det) {
-						// $bcosto = $this->BodegaArticuloCosto_model->buscar([
-						// 	'bodega' => $ing->bodega, 
-						// 	'articulo' => $art->getPK(), 
-						// 	'_uno' => true
-						// ]);
-
-						// $costo = $art->getCosto(["bodega" => $ing->bodega]);
-
-						// if ($bcosto) {
-						// 	$bac->cargar($bcosto->bodega_articulo_costo);
-						// 	/*Ultima compra*/
-						// 	$costo_uc = $art->getCosto([
-						// 		"bodega" => $ing->bodega, 
-						// 		"metodo_costeo" => 1
-						// 	]);
-						// 	$bac->costo_ultima_compra = $costo_uc;
-
-						// 	/*Costo promedio*/
-						// 	$costo = $bcosto->costo_promedio * $art->existencias + $req['precio_total'];
-						// 	$existencia = $art->existencias + $req['cantidad']*$pres->cantidad;
-						// 	if ($existencia != 0) {
-						// 		$costo = $costo / $existencia;
-						// 	} 
-
-						// 	$bac->costo_promedio = $costo;
-
-						// } else {
-						// 	$bac->bodega = $ing->bodega;
-						// 	$bac->articulo = $art->getPK();
-						// 	$bac->costo_ultima_compra = $costo;
-						// 	$bac->costo_promedio = $costo;
-						// }
-
-						// $art->guardar(["costo" => $costo]);
-						// $bac->guardar();
-
 						if ((int)$ing->ajuste === 0) {
 							$this->actualiza_ultima_compra($ing, $det, $precioUnitarioIngresado);
 						}
-
 						$datos['exito'] = true;
 						$datos['mensaje'] = "Datos Actualizados con Exito";
 						$datos['detalle'] = $det;
@@ -259,27 +222,7 @@ class Ingreso extends CI_Controller
 
 	private function actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado)
 	{
-		$this->Ingreso_model->actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado);
-		// $aucSrch = $this->Articulo_ultima_compra_model->buscar([
-		// 	'articulo' => $detalle->articulo,
-		// 	'presentacion' => $detalle->presentacion,
-		// 	'ultimo_proveedor' => $ingreso->proveedor,
-		// 	'_uno' => true
-		// ]);
-
-		// $auc = null;
-		// if ($aucSrch) {
-		// 	$auc = new Articulo_ultima_compra_model($aucSrch->articulo_ultima_compra);
-		// 	$auc->ultimo_proveedor = $ingreso->proveedor;
-		// 	$auc->ultimo_costo = $ultimo_costo_ingresado;
-		// } else {
-		// 	$auc = new Articulo_ultima_compra_model();
-		// 	$auc->articulo = $detalle->articulo;
-		// 	$auc->presentacion = $detalle->presentacion;
-		// 	$auc->ultimo_proveedor = $ingreso->proveedor;
-		// 	$auc->ultimo_costo = $ultimo_costo_ingresado;
-		// }
-		// $auc->guardar();
+		$this->Ingreso_model->actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado);		
 	}
 
 	public function eliminar_detalle($id)

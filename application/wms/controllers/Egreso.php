@@ -105,8 +105,7 @@ class Egreso extends CI_Controller {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar_egreso(){	
