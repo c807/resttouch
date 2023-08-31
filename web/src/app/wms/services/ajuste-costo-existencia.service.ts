@@ -4,7 +4,8 @@ import { GLOBAL } from '@shared/global';
 import { ServiceErrorHandler } from '@shared/error-handler';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
-import * as qs from 'qs';
+import { CargaRealizada_BodegaArticuloCosto, DetalleCargaRealizada_BodegaArticuloCosto } from '@wms-interfaces/bodega';
+// import * as qs from 'qs';
 
 @Injectable({
   providedIn: 'root'
@@ -25,4 +26,17 @@ export class AjusteCostoExistenciaService {
       obj
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
+
+  getCargasRealizadas(): Observable<CargaRealizada_BodegaArticuloCosto[]> {
+    return this.http.get<CargaRealizada_BodegaArticuloCosto[]>(
+      `${GLOBAL.urlWms}/bodegaarticulocosto/get_cargas_realizadas`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+
+  getDetalleCargaRealizada(fecha: string): Observable<DetalleCargaRealizada_BodegaArticuloCosto[]> {
+    return this.http.get<DetalleCargaRealizada_BodegaArticuloCosto[]>(
+      `${GLOBAL.urlWms}/bodegaarticulocosto/get_detalle_carga_realizada?fecha=${fecha}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
+  
 }

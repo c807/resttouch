@@ -22,7 +22,7 @@ import { MargenRecetaComponent } from './components/reporte/margen-receta/margen
 import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/consumo-articulo.component';
 import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
 import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
-import { AjusteCostoExistenciaComponent } from './components/ajuste-costo-existencia/ajuste-costo-existencia.component';
+import { AjusteCostoExistenciaComponent } from './components/ajuste-costo-existencia/ajuste-costo-existencia/ajuste-costo-existencia.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },

@@ -52,6 +52,34 @@
                 </form>
                 <app-cargando *ngIf="cargando"></app-cargando>
             </mat-card-content>
-        </mat-card>        
+        </mat-card>
+        <hr />
+        <mat-card class="mat-elevation-z4 fullWidth">
+          <mat-card-title>
+            <h5>Cargas realizadas</h5>
+          </mat-card-title>
+          <mat-card-content>
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Sede</th>
+                  <th>Bodega</th>
+                  <th>&nbsp;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cr of cargasRealizadas">
+                  <td>{{cr.fecha | date:'dd/MM/yyyy'}}</td>
+                  <td>{{cr.sede}}</td>
+                  <td>{{cr.bodega}}</td>
+                  <td>
+                    <button mat-raised-button color="accent" type="button" (click)="verDetalle(cr)">Ver</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </mat-card-content>
+        </mat-card>
     </mat-tab>
   </mat-tab-group>

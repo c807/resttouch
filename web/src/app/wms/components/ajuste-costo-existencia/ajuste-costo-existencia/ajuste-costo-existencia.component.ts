@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { GLOBAL, isNotNullOrUndefined } from '@shared/global';
 import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { DetalleCargaRealizadaComponent } from '@wms-components/ajuste-costo-existencia/detalle-carga-realizada/detalle-carga-realizada.component';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -13,7 +14,8 @@ import { Bodega } from '@wms-interfaces/bodega';
 import { BodegaService } from '@wms-services/bodega.service';
 import { UsuarioSede } from '@admin-interfaces/acceso';
 import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
-import { AjusteCostoExistenciaService } from '@wms-services/ajuste-costo-existencia.service'
+import { AjusteCostoExistenciaService } from '@wms-services/ajuste-costo-existencia.service';
+import { CargaRealizada_BodegaArticuloCosto } from '@wms-interfaces/bodega';
 
 import { Subscription } from 'rxjs';
 
@@ -31,6 +33,8 @@ export class AjusteCostoExistenciaComponent implements OnInit, OnDestroy {
   public configBotones: ConfiguracionBotones = {
     showPdf: false, showHtml: false, showExcel: true
   };
+
+  public cargasRealizadas: CargaRealizada_BodegaArticuloCosto[] = [];
 
   myForm = new FormGroup({
     name: new FormControl('RT_PLANTILLA_DATOS', [Validators.required, Validators.minLength(3)]),
@@ -55,6 +59,7 @@ export class AjusteCostoExistenciaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getSede();
+    this.loadCargasRealizadas();
   }
 
   ngOnDestroy(): void {
@@ -143,6 +148,7 @@ export class AjusteCostoExistenciaComponent implements OnInit, OnDestroy {
               }
               this.myForm.reset();
               this.myForm.patchValue({ name: 'Ajuste_costo_existencia' });
+              this.loadCargasRealizadas();
               this.cargando = false;
             })
           );
@@ -151,4 +157,21 @@ export class AjusteCostoExistenciaComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadCargasRealizadas = () => {
+    this.cargando = true;
+    this.endSubs.add(
+      this.ajusteCostoExistenciaSrvc.getCargasRealizadas().subscribe(res => {
+        this.cargasRealizadas = res;
+        this.cargando = false;
+      })
+    );
+  }
+
+  verDetalle = (cargaRealizada: CargaRealizada_BodegaArticuloCosto) => {
+    const detalleRef = this.dialog.open(DetalleCargaRealizadaComponent, {
+      maxWidth: '100vw', maxHeight: '99vh', width: '99vw', height: '99vh',
+      disableClose: true,
+      data: cargaRealizada
+    });    
+  }
 }
