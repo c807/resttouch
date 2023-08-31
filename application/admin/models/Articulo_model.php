@@ -1277,7 +1277,29 @@ class Articulo_model extends General_model
 				$costo    += round($tmp, 2);
 			}
 		} else {
-			$costo = $this->getCosto();
+			$bodega = $this->db
+				->select('b.bodega, e.metodo_costeo')
+				->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+				->join('categoria c', 'c.categoria = b.categoria')
+				->join('sede d', 'd.sede = c.sede')
+				->join('empresa e', 'e.empresa = d.empresa')
+				->where('a.articulo', $this->getPK())
+				->get('articulo a')
+				->row();
+			if ($bodega && (int)$bodega->bodega > 0) {
+				$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodega->bodega, $this->getPK());
+				if ($datos_costo) {
+					if ((int)$bodega->metodo_costeo === 1) {
+						$costo = (float)$datos_costo->costo_ultima_compra;
+					} else if ((int)$bodega->metodo_costeo === 2) {
+						$costo = (float)$datos_costo->costo_promedio;
+					}
+				} else {
+					$costo = $this->getCosto();
+				}
+			} else {
+				$costo = $this->getCosto();
+			}
 		}
 
 		return $costo;
