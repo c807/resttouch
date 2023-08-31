@@ -14,6 +14,7 @@ class BodegaArticuloCosto_model extends General_model
     public $existencia_ingresada = 0.00;
     public $existencia = 0.00;
     public $fecha;
+    public $esajuste = 0;
 
     public function __construct($id = "")
     {
@@ -206,5 +207,36 @@ class BodegaArticuloCosto_model extends General_model
         } else {
             return false;
         }
+    }
+
+    public function get_cargas_realizadas()
+    {
+        return $this->db
+            ->select('DATE(a.fecha) AS fecha, CONCAT(c.nombre, IFNULL(CONCAT(" (", c.alias, ")"), "")) AS sede, b.descripcion AS bodega')
+            ->join('bodega b', 'b.bodega = a.bodega')
+            ->join('sede c', 'c.sede = b.sede')
+            ->where('a.esajuste', 1)
+            ->group_by('1, 2, 3')
+            ->order_by('1 DESC, 2, 3')
+            ->get('bodega_articulo_costo a')
+            ->result();
+    }
+
+    public function get_detalle_carga_realizada($args)
+    {
+        $campos = 'a.fecha, CONCAT(c.nombre, IFNULL(CONCAT(" (", c.alias, ")"), "")) AS sede, b.descripcion AS bodega, d.descripcion AS articulo, e.descripcion AS presentacion, a.cuc_ingresado, ';
+        $campos.= 'a.cp_ingresado, a.existencia_ingresada, f.metodo_costeo';
+        return $this->db
+            ->select($campos)
+            ->join('bodega b', 'b.bodega = a.bodega')
+            ->join('sede c', 'c.sede = b.sede')
+            ->join('articulo d', 'd.articulo = a.articulo')
+            ->join('presentacion e', 'e.presentacion = d.presentacion_reporte')
+            ->join('empresa f', 'f.empresa = c.empresa')
+            ->where('a.esajuste', 1)
+            ->where('DATE(a.fecha)', $args['fecha'])
+            ->order_by('1, 2, 3')
+            ->get('bodega_articulo_costo a')
+            ->result();
     }
 }

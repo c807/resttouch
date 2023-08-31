@@ -166,7 +166,8 @@ class BodegaArticuloCosto extends CI_Controller
                                 'articulo' => (int)$col[5],
                                 'cuc_ingresado' => (float)$col[8],
                                 'cp_ingresado' => (float)$col[8],
-                                'existencia_ingresada' => (float)$col[9]
+                                'existencia_ingresada' => (float)$col[9],
+                                'esajuste' => 1
                             ];
                             $exito = $this->BodegaArticuloCosto_model->ajustar_costo_promedio_existencia($params);
                             if (!$exito) {
@@ -203,6 +204,18 @@ class BodegaArticuloCosto extends CI_Controller
             }
         }
         $this->output->set_output(json_encode($json));
+    }
+
+    public function get_cargas_realizadas()
+    {
+        $datos = $this->BodegaArticuloCosto_model->get_cargas_realizadas();
+        $this->output->set_output(json_encode($datos));
+    }
+
+    public function get_detalle_carga_realizada()
+    {
+        $datos = $this->BodegaArticuloCosto_model->get_detalle_carga_realizada($_GET);
+        $this->output->set_output(json_encode($datos));
     }
 }
 
