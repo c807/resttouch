@@ -402,7 +402,7 @@ class Factura_model extends General_model
 
 		if ($cuenta && (int)$cuenta->cuenta > 0) {
 			$distribucion = $this->db
-				->select('b.cuenta_contable, SUM(a.monto) AS monto')
+				->select('b.cuenta_contable, SUM(a.monto + a.propina) AS monto')
 				->join('forma_pago_sede_cuenta_contable b', 'a.forma_pago = b.forma_pago')
 				->where('a.cuenta', $cuenta->cuenta)
 				->where('b.sede', $this->sede)
