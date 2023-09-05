@@ -617,12 +617,16 @@ class Catalogo_model extends CI_Model
 		}
 
 		if (isset($args['llave'])) {
-			$this->db->where("llave", $args['llave']);
+			$this->db->where('llave', $args['llave']);
+		}
+
+		if (isset($args['db_database'])) {
+			$this->db->where('db_database', $args['db_database']);
 		}
 
 		$tmp = $this->db
 			->select('db_hostname, db_username, db_password, db_database, bloqueado')
-			->from('cliente_corporacion')
+			->from('administracion.cliente_corporacion')
 			->get();
 		//return $this->getCatalogo($tmp, $args);
 		if ($tmp && $tmp->num_rows() > 0) {

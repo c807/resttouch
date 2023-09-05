@@ -3014,6 +3014,14 @@ CREATE TABLE RT_DATABASE_NAME.detalle_ajuste_costo_promedio (
 
 ALTER TABLE RT_DATABASE_NAME.area ADD COLUMN mesas_fila_area INT NULL DEFAULT 3;
 
+ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN fecha DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER existencia, ADD INDEX Fecha_Idx (fecha ASC);
+ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN cuc_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER articulo, ADD COLUMN cp_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER costo_ultima_compra;
+ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo DROP INDEX bodega_articulo;
+ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN existencia_ingresada DECIMAL(20,2) NULL DEFAULT 0.00 AFTER costo_promedio;
+ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD COLUMN cantidad_inventario_backup DECIMAL(10,2) NULL AFTER cantidad_inventario;
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN cantidad_inventario_backup DECIMAL(10,2) NULL AFTER costo_total;
+ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN esajuste TINYINT(1) NOT NULL DEFAULT 0 AFTER fecha;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

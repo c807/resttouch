@@ -234,7 +234,7 @@ class Articulo_model extends General_model
 		return $exist;
 	}
 
-	function actualizarExistencia($args = [])
+	function actualizarExistencia($args = [], $useOldWay = false)
 	{
 		if ($this->getPK()) {
 			$receta = $this->getReceta();
@@ -246,7 +246,7 @@ class Articulo_model extends General_model
 				//$venta = $this->getVentaReceta();
 				foreach ($receta as $row) {
 					$art = new Articulo_model($row->articulo->articulo);
-					$art->actualizarExistencia($args);
+					$art->actualizarExistencia($args, $useOldWay);
 					// $existR = $art->existencias;
 
 					$grupos[] = (int)($art->existencias / $row->cantidad);
@@ -254,18 +254,18 @@ class Articulo_model extends General_model
 
 				$exist = min($grupos);
 			} else {
-				$exist = $this->obtenerExistencia($args, $this->articulo);
+				$exist = $this->obtenerExistencia($args, $this->articulo, false, $useOldWay);
 			}
 
 			return $this->guardar(['existencias' => $exist]);
 		}
 	}
 
-	public function obtenerExistencia($args = [], $articulo, $receta = false)
+	public function obtenerExistencia($args = [], $articulo, $receta = false, $useOldWay = false)
 	{
 
 		$datos_existencia = null;
-		if (isset($args['bodega']) && (int)$args['bodega'] > 0) {
+		if (isset($args['bodega']) && (int)$args['bodega'] > 0 && !$useOldWay) {
 			$this->load->model('BodegaArticuloCosto_model');
 			$datos_existencia = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], $articulo);
 		}
@@ -1160,17 +1160,18 @@ class Articulo_model extends General_model
 
 	public function actualiza_existencia_bodega_articulo_costo($idbodega)
 	{
-		$bac = $this->db->where('articulo', $this->_pk)->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
+		$bac = $this->db->where('articulo', $this->getPK())->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
 		if ($bac) {
-			$this->db
-				->where('bodega_articulo_costo', $bac->bodega_articulo_costo)
-				->update('bodega_articulo_costo', ['existencia' => $this->existencias]);
+			$pres = $this->getPresentacionReporte();
+			$existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
+			$this->db->where('bodega_articulo_costo', $bac->bodega_articulo_costo)->update('bodega_articulo_costo', ['existencia' => $existencias, 'fecha' => date('Y-m-d H:i:s')]);
 		} else {
-			$this->db->insert('bodega_articulo_costo', [
-				'bodega' => $idbodega,
-				'articulo' => $this->_pk,
-				'existencia' => $this->existencias
-			]);
+			// $this->db->insert('bodega_articulo_costo', [
+			// 	'bodega' => $idbodega,
+			// 	'articulo' => $this->getPK(),
+			// 	'existencia' => $this->existencias,
+			// 	'fecha' => date('Y-m-d H:i:s')
+			// ]);
 		}
 		return $this->db->affected_rows() > 0;
 	}
@@ -1352,7 +1353,8 @@ class Articulo_model extends General_model
 							'bodega' => $bodega->bodega,
 							'articulo' => $ai->articulo,
 							'costo_ultima_compra' => $costoUltimaCompra,
-							'costo_promedio' => $costoPromedio
+							'costo_promedio' => $costoPromedio,
+							'fecha' => date('Y-m-d H:i:s')
 						]);
 					}
 				}

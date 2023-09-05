@@ -42,7 +42,7 @@ class Schema_model extends General_model
 			return ['db_hostname' => 'localhost', 'db_username' => 'root', 'db_password' => 'PoChoco2016'];
 		} else if (in_array($_SERVER['HTTP_HOST'], ['qa.resttouch.com'])) {
 			return ['db_hostname' => '10.0.83.4', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
-		}		
+		}
 		return ['db_hostname' => '10.0.0.5', 'db_username' => 'devlm', 'db_password' => 'D3vLM2020!'];
 	}
 
@@ -99,11 +99,14 @@ class Schema_model extends General_model
 	{
 		$esquemas = $this->get_schemas();
 		$resultados = [];
+		$skip = [];
 
 		foreach ($esquemas as $schema) {
-			$query = str_replace('RT_DATABASE_NAME', $schema->SCHEMA_NAME, $sql);
-			$resultado = $this->ejecuta_sql($query);
-			$resultados[] = ['esquema' => $schema->SCHEMA_NAME, 'resultado' => $resultado];
+			if (!in_array($schema->SCHEMA_NAME, $skip)) {
+				$query = str_replace('RT_DATABASE_NAME', $schema->SCHEMA_NAME, $sql);
+				$resultado = $this->ejecuta_sql($query);
+				$resultados[] = ['esquema' => $schema->SCHEMA_NAME, 'resultado' => $resultado];
+			}
 		}
 
 		return $resultados;
