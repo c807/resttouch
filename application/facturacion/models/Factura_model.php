@@ -19,7 +19,7 @@ class Factura_model extends General_model
 	public $notas;
 	public $sede;
 	public $correo_receptor;
-	private $namespaceURI = "http://www.sat.gob.gt/dte/fel/0.2.0";
+	private $namespaceURI = 'http://www.sat.gob.gt/dte/fel/0.2.0';
 	private $esAnulacion;
 	private $certificador;
 	public $razon_anulacion;
@@ -34,7 +34,7 @@ class Factura_model extends General_model
 	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("factura");
+		$this->setTabla('factura');
 
 		if (!empty($id)) {
 			$this->cargar($id);
@@ -45,22 +45,22 @@ class Factura_model extends General_model
 	public function getDetalleImpuestos()
 	{
 		return $this->db
-			->select("b.descripcion, sum(a.valor_impuesto_especial) as total")
-			->from("detalle_factura a")
-			->join("impuesto_especial b", "b.impuesto_especial = a.impuesto_especial")
-			->where("a.factura", $this->getPK())
-			->group_by("b.impuesto_especial")
+			->select('b.descripcion, sum(a.valor_impuesto_especial) as total')
+			->from('detalle_factura a')
+			->join('impuesto_especial b', 'b.impuesto_especial = a.impuesto_especial')
+			->where('a.factura', $this->getPK())
+			->group_by('b.impuesto_especial')
 			->get()
 			->result();
 	}
 
-	public function setDetalle($args, $id = "")
+	public function setDetalle($args, $id = '')
 	{
 		$config = $this->Configuracion_model->buscar();
-		$vnegativo = get_configuracion($config, "RT_VENDE_NEGATIVO", 3);
+		$vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
 		$det = new Dfactura_model($id);
 		$args['factura'] = $this->factura;
-		$menu = $this->Catalogo_model->getModulo(["modulo" => 4, "_uno" => true]);
+		$menu = $this->Catalogo_model->getModulo(['modulo' => 4, '_uno' => true]);
 		$validar = (!isset($args['detalle_cuenta']) || !empty($menu));
 		$cantidad = 0;
 		$articulo = null;
@@ -105,17 +105,17 @@ class Factura_model extends General_model
 			if (count($receta) > 0 && $art->combo == 0 && $art->multiple == 0 && $nuevo && !isset($args['detalle_cuenta'])) {
 				foreach ($receta as $rec) {
 					$presR = $this->Presentacion_model->buscar([
-						"medida" => $rec->medida->medida,
-						"cantidad" => 1,
-						"_uno" => true
+						'medida' => $rec->medida->medida,
+						'cantidad' => 1,
+						'_uno' => true
 					]);
 
 					if (!$presR) {
 						$presR = new Presentacion_model();
 						$presR->guardar([
-							"medida" => $rec->medida->medida,
-							"descripcion" => $rec->medida->descripcion,
-							"cantidad" => 1
+							'medida' => $rec->medida->medida,
+							'descripcion' => $rec->medida->descripcion,
+							'cantidad' => 1
 						]);
 
 						$presR->presentacion = $presR->getPK();
@@ -123,17 +123,17 @@ class Factura_model extends General_model
 
 					$detr = new Dfactura_model();
 					$dato = [
-						"factura" => $this->getPK(),
-						"articulo" => $rec->articulo->articulo,
-						"cantidad" => $rec->cantidad,
-						"cantidad_inventario" => $rec->cantidad,
-						"precio_unitario" => 0,
-						"total" => 0,
-						"monto_base" => 0,
-						"monto_iva" => 0,
-						"bien_servicio" => $det->bien_servicio,
-						"presentacion" => $presR->presentacion,
-						"detalle_factura_id" => $idx
+						'factura' => $this->getPK(),
+						'articulo' => $rec->articulo->articulo,
+						'cantidad' => $rec->cantidad,
+						'cantidad_inventario' => $rec->cantidad,
+						'precio_unitario' => 0,
+						'total' => 0,
+						'monto_base' => 0,
+						'monto_iva' => 0,
+						'bien_servicio' => $det->bien_servicio,
+						'presentacion' => $presR->presentacion,
+						'detalle_factura_id' => $idx
 					];
 					$detr->guardar($dato);
 				}
@@ -147,9 +147,9 @@ class Factura_model extends General_model
 			if ($result) {
 				if (isset($args['detalle_cuenta'])) {
 					$this->db
-						->set("detalle_factura", $det->detalle_factura)
-						->set("detalle_cuenta", $args['detalle_cuenta'])
-						->insert("detalle_factura_detalle_cuenta");
+						->set('detalle_factura', $det->detalle_factura)
+						->set('detalle_cuenta', $args['detalle_cuenta'])
+						->insert('detalle_factura_detalle_cuenta');
 				}
 				// if ($vnegativo) {
 				// 	$at->actualizar_existencias_articulo($art->getPK());
@@ -188,10 +188,10 @@ class Factura_model extends General_model
 	public function getTotal()
 	{
 		return $this->db
-			->select("factura, sum(total) as total")
-			->where("factura", $this->factura)
-			->group_by("factura")
-			->get("detalle_factura")
+			->select('factura, sum(total) as total')
+			->where('factura', $this->factura)
+			->group_by('factura')
+			->get('detalle_factura')
 			->row()
 			->total;
 	}
@@ -200,7 +200,7 @@ class Factura_model extends General_model
 	{
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
-				if (substr($key, 0, 1) != "_") {
+				if (substr($key, 0, 1) != '_') {
 					$this->db->where($key, $row);
 				}
 			}
@@ -208,9 +208,9 @@ class Factura_model extends General_model
 
 		$datos = [];
 		$tmp = $this->db
-			->where("factura", $this->factura)
-			->where("total > 0")
-			->get("detalle_factura")
+			->where('factura', $this->factura)
+			->where('total > 0')
+			->get('detalle_factura')
 			->result();
 
 		foreach ($tmp as $row) {
@@ -220,8 +220,8 @@ class Factura_model extends General_model
 			$row->total = $redondeaMontos ? ($row->total - $row->descuento) : ($row->total_ext - $row->descuento_ext);
 			if ($row->impuesto_especial) {
 				$imp = $this->db
-					->where("impuesto_especial", $row->impuesto_especial)
-					->get("impuesto_especial")
+					->where('impuesto_especial', $row->impuesto_especial)
+					->get('impuesto_especial')
 					->row();
 
 				$row->impuesto = $imp;
@@ -234,8 +234,8 @@ class Factura_model extends General_model
 	public function copiarDetalle($factura)
 	{
 		$det = $this->db
-			->where("factura", $this->factura)
-			->get("detalle_factura")
+			->where('factura', $this->factura)
+			->get('detalle_factura')
 			->result();
 
 		$camposDetalle = $this->getCampos(true, '', 'detalle_factura');
@@ -252,15 +252,15 @@ class Factura_model extends General_model
 
 			$id = $this->db->insert_id();
 			$det = $this->db
-				->where("detalle_factura", $row->detalle_factura)
-				->get("detalle_factura_detalle_cuenta");
+				->where('detalle_factura', $row->detalle_factura)
+				->get('detalle_factura_detalle_cuenta');
 
 			if ($det->num_rows() > 0) {
 				$det = $det->row();
 				$this->db
-					->set("detalle_factura", $id)
-					->set("detalle_cuenta", $det->detalle_cuenta)
-					->insert("detalle_factura_detalle_cuenta");
+					->set('detalle_factura', $id)
+					->set('detalle_cuenta', $det->detalle_cuenta)
+					->insert('detalle_factura_detalle_cuenta');
 			}
 		}
 	}
@@ -274,15 +274,15 @@ class Factura_model extends General_model
 		}
 
 		$tmp = $this->db
-			->join("detalle_factura b", "a.factura = b.factura")
-			->join("detalle_factura_detalle_cuenta c", "c.detalle_factura = b.detalle_factura")
-			->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta")
-			->join("cuenta e", "d.cuenta_cuenta = e.cuenta")
-			->join("comanda_has_mesa f", "e.comanda = f.comanda")
-			->join("mesa g", "f.mesa = g.mesa")
-			->where("a.factura", $this->getPK())
-			->group_by(["a.factura", "g.numero"])
-			->get("factura a");
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('cuenta e', 'd.cuenta_cuenta = e.cuenta')
+			->join('comanda_has_mesa f', 'e.comanda = f.comanda')
+			->join('mesa g', 'f.mesa = g.mesa')
+			->where('a.factura', $this->getPK())
+			->group_by(['a.factura', 'g.numero'])
+			->get('factura a');
 
 		if ($tmp && $tmp->num_rows() > 0) {
 			return $tmp->row();
@@ -294,14 +294,14 @@ class Factura_model extends General_model
 	public function getComanda($completo = true)
 	{
 		$tmp = $this->db
-			->select("e.comanda")
-			->from("factura a")
-			->join("detalle_factura b", "a.factura = b.factura")
-			->join("detalle_factura_detalle_cuenta c", "c.detalle_factura = b.detalle_factura")
-			->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta")
-			->join("cuenta e", "d.cuenta_cuenta = e.cuenta")
-			->where("a.factura", $this->getPK())
-			->group_by("e.comanda")
+			->select('e.comanda')
+			->from('factura a')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('cuenta e', 'd.cuenta_cuenta = e.cuenta')
+			->where('a.factura', $this->getPK())
+			->group_by('e.comanda')
 			->get()
 			->row();
 
@@ -315,8 +315,8 @@ class Factura_model extends General_model
 	public function cargarCertificadorFel()
 	{
 		$this->certificador = $this->db
-			->where("certificador_fel", $this->certificador_fel)
-			->get("certificador_fel")
+			->where('certificador_fel', $this->certificador_fel)
+			->get('certificador_fel')
 			->row();
 	}
 
@@ -328,42 +328,42 @@ class Factura_model extends General_model
 	public function cargarFacturaSerie()
 	{
 		$this->serie = $this->db
-			->where("factura_serie", $this->factura_serie)
-			->get("factura_serie")
+			->where('factura_serie', $this->factura_serie)
+			->get('factura_serie')
 			->row();
 	}
 
 	public function cargarEmpresa()
 	{
 		$this->empresa = $this->db
-			->select("b.*")
-			->join("empresa b", "b.empresa = a.empresa")
-			->where("a.sede", $this->sede)
-			->get("sede a")
+			->select('b.*')
+			->join('empresa b', 'b.empresa = a.empresa')
+			->where('a.sede', $this->sede)
+			->get('sede a')
 			->row();
 	}
 
 	public function cargarSede()
 	{
 		$this->sedeFactura = $this->db
-			->where("sede", $this->sede)
-			->get("sede")
+			->where('sede', $this->sede)
+			->get('sede')
 			->row();
 	}
 
 	public function cargarReceptor()
 	{
 		$this->receptor = $this->db
-			->where("cliente", $this->cliente)
-			->get("cliente")
+			->where('cliente', $this->cliente)
+			->get('cliente')
 			->row();
 	}
 
 	public function cargarMoneda()
 	{
 		$this->moneda = $this->db
-			->where("moneda", $this->moneda)
-			->get("moneda")
+			->where('moneda', $this->moneda)
+			->get('moneda')
 			->row();
 	}
 
@@ -431,9 +431,9 @@ class Factura_model extends General_model
 		$doc = new stdClass();
 		$config = $this->Configuracion_model->buscar();
 		$dfac = $this->getDetalle();
-		$sumIva = suma_field($dfac, "monto_iva");
-		$sumTotal = suma_field($dfac, "total");
-		$conceptoMayor = $this->empresa->concepto_mayor_venta ?? get_configuracion($config, "RT_CONCEPTO_MAYOR_VENTA", 2);
+		$sumIva = suma_field($dfac, 'monto_iva');
+		$sumTotal = suma_field($dfac, 'total');
+		$conceptoMayor = $this->empresa->concepto_mayor_venta ?? get_configuracion($config, 'RT_CONCEPTO_MAYOR_VENTA', 2);
 		/*Datos encabezado*/
 		$enca = new stdClass();
 		$enca->idempresa = $this->empresa->codigo;
@@ -472,7 +472,7 @@ class Factura_model extends General_model
 		//Finaliza modificación para hacer el debe en base a la forma de pago.
 
 		$iva = new stdClass();
-		$iva->codigo = $this->empresa->cuenta_contable_iva_venta ?? get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_VENTA", 2);
+		$iva->codigo = $this->empresa->cuenta_contable_iva_venta ?? get_configuracion($config, 'RT_CUENTA_CONTABLE_IVA_VENTA', 2);
 		$iva->conceptomayor = $conceptoMayor;
 		$iva->haber = $sumIva;
 		$iva->debe = 0;
@@ -493,21 +493,21 @@ class Factura_model extends General_model
 		$propIva = new stdClass();
 		$propBase = new stdClass();
 		$propIva->haber = 0;
-		$propIva->codigo = $this->empresa->cuenta_contable_iva_propina ?? get_configuracion($config, "RT_CUENTA_CONTABLE_IVA_PROPINA", 2);
+		$propIva->codigo = $this->empresa->cuenta_contable_iva_propina ?? get_configuracion($config, 'RT_CUENTA_CONTABLE_IVA_PROPINA', 2);
 		$propIva->conceptomayor = $conceptoMayor;
 		$propIva->debe = 0;
 
 		$propBase->haber = 0;
-		$propBase->codigo = $this->empresa->cuenta_contable_propina ?? get_configuracion($config, "RT_CUENTA_CONTABLE_PROPINA", 2);
+		$propBase->codigo = $this->empresa->cuenta_contable_propina ?? get_configuracion($config, 'RT_CUENTA_CONTABLE_PROPINA', 2);
 		$propBase->conceptomayor = $conceptoMayor;
 		$propBase->debe = 0;
 
 		foreach ($dfac as $row) {
 			$cgrupo = $this->db
-				->where("categoria_grupo", $row->articulo->categoria_grupo)
-				->get("categoria_grupo")
+				->where('categoria_grupo', $row->articulo->categoria_grupo)
+				->get('categoria_grupo')
 				->row();
-			if (strpos(strtolower($row->articulo->descripcion), "propina") === false) {
+			if (strpos(strtolower($row->articulo->descripcion), 'propina') === false) {
 				if (isset($tmpTotal[$cgrupo->cuenta_contable])) {
 					$tmpTotal[$cgrupo->cuenta_contable] += $row->monto_base;
 				} else {
@@ -545,7 +545,7 @@ class Factura_model extends General_model
 
 		if (!$raw) {
 			$requestDOM = new DOMDocument('1.0');
-			$requestDOM->loadXML(arrayToXml((array)$doc, "<documento/>"));
+			$requestDOM->loadXML(arrayToXml((array)$doc, '<documento/>'));
 
 			return $requestDOM->saveXML();
 		} else {
@@ -2234,6 +2234,29 @@ class Factura_model extends General_model
 				$nvoBac->guardar($nvaData);				
 			}
 		}
+	}
+
+	public function getNoOrden()
+	{
+		$tmp = $this->db
+			->select('f.comanda_origen_datos')
+			->from('factura a')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('cuenta e', 'd.cuenta_cuenta = e.cuenta')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->where('a.factura', $this->getPK())
+			->group_by('f.comanda')
+			->get()
+			->row();
+
+		if ($tmp->comanda_origen_datos) {
+			$json = json_decode($tmp->comanda_origen_datos);
+			return isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);			
+		}		
+
+		return null;
 	}
 }
 

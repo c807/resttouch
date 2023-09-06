@@ -175,6 +175,7 @@ class Factura extends CI_Controller
 					'usuario' => $tmp->usuario, '_uno' => true
 				]);
 				$row->comanda = $tmp->getComanda(false);
+				$row->orden = $tmp->getNoOrden();
 				$datos[] = $row;
 			}
 		} else if ($facturas) {
@@ -190,6 +191,7 @@ class Factura extends CI_Controller
 				'usuario' => $tmp->usuario, '_uno' => true
 			]);
 			$facturas->comanda = $tmp->getComanda(false);
+			$facturas->orden = $tmp->getNoOrden();
 			$datos[] = $facturas;
 		}
 
