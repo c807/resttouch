@@ -267,7 +267,7 @@ export class ReportePdfService {
 
   getFormatoExcelAjusteCostoExistencia(fltr: Object) {
     return this.http.get<string>(
-      `${GLOBAL.urlWms}/bodegaarticulocosto/descargar_articulos_excel?${qs.stringify(fltr)}`,      
+      `${GLOBAL.urlWms}/bodega_articulo_costo/descargar_articulos_excel?${qs.stringify(fltr)}`,      
       this.httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }

@@ -22,20 +22,20 @@ export class AjusteCostoExistenciaService {
 
   subir_plantilla_ajuste_costo_existencia(obj: FormData): Observable<any> {
     return this.http.post<any>(
-      `${GLOBAL.urlWms}/bodegaarticulocosto/cargar_articulos_excel`,
+      `${GLOBAL.urlWms}/bodega_articulo_costo/cargar_articulos_excel`,
       obj
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
 
   getCargasRealizadas(): Observable<CargaRealizada_BodegaArticuloCosto[]> {
     return this.http.get<CargaRealizada_BodegaArticuloCosto[]>(
-      `${GLOBAL.urlWms}/bodegaarticulocosto/get_cargas_realizadas`
+      `${GLOBAL.urlWms}/bodega_articulo_costo/get_cargas_realizadas`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
 
   getDetalleCargaRealizada(fecha: string): Observable<DetalleCargaRealizada_BodegaArticuloCosto[]> {
     return this.http.get<DetalleCargaRealizada_BodegaArticuloCosto[]>(
-      `${GLOBAL.urlWms}/bodegaarticulocosto/get_detalle_carga_realizada?fecha=${fecha}`
+      `${GLOBAL.urlWms}/bodega_articulo_costo/get_detalle_carga_realizada?fecha=${fecha}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
   }
   

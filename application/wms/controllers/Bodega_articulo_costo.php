@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class BodegaArticuloCosto extends CI_Controller
+class Bodega_articulo_costo extends CI_Controller
 {
 
     public function __construct()
