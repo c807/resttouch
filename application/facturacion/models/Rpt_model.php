@@ -184,7 +184,7 @@ class Rpt_model extends General_model
                 ->where('b.combo', 0)
                 ->where('a.total >', 0)                
                 ->where('a.cantidad >', 0)
-                ->where('b.esextra', 0)                
+                ->where('(b.esextra = 0 OR (b.esextra = 1 AND a.detalle_comanda_id IS NULL))')
                 ->where('d.fel_uuid_anulacion IS NULL')
                 ->group_by('a.articulo, b.descripcion')                
                 ->get('detalle_comanda a')
