@@ -1028,7 +1028,7 @@ class Venta extends CI_Controller
 				$hoja->mergeCells("A5:{$columna}5");
 
 				$fila += 3;
-				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
+				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados. Se incluyen artículos comandados (no cobrados y cobrados).');
 				$hoja->setTitle("Ventas por artículo");
 
 				header("Content-Type: application/vnd.ms-excel");
