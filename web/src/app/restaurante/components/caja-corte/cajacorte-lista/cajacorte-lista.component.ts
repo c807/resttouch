@@ -8,6 +8,7 @@ import { Socket } from 'ngx-socket-io';
 import * as moment from 'moment';
 
 import { CheckPasswordComponent, ConfigCheckPasswordModel } from '@shared-components/check-password/check-password.component';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 import { CajacorteFormComponent } from '@restaurante-components/caja-corte/cajacorte-form/cajacorte-form.component';
 import { CajaCortePreviewComponent } from '@restaurante-components/caja-corte/caja-corte-preview/caja-corte-preview.component';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
@@ -45,6 +46,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
 
   // @Output() getCajacorteEv = new EventEmitter();
   @Output() listaCCEv = new EventEmitter();
+  @Output() saldoFinalSvdEv = new EventEmitter();
   public idTurno: number = null;
   public turno: Turno = null;
   public listacc: ccGeneral[];
@@ -131,7 +133,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     }
   }
 
-  addTranCC = (tipo: ccTipo): void => {
+  agregaTransaccionCC = (tipo: ccTipo) => {
     const dialogCCF = this.dialog.open(CajacorteFormComponent, {
       width: '50%',
       disableClose: true,
@@ -139,8 +141,36 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     });
 
     this.endSubs.add(
-      dialogCCF.afterClosed().subscribe(() => this.getCajascortes())
+      dialogCCF.afterClosed().subscribe((seGuardo: boolean) => {
+        if (seGuardo && +tipo.caja_corte_tipo === 4) {
+          this.saldoFinalSvdEv.emit();
+        }
+        this.getCajascortes()
+      })
     );
+  }
+
+  addTranCC = (tipo: ccTipo): void => {
+    if (+tipo.caja_corte_tipo !== 4) {
+      this.agregaTransaccionCC(tipo);
+    } else {
+      const confCierreTurnoRef = this.dialog.open(ConfirmDialogComponent, {
+        maxWidth: '400px',
+        data: new ConfirmDialogModel(
+          'Caja',
+          'Al realizar el Saldo final cerrará el turno automáticamente si no lo ha hecho. ¿Desea continuar?',
+          'Sí', 'No'
+        )
+      });
+
+      this.endSubs.add(
+        confCierreTurnoRef.afterClosed().subscribe(res => {
+          if (res) {
+            this.agregaTransaccionCC(tipo);
+          }
+        })
+      );
+    }
   }
 
   getCajascortes = () => {

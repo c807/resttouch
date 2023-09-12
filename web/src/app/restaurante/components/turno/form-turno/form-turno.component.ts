@@ -185,28 +185,32 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     return cerrada;
   }
 
-  onSubmit = () => {
+  onSubmit = (noEsPorSaldoFinal: boolean = true) => {
     this.cargando = true;
     if (moment(this.turno.fin).isValid()) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        maxWidth: '400px',
-        data: new ConfirmDialogModel('Cerrar turno', 'La fecha de finalización cerrará el turno. ¿Desea continuar?', 'Sí', 'No')
-      });
-
-      this.endSubs.add(
-        dialogRef.afterClosed().subscribe(res => {
-          if (res) {
-            if (this.checkCierreCaja()) {
-              this.saveInfoTurno();
+      if (noEsPorSaldoFinal) {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          maxWidth: '400px',
+          data: new ConfirmDialogModel('Cerrar turno', 'La fecha de finalización cerrará el turno. ¿Desea continuar?', 'Sí', 'No')
+        });
+  
+        this.endSubs.add(
+          dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+              if (this.checkCierreCaja()) {
+                this.saveInfoTurno();
+              } else {
+                this.snackBar.open('No puede cerrar el turno si no tiene saldo final de caja.', 'Turno', { duration: 7000 });
+                this.cargando = false;
+              }
             } else {
-              this.snackBar.open('No puede cerrar el turno si no tiene saldo final de caja.', 'Turno', { duration: 7000 });
               this.cargando = false;
             }
-          } else {
-            this.cargando = false;
-          }
-        })
-      );
+          })
+        );
+      } else {
+        this.saveInfoTurno();
+      }
     } else if (!this.turno.turno) {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         maxWidth: '400px',
@@ -294,4 +298,9 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     this.listacc = lst
     // console.log(this.listacc);
   };
+
+  cerrarTurno = () => {
+    this.turno.fin = moment().format(GLOBAL.dbDateTimeFormat);
+    this.onSubmit(false);
+  }
 }

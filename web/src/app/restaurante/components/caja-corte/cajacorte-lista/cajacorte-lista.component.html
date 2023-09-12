@@ -1,7 +1,6 @@
 <ng-container>
   <mat-button-toggle-group name="tiposCajaCorte" aria-label="Tipos de corte de caja">
-    <mat-button-toggle *ngFor="let cct of ccorteTipo" [value]="cct.caja_corte_tipo" (click)="nuevaTranCC(cct)"
-                       [disabled]="deshabilitaTipoCC(cct)">
+    <mat-button-toggle *ngFor="let cct of ccorteTipo" [value]="cct.caja_corte_tipo" (click)="nuevaTranCC(cct)" [disabled]="deshabilitaTipoCC(cct)">
       {{cct.descripcion}}
     </mat-button-toggle>
   </mat-button-toggle-group>

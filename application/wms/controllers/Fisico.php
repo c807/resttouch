@@ -270,7 +270,7 @@ class Fisico extends CI_Controller
 
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') . '.pdf';
-				$pdf->Output($nombre, 'D');
+				$pdf->Output($nombre, 'D');				
 			}
 		}
 	}
@@ -334,7 +334,9 @@ class Fisico extends CI_Controller
 			$data['mensaje'] = 'No existe un ' . ($esCuadreDiario ? 'cuadre diario' : 'inventario físico') . " con este número {$inv}";
 		}
 
-		$this->output->set_content_type('application/json')->set_output(json_encode($data));
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($data));
 	}
 
 	public function actualizar()
@@ -465,7 +467,7 @@ class Fisico extends CI_Controller
 							'usuario' => $inv->usuario,
 							'estatus_movimiento' => 2,
 							'ajuste' => 1,
-							'comentario' => 'Ajuste mediante Inventario Físico'
+							'comentario' => "Ajuste mediante Inventario Físico No. {$id}."
 						];
 						$egr = new Egreso_model();
 						if ($egr->guardar($gegreso)) {
@@ -501,7 +503,7 @@ class Fisico extends CI_Controller
 							'fecha' => Hoy(),
 							'bodega' => $inv->bodega,
 							'usuario' => $inv->usuario,
-							'comentario' => 'Ajuste mediante Inventario Físico',
+							'comentario' => "Ajuste mediante Inventario Físico No. {$id}.",
 							'proveedor' => $idProv,
 							'estatus_movimiento' => 2,
 							'ajuste' => 1
