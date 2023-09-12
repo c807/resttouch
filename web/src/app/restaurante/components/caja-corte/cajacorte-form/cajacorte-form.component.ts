@@ -144,7 +144,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Caja', { duration: 3000 });
               }
               this.cargando = false;
-              this.dialogRef.close();
+              this.dialogRef.close(true);
             })
           );
         } else {
@@ -154,7 +154,7 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
     );
   }
 
-  cancelar = () => this.dialogRef.close();
+  cancelar = () => this.dialogRef.close(false);
 
   validateNominacion = (e: any) => {
     const inp = String.fromCharCode(e.keyCode);
