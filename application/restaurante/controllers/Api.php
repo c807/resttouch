@@ -476,7 +476,7 @@ class Api extends CI_Controller
 										}
 	
 										if ($datos['exito']) {
-											$datos['mensaje'] = "Datos Actualizados con Exito";
+											$datos['mensaje'] = "Datos actualizados con éxito.";
 											$datos['comanda'] = $comanda->getComanda();
 											$comanda->envioMail();
 										}
@@ -837,7 +837,7 @@ class Api extends CI_Controller
 										}
 
 										if ($datos['exito']) {
-											$datos['mensaje'] = "Datos Actualizados con Exito";
+											$datos['mensaje'] = "Datos actualizados con éxito.";
 											$datos['comanda'] = $comanda->getComanda();
 
 											$sed = $comanda->getSede();
@@ -873,7 +873,7 @@ class Api extends CI_Controller
 					$datos['mensaje'] = "Llave invalida";
 				}
 			} else {
-				$datos['mensaje'] = "Parametros Invalidos";
+				$datos['mensaje'] = "Parámetros inválidos.";
 			}
 		} else {
 			$datos['mensaje'] = "Hacen falta datos obligatorios para continuar";
@@ -1158,7 +1158,7 @@ class Api extends CI_Controller
 										}
 
 										if ($datos['exito']) {
-											$datos['mensaje'] = "Datos Actualizados con Exito";
+											$datos['mensaje'] = "Datos actualizados con éxito.";
 											$datos['comanda'] = $comanda->getComanda();
 										}
 									} else {
@@ -1180,7 +1180,7 @@ class Api extends CI_Controller
 					$datos['mensaje'] = "Llave invalida";
 				}
 			} else {
-				$datos['mensaje'] = "Parametros Invalidos";
+				$datos['mensaje'] = "Parámetros inválidos.";
 			}
 		} else {
 			$datos['mensaje'] = "Hacen falta datos obligatorios para continuar";

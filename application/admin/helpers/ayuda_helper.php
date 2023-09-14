@@ -90,7 +90,7 @@ if (!function_exists('guardar_comanda')) {
 					}
 
 					if ($datos['exito']) {
-						$datos['mensaje'] = 'Datos Actualizados con Exito';
+						$datos['mensaje'] = 'Datos actualizados con éxito.';
 						$datos['comanda'] = !isset($req['_no_get_comanda']) ? $comanda->getComanda() : (object)[];
 					} else {
 						$datos['mensaje'] = implode('<br>', $comanda->getMensaje());

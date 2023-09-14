@@ -27,13 +27,13 @@ class Sede extends CI_Controller
 			$datos['exito'] = $sede->guardar($req);
 
 			if ($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['sede'] = $this->Sede_model->buscar(["sede" => $sede->getPK(), "_uno" => true]);
 			} else {
 				$datos['mensaje'] = $sede->getMensaje();
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
 		$this->output

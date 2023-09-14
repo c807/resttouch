@@ -59,7 +59,7 @@ class Comanda extends CI_Controller
 				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -223,7 +223,7 @@ class Comanda extends CI_Controller
 				$datos['mensaje'] = 'La mesa debe estar en estatus abierto';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -368,7 +368,7 @@ class Comanda extends CI_Controller
 				$datos['mensaje'] = 'La mesa debe estar en estatus abierto';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -398,7 +398,7 @@ class Comanda extends CI_Controller
 
 			$datos['exito'] = true;
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -892,7 +892,7 @@ class Comanda extends CI_Controller
 				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
 		$this->output

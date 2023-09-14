@@ -32,13 +32,13 @@ class Bodega extends CI_Controller {
 			$datos['exito'] = $bod->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['bodega'] = $bod;
 			} else {
 				$datos['mensaje'] = $bod->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output->set_output(json_encode($datos));

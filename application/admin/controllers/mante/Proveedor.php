@@ -35,7 +35,7 @@ class Proveedor extends CI_Controller {
 			$datos['exito'] = $prov->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['proveedor'] = $this->Proveedor_model->buscar([
 					'proveedor' => $prov->getPK(), 
 					"_uno" => true
@@ -44,7 +44,7 @@ class Proveedor extends CI_Controller {
 				$datos['mensaje'] = $prov->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output

@@ -17,11 +17,11 @@ class Turno extends CI_Controller {
 			'Catalogo_model'
         ]);
         $this->output
-		->set_content_type("application/json", "UTF-8");
+		->set_content_type('application/json', 'UTF-8');
 	}
 
 
-	public function guardar($id = "") 
+	public function guardar($id = '') 
 	{
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -41,19 +41,19 @@ class Turno extends CI_Controller {
 					$esNuevo = true;
 				}
 			} else {
-				// print "En el else..."; die();
+				// print 'En el else...'; die();
 				if (!empty($req['fin'])) {
 					// var_dump($req); die();
 					$comandas = [];
 					$com = $this->Comanda_model->getComandasAbiertas([
-						"turno" => $turno->getPK()
+						'turno' => $turno->getPK()
 					]);
 
 					// var_dump($com);
 
 					$fac = $this->Factura_model->filtrar_facturas([
-						"sede" => $data->sede,
-						"_turno" => $turno->getPK()
+						'sede' => $data->sede,
+						'_turno' => $turno->getPK()
 					]);
 
 					// var_dump($fac); die();
@@ -86,7 +86,7 @@ class Turno extends CI_Controller {
 					// var_dump($continuar); die();
 
 					if (!$continuar) {
-						$datos['mensaje'] = "Posee documentos pendientes";
+						$datos['mensaje'] = 'Posee documentos pendientes';
 						$datos['pendientes'] = true;
 						$continuar = true;
 					}
@@ -100,7 +100,7 @@ class Turno extends CI_Controller {
 					if ($esNuevo) {
 						$this->Turno_model->traslada_mesas_abiertas_nuevo_turno(['sede' => $turno->sede, 'turno' => $turno->getPK()]);
 					}
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['turno'] = $turno;
 
 					if (!empty($turno->fin)) {
@@ -108,31 +108,31 @@ class Turno extends CI_Controller {
 
 						if ($turnotipo->enviar_reporte == 1 && !empty($turnotipo->correo_cierre)) {
 							$this->load->library([
-								"Mail",
-								"Rturno"
+								'Mail',
+								'Rturno'
 							]);
 							
 							$lib = new Rturno();
-							$lib->set_token($headers["Authorization"]);
+							$lib->set_token($headers['Authorization']);
 							$lib->set_turno($turno);
 							$lib->set_bodega($turnotipo->getBodega());
 
 							$archivos = $lib->get_archivos();
 
 							if (!empty($archivos)) {
-								$texto = "Se informa que se ha realizado el cierre de turno";
-								$para  = explode(",", trim($turnotipo->correo_cierre));
+								$texto = 'Se informa que se ha realizado el cierre de turno';
+								$para  = explode(',', trim($turnotipo->correo_cierre));
 								
 								$correo = new Mail();
-								$correo->from("noreply@c807.com", "RTT");
-								$correo->subject("Cierre de turno");
+								$correo->from('noreply@c807.com', 'RTT');
+								$correo->subject('Cierre de turno');
 								$correo->message($texto);
 								$correo->to($para);
 
 								foreach ($archivos as $ruta) {
 									$correo->attach(
 										$ruta,
-										"attachment",
+										'attachment',
 										basename($ruta)
 									);
 								}
@@ -146,11 +146,11 @@ class Turno extends CI_Controller {
 					}
 
 				} else {
-					$datos['mensaje'] = implode("<br>", $turno->getMensaje());
+					$datos['mensaje'] = implode('<br>', $turno->getMensaje());
 				}
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
@@ -168,15 +168,15 @@ class Turno extends CI_Controller {
 				$datos['exito'] = $turno->setUsuario($req);
 
 				if($datos['exito']){
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 				} else {
-					$datos['mensaje'] = "Nada que actualizar";
+					$datos['mensaje'] = 'Nada que actualizar.';
 				}
 			} else {
-				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar.';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -192,15 +192,15 @@ class Turno extends CI_Controller {
 			if (isset($req['usuario']) && isset($req['usuario_tipo'])) {			
 				$datos['exito'] = $turno->anularUsuario($req);
 				if($datos['exito']){
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 				} else {
-					$datos['mensaje'] = "Nada que actualizar";
+					$datos['mensaje'] = 'Nada que actualizar';
 				}
 			} else {
-				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -212,11 +212,11 @@ class Turno extends CI_Controller {
 		// $this->load->model(['Usuario_model', 'Catalogo_model']);
 		$turno = new Turno_model($turno);			
 		$this->output
-		->set_content_type("application/json")
+		->set_content_type('application/json')
 		->set_output(json_encode($turno->getUsuarios($_GET)));
 	}
 
-	public function guardar_turno_tipo($id = "")
+	public function guardar_turno_tipo($id = '')
 	{
 		$turno = new TurnoTipo_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -224,14 +224,14 @@ class Turno extends CI_Controller {
 		if ($this->input->method() == 'post') {
 			$datos['exito'] = $turno->guardar($req);			
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 				$datos['turno'] = $turno;
 			} else {
 				$datos['mensaje'] = $turno->getMensaje();
 			}	
 
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
@@ -244,9 +244,18 @@ class Turno extends CI_Controller {
 			$_GET['activo'] = 1;
 		}
 		
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($this->TurnoTipo_model->buscar($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($this->TurnoTipo_model->buscar($_GET)));
+	}
+
+	private function get_lista_tipos_turno()
+	{
+		$lista = $this->TurnoTipo_model->buscar();
+		$lista = ordenar_array_objetos($lista, 'turno_tipo', 1);
+		$lst = [];
+		foreach($lista as $tt) {
+			$lst[(int)$tt->turno_tipo] = clone $tt;
+		}
+		return $lst;
 	}
 
 	public function buscar()
@@ -259,22 +268,20 @@ class Turno extends CI_Controller {
 		$_GET['sede'] = $data->sede;
 		$tmp = $this->Turno_model->getTurno($_GET);
 
+		$tipos_turno = $this->get_lista_tipos_turno();
+
 		if(is_array($tmp)) {
-			foreach ($tmp as $row) {
-				$turno = new Turno_model($row->turno);	
-				$row->turno_tipo = $turno->getTurnoTipo();			
+			foreach ($tmp as $row) {				
+				$row->turno_tipo = clone $tipos_turno[(int)$row->turno_tipo];
 				$datos[] = $row;
 			}
 			usort($datos, function ($a, $b) { return ((int)$a->turno < (int)$b->turno) ? 1 : -1; });
-		} else if(is_object($tmp)) {
-			$turno = new Turno_model($tmp->turno);
-			$tmp->turno_tipo = $turno->getTurnoTipo();
+		} else if(is_object($tmp)) {			
+			$tmp->turno_tipo = clone $tipos_turno[(int)$tmp->turno_tipo];
 			$datos = $tmp;
 		}
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function replica_detalle_turno($original, $nuevo)
