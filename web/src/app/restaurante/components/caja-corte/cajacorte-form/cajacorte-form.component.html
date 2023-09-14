@@ -1,5 +1,6 @@
 <h1 mat-dialog-title>CAJA {{data.tipo.descripcion | uppercase}}</h1>
 <h6>TOTAL: {{granTotal | number:'1.2-2'}}</h6>
+<h6 *ngIf="+data.tipo.caja_corte_tipo > 2" style="color: red; font-style: italic;">Recuerde contabilizar el saldo inicial de apertura de caja.</h6>
 <div mat-dialog-content>
   <mat-card class="mat-elevation-z4 fullWidth">
     <mat-card-content>
@@ -7,13 +8,13 @@
         <div class="col m6 s12">
           <!-- Efectivo -->
           <form #frmEfectivoCaja="ngForm" novalidate>
-            <table class="tbl tblNominaciones">
-              <thead>
+            <table class="tbl tblNominaciones">              
+              <thead>                
                 <tr>
                   <th class="ctxt" style="width: 25%;"></th>
                   <th class="rtxt" style="width: 35%;">Cantidad</th>
                   <th class="rtxt">Total</th>
-                </tr>
+                </tr>                
               </thead>
               <tbody>
                 <tr *ngFor="let ccn of ccorteNomi; index as i">
