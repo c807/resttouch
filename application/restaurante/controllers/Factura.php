@@ -264,7 +264,7 @@ class Factura extends CI_Controller {
 				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';	
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}	
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));	
@@ -447,7 +447,7 @@ class Factura extends CI_Controller {
 				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";	
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}	
 
 		$this->output

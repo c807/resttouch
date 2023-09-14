@@ -34,12 +34,12 @@ class Propina extends CI_Controller {
 					"_uno" => true
 				]);
 
-				$datos["mensaje"] = "Datos Actualizados con Exito";
+				$datos["mensaje"] = "Datos actualizados con éxito.";
 			} else {
 				$datos["mensaje"] = $prop->getMensaje();
 			}	
 		} else {
-			$datos["mensaje"] = "Parametros Invalidos";
+			$datos["mensaje"] = "Parámetros inválidos.";
 		}
 		
 		$this->output

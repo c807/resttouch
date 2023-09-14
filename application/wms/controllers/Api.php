@@ -83,7 +83,7 @@ class Api extends CI_Controller {
 							$res['exito'] = $registro->guardarEgreso();					
 							if($res['exito']) {
 								$egr = $registro->getEgreso();
-								$res['mensaje'] = "Datos Actualizados con Exito";
+								$res['mensaje'] = "Datos actualizados con éxito.";
 								$res['egreso'] = $egr;
 								if (isset($req->detalle) && isset($req->detalle->item)) {
 									

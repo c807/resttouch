@@ -288,7 +288,7 @@ class Conversor extends CI_Controller {
 								}
 							}
 							if($datos['exito']) {
-								$datos['mensaje'] = "Datos Actualizados con Exito";
+								$datos['mensaje'] = "Datos actualizados con éxito.";
 							} 
 						} else {
 							$datos['mensaje'] = 'Ocurrio un error al guardar el egreso';
@@ -302,7 +302,7 @@ class Conversor extends CI_Controller {
 				$datos['mensaje'] = "Hacen falta datos obligatorios para continuar";
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
 		$this->output
@@ -487,7 +487,7 @@ class Conversor extends CI_Controller {
 									$bac->guardar();
 								}
 								$datos['exito'] = true;
-								$datos['mensaje'] = "Datos Actualizados con Exito";
+								$datos['mensaje'] = "Datos actualizados con éxito.";
 							} else {
 								$datos['mensaje'] = "Ocurrio un error al guardar el ingreso";	
 							}

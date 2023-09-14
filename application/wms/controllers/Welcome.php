@@ -69,7 +69,7 @@ class Welcome extends CI_Controller {
 
 					$res['exito'] = $egr->guardar($enca);					
 					if($res['exito']) {
-						$res['mensaje'] = "Datos Actualizados con Exito";
+						$res['mensaje'] = "Datos actualizados con éxito.";
 						$res['egreso'] = $egr;
 						if (isset($req->detalle) && isset($req->detalle->item)) {
 							if (is_array($req->detalle->item)) {

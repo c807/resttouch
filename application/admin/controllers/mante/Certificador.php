@@ -28,7 +28,7 @@ class Certificador extends CI_Controller {
 					$config->actualizarCertificadores();
 				}
 				
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['configuracion'] = $this->Certificador_configuracion_model->buscar([
 					"certificador_configuracion" => $config->getPK(),
 					"_uno" => true
@@ -37,7 +37,7 @@ class Certificador extends CI_Controller {
 				$datos['mensaje'] = implode(", ", $config->getMensaje());
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output
@@ -65,7 +65,7 @@ class Certificador extends CI_Controller {
 
 			$datos['exito'] = $cert->guardar($req);
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['certificador'] = $this->Certificador_fel_model->buscar([
 					"certificador_fel" => $cert->getPK(),
 					"_uno" => true
@@ -74,7 +74,7 @@ class Certificador extends CI_Controller {
 				$datos['mensaje'] = implode(", ", $cert->getMensaje());
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output

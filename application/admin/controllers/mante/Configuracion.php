@@ -24,13 +24,13 @@ class Configuracion extends CI_Controller {
 			$datos['exito'] = $config->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['configuracion'] = $config;
 			} else {
 				$datos['mensaje'] = $config->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output

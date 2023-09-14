@@ -40,7 +40,7 @@ class Ingreso extends CI_Controller
 					if ((int)$req['estatus_movimiento'] === 2) {
 						$this->actualiza_costo_ingreso_confirmado($ing->getPK());
 					}
-					$datos['mensaje'] = "Datos Actualizados con Exito";
+					$datos['mensaje'] = "Datos actualizados con éxito.";
 					$datos['ingreso'] = $ing;
 				} else {
 					$datos['mensaje'] = implode("<br>", $ing->getMensaje());
@@ -49,7 +49,7 @@ class Ingreso extends CI_Controller
 				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
 
@@ -130,7 +130,7 @@ class Ingreso extends CI_Controller
 						}
 
 						$datos['exito'] = true;
-						$datos['mensaje'] = "Datos Actualizados con Exito";
+						$datos['mensaje'] = "Datos actualizados con éxito.";
 						$datos['detalle'] = $det;
 					} else {
 						$datos['mensaje'] = implode("<br>", $ing->getMensaje());
@@ -142,7 +142,7 @@ class Ingreso extends CI_Controller
 				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
 			}
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -216,7 +216,7 @@ class Ingreso extends CI_Controller
 		$iva = 1 + $emp->porcentaje_iva;
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos Actualizados con Exito";
+		$datos['mensaje'] = "Datos actualizados con éxito.";
 		foreach ($ingresos as $row) {
 			$ing = new Ingreso_model($row->ingreso);
 			foreach ($ing->getDetalle() as $val) {
@@ -245,7 +245,7 @@ class Ingreso extends CI_Controller
 		$bac = new BodegaArticuloCosto_model();
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos Actualizados con Exito";
+		$datos['mensaje'] = "Datos actualizados con éxito.";
 		foreach ($ingresos as $row) {
 			$ing = new Ingreso_model($row->ingreso);
 			foreach ($ing->getDetalle() as $val) {

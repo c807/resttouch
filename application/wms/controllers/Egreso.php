@@ -85,7 +85,7 @@ class Egreso extends CI_Controller {
 						if($det) {
 							$art->actualizarExistencia();
 							$datos['exito'] = true;
-							$datos['mensaje'] = 'Datos Actualizados con Exito';
+							$datos['mensaje'] = 'Datos actualizados con éxito.';
 							$datos['detalle'] = $det;
 						} else {
 							$datos['mensaje'] = implode("<br>", $egr->getMensaje());

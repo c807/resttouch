@@ -21,13 +21,13 @@ class Impuesto_especial extends CI_Controller {
 			$datos['exito'] = $impuesto->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos Actualizados con Exito";
+				$datos['mensaje'] = "Datos actualizados con éxito.";
 				$datos['impuesto_especial'] = $impuesto;
 			} else {
 				$datos['mensaje'] = $impuesto->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parametros Invalidos";
+			$datos['mensaje'] = "Parámetros inválidos.";
 		}
 		
 		$this->output

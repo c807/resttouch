@@ -76,7 +76,7 @@ class Articulo extends CI_Controller
 								$datos['exito'] = $art->guardar($req);
 								if ($datos['exito']) {
 									$this->add_to_bitacora($art->getPK(), $comentario);
-									$datos['mensaje'] = "Datos Actualizados con Exito";
+									$datos['mensaje'] = "Datos actualizados con éxito.";
 									$datos['articulo'] = $art;
 								} else {
 									$datos['mensaje'] = $art->getMensaje();
@@ -182,7 +182,7 @@ class Articulo extends CI_Controller
 							$det = $art->guardarReceta($req, $id);
 							if ($det) {
 								$datos['exito'] = true;
-								$datos['mensaje'] = "Datos Actualizados con Exito";
+								$datos['mensaje'] = "Datos actualizados con éxito.";
 								$datos['detalle'] = $det;
 							} else {
 								$datos['mensaje'] = implode("<br>", $art->getMensaje());
@@ -339,7 +339,7 @@ class Articulo extends CI_Controller
 		$arts = $this->Articulo_model->buscar();
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos Actualizados con Exito";
+		$datos['mensaje'] = "Datos actualizados con éxito.";
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			$costo = $art->getCosto();
