@@ -133,7 +133,7 @@ class Reporte_model extends CI_Model
 			group by a.forma_pago {$group}")
 			->result();
 
-		if (isset($args['_saldo_actual'])) {
+		if (isset($args['_saldo_actual']) && !isset($args['tipo_domicilio'])) {
 			$saldo_actual = (float)$args['_saldo_actual'];
 			foreach ($resumen as $res) {
 				if ((int)$res->esefectivo === 1) {

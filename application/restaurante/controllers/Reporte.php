@@ -42,7 +42,7 @@ class Reporte extends CI_Controller
     private function getEsRangoPorFechaDeTurno()
     {
         $config = $this->Configuracion_model->buscar();
-        return get_configuracion($config, "RT_REPORTES_FECHAS_TURNOS", 3);
+        return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
     }
 
     private function agrupa_lista_comandas($data, $lista = '')
@@ -58,24 +58,19 @@ class Reporte extends CI_Controller
 
     private function get_info_corte_caja($data)
     {
-        ini_set("pcre.backtrack_limit", "15000000");
+        ini_set('pcre.backtrack_limit', '15000000');
 
-        $ingresos = $this->Catalogo_model->getFormaPago([
-            "descuento" => 0
-        ]);
-        $descuentos = $this->Catalogo_model->getFormaPago([
-            "descuento" => 1
-        ]);
-
+        $ingresos = $this->Catalogo_model->getFormaPago(['descuento' => 0]);
+        $descuentos = $this->Catalogo_model->getFormaPago(['descuento' => 1]);
 
         $data['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 
         if (!verDato($data, 'sede')) {
             $data['sede'] = [$this->data->sede];
         }
-        $data["_facturadas"] = true;
+        $data['_facturadas'] = true;
 
-        $data["descuento"] = 0;
+        $data['descuento'] = 0;
         $data['ingresos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
         $tmp = $this->Reporte_model->get_ingresos($data);
@@ -83,7 +78,41 @@ class Reporte extends CI_Controller
         $data['ingresos'] = array_merge($data['ingresos'], $tmp);
         $listaComandas = $this->agrupa_lista_comandas($data['ingresos']);
 
-        $ingr = array_result($data['ingresos'], "forma_pago");
+        // Modificación para agregar el saldo inicial en caso de que haya. 14/09/2023
+        if (isset($data['_saldo_actual']) && !isset($data['tipo_domicilio'])) {
+            $efectivoNoEncontrado = true;
+            $saldo_actual = (float)$data['_saldo_actual'];
+            foreach ($data['ingresos'] as $res) {
+                if ((int)$res->esefectivo === 1) {
+                    $efectivoNoEncontrado = false;
+                    break;
+                }
+            }
+
+            if ($efectivoNoEncontrado) {
+                $fp_efectivo = $this->Catalogo_model->getFormaPago(['esefectivo' => 1, '_uno' => true]);
+                if ($fp_efectivo) {
+                    $data['ingresos'][] = (object)[
+                        'forma_pago' => $fp_efectivo->forma_pago,
+                        'documento' => null,
+                        'descripcion' => $fp_efectivo->descripcion,
+                        'monto' => $saldo_actual,
+                        'propina' => (float)0,
+                        'fecha_factura' => $data['fdel'],
+                        'numero_factura' => null,
+                        'sede' => $data['ingresos'] && count($data['ingresos']) > 0 ? $data['ingresos'][0]->sede : null,
+                        'nsede' => $data['ingresos'] && count($data['ingresos']) > 0 ? $data['ingresos'][0]->nsede : null,
+                        'serie_factura' => null,
+                        'estatus_comanda' => null,
+                        'esefectivo' => 1,
+                        'comanda' => 0
+                    ];
+                }
+            }
+        }
+        //Fin de modificación para agregar el saldo inicial en caso de que haya. 14/09/2023
+
+        $ingr = array_result($data['ingresos'], 'forma_pago');
         $data['ingreso_sin_fact'] = [];
         foreach ($ingresos as $row) {
             if (!in_array($row->forma_pago, $ingr)) {
@@ -92,7 +121,7 @@ class Reporte extends CI_Controller
         }
 
         //$data['ingreso_sin_fact'] = $this->Reporte_model->get_ingresos_sin_fac($data);
-        $data["descuento"] = 1;
+        $data['descuento'] = 1;
         $data['descuentos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
         $tmp = $this->Reporte_model->get_ingresos($data);
@@ -100,9 +129,9 @@ class Reporte extends CI_Controller
         $data['descuentos'] = array_merge($data['descuentos'], $tmp);
         $listaComandas = $this->agrupa_lista_comandas($data['descuentos'], $listaComandas);
 
-        $desc = array_result($data['descuentos'], "forma_pago");
+        $desc = array_result($data['descuentos'], 'forma_pago');
         $data['descuento_sin_fact'] = [];
-        if(!empty($desc)) {
+        if (!empty($desc)) {
             foreach ($descuentos as $row) {
                 if (!in_array($row->forma_pago, $desc)) {
                     $data['descuento_sin_fact'][] = $row;
@@ -146,7 +175,7 @@ class Reporte extends CI_Controller
 
         // var_dump($data['detalle']['Efectivo']);
 
-        if (isset($data['_validar']) && $data['_validar'] !== "false") {
+        if (isset($data['_validar']) && $data['_validar'] !== 'false') {
             $data['pagos'] = [];
             foreach ($data['_pagos'] as $row) {
                 if (isset($row['monto'])) {
@@ -158,32 +187,22 @@ class Reporte extends CI_Controller
         }
 
         if (isset($data['turno_tipo']) && (int)$data['turno_tipo'] > 0) {
-            $data["turno"] = new TurnoTipo_model($data["turno_tipo"]);
+            $data['turno'] = new TurnoTipo_model($data['turno_tipo']);
         }
 
-        $sede = $this->Catalogo_model->getSede([
-            'sede' => $this->data->sede,
-            "_uno" => true
-        ]);
+        $sede = $this->Catalogo_model->getSede(['sede' => $this->data->sede, '_uno' => true]);
 
         $tmp = [];
         foreach ($data['sede'] as $row) {
-            $sede = $this->Catalogo_model->getSede([
-                'sede' => $row,
-                "_uno" => true
-            ]);
-
+            $sede = $this->Catalogo_model->getSede(['sede' => $row, '_uno' => true]);
             $tmp[] = $sede->nombre;
         }
 
         if ($sede) {
-            $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
-            ]);
+            $emp = $this->Catalogo_model->getEmpresa(['empresa' => $sede->empresa, '_uno' => true]);
             if ($emp) {
                 $data['empresa'] = $emp;
-                $data['nsede'] = implode(", ", $tmp);
+                $data['nsede'] = implode(', ', $tmp);
             }
         }
 
@@ -197,17 +216,17 @@ class Reporte extends CI_Controller
                 $totalPropina += (float)$fsc->propina;
             }
             $data['ingresos'][] = (object)[
-                "forma_pago" => null,
-                "documento" => null,
-                "descripcion" => "Ingresos sin comanda",
-                "monto" => $totalMonto,
-                "propina" => $totalPropina,
-                "fecha_factura" => null,
-                "numero_factura" => null,
-                "sede" => "3",
-                "nsede" => "La Pista",
-                "serie_factura" => null,
-                "estatus_comanda" => "2"
+                'forma_pago' => null,
+                'documento' => null,
+                'descripcion' => 'Ingresos sin comanda',
+                'monto' => $totalMonto,
+                'propina' => $totalPropina,
+                'fecha_factura' => null,
+                'numero_factura' => null,
+                'sede' => '3',
+                'nsede' => 'La Pista',
+                'serie_factura' => null,
+                'estatus_comanda' => '2'
             ];
 
             if (isset($data['_detalle']) && filter_var($data['_detalle'], FILTER_VALIDATE_BOOLEAN)) {
@@ -348,7 +367,7 @@ class Reporte extends CI_Controller
      */
     public function rpt_caja_turno()
     {
-        $data = json_decode(file_get_contents('php://input'), true);        
+        $data = json_decode(file_get_contents('php://input'), true);
 
         if (!verDato($data, 'sedeRPT')) {
             $data['sede'] = [$this->data->sede];
@@ -364,32 +383,32 @@ class Reporte extends CI_Controller
         ///////////////////// Detalles de la sede
         $sede = $this->Catalogo_model->getSede([
             'sede' => $this->data->sede,
-            "_uno" => true
+            '_uno' => true
         ]);
         $tmp = [];
         foreach ($data['sede'] as $row) {
             $sede = $this->Catalogo_model->getSede([
                 'sede' => $row,
-                "_uno" => true
+                '_uno' => true
             ]);
 
             $tmp[] = $sede->nombre;
         }
         if ($sede) {
             $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
+                'empresa' => $sede->empresa,
+                '_uno' => true
             ]);
             if ($emp) {
                 $data['empresa'] = $emp;
-                $data['nsede'] = implode(", ", $tmp);
+                $data['nsede'] = implode(', ', $tmp);
             }
         }
 
         ///////////////////// CREADOR DE TURNOS /////////
         $json_data_turnos = [];
         $turnoDia = new stdClass(); // agregando turno total para mejorar logica
-        $turnoDia->descripcion = "TODO EL DIA";
+        $turnoDia->descripcion = 'TODO EL DIA';
         $turnoDia->turno_tipo = -1;
         $tipos_de_turnos = $this->TurnoTipo_model->buscar();
         array_unshift($tipos_de_turnos, $turnoDia); // adds at begining
@@ -398,7 +417,7 @@ class Reporte extends CI_Controller
 
         foreach ($tipos_de_turnos as $turnoDB) {
             $turno = new stdClass();
-            $turno->name = ($turnoDB->descripcion === "TODO EL DIA") ? $turnoDB->descripcion : "TURNO : " . $turnoDB->descripcion;
+            $turno->name = ($turnoDB->descripcion === 'TODO EL DIA') ? $turnoDB->descripcion : 'TURNO : ' . $turnoDB->descripcion;
 
             if ($turnoDB->turno_tipo > -1) {
                 $data['turno_tipo'] = $turnoDB->turno_tipo;
@@ -406,7 +425,7 @@ class Reporte extends CI_Controller
 
             $tipos_domicilio = $this->Tipo_domicilio_model->buscar();
             $data['domicilio'] = 0; // Ingresos por restaurante
-            $data['tipo_de_ingreso'] = "Ingreso en restaurante";
+            $data['tipo_de_ingreso'] = 'Ingreso en restaurante';
             $ingreso_en_restaurante = $this->get_turno_domicilio_info($data);
             $sample_turno_jsonDataAndTipoD = [];
 
@@ -417,7 +436,7 @@ class Reporte extends CI_Controller
 
             $descuento = new stdClass(); // Agregando descuento al array para mejora logica
             $descuento->tipo_domicilio = -1;
-            $descuento->descripcion = "Descuentos";
+            $descuento->descripcion = 'Descuentos';
             $tipos_domicilio = array_merge($tipos_domicilio, [$descuento]);
 
 
@@ -470,51 +489,51 @@ class Reporte extends CI_Controller
         $data['json_data_turnos'] = $json_data_turnos;
 
         /////// Desplegando informacion
-        if (verDato($data, "_excel")) {
+        if (verDato($data, '_excel')) {
             ///EXCEL
 
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Articulo")
-                ->setSubject("Office 2007 xlsx Articulo")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Articulo')
+                ->setSubject('Office 2007 xlsx Articulo')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
             $nombres = [
-                "Descripción",
-                "Monto",
-                "Propina",
-                "Total",
-                "Total (sin I.V.A.)"
+                'Descripción',
+                'Monto',
+                'Propina',
+                'Total',
+                'Total (sin I.V.A.)'
             ];
 
             /*Encabezado*/
-            $hoja->getStyle("A1:A3")->getFont()->setBold(true);
-            $hoja->setCellValue("A1", "Empresa: ");
-            $hoja->setCellValue("A2", "Sede: ");
-            $hoja->setCellValue("A3", "Documento: ");
+            $hoja->getStyle('A1:A3')->getFont()->setBold(true);
+            $hoja->setCellValue('A1', 'Empresa: ');
+            $hoja->setCellValue('A2', 'Sede: ');
+            $hoja->setCellValue('A3', 'Documento: ');
 
-            $hoja->setCellValue("B1", $data['empresa']->nombre);
-            $hoja->setCellValue("B2", $data['nsede']);
-            $hoja->setCellValue("B3", "Reporte de Caja por Turno");
+            $hoja->setCellValue('B1', $data['empresa']->nombre);
+            $hoja->setCellValue('B2', $data['nsede']);
+            $hoja->setCellValue('B3', 'Reporte de Caja por Turno');
 
             if (isset($data['detalle'])) {
-                $hoja->setCellValue("C4", "--Detalle--");
+                $hoja->setCellValue('C4', '--Detalle--');
             } else {
-                $hoja->setCellValue("C4", "--Resumen--");
+                $hoja->setCellValue('C4', '--Resumen--');
             }
 
             if (isset($data['turno'])) {
-                $hoja->setCellValue("C5", $data['turno']->descripcion);
+                $hoja->setCellValue('C5', $data['turno']->descripcion);
             }
 
-            $hoja->setCellValue("A6", "Del: ");
-            $hoja->setCellValue("B6", $data['fdel']);
-            $hoja->setCellValue("A7", "Al: ");
-            $hoja->setCellValue("B7", $data['fal']);
-            $hoja->getStyle("A6:A7")->getFont()->setBold(true);
+            $hoja->setCellValue('A6', 'Del: ');
+            $hoja->setCellValue('B6', $data['fdel']);
+            $hoja->setCellValue('A7', 'Al: ');
+            $hoja->setCellValue('B7', $data['fal']);
+            $hoja->getStyle('A6:A7')->getFont()->setBold(true);
 
 
             $fila = 8;
@@ -529,7 +548,7 @@ class Reporte extends CI_Controller
                 }
                 // NOMBRE DEL TURNO
                 $fila = $fila + 3;
-                $hoja->setCellValue("C" . $fila, $row->name);
+                $hoja->setCellValue('C' . $fila, $row->name);
                 //
                 ///// DATOS DEL TURNO
                 foreach ($row->data as $rowD) {
@@ -541,35 +560,35 @@ class Reporte extends CI_Controller
 
                     $fila = $fila + 3;
                     $start = $fila;
-                    $hoja->setCellValue("B" . $fila, "Descripcion");
-                    $hoja->setCellValue("C" . $fila, "Monto");
-                    $hoja->setCellValue("D" . $fila, "Propina");
-                    $hoja->setCellValue("E" . $fila, "Total");
-                    $hoja->setCellValue("F" . $fila, "Total (sin I.V.A.)");
+                    $hoja->setCellValue('B' . $fila, 'Descripción');
+                    $hoja->setCellValue('C' . $fila, 'Monto');
+                    $hoja->setCellValue('D' . $fila, 'Propina');
+                    $hoja->setCellValue('E' . $fila, 'Total');
+                    $hoja->setCellValue('F' . $fila, 'Total (sin I.V.A.)');
 
                     // Tipo domicilio y descuento
                     $fila++;
-                    $hoja->setCellValue("B" . $fila, $rowD->name);
-                    $hoja->getStyle("B" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
+                    $hoja->setCellValue('B' . $fila, $rowD->name);
+                    $hoja->getStyle('B' . $fila . ':' . 'E' . $fila)->getFont()->setBold(true);
 
                     foreach ($rowD->ingresos as $rowDI) {
                         $fila++;
-                        $hoja->setCellValue("B" . $fila, $rowDI->metodo_pago);
-                        $hoja->setCellValue("C" . $fila, number_format($rowDI->monto, 2, '.', ','));
-                        $hoja->setCellValue("D" . $fila, number_format($rowDI->propina, 2, '.', ','));
-                        $hoja->setCellValue("E" . $fila, number_format($rowDI->total, 2, '.', ','));
-                        $hoja->setCellValue("F" . $fila, number_format($rowDI->total_base, 2, '.', ','));
-                        $hoja->getStyle("C" . $fila . ":" . "F" . $fila)->getAlignment()->setHorizontal('right');
+                        $hoja->setCellValue('B' . $fila, $rowDI->metodo_pago);
+                        $hoja->setCellValue('C' . $fila, number_format($rowDI->monto, 2, '.', ','));
+                        $hoja->setCellValue('D' . $fila, number_format($rowDI->propina, 2, '.', ','));
+                        $hoja->setCellValue('E' . $fila, number_format($rowDI->total, 2, '.', ','));
+                        $hoja->setCellValue('F' . $fila, number_format($rowDI->total_base, 2, '.', ','));
+                        $hoja->getStyle('C' . $fila . ':' . 'F' . $fila)->getAlignment()->setHorizontal('right');
                     }
 
                     $fila++;
-                    $hoja->getStyle("D" . $fila . ":" . "F" . $fila)->getFont()->setBold(true);
-                    // $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getFont()->setBold(true);
-                    $hoja->setCellValue("D" . $fila, "Total: ");
-                    $hoja->setCellValue("E" . $fila, number_format($rowD->consumo_total, 2, '.', ','));
-                    $hoja->getStyle("E" . $fila)->getAlignment()->setHorizontal('right');
-                    $hoja->setCellValue("F" . $fila, number_format($rowD->consumo_total_base, 2, '.', ','));
-                    $hoja->getStyle("F" . $fila)->getAlignment()->setHorizontal('right');
+                    $hoja->getStyle('D' . $fila . ':' . 'F' . $fila)->getFont()->setBold(true);
+                    // $hoja->getStyle('E' . $fila . ':' . 'E' . $fila)->getFont()->setBold(true);
+                    $hoja->setCellValue('D' . $fila, 'Total: ');
+                    $hoja->setCellValue('E' . $fila, number_format($rowD->consumo_total, 2, '.', ','));
+                    $hoja->getStyle('E' . $fila)->getAlignment()->setHorizontal('right');
+                    $hoja->setCellValue('F' . $fila, number_format($rowD->consumo_total_base, 2, '.', ','));
+                    $hoja->getStyle('F' . $fila)->getAlignment()->setHorizontal('right');
                     $end = $fila;
 
                     //Set square style
@@ -581,58 +600,58 @@ class Reporte extends CI_Controller
                 }
                 $fila++;
                 $fila++;
-                $hoja->setCellValue("D" . $fila, "Gran Total: ");
-                $hoja->setCellValue("E" . $fila, number_format($row->granTotal, 2, '.', ','));
-                $hoja->getStyle("D" . $fila . ":" . "F" . $fila)->getFont()->setBold(true);
-                $hoja->getStyle("E" . $fila . ":" . "E" . $fila)->getAlignment()->setHorizontal('right');
-                $hoja->setCellValue("F" . $fila, number_format($row->granTotal_base, 2, '.', ','));                
-                $hoja->getStyle("F" . $fila . ":" . "F" . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue('D' . $fila, 'Gran Total: ');
+                $hoja->setCellValue('E' . $fila, number_format($row->granTotal, 2, '.', ','));
+                $hoja->getStyle('D' . $fila . ':' . 'F' . $fila)->getFont()->setBold(true);
+                $hoja->getStyle('E' . $fila . ':' . 'E' . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue('F' . $fila, number_format($row->granTotal_base, 2, '.', ','));
+                $hoja->getStyle('F' . $fila . ':' . 'F' . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
                 $fila++;
-                $hoja->setCellValue("B" . $fila, "Total de comensales: ");
-                $hoja->setCellValue("C" . $fila, $row->totalComensales);
-                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
-                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue('B' . $fila, 'Total de comensales: ');
+                $hoja->setCellValue('C' . $fila, $row->totalComensales);
+                $hoja->getStyle('B' . $fila)->getFont()->setBold(true);
+                $hoja->getStyle('C' . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
-                $hoja->setCellValue("B" . $fila, "Consumo promedio total: ");
-                $hoja->setCellValue("C" . $fila, number_format($row->consumo_promedio_total, 2, '.', ','));
-                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
-                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue('B' . $fila, 'Consumo promedio total: ');
+                $hoja->setCellValue('C' . $fila, number_format($row->consumo_promedio_total, 2, '.', ','));
+                $hoja->getStyle('B' . $fila)->getFont()->setBold(true);
+                $hoja->getStyle('C' . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
-                $hoja->setCellValue("B" . $fila, "Cantidad de mesas utilizadas: ");
-                $hoja->setCellValue("C" . $fila, $row->cantidadDeMesasUtilizadas);
-                $hoja->getStyle("B" . $fila)->getFont()->setBold(true);
-                $hoja->getStyle("C" . $fila)->getAlignment()->setHorizontal('right');
+                $hoja->setCellValue('B' . $fila, 'Cantidad de mesas utilizadas: ');
+                $hoja->setCellValue('C' . $fila, $row->cantidadDeMesasUtilizadas);
+                $hoja->getStyle('B' . $fila)->getFont()->setBold(true);
+                $hoja->getStyle('C' . $fila)->getAlignment()->setHorizontal('right');
 
                 $fila++;
-            }           
+            }
 
             foreach (range('A', 'F') as $col) {
                 $hoja->getColumnDimension($col)->setAutoSize(true);
             }
 
-            $hoja->setTitle("Reporte de caja por turnos");
+            $hoja->setTitle('Reporte de caja por turnos');
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Ventas.xlsx");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Ventas.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
+            $writer->save('php://output');
         } else {
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
                 'format' => 'Legal'
             ]);
             $mpdf->WriteHTML($this->load->view('caja_t_r', $data, true));
-            $mpdf->Output("Reporte de Caja Turno.pdf", "D");
+            $mpdf->Output('Reporte de Caja Turno.pdf', 'D');
         }
     }
 
@@ -641,35 +660,40 @@ class Reporte extends CI_Controller
 
         // $data = json_decode(file_get_contents('php://input'), true);
         $data = $this->get_info_corte_caja(json_decode(file_get_contents('php://input'), true));
-        if(!isset($data['_digital'])) {
+        if (!isset($data['_digital'])) {
             $data['_digital'] = false;
         }
-        $data['tipo_venta'] = $this->get_por_tipo_venta($data);
 
-        if (verDato($data, "_excel")) {
+        $data['tipo_venta'] = [];
+        if (isset($data['_encomandera']) && (int)$data['_encomandera'] === 1) {
+            $data['tipo_venta'] = $this->get_por_tipo_venta($data);
+        }
+
+
+        if (verDato($data, '_excel')) {
             $fdel = formatoFecha($data['fdel'], 2);
             $fal = formatoFecha($data['fal'], 2);
 
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Articulo")
-                ->setSubject("Office 2007 xlsx Articulo")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Articulo')
+                ->setSubject('Office 2007 xlsx Articulo')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
             $nombres = [
-                "Descripción",
-                "Monto",
-                "Propina",
-                "Total"
+                'Descripción',
+                'Monto',
+                'Propina',
+                'Total'
             ];
 
             /*Encabezado*/
-            $hoja->setCellValue("A1", $data['empresa']->nombre);
-            $hoja->setCellValue("A2", $data['nsede']);
-            $hoja->setCellValue("B3", "Reporte de Caja");
+            $hoja->setCellValue('A1', $data['empresa']->nombre);
+            $hoja->setCellValue('A2', $data['nsede']);
+            $hoja->setCellValue('B3', 'Reporte de Caja');
 
             if (empty($data['_tipo_cc'])) {
                 if (isset($data['detalle'])) {
@@ -680,22 +704,22 @@ class Reporte extends CI_Controller
             } else {
                 $hoja->setCellValue('B4', $data['_tipo_cc']);
             }
-            
+
 
             if (isset($data['turno'])) {
-                $hoja->setCellValue("B5", $data['turno']->descripcion);
+                $hoja->setCellValue('B5', $data['turno']->descripcion);
             }
 
-            $hoja->setCellValue("A6", "Del: {$fdel}");
-            $hoja->setCellValue("B6", "Al: {$fal}");
+            $hoja->setCellValue('A6', "Del: {$fdel}");
+            $hoja->setCellValue('B6', "Al: {$fal}");
 
             if ($data['_validar']) {
-                array_push($nombres, "Monto Recibido");
-                array_push($nombres, "Diferencia");
+                array_push($nombres, 'Monto Recibido');
+                array_push($nombres, 'Diferencia');
             }
 
-            $hoja->fromArray($nombres, null, "A8");
-            $hoja->getStyle("A1:F8")->getFont()->setBold(true);
+            $hoja->fromArray($nombres, null, 'A8');
+            $hoja->getStyle('A1:F8')->getFont()->setBold(true);
             $hoja->getStyle('A8:F8')->getAlignment()->setHorizontal('center');
 
             $fila = 9;
@@ -703,7 +727,7 @@ class Reporte extends CI_Controller
             $recDesc = 0;
 
             if (!isset($data['_grupo']) || $data['_grupo'] == 1) {
-                $hoja->setCellValue("A{$fila}", "Ingresos");
+                $hoja->setCellValue("A{$fila}", 'Ingresos');
                 $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
                 $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
                 $fila++;
@@ -719,13 +743,13 @@ class Reporte extends CI_Controller
                     if ($data['_validar']) {
                         $rec = verDato($data['pagos'], $row->forma_pago, '0.00');
                         $recIng += $rec;
-                        array_push($regs, (float)$rec !== (float)0 ? round($rec, 2): '0.00');
+                        array_push($regs, (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
-                        $clase = "";
+                        $clase = '';
                         $ing = $row->monto + $row->propina;
                         $dif = $ing - $rec;
 
-                        array_push($regs, (float)$dif !== (float)0 ? round($dif, 2): '0.00');
+                        array_push($regs, (float)$dif !== (float)0 ? round($dif, 2) : '0.00');
                     }
 
                     $hoja->fromArray($regs, null, "A{$fila}");
@@ -746,7 +770,7 @@ class Reporte extends CI_Controller
                         $recIng += $rec;
                         array_push($regs, (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
-                        $clase = "";
+                        $clase = '';
                         $ing = (isset($row->monto) ? $row->monto : '0.00') + (isset($row->propina) ? $row->propina : '0.00');
                         $dif = $ing - $rec;
 
@@ -758,12 +782,12 @@ class Reporte extends CI_Controller
                     }
                 }
 
-                $hoja->setCellValue("A{$fila}", "Total ingresos: ");
+                $hoja->setCellValue("A{$fila}", 'Total ingresos: ');
 
-                $ing = suma_field($data['ingresos'], "monto");
+                $ing = suma_field($data['ingresos'], 'monto');
                 $hoja->setCellValue("B{$fila}", round($ing, 2));
 
-                $prop = suma_field($data['ingresos'], "propina");
+                $prop = suma_field($data['ingresos'], 'propina');
                 $hoja->setCellValue("C{$fila}", (float)$prop !== (float)0 ? round($prop, 2) : '0.00');
 
                 $hoja->setCellValue("D{$fila}", round($ing + $prop, 2));
@@ -779,7 +803,7 @@ class Reporte extends CI_Controller
                 $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
 
-                $hoja->setCellValue("A{$fila}", "Descuentos");
+                $hoja->setCellValue("A{$fila}", 'Descuentos');
                 $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
                 $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
 
@@ -789,14 +813,14 @@ class Reporte extends CI_Controller
 
                     $row->monto = (float)$row->monto;
                     $hoja->setCellValue("B{$fila}", round($row->monto, 2));
-                    
+
                     $row->propina = (float)$row->propina;
                     $hoja->setCellValue("C{$fila}", (float)$row->propina !== (float)0 ? round($row->propina, 2) : '0.00');
 
                     $hoja->setCellValue("D{$fila}", (float)($row->monto + $row->propina) !== (float)0 ? round($row->monto + $row->propina, 2) : '0.00');
 
                     if ($data['_validar']) {
-                        $rec = verDato($data['pagos'], $row->forma_pago, "0");
+                        $rec = verDato($data['pagos'], $row->forma_pago, '0');
                         $recDesc += $rec;
                         $hoja->setCellValue("E{$fila}", (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
@@ -811,12 +835,12 @@ class Reporte extends CI_Controller
                     foreach ($data['descuento_sin_fact'] as $row) {
                         $fila++;
                         $hoja->setCellValue("A{$fila}", $row->descripcion);
-                        $hoja->setCellValue("B{$fila}", round("0.00", 2));
-                        $hoja->setCellValue("C{$fila}", round("0.00", 2));
-                        $hoja->setCellValue("D{$fila}", round("0.00", 2));
+                        $hoja->setCellValue("B{$fila}", round('0.00', 2));
+                        $hoja->setCellValue("C{$fila}", round('0.00', 2));
+                        $hoja->setCellValue("D{$fila}", round('0.00', 2));
 
                         if ($data['_validar']) {
-                            $rec = verDato($data['pagos'], $row->forma_pago, "0");
+                            $rec = verDato($data['pagos'], $row->forma_pago, '0');
                             $recDesc += $rec;
                             $hoja->setCellValue("E{$fila}", (float)$rec !== (float)0 ? round($rec, 2) : '0.00');
 
@@ -830,12 +854,12 @@ class Reporte extends CI_Controller
 
                 $fila++;
 
-                $hoja->setCellValue("A{$fila}", "Total Descuentos: ");
+                $hoja->setCellValue("A{$fila}", 'Total Descuentos: ');
 
-                $desc = suma_field($data['descuentos'], "monto");
+                $desc = suma_field($data['descuentos'], 'monto');
                 $hoja->setCellValue("B{$fila}", round($desc, 2));
 
-                $prop_desc = suma_field($data['descuentos'], "propina");
+                $prop_desc = suma_field($data['descuentos'], 'propina');
                 $hoja->setCellValue("C{$fila}", round($prop_desc, 2));
 
                 $hoja->setCellValue("D{$fila}", round($desc, 2));
@@ -852,7 +876,7 @@ class Reporte extends CI_Controller
                 $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
 
-                $hoja->setCellValue("A{$fila}", "TOTAL: ");
+                $hoja->setCellValue("A{$fila}", 'TOTAL: ');
                 $hoja->setCellValue("B{$fila}", round(($desc + $ing), 2));
                 $hoja->setCellValue("C{$fila}", round($prop + $prop_desc, 2));
                 $hoja->setCellValue("D{$fila}", round(($desc + $ing + $prop + $prop_desc), 2));
@@ -887,7 +911,7 @@ class Reporte extends CI_Controller
                     $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
                     $fila++;
 
-                    $hoja->setCellValue("A{$fila}", "Ingresos");
+                    $hoja->setCellValue("A{$fila}", 'Ingresos');
                     $hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
                     $fila++;
 
@@ -899,7 +923,7 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("D{$fila}", round($total, 2));
 
                         if ($data['_validar']) {
-                            $rec = verDato($data['pagos'], $row->forma_pago, "0");
+                            $rec = verDato($data['pagos'], $row->forma_pago, '0');
                             $recIng += $rec;
                             $hoja->setCellValue("E{$fila}", round($rec, 2));
 
@@ -910,12 +934,12 @@ class Reporte extends CI_Controller
                         $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $fila++;
                     }
-                    $ing = suma_field($value, "monto");
-                    $prop = suma_field($value, "propina");
+                    $ing = suma_field($value, 'monto');
+                    $prop = suma_field($value, 'propina');
                     $totalIngresos += $ing;
                     $totalPropinas += $prop;
 
-                    $hoja->setCellValue("A{$fila}", "Total Ingresos " . $value[0]->nsede);
+                    $hoja->setCellValue("A{$fila}", 'Total Ingresos ' . $value[0]->nsede);
                     $hoja->setCellValue("B{$fila}", round($ing, 2));
                     $hoja->setCellValue("C{$fila}", round($prop, 2));
                     $hoja->setCellValue("D{$fila}", round($prop + $ing, 2));
@@ -926,7 +950,7 @@ class Reporte extends CI_Controller
                     $fila++;
                 }
 
-                $hoja->setCellValue("A{$fila}", "Total Ingresos: ");
+                $hoja->setCellValue("A{$fila}", 'Total Ingresos: ');
                 $hoja->setCellValue("B{$fila}", round($totalIngresos, 2));
                 $hoja->setCellValue("C{$fila}", round($totalPropinas, 2));
                 $hoja->setCellValue("D{$fila}", round($totalPropinas + $totalIngresos, 2));
@@ -943,7 +967,7 @@ class Reporte extends CI_Controller
                     $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
 
                     $fila++;
-                    $hoja->setCellValue("A{$fila}", "Descuentos");
+                    $hoja->setCellValue("A{$fila}", 'Descuentos');
                     $hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
 
                     foreach ($value as $row) {
@@ -956,9 +980,9 @@ class Reporte extends CI_Controller
                         $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     }
                     $fila++;
-                    $hoja->setCellValue("A{$fila}", "Total Descuentos " . $value[0]->nsede);
-                    $desc = suma_field($value, "monto");
-                    $prop_desc = suma_field($value, "propina");
+                    $hoja->setCellValue("A{$fila}", 'Total Descuentos ' . $value[0]->nsede);
+                    $desc = suma_field($value, 'monto');
+                    $prop_desc = suma_field($value, 'propina');
                     $totalDescuentos += $desc;
                     $totalPropDescuentos += $prop_desc;
                     $hoja->setCellValue("B{$fila}", round($desc, 2));
@@ -970,7 +994,7 @@ class Reporte extends CI_Controller
                     $hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 }
                 $fila++;
-                $hoja->setCellValue("A{$fila}", "Total Descuentos: ");
+                $hoja->setCellValue("A{$fila}", 'Total Descuentos: ');
                 $hoja->setCellValue("B{$fila}", round($totalDescuentos, 2));
                 $hoja->setCellValue("C{$fila}", round($totalPropDescuentos, 2));
                 $hoja->setCellValue("D{$fila}", round($totalDescuentos + $totalPropDescuentos, 2));
@@ -989,11 +1013,11 @@ class Reporte extends CI_Controller
                     $fila++;
 
                     $hoja->mergeCells("A{$fila}:B{$fila}");
-                    $hoja->setCellValue("A{$fila}", "Factura");
-                    $hoja->setCellValue("C{$fila}", "Fecha");
-                    $hoja->setCellValue("D{$fila}", "Documento");
-                    $hoja->setCellValue("E{$fila}", "Monto");
-                    $hoja->setCellValue("F{$fila}", "Propina");
+                    $hoja->setCellValue("A{$fila}", 'Factura');
+                    $hoja->setCellValue("C{$fila}", 'Fecha');
+                    $hoja->setCellValue("D{$fila}", 'Documento');
+                    $hoja->setCellValue("E{$fila}", 'Monto');
+                    $hoja->setCellValue("F{$fila}", 'Propina');
                     $hoja->getStyle("A{$fila}:F{$fila}")->getFont()->setBold(true);
                     $fila++;
 
@@ -1026,7 +1050,7 @@ class Reporte extends CI_Controller
                 $fila++;
                 $hoja->setCellValue("A{$fila}", '(Saldo inicial, Arqueos, Retiros o Saldo final)');
                 $hoja->mergeCells("A{$fila}:D{$fila}");
-                $hoja->getStyle("A{$fila}")->getFont()->setBold(true);                
+                $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
                 $fila += 3;
             }
 
@@ -1038,20 +1062,20 @@ class Reporte extends CI_Controller
                 $hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
             }
 
-            $hoja->setTitle("Corte de caja");
+            $hoja->setTitle('Corte de caja');
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Ventas.xlsx");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Ventas.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
-        } else if (verDato($data, "_encomandera")) {
-            $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
+            $writer->save('php://output');
+        } else if (verDato($data, '_encomandera')) {
+            $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($data));
         } else {
 
             $tmp = sys_get_temp_dir();
@@ -1060,27 +1084,26 @@ class Reporte extends CI_Controller
                 'format' => 'Legal'
             ]);
             $mpdf->WriteHTML($this->load->view('caja', $data, true));
-            
-            if (verDato($data, "_rturno")) {
 
-                $ruta = $tmp."/reporte_caja_".rand().".pdf";
-                $mpdf->Output($ruta, "F");
+            if (verDato($data, '_rturno')) {
+
+                $ruta = $tmp . '/reporte_caja_' . rand() . '.pdf';
+                $mpdf->Output($ruta, 'F');
 
                 $this->output
-                ->set_content_type("application/json")
-                ->set_output(json_encode(["ruta" => $ruta]));
-
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(['ruta' => $ruta]));
             } else {
-                $mpdf->Output("Reporte de Caja.pdf", "D");
+                $mpdf->Output('Reporte de Caja.pdf', 'D');
             }
 
-            // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
+            // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($data));
         }
-    }    
+    }
 
     public function factura()
     {
-        ini_set("pcre.backtrack_limit", "15000000");        
+        ini_set('pcre.backtrack_limit', '15000000');
         $_GET['sede'] = isset($_GET['sede']) && (int)$_GET['sede'] > 0 ? $_GET['sede'] : $this->data->sede;
         $_GET['_facturadas'] = true;
 
@@ -1096,24 +1119,24 @@ class Reporte extends CI_Controller
             $fac->cargarReceptor();
             $prop = $fac->getPropina();
             $det = $fac->getDetalle();
-            $fac->total = suma_field($det, "total");
-            $fac->propina = suma_field($prop, "propina_monto");
+            $fac->total = suma_field($det, 'total');
+            $fac->propina = suma_field($prop, 'propina_monto');
             $data['facturas'][] = $fac;
             if (isset($_GET['_anuladas']) && filter_var($_GET['_anuladas'], FILTER_VALIDATE_BOOLEAN)) {
                 $bit = $this->Bitacora_model->buscarBitacora([
-                    "comentario" => "Anulación",
-                    "_uno" => true,
-                    "tabla" => "factura",
-                    "registro" => $fac->getPK()
+                    'comentario' => 'Anulación',
+                    '_uno' => true,
+                    'tabla' => 'factura',
+                    'registro' => $fac->getPK()
                 ]);
                 $bit->usuario = $this->Usuario_model->buscar([
-                    "usuario" => $bit->usuario,
-                    "_uno" => true
+                    'usuario' => $bit->usuario,
+                    '_uno' => true
                 ]);
                 $fac->bitacora = $bit;
                 $fac->razon_anulacion = $fac->getRazonAnulacion();
             }
-            if (suma_field($det, "valor_impuesto_especial") > 0) {
+            if (suma_field($det, 'valor_impuesto_especial') > 0) {
                 $data['impuesto_especial'] = true;
             }
         }
@@ -1149,7 +1172,7 @@ class Reporte extends CI_Controller
                 'Fecha',
                 'NIT',
                 'Cliente'
-            ];            
+            ];
 
             if ($data['impuesto_especial']) {
                 $nombres[] = 'Impuesto Especial';
@@ -1234,18 +1257,18 @@ class Reporte extends CI_Controller
                 $total += (float)$imp;
                 if (empty($row->fel_uuid_anulacion) || $anuladas) {
                     $totalPropina += (float)$row->propina;
-                    $totalDescuento += (float)$desc;                    
+                    $totalDescuento += (float)$desc;
                     $totalFactura += $total;
                 }
 
-                                
-                $docReceptor = $row->documento_receptor ?? $row->receptor->nit;                
+
+                $docReceptor = $row->documento_receptor ?? $row->receptor->nit;
                 $reg = [
                     $row->numero_factura,
                     isset($row->mesa->mesa) ? $row->mesa->mesa : '',
                     formatoFecha($row->fecha_factura, 2),
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nit : ''),
-                    is_numeric($docReceptor) ? '=TEXT('.$docReceptor.',"0")' : $docReceptor,
+                    is_numeric($docReceptor) ? '=TEXT(' . $docReceptor . ',"0")' : $docReceptor,
                     // (empty($row->fel_uuid_anulacion) ? $row->receptor->nombre : 'ANULADA')
                     $row->receptor->nombre
                 ];
@@ -1268,7 +1291,7 @@ class Reporte extends CI_Controller
                 // array_push($reg, (empty($row->fel_uuid_anulacion) ? round($desc, 2) : 0));
                 array_push($reg, (float)$desc === 0.00 ? '0.00' : round($desc, 2));
                 array_push($reg, (empty($row->fel_uuid_anulacion) ? 'ACTIVA' : 'ANULADA'));
-                
+
                 $hoja->fromArray($reg, null, "A{$fila}");
                 $hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('left');
                 $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('center');
@@ -1401,13 +1424,13 @@ class Reporte extends CI_Controller
                 $suma_tipo_venta = 0.0;
                 $suma_cantidad_tipo_venta = 0.0;
                 $suma_iva = 0.0;
-                foreach($data['resumen_tipo_venta'] as $rtv) {
+                foreach ($data['resumen_tipo_venta'] as $rtv) {
                     $suma_cantidad_tipo_venta += (float)$rtv->cantidad;
                     $suma_tipo_venta += (float)$rtv->total;
                     $suma_iva += (float)$rtv->iva;
                     $hoja->setCellValue("A{$fila}", $rtv->tipo_venta);
-                    $hoja->setCellValue("B{$fila}", (float)$rtv->cantidad);                
-                    $hoja->setCellValue("C{$fila}", (float)$rtv->total);                
+                    $hoja->setCellValue("B{$fila}", (float)$rtv->cantidad);
+                    $hoja->setCellValue("C{$fila}", (float)$rtv->total);
                     $hoja->setCellValue("D{$fila}", (float)$rtv->iva);
                     $hoja->getStyle("B{$fila}:D{$fila}")->getAlignment()->setHorizontal('right');
                     $hoja->getStyle("B{$fila}:D{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -1465,13 +1488,13 @@ class Reporte extends CI_Controller
 
         $sede = $this->Catalogo_model->getSede([
             'sede' => $this->data->sede,
-            "_uno" => true
+            '_uno' => true
         ]);
 
         if ($sede) {
             $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
+                'empresa' => $sede->empresa,
+                '_uno' => true
             ]);
             if ($emp) {
                 $data['empresa'] = $emp;
@@ -1481,7 +1504,7 @@ class Reporte extends CI_Controller
 
 
         $mpdf->WriteHTML($this->load->view('comanda', $data, true));
-        $mpdf->Output("Detalle de Comandas.pdf", "D");
+        $mpdf->Output('Detalle de Comandas.pdf', 'D');
     }
 
     public function autoconsulta()
@@ -1491,10 +1514,10 @@ class Reporte extends CI_Controller
         $datos = $this->Reporte_model->autoconsulta($req);
         $excel = new Spreadsheet();
         $excel->getProperties()
-            ->setCreator("Restouch")
-            ->setTitle("Office 2007 xlsx Dinamico")
-            ->setSubject("Office 2007 xlsx Dinamico")
-            ->setKeywords("office 2007 openxml php");
+            ->setCreator('Restouch')
+            ->setTitle('Office 2007 xlsx Dinamico')
+            ->setSubject('Office 2007 xlsx Dinamico')
+            ->setKeywords('office 2007 openxml php');
 
         $excel->setActiveSheetIndex(0);
         $hoja = $excel->getActiveSheet();
@@ -1502,7 +1525,7 @@ class Reporte extends CI_Controller
             $nombres = array_keys((array)$datos[0]);
             $cntnombres = count($nombres);
 
-            $hoja->fromArray($nombres, null, "A5");
+            $hoja->fromArray($nombres, null, 'A5');
 
             $pos = 6;
             foreach ($datos as $key => $row) {
@@ -1510,26 +1533,26 @@ class Reporte extends CI_Controller
                 $pos += 1;
             }
 
-            $hoja->setTitle("Dinamico");
+            $hoja->setTitle('Dinamico');
 
             for ($i = 0; $i <= $cntnombres; $i++) {
                 $hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
             }
         }
 
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment;filename=Dinamico.xlsx");
-        header("Cache-Control: max-age=1");
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-        header("Cache-Control: cache, must-revalidate");
-        header("Pragma: public");
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=Dinamico.xlsx');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
 
         $writer = new Xlsx($excel);
-        $writer->save("php://output");
+        $writer->save('php://output');
 
-        #$obwrite = PHPExcel_IOFactory::createWriter($excel, "Excel5");
-        #$obwrite->save("php://output");
+        #$obwrite = PHPExcel_IOFactory::createWriter($excel, 'Excel5');
+        #$obwrite->save('php://output');
     }
 
     public function distribucion_propina()
@@ -1539,21 +1562,21 @@ class Reporte extends CI_Controller
         $_GET['_vivas'] = true;
         $facts = $this->Factura_model->get_facturas($_GET);
         $distProp = $this->Propina_model->buscar([
-            "sede" => $this->data->sede,
-            "grupal" => 1,
-            "anulado" => 0
+            'sede' => $this->data->sede,
+            'grupal' => 1,
+            'anulado' => 0
         ]);
 
-        $grupos = array_result($distProp, "usuario_tipo");
+        $grupos = array_result($distProp, 'usuario_tipo');
         $datos = $_GET;
 
-        $datos['detalle'] = (isset($_GET['_detalle']) && $_GET['_detalle'] != "false");
+        $datos['detalle'] = (isset($_GET['_detalle']) && $_GET['_detalle'] != 'false');
 
         $datos['datos'] = [];
 
         foreach ($facts as $row) {
             $fac = new Factura_model($row->factura);
-            $propina = suma_field($fac->getPropina(), "propina_monto");
+            $propina = suma_field($fac->getPropina(), 'propina_monto');
             $comanda = $fac->getComanda();
             $fac->propina = $propina / 1.12;
 
@@ -1563,8 +1586,8 @@ class Reporte extends CI_Controller
                 $usuarios = $turno->getUsuarios(); // obtener usuarios del turno
                 foreach ($distProp as $prop) {
                     $tusuario = $this->Tipo_usuario_model->buscar([
-                        "usuario_tipo" => $prop->usuario_tipo,
-                        "_uno" => true
+                        'usuario_tipo' => $prop->usuario_tipo,
+                        '_uno' => true
                     ]);
 
                     if (isset($datos['datos'][$tusuario->usuario_tipo])) {
@@ -1573,21 +1596,21 @@ class Reporte extends CI_Controller
                         $datos['datos'][$tusuario->usuario_tipo]['grupal'] = (int)$prop->grupal;
                     } else {
                         $datos['datos'][$tusuario->usuario_tipo] = [
-                            "descripcion" => $tusuario->descripcion,
-                            "facturas" => [$fac],
-                            "porcentaje" => $prop->porcentaje,
-                            "propina" => ($propina * $prop->porcentaje / 100) / 1.12,
-                            "grupal" => (int)$prop->grupal
+                            'descripcion' => $tusuario->descripcion,
+                            'facturas' => [$fac],
+                            'porcentaje' => $prop->porcentaje,
+                            'propina' => ($propina * $prop->porcentaje / 100) / 1.12,
+                            'grupal' => (int)$prop->grupal
                         ];
                     }
                 }
 
                 foreach ($usuarios as $usu) {
                     $dist = $this->Propina_model->buscar([
-                        "sede" => $this->data->sede,
-                        "usuario_tipo" => $usu->usuario_tipo->usuario_tipo,
-                        "anulado" => 0,
-                        "_uno" => true
+                        'sede' => $this->data->sede,
+                        'usuario_tipo' => $usu->usuario_tipo->usuario_tipo,
+                        'anulado' => 0,
+                        '_uno' => true
                     ]);
 
                     if ($dist) {
@@ -1595,9 +1618,9 @@ class Reporte extends CI_Controller
                             if ($comanda->mesero == $usu->usuario->usuario) {
                                 if (!isset($datos['datos'][$usu->usuario_tipo->usuario_tipo])) {
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo] = [
-                                        "descripcion" => $usu->usuario_tipo->descripcion,
-                                        "porcentaje" => $dist->porcentaje,
-                                        "usuario" => []
+                                        'descripcion' => $usu->usuario_tipo->descripcion,
+                                        'porcentaje' => $dist->porcentaje,
+                                        'usuario' => []
                                     ];
                                 }
                                 if (isset($datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario])) {
@@ -1605,18 +1628,18 @@ class Reporte extends CI_Controller
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario]['propina'] += ($propina * $dist->porcentaje / 100) / 1.12;
                                 } else {
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario] = [
-                                        "nombre" => $usu->usuario->nombres . " " . $usu->usuario->apellidos,
-                                        "facturas" => [$fac],
-                                        "propina" => ($propina * $dist->porcentaje / 100) / 1.12
+                                        'nombre' => $usu->usuario->nombres . ' ' . $usu->usuario->apellidos,
+                                        'facturas' => [$fac],
+                                        'propina' => ($propina * $dist->porcentaje / 100) / 1.12
                                     ];
                                 }
                             }
                         } else {
                             if (!isset($datos['datos'][$usu->usuario_tipo->usuario_tipo])) {
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo] = [
-                                    "descripcion" => $usu->usuario_tipo->descripcion,
-                                    "porcentaje" => $dist->porcentaje,
-                                    "usuario" => []
+                                    'descripcion' => $usu->usuario_tipo->descripcion,
+                                    'porcentaje' => $dist->porcentaje,
+                                    'usuario' => []
                                 ];
                             }
 
@@ -1625,9 +1648,9 @@ class Reporte extends CI_Controller
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario]['propina'] += ($propina * $dist->porcentaje / 100) / 1.12;
                             } else {
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario] = [
-                                    "nombre" => $usu->usuario->nombres . " " . $usu->usuario->apellidos,
-                                    "facturas" => [$fac],
-                                    "propina" => ($propina * $dist->porcentaje / 100) / 1.12
+                                    'nombre' => $usu->usuario->nombres . ' ' . $usu->usuario->apellidos,
+                                    'facturas' => [$fac],
+                                    'propina' => ($propina * $dist->porcentaje / 100) / 1.12
                                 ];
                             }
                         }
@@ -1649,13 +1672,13 @@ class Reporte extends CI_Controller
 
         $sede = $this->Catalogo_model->getSede([
             'sede' => $this->data->sede,
-            "_uno" => true
+            '_uno' => true
         ]);
 
         if ($sede) {
             $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
+                'empresa' => $sede->empresa,
+                '_uno' => true
             ]);
             if ($emp) {
                 $datos['empresa'] = $emp;
@@ -1663,59 +1686,59 @@ class Reporte extends CI_Controller
             }
         }
 
-        if (verDato($_GET, "_excel")) {
+        if (verDato($_GET, '_excel')) {
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Existencias")
-                ->setSubject("Office 2007 xlsx Existencias")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Existencias')
+                ->setSubject('Office 2007 xlsx Existencias')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
 
             /*Encabezado*/
-            $hoja->setCellValue("A1", $emp->nombre);
-            $hoja->setCellValue("A2", $sede->nombre);
-            $hoja->setCellValue("A3", "Distribución de Propinas");
-            $hoja->setCellValue("B4", "Del: " . formatoFecha($datos['fdel']) . " Al: " . formatoFecha($datos['fal']));
+            $hoja->setCellValue('A1', $emp->nombre);
+            $hoja->setCellValue('A2', $sede->nombre);
+            $hoja->setCellValue('A3', 'Distribución de Propinas');
+            $hoja->setCellValue('B4', 'Del: ' . formatoFecha($datos['fdel']) . ' Al: ' . formatoFecha($datos['fal']));
 
-            $hoja->getStyle("A1:C4")->getFont()->setBold(true);
-            $coltotal = "A";
-            $coltotalVal = "B";
+            $hoja->getStyle('A1:C4')->getFont()->setBold(true);
+            $coltotal = 'A';
+            $coltotalVal = 'B';
             $totalprop = 0;
 
             if ($datos['detalle']) {
-                $coltotal = "E";
-                $coltotalVal = "F";
+                $coltotal = 'E';
+                $coltotalVal = 'F';
 
                 $nombres = [
-                    "",
-                    "",
-                    "Fecha",
-                    "Comanda",
-                    "Facturas",
-                    "Propina"
+                    '',
+                    '',
+                    'Fecha',
+                    'Comanda',
+                    'Facturas',
+                    'Propina'
                 ];
 
-                $hoja->fromArray($nombres, null, "A6");
-                $hoja->getStyle("A6:F6")->getFont()->setBold(true);
+                $hoja->fromArray($nombres, null, 'A6');
+                $hoja->getStyle('A6:F6')->getFont()->setBold(true);
                 $hoja->getStyle('A6:F6')->getAlignment()->setHorizontal('center');
                 $fila = 7;
                 foreach ($datos['datos'] as $row) {
                     $hoja->setCellValue("A{$fila}", $row['descripcion']);
                     $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
                     $fila++;
-                    if (verDato($row, "usuario")) {
+                    if (verDato($row, 'usuario')) {
                         $cntUsuarios = count($row['usuario']);
-                        foreach ($row["usuario"] as $key => $usu) {
+                        foreach ($row['usuario'] as $key => $usu) {
                             $hoja->setCellValue("A{$fila}", $usu['nombre']);
                             $fila++;
 
                             foreach ($usu['facturas'] as $fac) {
                                 $reg = [
-                                    "",
-                                    "",
+                                    '',
+                                    '',
                                     $fac->fecha_factura,
                                     $fac->getComanda()->comanda,
                                     $fac->numero_factura,
@@ -1727,17 +1750,17 @@ class Reporte extends CI_Controller
                                 $fila++;
                             }
                             $totalprop += $usu['propina'];
-                            $hoja->setCellValue("E{$fila}", "Total Empleado");
+                            $hoja->setCellValue("E{$fila}", 'Total Empleado');
                             $hoja->setCellValue("F{$fila}", round($usu['propina'], 2));
                             $hoja->getStyle("E{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         }
                     } else {
-                        $hoja->setCellValue("A{$fila}", "N/A");
+                        $hoja->setCellValue("A{$fila}", 'N/A');
                         $fila++;
                         foreach ($row['facturas'] as $fac) {
                             $reg = [
-                                "",
-                                "",
+                                '',
+                                '',
                                 $fac->fecha_factura,
                                 $fac->getComanda()->comanda,
                                 $fac->numero_factura,
@@ -1749,19 +1772,19 @@ class Reporte extends CI_Controller
                             $fila++;
                         }
                         $totalprop += $row['propina'];
-                        $hoja->setCellValue("E{$fila}", "Total Empleado");
+                        $hoja->setCellValue("E{$fila}", 'Total Empleado');
                         $hoja->setCellValue("F{$fila}", round($row['propina'], 2));
                         $hoja->getStyle("E{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     }
                 }
             } else {
                 $nombres = [
-                    "Empleado",
-                    "Propina"
+                    'Empleado',
+                    'Propina'
                 ];
 
-                $hoja->fromArray($nombres, null, "A6");
-                $hoja->getStyle("A6:B6")->getFont()->setBold(true);
+                $hoja->fromArray($nombres, null, 'A6');
+                $hoja->getStyle('A6:B6')->getFont()->setBold(true);
                 $hoja->getStyle('A6:F6')->getAlignment()->setHorizontal('center');
                 $fila = 7;
 
@@ -1783,12 +1806,12 @@ class Reporte extends CI_Controller
                     } else {
                         $totalTipo += $row['propina'];
                         $totalprop += $row['propina'];
-                        $hoja->setCellValue("A{$fila}", "N/A");
+                        $hoja->setCellValue("A{$fila}", 'N/A');
                         $hoja->setCellValue("B{$fila}", round($row['propina'], 2));
                         $hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $fila++;
                     }
-                    $hoja->setCellValue("A{$fila}", "Total por tipo:");
+                    $hoja->setCellValue("A{$fila}", 'Total por tipo:');
                     $hoja->setCellValue("B{$fila}", round($totalTipo, 2));
                     $hoja->getStyle("A{$fila}:B{$fila}")->getFont()->setBold(true);
                     $hoja->getStyle("A{$fila}:B{$fila}")
@@ -1797,7 +1820,7 @@ class Reporte extends CI_Controller
                 }
             }
 
-            $hoja->setCellValue("{$coltotal}{$fila}", "Total general:");
+            $hoja->setCellValue("{$coltotal}{$fila}", 'Total general:');
             $hoja->setCellValue("{$coltotalVal}{$fila}", round($totalprop, 2));
 
             $hoja->getStyle("{$coltotal}{$fila}:{$coltotalVal}{$fila}")
@@ -1809,16 +1832,16 @@ class Reporte extends CI_Controller
                 $hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
             }
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Kardex.xlsx");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Kardex.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
+            $writer->save('php://output');
         } else {
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
@@ -1826,8 +1849,8 @@ class Reporte extends CI_Controller
             ]);
 
             $mpdf->WriteHTML($this->load->view('propina', $datos, true));
-            $mpdf->Output("Distribucion de Propina.pdf", "D");
-            // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+            $mpdf->Output('Distribucion de Propina.pdf', 'D');
+            // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($datos));
         }
     }
 
@@ -1931,10 +1954,10 @@ class Reporte extends CI_Controller
         $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
         \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
         $excel->getProperties()
-            ->setCreator("Restouch")
-            ->setTitle("Office 2007 xlsx Comandas")
-            ->setSubject("Office 2007 xlsx Comandas")
-            ->setKeywords("office 2007 openxml php");
+            ->setCreator('Restouch')
+            ->setTitle('Office 2007 xlsx Comandas')
+            ->setSubject('Office 2007 xlsx Comandas')
+            ->setKeywords('office 2007 openxml php');
 
         $excel->setActiveSheetIndex(0);
         $hoja = $excel->getActiveSheet();
@@ -2082,7 +2105,7 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("D{$fila}", $fact->fecha_factura);
                     $hoja->setCellValue("E{$fila}", $fact->cliente);
                     $docReceptor = $fact->documento_receptor ?? $fact->nit;
-                    $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT('.$docReceptor.', "0")' : $docReceptor);
+                    $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT(' . $docReceptor . ', "0")' : $docReceptor);
                     $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
                     $hoja->setCellValue("G{$fila}", $fact->total_factura);
                     $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -2168,20 +2191,20 @@ class Reporte extends CI_Controller
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $hoja->setTitle("Comandas");
+        $hoja->setTitle('Comandas');
 
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment;filename=Comandas_" . date('YmdHis') . ".xlsx");
-        header("Cache-Control: max-age=1");
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-        header("Cache-Control: cache, must-revalidate");
-        header("Pragma: public");
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=Comandas_' . date('YmdHis') . '.xlsx');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-        $writer->save("php://output");
+        $writer->save('php://output');
 
-        // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($comandas));
+        // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($comandas));
     }
 
     private function get_por_tipo_venta($data)
@@ -2235,10 +2258,10 @@ class Reporte extends CI_Controller
         $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
         \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
         $excel->getProperties()
-            ->setCreator("Restouch")
-            ->setTitle("Office 2007 xlsx Ventas_Administrativo")
-            ->setSubject("Office 2007 xlsx Ventas_Administrativo")
-            ->setKeywords("office 2007 openxml php");
+            ->setCreator('Restouch')
+            ->setTitle('Office 2007 xlsx Ventas_Administrativo')
+            ->setSubject('Office 2007 xlsx Ventas_Administrativo')
+            ->setKeywords('office 2007 openxml php');
 
         $excel->setActiveSheetIndex(0);
         $hoja = $excel->getActiveSheet();
@@ -2303,7 +2326,7 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("D{$fila}", $factura->numero);
                 $hoja->setCellValue("E{$fila}", $factura->fecha_factura);
                 $docReceptor = $factura->documento_receptor ?? $factura->nit;
-                $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT('.$docReceptor.', "0")' : $docReceptor);
+                $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT(' . $docReceptor . ', "0")' : $docReceptor);
                 $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
                 $hoja->setCellValue("G{$fila}", $factura->cliente);
                 $hoja->setCellValue("H{$fila}", $factura->anulada);
@@ -2311,7 +2334,7 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("J{$fila}", $factura->mesa);
                 $hoja->setCellValue("K{$fila}", $factura->tipo);
                 $hoja->setCellValue("L{$fila}", is_null($factura->razon_anulacion) ? '' : $factura->razon_anulacion);
-                $hoja->setCellValue("M{$fila}", is_null($factura->comentario_anulacion) ? '' : $factura->comentario_anulacion);                
+                $hoja->setCellValue("M{$fila}", is_null($factura->comentario_anulacion) ? '' : $factura->comentario_anulacion);
                 foreach ($fps as $fp => $col) {
                     $hoja->setCellValue($col . $fila, (float)0.00);
                     $hoja->getStyle($col . $fila)->getNumberFormat()->setFormatCode('0.00');
@@ -2322,7 +2345,7 @@ class Reporte extends CI_Controller
                 }
                 $hoja->setCellValue($fps[(int)$ffp->forma_pago] . $fila, (float)$ffp->monto);
                 $hoja->setCellValue($propfps[(int)$ffp->forma_pago] . $fila, (float)$ffp->propina);
-                
+
                 $total = (float)$ffp->monto + (float)$ffp->propina;
                 $hoja->setCellValue("N{$fila}", round($total, 2));
                 $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
@@ -2342,7 +2365,7 @@ class Reporte extends CI_Controller
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
-        foreach ($fps as $fp => $col) {            
+        foreach ($fps as $fp => $col) {
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -2350,19 +2373,19 @@ class Reporte extends CI_Controller
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $hoja->setTitle("Ventas Administrativo");
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment;filename=Ventas_Administrativo_" . date('YmdHis') . ".xlsx");
-        header("Cache-Control: max-age=1");
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-        header("Cache-Control: cache, must-revalidate");
-        header("Pragma: public");
+        $hoja->setTitle('Ventas Administrativo');
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=Ventas_Administrativo_' . date('YmdHis') . '.xlsx');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-        $writer->save("php://output");
+        $writer->save('php://output');
 
-        // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+        // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($datos));
     }
 
     public function articulos_eliminados()
@@ -2373,10 +2396,10 @@ class Reporte extends CI_Controller
         $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
         \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
         $excel->getProperties()
-            ->setCreator("Resttouch")
-            ->setTitle("Office 2007 xlsx Articulos_Eliminados")
-            ->setSubject("Office 2007 xlsx Articulos_Eliminados")
-            ->setKeywords("office 2007 openxml php");
+            ->setCreator('Resttouch')
+            ->setTitle('Office 2007 xlsx Articulos_Eliminados')
+            ->setSubject('Office 2007 xlsx Articulos_Eliminados')
+            ->setKeywords('office 2007 openxml php');
 
         $excel->setActiveSheetIndex(0);
         $hoja = $excel->getActiveSheet();
@@ -2406,7 +2429,7 @@ class Reporte extends CI_Controller
         $hoja->setAutoFilter("A{$fila}:E{$fila}");
 
         $fila++;
-        foreach($datos as $d) {
+        foreach ($datos as $d) {
             $hoja->setCellValue("A{$fila}", $d->sede);
             $hoja->setCellValue("B{$fila}", $d->usuario);
             $hoja->setCellValue("C{$fila}", $d->articulo);
@@ -2419,19 +2442,19 @@ class Reporte extends CI_Controller
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
-        $hoja->setTitle("Articulos Eliminados");
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment;filename=Articulos_Eliminados_" . date('YmdHis') . ".xlsx");
-        header("Cache-Control: max-age=1");
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-        header("Cache-Control: cache, must-revalidate");
-        header("Pragma: public");
+        $hoja->setTitle('Articulos Eliminados');
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=Articulos_Eliminados_' . date('YmdHis') . '.xlsx');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-        $writer->save("php://output");
+        $writer->save('php://output');
 
-        // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+        // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($datos));
     }
 }
 

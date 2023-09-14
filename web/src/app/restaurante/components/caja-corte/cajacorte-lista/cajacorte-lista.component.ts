@@ -195,6 +195,18 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
     return saldo;
   }
 
+  getSaldoInicial = (obj: ccGeneral): number => {
+    let saldo = 0;
+    this.listacc.forEach(cc => {
+      if (moment(cc.creacion).isBefore(moment(obj.creacion))) {
+        switch (+cc.caja_corte_tipo.caja_corte_tipo) {
+          case 1: saldo += +cc.total; break;
+        }
+      }
+    });
+    return saldo;
+  }
+
   imprimirCC = (obj: ccGeneral, _excel = 0, enComandera = 0) => {
     // console.log(obj);
     const params = {
@@ -206,6 +218,7 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
       sede: [this.turno.sede],
       _pagos: [],
       _saldo_actual: this.calcularSaldo(obj),
+      _saldo_inicial: this.getSaldoInicial(obj),
       _fecha_caja: obj.creacion,
       _encomandera: enComandera,
       _tipo_cc: obj.caja_corte_tipo.descripcion
