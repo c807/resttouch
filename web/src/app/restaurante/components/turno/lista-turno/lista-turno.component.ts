@@ -76,7 +76,8 @@ export class ListaTurnoComponent implements OnInit, OnDestroy {
       fecha: obj.fecha,
       inicio: obj.inicio,
       fin: obj.fin,
-      sede: obj.sede
+      sede: obj.sede,
+      facturas_sin_firmar: obj.facturas_sin_firmar
     });
   }
 

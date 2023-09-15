@@ -5,4 +5,5 @@ export interface Turno {
     inicio: string;
     fin?: string;
     sede?: number;
+    facturas_sin_firmar?: number;
 }
