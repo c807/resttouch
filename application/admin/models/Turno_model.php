@@ -20,9 +20,11 @@ class Turno_model extends General_model
 		}
 	}
 
-	public function getTurnoTipo()
+	public function getTurnoTipo()	
 	{
+		$campos = $this->getCampos(false, '', 'turno_tipo');
 		return $this->db
+			->select($campos)
 			->where('turno_tipo', $this->turno_tipo)
 			->get('turno_tipo')
 			->row();
@@ -30,6 +32,7 @@ class Turno_model extends General_model
 
 	public function getTurno($args = [])
 	{
+		$campos = $this->getCampos(false, '', 'turno');
 
 		if (isset($args['turno'])) {
 			$this->db->where('turno', $args['turno']);
@@ -57,13 +60,10 @@ class Turno_model extends General_model
 		}
 
 		if (isset($args['fal']) && isset($args['fdel'])) {
-			$this->db
-				->where('inicio <= ', $args['fal'])
-				->where('inicio >= ', $args['fdel']);
+			$this->db->where('inicio <= ', $args['fal'])->where('inicio >= ', $args['fdel']);
 		}
 
-		$tmp = $this->db
-			->get('turno');
+		$tmp = $this->db->select($campos)->order_by('turno DESC')->get('turno');
 
 		if (isset($args['_uno'])) {
 			return $tmp->row();
@@ -176,6 +176,31 @@ class Turno_model extends General_model
 			]);
 			return $this->db->affected_rows() > 0;
 		}
+		return 0;
+	}
+
+	public function get_cantidad_facturas_sin_firmar($idTurno = null)
+	{
+		if(empty($idTurno)) {
+			$idTurno = $this->getPK();
+		}
+
+		$conteo = $this->db
+			->select('COUNT(DISTINCT a.factura) AS facturas_sin_firmar')
+			->join('detalle_factura b', 'b.factura = a.factura')
+			->join('detalle_factura_detalle_cuenta c', 'b.detalle_factura = c.detalle_factura')
+			->join('detalle_cuenta d', 'd.detalle_cuenta = c.detalle_cuenta')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->where('a.fel_uuid IS NULL')
+			->where('f.turno', $idTurno)
+			->get('factura a')
+			->row();
+
+		if ($conteo) {
+			return (int)$conteo->facturas_sin_firmar;
+		}
+
 		return 0;
 	}
 }

@@ -46,6 +46,9 @@
                             </button>
                         </mat-form-field>                
                     </div>
+                    <div *ngIf="+turno.facturas_sin_firmar > 0">
+                        <span style="color: red; font-weight: bolder; font-size: 18pt;">Hay {{turno.facturas_sin_firmar}} facturas sin firmar en este turno.</span>
+                    </div>
                     <div role="group" align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid || cargando">
                             Guardar

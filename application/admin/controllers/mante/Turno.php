@@ -271,13 +271,15 @@ class Turno extends CI_Controller {
 		$tipos_turno = $this->get_lista_tipos_turno();
 
 		if(is_array($tmp)) {
-			foreach ($tmp as $row) {				
+			foreach ($tmp as $row) {
 				$row->turno_tipo = clone $tipos_turno[(int)$row->turno_tipo];
+				$row->facturas_sin_firmar = $this->Turno_model->get_cantidad_facturas_sin_firmar($row->turno);
 				$datos[] = $row;
 			}
-			usort($datos, function ($a, $b) { return ((int)$a->turno < (int)$b->turno) ? 1 : -1; });
+			// usort($datos, function ($a, $b) { return ((int)$a->turno < (int)$b->turno) ? 1 : -1; });			
 		} else if(is_object($tmp)) {			
 			$tmp->turno_tipo = clone $tipos_turno[(int)$tmp->turno_tipo];
+			$tmp->facturas_sin_firmar = $this->Turno_model->get_cantidad_facturas_sin_firmar($tmp->turno);
 			$datos = $tmp;
 		}
 

@@ -7,9 +7,8 @@
             <mat-list-item *ngFor="let element of lstTurnosPaged" (click)="getTurno(element)">
                 <mat-icon mat-list-icon>schedule</mat-icon>
                 <h5 mat-line>Inicio: {{element.inicio | date: 'dd/MM/yyyy HH:mm:ss'}}</h5><br/>
-                <p mat-line>
-                    Fin: {{element.fin | date: 'dd/MM/yyyy HH:mm:ss'}}
-                </p>
+                <span mat-line>Fin: {{element.fin | date: 'dd/MM/yyyy HH:mm:ss'}}</span>
+                <span mat-line *ngIf="+element.facturas_sin_firmar > 0" style="font-weight: bolder; color: red;">{{element.facturas_sin_firmar}} facturas sin firmar.</span>
             </mat-list-item>            
         </mat-nav-list>
         <mat-paginator #paginador [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageChange($event)" showFirstLastButtons>
