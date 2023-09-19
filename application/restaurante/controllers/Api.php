@@ -446,8 +446,24 @@ class Api extends CI_Controller
 																$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
 																$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
 															} else {
+																// Agregado el 19/09/2023 para extraer del monto el impuesto especial de turismo
+																$det->total = $det->precio_unitario * (float)$det->cantidad;
+																$det->total_ext = $det->total;
+																$total = $det->total;
+																$total_ext = $det->total_ext;
+	
+																$desctEspecial = $det->descuento;
+																$desctEspecial_ext = $det->descuento_ext;
+
+																$det->monto_base = ($total - $desctEspecial) / ($pimpuesto + ((float)$impuesto_especial->porcentaje / 100));
+																$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / ($pimpuesto + ((float)$impuesto_especial->porcentaje / 100));
+																// Fin de lo agregado el 19/09/2023 para extraer del monto el impuesto especial de turismo
+
 																$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
 																$det->valor_impuesto_especial_ext = $det->monto_base_ext * ((float)$impuesto_especial->porcentaje / 100);
+
+																$total -= $det->valor_impuesto_especial;
+																$total_ext -= $det->valor_impuesto_especial_ext;
 															}
 														}
 	

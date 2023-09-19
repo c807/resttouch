@@ -115,8 +115,19 @@ class Factura extends CI_Controller
 						$req['monto_base'] = $req['total'] / $pimpuesto;
 						$req['monto_base_ext'] = $req['total_ext'] / $pimpuesto;
 					} else {
+						// Agregado el 19/09/2023 para extraer del monto el impuesto especial de turismo
+						$req['total'] = $req['precio_unitario'] * (float)$req['cantidad'];
+						$req['total_ext'] = $req['precio_unitario_ext'] * (float)$req['cantidad'];
+
+						$req['monto_base'] = $req['total'] / ($pimpuesto + ((float)$impuesto_especial->porcentaje / 100));
+						$req['monto_base_ext'] = $req['total_ext'] / ($pimpuesto + ((float)$impuesto_especial->porcentaje / 100));
+						// Fin de lo agregado el 19/09/2023 para extraer del monto el impuesto especial de turismo
+
 						$req['valor_impuesto_especial'] = $req['monto_base'] * ((float)$impuesto_especial->porcentaje / 100);
 						$req['valor_impuesto_especial_ext'] = $req['monto_base_ext'] * ((float)$impuesto_especial->porcentaje / 100);
+
+						$req['total'] -= $req['valor_impuesto_especial'];
+						$req['total_ext'] -= $req['valor_impuesto_especial_ext'];
 					}
 				}
 
