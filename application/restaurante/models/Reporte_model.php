@@ -91,19 +91,11 @@ class Reporte_model extends CI_Model
 			$this->db->where('h.tipo_domicilio', $args['tipo_domicilio']);
 		}
 
+		$campos = 'a.forma_pago, a.documento, f.descripcion, a.monto, a.propina, ifnull(e.factura, concat("Comanda ", h.comanda)) as factura, ifnull(e.numero_factura, concat("Comanda ", h.comanda)) as numero_factura, ';
+		$campos.= 'ifnull(e.fecha_factura, date(h.fhcreacion)) as fecha_factura, h.sede, j.nombre as nsede, ifnull(e.serie_factura, "") as serie_factura, h.estatus as estatus_comanda, f.esefectivo, ';
+		$campos.= 'group_concat(distinct h.comanda separator ",") as comanda, (SELECT IFNULL(SUM(valor_impuesto_especial), 0) FROM detalle_factura WHERE factura = e.factura) AS valor_impuesto_especial';
 		$tmp = $this->db
-			->select("
-			a.forma_pago, 
-			a.documento,
-			f.descripcion, 
-			a.monto, 
-			a.propina,
-			ifnull(e.factura, concat('Comanda ', h.comanda)) as factura,
-			ifnull(e.numero_factura, concat('Comanda ', h.comanda)) as numero_factura,
-			ifnull(e.fecha_factura, date(h.fhcreacion)) as fecha_factura,
-			h.sede,
-			j.nombre as nsede,
-			ifnull(e.serie_factura, '') as serie_factura, h.estatus as estatus_comanda, f.esefectivo, group_concat(distinct h.comanda separator ',') as comanda")
+			->select($campos)
 			->from("cuenta_forma_pago a")
 			->join("detalle_cuenta b", "a.cuenta = b.cuenta_cuenta")
 			->join("detalle_factura_detalle_cuenta c", "b.detalle_cuenta = c.detalle_cuenta", "left")
@@ -181,6 +173,7 @@ class Reporte_model extends CI_Model
 			}
 
 			$query = $this->db
+				// ->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				->join('detalle_factura b', 'a.factura = b.factura')
 				->join('articulo c', 'c.articulo = b.articulo')
