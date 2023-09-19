@@ -1949,6 +1949,17 @@ class Reporte extends CI_Controller
             unset($req['suma']);
             $comanda->forma_pago = isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 ? $this->Reporte_model->get_formas_pago_comanda($req) : [];
             $comanda->factura = isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 ? $this->Reporte_model->get_facturas_comanda($req) : [];
+            
+            $comanda->numero_orden = null;
+            $json = null;
+            if(isset($comanda->comanda_origen_datos) && !is_null($comanda->comanda_origen_datos) && is_string($comanda->comanda_origen_datos)) {
+                try {
+                    $json = json_decode($comanda->comanda_origen_datos);
+                } catch(Exception $e) {
+                    $json = null;
+                }
+                $comanda->numero_orden = isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);                
+            }
         }
 
         $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1989,8 +2000,9 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("M{$fila}", 'Razón de anulación de comanda');
             $hoja->setCellValue("N{$fila}", 'Total de comanda');
             $hoja->setCellValue("O{$fila}", 'Comensales');
-            $hoja->getStyle("A{$fila}:O{$fila}")->getFont()->setBold(true);
-            $hoja->getStyle("A{$fila}:O{$fila}")->getAlignment()->setHorizontal('center');
+            $hoja->setCellValue("P{$fila}", 'No. Orden');
+            $hoja->getStyle("A{$fila}:P{$fila}")->getFont()->setBold(true);
+            $hoja->getStyle("A{$fila}:P{$fila}")->getAlignment()->setHorizontal('center');
             $fila++;
             $hoja->setCellValue("A{$fila}", $cmd->sede);
             $hoja->setCellValue("B{$fila}", $cmd->orden_gk);
@@ -2008,6 +2020,7 @@ class Reporte extends CI_Controller
             $hoja->setCellValue("M{$fila}", $cmd->razon_anulacion);
             $hoja->setCellValue("N{$fila}", $cmd->total_detalle);
             $hoja->setCellValue("O{$fila}", $cmd->comensales);
+            $hoja->setCellValue("P{$fila}", $cmd->numero_orden);
             $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
             $fila++;
             // Detalle de comanda
@@ -2148,13 +2161,13 @@ class Reporte extends CI_Controller
                 }
             }
             $filaFinComanda = $fila - 1;
-            $hoja->getStyle("A{$filaIniciaComanda}:N{$filaFinComanda}")
+            $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")
                 ->getBorders()
                 ->getOutline()
                 ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                 ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
 
-            $hoja->getStyle("A{$filaIniciaComanda}:N{$filaFinComanda}")->getFill()
+            $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()
                 ->setARGB('EEECE1');
@@ -2187,7 +2200,7 @@ class Reporte extends CI_Controller
             $fila += 2;
         }
 
-        foreach (range('A', 'N') as $col) {
+        foreach (range('A', 'P') as $col) {
             $hoja->getColumnDimension($col)->setAutoSize(true);
         }
 
