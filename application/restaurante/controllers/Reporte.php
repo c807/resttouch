@@ -1949,6 +1949,11 @@ class Reporte extends CI_Controller
             unset($req['suma']);
             $comanda->forma_pago = isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 ? $this->Reporte_model->get_formas_pago_comanda($req) : [];
             $comanda->factura = isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 ? $this->Reporte_model->get_facturas_comanda($req) : [];
+            
+            $comanda->orden_shopify = null;
+            if(isset($comanda->comanda_origen_datos) && !is_null($comanda->comanda_origen_datos) && is_string($comanda->comanda_origen_datos)) {
+
+            }
         }
 
         $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
