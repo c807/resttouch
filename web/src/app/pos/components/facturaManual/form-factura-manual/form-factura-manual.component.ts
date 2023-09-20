@@ -48,7 +48,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   get totalDeFactura(): number {
     let totFact = 0;
     for (const df of this.detallesFactura) {
-      totFact += +df.total;
+      totFact += +df.total + (+df.valor_impuesto_especial > 0 ? +df.valor_impuesto_especial : 0);
     }
     return totFact;
   }
@@ -94,7 +94,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public detalleFactura: DetalleFactura;
   public articulos: Articulo[] = [];
   public filteredArticulos: Articulo[] = [];
-  public displayedColumns: string[] = ['articulo', 'cantidad', 'precio_unitario', 'total', 'editItem'];
+  public displayedColumns: string[] = ['articulo', 'cantidad', 'precio_unitario', 'valor_impuesto_especial', 'total', 'editItem'];
   public dataSource: MatTableDataSource<DetalleFactura>;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;

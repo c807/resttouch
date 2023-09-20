@@ -84,7 +84,7 @@
 												<td style="padding: 5px; margin-left: 10px;"><?php echo $row->descripcion ?></td>
 												<td style="padding: 5px;" class="text-right"><?php echo $row->cantidad ?></td>
 												<td style="padding: 5px;" class="text-right"><?php echo $row->porcentaje ?></td>
-												<td style="padding: 5px;" class="text-right"><?php echo $row->precio_unitario ?></td>
+												<td style="padding: 5px;" class="text-right"><?php echo number_format($row->precio_unitario, 2) ?></td>
 												<td style="padding: 5px;" class="text-right"><?php echo number_format($row->total, 2) ?></td>
 											</tr>	
 											<?php 

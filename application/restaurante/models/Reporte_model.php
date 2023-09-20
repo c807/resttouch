@@ -114,7 +114,7 @@ class Reporte_model extends CI_Model
 				a.forma_pago,
 				a.documento,
 				a.descripcion, 
-				sum(a.monto) as monto, 
+				sum(a.monto + a.valor_impuesto_especial) as monto, 
 				sum(a.propina) as propina,
 				a.fecha_factura,
 				a.numero_factura,
@@ -173,8 +173,8 @@ class Reporte_model extends CI_Model
 			}
 
 			$query = $this->db
-				// ->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
-				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
+				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
+				// ->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				->join('detalle_factura b', 'a.factura = b.factura')
 				->join('articulo c', 'c.articulo = b.articulo')
 				->join('detalle_factura_detalle_cuenta d', 'b.detalle_factura = d.detalle_factura', 'left')
