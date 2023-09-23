@@ -18,4 +18,14 @@ class ImpuestoEspecial_model extends General_model {
 		}
 	}
 
+	public function get_lista_impuestos_especiales()
+	{
+		$lista = [];
+		$campos = $this->getCampos(false, '', 'impuesto_especial');
+		$tmpImpEsp = $this->db->select($campos)->order_by('impuesto_especial')->get('impuesto_especial')->result();
+		foreach($tmpImpEsp as $ie) {
+			$lista[(int)$ie->impuesto_especial] = clone $ie;
+		}
+		return $lista;
+	}
 }

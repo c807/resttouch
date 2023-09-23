@@ -40,6 +40,7 @@ class Factura_model extends General_model
 			$this->cargar($id);
 		}
 		$this->load->library('AsyncTasks');
+		$this->load->model(['Articulo_model', 'ImpuestoEspecial_model']);
 	}
 
 	public function getDetalleImpuestos()
@@ -198,6 +199,10 @@ class Factura_model extends General_model
 
 	public function getDetalle($args = [], $redondeaMontos = true)
 	{
+		$impuestos_especiales = $this->ImpuestoEspecial_model->get_lista_impuestos_especiales();
+		$articulos = $this->Articulo_model->get_lista_articulos(['sede' => (int)$this->sede]);
+
+		$campos = $this->getCampos(false, '', 'detalle_factura');
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if (substr($key, 0, 1) != '_') {
@@ -208,23 +213,22 @@ class Factura_model extends General_model
 
 		$datos = [];
 		$tmp = $this->db
+			->select($campos)
 			->where('factura', $this->factura)
 			->where('total > 0')
 			->get('detalle_factura')
 			->result();
 
 		foreach ($tmp as $row) {
-			$det = new Dfactura_model($row->detalle_factura);
-			$row->articulo = $det->getArticulo();
+			// $det = new Dfactura_model($row->detalle_factura);
+			// $row->articulo = $det->getArticulo();
+			$row->articulo = $articulos[(int)$row->articulo];
 			$row->subtotal = $redondeaMontos ? $row->total : $row->total_ext;
 			$row->total = $redondeaMontos ? ($row->total - $row->descuento) : ($row->total_ext - $row->descuento_ext);
-			if ($row->impuesto_especial) {
-				$imp = $this->db
-					->where('impuesto_especial', $row->impuesto_especial)
-					->get('impuesto_especial')
-					->row();
-
-				$row->impuesto = $imp;
+			if ($row->impuesto_especial && count($impuestos_especiales) > 0) {
+				// $imp = $this->db->where("impuesto_especial", $row->impuesto_especial)->get("impuesto_especial")->row();
+				// $row->impuesto = $imp;
+				$row->impuesto = $impuestos_especiales[(int)$row->impuesto_especial];
 			}
 			$datos[] = $row;
 		}
@@ -2118,7 +2122,6 @@ class Factura_model extends General_model
 
 		return is_array($hijos) && count($hijos) > 0 ? array_merge($det, $hijos) : $det;
 	}
-
 	
 	public function enviarInfileSv()
 	{

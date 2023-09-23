@@ -56,7 +56,7 @@ class Factura extends CI_Controller
 				$datos['exito'] = $fac->guardar($req);
 
 				if ($datos['exito']) {
-					$datos['mensaje'] = 'Datos Actualizados con Exito';
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['factura'] = $fac;
 				} else {
 					$datos['mensaje'] = implode('<br>', $fac->getMensaje());
@@ -65,7 +65,7 @@ class Factura extends CI_Controller
 				$datos['mensaje'] = 'La factura ya fue firmada por la SAT, no se puede modificar';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros Invalidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 
@@ -125,6 +125,12 @@ class Factura extends CI_Controller
 
 						$req['valor_impuesto_especial'] = $req['monto_base'] * ((float)$impuesto_especial->porcentaje / 100);
 						$req['valor_impuesto_especial_ext'] = $req['monto_base_ext'] * ((float)$impuesto_especial->porcentaje / 100);
+
+						$req['precio_unitario'] = (float)$req['precio_unitario'] - (float)$req['valor_impuesto_especial'] / (float)$req['cantidad'];
+						$req['precio_unitario_ext'] = $req['precio_unitario'];
+
+						// $req['total'] = $req['precio_unitario'] * (float)$req['cantidad'];
+						// $req['total_ext'] = $req['precio_unitario_ext'] * (float)$req['cantidad'];
 
 						$req['total'] -= $req['valor_impuesto_especial'];
 						$req['total_ext'] -= $req['valor_impuesto_especial_ext'];
@@ -212,10 +218,7 @@ class Factura extends CI_Controller
 	public function buscar_detalle($factura)
 	{
 		$fac = new Factura_model($factura);
-
-		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode($fac->getDetalle($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($fac->getDetalle($_GET)));
 	}
 
 	public function facturar($factura)
@@ -269,7 +272,7 @@ class Factura extends CI_Controller
 					}
 					$datos['exito'] = true;
 					$datos['factura'] = $fac;
-					$datos['mensaje'] = 'Datos actualizados con éxito';
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 				} else {
 					$datos['mensaje'] = implode('. ', $fac->getMensaje());
 				}
@@ -277,7 +280,7 @@ class Factura extends CI_Controller
 				$datos['mensaje'] = 'Ya cuenta con factura.';
 			}
 		} else {
-			$datos['mensaje'] = 'Parámetros inválidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		$this->output
 			->set_content_type('application/json')
@@ -337,7 +340,7 @@ class Factura extends CI_Controller
 				$datos['mensaje'] = 'La factura debe estar anulada';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros inválidos';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -416,7 +419,7 @@ class Factura extends CI_Controller
 
 						$datos['exito'] = true;
 						$datos['factura'] = $fac;
-						$datos['mensaje'] = 'Datos actualizados con éxito';
+						$datos['mensaje'] = 'Datos actualizados con éxito.';
 						$datos['anulacion'] = (object)[
 							'cliente' => $this->Cliente_model->buscar(['cliente' => $fac->cliente, '_uno' => true]),
 							'comentario' => $comentario,
@@ -432,7 +435,7 @@ class Factura extends CI_Controller
 				$datos['mensaje'] = 'Documento ya se encuentra anulado.';
 			}
 		} else {
-			$datos['mensaje'] = 'Parametros inválidos.';
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}

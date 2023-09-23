@@ -1415,6 +1415,39 @@ class Articulo_model extends General_model
 
 		return $this->db->query($query)->row();
 	}
+
+	public function get_lista_articulos($fltr = [])
+	{
+		$lista = [];
+		$campos = $this->getCampos(false, 'a.', 'articulo');
+
+		if(isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
+			$this->db->where('c.sede', $fltr['sede']);
+		}
+
+		if(isset($fltr['categoria_grupo']) && (int)$fltr['categoria_grupo'] > 0) {
+			$this->db->where('b.categoria_grupo', $fltr['categoria_grupo']);
+		}
+
+		if(isset($fltr['categoria']) && (int)$fltr['categoria'] > 0) {
+			$this->db->where('c.categoria', $fltr['categoria']);
+		}
+
+		$tmpArticulos = $this->db
+			->select($campos)
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->order_by('a.articulo')
+			->get('articulo a')
+			->result();
+
+		foreach($tmpArticulos as $art) {
+			$lista[(int)$art->articulo] = clone $art;
+		}
+
+		return $lista;
+	}
+
 }
 
 /* End of file Articulo_model.php */

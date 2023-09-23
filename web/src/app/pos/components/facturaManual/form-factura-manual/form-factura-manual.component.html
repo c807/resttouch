@@ -179,18 +179,24 @@
                 <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Cantidad</th>
+                <th mat-header-cell *matHeaderCellDef class="text-right">Cant.</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}</td>
                 <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="precio_unitario">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Precio Unitario</th>
+                <th mat-header-cell *matHeaderCellDef class="text-right">P./Uni.</th>
                 <td mat-cell *matCellDef="let element" class="text-right">{{element.precio_unitario | number:'1.2-2'}}</td>
+                <!-- <td mat-footer-cell *matFooterCellDef class="text-right"><strong>Total</strong></td> -->
+                <td mat-footer-cell *matFooterCellDef class="text-right">&nbsp;</td>
+            </ng-container>
+            <ng-container matColumnDef="valor_impuesto_especial">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Imp. Esp.</th>
+                <td mat-cell *matCellDef="let element" class="text-right">{{(element.valor_impuesto_especial || 0) | number:'1.2-2'}}</td>
                 <td mat-footer-cell *matFooterCellDef class="text-right"><strong>Total</strong></td>
             </ng-container>
             <ng-container matColumnDef="total">
                 <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.total | number:'1.2-2'}}</td>
+                <td mat-cell *matCellDef="let element" class="text-right">{{(+element.total + (element.valor_impuesto_especial ? +element.valor_impuesto_especial : 0)) | number:'1.2-2'}}</td>
                 <td mat-footer-cell *matFooterCellDef class="text-right"><strong>{{(totalDeFactura || 0) | number:'1.2-2'}}</strong></td>
             </ng-container>
             <ng-container matColumnDef="editItem">

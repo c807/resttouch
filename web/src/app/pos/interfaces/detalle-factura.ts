@@ -9,4 +9,5 @@ export interface DetalleFactura {
     monto_base?: number;
     monto_iva?: number;
     bien_servicio?: string;
+    valor_impuesto_especial?: number;
 }

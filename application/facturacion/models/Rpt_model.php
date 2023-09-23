@@ -195,7 +195,7 @@ class Rpt_model extends General_model
 
         if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
             $facturas_manuales = $this->db
-                ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total) AS total, IFNULL(g.descripcion, "") AS presentacion')
+                ->select('b.articulo, c.descripcion, SUM(b.cantidad) AS cantidad, SUM(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS total, IFNULL(g.descripcion, "") AS presentacion')
                 ->join('detalle_factura b', 'a.factura = b.factura')
                 ->join('articulo c', 'c.articulo = b.articulo')                
                 ->join('detalle_factura_detalle_cuenta f', 'b.detalle_factura = f.detalle_factura', 'left')
@@ -270,9 +270,12 @@ class Rpt_model extends General_model
 
         $facturas_manuales = [];
 
-        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {            
+        if(!isset($args['turno_tipo']) && !isset($args['domicilio'])) {
+            $campos = '0 AS detalle_comanda, e.categoria AS idcat, e.descripcion AS categoria, d.categoria_grupo AS idsubcat, d.descripcion AS subcategoria, c.articulo AS idarticulo, c.descripcion AS articulo, b.cantidad, ';
+            $campos.= '(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS total, ';
+            $campos.= '(b.precio_unitario + IF(b.cantidad <> 0, (IFNULL(b.valor_impuesto_especial, 0) / b.cantidad), 0)) AS precio';
             $facturas_manuales = $this->db
-                ->select('0 AS detalle_comanda, e.categoria AS idcat, e.descripcion AS categoria, d.categoria_grupo AS idsubcat, d.descripcion AS subcategoria, c.articulo AS idarticulo, c.descripcion AS articulo, b.cantidad, b.total, b.precio_unitario AS precio', false)
+                ->select($campos, false)
                 ->join('detalle_factura b', 'a.factura = b.factura')
                 ->join('articulo c', 'c.articulo = b.articulo')
                 ->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')

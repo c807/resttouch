@@ -119,8 +119,8 @@ export class CajacorteFormComponent implements OnInit, OnDestroy {
       disableClose: true,
       data: new ConfirmDialogModel(
         `CAJA ${this.data.tipo.descripcion.toUpperCase()}`,
-        'Una vez guardado los datos, no podrá modificar. ¿Desea continuar?',
-        'Sí', 'No'
+        `Una vez guardado los datos, no podrá modificar la caja${+this.data.tipo.caja_corte_tipo === 4 ? ' <strong>y cerrará automáticamente el turno</strong>' : ''}. ¿Desea continuar?`,
+        'Sí', 'No', undefined, false, true
       )
     });
 

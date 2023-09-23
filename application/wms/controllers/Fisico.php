@@ -248,13 +248,13 @@ class Fisico extends CI_Controller
 				$vista = $this->load->view('reporte/fisico/imprimir', $args, true);
 				// $this->output->set_content_type('text/html', 'UTF-8')->set_output($vista);				
 
-				$longitud = strlen($vista);
-				$puntoDiv1 = floor($longitud / 3);
-				$puntoDiv2 = floor($longitud / 3) * 2;
-				$parte1 = substr($vista, 0, $puntoDiv1);
-				$parte2 = substr($vista, $puntoDiv1, $puntoDiv2 - $puntoDiv1);
-				$parte3 = substr($vista, $puntoDiv2);
-
+				// $longitud = strlen($vista);
+				// $puntoDiv1 = floor($longitud / 3);
+				// $puntoDiv2 = floor($longitud / 3) * 2;
+				// $parte1 = substr($vista, 0, $puntoDiv1);
+				// $parte2 = substr($vista, $puntoDiv1, $puntoDiv2 - $puntoDiv1);
+				// $parte3 = substr($vista, $puntoDiv2);
+				
 				$pdf   = new \Mpdf\Mpdf([
 					'tempDir' => sys_get_temp_dir(), //produccion
 					'format' => 'letter',
@@ -262,11 +262,11 @@ class Fisico extends CI_Controller
 				]);
 				// $rand  = rand();
 				$pdf->AddPage();
-
-				// $pdf->WriteHTML($vista);
-				$pdf->WriteHTML($parte1);
-				$pdf->WriteHTML($parte2);
-				$pdf->WriteHTML($parte3);
+				
+				$pdf->WriteHTML($vista);
+				// $pdf->WriteHTML($parte1);
+				// $pdf->WriteHTML($parte2);
+				// $pdf->WriteHTML($parte3);
 
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') . '.pdf';

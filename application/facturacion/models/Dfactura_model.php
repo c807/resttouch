@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Dfactura_model extends General_model {
+class Dfactura_model extends General_model
+{
 
 	public $detalle_factura;
 	public $factura;
@@ -10,7 +11,7 @@ class Dfactura_model extends General_model {
 	public $cantidad_inventario = 0.00;
 	public $cantidad_inventario_backup = null;
 	public $precio_unitario;
-	public $precio_unitario_ext = 0.0000000000;	
+	public $precio_unitario_ext = 0.0000000000;
 	public $total;
 	public $total_ext = 0.0000000000;
 	public $monto_base;
@@ -36,41 +37,43 @@ class Dfactura_model extends General_model {
 	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("detalle_factura");
+		$this->setTabla('detalle_factura');
 
-		if(!empty($id)) {
+		if (!empty($id)) {
 			$this->cargar($id);
 		}
 	}
 
-	public function getArticulo() {
+	public function getArticulo()
+	{
+		$campos = $this->getCampos(false, '', 'articulo');
 		return $this->db
-					->where("articulo", $this->articulo)
-					->get("articulo")
-					->row();
+			->select($campos)
+			->where('articulo', $this->articulo)
+			->get('articulo')
+			->row();
 	}
 
 	public function actualizarCantidadHijos()
 	{
 		$tmp = $this->db
-					->select("a.detalle_factura, b.articulo")
-					->join("articulo b", "a.articulo = b.articulo")
-					->where("a.detalle_factura_id", $this->getPK())
-					->get("detalle_factura a")
-					->result();
+			->select('a.detalle_factura, b.articulo')
+			->join('articulo b', 'a.articulo = b.articulo')
+			->where('a.detalle_factura_id', $this->getPK())
+			->get('detalle_factura a')
+			->result();
 
 		foreach ($tmp as $row) {
 			$det = new Dfactura_model($row->detalle_factura);
 			$art = new Articulo_model($this->articulo);
 			$rec = $art->getReceta([
-				"articulo" => $row->articulo,
-				"_uno" => true
+				'articulo' => $row->articulo,
+				'_uno' => true
 			]);
 			$det->guardar(['cantidad' => $this->cantidad * $rec[0]->cantidad]);
 			$det->actualizarCantidadHijos();
 		}
 	}
-
 }
 
 /* End of file Dfactura_model.php */

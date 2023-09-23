@@ -34,20 +34,20 @@ class Venta extends CI_Controller
 	private function getEsRangoPorFechaDeTurno()
 	{
 		$config = $this->Configuracion_model->buscar();
-		return get_configuracion($config, "RT_REPORTES_FECHAS_TURNOS", 3);
+		return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
 	}
 
 	public function categoria()
 	{
-		$this->load->helper(['jwt', 'authorization']);
-		$headers = $this->input->request_headers();
-		$data = AUTHORIZATION::validateToken($headers['Authorization']);
+		// $this->load->helper(['jwt', 'authorization']);
+		// $headers = $this->input->request_headers();
+		// $data = AUTHORIZATION::validateToken($headers['Authorization']);
 		$req = $_GET;
 		if (!$this->input->get('sede')) {
 			$req['sede'] = [$this->data->sede];
 		}
 
-		$req["_vivas"] = true;
+		$req['_vivas'] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 		$facts = $this->Factura_model->get_facturas($req);
 		$comandas = $this->Comanda_model->get_sin_factura($req);
@@ -61,14 +61,14 @@ class Venta extends CI_Controller
 				$art = new Articulo_model($det->articulo->articulo);
 
 				if (isset($detalle[$art->articulo])) {
-					$detalle[$art->articulo]["cantidad"] += $det->cantidad;
-					$detalle[$art->articulo]["total"] += $det->total;
+					$detalle[$art->articulo]['cantidad'] += $det->cantidad;
+					$detalle[$art->articulo]['total'] += $det->total;
 				} else {
 					$detalle[$art->articulo] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"descripcion" => $art->descripcion,
-						"precio_unitario" => $det->precio_unitario
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'descripcion' => $art->descripcion,
+						'precio_unitario' => $det->precio_unitario
 					];
 				}
 			}
@@ -81,26 +81,26 @@ class Venta extends CI_Controller
 				$art = new Articulo_model($det->articulo->articulo);
 
 				if (isset($detalle[$art->articulo])) {
-					$detalle[$art->articulo]["cantidad"] += $det->cantidad;
-					$detalle[$art->articulo]["total"] += $det->total;
+					$detalle[$art->articulo]['cantidad'] += $det->cantidad;
+					$detalle[$art->articulo]['total'] += $det->total;
 				} else {
 					$detalle[$art->articulo] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"descripcion" => $art->descripcion,
-						"precio_unitario" => $det->precio
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'descripcion' => $art->descripcion,
+						'precio_unitario' => $det->precio
 					];
 				}
 			}
 		}
 
-		$cat = $this->Categoria_model->buscar(["sede" => $this->data->sede]);
+		$cat = $this->Categoria_model->buscar(['sede' => $this->data->sede]);
 
 		$categorias = [];
 		foreach ($cat as $row) {
 			$grupo = $this->Catalogo_model->getCategoriaGrupo([
-				"categoria" => $row->categoria,
-				"categoria_grupo_grupo" => null
+				'categoria' => $row->categoria,
+				'categoria_grupo_grupo' => null
 			]);
 			$row->categoria_grupo = $grupo;
 
@@ -114,7 +114,7 @@ class Venta extends CI_Controller
 		}
 
 		$this->output
-			->set_content_type("application/json")
+			->set_content_type('application/json')
 			->set_output(json_encode($datos));
 	}
 
@@ -124,11 +124,11 @@ class Venta extends CI_Controller
 			switch (trim($args['tipo_venta'])) {
 				case 'R':
 					$args['domicilio'] = 0;
-					$args['_titulocc'] = "Restaurante";
+					$args['_titulocc'] = 'Restaurante';
 					break;
 				case 'D':
 					$args['domicilio'] = 1;
-					$args['_titulocc'] = "Call center";
+					$args['_titulocc'] = 'Call center';
 					break;
 				default: {
 						if (is_numeric($args['tipo_venta']) && (int)$args['tipo_venta'] > 0) {
@@ -183,13 +183,13 @@ class Venta extends CI_Controller
 
 				if (isset($detalle[$art->articulo])) {
 					$detalle[$art->articulo]['cantidad'] += $det->cantidad;
-					$detalle[$art->articulo]['total'] += $det->total;
+					$detalle[$art->articulo]['total'] += ((float)$det->total + (float)$det->valor_impuesto_especial);
 				} else {
 					$detalle[$art->articulo] = [
 						'cantidad' => $det->cantidad,
-						'total' => $det->total,
+						'total' => (float)$det->total + (float)$det->valor_impuesto_especial,
 						'descripcion' => $art->descripcion,
-						'precio_unitario' => $det->precio_unitario
+						'precio_unitario' => (float)$det->precio_unitario + ((float)$det->valor_impuesto_especial / (float)$det->cantidad)
 					];
 				}
 			}
@@ -227,7 +227,7 @@ class Venta extends CI_Controller
 		$cat = [];
 		// foreach ($_GET['sede'] as $row) {
 		foreach ($req['sede'] as $row) {
-			$tmp = $this->Categoria_model->buscar(["sede" => $row]);
+			$tmp = $this->Categoria_model->buscar(['sede' => $row]);
 			$cat = array_merge($cat, $tmp);
 		}
 
@@ -258,16 +258,16 @@ class Venta extends CI_Controller
 					$tmp[$row->sede]['articulos'][] = $row;
 				} else {
 					$tmpSede = $this->Sede_model->buscar([
-						"sede" => $row->sede,
-						"_uno" => true
+						'sede' => $row->sede,
+						'_uno' => true
 					]);
 					$tmp[$row->sede] = [
-						"sede" => $tmpSede->nombre,
-						"articulos" => [$row]
+						'sede' => $tmpSede->nombre,
+						'articulos' => [$row]
 					];
 				}
 			}
-			$datos = ["grupo" => 2, "datos" => array_values($tmp)];
+			$datos = ['grupo' => 2, 'datos' => array_values($tmp)];
 		}
 
 		$cntCategorias = count($datos);
@@ -302,7 +302,7 @@ class Venta extends CI_Controller
 		foreach ($req['sede'] as $row) {
 			$sede = $this->Catalogo_model->getSede([
 				'sede' => $row,
-				"_uno" => true
+				'_uno' => true
 			]);
 
 			$tmp[] = $sede->nombre;
@@ -310,12 +310,12 @@ class Venta extends CI_Controller
 
 		if ($sede) {
 			$emp = $this->Catalogo_model->getEmpresa([
-				"empresa" => $sede->empresa,
-				"_uno" => true
+				'empresa' => $sede->empresa,
+				'_uno' => true
 			]);
 			if ($emp) {
 				$data['empresa'] = $emp;
-				$data['nsede'] = implode(", ", $tmp);
+				$data['nsede'] = implode(', ', $tmp);
 			}
 		}
 
@@ -503,18 +503,18 @@ class Venta extends CI_Controller
 
 			$mpdf->WriteHTML($vista);
 
-			if (verDato($req, "_rturno")) {
-				$ruta = $tmp."/ventas_categoria_".rand().".pdf";
-				$mpdf->Output($ruta, "F");
+			if (verDato($req, '_rturno')) {
+				$ruta = $tmp.'/ventas_categoria_'.rand().'.pdf';
+				$mpdf->Output($ruta, 'F');
 
 				$this->output
-				->set_content_type("application/json")
-				->set_output(json_encode(["ruta" => $ruta]));
+				->set_content_type('application/json')
+				->set_output(json_encode(['ruta' => $ruta]));
 			} else {
 				$mpdf->Output('Ventas_categoria.pdf', 'D');
 			}
 
-			// $this->output->set_content_type("application/json")->set_output(json_encode(['data' => $data, 'req' => $req]));
+			// $this->output->set_content_type('application/json')->set_output(json_encode(['data' => $data, 'req' => $req]));
 		}
 	}
 
@@ -524,7 +524,7 @@ class Venta extends CI_Controller
 		if (!$this->input->get('sede')) {
 			$req['sede'] = [$this->data->sede];
 		}
-		$req["_vivas"] = true;
+		$req['_vivas'] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 
 		$req = $this->addFiltersCallCenter($req);
@@ -544,10 +544,10 @@ class Venta extends CI_Controller
 					$detalle[$key]['total'] += $det->total;
 				} else {
 					$detalle[$key] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"articulo" => $det->articulo,
-						"sede" => $fac->sede
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'articulo' => $det->articulo,
+						'sede' => $fac->sede
 					];
 				}
 			}
@@ -562,41 +562,41 @@ class Venta extends CI_Controller
 					$detalle[$key]['total'] += $det->total;
 				} else {
 					$detalle[$key] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"articulo" => $det->articulo,
-						"sede" => $com->sede
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'articulo' => $det->articulo,
+						'sede' => $com->sede
 					];
 				}
 			}
 		}
 
-		$datos = ["grupo" => 1, "datos" => array_values($detalle)];
-		usort($datos["datos"], function ($a, $b) {
+		$datos = ['grupo' => 1, 'datos' => array_values($detalle)];
+		usort($datos['datos'], function ($a, $b) {
 			return (int)$a['cantidad'] < (int)$b['cantidad'];
 		});
 
 		if (isset($_GET['_grupo']) && $_GET['_grupo'] == 2) {
 			$tmp = [];
-			foreach ($datos["datos"] as $row) {
+			foreach ($datos['datos'] as $row) {
 				if (isset($tmp[$row['sede']])) {
 					$tmp[$row['sede']]['articulos'][] = $row;
 				} else {
 					$tmpSede = $this->Sede_model->buscar([
-						"sede" => $row['sede'],
-						"_uno" => true
+						'sede' => $row['sede'],
+						'_uno' => true
 					]);
 					$tmp[$row['sede']] = [
-						"sede" => $tmpSede->nombre,
-						"articulos" => [$row]
+						'sede' => $tmpSede->nombre,
+						'articulos' => [$row]
 					];
 				}
 			}
-			$datos = ["grupo" => 2, "datos" => array_values($tmp)];
+			$datos = ['grupo' => 2, 'datos' => array_values($tmp)];
 		}
 
 		$this->output
-			->set_content_type("application/json")
+			->set_content_type('application/json')
 			->set_output(json_encode($datos));
 	}
 
@@ -606,7 +606,7 @@ class Venta extends CI_Controller
 		if (!$this->input->get('sede')) {
 			$req['sede'] = [$this->data->sede];
 		}
-		$req["_vivas"] = true;
+		$req['_vivas'] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 		
 		$req = $this->addFiltersCallCenter($req);
@@ -625,10 +625,10 @@ class Venta extends CI_Controller
 					$detalle[$key]['total'] += $det->total;
 				} else {
 					$detalle[$key] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"articulo" => $det->articulo,
-						"sede" => $fac->sede
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'articulo' => $det->articulo,
+						'sede' => $fac->sede
 					];
 				}
 			}
@@ -643,56 +643,56 @@ class Venta extends CI_Controller
 					$detalle[$key]['total'] += $det->total;
 				} else {
 					$detalle[$key] = [
-						"cantidad" => $det->cantidad,
-						"total" => $det->total,
-						"articulo" => $det->articulo,
-						"sede" => $com->sede
+						'cantidad' => $det->cantidad,
+						'total' => $det->total,
+						'articulo' => $det->articulo,
+						'sede' => $com->sede
 					];
 				}
 			}
 		}
 
-		$datos = ["grupo" => 1, "datos" => array_values($detalle)];
-		usort($datos["datos"], function ($a, $b) {
+		$datos = ['grupo' => 1, 'datos' => array_values($detalle)];
+		usort($datos['datos'], function ($a, $b) {
 			return (int)$a['cantidad'] < (int)$b['cantidad'];
 		});
 
 		if (isset($_GET['_grupo']) && $_GET['_grupo'] == 2) {
 			$tmp = [];
-			foreach ($datos["datos"] as $row) {
+			foreach ($datos['datos'] as $row) {
 				if (isset($tmp[$row['sede']])) {
 					$tmp[$row['sede']]['articulos'][] = $row;
 				} else {
 					$tmpSede = $this->Sede_model->buscar([
-						"sede" => $row['sede'],
-						"_uno" => true
+						'sede' => $row['sede'],
+						'_uno' => true
 					]);
 					$tmp[$row['sede']] = [
-						"sede" => $tmpSede->nombre,
-						"articulos" => [$row]
+						'sede' => $tmpSede->nombre,
+						'articulos' => [$row]
 					];
 				}
 			}
-			$datos = ["grupo" => 2, "datos" => array_values($tmp)];
+			$datos = ['grupo' => 2, 'datos' => array_values($tmp)];
 		}
 
 
-		$data = ["detalle" => $datos];
+		$data = ['detalle' => $datos];
 
 		$sede = $this->Catalogo_model->getSede([
 			'sede' => $this->data->sede,
-			"_uno" => true
+			'_uno' => true
 		]);
 		$emp = $this->Catalogo_model->getEmpresa([
-			"empresa" => $sede->empresa,
-			"_uno" => true
+			'empresa' => $sede->empresa,
+			'_uno' => true
 		]);
 
 		$tmp = [];
 		foreach ($req['sede'] as $row) {
 			$sede = $this->Catalogo_model->getSede([
 				'sede' => $row,
-				"_uno" => true
+				'_uno' => true
 			]);
 
 			$tmp[] = $sede->nombre;
@@ -700,46 +700,46 @@ class Venta extends CI_Controller
 
 		if ($emp) {
 			$data['empresa'] = $emp;
-			$data['nsede'] = implode(",", $tmp);
+			$data['nsede'] = implode(',', $tmp);
 		}
 
 		if ($this->input->get('turno_tipo')) {
-			$data["turno"] = new TurnoTipo_model($_GET["turno_tipo"]);
+			$data['turno'] = new TurnoTipo_model($_GET['turno_tipo']);
 		}
 
 
-		if (verDato($_GET, "_excel")) {
+		if (verDato($_GET, '_excel')) {
 			$fdel = formatoFecha($_GET['fdel'], 2);
 			$fal = formatoFecha($_GET['fal'], 2);
 
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 			$excel->getProperties()
-				->setCreator("Restouch")
-				->setTitle("Office 2007 xlsx Articulo")
-				->setSubject("Office 2007 xlsx Articulo")
-				->setKeywords("office 2007 openxml php");
+				->setCreator('Restouch')
+				->setTitle('Office 2007 xlsx Articulo')
+				->setSubject('Office 2007 xlsx Articulo')
+				->setKeywords('office 2007 openxml php');
 
 			$excel->setActiveSheetIndex(0);
 			$hoja = $excel->getActiveSheet();
 			$nombres = [
-				"Descripcion",
-				"Cantidad",
-				"Total"
+				'Descripcion',
+				'Cantidad',
+				'Total'
 			];
 
 			/*Encabezado*/
-			$hoja->setCellValue("A1", $data["empresa"]->nombre);
-			$hoja->setCellValue("A2", $data["nsede"]);
-			$hoja->setCellValue("A4", "Reporte de Ventas");
-			$hoja->setCellValue("A5", "Por Articulo");
-			$hoja->setCellValue("A6", "Del: {$fdel} al: {$fal}");
+			$hoja->setCellValue('A1', $data['empresa']->nombre);
+			$hoja->setCellValue('A2', $data['nsede']);
+			$hoja->setCellValue('A4', 'Reporte de Ventas');
+			$hoja->setCellValue('A5', 'Por Artículo');
+			$hoja->setCellValue('A6', "Del: {$fdel} al: {$fal}");
 			if (isset($req['_titulocc'])) {
 				$hoja->setCellValue('A7', $req['_titulocc']);
 			}
 
-			$hoja->fromArray($nombres, null, "A9");
-			$hoja->getStyle("A1:A7")->getFont()->setBold(true);
-			$hoja->getStyle("A9:C9")->getFont()->setBold(true);
+			$hoja->fromArray($nombres, null, 'A9');
+			$hoja->getStyle('A1:A7')->getFont()->setBold(true);
+			$hoja->getStyle('A9:C9')->getFont()->setBold(true);
 
 			$fila = 10;
 			$total = 0;
@@ -757,7 +757,7 @@ class Venta extends CI_Controller
 				}
 
 				$fila++;
-				$hoja->setCellValue("B{$fila}", "TOTAL");
+				$hoja->setCellValue("B{$fila}", 'TOTAL');
 				$hoja->getStyle("B{$fila}:C{$fila}")->getFont()->setBold(true);
 				$hoja->setCellValue("C{$fila}", round($total, 2));
 			} else {
@@ -778,14 +778,14 @@ class Venta extends CI_Controller
 						$hoja->fromArray($reg, null, "A{$fila}");
 						$fila++;
 					}
-					$hoja->setCellValue("B{$fila}", "Total Sede");
+					$hoja->setCellValue("B{$fila}", 'Total Sede');
 					$hoja->getStyle("B{$fila}:C{$fila}")->getFont()->setBold(true);
 					$hoja->setCellValue("C{$fila}", round($totalSede, 2));
 					$fila++;
 				}
 
 				$fila++;
-				$hoja->setCellValue("B{$fila}", "TOTAL");
+				$hoja->setCellValue("B{$fila}", 'TOTAL');
 				$hoja->getStyle("B{$fila}:C{$fila}")->getFont()->setBold(true);
 				$hoja->setCellValue("C{$fila}", round($total, 2));
 			}
@@ -794,18 +794,18 @@ class Venta extends CI_Controller
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 			}
 
-			$hoja->setTitle("Ventas por Articulo");
+			$hoja->setTitle('Ventas por Artículo');
 
-			header("Content-Type: application/vnd.ms-excel");
-			header("Content-Disposition: attachment;filename=Ventas.xlsx");
-			header("Cache-Control: max-age=1");
-			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-			header("Cache-Control: cache, must-revalidate");
-			header("Pragma: public");
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename=Ventas.xlsx');
+			header('Cache-Control: max-age=1');
+			header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+			header('Cache-Control: cache, must-revalidate');
+			header('Pragma: public');
 
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-			$writer->save("php://output");
+			$writer->save('php://output');
 		} else {
 			$vista = $this->load->view('reporte/venta/articulo', array_merge($data, $req), true);
 
@@ -815,7 +815,7 @@ class Venta extends CI_Controller
 			]);
 
 			$mpdf->WriteHTML($vista);
-			$mpdf->Output("Ventas_articulo.pdf", "D");
+			$mpdf->Output('Ventas_articulo.pdf', 'D');
 		}
 	}
 
@@ -832,12 +832,12 @@ class Venta extends CI_Controller
 			$propina = $fac->getPropina();
 			if ($propina) {
 				$dato = [
-					"cuentas" => $propina,
-					"factura" => [
-						"numero" => $fac->numero_factura, "fecha" => $fac->fecha_factura
+					'cuentas' => $propina,
+					'factura' => [
+						'numero' => $fac->numero_factura, 'fecha' => $fac->fecha_factura
 					],
-					"total" => [
-						"monto" => number_format(suma_field($propina, "propina_monto"), 2)
+					'total' => [
+						'monto' => number_format(suma_field($propina, 'propina_monto'), 2)
 					]
 				];
 				$datos['propina'][] = $dato;
@@ -846,13 +846,13 @@ class Venta extends CI_Controller
 
 		$sede = $this->Catalogo_model->getSede([
 			'sede' => $this->data->sede,
-			"_uno" => true
+			'_uno' => true
 		]);
 
 		if ($sede) {
 			$emp = $this->Catalogo_model->getEmpresa([
-				"empresa" => $sede->empresa,
-				"_uno" => true
+				'empresa' => $sede->empresa,
+				'_uno' => true
 			]);
 			if ($emp) {
 				$datos['empresa'] = $emp;
@@ -868,7 +868,7 @@ class Venta extends CI_Controller
 		]);
 
 		$mpdf->WriteHTML($vista);
-		$mpdf->Output("Propinas.pdf", "D");
+		$mpdf->Output('Propinas.pdf', 'D');
 	}
 
 	public function ventas_articulo()
@@ -930,14 +930,14 @@ class Venta extends CI_Controller
 
 			
 
-			if (verDato($req, "_excel")) {
+			if (verDato($req, '_excel')) {
 				$data = (object)$data;
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->getProperties()
-					->setCreator("Restouch")
-					->setTitle("Office 2007 xlsx Ventas por artículo")
-					->setSubject("Office 2007 xlsx Ventas por artículo")
-					->setKeywords("office 2007 openxml php");
+					->setCreator('Restouch')
+					->setTitle('Office 2007 xlsx Ventas por artículo')
+					->setSubject('Office 2007 xlsx Ventas por artículo')
+					->setKeywords('office 2007 openxml php');
 
 				$excel->setActiveSheetIndex(0);
 				$hoja = $excel->getActiveSheet();
@@ -1029,18 +1029,18 @@ class Venta extends CI_Controller
 
 				$fila += 3;
 				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados. Se incluyen artículos comandados (no cobrados y cobrados).');
-				$hoja->setTitle("Ventas por artículo");
+				$hoja->setTitle('Ventas por artículo');
 
-				header("Content-Type: application/vnd.ms-excel");
-				header("Content-Disposition: attachment;filename=Ventas_Articulo.xls");
-				header("Cache-Control: max-age=1");
-				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-				header("Cache-Control: cache, must-revalidate");
-				header("Pragma: public");
+				header('Content-Type: application/vnd.ms-excel');
+				header('Content-Disposition: attachment;filename=Ventas_Articulo.xls');
+				header('Cache-Control: max-age=1');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+				header('Cache-Control: cache, must-revalidate');
+				header('Pragma: public');
 
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-				$writer->save("php://output");
+				$writer->save('php://output');
 			} else {
 				$vista = $this->load->view('reporte/venta/articulo', $data, true);
 
@@ -1050,9 +1050,9 @@ class Venta extends CI_Controller
 				]);
 
 				$mpdf->WriteHTML($vista);
-				$mpdf->Output("Ventas_articulo.pdf", "D");
+				$mpdf->Output('Ventas_articulo.pdf', 'D');
 
-				// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+				// $this->output->set_content_type('application/json')->set_output(json_encode($data));
 			}
 		}
 	}
@@ -1218,10 +1218,10 @@ class Venta extends CI_Controller
 				$data = (object)$data;
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->getProperties()
-					->setCreator("Restouch")
-					->setTitle("Office 2007 xlsx Ventas por categoría")
-					->setSubject("Office 2007 xlsx Ventas por categoría")
-					->setKeywords("office 2007 openxml php");
+					->setCreator('Restouch')
+					->setTitle('Office 2007 xlsx Ventas por categoría')
+					->setSubject('Office 2007 xlsx Ventas por categoría')
+					->setKeywords('office 2007 openxml php');
 
 				$excel->setActiveSheetIndex(0);
 				$hoja = $excel->getActiveSheet();
@@ -1331,18 +1331,18 @@ class Venta extends CI_Controller
 
 				$fila += 3;
 				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
-				$hoja->setTitle("Ventas por categoría");
+				$hoja->setTitle('Ventas por categoría');
 
-				header("Content-Type: application/vnd.ms-excel");
-				header("Content-Disposition: attachment;filename=Ventas_Articulo.xls");
-				header("Cache-Control: max-age=1");
-				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-				header("Cache-Control: cache, must-revalidate");
-				header("Pragma: public");
+				header('Content-Type: application/vnd.ms-excel');
+				header('Content-Disposition: attachment;filename=Ventas_Articulo.xls');
+				header('Cache-Control: max-age=1');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+				header('Cache-Control: cache, must-revalidate');
+				header('Pragma: public');
 
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-				$writer->save("php://output");
+				$writer->save('php://output');
 			} else {
 				$vista = $this->load->view('reporte/venta/categoria_combo', array_merge($data, $req), true);
 
@@ -1354,8 +1354,8 @@ class Venta extends CI_Controller
 				$mpdf->WriteHTML($vista);
 				$mpdf->Output('Ventas_categoria.pdf', 'D');
 
-				$this->output->set_content_type("application/json")->set_output(json_encode(array_merge($data, $req)));
-				// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+				$this->output->set_content_type('application/json')->set_output(json_encode(array_merge($data, $req)));
+				// $this->output->set_content_type('application/json')->set_output(json_encode($data));
 			}
 		}
 	}
@@ -1413,16 +1413,16 @@ class Venta extends CI_Controller
 				'sedes' => $datos
 			];
 
-			// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+			// $this->output->set_content_type('application/json')->set_output(json_encode($data));
 
 			if (verDato($req, '_excel')) {
 				$data = (object)$data;
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->getProperties()
-					->setCreator("Restouch")
-					->setTitle("Office 2007 xlsx Ventas por mesero")
-					->setSubject("Office 2007 xlsx Ventas por mesero")
-					->setKeywords("office 2007 openxml php");
+					->setCreator('Restouch')
+					->setTitle('Office 2007 xlsx Ventas por mesero')
+					->setSubject('Office 2007 xlsx Ventas por mesero')
+					->setKeywords('office 2007 openxml php');
 
 				$excel->setActiveSheetIndex(0);
 				$hoja = $excel->getActiveSheet();
@@ -1478,16 +1478,16 @@ class Venta extends CI_Controller
 				$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 				$hoja->setTitle("Ventas por mesero");
 
-				header("Content-Type: application/vnd.ms-excel");
-				header("Content-Disposition: attachment;filename=Ventas_Mesero.xls");
-				header("Cache-Control: max-age=1");
-				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-				header("Cache-Control: cache, must-revalidate");
-				header("Pragma: public");
+				header('Content-Type: application/vnd.ms-excel');
+				header('Content-Disposition: attachment;filename=Ventas_Mesero.xls');
+				header('Cache-Control: max-age=1');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+				header('Cache-Control: cache, must-revalidate');
+				header('Pragma: public');
 
 				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-				$writer->save("php://output");
+				$writer->save('php://output');
 			} else {
 				$vista = $this->load->view('reporte/venta/por_mesero', array_merge($data, $req), true);
 
@@ -1499,8 +1499,8 @@ class Venta extends CI_Controller
 				$mpdf->WriteHTML($vista);
 				$mpdf->Output('Ventas_por_mesero.pdf', 'D');
 
-				// $this->output->set_content_type("application/json")->set_output(json_encode(array_merge($data, $req)));
-				// $this->output->set_content_type("application/json")->set_output(json_encode($data));
+				// $this->output->set_content_type('application/json')->set_output(json_encode(array_merge($data, $req)));
+				// $this->output->set_content_type('application/json')->set_output(json_encode($data));
 			}
 		}
 	}
