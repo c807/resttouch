@@ -114,7 +114,7 @@ class Reporte_model extends CI_Model
 				a.forma_pago,
 				a.documento,
 				a.descripcion, 
-				sum(a.monto + a.valor_impuesto_especial) as monto, 
+				sum(a.monto) as monto, 
 				sum(a.propina) as propina,
 				a.fecha_factura,
 				a.numero_factura,

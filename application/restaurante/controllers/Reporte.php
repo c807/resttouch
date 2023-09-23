@@ -259,7 +259,7 @@ class Reporte extends CI_Controller
         $basic_ingreso->monto = 0;
         $basic_ingreso->propina = 0;
         foreach ($json_data[$type] as $row) {
-            if ($row->forma_pago === $forma_pago) {
+            if (isset($row->forma_pago) && $row->forma_pago === $forma_pago) {
                 return $row;
             }
         }

@@ -2,7 +2,7 @@
     <mat-grid-tile>
         <mat-card class="fill-space">
             <mat-card-title>Ventas por día</mat-card-title>
-            <mat-card-subtitle>(Con descuentos, con propina)</mat-card-subtitle>
+            <mat-card-subtitle>(Con descuentos, con propina, con facturas manuales, sin impuestos especiales)</mat-card-subtitle>
             <mat-card-content>
                 <app-grafica-linea [lineChartData]="dsPorDia" [lineChartLabels]="lblsPorDia" [titulo]="'Ventas por día'"></app-grafica-linea>
             </mat-card-content>
@@ -11,7 +11,7 @@
     <mat-grid-tile>
         <mat-card class="fill-space">
             <mat-card-title>Ventas por categoría</mat-card-title>
-            <mat-card-subtitle>(Con descuentos, con propina)</mat-card-subtitle>
+            <mat-card-subtitle>(Con descuentos, con propina, con facturas manuales, sin impuestos especiales)</mat-card-subtitle>
             <mat-card-content>
                 <app-grafica-linea [lineChartData]="dsPorCategoria" [lineChartLabels]="lblsPorCategoria" [titulo]="'Ventas por categoría'"></app-grafica-linea>
             </mat-card-content>
@@ -20,7 +20,7 @@
     <mat-grid-tile>
         <mat-card class="fill-space">
             <mat-card-title>Ventas por turno</mat-card-title>
-            <mat-card-subtitle>(Con descuentos, sin propina, sin facturas manuales)</mat-card-subtitle>
+            <mat-card-subtitle>(Con descuentos, sin propina, sin facturas manuales, sin impuestos especiales)</mat-card-subtitle>
             <mat-card-content>
                 <app-grafica-linea [lineChartData]="dsPorTurno" [lineChartLabels]="lblsPorTurno" [titulo]="'Ventas por turno'"></app-grafica-linea>
             </mat-card-content>
@@ -29,7 +29,7 @@
     <mat-grid-tile>
         <mat-card class="fill-space">
             <mat-card-title>Ventas por mesero</mat-card-title>
-            <mat-card-subtitle>(Con descuentos, sin propina, sin facturas manuales)</mat-card-subtitle>
+            <mat-card-subtitle>(Con descuentos, con impuestos especiales, sin propina, sin facturas manuales)</mat-card-subtitle>
             <mat-card-content>
                 <app-grafica-linea [lineChartData]="dsPorMesero" [lineChartLabels]="lblsPorMesero" [titulo]="'Ventas por mesero'"></app-grafica-linea>
             </mat-card-content>

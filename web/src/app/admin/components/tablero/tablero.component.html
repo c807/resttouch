@@ -49,7 +49,7 @@
 
 <mat-card style="height: 100px; margin-left: 10px;">
   <mat-card-title align="center">GRÁFICOS DE VENTAS</mat-card-title>
-  <mat-card-subtitle align="center">(Con descuentos, sin propina)</mat-card-subtitle>
+  <mat-card-subtitle align="center">(Con descuentos, sin propina, sin impuestos especiales)</mat-card-subtitle>
 </mat-card>
 
 <mat-grid-list cols="5" rowHeight="125px" *ngIf="estadistica.length > 0">
@@ -96,6 +96,7 @@
   <mat-grid-tile [colspan]="2">
   	<mat-card>
   		<mat-card-title>Popular</mat-card-title>
+		<mat-card-subtitle>(Los 7 más vendidos)</mat-card-subtitle>
 	  	<mat-card-content>
 				<canvas baseChart
 					[datasets]="popularData"
