@@ -948,9 +948,12 @@ class Articulo_model extends General_model
 	{
 		$this->load->model(['Catalogo_model', 'Impresora_model', 'Presentacion_model']);
 
-		$camposArticulo = $this->Catalogo_model->get_fields_from_table('articulo', false);
-		$camposImpresora = $this->Catalogo_model->get_fields_from_table('impresora', false);
-		$camposPresentacion = $this->Catalogo_model->get_fields_from_table('presentacion', false);
+		// $camposArticulo = $this->Catalogo_model->get_fields_from_table('articulo', false);
+		$camposArticulo = $this->getCampos(true, '', 'articulo');
+		// $camposImpresora = $this->Catalogo_model->get_fields_from_table('impresora', false);
+		$camposImpresora = $this->getCampos(true, '', 'impresora');
+		// $camposPresentacion = $this->Catalogo_model->get_fields_from_table('presentacion', false);
+		$camposPresentacion = $this->getCampos(true, '', 'presentacion');
 
 		if (isset($args['sede'])) {
 			$this->db->where('a.sede', $args['sede']);
@@ -978,11 +981,11 @@ class Articulo_model extends General_model
 
 		foreach ($camposArticulo as $ca) {
 			$this->db->select("c.{$ca->campo}");
-		}
+		}		
 
 		foreach ($camposImpresora as $ci) {
 			$this->db->select("d.{$ci->campo}");
-		}
+		}		
 
 		foreach ($camposPresentacion as $cp) {
 			$this->db->select("e.{$cp->campo}");
