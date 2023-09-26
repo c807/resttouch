@@ -13,7 +13,7 @@ class General_model extends CI_Model
 	public function __construct()
 	{
 		parent::__construct();
-		$this->_tabla = $this->getTabla();		
+		$this->_tabla = $this->getTabla();
 	}
 
 	public function getPK()
@@ -171,28 +171,62 @@ class General_model extends CI_Model
 		return $tmp->result();
 	}
 
-	public function getCampos($asArray = true, $prefijo = '', $tabla = null)
+	public function getCampos_deprecated($asArray = true, $prefijo = '', $tabla = null)
 	{
 		if (is_null($tabla) || !is_string($tabla) || empty(trim($tabla))) {
 			$tabla = $this->_tabla;
 		}
-		
+
 		$query = "SELECT column_name AS campo FROM information_schema.columns WHERE table_schema = '{$this->db->database}' AND table_name = '{$tabla}' ORDER BY ordinal_position";
 		$campos = $this->db->query($query)->result();
-		
-		if($asArray) {
+
+		if ($asArray) {
 			return $campos;
 		} else {
 			$lista = '';
 			$prefijo = trim($prefijo);
-			foreach($campos as $valor) {
+			foreach ($campos as $valor) {
 				if ($lista !== '') {
 					$lista .= ', ';
-				}				
+				}
 				$lista .= "{$prefijo}{$valor->campo}";
 			}
 			return $lista;
 		}
+	}
+
+	public function getCampos($asArray = true, $prefijo = '', $tabla = null)
+	{
+		$tablasAdministracion = ['cliente', 'cliente_corporacion', 'cliente_corporacion_has_modulo', 'conocimiento', 'modulo', 'notificacion_cliente', 'solicitud_registro'];
+
+		if (is_null($tabla) || !is_string($tabla) || empty(trim($tabla))) {
+			$tabla = $this->_tabla;
+		}
+
+		$database = $this->db->database;
+		$isAdministracion = strcasecmp('administracion', $database) == 0 && in_array($tabla, $tablasAdministracion);
+		$isRtDatabase = (strcasecmp('administracion', $database) != 0 && strcasecmp(substr($database, 0, 3), 'rt_') == 0);
+
+		if ($isAdministracion || $isRtDatabase) {
+			$query = "SHOW COLUMNS FROM $database.$tabla";
+			$columnas = $this->db->query($query)->result();
+			$campos = [];
+
+			foreach ($columnas as $col) {
+				$campos[] = (object)['campo' => $col->Field];
+			}
+
+			if (!$asArray) {
+				$lista = implode(',', array_map(function ($valor) use ($prefijo) {
+					return $prefijo . $valor->campo;
+				}, $campos));
+				return $lista;
+			}
+
+			return $campos;
+		}
+
+		return $asArray ? [] : '';
 	}
 
 	public function __toString()
@@ -226,7 +260,7 @@ class General_model extends CI_Model
 	}
 
 	public function getCamposTabla($asArray = true)
-	{		
+	{
 		return $asArray ? array_column($this->_lista_campos, 'campo') : implode(',', array_column($this->_lista_campos, 'campo'));
 	}
 }

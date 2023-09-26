@@ -6,7 +6,7 @@ class Catalogo_model extends CI_Model
 
 	private function getCatalogo($datos, $args)
 	{
-		return isset($args['_uno']) ? $datos->row() : $datos->result();		
+		return isset($args['_uno']) ? $datos->row() : $datos->result();
 	}
 
 	public function getFormaPago($args = [])
@@ -707,15 +707,39 @@ class Catalogo_model extends CI_Model
 		return $articulos;
 	}
 
+	// DEPRECATED 25/09/2023
+	// private function get_campos_tabla($tabla, $prefijo = '')
+	// {
+	// 	$lista = $this->db
+	// 		->select('GROUP_CONCAT(CONCAT("' . $prefijo . '", column_name) ORDER BY ordinal_position SEPARATOR ",") AS campos')
+	// 		->where('table_schema', $this->db->database)
+	// 		->where('table_name', $tabla)
+	// 		->get('information_schema.columns')
+	// 		->row();
+	// 	return $lista ? $lista->campos : '';
+	// }
+
 	private function get_campos_tabla($tabla, $prefijo = '')
 	{
-		$lista = $this->db
-			->select('GROUP_CONCAT(CONCAT("' . $prefijo . '", column_name) ORDER BY ordinal_position SEPARATOR ",") AS campos')
-			->where('table_schema', $this->db->database)
-			->where('table_name', $tabla)
-			->get('information_schema.columns')
-			->row();
-		return $lista ? $lista->campos : '';
+		$database = $this->db->database;
+		$isRtDatabase = (strcasecmp('administracion', $database) != 0 && strcasecmp(substr($database, 0, 3), 'rt_') == 0);
+
+		if ($isRtDatabase) {
+			$query = "SHOW COLUMNS FROM $database.$tabla";
+			$columnas = $this->db->query($query)->result();
+			$campos = [];
+
+			foreach ($columnas as $col) {
+				$campos[] = (object)['campo' => $col->Field];
+			}
+
+			$lista = implode(',', array_map(function ($valor) use ($prefijo) {
+				return $prefijo . $valor->campo;
+			}, $campos));
+			return $lista;
+		}
+
+		return '';
 	}
 
 	private function loadImpresorasPorSubcategoria()
@@ -752,6 +776,7 @@ class Catalogo_model extends CI_Model
 
 	public function getArticulo_v2($args = [])
 	{
+		$camposTablaArticulo = $this->get_campos_tabla('articulo', 'a.');
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
 		$activos = isset($args['_activos']) ? true : false;
@@ -789,7 +814,8 @@ class Catalogo_model extends CI_Model
 		}
 
 		$qry = $this->db
-			->select('a.*, c.sede')
+			// ->select('a.*, c.sede')
+			->select("{$camposTablaArticulo}, c.sede")
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
 			->join('categoria c', 'c.categoria = b.categoria')
 			->order_by('a.articulo')
