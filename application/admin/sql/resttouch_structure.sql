@@ -3018,6 +3018,7 @@ ALTER TABLE RT_DATABASE_NAME.presentacion ADD INDEX Idx_Debaja_ASC (debaja ASC);
 ALTER TABLE RT_DATABASE_NAME.usuario ADD INDEX Idx_Usrname_ASC (usrname ASC), ADD INDEX Idx_Debaja_ASC (debaja ASC);
 ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Campo_ASC (campo ASC);
 ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Descripcion_ASC (descripcion ASC);
+ALTER TABLE RT_DATABASE_NAME.turno_tipo ADD INDEX Idx_Activo_ASC (activo ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
