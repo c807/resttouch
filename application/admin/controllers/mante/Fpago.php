@@ -56,8 +56,8 @@ class Fpago extends CI_Controller {
 			$_GET['activo'] = 1;
 		}
 		
-		$datos = $this->Fpago_model->buscar($_GET);
-
+		// $datos = $this->Fpago_model->buscar($_GET);
+		$datos = $this->Fpago_model->buscar_formaspago($_GET);
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
