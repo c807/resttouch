@@ -9,10 +9,10 @@ class Configuracion_model extends General_model {
 	public $fhcreacion;
 	public $descripcion = null;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("configuracion");
+		$this->setTabla('configuracion');
 
 		if(!empty($id)) {
 			$this->cargar($id);

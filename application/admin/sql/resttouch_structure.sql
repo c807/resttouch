@@ -3013,6 +3013,11 @@ CREATE TABLE RT_DATABASE_NAME.detalle_ajuste_costo_promedio (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE RT_DATABASE_NAME.area ADD COLUMN mesas_fila_area INT NULL DEFAULT 3;
+ALTER TABLE RT_DATABASE_NAME.presentacion ADD INDEX Idx_Cantidad_ASC (cantidad ASC);
+ALTER TABLE RT_DATABASE_NAME.presentacion ADD INDEX Idx_Debaja_ASC (debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.usuario ADD INDEX Idx_Usrname_ASC (usrname ASC), ADD INDEX Idx_Debaja_ASC (debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Campo_ASC (campo ASC);
+ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Descripcion_ASC (descripcion ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
