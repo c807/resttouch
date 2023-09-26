@@ -41,7 +41,8 @@ class Reporte extends CI_Controller
 
     private function getEsRangoPorFechaDeTurno()
     {
-        $config = $this->Configuracion_model->buscar();
+        // $config = $this->Configuracion_model->buscar();
+        $config = $this->Configuracion_model->buscar_configuraciones();
         return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
     }
 

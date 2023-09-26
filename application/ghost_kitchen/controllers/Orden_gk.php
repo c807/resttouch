@@ -192,7 +192,8 @@ class Orden_gk extends CI_Controller
 
     private function buscar_agregar_cliente($datosCliente)
     {
-        $conf_corpo = $this->Configuracion_model->buscar();
+        // $conf_corpo = $this->Configuracion_model->buscar();
+        $conf_corpo = $this->Configuracion_model->buscar_configuraciones();
         $cliente = $this->Cliente_model->buscar(['TRIM(nit)' => $datosCliente->nit, '_uno' => true]);
         if ($cliente) {
             if (strtoupper(trim($cliente->nit)) !== 'CF' || get_configuracion($conf_corpo, 'RT_ACTUALIZA_CORREO_CF', 3)) {

@@ -37,7 +37,8 @@ class Configuracion extends CI_Controller {
 
 	public function buscar()
 	{		
-		$datos = $this->Configuracion_model->buscar($_GET);
+		// $datos = $this->Configuracion_model->buscar($_GET);
+		$datos = $this->Configuracion_model->buscar_configuraciones($_GET);
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
