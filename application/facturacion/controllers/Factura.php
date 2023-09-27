@@ -77,6 +77,8 @@ class Factura extends CI_Controller
 	{
 		$fac = new Factura_model($factura);
 		$req = json_decode(file_get_contents('php://input'), true);
+		$req['descuento'] = (float)0;
+		$req['descuento_ext'] = (float)0;
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			if (empty($fac->numero_factura)) {

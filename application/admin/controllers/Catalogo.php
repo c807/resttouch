@@ -297,7 +297,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_notificaciones_cliente()
 	{
-		$this->output->set_output(json_encode($this->Catalogo_model->notificacionesCliente()));		
+		$this->output->set_output(json_encode($this->Catalogo_model->notificacionesCliente($this->data->dominio)));
 	}
 
 	public function get_comanda_origen()
