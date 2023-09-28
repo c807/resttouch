@@ -41,7 +41,8 @@ class Reporte extends CI_Controller
 
     private function getEsRangoPorFechaDeTurno()
     {
-        $config = $this->Configuracion_model->buscar();
+        // $config = $this->Configuracion_model->buscar();
+        $config = $this->Configuracion_model->buscar_configuraciones();
         return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
     }
 
@@ -410,7 +411,8 @@ class Reporte extends CI_Controller
         $turnoDia = new stdClass(); // agregando turno total para mejorar logica
         $turnoDia->descripcion = 'TODO EL DIA';
         $turnoDia->turno_tipo = -1;
-        $tipos_de_turnos = $this->TurnoTipo_model->buscar();
+        // $tipos_de_turnos = $this->TurnoTipo_model->buscar();
+        $tipos_de_turnos = $this->TurnoTipo_model->buscar_turnostipo();
         array_unshift($tipos_de_turnos, $turnoDia); // adds at begining
         ////////iteration between schedules
         ///

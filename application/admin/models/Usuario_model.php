@@ -30,14 +30,14 @@ class Usuario_model extends General_model
     function validaPwdGerenteTurno($pwd = null, $idsede = 0) {
         if($pwd){
             $dbusr = $this->db
-                ->select("c.contrasenia, c.usuario")
-                ->from("turno_has_usuario a")
-                ->join("usuario_tipo b", "b.usuario_tipo = a.usuario_tipo")
-                ->join("usuario c", "c.usuario = a.usuario")
-                ->join("turno d", "d.turno = a.turno")
-                ->where("d.sede", $idsede)
-                ->where("d.fin IS NULL")
-                ->where("TRIM(LOWER(b.descripcion)) = 'gerente'")
+                ->select('c.contrasenia, c.usuario')
+                ->from('turno_has_usuario a')
+                ->join('usuario_tipo b', 'b.usuario_tipo = a.usuario_tipo')
+                ->join('usuario c', 'c.usuario = a.usuario')
+                ->join('turno d', 'd.turno = a.turno')
+                ->where('d.sede', $idsede)
+                ->where('d.fin IS NULL')
+                ->where('TRIM(LOWER(b.descripcion)) = "gerente"')
                 ->get()
                 ->result();
 
@@ -64,30 +64,15 @@ class Usuario_model extends General_model
                 $this->db->where('a.sede', $credenciales['sede']);
             }
 
+            $campos = 'a.usuario, a.contrasenia, a.pindesbloqueo, a.usrname, a.nombres, a.apellidos, a.sede, b.empresa, b.nombre as sede_nombre, b.direccion as sede_direccion, b.correo as sede_correo, ';
+            $campos.= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
+            $campos.= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo';
             $dbusr = $this->db
-                ->select("
-                    a.usuario, 
-                    a.contrasenia, 
-                    a.pindesbloqueo,
-                    a.usrname, 
-                    a.nombres, 
-                    a.apellidos, 
-                    a.sede,
-                    b.empresa,
-                    b.nombre as sede_nombre,
-                    b.direccion as sede_direccion,
-                    b.correo as sede_correo,
-                    c.nombre as empresa_nombre,
-                    c.nit as empresa_nit,
-                    c.visa_merchant_id,
-                    CONCAT(d.admin_llave, '-', c.empresa, '-', b.sede) AS sede_uuid, 
-                    a.usatecladovirtual, 
-                    b.alias AS sede_alias, a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo")
-                ->from("{$this->tabla} a")
-                ->join("sede b", "b.sede = a.sede")
-                ->join("empresa c", "c.empresa = b.empresa")
-                ->join("corporacion d", "d.corporacion = c.corporacion")                
-                // ->where('usrname', $credenciales['usr'])
+                ->select($campos)
+                ->from('usuario a')
+                ->join('sede b', 'b.sede = a.sede')
+                ->join('empresa c', 'c.empresa = b.empresa')
+                ->join('corporacion d', 'd.corporacion = c.corporacion')
                 ->where('debaja', 0)
                 ->get()
                 ->row();
@@ -101,10 +86,9 @@ class Usuario_model extends General_model
                     $validado = $credenciales['pindesbloqueo'] == $dbusr->pindesbloqueo;
                 }
 
-                if ($validado) {
-                    $this->load->model('Configuracion_model');
-                    $horasValidezToken = 12;
-                    $horasValidezTokenRow = $this->Configuracion_model->buscar(['campo' => 'RT_HORAS_VALIDEZ_TOKEN', '_uno' => true]);
+                if ($validado) {                    
+                    $horasValidezToken = 12;                    
+                    $horasValidezTokenRow = $this->db->select('valor')->where('campo', 'RT_HORAS_VALIDEZ_TOKEN')->get('configuracion')->row();
                     if($horasValidezTokenRow && (int)$horasValidezTokenRow->valor > 0) {
                         $horasValidezToken = (int)$horasValidezTokenRow->valor;
                     }
@@ -129,15 +113,15 @@ class Usuario_model extends General_model
                         'sede_uuid' => $dbusr->sede_uuid,
                         'usatecladovirtual' => $dbusr->usatecladovirtual,
                         'restaurante' => [
-                            "nombre" => $dbusr->sede_nombre,
-                            "direccion" => $dbusr->sede_direccion,
-                            "correo" => $dbusr->sede_correo,
-                            "alias" => $dbusr->sede_alias
+                            'nombre' => $dbusr->sede_nombre,
+                            'direccion' => $dbusr->sede_direccion,
+                            'correo' => $dbusr->sede_correo,
+                            'alias' => $dbusr->sede_alias
                         ],
                         'empresa' => [
-                            "visa_merchant_id" => $dbusr->visa_merchant_id,
-                            "nombre" => $dbusr->empresa_nombre,
-                            "nit" => $dbusr->empresa_nit,
+                            'visa_merchant_id' => $dbusr->visa_merchant_id,
+                            'nombre' => $dbusr->empresa_nombre,
+                            'nit' => $dbusr->empresa_nit,
                             'metodo_costeo' => (int)$dbusr->metodo_costeo
                         ],
                         'dominio' => $credenciales['dominio'],
@@ -261,7 +245,7 @@ class Usuario_model extends General_model
         return $this->db
             ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol')
             ->from($this->tabla)
-            ->where("sede", $data->sede)
+            ->where('sede', $data->sede)
             ->get()
             ->result();
     }
@@ -270,7 +254,7 @@ class Usuario_model extends General_model
     {
         if (count($filtros) > 0) {
             foreach ($filtros as $key => $value) {
-                if($key != "_uno"){                    
+                if($key != '_uno'){                    
                     $this->db->where($key, $value);
                 }
             }

@@ -840,6 +840,7 @@ class Articulo_model extends General_model
 			$categoria_grupo = $cgrupo->getPK();
 		}
 
+		$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
 
 		$datos = [
 			'categoria_grupo' => $categoria_grupo,
@@ -849,7 +850,7 @@ class Articulo_model extends General_model
 			'bien_servicio' => $this->bien_servicio,
 			'existencias' => 0.00,
 			'shopify_id' => $this->shopify_id,
-			'codigo' => $this->codigo,
+			'codigo' => str_ireplace($reemplazar, '', $this->codigo),
 			'produccion' => $this->produccion,
 			'presentacion_reporte' => $this->presentacion_reporte,
 			'mostrar_pos' => $this->mostrar_pos,
@@ -993,11 +994,11 @@ class Articulo_model extends General_model
 
 		foreach ($camposArticulo as $ca) {
 			$this->db->select("c.{$ca->campo}");
-		}		
+		}
 
 		foreach ($camposImpresora as $ci) {
 			$this->db->select("d.{$ci->campo}");
-		}		
+		}
 
 		foreach ($camposPresentacion as $cp) {
 			$this->db->select("e.{$cp->campo}");
@@ -1424,15 +1425,15 @@ class Articulo_model extends General_model
 		$lista = [];
 		$campos = $this->getCampos(false, 'a.', 'articulo');
 
-		if(isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
+		if (isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
 			$this->db->where('c.sede', $fltr['sede']);
 		}
 
-		if(isset($fltr['categoria_grupo']) && (int)$fltr['categoria_grupo'] > 0) {
+		if (isset($fltr['categoria_grupo']) && (int)$fltr['categoria_grupo'] > 0) {
 			$this->db->where('b.categoria_grupo', $fltr['categoria_grupo']);
 		}
 
-		if(isset($fltr['categoria']) && (int)$fltr['categoria'] > 0) {
+		if (isset($fltr['categoria']) && (int)$fltr['categoria'] > 0) {
 			$this->db->where('c.categoria', $fltr['categoria']);
 		}
 
@@ -1444,13 +1445,12 @@ class Articulo_model extends General_model
 			->get('articulo a')
 			->result();
 
-		foreach($tmpArticulos as $art) {
+		foreach ($tmpArticulos as $art) {
 			$lista[(int)$art->articulo] = clone $art;
 		}
 
 		return $lista;
 	}
-
 }
 
 /* End of file Articulo_model.php */

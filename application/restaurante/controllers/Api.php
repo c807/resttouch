@@ -54,7 +54,8 @@ class Api extends CI_Controller
 				$db = conexion_db($conn);
 				$this->db = $this->load->database($db, true);
 
-				$config = $this->Configuracion_model->buscar();
+				// $config = $this->Configuracion_model->buscar();
+				$config = $this->Configuracion_model->buscar_configuraciones();
 
 				$paso = true;
 				$mustCheckFinancialStatus = get_configuracion($config, 'RT_SHOPIFY_CHECK_FINANCIAL_STATUS', 3);

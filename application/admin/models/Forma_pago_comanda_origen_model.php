@@ -26,15 +26,18 @@ class Forma_pago_comanda_origen_model extends General_model
 
     public function full_search($args = [])
     {
-        $datos = $this->buscar($args);
+        $formasPago = $this->Fpago_model->get_lista();
+        $datos = $this->buscar($args);        
         if (is_array($datos)) {
             foreach ($datos as $d) {
-                $d->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $d->forma_pago, '_uno' => true]);                
+                // $d->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $d->forma_pago, '_uno' => true]);                
+                $d->forma_pago = $formasPago[(int)$d->forma_pago];
                 $d->comanda_origen = $this->Catalogo_model->getComandaOrigen(['comanda_origen' => $d->comanda_origen, '_uno' => true]);
             }
         } else {
             if ($datos) {
-                $datos->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $datos->forma_pago, '_uno' => true]);
+                // $datos->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $datos->forma_pago, '_uno' => true]);
+                $datos->forma_pago = $formasPago[(int)$datos->forma_pago];
                 $datos->comanda_origen = $this->Catalogo_model->getComandaOrigen(['comanda_origen' => $datos->comanda_origen, '_uno' => true]);
             }
         }

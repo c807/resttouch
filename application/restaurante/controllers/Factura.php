@@ -23,7 +23,7 @@ class Factura extends CI_Controller {
 			'ImpuestoEspecial_model',
 			'Cgrupo_model'
 		]);
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
 	}	
 
 	public function guardar()
@@ -38,10 +38,8 @@ class Factura extends CI_Controller {
 			if (isset($req['cliente']) && isset($req['moneda']) && isset($req['factura_serie'])) {
 				// $sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
 				$clt = new Cliente_model($req['cliente']);
-				$config = $this->Configuracion_model->buscar([
-					'campo' => 'RT_FACTURA_PROPINA',
-					'_uno' => true
-				]);
+				// $config = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
+				$config = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
 
 				foreach ($req['cuentas'] as $row) {
 					$cta = new Cuenta_model($row['cuenta']);
@@ -163,7 +161,7 @@ class Factura extends CI_Controller {
 						}
 						if ($config && $config->valor == 1) {
 							#Facturar Propina;
-							// $art = $this->Articulo_model->buscar(["descripcion" => "Propina", "_uno" => true]);
+							// $art = $this->Articulo_model->buscar(['descripcion' => 'Propina', '_uno' => true]);
 
 							$art = $this->Articulo_model->buscarArticulo([
 								'descripcion' => 'Propina',
@@ -221,7 +219,8 @@ class Factura extends CI_Controller {
 						}
 
 						if (!isset($req['sinfirma'])) {
-							$facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+							// $facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+							$facturaRedondeaMontos = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
 
 							$fac->cargarFacturaSerie();
 							$fac->cargarMoneda();
@@ -304,20 +303,18 @@ class Factura extends CI_Controller {
 			if (isset($req['cliente']) && isset($req['moneda']) && isset($req['factura_serie'])) {
 				$sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
 				$clt = new Cliente_model($req['cliente']);
-				$config = $this->Configuracion_model->buscar([
-					"campo" => "RT_FACTURA_PROPINA",
-					"_uno" => true
-				]);
+				// $config = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
+				$config = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
 
 				
 				$req['usuario'] = $data->idusuario;
 				$req['sede'] = $data->sede;
 				$req['certificador_fel'] = $sede->certificador_fel;
-				$req["correo_receptor"] = $clt->correo;
+				$req['correo_receptor'] = $clt->correo;
 
 				foreach ($req['cuentas'] as $row) {
 					$cta = new Cuenta_model($row['cuenta']);
-					$fpago = $cta->get_forma_pago(["_sinFactura" => 1]);
+					$fpago = $cta->get_forma_pago(['_sinFactura' => 1]);
 
 					if (count($fpago) > 0) {
 						$continuar = false;
@@ -335,7 +332,7 @@ class Factura extends CI_Controller {
 							$cta = new Cuenta_model($row['cuenta']);
 							$pdesc = $cta->get_descuento();
 
-							foreach ($cta->getDetalle(["impreso" => 1]) as $det) {
+							foreach ($cta->getDetalle(['impreso' => 1]) as $det) {
 								$det->bien_servicio = $det->articulo->bien_servicio;
 								$det->articulo = $det->articulo->articulo;
 								
@@ -362,7 +359,7 @@ class Factura extends CI_Controller {
 						}
 						if ($config && $config->valor == 1) {
 							#Facturar Propina;
-							// $art = $this->Articulo_model->buscar(["descripcion" => "Propina", "_uno" => true]);
+							// $art = $this->Articulo_model->buscar(['descripcion' => 'Propina', '_uno' => true]);
 
 							$art = $this->Articulo_model->buscarArticulo([
 								'descripcion' => 'Propina',
@@ -380,18 +377,18 @@ class Factura extends CI_Controller {
 
 								$art = new Articulo_model();
 								$art->guardar([
-									"categoria_grupo" => $cg,
-									"presentacion" => 1,
-									"descripcion" => "Propina",
-									"mostrar_pos" => 0,
-									"bien_servicio" => "B",
-									"precio" => 0,
-									"existencias" => 0,
+									'categoria_grupo' => $cg,
+									'presentacion' => 1,
+									'descripcion' => 'Propina',
+									'mostrar_pos' => 0,
+									'bien_servicio' => 'B',
+									'precio' => 0,
+									'existencias' => 0,
 									'presentacion_reporte' => 1
 								]);
 							}
 
-							$total = suma_field($prop, "propina_monto");
+							$total = suma_field($prop, 'propina_monto');
 							if ($total > 0) {
 								if ($fac->exenta) {
 									$monto_base = $total;
@@ -400,14 +397,14 @@ class Factura extends CI_Controller {
 								}
 
 								$fac->setDetalle([
-									"articulo" => $art->articulo,
-									"cantidad" => 1,
-									"precio_unitario" => $total,
-									"total" => $total,
-									"monto_base" => $monto_base,
-									"monto_iva" => $total - $monto_base,
-									"bien_servicio" => $art->bien_servicio,
-									"presentacion" => $art->presentacion
+									'articulo' => $art->articulo,
+									'cantidad' => 1,
+									'precio_unitario' => $total,
+									'total' => $total,
+									'monto_base' => $monto_base,
+									'monto_iva' => $total - $monto_base,
+									'bien_servicio' => $art->bien_servicio,
+									'presentacion' => $art->presentacion
 								]);
 							}
 						}
@@ -423,24 +420,24 @@ class Factura extends CI_Controller {
 						$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
 						if (!empty($fac->numero_factura)) {
 							$webhook = $this->Webhook_model->buscar([
-								"evento" => "RTEV_FIRMA_FACTURA",
-								"_uno" => true
+								'evento' => 'RTEV_FIRMA_FACTURA',
+								'_uno' => true
 							]);
 
 							$fact = new Factura_model($fac->factura);
 							$fac->cargarSede();
 							$fac->detalle = $fac->getDetalle();
 							$fact->guardar([
-								"numero_factura" => $fac->numero_factura,
-								"serie_factura" => $fac->serie_factura,
-								"fel_uuid" => $fac->fel_uuid
+								'numero_factura' => $fac->numero_factura,
+								'serie_factura' => $fac->serie_factura,
+								'fel_uuid' => $fac->fel_uuid
 							]);
 							if ($webhook) {
 								$this->load->library('Webhook');
-								if (strtolower(trim($webhook->tipo_llamada)) == "soap") {
+								if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
 									$req = $fac->getXmlWebhook();
 
-								} else if(strtolower(trim($webhook->tipo_llamada)) == "json") {
+								} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
 									$this->load->helper('api');
 									$req = $fac->getXmlWebhook(true);
 								}
@@ -452,29 +449,27 @@ class Factura extends CI_Controller {
 
 
 							$datos['exito'] = true;
-							$datos['mensaje'] = "Datos actualizados con exito";	
+							$datos['mensaje'] = 'Datos actualizados con éxito.';	
 						} else {						
-							$datos['mensaje'] = "Ocurrio un error al enviar la factura, intente nuevamente";			
+							$datos['mensaje'] = 'Ocurrió un error al enviar la factura, intente nuevamente.';			
 						}
 						$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
 						$datos['factura'] = $fac;
 					} else {
-						$datos['mensaje'] = "Ocurrio un error al guardar la factura, intente nuevamente";	
+						$datos['mensaje'] = 'Ocurrió un error al guardar la factura, intente nuevamente.';	
 					}
 				} else {
-					$datos['mensaje'] = "La forma de pago de la cuenta no genera factura";	
+					$datos['mensaje'] = 'La forma de pago de la cuenta no genera factura.';	
 				}
 
 			} else {
-				$datos['mensaje'] = "Hacen falta datos obligatorios para poder continuar";	
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar.';	
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}	
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));	
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function test($fact = null)
@@ -499,8 +494,8 @@ class Factura extends CI_Controller {
 		// $elxml = null;
 
 		$webhook = $this->Webhook_model->buscar([
-			"evento" => "RTEV_FIRMA_FACTURA",
-			"_uno" => true
+			'evento' => 'RTEV_FIRMA_FACTURA',
+			'_uno' => true
 		]);
 		$this->load->library('Webhook');
 		$this->load->helper('api');
@@ -519,7 +514,7 @@ class Factura extends CI_Controller {
 			
 					$req = $fac->getXmlWebhook(true);
 					// $elxml = $req;
-					// $client = new SoapClient("http://52.35.3.1/jk/php/ws/organization.wsdl");
+					// $client = new SoapClient('http://52.35.3.1/jk/php/ws/organization.wsdl');
 			
 					//$res = $client->setVenta($req);
 					$web = new Webhook($webhook);
@@ -527,36 +522,36 @@ class Factura extends CI_Controller {
 					$res = $web->setEvento();
 					echo "<pre> $qFact - ";
 					print_r ($res);
-					echo "</pre>";				
+					echo '</pre>';				
 					unset($web);
 					unset($res);
 					unset($fac);
 				} catch(Exception $e) {
-					// echo "<pre> $qFact - ".$e->getMessage()."</pre>";
+					// echo "<pre> $qFact - ".$e->getMessage().'</pre>';
 					$noPasaron[] = $qFact;
 				}
 				// sleep(2);
 			//}// IF
 		}
 
-		// $this->output->set_content_type("application/xlm")->set_output($elxml);
+		// $this->output->set_content_type('application/xlm')->set_output($elxml);
 
 		// echo "<pre>NO PASARON: ";implode(", ", $noPasaron);echo "</pre>";
 	}
 
 	public function buscar()
 	{
-		$datos = json_decode(file_get_contents("php://input"), true);
-		$res   = ["exito" => false];
+		$datos = json_decode(file_get_contents('php://input'), true);
+		$res   = ['exito' => false];
 
-		if (verDato($datos, "fdel") &&
-			verDato($datos, "fal") &&
-			verDato($datos, "sede")
+		if (verDato($datos, 'fdel') &&
+			verDato($datos, 'fal') &&
+			verDato($datos, 'sede')
 		) {
 			$lista = $this->Factura_model->getFacturas($datos);
 			
 			if ($lista) {
-				$res["exito"] = true;
+				$res['exito'] = true;
 				$data = [];
 
 				foreach ($lista as $key => $row) {
@@ -566,12 +561,12 @@ class Factura extends CI_Controller {
 
 					$data[] = $row;
 				}
-				$res["items"] = $data;
+				$res['items'] = $data;
 			} else {
-				$res["mensaje"] = "Sin registros";
+				$res['mensaje'] = 'Sin registros';
 			}
 		} else {
-			$res["mensaje"] = "Por favor ingrese todos los parámetros";
+			$res['mensaje'] = 'Por favor ingrese todos los parámetros';
 		}
 
 		$this->output->set_output(json_encode($res));
@@ -580,26 +575,26 @@ class Factura extends CI_Controller {
 	public function migrar_factura()
 	{
 		set_time_limit(0);
-		$res = ["exito" => false];
+		$res = ['exito' => false];
 		
-		if ($this->input->method() === "post") {
+		if ($this->input->method() === 'post') {
 
-			$datos = json_decode(file_get_contents("php://input"), true);
+			$datos = json_decode(file_get_contents('php://input'), true);
 
-			if (verDato($datos, "facturas")) {
+			if (verDato($datos, 'facturas')) {
 				
-				$this->load->library("Webhook");
-				$this->load->helper("api");
+				$this->load->library('Webhook');
+				$this->load->helper('api');
 
-				$cant    = count($datos["facturas"]);
+				$cant    = count($datos['facturas']);
 				$cont    = 0;
 				$fallo   = [];
 				$webhook = $this->Webhook_model->buscar([
-					"evento" => "RTEV_FIRMA_FACTURA",
-					"_uno"   => true
+					'evento' => 'RTEV_FIRMA_FACTURA',
+					'_uno'   => true
 				]);
 
-				foreach ($datos["facturas"] as $factura) {
+				foreach ($datos['facturas'] as $factura) {
 					try {
 						$fac = new Factura_model($factura);
 						$fac->cargarFacturaSerie();
@@ -614,10 +609,10 @@ class Factura extends CI_Controller {
 						$ret = $web->setEvento();
 						$ret = json_decode($ret);
 						
-						if ($ret && verPropiedad($ret, "exito")) {
+						if ($ret && verPropiedad($ret, 'exito')) {
 							$cont++;
 						} else {
-							$fallo[] = verPropiedad($ret, "mensaje", "Error al migrar");
+							$fallo[] = verPropiedad($ret, 'mensaje', 'Error al migrar');
 						}
 						
 						unset($web);
@@ -628,14 +623,14 @@ class Factura extends CI_Controller {
 					}
 				}
 
-				$res["exito"]   = true;
-				$res["mensaje"] = "Se migraron {$cont} de {$cant} facturas";
-				$res["errores"] = $fallo;
+				$res['exito']   = true;
+				$res['mensaje'] = "Se migraron {$cont} de {$cant} facturas";
+				$res['errores'] = $fallo;
 			} else {
-				$res["mensaje"] = "Debe seleccionar una factura";
+				$res['mensaje'] = 'Debe seleccionar una factura';
 			}
 		} else {
-			$res["mensaje"] = "Acceso no autorizado";
+			$res['mensaje'] = 'Acceso no autorizado';
 		}
 
 		$this->output->set_output(json_encode($res));

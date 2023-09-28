@@ -77,6 +77,8 @@ class Factura extends CI_Controller
 	{
 		$fac = new Factura_model($factura);
 		$req = json_decode(file_get_contents('php://input'), true);
+		$req['descuento'] = (float)0;
+		$req['descuento_ext'] = (float)0;
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			if (empty($fac->numero_factura)) {
@@ -228,7 +230,8 @@ class Factura extends CI_Controller
 			$fac = new Factura_model($factura);
 
 			if (empty($fac->numero_factura)) {
-				$facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				// $facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				$facturaRedondeaMontos = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
 				$fac->cargarFacturaSerie();
 				$fac->cargarEmpresa();
 				$fac->cargarMoneda();
@@ -493,7 +496,8 @@ class Factura extends CI_Controller
 
 	public function xml($factura)
 	{
-		$facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+		// $facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+		$facturaRedondeaMontos = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
 		$this->output->set_content_type('application/xml', 'UTF-8');
 
 		$fac = new Factura_model($factura);
@@ -521,7 +525,8 @@ class Factura extends CI_Controller
 			if (isset($req['lista']) && !empty($req['lista'])) {
 				$lista = explode(',', $req['lista']);
 				$campos = $this->Factura_model->getCampos(true, '', 'factura');
-				$facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				// $facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				$facturaRedondeaMontos = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
 				foreach ($lista as $idFactura) {
 					$headerOrigen = new Factura_model($idFactura);
 					if (!is_null($headerOrigen->fel_uuid) && is_null($headerOrigen->fel_uuid_anulacion)) {
@@ -604,7 +609,8 @@ class Factura extends CI_Controller
 		if ($this->input->method() == 'post') {
 			$req = json_decode(file_get_contents('php://input'), true);
 			if (isset($req['lista']) && !empty($req['lista'])) {
-				$facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				// $facturaRedondeaMontos = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
+				$facturaRedondeaMontos = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_REDONDEA_MONTOS', '_uno' => true]);
 				$lista = explode(',', $req['lista']);
 				foreach ($lista as $idFactura) {
 					$fact = new Factura_model($idFactura);

@@ -39,6 +39,8 @@ class Articulo extends CI_Controller
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
+			$req['codigo'] = str_ireplace($reemplazar, '', $req['codigo']);
 
 			$existeCodigo = false;
 
@@ -749,6 +751,7 @@ class Articulo extends CI_Controller
 			$presentaciones = $this->Presentacion_model->buscar(['debaja' => 0]);
 			$subcategorias = $cgrupo->get_simple_list(['sede' => $sede, '_todos' => true, 'debaja' => 0]);
 			$entidad = [];
+			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
 			foreach ($sheet_data as $row => $col) {
 				if ($row != 0) {
 					$subcategoria = null;
@@ -773,6 +776,7 @@ class Articulo extends CI_Controller
 						$entidad['precio'] = (float)$col[2];
 						$entidad['bien_servicio'] = trim($col[3]);
 						$entidad['codigo'] = trim($col[4]);
+						$entidad['codigo'] = str_ireplace($reemplazar, '', trim($col[4]));
 						$entidad['presentacion_reporte'] = $presentacion->presentacion;
 						$entidad['mostrar_pos'] = (int)$col[6];
 						$entidad['combo'] = (int)$col[7];

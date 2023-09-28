@@ -151,6 +151,7 @@ class Cajacorte extends CI_Controller
 		$data = new stdClass();
 		$data->efectivo = (object)['total' => 0.00, 'detalle' => $this->Dcajacorte_model->buscar(['caja_corte' => $id, 'anulado' => 0])];
 		$data->formas_pago = (object)['total' => 0.00, 'detalle' => $this->Dcajacortefpago_model->buscar(['caja_corte' => $id])];
+		$formasPago = $this->Fpago_model->get_lista();
 
 		foreach($data->efectivo->detalle as $det)
 		{
@@ -161,10 +162,12 @@ class Cajacorte extends CI_Controller
 		foreach($data->formas_pago->detalle as $det)
 		{
 			$data->formas_pago->total += (float)$det->total;
-			$det->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $det->forma_pago, '_uno' => true]);
+			// $det->forma_pago = $this->Fpago_model->buscar(['forma_pago' => $det->forma_pago, '_uno' => true]);
+			$det->forma_pago = $formasPago[(int)$det->forma_pago];
 		}
 
-		$fp_efectivo = $this->Fpago_model->buscar(['esefectivo' => 1, '_uno' => true]);
+		// $fp_efectivo = $this->Fpago_model->buscar(['esefectivo' => 1, '_uno' => true]);
+		$fp_efectivo = $this->Fpago_model->buscar_formaspago(['esefectivo' => 1, '_uno' => true]);
 		if ($fp_efectivo) {
 			array_unshift($data->formas_pago->detalle, (object)['caja_corte_detalle_forma_pago' => 0, 'caja_corte' => $id, 'forma_pago' => $fp_efectivo, 'total' => $data->efectivo->total]);			
 		}

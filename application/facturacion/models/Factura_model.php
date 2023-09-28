@@ -57,7 +57,8 @@ class Factura_model extends General_model
 
 	public function setDetalle($args, $id = '')
 	{
-		$config = $this->Configuracion_model->buscar();
+		// $config = $this->Configuracion_model->buscar();
+		$config = $this->Configuracion_model->buscar_configuraciones();
 		$vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
 		$det = new Dfactura_model($id);
 		$args['factura'] = $this->factura;
@@ -226,7 +227,7 @@ class Factura_model extends General_model
 			$row->subtotal = $redondeaMontos ? $row->total : $row->total_ext;
 			$row->total = $redondeaMontos ? ($row->total - $row->descuento) : ($row->total_ext - $row->descuento_ext);
 			if ($row->impuesto_especial && count($impuestos_especiales) > 0) {
-				// $imp = $this->db->where("impuesto_especial", $row->impuesto_especial)->get("impuesto_especial")->row();
+				// $imp = $this->db->where('impuesto_especial', $row->impuesto_especial)->get('impuesto_especial')->row();
 				// $row->impuesto = $imp;
 				$row->impuesto = $impuestos_especiales[(int)$row->impuesto_especial];
 			}
@@ -433,7 +434,8 @@ class Factura_model extends General_model
 	public function getXmlWebhook($raw = false) 
 	{
 		$doc = new stdClass();
-		$config = $this->Configuracion_model->buscar();
+		// $config = $this->Configuracion_model->buscar();
+		$config = $this->Configuracion_model->buscar_configuraciones();
 		$dfac = $this->getDetalle();
 		$sumIva = suma_field($dfac, 'monto_iva');
 		$sumTotal = suma_field($dfac, 'total');
@@ -643,7 +645,7 @@ class Factura_model extends General_model
 	{		
 		$receptor = $this->xml->getElementsByTagName('Receptor')->item(0);
 
-		$receptor->setAttribute('CorreoReceptor', str_replace(" ", "", str_replace(",", ";", $this->correo_receptor)));
+		$receptor->setAttribute('CorreoReceptor', str_replace(' ', '', str_replace(',', ';', $this->correo_receptor)));
 		
 		// $receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit))); // Antes de SAT v1.7.4
 		// Cambios para SAT v1.7.4		
@@ -720,8 +722,8 @@ class Factura_model extends General_model
 
 		foreach ($row->impuesto_especial as $rie) {
 			$imp = $this->ImpuestoEspecial_model->buscar([
-				"impuesto_especial" => $rie->impuesto_especial,
-				"_uno" => true
+				'impuesto_especial' => $rie->impuesto_especial,
+				'_uno' => true
 			]);
 
 			$impuesto = $this->crearElemento('dte:Impuesto');
@@ -750,8 +752,8 @@ class Factura_model extends General_model
 				$impuestosEsp[$rie->impuesto_especial]['monto'] += $redondeaMontos ? $rie->valor_impuesto_especial : $rie->valor_impuesto_especial_ext;
 			} else {
 				$impuestosEsp[$rie->impuesto_especial] = [
-					"descripcion" => $imp->descripcion,
-					"monto" => $redondeaMontos ? $rie->valor_impuesto_especial : round($rie->valor_impuesto_especial_ext, 10)
+					'descripcion' => $imp->descripcion,
+					'monto' => $redondeaMontos ? $rie->valor_impuesto_especial : round($rie->valor_impuesto_especial_ext, 10)
 				];
 			}
 		}
@@ -959,7 +961,7 @@ class Factura_model extends General_model
 			$comentario = $args['comentario'];
 		}
 
-		$this->esAnulacion = "S";
+		$this->esAnulacion = 'S';
 
 		$xml = $this->getFelXml();
 		$datos = $xml->getElementsByTagName('DatosGenerales')->item(0);
@@ -976,7 +978,7 @@ class Factura_model extends General_model
 		$this->fecha_factura .= date("\TH:i:s");
 		$DatosGenerales = $this->xml->getElementsByTagName('DatosGenerales')->item(0);
 		$DatosGenerales->setAttribute('FechaEmisionDocumentoAnular', $fecha);
-		$DatosGenerales->setAttribute('FechaHoraAnulacion', date("Y-m-d\TH:i:s"));
+		$DatosGenerales->setAttribute('FechaHoraAnulacion', date('Y-m-d\TH:i:s'));
 
 		$DatosGenerales->setAttribute('IDReceptor', $IDReceptor);
 		$DatosGenerales->setAttribute('MotivoAnulacion', substr($comentario, 0, 255));
@@ -1005,11 +1007,11 @@ class Factura_model extends General_model
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); //Agregado el 15/08/2021 15:53.
 		curl_setopt($ch, CURLOPT_TIMEOUT, $secs); //Agregado el 15/08/2021 15:53.
 		$datos = array(
-			"llave" => $this->certificador->firma_llave,
-			"archivo" => base64_encode(html_entity_decode($this->xml->saveXML())),
-			"codigo" => $this->certificador->firma_codigo,
-			"alias" => $this->certificador->firma_alias,
-			"es_anulacion" => $this->esAnulacion
+			'llave' => $this->certificador->firma_llave,
+			'archivo' => base64_encode(html_entity_decode($this->xml->saveXML())),
+			'codigo' => $this->certificador->firma_codigo,
+			'alias' => $this->certificador->firma_alias,
+			'es_anulacion' => $this->esAnulacion
 		);
 
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($datos));
@@ -1031,8 +1033,8 @@ class Factura_model extends General_model
 		if (is_object($jsonFirma)) {
 			if ($jsonFirma->resultado) {
 				$datos = array(
-					"nit_emisor"   => str_replace('-', '', $this->empresa->nit),
-					"xml_dte"      => $jsonFirma->archivo
+					'nit_emisor'   => str_replace('-', '', $this->empresa->nit),
+					'xml_dte'      => $jsonFirma->archivo
 				);
 
 				$prefijo = $this->esAnulacion === 'S' ? 'AN' : 'VT';
@@ -1046,10 +1048,10 @@ class Factura_model extends General_model
 				curl_setopt($ch, CURLOPT_POST, 1);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($datos));
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-					"Content-Type: application/json",
-					"Usuario: " . $this->certificador->usuario,
-					"llave: " . $this->certificador->llave,
-					"identificador: " . $identificador
+					'Content-Type: application/json',
+					'Usuario: ' . $this->certificador->usuario,
+					'llave: ' . $this->certificador->llave,
+					'identificador: ' . $identificador
 				));
 
 				curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); //Agregado el 15/08/2021 15:53.
@@ -1102,10 +1104,10 @@ class Factura_model extends General_model
 	{
 		$this->load->helper('api');
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Username" => "{$this->empresa->pais_iso_dos}.{$nit}.{$this->certificador->usuario}",
-			"Password" => $this->certificador->llave
+			'Username' => "{$this->empresa->pais_iso_dos}.{$nit}.{$this->certificador->usuario}",
+			'Password' => $this->certificador->llave
 		);
 
 		$jsonToken = json_decode(post_request($link, json_encode($datos)));
@@ -1136,17 +1138,17 @@ class Factura_model extends General_model
 	public function enviarCofidi($args = [])
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Requestor" => $this->certificador->llave,
-			"Transaction" => $this->certificador->firma_codigo,
-			"Country" => $this->empresa->pais_iso_dos,
-			"Entity" => $nit,
-			"User" => $this->certificador->llave,
-			"UserName" => $this->certificador->usuario,
-			"Data1" => $this->esAnulacion == "S" ? $this->certificador->vinculo_anulacion : $this->certificador->vinculo_firma,
-			"Data2" => base64_encode(html_entity_decode($this->xml->saveXML())),
-			"Data3" => $this->getPK()
+			'Requestor' => $this->certificador->llave,
+			'Transaction' => $this->certificador->firma_codigo,
+			'Country' => $this->empresa->pais_iso_dos,
+			'Entity' => $nit,
+			'User' => $this->certificador->llave,
+			'UserName' => $this->certificador->usuario,
+			'Data1' => $this->esAnulacion == 'S' ? $this->certificador->vinculo_anulacion : $this->certificador->vinculo_firma,
+			'Data2' => base64_encode(html_entity_decode($this->xml->saveXML())),
+			'Data3' => $this->getPK()
 		);
 
 		$client = new SoapClient($link);
@@ -1160,15 +1162,15 @@ class Factura_model extends General_model
 				$client = new SoapClient($link);
 
 				$datos = array(
-					"Requestor" => $this->certificador->llave,
-					"Transaction" => $this->certificador->firma_alias,
-					"Country" => $this->empresa->pais_iso_dos,
-					"Entity" => $nit,
-					"User" => $this->certificador->llave,
-					"UserName" => $this->certificador->usuario,
-					"Data1" => $this->getPK(),
-					"Data2" => "",
-					"Data3" => ""
+					'Requestor' => $this->certificador->llave,
+					'Transaction' => $this->certificador->firma_alias,
+					'Country' => $this->empresa->pais_iso_dos,
+					'Entity' => $nit,
+					'User' => $this->certificador->llave,
+					'UserName' => $this->certificador->usuario,
+					'Data1' => $this->getPK(),
+					'Data2' => '',
+					'Data3' => ''
 				);
 
 				$res = $client->RequestTransaction($datos);
@@ -1207,17 +1209,17 @@ class Factura_model extends General_model
 	public function enviarCorposistemas($args = [])
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Requestor" => $this->certificador->llave,
-			"Transaction" => $this->certificador->firma_codigo,
-			"Country" => $this->empresa->pais_iso_dos,
-			"Entity" => $nit,
-			"User" => $this->certificador->llave,
-			"UserName" => $this->certificador->usuario,
-			"Data1" => $this->esAnulacion == "S" ? $this->certificador->vinculo_anulacion : $this->certificador->vinculo_firma,
-			"Data2" => base64_encode(html_entity_decode($this->xml->saveXML())),
-			"Data3" => $this->getPK()
+			'Requestor' => $this->certificador->llave,
+			'Transaction' => $this->certificador->firma_codigo,
+			'Country' => $this->empresa->pais_iso_dos,
+			'Entity' => $nit,
+			'User' => $this->certificador->llave,
+			'UserName' => $this->certificador->usuario,
+			'Data1' => $this->esAnulacion == 'S' ? $this->certificador->vinculo_anulacion : $this->certificador->vinculo_firma,
+			'Data2' => base64_encode(html_entity_decode($this->xml->saveXML())),
+			'Data3' => $this->getPK()
 		);
 
 		$client = new SoapClient($link);
@@ -1231,15 +1233,15 @@ class Factura_model extends General_model
 				$client = new SoapClient($link);
 
 				$datos = array(
-					"Requestor" => $this->certificador->llave,
-					"Transaction" => $this->certificador->firma_alias,
-					"Country" => $this->empresa->pais_iso_dos,
-					"Entity" => $nit,
-					"User" => $this->certificador->llave,
-					"UserName" => $this->certificador->usuario,
-					"Data1" => $this->getPK(),
-					"Data2" => "",
-					"Data3" => ""
+					'Requestor' => $this->certificador->llave,
+					'Transaction' => $this->certificador->firma_alias,
+					'Country' => $this->empresa->pais_iso_dos,
+					'Entity' => $nit,
+					'User' => $this->certificador->llave,
+					'UserName' => $this->certificador->usuario,
+					'Data1' => $this->getPK(),
+					'Data2' => '',
+					'Data3' => ''
 				);
 
 				$res = $client->RequestTransaction($datos);
@@ -1439,10 +1441,10 @@ class Factura_model extends General_model
 	{
 		$this->load->helper('api');
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Username" => "{$this->empresa->pais_iso_dos}.{$nit}.{$this->certificador->usuario}",
-			"Password" => $this->certificador->llave
+			'Username' => "{$this->empresa->pais_iso_dos}.{$nit}.{$this->certificador->usuario}",
+			'Password' => $this->certificador->llave
 		);
 
 		$jsonToken = json_decode(post_request($link, json_encode($datos)));
@@ -1464,17 +1466,17 @@ class Factura_model extends General_model
 	public function pdfCofidi()
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Requestor" => $this->certificador->llave,
-			"Transaction" => $this->certificador->vinculo_grafo,
-			"Country" => $this->empresa->pais_iso_dos,
-			"Entity" => $nit,
-			"User" => $this->certificador->llave,
-			"UserName" => $this->certificador->usuario,
-			"Data1" => $this->fel_uuid,
-			"Data2" => "",
-			"Data3" => "PDF"
+			'Requestor' => $this->certificador->llave,
+			'Transaction' => $this->certificador->vinculo_grafo,
+			'Country' => $this->empresa->pais_iso_dos,
+			'Entity' => $nit,
+			'User' => $this->certificador->llave,
+			'UserName' => $this->certificador->usuario,
+			'Data1' => $this->fel_uuid,
+			'Data2' => '',
+			'Data3' => 'PDF'
 		);
 
 		$client = new SoapClient($link);
@@ -1493,17 +1495,17 @@ class Factura_model extends General_model
 	public function pdfCorposistemas()
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat("0", 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
 		$datos = array(
-			"Requestor" => $this->certificador->llave,
-			"Transaction" => $this->certificador->vinculo_grafo,
-			"Country" => $this->empresa->pais_iso_dos,
-			"Entity" => $nit,
-			"User" => $this->certificador->llave,
-			"UserName" => $this->certificador->usuario,
-			"Data1" => $this->fel_uuid,
-			"Data2" => "",
-			"Data3" => "PDF"
+			'Requestor' => $this->certificador->llave,
+			'Transaction' => $this->certificador->vinculo_grafo,
+			'Country' => $this->empresa->pais_iso_dos,
+			'Entity' => $nit,
+			'User' => $this->certificador->llave,
+			'UserName' => $this->certificador->usuario,
+			'Data1' => $this->fel_uuid,
+			'Data2' => '',
+			'Data3' => 'PDF'
 		);
 
 		$client = new SoapClient($link);
@@ -1542,8 +1544,8 @@ class Factura_model extends General_model
 	public function getRazonAnulacion()
 	{
 		return $this->db
-			->where("razon_anulacion", $this->razon_anulacion)
-			->get("razon_anulacion")
+			->where('razon_anulacion', $this->razon_anulacion)
+			->get('razon_anulacion')
 			->row();
 	}
 
@@ -1593,35 +1595,35 @@ class Factura_model extends General_model
 
 	public function get_facturas($args = [])
 	{
-		if (isset($args["_facturadas"])) {
-			$this->db->where("a.numero_factura is not null");
+		if (isset($args['_facturadas'])) {
+			$this->db->where('a.numero_factura is not null');
 		}
 
 		if (verDato($args, '_anuladas') && filter_var($args['_anuladas'], FILTER_VALIDATE_BOOLEAN)) {
 			$this->db
-				->where("a.numero_factura is not null")
-				->where("a.fel_uuid_anulacion is not null");
+				->where('a.numero_factura is not null')
+				->where('a.fel_uuid_anulacion is not null');
 		}
 
-		if (isset($args["_vivas"])) {
+		if (isset($args['_vivas'])) {
 			$this->db
-				->where("a.numero_factura is not null")
-				->where("a.fel_uuid_anulacion is null");
+				->where('a.numero_factura is not null')
+				->where('a.fel_uuid_anulacion is null');
 		}
 
 		if (isset($args['fdel']) && isset($args['fal'])) {
 			$this->db
-				->where("a.fecha_factura >=", $args['fdel'])
-				->where("a.fecha_factura <=", $args['fal']);
+				->where('a.fecha_factura >=', $args['fdel'])
+				->where('a.fecha_factura <=', $args['fal']);
 			unset($args['fdel']);
 			unset($args['fal']);
 		}
 
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
-				$this->db->where_in("a.sede", $args['sede']);
+				$this->db->where_in('a.sede', $args['sede']);
 			} else {
-				$this->db->where("a.sede", $args['sede']);
+				$this->db->where('a.sede', $args['sede']);
 			}
 			unset($args['sede']);
 		}
@@ -1644,22 +1646,22 @@ class Factura_model extends General_model
 
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
-				if (substr($key, 0, 1) != "_") {
+				if (substr($key, 0, 1) != '_') {
 					$this->db->where("a.{$key}", $row);
 				}
 			}
 		}
 
 		return $this->db
-			->select("a.*")
-			->join("detalle_factura b", "a.factura = b.factura")
-			->join("detalle_factura_detalle_cuenta c", "c.detalle_factura = b.detalle_factura", "left")
-			->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta", "left")
-			->join("cuenta e", "d.cuenta_cuenta = e.cuenta", "left")
-			->join("comanda f", "e.comanda = f.comanda", "left")
-			->join("turno g", "g.turno = f.turno", "left")
-			->group_by("a.factura")
-			->get("factura a")
+			->select('a.*')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura', 'left')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta', 'left')
+			->join('cuenta e', 'd.cuenta_cuenta = e.cuenta', 'left')
+			->join('comanda f', 'e.comanda = f.comanda', 'left')
+			->join('turno g', 'g.turno = f.turno', 'left')
+			->group_by('a.factura')
+			->get('factura a')
 			->result();
 	}
 
@@ -1696,15 +1698,15 @@ class Factura_model extends General_model
 	public function getPropina()
 	{
 		return $this->db
-			->select("e.propina as propina_monto, f.nombre")
-			->from("factura a")
-			->join("detalle_factura b", "a.factura = b.factura")
-			->join("detalle_factura_detalle_cuenta c", "c.detalle_factura = b.detalle_factura")
-			->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta")
-			->join("cuenta_forma_pago e", "d.cuenta_cuenta = e.cuenta")
-			->join("cliente f", "f.cliente = a.cliente")
-			->where("a.factura", $this->factura)
-			->group_by("e.cuenta_forma_pago")
+			->select('e.propina as propina_monto, f.nombre')
+			->from('factura a')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('cuenta_forma_pago e', 'd.cuenta_cuenta = e.cuenta')
+			->join('cliente f', 'f.cliente = a.cliente')
+			->where('a.factura', $this->factura)
+			->group_by('e.cuenta_forma_pago')
 			->get()
 			->result();
 	}
@@ -1732,7 +1734,7 @@ class Factura_model extends General_model
 
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
-				if (substr($key, 0, 1) != "_") {
+				if (substr($key, 0, 1) != '_') {
 					$this->db->where("a.{$key}", $row);
 				}
 			}
@@ -1740,13 +1742,13 @@ class Factura_model extends General_model
 
 		if (isset($args['_turno'])) {
 			$this->db
-				->join("detalle_factura b", "b.factura = a.factura")
-				->join("detalle_factura_detalle_cuenta c", "b.detalle_factura = c.detalle_factura")
-				->join("detalle_cuenta d", "d.detalle_cuenta = c.detalle_cuenta")
-				->join("detalle_comanda e", "d.detalle_comanda = e.detalle_comanda")
-				->join("comanda f", "e.comanda = f.comanda")
-				->where("f.turno", $args['_turno'])
-				->group_by("a.factura");
+				->join('detalle_factura b', 'b.factura = a.factura')
+				->join('detalle_factura_detalle_cuenta c', 'b.detalle_factura = c.detalle_factura')
+				->join('detalle_cuenta d', 'd.detalle_cuenta = c.detalle_cuenta')
+				->join('detalle_comanda e', 'd.detalle_comanda = e.detalle_comanda')
+				->join('comanda f', 'e.comanda = f.comanda')
+				->where('f.turno', $args['_turno'])
+				->group_by('a.factura');
 		}
 
 		$this->db->order_by('a.fecha_factura DESC, a.fel_uuid_anulacion, a.factura DESC');
@@ -1889,48 +1891,48 @@ class Factura_model extends General_model
 
 	public function getFacturas($args = [])
 	{
-		if (verDato($args, "fdel")) {
-			$this->db->where("date(a.fecha_factura) >=", $args["fdel"]);
+		if (verDato($args, 'fdel')) {
+			$this->db->where('date(a.fecha_factura) >=', $args['fdel']);
 		}
 
-		if (verDato($args, "fal")) {
-			$this->db->where("date(a.fecha_factura) <=", $args["fal"]);
+		if (verDato($args, 'fal')) {
+			$this->db->where('date(a.fecha_factura) <=', $args['fal']);
 		}
 
-		if (verDato($args, "sede")) {
-			$this->db->where("a.sede", $args["sede"]);
+		if (verDato($args, 'sede')) {
+			$this->db->where('a.sede', $args['sede']);
 		}
 
 		$tmp = $this->db
-			->select("
+			->select('
 			a.factura,
 			a.fecha_factura,
 			b.nombre as ncliente,
 			a.serie_factura,
 			a.numero_factura,
 			sum(c.total) as total
-		")
-			->from("factura a")
-			->join("cliente b", "b.cliente = a.cliente")
-			->join("detalle_factura c", "c.factura = a.factura", "left")
-			->group_by("a.factura")
-			->order_by("a.fecha_factura, ncliente")
+		')
+			->from('factura a')
+			->join('cliente b', 'b.cliente = a.cliente')
+			->join('detalle_factura c', 'c.factura = a.factura', 'left')
+			->group_by('a.factura')
+			->order_by('a.fecha_factura, ncliente')
 			->get();
 
-		return isset($args["_uno"]) ? $tmp->row() : $tmp->result();
+		return isset($args['_uno']) ? $tmp->row() : $tmp->result();
 	}
 
 	public function getFacturaFel()
 	{
 		return $this->db
-			->select("
+			->select('
 			fecha,
 			resultado
-		")
-			->from("factura_fel")
-			->where("factura", $this->factura)
-			->where("resultado is not null")
-			->order_by("factura_fel", "desc")
+		')
+			->from('factura_fel')
+			->where('factura', $this->factura)
+			->where('resultado is not null')
+			->order_by('factura_fel', 'desc')
 			->get()
 			->result();
 	}
@@ -1938,15 +1940,15 @@ class Factura_model extends General_model
 	public function correlativoSerie()
 	{
 		$tmp = $this->db
-			->select("correlativo")
-			->from("factura_serie")
-			->where("factura_serie", $this->factura_serie)
+			->select('correlativo')
+			->from('factura_serie')
+			->where('factura_serie', $this->factura_serie)
 			->get()
 			->row();
 
 		$correlativo = $tmp->correlativo;
 
-		$this->guardar(["factura_serie_correlativo" => $correlativo]);
+		$this->guardar(['factura_serie_correlativo' => $correlativo]);
 
 		$this->actualizarCorrelativoSerie($correlativo);
 	}
@@ -1954,14 +1956,14 @@ class Factura_model extends General_model
 	public function actualizarCorrelativoSerie($correlativo)
 	{
 		$this->db
-			->set("correlativo", ($correlativo + 1))
-			->where("factura_serie", $this->factura_serie)
-			->update("factura_serie");
+			->set('correlativo', ($correlativo + 1))
+			->where('factura_serie', $this->factura_serie)
+			->update('factura_serie');
 	}
 
 	public function enviarInfilePan()
 	{
-		$this->load->library("Felfacpan");
+		$this->load->library('Felfacpan');
 
 		if (empty($this->factura_serie_correlativo)) {
 			$this->correlativoSerie();
@@ -1981,31 +1983,31 @@ class Factura_model extends General_model
 		if (isset($respuesta->valido) && $respuesta->valido) {
 			$data = [];
 
-			$data["serie_factura"]  = $this->serie->serie;
-			$data["numero_factura"] = $this->factura_serie_correlativo;
-			$data["fel_uuid"]       = $respuesta->cufe;
+			$data['serie_factura']  = $this->serie->serie;
+			$data['numero_factura'] = $this->factura_serie_correlativo;
+			$data['fel_uuid']       = $respuesta->cufe;
 
 			$respuesta->fecha = $respuesta->fecha_proceso;
 
 			$this->guardar($data);
-		} elseif (verPropiedad($respuesta, "respuesta_pac") || verPropiedad($respuesta, "errores")) {
+		} elseif (verPropiedad($respuesta, 'respuesta_pac') || verPropiedad($respuesta, 'errores')) {
 			$errores = [];
 
-			if (verPropiedad($respuesta, "respuesta_pac")) {
+			if (verPropiedad($respuesta, 'respuesta_pac')) {
 				foreach ($respuesta->respuesta_pac as $row) {
 					$errores[] = "{$row->dCodRes}: {$row->dMsgRes}";
 				}
 			}
 
-			if (verPropiedad($respuesta, "errores")) {
+			if (verPropiedad($respuesta, 'errores')) {
 				foreach ($respuesta->errores as $value) {
 					$errores[] = $value;
 				}
 			}
 
-			$this->setMensaje(implode("\n", $errores));
+			$this->setMensaje(implode('\n', $errores));
 		} else {
-			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
+			$this->setMensaje('No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.');
 		}
 
 		return $respuesta;
@@ -2013,12 +2015,12 @@ class Factura_model extends General_model
 
 	public function anularInfilePan()
 	{
-		$this->load->library("Felfacpan");
+		$this->load->library('Felfacpan');
 
-		$comentario = "ERROR DE EMISIÓN";
+		$comentario = 'ERROR DE EMISIÓN';
 
-		if (isset($_POST["comentario"])) {
-			$comentario = $_POST["comentario"];
+		if (isset($_POST['comentario'])) {
+			$comentario = $_POST['comentario'];
 		}
 
 		$lib = new Felfacpan();
@@ -2028,25 +2030,25 @@ class Factura_model extends General_model
 
 		if (isset($respuesta->valido) && $respuesta->valido) {
 
-			$this->guardar(["fel_uuid_anulacion" => $this->fel_uuid]);
-		} elseif (verPropiedad($respuesta, "respuesta_pa") || verPropiedad($respuesta, "errores")) {
+			$this->guardar(['fel_uuid_anulacion' => $this->fel_uuid]);
+		} elseif (verPropiedad($respuesta, 'respuesta_pa') || verPropiedad($respuesta, 'errores')) {
 			$errores = [];
 
-			if (verPropiedad($respuesta, "respuesta_pa")) {
+			if (verPropiedad($respuesta, 'respuesta_pa')) {
 				foreach ($respuesta->respuesta_pa as $row) {
 					$errores[] = "{$row->dCodRes} | {$row->dMsgRes}";
 				}
 			}
 
-			if (verPropiedad($respuesta, "errores")) {
+			if (verPropiedad($respuesta, 'errores')) {
 				foreach ($respuesta->errores as $value) {
 					$errores[] = $value;
 				}
 			}
 
-			$this->setMensaje(implode("\n", $errores));
+			$this->setMensaje(implode('\n', $errores));
 		} else {
-			$this->setMensaje("No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.");
+			$this->setMensaje('No se obtuvo respuesta del certificador INFILE. Intente nuevamente, por favor.');
 		}
 
 		return $respuesta;
@@ -2125,7 +2127,7 @@ class Factura_model extends General_model
 	
 	public function enviarInfileSv()
 	{
-		$this->load->library("Felfacsv");
+		$this->load->library('Felfacsv');
 
 		$lib = new Felfacsv();
 		$lib->set_factura($this);
@@ -2143,9 +2145,9 @@ class Factura_model extends General_model
 		if ($respuesta->exito) {
 			$fel = $respuesta->fe;
 			
-			$data["fel_uuid"]       = $fel->respuesta->codigoGeneracion;
-			$data["numero_factura"] = $fel->respuesta->codigoGeneracion;
-			$data["serie_factura"]  = $this->serie->serie;
+			$data['fel_uuid']       = $fel->respuesta->codigoGeneracion;
+			$data['numero_factura'] = $fel->respuesta->codigoGeneracion;
+			$data['serie_factura']  = $this->serie->serie;
 
 			$this->guardar($data);
 		} else {
@@ -2155,11 +2157,11 @@ class Factura_model extends General_model
 		return $fel;
 	}
 
-	public function anularInfileSv($motivo="")
+	public function anularInfileSv($motivo='')
 	{
-		$this->load->library("Felfacsv");
+		$this->load->library('Felfacsv');
 
-		$comentario = "ERROR DE EMISIÓN";
+		$comentario = 'ERROR DE EMISIÓN';
 
 		if (!empty($motivo)) {
 			$comentario = $motivo;
@@ -2178,7 +2180,7 @@ class Factura_model extends General_model
 		if ($respuesta->exito) {
 			$fel = $respuesta->fe;
 			
-			$data["fel_uuid_anulacion"] = $fel->respuesta->codigoGeneracion;
+			$data['fel_uuid_anulacion'] = $fel->respuesta->codigoGeneracion;
 			$this->guardar($data);
 		} else {
 			$this->setMensaje($respuesta->error);
@@ -2190,8 +2192,8 @@ class Factura_model extends General_model
 	public function pdfInfileSv()
 	{
 		return [
-			"documento" => "{$this->certificador->vinculo_grafo}{$this->fel_uuid}&formato=pdf",
-			"tipo"      => "link"
+			'documento' => "{$this->certificador->vinculo_grafo}{$this->fel_uuid}&formato=pdf",
+			'tipo'      => 'link'
 		];
 	}
 

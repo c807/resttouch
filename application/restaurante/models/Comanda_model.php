@@ -159,7 +159,8 @@ class Comanda_model extends General_Model
 
     public function guardarDetalle(array $args)
     {
-        $config = $this->Configuracion_model->buscar();
+        // $config = $this->Configuracion_model->buscar();
+        $config = $this->Configuracion_model->buscar_configuraciones();
         $vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
         $id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
         $det = new Dcomanda_model($id);
@@ -374,7 +375,8 @@ class Comanda_model extends General_Model
     public function guardarDetalleMejorado(array $args)
     {
         // $inicia = time();
-        $config = $this->Configuracion_model->buscar();
+        // $config = $this->Configuracion_model->buscar();
+        $config = $this->Configuracion_model->buscar_configuraciones();
         $vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
         $id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
         $det = new Dcomanda_model($id);

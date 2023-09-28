@@ -173,7 +173,8 @@ class Orden_gk_model extends General_model
 				];
 				$rutas = (object)$rutas;
 				$sedesNoEncontradas = [];
-				$config = $this->Configuracion_model->buscar(); // JA: Agregado para la propina. 24/05/2022.
+				// $config = $this->Configuracion_model->buscar(); // JA: Agregado para la propina. 24/05/2022.
+				$config = $this->Configuracion_model->buscar_configuraciones(); // JA: Agregado para la propina. 24/05/2022.
 				foreach ($listaArticulos as $art) {
 					$descripcionArticulo = $rutas->descripcion ? get_dato_from_paths($art, $rutas->descripcion) : '';
 					$pos = stripos($descripcionesPropina, $descripcionArticulo);

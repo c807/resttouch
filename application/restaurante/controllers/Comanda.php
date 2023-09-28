@@ -536,7 +536,8 @@ class Comanda extends CI_Controller
 				$datos->exito = true;
 			} else if ($this->input->get('qr')) {
 				// $com = new Comanda_model();
-				$config = $this->Configuracion_model->buscar();
+				// $config = $this->Configuracion_model->buscar();
+				$config = $this->Configuracion_model->buscar_configuraciones();
 				$mesero = get_configuracion($config, 'RT_MESERO_POR_DEFECTO', 1);
 
 				$res = guardar_comanda([

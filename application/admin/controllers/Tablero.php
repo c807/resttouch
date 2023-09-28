@@ -11,23 +11,24 @@ class Tablero extends CI_Controller {
 			'Configuracion_model'
 		]);
 		$this->output
-		->set_content_type("application/json", "UTF-8");
+		->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function index()
 	{
-		die("Forbidden");
+		die('Forbidden');
 	}
 
 	private function getEsRangoPorFechaDeTurno()
 	{
-		$config = $this->Configuracion_model->buscar();
-		return get_configuracion($config, "RT_REPORTES_FECHAS_TURNOS", 3);
+		// $config = $this->Configuracion_model->buscar();
+		$config = $this->Configuracion_model->buscar_configuraciones();
+		return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
 	}
 
 	public function get_datos()
 	{
-		$res = ["exito" => false];
+		$res = ['exito' => false];
 
 		if ($this->input->get('fdel') && $this->input->get('fal')) {
 			
@@ -49,8 +50,8 @@ class Tablero extends CI_Controller {
 			$sede = [];
 			$wlista = [];
 
-			$fdel = new DateTime($_GET["fdel"]);
-			$fal = new DateTime($_GET["fal"]);
+			$fdel = new DateTime($_GET['fdel']);
+			$fal = new DateTime($_GET['fal']);
 
 			$period = new DatePeriod($fdel, new DateInterval('P1D'), $fal);
 
@@ -64,7 +65,7 @@ class Tablero extends CI_Controller {
 				$dias[$row->format('Y-m-d')] = 0;
 			}
 
-			$dias[$_GET["fal"]] = 0;
+			$dias[$_GET['fal']] = 0;
 
 			foreach ($datos as $key => $value) {
 				if (!isset($semana[$value->dia])) {
@@ -124,42 +125,42 @@ class Tablero extends CI_Controller {
 
 			if ($diferencia > 30) {
 				$udias = array_slice($dias, -30, 30, true);
-				$res["ultimos_dias"] = 30;
+				$res['ultimos_dias'] = 30;
 			} else {
 				$udias = $dias;
-				$res["ultimos_dias"] = $diferencia;
+				$res['ultimos_dias'] = $diferencia;
 			}
 			
 			$dwl = graficaDatasets($wlista, false);
 			$dwl->borderColor = randomColor();
 			$dwl->fill = false;
 
-			$res["line_wlista"] = $dwl;
+			$res['line_wlista'] = $dwl;
 
 			$das = graficaDatasets($udias, false);
 			$das->borderColor = randomColor();
 			$das->fill = false;
 
-			$res["line_dias"] = $das;
+			$res['line_dias'] = $das;
 
-			$res["pie_semana"] = graficaDatasets($semana);
-			$res["pie_domicilio"] = graficaDatasets($domicilio);
-			$res["bar_horario"] = graficaDatasets($horario);
-			$res["bar_popular"] = graficaDatasets($producto);
-			$res["bar_sede"] = graficaDatasets($sede);
-			$res["bar_mesero"] = graficaDatasets($mesero);
+			$res['pie_semana'] = graficaDatasets($semana);
+			$res['pie_domicilio'] = graficaDatasets($domicilio);
+			$res['bar_horario'] = graficaDatasets($horario);
+			$res['bar_popular'] = graficaDatasets($producto);
+			$res['bar_sede'] = graficaDatasets($sede);
+			$res['bar_mesero'] = graficaDatasets($mesero);
 
-			$res["datos"] = $datos;
+			$res['datos'] = $datos;
 
-			$res["estadistica"] = [
-				["Días", count($dias)],
-				["Mínimo", number_format(min($dias), 2)],
-				["Máximo", number_format(max($dias), 2)],
-				["Media", number_format(($total/count($dias)), 2)],
-				["TOTAL", number_format($total, 2)]
+			$res['estadistica'] = [
+				['Días', count($dias)],
+				['Mínimo', number_format(min($dias), 2)],
+				['Máximo', number_format(max($dias), 2)],
+				['Media', number_format(($total/count($dias)), 2)],
+				['TOTAL', number_format($total, 2)]
 			];
 			
-			$res["exito"] = true;
+			$res['exito'] = true;
 		}
 
 		$this->output->set_output(json_encode($res));
@@ -167,7 +168,7 @@ class Tablero extends CI_Controller {
 
 	public function get_datos_graficas_ventas()
 	{
-		$res = ["exito" => false];
+		$res = ['exito' => false];
 		$datos = [];
 		if ($this->input->get('fdel') && $this->input->get('fal'))
 		{
@@ -181,24 +182,24 @@ class Tablero extends CI_Controller {
 			
 			$res['pordia'] = $this->Tablero_model->agruparDatos(
 				$datos['pordia'],
-				verDato($args, "_grupo", 1)
+				verDato($args, '_grupo', 1)
 			);
 			$res['porcategoria'] = $this->Tablero_model->agruparDatos(
 				$datos['porcategoria'],
-				verDato($args, "_grupo", 1)
+				verDato($args, '_grupo', 1)
 			);
 			$res['porturno'] = $this->Tablero_model->agruparDatos(
 				$datos['porturno'],
-				verDato($args, "_grupo", 1)
+				verDato($args, '_grupo', 1)
 			);
 			$res['pormesero'] = $this->Tablero_model->agruparDatos(
 				$datos['pormesero'],
-				verDato($args, "_grupo", 1)
+				verDato($args, '_grupo', 1)
 			);
 
 
 
-			$res["exito"] = true;
+			$res['exito'] = true;
 			$res['mensaje'] = 'Datos generados con éxito.';
 		} else {
 			$res['mensaje'] = 'Por favor ingrese los datos para generar el reporte.';
@@ -209,8 +210,9 @@ class Tablero extends CI_Controller {
 
 	public function get_metabase_url()
 	{
-		$params = [];
-		$config = $this->Configuracion_model->buscar();
+		$params = [];		
+		// $config = $this->Configuracion_model->buscar();
+		$config = $this->Configuracion_model->buscar_configuraciones();
 		$params['RT_METABASE_SITE_URL'] = get_configuracion($config, 'RT_METABASE_SITE_URL');
 		$params['RT_METABASE_SECRET_KEY'] = get_configuracion($config, 'RT_METABASE_SECRET_KEY');
 		$cuerpo = json_decode(file_get_contents('php://input'));
@@ -222,7 +224,7 @@ class Tablero extends CI_Controller {
 
 	public function get_datos_wms()
 	{
-		$res = ["exito" => false];
+		$res = ['exito' => false];
 
 		if ($this->input->get('fdel') && $this->input->get('fal')) {
 			if (isset($_GET['sede']) && $_GET['sede'] == 0) {

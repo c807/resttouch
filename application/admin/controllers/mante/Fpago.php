@@ -20,7 +20,8 @@ class Fpago extends CI_Controller {
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
-			$config = $this->Configuracion_model->buscar();
+			// $config = $this->Configuracion_model->buscar();
+			$config = $this->Configuracion_model->buscar_configuraciones();
 			$sinFactura = get_configuracion($config, 'RT_COMANDA_SIN_FACTURA', 3);
 			$continuar = true;
 
@@ -55,8 +56,8 @@ class Fpago extends CI_Controller {
 			$_GET['activo'] = 1;
 		}
 		
-		$datos = $this->Fpago_model->buscar($_GET);
-
+		// $datos = $this->Fpago_model->buscar($_GET);
+		$datos = $this->Fpago_model->buscar_formaspago($_GET);
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 

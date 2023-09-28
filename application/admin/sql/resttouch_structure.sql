@@ -3013,6 +3013,16 @@ CREATE TABLE RT_DATABASE_NAME.detalle_ajuste_costo_promedio (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 ALTER TABLE RT_DATABASE_NAME.area ADD COLUMN mesas_fila_area INT NULL DEFAULT 3;
+ALTER TABLE RT_DATABASE_NAME.presentacion ADD INDEX Idx_Cantidad_ASC (cantidad ASC);
+ALTER TABLE RT_DATABASE_NAME.presentacion ADD INDEX Idx_Debaja_ASC (debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.usuario ADD INDEX Idx_Usrname_ASC (usrname ASC), ADD INDEX Idx_Debaja_ASC (debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Campo_ASC (campo ASC);
+ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Descripcion_ASC (descripcion ASC);
+ALTER TABLE RT_DATABASE_NAME.turno_tipo ADD INDEX Idx_Activo_ASC (activo ASC);
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Descuento_ASC (descuento ASC);
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Sinfactura_ASC (sinfactura ASC), ADD INDEX Idx_Esefectivo_ASC (esefectivo ASC), ADD INDEX Idx_Escobrohabitacion_ASC (escobrohabitacion ASC), ADD INDEX Idx_Esabono_ASC (esabono ASC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Fin_ASC (fin ASC);
+
 
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN fecha DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER existencia, ADD INDEX Fecha_Idx (fecha ASC);
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN cuc_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER articulo, ADD COLUMN cp_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER costo_ultima_compra;

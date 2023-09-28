@@ -244,12 +244,14 @@ class Turno extends CI_Controller {
 			$_GET['activo'] = 1;
 		}
 		
-		$this->output->set_content_type('application/json')->set_output(json_encode($this->TurnoTipo_model->buscar($_GET)));
+		// $this->output->set_content_type('application/json')->set_output(json_encode($this->TurnoTipo_model->buscar($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($this->TurnoTipo_model->buscar_turnostipo($_GET)));
 	}
 
 	private function get_lista_tipos_turno()
 	{
-		$lista = $this->TurnoTipo_model->buscar();
+		// $lista = $this->TurnoTipo_model->buscar();
+		$lista = $this->TurnoTipo_model->buscar_turnostipo();
 		$lista = ordenar_array_objetos($lista, 'turno_tipo', 1);
 		$lst = [];
 		foreach($lista as $tt) {
