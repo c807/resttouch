@@ -3021,6 +3021,8 @@ ALTER TABLE RT_DATABASE_NAME.configuracion ADD INDEX Idx_Descripcion_ASC (descri
 ALTER TABLE RT_DATABASE_NAME.turno_tipo ADD INDEX Idx_Activo_ASC (activo ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Descuento_ASC (descuento ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Sinfactura_ASC (sinfactura ASC), ADD INDEX Idx_Esefectivo_ASC (esefectivo ASC), ADD INDEX Idx_Escobrohabitacion_ASC (escobrohabitacion ASC), ADD INDEX Idx_Esabono_ASC (esabono ASC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Fin_ASC (fin ASC);
+
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

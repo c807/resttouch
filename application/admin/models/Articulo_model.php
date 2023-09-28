@@ -293,7 +293,7 @@ class Articulo_model extends General_model
 			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)			
+			->where('a.articulo', $articulo)
 			->get('ingreso_detalle a')
 			->row(); //total ingresos
 
@@ -332,7 +332,7 @@ class Articulo_model extends General_model
 			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
 			->join('presentacion p', 'a.presentacion = p.presentacion')
 			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)			
+			->where('a.articulo', $articulo)
 			->get('egreso_detalle a')
 			->row(); //total egresos wms
 
@@ -661,7 +661,7 @@ class Articulo_model extends General_model
 				->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
 				->where('c.articulo', $this->getPK())
 				->where('b.sede', $sede->getPK())
-				->where('a.ajuste', 0)				
+				->where('a.ajuste', 0)
 				->where("c.precio_total > 0")
 				->group_by('c.articulo')
 				->get('ingreso a')
@@ -682,7 +682,7 @@ class Articulo_model extends General_model
 					->join('presentacion d', 'c.presentacion = d.presentacion')
 					->where('c.articulo', $this->getPK())
 					->where('b.sede', $sede->getPK())
-					->where('c.ingreso_detalle', $det->id)					
+					->where('c.ingreso_detalle', $det->id)
 					->group_by('c.articulo')
 					->get('ingreso a')
 					->row();
@@ -828,6 +828,7 @@ class Articulo_model extends General_model
 			$categoria_grupo = $cgrupo->getPK();
 		}
 
+		$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
 
 		$datos = [
 			'categoria_grupo' => $categoria_grupo,
@@ -837,7 +838,7 @@ class Articulo_model extends General_model
 			'bien_servicio' => $this->bien_servicio,
 			'existencias' => 0.00,
 			'shopify_id' => $this->shopify_id,
-			'codigo' => $this->codigo,
+			'codigo' => str_ireplace($reemplazar, '', $this->codigo),
 			'produccion' => $this->produccion,
 			'presentacion_reporte' => $this->presentacion_reporte,
 			'mostrar_pos' => $this->mostrar_pos,
@@ -981,11 +982,11 @@ class Articulo_model extends General_model
 
 		foreach ($camposArticulo as $ca) {
 			$this->db->select("c.{$ca->campo}");
-		}		
+		}
 
 		foreach ($camposImpresora as $ci) {
 			$this->db->select("d.{$ci->campo}");
-		}		
+		}
 
 		foreach ($camposPresentacion as $cp) {
 			$this->db->select("e.{$cp->campo}");
@@ -1349,36 +1350,36 @@ class Articulo_model extends General_model
 		$soloConfirmados = !isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0);
 		$idArticulo = $this->getPK();
 		$qIngresos = 'SELECT c.precio_total, c.cantidad * d.cantidad as cantidad, c.articulo, a.fecha, c.presentacion ';
-		$qIngresos.= 'FROM ingreso a JOIN bodega b ON a.bodega = b.bodega JOIN ingreso_detalle c ON a.ingreso = c.ingreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qIngresos.= "WHERE c.articulo = {$idArticulo} ";
-		$qIngresos.= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
-		$qIngresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
-		$qIngresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
+		$qIngresos .= 'FROM ingreso a JOIN bodega b ON a.bodega = b.bodega JOIN ingreso_detalle c ON a.ingreso = c.ingreso JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qIngresos .= "WHERE c.articulo = {$idArticulo} ";
+		$qIngresos .= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
+		$qIngresos .= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qIngresos .= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 
 		$qEgresos = 'SELECT c.precio_total * -1, c.cantidad * d.cantidad * -1 AS cantidad, c.articulo, a.fecha, c.presentacion ';
-		$qEgresos.= 'FROM egreso a JOIN bodega b ON a.bodega = b.bodega JOIN egreso_detalle c ON a.egreso = c.egreso JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qEgresos.= "WHERE c.articulo = {$idArticulo} AND a.idcomandafox IS NULL ";
-		$qIngresos.= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
-		$qEgresos.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
-		$qEgresos.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
+		$qEgresos .= 'FROM egreso a JOIN bodega b ON a.bodega = b.bodega JOIN egreso_detalle c ON a.egreso = c.egreso JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qEgresos .= "WHERE c.articulo = {$idArticulo} AND a.idcomandafox IS NULL ";
+		$qIngresos .= $soloConfirmados ? 'AND a.estatus_movimiento = 2 ' : '';
+		$qEgresos .= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qEgresos .= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha <= '{$args['fal']}' " : '';
 
 		$qComandas = 'SELECT IFNULL(c.costo_total, 0) * -1 AS precio_total, c.cantidad_inventario * d.cantidad * -1 AS cantidad, c.articulo, DATE(a.fhcreacion) AS fecha, c.presentacion ';
-		$qComandas.= 'FROM comanda a JOIN detalle_comanda c ON a.comanda = c.comanda JOIN bodega b ON b.bodega = c.bodega JOIN presentacion d ON d.presentacion = c.presentacion ';
-		$qComandas.= "WHERE c.articulo = {$idArticulo} AND c.cantidad_inventario <> 0 AND c.costo_total IS NOT NULL ";
-		$qComandas.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
-		$qComandas.= isset($args['fal']) && !empty($args['fal']) ? " AND DATE(a.fhcreacion) <= '{$args['fal']}' " : '';
+		$qComandas .= 'FROM comanda a JOIN detalle_comanda c ON a.comanda = c.comanda JOIN bodega b ON b.bodega = c.bodega JOIN presentacion d ON d.presentacion = c.presentacion ';
+		$qComandas .= "WHERE c.articulo = {$idArticulo} AND c.cantidad_inventario <> 0 AND c.costo_total IS NOT NULL ";
+		$qComandas .= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND b.bodega = {$args['bodega']} " : '';
+		$qComandas .= isset($args['fal']) && !empty($args['fal']) ? " AND DATE(a.fhcreacion) <= '{$args['fal']}' " : '';
 
 		$qFactSinComanda = 'SELECT IFNULL(b.costo_total, 0) * -1 AS precio_total, b.cantidad_inventario * e.cantidad * -1 AS cantidad, b.articulo, a.fecha_factura AS fecha, b.presentacion	';
-		$qFactSinComanda.= 'FROM factura a INNER JOIN detalle_factura b ON a.factura = b.factura INNER JOIN articulo c ON c.articulo = b.articulo INNER JOIN bodega d ON d.bodega = b.bodega ';
-		$qFactSinComanda.= 'INNER JOIN presentacion e ON e.presentacion = b.presentacion LEFT JOIN detalle_factura_detalle_cuenta i ON b.detalle_factura = i.detalle_factura ';
-		$qFactSinComanda.= "WHERE i.detalle_factura_detalle_cuenta IS NULL AND c.descripcion NOT LIKE '%prop%' AND b.articulo = {$idArticulo} AND b.cantidad_inventario <> 0 AND b.costo_total IS NOT NULL ";
-		$qFactSinComanda.= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND d.bodega = {$args['bodega']} " : '';
-		$qFactSinComanda.= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha_factura <= '{$args['fal']}' " : '';
+		$qFactSinComanda .= 'FROM factura a INNER JOIN detalle_factura b ON a.factura = b.factura INNER JOIN articulo c ON c.articulo = b.articulo INNER JOIN bodega d ON d.bodega = b.bodega ';
+		$qFactSinComanda .= 'INNER JOIN presentacion e ON e.presentacion = b.presentacion LEFT JOIN detalle_factura_detalle_cuenta i ON b.detalle_factura = i.detalle_factura ';
+		$qFactSinComanda .= "WHERE i.detalle_factura_detalle_cuenta IS NULL AND c.descripcion NOT LIKE '%prop%' AND b.articulo = {$idArticulo} AND b.cantidad_inventario <> 0 AND b.costo_total IS NOT NULL ";
+		$qFactSinComanda .= isset($args['bodega']) && (int)$args['bodega'] > 0 ? " AND d.bodega = {$args['bodega']} " : '';
+		$qFactSinComanda .= isset($args['fal']) && !empty($args['fal']) ? " AND a.fecha_factura <= '{$args['fal']}' " : '';
 
 		$qUnido = "{$qIngresos} UNION ALL {$qEgresos} UNION ALL {$qComandas} UNION ALL {$qFactSinComanda} ORDER BY 4";
 
 		$query = 'SELECT ABS(SUM(z.precio_total) / SUM(z.cantidad)) AS precio_unitario, z.articulo, MAX(z.fecha) AS fecha, z.presentacion ';
-		$query.= "FROM ({$qUnido}) z GROUP BY z.articulo";
+		$query .= "FROM ({$qUnido}) z GROUP BY z.articulo";
 
 		return $this->db->query($query)->row();
 	}
@@ -1388,15 +1389,15 @@ class Articulo_model extends General_model
 		$lista = [];
 		$campos = $this->getCampos(false, 'a.', 'articulo');
 
-		if(isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
+		if (isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
 			$this->db->where('c.sede', $fltr['sede']);
 		}
 
-		if(isset($fltr['categoria_grupo']) && (int)$fltr['categoria_grupo'] > 0) {
+		if (isset($fltr['categoria_grupo']) && (int)$fltr['categoria_grupo'] > 0) {
 			$this->db->where('b.categoria_grupo', $fltr['categoria_grupo']);
 		}
 
-		if(isset($fltr['categoria']) && (int)$fltr['categoria'] > 0) {
+		if (isset($fltr['categoria']) && (int)$fltr['categoria'] > 0) {
 			$this->db->where('c.categoria', $fltr['categoria']);
 		}
 
@@ -1408,13 +1409,12 @@ class Articulo_model extends General_model
 			->get('articulo a')
 			->result();
 
-		foreach($tmpArticulos as $art) {
+		foreach ($tmpArticulos as $art) {
 			$lista[(int)$art->articulo] = clone $art;
 		}
 
 		return $lista;
 	}
-
 }
 
 /* End of file Articulo_model.php */
