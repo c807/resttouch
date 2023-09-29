@@ -15,7 +15,11 @@ class Ingreso extends CI_Controller
 			'Presentacion_model',
 			'BodegaArticuloCosto_model',
 			'Bodega_model',
-			'Articulo_ultima_compra_model'
+			'Articulo_ultima_compra_model',
+			'Tipo_movimiento_model',
+			'Proveedor_model',
+			'Bodega_model',
+			'Usuario_model'
 		]);
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -23,8 +27,7 @@ class Ingreso extends CI_Controller
 			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		}
 
-		$this->output
-			->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type("application/json", "UTF-8");
 	}
 
 	public function guardar($id = '')
@@ -154,6 +157,12 @@ class Ingreso extends CI_Controller
 		$headers = $this->input->request_headers();
 		$dataToken = AUTHORIZATION::validateToken($headers['Authorization']);
 
+		$listaTiposMovimiento = $this->Tipo_movimiento_model->get_lista_tipos_movimiento();
+		$listaProveedores = $this->Proveedor_model->get_lista_proveedores();
+		$listaBodegas = $this->Bodega_model->get_lista_bodegas();
+		$listaUsuarios = $this->Usuario_model->get_lista_usuarios();
+		$listaEgresosOrigen = $this->Ingreso_model->get_lista_egresos_origen($_GET);
+
 		$fltr = $_GET;
 		if (isset($fltr['_fdel'])) {
 			$fltr['_fdel'] = ['fecha' => $fltr['_fdel']];
@@ -168,12 +177,12 @@ class Ingreso extends CI_Controller
 			foreach ($ingresos as $row) {
 				$tmp = new Ingreso_model($row->ingreso);
 				$row->bodega = $tmp->getBodega();
-				if ((int)$row->bodega->sede === (int)$dataToken->sede) {
-					$row->tipo_movimiento = $tmp->getTipoMovimiento();
-					$row->proveedor = $tmp->getProveedor();
-					$row->bodega_origen = $tmp->getBodegaOrigen();
-					$row->usuario = $tmp->getUsuario();
-					$row->egreso_origen = $tmp->get_egreso_origen();
+				if ((int)$row->bodega->sede === (int)$dataToken->sede) {					
+					$row->tipo_movimiento = $listaTiposMovimiento[(int)$row->tipo_movimiento];					
+					$row->proveedor = $listaProveedores[(int)$row->proveedor];					
+					$row->bodega_origen = is_null($row->bodega_origen) ? null : ((int)$row->bodega_origen > 0 ? $listaBodegas[(int)$row->bodega_origen] : null);					
+					$row->usuario = $listaUsuarios[(int)$row->usuario];					
+					$row->egreso_origen = array_key_exists((int)$row->ingreso, $listaEgresosOrigen) ? $listaEgresosOrigen[(int)$row->ingreso] : null;
 					$datos[] = $row;
 				}
 			}
@@ -183,19 +192,17 @@ class Ingreso extends CI_Controller
 		} else if ($ingresos) {
 			$tmp = new Ingreso_model($ingresos->ingreso);
 			$ingresos->bodega = $tmp->getBodega();
-			if ((int)$ingresos->bodega->sede === (int)$dataToken->sede) {
-				$ingresos->tipo_movimiento = $tmp->getTipoMovimiento();
-				$ingresos->proveedor = $tmp->getProveedor();
-				$ingresos->bodega_origen = $tmp->getBodegaOrigen();
-				$ingresos->usuario = $tmp->getUsuario();
-				$ingresos->egreso_origen = $tmp->get_egreso_origen();
+			if ((int)$ingresos->bodega->sede === (int)$dataToken->sede) {				
+				$ingresos->tipo_movimiento = $listaTiposMovimiento[(int)$ingresos->tipo_movimiento];				
+				$ingresos->proveedor = $listaProveedores[(int)$ingresos->proveedor];				
+				$ingresos->bodega_origen = is_null($ingresos->bodega_origen) ? null : ((int)$ingresos->bodega_origen > 0 ? $listaBodegas[(int)$ingresos->bodega_origen] : null);				
+				$ingresos->usuario = $listaUsuarios[(int)$ingresos->usuario];				
+				$ingresos->egreso_origen = array_key_exists((int)$ingresos->ingreso, $listaEgresosOrigen) ? $listaEgresosOrigen[(int)$ingresos->ingreso] : null;
 				$datos[] = $ingresos;
 			}
 		}
 
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function buscar_detalle($ingreso)

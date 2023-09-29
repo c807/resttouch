@@ -3022,7 +3022,12 @@ ALTER TABLE RT_DATABASE_NAME.turno_tipo ADD INDEX Idx_Activo_ASC (activo ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Descuento_ASC (descuento ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Sinfactura_ASC (sinfactura ASC), ADD INDEX Idx_Esefectivo_ASC (esefectivo ASC), ADD INDEX Idx_Escobrohabitacion_ASC (escobrohabitacion ASC), ADD INDEX Idx_Esabono_ASC (esabono ASC);
 ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Fin_ASC (fin ASC);
-
+ALTER TABLE RT_DATABASE_NAME.ingreso ADD INDEX Idx_Fecha_ASC (fecha ASC), ADD INDEX Idx_Fecha_DESC (fecha DESC);
+ALTER TABLE RT_DATABASE_NAME.correlativo ADD INDEX Idx_tabla_fecha_ASC (tabla ASC, fecha ASC);
+ALTER TABLE RT_DATABASE_NAME.sede ADD INDEX Idx_Nombre_ASC (nombre ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefecto_ASC (sede ASC, pordefecto ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefectocuenta_ASC (sede ASC, pordefectocuenta ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_pordefectofactura_ASC (sede ASC, pordefectofactura ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
