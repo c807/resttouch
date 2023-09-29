@@ -3028,6 +3028,7 @@ ALTER TABLE RT_DATABASE_NAME.sede ADD INDEX Idx_Nombre_ASC (nombre ASC);
 ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefecto_ASC (sede ASC, pordefecto ASC);
 ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefectocuenta_ASC (sede ASC, pordefectocuenta ASC);
 ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_pordefectofactura_ASC (sede ASC, pordefectofactura ASC);
+ALTER TABLE RT_DATABASE_NAME.tiempo_entrega ADD INDEX Idx_Descripcion (descripcion ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
