@@ -622,7 +622,7 @@ class Comanda_model extends General_Model
             if (isset($args['_lstAreas']) && is_array($args['_lstAreas']) && count($args['_lstAreas']) > 0) {
                 $area = $this->buscar_en_lista($args['_lstAreas'], 'area', $mesa->area);
             } else {
-                $area = $this->Area_model->buscar(['area' => $mesa->area, '_uno' => true]);
+                $area = $this->Area_model->get_lista(['area' => $mesa->area, '_uno' => true]);
             }
 
             if (isset($args['_lstImpresoras']) && is_array($args['_lstImpresoras']) && count($args['_lstImpresoras']) > 0) {

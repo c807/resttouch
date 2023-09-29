@@ -12,7 +12,7 @@ class Area extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model('Area_model');
+		$this->load->model(['Area_model', 'Mesa_model']);
 
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
@@ -28,7 +28,8 @@ class Area extends CI_Controller
 		if ($this->input->method() == 'post') {
 
 			$fltr = [
-				'TRIM(UPPER(nombre))' => trim(strtoupper($req['nombre'])),
+				// 'TRIM(UPPER(nombre))' => trim(strtoupper($req['nombre'])),
+				'nombre' => $req['nombre'],
 				'sede' => $this->data->sede
 			];
 
@@ -63,8 +64,7 @@ class Area extends CI_Controller
 	}
 
 	public function get_areas()
-	{
-		$this->load->model('Mesa_model');
+	{		
 		$_GET['sede'] = $this->data->sede;
 
 		// Esto es para ver solo mesas disponibles
@@ -74,8 +74,8 @@ class Area extends CI_Controller
 			unset($_GET['debaja']);
 		}
 		// Fin de lo que es para ver solo mesas disponibles
-
-		$areas = $this->Area_model->buscar($_GET);
+		
+		$areas = $this->Area_model->get_lista($_GET);
 		$datos = [];
 
 		if (is_array($areas)) {
@@ -90,9 +90,7 @@ class Area extends CI_Controller
 			$datos[] = $areas;
 		}
 
-		$this->output
-			->set_content_type("application/json")
-			->set_output(json_encode($datos));
+		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
 	}
 
 	public function get_mesas_disponibles()
@@ -100,8 +98,7 @@ class Area extends CI_Controller
 		$soloDispoibles = isset($_GET['solo_disponibles']) ? (int)$_GET['solo_disponibles'] : 0;
 		$fltrHabitacion = isset($_GET['eshabitacion']) ? (int)$_GET['eshabitacion'] : null;
 		$solo_ocupadas = isset($_GET['solo_ocupadas']) ? (int)$_GET['solo_ocupadas'] : 0;
-
-		$this->load->model('Mesa_model');		
+		
 		$mesas = $this->Mesa_model->getDisponibles($this->data->sede, ($soloDispoibles === 1), $fltrHabitacion, ($solo_ocupadas === 1));
 		foreach($mesas as $mesa) {
 			$mesa->area = new Area_model($mesa->area);
