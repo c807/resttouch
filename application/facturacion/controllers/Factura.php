@@ -398,7 +398,7 @@ class Factura extends CI_Controller
 							'comentario' => $comentario
 						]);
 
-						$webhook = $this->Webhook_model->buscar([
+						$webhook = $this->Webhook_model->buscar_webhook([
 							'evento' => 'RTEV_FIRMA_FACTURA',
 							'_uno' => true
 						]);

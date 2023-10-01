@@ -3031,7 +3031,8 @@ ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_pordefectofactura_ASC 
 ALTER TABLE RT_DATABASE_NAME.tiempo_entrega ADD INDEX Idx_Descripcion (descripcion ASC);
 ALTER TABLE RT_DATABASE_NAME.area ADD INDEX Idx_Sede_NombreASC (sede ASC, nombre ASC);
 ALTER TABLE RT_DATABASE_NAME.mesa ADD INDEX Idx_Area_Debaja_ASC (area ASC, debaja ASC);
-
+ALTER TABLE RT_DATABASE_NAME.comanda ADD INDEX Idx_Estatus_ASC (estatus ASC);
+ALTER TABLE RT_DATABASE_NAME.webhook ADD INDEX Idx_Evento_ASC (evento ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
