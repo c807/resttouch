@@ -3033,6 +3033,9 @@ ALTER TABLE RT_DATABASE_NAME.area ADD INDEX Idx_Sede_NombreASC (sede ASC, nombre
 ALTER TABLE RT_DATABASE_NAME.mesa ADD INDEX Idx_Area_Debaja_ASC (area ASC, debaja ASC);
 ALTER TABLE RT_DATABASE_NAME.comanda ADD INDEX Idx_Estatus_ASC (estatus ASC);
 ALTER TABLE RT_DATABASE_NAME.webhook ADD INDEX Idx_Evento_ASC (evento ASC);
+ALTER TABLE RT_DATABASE_NAME.usuario_tipo_categoria_grupo ADD INDEX Idx_Usuario_tipo_Debaja_ASC (usuario_tipo ASC, debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Activo_Descripcion_ASC (activo ASC, descripcion ASC);
+ALTER TABLE RT_DATABASE_NAME.cliente ADD INDEX Idx_Telefono_ASC (telefono ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
