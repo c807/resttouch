@@ -22,13 +22,14 @@ class Usuario_model extends General_model
         parent::__construct();
         $this->setTabla($this->tabla);
 
-        if(!empty($id)) {
+        if (!empty($id)) {
             $this->cargar($id);
         }
     }
 
-    function validaPwdGerenteTurno($pwd = null, $idsede = 0) {
-        if($pwd){
+    function validaPwdGerenteTurno($pwd = null, $idsede = 0)
+    {
+        if ($pwd) {
             $dbusr = $this->db
                 ->select('c.contrasenia, c.usuario')
                 ->from('turno_has_usuario a')
@@ -41,13 +42,13 @@ class Usuario_model extends General_model
                 ->get()
                 ->result();
 
-            foreach($dbusr as $usr) {
+            foreach ($dbusr as $usr) {
                 if (password_verify($pwd, $usr->contrasenia)) {
-                    return (object)['usuario' => $usr->usuario,'esgerente' => true];
-                } 
+                    return (object)['usuario' => $usr->usuario, 'esgerente' => true];
+                }
             }
         }
-        return (object)['usuario' => null,'esgerente' => false];
+        return (object)['usuario' => null, 'esgerente' => false];
     }
 
     function logIn($credenciales = null)
@@ -65,16 +66,15 @@ class Usuario_model extends General_model
             }
 
             $campos = 'a.usuario, a.contrasenia, a.pindesbloqueo, a.usrname, a.nombres, a.apellidos, a.sede, b.empresa, b.nombre as sede_nombre, b.direccion as sede_direccion, b.correo as sede_correo, ';
-            $campos.= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
-            $campos.= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo';
+            $campos .= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
+            $campos .= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo';
             $dbusr = $this->db
-                ->select($campos)
-                ->from('usuario a')
+                ->select($campos)                
                 ->join('sede b', 'b.sede = a.sede')
                 ->join('empresa c', 'c.empresa = b.empresa')
                 ->join('corporacion d', 'd.corporacion = c.corporacion')
                 ->where('debaja', 0)
-                ->get()
+                ->get('usuario a')
                 ->row();
 
             if (isset($dbusr)) {
@@ -86,16 +86,16 @@ class Usuario_model extends General_model
                     $validado = $credenciales['pindesbloqueo'] == $dbusr->pindesbloqueo;
                 }
 
-                if ($validado) {                    
-                    $horasValidezToken = 12;                    
+                if ($validado) {
+                    $horasValidezToken = 12;
                     $horasValidezTokenRow = $this->db->select('valor')->where('campo', 'RT_HORAS_VALIDEZ_TOKEN')->get('configuracion')->row();
-                    if($horasValidezTokenRow && (int)$horasValidezTokenRow->valor > 0) {
+                    if ($horasValidezTokenRow && (int)$horasValidezTokenRow->valor > 0) {
                         $horasValidezToken = (int)$horasValidezTokenRow->valor;
                     }
 
                     $tokenData = array(
                         'idusuario' => $dbusr->usuario,
-                        'sede' => $dbusr->sede,                        
+                        'sede' => $dbusr->sede,
                         'usuario' => $dbusr->usrname,
                         'inicia' => date('Y-m-d H:i:s'),
                         'hasta' => date('Y-m-d H:i:s', strtotime("+{$horasValidezToken} hours")),
@@ -153,8 +153,7 @@ class Usuario_model extends General_model
 
     private function checkUserExists($usr, $sede = 0)
     {
-        if ((int)$sede > 0)
-        {
+        if ((int)$sede > 0) {
             $this->db->where('sede', $sede);
         }
 
@@ -162,7 +161,7 @@ class Usuario_model extends General_model
         $dbusr = $this->db
             ->select('usuario')
             ->from($this->tabla)
-            ->where('usrname', $usr)            
+            ->where('usrname', $usr)
             ->get();
         if ($dbusr->num_rows() > 0) {
             $user = $dbusr->row();
@@ -219,7 +218,7 @@ class Usuario_model extends General_model
             if (array_key_exists('contrasenia', $dataToUpdate)) {
                 $dataToUpdate['contrasenia'] = password_hash($dataToUpdate['contrasenia'], PASSWORD_BCRYPT, array('cost' => 12));
             }
-            
+
             $this->guardar($dataToUpdate);
             return array(
                 'mensaje' => 'Usuario actualizado con éxito.',
@@ -236,7 +235,7 @@ class Usuario_model extends General_model
     function findAll($debaja = 0)
     {
         $headers = $this->input->request_headers();
-        $data = AUTHORIZATION::validateToken($headers['Authorization']);        
+        $data = AUTHORIZATION::validateToken($headers['Authorization']);
 
         if ($debaja !== 3) {
             $this->db->where('debaja', $debaja);
@@ -254,7 +253,7 @@ class Usuario_model extends General_model
     {
         if (count($filtros) > 0) {
             foreach ($filtros as $key => $value) {
-                if($key != '_uno'){                    
+                if ($key != '_uno') {
                     $this->db->where($key, $value);
                 }
             }
@@ -265,7 +264,7 @@ class Usuario_model extends General_model
             ->from($this->tabla)
             ->get();
 
-        if(isset($filtros['_uno'])){
+        if (isset($filtros['_uno'])) {
             return $tmp->row();
         }
 
@@ -275,8 +274,7 @@ class Usuario_model extends General_model
     public function getRolesTurno()
     {
         $turno = $this->db->select('turno')->where('fin IS NULL')->where('sede', $this->sede)->get('turno')->row();
-        if($turno)
-        {
+        if ($turno) {
             $roles = $this->db
                 ->select('b.descripcion')
                 ->join('usuario_tipo b', 'b.usuario_tipo = a.usuario_tipo')
@@ -287,8 +285,7 @@ class Usuario_model extends General_model
                 ->result();
             if ($roles) {
                 $tmp = [];
-                foreach($roles as $r) 
-                {
+                foreach ($roles as $r) {
                     $tmp[] = strtolower($r->descripcion);
                 }
                 return implode(',', $tmp);
@@ -306,10 +303,48 @@ class Usuario_model extends General_model
 
         // Agrego permisos nuevos según el rol asignado
         $query = 'INSERT INTO acceso(usuario, modulo, submodulo, opcion, activo) ';
-        $query.= "SELECT {$idUsuario}, modulo, submodulo, opcion, incluido AS activo ";
-        $query.= 'FROM rol_acceso ';
-        $query.= "WHERE incluido = 1 AND rol = {$idRol} ";
-        $query.= 'ORDER BY modulo, submodulo, opcion';
+        $query .= "SELECT {$idUsuario}, modulo, submodulo, opcion, incluido AS activo ";
+        $query .= 'FROM rol_acceso ';
+        $query .= "WHERE incluido = 1 AND rol = {$idRol} ";
+        $query .= 'ORDER BY modulo, submodulo, opcion';
         $this->db->query($query);
+    }
+
+    public function get_lista_usuarios($fltr = [])
+    {
+        $lista = [];
+        $campos = $this->getCampos(false, '', 'usuario');
+
+        if (isset($fltr['usuario']) && (int)$fltr['usuario'] > 0) {
+            $this->db->where('usuario', (int)$fltr['usuario']);
+        }
+
+        if (isset($fltr['sede']) && (int)$fltr['sede'] > 0) {
+            $this->db->where('sede', (int)$fltr['sede']);
+        }
+
+        if (isset($fltr['debaja']) && (int)$fltr['debaja'] > 0) {
+            $this->db->where('debaja', (int)$fltr['debaja']);
+        }
+
+        if (isset($fltr['rol']) && (int)$fltr['rol'] > 0) {
+            $this->db->where('rol', (int)$fltr['rol']);
+        }
+
+        $tmp = $this->db
+            ->select($campos)
+            ->order_by('usuario')
+            ->get('usuario')
+            ->result();
+
+        foreach ($tmp as $usr) {
+            if (isset($usr->contrasenia)) {
+                unset($usr->contrasenia);
+            }
+
+            $lista[(int)$usr->usuario] = clone $usr;
+        }
+
+        return $lista;
     }
 }

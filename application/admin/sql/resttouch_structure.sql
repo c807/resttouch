@@ -3022,7 +3022,20 @@ ALTER TABLE RT_DATABASE_NAME.turno_tipo ADD INDEX Idx_Activo_ASC (activo ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Descuento_ASC (descuento ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Sinfactura_ASC (sinfactura ASC), ADD INDEX Idx_Esefectivo_ASC (esefectivo ASC), ADD INDEX Idx_Escobrohabitacion_ASC (escobrohabitacion ASC), ADD INDEX Idx_Esabono_ASC (esabono ASC);
 ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Fin_ASC (fin ASC);
-
+ALTER TABLE RT_DATABASE_NAME.ingreso ADD INDEX Idx_Fecha_ASC (fecha ASC), ADD INDEX Idx_Fecha_DESC (fecha DESC);
+ALTER TABLE RT_DATABASE_NAME.correlativo ADD INDEX Idx_tabla_fecha_ASC (tabla ASC, fecha ASC);
+ALTER TABLE RT_DATABASE_NAME.sede ADD INDEX Idx_Nombre_ASC (nombre ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefecto_ASC (sede ASC, pordefecto ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_Pordefectocuenta_ASC (sede ASC, pordefectocuenta ASC);
+ALTER TABLE RT_DATABASE_NAME.impresora ADD INDEX Idx_Sede_pordefectofactura_ASC (sede ASC, pordefectofactura ASC);
+ALTER TABLE RT_DATABASE_NAME.tiempo_entrega ADD INDEX Idx_Descripcion (descripcion ASC);
+ALTER TABLE RT_DATABASE_NAME.area ADD INDEX Idx_Sede_NombreASC (sede ASC, nombre ASC);
+ALTER TABLE RT_DATABASE_NAME.mesa ADD INDEX Idx_Area_Debaja_ASC (area ASC, debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.comanda ADD INDEX Idx_Estatus_ASC (estatus ASC);
+ALTER TABLE RT_DATABASE_NAME.webhook ADD INDEX Idx_Evento_ASC (evento ASC);
+ALTER TABLE RT_DATABASE_NAME.usuario_tipo_categoria_grupo ADD INDEX Idx_Usuario_tipo_Debaja_ASC (usuario_tipo ASC, debaja ASC);
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Activo_Descripcion_ASC (activo ASC, descripcion ASC);
+ALTER TABLE RT_DATABASE_NAME.cliente ADD INDEX Idx_Telefono_ASC (telefono ASC);
 
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN fecha DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER existencia, ADD INDEX Fecha_Idx (fecha ASC);
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN cuc_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER articulo, ADD COLUMN cp_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER costo_ultima_compra;

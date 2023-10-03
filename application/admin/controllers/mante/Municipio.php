@@ -37,7 +37,7 @@ class Municipio extends CI_Controller {
 
 	public function buscar()
 	{	
-		$datos = $this->Municipio_model->buscar($_GET);		
+		$datos = $this->Municipio_model->buscar_municipios($_GET);		
 		$this->output->set_output(json_encode($datos));
 	}
 

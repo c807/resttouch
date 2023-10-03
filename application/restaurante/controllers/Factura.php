@@ -233,7 +233,7 @@ class Factura extends CI_Controller {
 							$resp = $fac->$funcion();
 							$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
 							if (!empty($fac->numero_factura)) {
-								$webhook = $this->Webhook_model->buscar([
+								$webhook = $this->Webhook_model->buscar_webhook([
 									'evento' => 'RTEV_FIRMA_FACTURA',
 									'_uno' => true
 								]);
@@ -419,7 +419,7 @@ class Factura extends CI_Controller {
 						$resp = $fac->$funcion();
 						$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
 						if (!empty($fac->numero_factura)) {
-							$webhook = $this->Webhook_model->buscar([
+							$webhook = $this->Webhook_model->buscar_webhook([
 								'evento' => 'RTEV_FIRMA_FACTURA',
 								'_uno' => true
 							]);
@@ -493,7 +493,7 @@ class Factura extends CI_Controller {
 
 		// $elxml = null;
 
-		$webhook = $this->Webhook_model->buscar([
+		$webhook = $this->Webhook_model->buscar_webhook([
 			'evento' => 'RTEV_FIRMA_FACTURA',
 			'_uno' => true
 		]);
@@ -589,7 +589,7 @@ class Factura extends CI_Controller {
 				$cant    = count($datos['facturas']);
 				$cont    = 0;
 				$fallo   = [];
-				$webhook = $this->Webhook_model->buscar([
+				$webhook = $this->Webhook_model->buscar_webhook([
 					'evento' => 'RTEV_FIRMA_FACTURA',
 					'_uno'   => true
 				]);

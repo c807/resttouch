@@ -22,6 +22,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   public usr: usrLogin;
   public usuario: Usuario;
+  public cargando = false;
 
   private endSubs = new Subscription();
 
@@ -66,6 +67,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   doLogin() {
+    this.cargando = true;
     this.endSubs.add(
       this.usrSrvc.login(this.usr).subscribe((res: usrLogInResponse) => {
         if (res.token) {
@@ -79,8 +81,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open(res.mensaje, 'Login', { duration: 7000 });
         }
+        this.cargando = false;
       }, (error) => {
         console.log(error);
+        this.cargando = false;
       })
     );
   }

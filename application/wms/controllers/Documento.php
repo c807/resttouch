@@ -61,7 +61,7 @@ class Documento extends CI_Controller {
 				if(!empty($datos['data_contable']->cuenta_contable_gasto)) {
 
 					if(!empty($datos['data_contable']->idproveedor)) {
-						$webhook = $this->Webhook_model->buscar(['evento' => 'RTEV_ENVIAR_COMPRA_CONTA', '_uno' => true]);
+						$webhook = $this->Webhook_model->buscar_webhook(['evento' => 'RTEV_ENVIAR_COMPRA_CONTA', '_uno' => true]);
 						if ($webhook) {
 							$this->load->library('Webhook');
 							if (strtolower(trim($webhook->tipo_llamada)) == "soap") {

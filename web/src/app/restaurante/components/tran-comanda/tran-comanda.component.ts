@@ -627,8 +627,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             for (const detimp of p.detalle_impresion) {
               if (+imp.impresora === +detimp.Impresora.impresora) {
                 const detalles = detimp.Nombre.split('|');
-                detalles.forEach((d, i) => {
-                  obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
+                detalles.forEach((d, i) => {                  
+                  // obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
+                  let descripcion = '';
+                  if (i !== 1 && +detimp.Cantidad > 0 && +detimp.Cantidad !== 1) {
+                    descripcion += detimp.Cantidad.toString() + ' ';
+                  }
+                  descripcion += d;
+                  obj.detalle.push(descripcion.trim());
                 })
               }
             }
@@ -933,7 +939,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             const productosAImprimir: ProductoSelected[] = [];
             listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
             // console.log('productosAImprimir = ', productosAImprimir);
-            const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
+            const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);            
             // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
             // await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
             let AImpresoraNormal: ProductoSelected[] = [];
@@ -963,7 +969,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                   });
                 }
 
-                this.socket.emit('print:comanda', `${JSON.stringify({
+                const comandaToPrint = JSON.stringify({
                   Tipo: 'Comanda',
                   Nombre: 'Todas',
                   Numero: this.noComanda,
@@ -975,7 +981,11 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                   NotasGenerales: (meu.notas_generales || ''),
                   EsReimpresion: true,
                   NumeroImpresion: correlativo.siguiente || 1
-                })}`);
+                });
+
+                // console.log('A IMPRIMIR = ', JSON.parse(comandaToPrint));
+
+                this.socket.emit('print:comanda', `${comandaToPrint}`);
                 this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
               } else {
                 this.snackBar.open(`Comanda #${this.noComanda} enviada a cocina`, 'Comanda', { duration: 7000 });

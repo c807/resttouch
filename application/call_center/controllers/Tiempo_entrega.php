@@ -16,12 +16,12 @@ class Tiempo_entrega extends CI_Controller
         if (isset($headers['Authorization'])) {
             $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         }
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function buscar()
-    {
-        $datos = $this->Tiempo_entrega_model->buscar($_GET);
+    {        
+        $datos = $this->Tiempo_entrega_model->buscar_tiempos_entrega($_GET);
         $datos = ordenar_array_objetos($datos, 'orden', 1);
         $this->output->set_output(json_encode($datos));
     }
@@ -31,12 +31,12 @@ class Tiempo_entrega extends CI_Controller
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
             $tiempoEntrega = new Tiempo_entrega_model($id);
-            $req = json_decode(file_get_contents('php://input'), true);
-            $existe = $this->Tiempo_entrega_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);            
+            $req = json_decode(file_get_contents('php://input'), true);            
+            $existe = $this->Tiempo_entrega_model->buscar_tiempos_entrega(['descripcion' => $req['descripcion'], '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $tiempoEntrega->guardar($req);
                 if ($datos['exito']) {
-                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['mensaje'] = 'Datos actualizados con éxito.';
                     $datos['tiempo_entrega'] = $tiempoEntrega;
                 } else {
                     $datos['mensaje'] = $tiempoEntrega->getMensaje();
@@ -45,7 +45,7 @@ class Tiempo_entrega extends CI_Controller
                 $datos['mensaje'] = "'{$req['descripcion']}' ya existe en el listado.";
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }

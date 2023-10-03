@@ -1,6 +1,5 @@
-<div class="row">
-    <div class="col m3 s1"></div>
-    <div class="col m6 s10 topMargin">
+<div class="row">    
+    <div class="col m12 s12 topMargin" align="center">
         <mat-card class="example-card">
             <img id="imgLogo" mat-card-image src="/assets/img/logo.svg" alt="Rest-Touch">
             <mat-card-content>
@@ -19,6 +18,11 @@
                 <button id="btnLogin" mat-flat-button type="button" color="accent" (click)="doLogin()" [disabled]="!frmLogIn.form.valid || !isOnline">Ingresar</button>
             </mat-card-actions>            
         </mat-card>
+    </div>    
+</div>
+<div class="row" *ngIf="cargando">
+    <div class="col m12 s12" align="center">
+        <h4>Revisando las credenciales...</h4>
+        <app-cargando></app-cargando>
     </div>
-    <div class="col m3 s1"></div>
 </div>

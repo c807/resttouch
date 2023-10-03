@@ -34,6 +34,11 @@
         <form #frmConteoFisico="ngForm" (ngSubmit)="frmConteoFisico.form.valid && actualizar()" novalidate autocomplete="off">
 
           <table class="tbl tblInventarioFisico">
+            <caption>
+              <h5>
+                NOTA: Los cálculos están realizados desde el punto de vista del sistema. Eso significa que si la diferencia es de color <span class="hay-diferencia-ingreso">verde</span>, el sistema realizará un ingreso y si es de color <span class="hay-diferencia">rojo</span>, el sistema hará un egreso y si está en negro, es porque el sistema no hará ningún movimiento.
+              </h5>
+            </caption>
             <thead>
               <tr>
                 <th>Artículo</th>
@@ -69,7 +74,7 @@
                       </mat-form-field>
                       <strong *ngIf="+inventario.confirmado === 1">{{art.existencia_fisica | number:'1.2-2'}}</strong>
                     </td>
-                    <td class="rtxt bld" style="width: 15%;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)" [ngClass]="{'hay-diferencia': (+art.existencia_sistema - +art.existencia_fisica) !== 0}">
+                    <td class="rtxt bld" style="width: 15%;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)" [ngClass]="{'hay-diferencia': (+art.existencia_sistema - +art.existencia_fisica) > 0, 'hay-diferencia-ingreso': (+art.existencia_sistema - +art.existencia_fisica) < 0}">
                       {{(+art.existencia_sistema - +art.existencia_fisica) | number:'1.2-2' }}
                     </td>
                   </tr>

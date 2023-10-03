@@ -54,7 +54,7 @@ class Mesa extends CI_Controller {
 		$datos = $this->Mesa_model->buscar($_GET);
 		if (isset($_GET['_fulldata']) && (int)$_GET['_fulldata'] === 1) {			
 			foreach ($datos as $k => $dato) {
-				$dato->area = $this->Area_model->buscar(['area' => $dato->area, '_uno' => true]);
+				$dato->area = $this->Area_model->get_lista(['area' => $dato->area, '_uno' => true]);
 				$dato->tipo_habitacion = $this->Tipo_habitacion_model->buscar(['tipo_habitacion' => $dato->tipo_habitacion, '_uno' => true]);
 				$dato->ordenar_por = $dato->area->nombre.'-'.($dato->etiqueta ?? $dato->numero);
 

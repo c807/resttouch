@@ -502,6 +502,7 @@ class Cuenta_model extends General_Model
 			->join('cuenta e', 'e.cuenta = a.cuenta_cuenta', isset($args['_esreceta']) ? 'left' : '')
 			->join('impresora f', 'f.impresora = d.impresora', 'left')
 			->where('b.cantidad >', 0)
+			->order_by('b.comanda, b.detalle_comanda')
 			->get('detalle_cuenta a')
 			->result();
 
