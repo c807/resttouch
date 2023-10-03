@@ -208,7 +208,12 @@ class General_model extends CI_Model
 		$isRtDatabase = (strcasecmp('administracion', $database) != 0 && strcasecmp(substr($database, 0, 3), 'rt_') == 0);
 
 		if ($isAdministracion || $isRtDatabase) {
-			$query = "SHOW COLUMNS FROM $database.$tabla";
+			if (!$isAdministracion && $isRtDatabase) {
+				if(strcasecmp(substr($database, 0, 3), 'rt_') == 0 && strcasecmp(substr($tabla, 0, 14), 'administracion') == 0) {
+					$database = '';
+				}
+			}
+			$query = 'SHOW COLUMNS FROM '.$database.(!empty($database) ? '.' : '').$tabla;
 			$columnas = $this->db->query($query)->result();
 			$campos = [];
 
