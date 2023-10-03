@@ -69,13 +69,12 @@ class Usuario_model extends General_model
             $campos .= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
             $campos .= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo';
             $dbusr = $this->db
-                ->select($campos)
-                ->from('usuario a')
+                ->select($campos)                
                 ->join('sede b', 'b.sede = a.sede')
                 ->join('empresa c', 'c.empresa = b.empresa')
                 ->join('corporacion d', 'd.corporacion = c.corporacion')
                 ->where('debaja', 0)
-                ->get()
+                ->get('usuario a')
                 ->row();
 
             if (isset($dbusr)) {

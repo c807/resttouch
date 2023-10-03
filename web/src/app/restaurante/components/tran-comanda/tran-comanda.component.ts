@@ -627,8 +627,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             for (const detimp of p.detalle_impresion) {
               if (+imp.impresora === +detimp.Impresora.impresora) {
                 const detalles = detimp.Nombre.split('|');
-                detalles.forEach((d, i) => {
-                  obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
+                detalles.forEach((d, i) => {                  
+                  // obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
+                  let descripcion = '';
+                  if (i !== 1 && +detimp.Cantidad > 0 && +detimp.Cantidad !== 1) {
+                    descripcion += detimp.Cantidad.toString() + ' ';
+                  }
+                  descripcion += d;
+                  obj.detalle.push(descripcion.trim());
                 })
               }
             }
@@ -977,7 +983,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                   NumeroImpresion: correlativo.siguiente || 1
                 });
 
-                // console.log(comandaToPrint);
+                // console.log('A IMPRIMIR = ', JSON.parse(comandaToPrint));
 
                 this.socket.emit('print:comanda', `${comandaToPrint}`);
                 this.snackBar.open(`Imprimiendo comanda #${this.noComanda}`, 'Comanda', { duration: 7000 });
