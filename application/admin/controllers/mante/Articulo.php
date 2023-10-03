@@ -17,7 +17,8 @@ class Articulo extends CI_Controller
 			'Categoria_model',
 			'Cgrupo_model',
 			'Bitacora_model',
-			'Accion_model'
+			'Accion_model',
+			'Schema_model', 'Catalogo_model', 'Sede_model', 'Bodega_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -965,8 +966,7 @@ class Articulo extends CI_Controller
 			if (isset($req['skip']) && is_string($req['skip']) && !empty($req['skip'])) {
 				$skip = explode(',', $req['skip']);
 			}
-
-			$this->load->model(['Schema_model', 'Catalogo_model', 'Sede_model', 'Bodega_model']);
+						
 			$esquemas = $this->Schema_model->get_schemas();
 			$esquemasActualizados = [];
 			$sedesActualizadas = [];
