@@ -48,17 +48,41 @@ class Articulo_model extends General_model
 
 	public function getCategoriaGrupo()
 	{
+		$campos = $this->getCampos(false, 'a.', 'categoria_grupo');
 		return $this->db
-			->select('a.*, b.descripcion as ncategoria, b.sede')
+			->select("{$campos}, b.descripcion as ncategoria, b.sede")
 			->where('categoria_grupo', $this->categoria_grupo)
-			->join('categoria b', 'a.categoria = b.categoria')
+			->join('categoria b', 'b.categoria = a.categoria')
 			->get('categoria_grupo a')
 			->row();
 	}
 
+	public function getListaCategoriaGrupo($args = [])
+	{
+		$campos = $this->getCampos(false, 'a.', 'categoria_grupo');
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('b.sede', (int)$args['sede']);
+		}
+
+		$tmp = $this->db
+			->select("{$campos}, b.descripcion as ncategoria, b.sede")
+			->join('categoria b', 'b.categoria = a.categoria')
+			->get('categoria_grupo a')
+			->result();
+
+		$lista = [];
+		foreach($tmp as $item) {
+			$lista[(int)$item->categoria_grupo] = clone $item;
+		}
+		return $lista;
+	}
+
 	public function getPresentacion()
 	{
+		$campos = $this->getCampos(false, '', 'presentacion');
 		return $this->db
+			->select($campos)
 			->where('presentacion', $this->presentacion)
 			->get('presentacion')
 			->row();
@@ -66,7 +90,9 @@ class Articulo_model extends General_model
 
 	public function getPresentacionReporte()
 	{
+		$campos = $this->getCampos(false, '', 'presentacion');
 		return $this->db
+			->select($campos)
 			->where('presentacion', $this->presentacion_reporte)
 			->get('presentacion')
 			->row();

@@ -106,12 +106,21 @@ class Articulo extends CI_Controller
 		$datos = [];
 		$tmp = $this->Articulo_model->buscar($args);
 
+		$listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+
+		$fltr = [];
+		// if (isset($args['_sede'])) {
+		// 	$fltr['sede'] = $args['_sede'];
+		// }
+		$listaCategoriasGrupo = $this->Articulo_model->getListaCategoriaGrupo($fltr);
+
 		if (is_array($tmp)) {
 			foreach ($tmp as $row) {
-				$art = new Articulo_model($row->articulo);
-				$row->categoria_grupo = $art->getCategoriaGrupo();
-				$row->presentacion = $art->getPresentacion();
-				$row->presentacion_reporte = $art->getPresentacionReporte();
+				// $art = new Articulo_model($row->articulo);
+				// $row->categoria_grupo = $art->getCategoriaGrupo();				
+				$row->categoria_grupo = $listaCategoriasGrupo[(int)$row->categoria_grupo];
+				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];				
+				$row->presentacion_reporte = $listaPresentaciones[(int)$row->presentacion_reporte];
 				$row->usuariobaja = !empty($row->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $row->usuariobaja, '_uno' => true]) : $row->usuariobaja;
 
 				if ($row->usuariobaja && isset($row->usuariobaja->contrasenia)) {
@@ -127,10 +136,11 @@ class Articulo extends CI_Controller
 				}
 			}
 		} else if (is_object($tmp)) {
-			$art = new Articulo_model($tmp->articulo);
-			$tmp->categoria_grupo = $art->getCategoriaGrupo();
-			$tmp->presentacion = $art->getPresentacion();
-			$tmp->presentacion_reporte = $art->getPresentacionReporte();
+			// $art = new Articulo_model($tmp->articulo);
+			// $tmp->categoria_grupo = $art->getCategoriaGrupo();			
+			$tmp->categoria_grupo = $listaCategoriasGrupo[(int)$tmp->categoria_grupo];
+			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];			
+			$tmp->presentacion_reporte = $listaPresentaciones[(int)$tmp->presentacion_reporte];
 			$tmp->usuariobaja = !empty($tmp->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $tmp->usuariobaja, '_uno' => true]) : $tmp->usuariobaja;
 
 			if ($tmp->usuariobaja && isset($tmp->usuariobaja->contrasenia)) {

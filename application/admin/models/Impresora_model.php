@@ -43,6 +43,15 @@ class Impresora_model extends General_model {
 		return $this->db->select($campos)->get('impresora')->result();
 	}
 
+	public function get_lista_impresoras($args = [])
+	{
+		$lista = [];
+		$tmp = $this->get_lista($args);
+		foreach($tmp as $imp) {
+			$lista[(int)$imp->impresora] = clone $imp;
+		}
+		return $lista;
+	}
 }
 
 /* End of file Impresora_model.php */

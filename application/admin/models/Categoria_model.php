@@ -11,10 +11,10 @@ class Categoria_model extends General_Model
 	public $fechabaja = null;
 	public $usuariobaja = null;
 
-	public function __construct($id = "")
+	public function __construct($id = '')
 	{
 		parent::__construct();
-		$this->setTabla("categoria");
+		$this->setTabla('categoria');
 
 		if (!empty($id)) {
 			$this->cargar($id);
@@ -24,7 +24,7 @@ class Categoria_model extends General_Model
 	public function dar_de_baja_subcategorias_articulos()
 	{
 		$subcategorias = $this->db
-			->select("GROUP_CONCAT(categoria_grupo SEPARATOR ',') AS subcategorias")
+			->select('GROUP_CONCAT(categoria_grupo SEPARATOR ",") AS subcategorias')
 			->where('categoria', $this->getPK())
 			->get('categoria_grupo')
 			->row();
@@ -41,6 +41,35 @@ class Categoria_model extends General_Model
 				$tmpSc->guardar();
 			}			
 		}
+	}
+
+	public function buscar_categorias($args = [])
+	{
+		$campos = $this->getCampos(false, '', 'categoria');
+
+		if (isset($args['categoria']) && (int)$args['categoria'] > 0) {
+			$this->db->where('categoria', $args['categoria']);
+		}
+
+		if (isset($args['descripcion']) && is_string($args['descripcion'])) {
+			$this->db->where('descripcion', $args['descripcion']);
+		}
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('sede', $args['sede']);
+		}
+
+		if (isset($args['debaja']) && in_array((int)$args['debaja'], [0, 1])) {
+			$this->db->where('debaja', $args['debaja']);
+		}
+		
+		$tmp = $this->db->select($campos)->get('categoria');
+
+		if (isset($args['_uno'])) {
+			return $tmp->row();
+		}
+
+		return $tmp->result();		
 	}
 }
 

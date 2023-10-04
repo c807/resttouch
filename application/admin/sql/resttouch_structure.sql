@@ -3036,6 +3036,8 @@ ALTER TABLE RT_DATABASE_NAME.webhook ADD INDEX Idx_Evento_ASC (evento ASC);
 ALTER TABLE RT_DATABASE_NAME.usuario_tipo_categoria_grupo ADD INDEX Idx_Usuario_tipo_Debaja_ASC (usuario_tipo ASC, debaja ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Activo_Descripcion_ASC (activo ASC, descripcion ASC);
 ALTER TABLE RT_DATABASE_NAME.cliente ADD INDEX Idx_Telefono_ASC (telefono ASC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Turno_DESC (turno DESC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Inicio_ASC (inicio ASC), ADD INDEX Idx_Inicio_Sede_ASC (sede ASC, inicio ASC);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
