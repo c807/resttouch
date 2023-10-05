@@ -877,6 +877,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   }
 
   convertToProductoSelected = (p: DetalleCuentaSimplified): ProductoSelected => {
+    // console.log('CONVERTIR A PRODUCTO SELECTED = ', p);
     const montExt = (p.detalle.length === 0 ? 0 : this.getMontoExtra(p.detalle));
     const obj: ProductoSelected = {
       id: +p.articulo,
@@ -934,7 +935,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       this.comandaSrvc.obtenerDetalleCuenta({ comanda: meu.comanda, impreso: 0 }).subscribe(async (res) => {
         if (res.length > 0) {
           // const listaProductos = res.filter(r => +r.cuenta_cuenta === +cta.cuenta);
-          const listaProductos = JSON.parse(JSON.stringify(res));
+          // const listaProductos = JSON.parse(JSON.stringify(res));
+          const listaProductos = [...res];
           if (listaProductos.length > 0) {
             const productosAImprimir: ProductoSelected[] = [];
             listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));

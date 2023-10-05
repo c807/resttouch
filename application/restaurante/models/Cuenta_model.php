@@ -503,8 +503,8 @@ class Cuenta_model extends General_Model
 			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo', isset($args['_esreceta']) ? 'left' : '')
 			->join('cuenta e', 'e.cuenta = a.cuenta_cuenta', isset($args['_esreceta']) ? 'left' : '')
 			->join('impresora f', 'f.impresora = d.impresora', 'left')
-			->where('b.cantidad >', 0)
-			->order_by('b.comanda, b.detalle_comanda')
+			->where('b.cantidad >', 0)			
+			->order_by('b.comanda, b.cantidad, b.detalle_comanda')
 			->get('detalle_cuenta a')
 			->result();
 
