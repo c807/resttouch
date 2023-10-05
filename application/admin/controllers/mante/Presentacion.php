@@ -6,21 +6,21 @@ class Presentacion extends CI_Controller {
 	public function __construct()
 	{
         parent::__construct();
-        $this->load->model('Presentacion_model');
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->load->model(['Presentacion_model', 'Umedida_model']);
+        $this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 	}
 
-	public function guardar($id = "") 
+	public function guardar($id = '') 
 	{
 		$presentacion = new Presentacion_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 
-			$existe = $this->Presentacion_model->buscar(['TRIM(UPPER(descripcion))' => trim(strtoupper($req['descripcion']))]);
+			$existe = $this->Presentacion_model->buscar_presentaciones(['descripcion' => $req['descripcion']]);
 			if (!$existe || !empty($id)) {
 
 				if ((int)$req['debaja'] === 1) {
@@ -31,16 +31,16 @@ class Presentacion extends CI_Controller {
 				$datos['exito'] = $presentacion->guardar($req);
 	
 				if($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['presentacion'] = $presentacion;
 				} else {
 					$datos['mensaje'] = $presentacion->getMensaje();
 				}	
 			} else {
-				$datos['mensaje'] = "Ya hay una presentación con ese nombre.";
+				$datos['mensaje'] = 'Ya hay una presentación con ese nombre.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output->set_output(json_encode($datos));
@@ -48,23 +48,20 @@ class Presentacion extends CI_Controller {
 
 	public function buscar()
 	{
-		$tmp = $this->Presentacion_model->buscar($_GET);
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$tmp = $this->Presentacion_model->buscar_presentaciones($_GET);
 		$datos = [];
 		if(is_array($tmp)) {
-			foreach ($tmp as $row) {
-				$pres = new Presentacion_model($row->presentacion);
-				$row->medida = $pres->getMedida();
+			foreach ($tmp as $row) {				
+				$row->medida = $listaMedidas[(int)$row->medida];
 				$datos[] = $row;
 			}
 			$datos = ordenar_array_objetos($datos, 'descripcion');
-		} else if($tmp){
-			$pres = new Presentacion_model($tmp->presentacion);
-			$tmp->medida = $pres->getMedida();
+		} else if($tmp){			
+			$tmp->medida = $listaMedidas[(int)$tmp->medida];
 			$datos[] = $tmp;
 		}
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 }

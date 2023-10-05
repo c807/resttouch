@@ -256,32 +256,15 @@ class Catalogo_model extends CI_Model
 
 		if (is_array($tmp)) {
 			$datos = [];
-			foreach ($tmp as $row) {
-				// $row->impresora = $this->db
-				// 	->select('b.*')
-				// 	->join('impresora b', 'b.impresora = a.impresora')
-				// 	->where('a.categoria_grupo', $row->categoria_grupo)
-				// 	->get('categoria_grupo a')
-				// 	->row();
-				$row->impresora = $listaImpresoras[(int)$row->impresora_subcategoria];
-
-				// $row->presentacion = $this->db->where('presentacion', $row->presentacion)->get('presentacion')->row();
+			foreach ($tmp as $row) {				
+				$row->impresora = array_key_exists((int)$row->impresora_subcategoria, $listaImpresoras) ? $listaImpresoras[(int)$row->impresora_subcategoria] : null;				
 				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];
 
 				$datos[] = $row;
 			}
 			$tmp = $datos;
-		} else if ($tmp) {
-			// $tmp->impresora = $this->db
-			// 	->select('b.*')
-			// 	->join('impresora b', 'b.impresora = a.impresora')
-			// 	->where('a.categoria_grupo', $tmp->categoria_grupo)
-			// 	->get('categoria_grupo a')
-			// 	->row();
-			$tmp->impresora = $listaImpresoras[(int)$tmp->impresora_subcategoria];
-			
-
-			// $tmp->presentacion = $this->db->where('presentacion', $tmp->presentacion)->get('presentacion')->row();
+		} else if ($tmp) {			
+			$tmp->impresora = array_key_exists((int)$tmp->impresora_subcategoria, $listaImpresoras) ? $listaImpresoras[(int)$tmp->impresora_subcategoria] : null;					
 			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];
 		}
 

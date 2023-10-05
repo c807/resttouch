@@ -30,16 +30,22 @@ class Comanda_model extends General_Model
     public $esevento = 0;
     public $reserva = null;
 
+    private $_listaPresentaciones = null;
+    private $_listaBodegaArticulo = null;    
+    private $_listaMedidas = null;
+
     public function __construct($id = '')
     {
         parent::__construct();
-        $this->setTabla("comanda");
+        $this->setTabla('comanda');
 
         if (!empty($id)) {
             $this->cargar($id);
         } else {
             $this->fhcreacion = date('Y-m-d H:i:s');
-        }        
+        }
+
+        $this->load->model(['Presentacion_model', 'Umedida_model']);                
     }
 
     public function getMesas()
@@ -57,9 +63,9 @@ class Comanda_model extends General_Model
     public function setMesa($mesa)
     {
         $this->db
-            ->set("comanda", $this->comanda)
-            ->set("mesa", $mesa)
-            ->insert("comanda_has_mesa");
+            ->set('comanda', $this->comanda)
+            ->set('mesa', $mesa)
+            ->insert('comanda_has_mesa');
 
         return $this->db->affected_rows() > 0;
     }
@@ -69,18 +75,19 @@ class Comanda_model extends General_Model
         $cuenta = new Cuenta_model($idcta);
         $combo = new Articulo_model($articulo);
         $precio = ($precio !== null) ? $precio : $combo->precio;
-        $bodega = $combo->getBodega();
+        // $bodega = $combo->getBodega();
+        $bodega = $this->_listaBodegaArticulo[(int)$combo->articulo];
 
         $esHijoNoMultipleCobrable = (int)$combo->multiple === 0 && (int)$combo->combo === 0 && $padre !== null && $precio !== null;
 
         $args = [
-            "articulo" => $combo->getPK(),
-            "cantidad" => $cantidad,
-            "notas" => "",
-            "precio" => $precio,
-            "total" => (is_null($cantidadPadre) || $esHijoNoMultipleCobrable) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
-            "detalle_comanda_id" => $padre,
-            "bodega" => $bodega ? $bodega->bodega : null
+            'articulo' => $combo->getPK(),
+            'cantidad' => $cantidad,
+            'notas' => '',
+            'precio' => $precio,
+            'total' => (is_null($cantidadPadre) || $esHijoNoMultipleCobrable) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
+            'detalle_comanda_id' => $padre,
+            'bodega' => $bodega ? $bodega->bodega : null
         ];
         $det = $this->guardarDetalle($args);
         if ($det) {
@@ -114,6 +121,9 @@ class Comanda_model extends General_Model
     public function guardarDetalleCombo($args = [], $cuenta)
     {
         // set_time_limit(600);
+        $this->_listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+        $this->_listaBodegaArticulo = $this->Articulo_model->getListaBodegaArticulo();
+        $this->_listaMedidas = $this->Umedida_model->get_lista_medidas();
         $art = new Articulo_model($args['articulo']);
         if (!isset($args['cantidad'])) {
             $args['cantidad'] = 1;
@@ -128,7 +138,7 @@ class Comanda_model extends General_Model
 
         if ($combo) {
             foreach ($args['receta'] as $rec) {
-                $receta = $art->getReceta(["articulo" => $rec['articulo'], "_uno" => true]);
+                $receta = $art->getReceta(['articulo' => $rec['articulo'], '_uno' => true], $this->_listaMedidas);
 
                 $artMulti = new Articulo_model($rec['articulo']);
                 $multi = $this->setDetalle($rec['articulo'], $cuenta, $combo->detalle_comanda, $receta[0]->precio, (float)$args['cantidad'] * (float)$receta[0]->cantidad);
@@ -138,7 +148,7 @@ class Comanda_model extends General_Model
                 }
 
                 foreach ($rec['receta'] as $seleccion) {
-                    $recetaSelec = $artMulti->getReceta(["articulo" => $seleccion['articulo'], "_uno" => true]);
+                    $recetaSelec = $artMulti->getReceta(['articulo' => $seleccion['articulo'], '_uno' => true], $this->_listaMedidas);
 
                     $precio = $recetaSelec[0]->precio;
 
@@ -158,8 +168,7 @@ class Comanda_model extends General_Model
     }
 
     public function guardarDetalle(array $args)
-    {
-        // $config = $this->Configuracion_model->buscar();
+    {        
         $config = $this->Configuracion_model->buscar_configuraciones();
         $vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
         $id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
@@ -201,18 +210,18 @@ class Comanda_model extends General_Model
                 }
             }
         }
-        $art = new Articulo_model($articulo);
-        $pres = $art->getPresentacion();
+        $art = new Articulo_model($articulo);        
+        $pres = $this->_listaPresentaciones ? $this->_listaPresentaciones[(int)$art->presentacion] : $art->getPresentacion();
         $args['presentacion'] = $art->presentacion;
-        $bodega = $art->getBodega();
+        // $bodega = $art->getBodega();
+        $bodega = $this->_listaBodegaArticulo ? $this->_listaBodegaArticulo[(int)$art->articulo] : $art->getBodega();
         $args['bodega'] = $bodega ? $bodega->bodega : null;
         $cantPres = ($pres) ? $pres->cantidad : 0;
 
         $oldart = new Articulo_model($det->articulo);
 
         if (!empty($menu) && !$vnegativo) {
-            $art->actualizarExistencia(['bodega' => $args['bodega']]);
-            // $art->existencias = $art->get_existencia_bodega(['bodega' => $args['bodega']]);
+            $art->actualizarExistencia(['bodega' => $args['bodega']]);            
         }
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
@@ -231,19 +240,11 @@ class Comanda_model extends General_Model
             $nuevo = ($det->getPK() == null);
             $result = $det->guardar($args);
             $idx = $det->getPK();
-            $receta = $art->getReceta();
+            $receta = $art->getReceta([], $this->_listaMedidas);
 
-            // if(!empty($menu) && (int)$art->mostrar_inventario === 1) {
-            // 	$art->existencias = (float)$art->existencias - ((float)$cantidad * (float)$cantPres);
-            // 	$art->guardar();
-            // 	$art->actualiza_existencia_bodega_articulo_costo($args['bodega']);
-            // }
-
-            if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
-                // if ((int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
-                // $at->guardar_receta_en_comanda($this->getPK(), $idx, $art->getPK(), isset($args['regresa_inventario']) ? ($args['regresa_inventario'] ? 1 : 0) : 1);
+            if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {                
                 foreach ($receta as $rec) {
-                    $presR = $this->Presentacion_model->buscar([
+                    $presR = $this->Presentacion_model->buscar_presentaciones([
                         'medida' => $rec->medida->medida,
                         'cantidad' => 1,
                         '_uno' => true
@@ -261,7 +262,8 @@ class Comanda_model extends General_Model
                     }
 
                     $artR = new Articulo_model($rec->articulo->articulo);
-                    $bodegaR = $artR->getBodega();
+                    // $bodegaR =  $artR->getBodega();
+                    $bodegaR = $this->_listaBodegaArticulo ? $this->_listaBodegaArticulo[(int)$artR->articulo] : $artR->getBodega();
 
                     // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
                     $costo_unitario_rec = 0;
@@ -293,8 +295,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
-                // $at->actualiza_cantidad_hijos($det->getPK(), isset($args['regresa_inventario']) ? ($args['regresa_inventario'] ? 1 : 0) : 1);
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);                
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -396,7 +397,7 @@ class Comanda_model extends General_Model
 
             if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
                 foreach ($receta as $rec) {
-                    $presR = $this->Presentacion_model->buscar([
+                    $presR = $this->Presentacion_model->buscar_presentaciones([
                         'medida' => $rec->medida->medida,
                         'cantidad' => 1,
                         '_uno' => true
@@ -538,7 +539,7 @@ class Comanda_model extends General_Model
         foreach ($tmp as $row) {
             $cta = new Cuenta_model($row->cuenta);
             $buscar = $args;
-            if (isset($args["_numero"])) {
+            if (isset($args['_numero'])) {
                 $buscar['numero'] = $args['_numero'];
             }
 
@@ -563,9 +564,9 @@ class Comanda_model extends General_Model
         $campos = $this->getCampos(false, 't.', 'turno');
         return $this->db
             ->select("a.comanda, a.usuario, a.sede, a.estatus, a.domicilio, {$campos}")
-            ->where("a.comanda", $this->comanda)
-            ->join("turno t", "a.turno = t.turno")
-            ->get("comanda a")
+            ->where('a.comanda', $this->comanda)
+            ->join('turno t', 'a.turno = t.turno')
+            ->get('comanda a')
             ->row();
     }
 
@@ -574,7 +575,7 @@ class Comanda_model extends General_Model
         if (!$idEstatusCC || !((int)$idEstatusCC > 0)) {
             $idEstatusCC = (int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : 0;
         }
-        return $this->db->select('estatus_callcenter, descripcion, color, orden, pedir_repartidor, esultimo')->where('estatus_callcenter', $idEstatusCC)->get("estatus_callcenter")->row();
+        return $this->db->select('estatus_callcenter, descripcion, color, orden, pedir_repartidor, esultimo')->where('estatus_callcenter', $idEstatusCC)->get('estatus_callcenter')->row();
     }
 
     private function buscar_en_lista($lista, $campo, $valor, $single = true, $asNumero = true)
@@ -630,15 +631,15 @@ class Comanda_model extends General_Model
                 $area->impresora_factura = $this->buscar_en_lista($args['_lstImpresoras'], 'impresora', $area->impresora_factura);
                 $mesa->impresora = $this->buscar_en_lista($args['_lstImpresoras'], 'impresora', $mesa->impresora);
             } else {
-                $area->impresora = $this->Impresora_model->buscar(['impresora' => $area->impresora, "_uno" => true]);
-                $area->impresora_factura = $this->Impresora_model->buscar(['impresora' => $area->impresora_factura, "_uno" => true]);
-                $mesa->impresora = $this->Impresora_model->buscar(['impresora' => $mesa->impresora, "_uno" => true]);
+                $area->impresora = $this->Impresora_model->buscar(['impresora' => $area->impresora, '_uno' => true]);
+                $area->impresora_factura = $this->Impresora_model->buscar(['impresora' => $area->impresora_factura, '_uno' => true]);
+                $mesa->impresora = $this->Impresora_model->buscar(['impresora' => $mesa->impresora, '_uno' => true]);
             }
             $mesa->area = $area;
             $tmp->mesa = $mesa;
         }
         $buscar = $args;
-        if (isset($args["_numero"])) {
+        if (isset($args['_numero'])) {
             $buscar['numero'] = $args['_numero'];
             $tmp->numero = $args['_numero'];
         }
@@ -666,25 +667,25 @@ class Comanda_model extends General_Model
             $tmp->tiempo_preparacion = $det[0]->tiempo_preparacion;
             $tmp->fecha_proceso = $det[0]->fecha_proceso;
         } else {
-            $tmp->tiempo_preparacion = "00:00:00";
-            $tmp->fecha_proceso = "00:00:00";
+            $tmp->tiempo_preparacion = '00:00:00';
+            $tmp->fecha_proceso = '00:00:00';
         }
 
         $turno = new Turno_model($tmp->turno);
 
         $tmpMesero = new Usuario_model($this->mesero);
         $tmp->mesero = [
-            "usuario" => $tmpMesero->getPK(),
-            "nombres" => $tmpMesero->nombres,
-            "apellidos" => $tmpMesero->apellidos
+            'usuario' => $tmpMesero->getPK(),
+            'nombres' => $tmpMesero->nombres,
+            'apellidos' => $tmpMesero->apellidos
         ];
 
         $tmp->turno_rol = [];
 
-        if (isset($args["_usuario"])) {
-            $usuariosTurno = $turno->getUsuarios(['usuario' => $args["_usuario"]]);
+        if (isset($args['_usuario'])) {
+            $usuariosTurno = $turno->getUsuarios(['usuario' => $args['_usuario']]);
             foreach ($usuariosTurno as $row) {
-                if ($row->usuario->usuario == $args["_usuario"]) {
+                if ($row->usuario->usuario == $args['_usuario']) {
                     $tmp->turno_rol[] = $row->usuario_tipo->descripcion;
                 }
             }
@@ -846,14 +847,14 @@ class Comanda_model extends General_Model
     public function getFactura()
     {
         $tmp = $this->db
-            ->select("a.factura")
-            ->from("factura a")
-            ->join("detalle_factura b", "a.factura = b.factura")
-            ->join("detalle_factura_detalle_cuenta c", "b.detalle_factura = c.detalle_factura")
-            ->join("detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta")
-            ->join("cuenta e", "e.cuenta = d.cuenta_cuenta")
-            ->where("e.comanda", $this->getPK())
-            ->group_by("a.factura")
+            ->select('a.factura')
+            ->from('factura a')
+            ->join('detalle_factura b', 'a.factura = b.factura')
+            ->join('detalle_factura_detalle_cuenta c', 'b.detalle_factura = c.detalle_factura')
+            ->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+            ->join('cuenta e', 'e.cuenta = d.cuenta_cuenta')
+            ->where('e.comanda', $this->getPK())
+            ->group_by('a.factura')
             ->get()
             ->row();
 
@@ -869,18 +870,18 @@ class Comanda_model extends General_Model
     public function getComandaOrigen()
     {
         return $this->Catalogo_model->getComandaOrigen([
-            "_uno" => true,
-            "comanda_origen" => $this->comanda_origen
+            '_uno' => true,
+            'comanda_origen' => $this->comanda_origen
         ]);
     }
 
     public function getOrigenDatos()
     {
         $datos = [
-            "nombre" => "",
-            "numero_orden" => "",
-            "metodo_pago" => [],
-            "direccion_entrega" => new StdClass,
+            'nombre' => '',
+            'numero_orden' => '',
+            'metodo_pago' => [],
+            'direccion_entrega' => new StdClass,
             'fhcreacion' => ''
         ];
 
@@ -888,7 +889,7 @@ class Comanda_model extends General_Model
             $json = json_decode($this->comanda_origen_datos);
             $origen = $this->getComandaOrigen();
 
-            $datos["nombre"] = $origen->descripcion;
+            $datos['nombre'] = $origen->descripcion;
 
             if ((int)$this->orden_gk > 0) {
                 $datos['numero_orden'] = $json->numero_orden;
@@ -905,8 +906,8 @@ class Comanda_model extends General_Model
             } else {
                 $nombre = strtolower(trim($origen->descripcion));
                 if ($nombre == 'shopify') {
-                    $datos["numero_orden"] = isset($json->order_number) ? $json->order_number : '';
-                    $datos["metodo_pago"] = isset($json->payment_gateway_names) ? $json->payment_gateway_names : '';
+                    $datos['numero_orden'] = isset($json->order_number) ? $json->order_number : '';
+                    $datos['metodo_pago'] = isset($json->payment_gateway_names) ? $json->payment_gateway_names : '';
                     $datos['fhcreacion'] = isset($json->created_at) ? $json->created_at : '';
 
                     $dataCliente = new stdClass();
@@ -928,8 +929,8 @@ class Comanda_model extends General_Model
                     $datos['direccion_entrega']->Telefono = isset($dataCliente->phone) ? ($dataCliente->phone) : '';
                     $datos['direccion_entrega']->Correo = isset($json->contact_email) ? $json->contact_email : '';
                 } else if ($nombre == 'api') {
-                    $datos["numero_orden"] = isset($json->numero_orden) ? $json->numero_orden : '';
-                    $datos["metodo_pago"] = isset($json->metodo_pago) ? $json->metodo_pago : '';
+                    $datos['numero_orden'] = isset($json->numero_orden) ? $json->numero_orden : '';
+                    $datos['metodo_pago'] = isset($json->metodo_pago) ? $json->metodo_pago : '';
                     if (isset($json->transferencia)) {
                         $datos['transferencia'] = $json->transferencia;
                     }
@@ -950,19 +951,19 @@ class Comanda_model extends General_Model
     public function getComandasAbiertas($args = [])
     {
         $tmp = $this->db
-            ->select("a.comanda")
-            ->from("comanda a")
-            ->join("detalle_comanda b", "a.comanda = b.comanda")
-            ->join("detalle_cuenta c", "b.detalle_comanda = c.detalle_comanda")
-            ->join("detalle_factura_detalle_cuenta d", "c.detalle_cuenta = d.detalle_cuenta", "left")
-            ->join("detalle_factura e", "e.detalle_factura = d.detalle_factura", "left")
-            ->join("factura f", "f.factura = e.factura", "left")
-            ->where("a.turno", $args['turno'])
-            ->where("f.factura is null")
-            ->where("b.cantidad > 0")
-            ->where("b.total > 0")
-            ->where("b.precio > 0")
-            ->group_by("a.comanda")
+            ->select('a.comanda')
+            ->from('comanda a')
+            ->join('detalle_comanda b', 'a.comanda = b.comanda')
+            ->join('detalle_cuenta c', 'b.detalle_comanda = c.detalle_comanda')
+            ->join('detalle_factura_detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta', 'left')
+            ->join('detalle_factura e', 'e.detalle_factura = d.detalle_factura', 'left')
+            ->join('factura f', 'f.factura = e.factura', 'left')
+            ->where('a.turno', $args['turno'])
+            ->where('f.factura is null')
+            ->where('b.cantidad > 0')
+            ->where('b.total > 0')
+            ->where('b.precio > 0')
+            ->group_by('a.comanda')
             ->get()
             ->result();
 
@@ -978,10 +979,10 @@ class Comanda_model extends General_Model
             $fac->cargarEmpresa();
 
             enviarCorreo([
-                "de" => ["noreply@c807.com", "noreply"],
-                "para" => [$fac->empresa->correo_emisor],
-                "asunto" => "Notificación de Restouch",
-                "texto" => $this->load->view("correo_comanda", ["datos" => $datos], true)
+                'de' => ['noreply@c807.com', 'noreply'],
+                'para' => [$fac->empresa->correo_emisor],
+                'asunto' => 'Notificación de Restouch',
+                'texto' => $this->load->view('correo_comanda', ['datos' => $datos], true)
             ]);
         }
     }
@@ -1058,14 +1059,14 @@ class Comanda_model extends General_Model
         if (isset($args['fdel']) && isset($args['fal'])) {
             if (isset($args['_rango_turno']) && $args['_rango_turno']) {
                 $this->db
-                    ->where("date(c.inicio) >=", $args['fdel'])
-                    ->where("date(c.inicio) <=", $args['fal'])
-                    ->where("date(c.fin) <=", $args['fal'])
-                    ->where("date(c.fin) >=", $args['fdel']);
+                    ->where('date(c.inicio) >=', $args['fdel'])
+                    ->where('date(c.inicio) <=', $args['fal'])
+                    ->where('date(c.fin) <=', $args['fal'])
+                    ->where('date(c.fin) >=', $args['fdel']);
             } else {
                 $this->db
-                    ->where("date(a.fhcreacion) >=", $args['fdel'])
-                    ->where("date(a.fhcreacion) <=", $args['fal']);
+                    ->where('date(a.fhcreacion) >=', $args['fdel'])
+                    ->where('date(a.fhcreacion) <=', $args['fal']);
             }
             unset($args['fdel']);
             unset($args['fal']);
@@ -1073,35 +1074,35 @@ class Comanda_model extends General_Model
 
         if (isset($args['sede'])) {
             if (is_array($args['sede'])) {
-                $this->db->where_in("a.sede", $args['sede']);
+                $this->db->where_in('a.sede', $args['sede']);
             } else {
-                $this->db->where("a.sede", $args['sede']);
+                $this->db->where('a.sede', $args['sede']);
             }
             unset($args['sede']);
         }
 
         if (isset($args['turno_tipo'])) {
-            $this->db->where("c.turno_tipo", $args['turno_tipo']);
+            $this->db->where('c.turno_tipo', $args['turno_tipo']);
             unset($args['turno_tipo']);
         }
 
         if (count($args) > 0) {
             foreach ($args as $key => $row) {
-                if (substr($key, 0, 1) != "_") {
+                if (substr($key, 0, 1) != '_') {
                     $this->db->where("a.{$key}", $row);
                 }
             }
         }
 
         return $this->db
-            ->select("a.comanda")
-            ->join("cuenta b", "b.comanda = a.comanda")
-            ->join("turno c", "a.turno = c.turno")
-            ->join("cuenta_forma_pago d", "d.cuenta = b.cuenta")
-            ->join("forma_pago e", "e.forma_pago = d.forma_pago")
-            ->where("e.sinfactura", 1)
-            ->group_by("a.comanda")
-            ->get("comanda a")
+            ->select('a.comanda')
+            ->join('cuenta b', 'b.comanda = a.comanda')
+            ->join('turno c', 'a.turno = c.turno')
+            ->join('cuenta_forma_pago d', 'd.cuenta = b.cuenta')
+            ->join('forma_pago e', 'e.forma_pago = d.forma_pago')
+            ->where('e.sinfactura', 1)
+            ->group_by('a.comanda')
+            ->get('comanda a')
             ->result();
     }
 
@@ -1278,7 +1279,7 @@ class Comanda_model extends General_Model
             ->where('DATE(a.fhcreacion) <=', "$al")
             ->group_by('a.comanda')
             ->having('SUM(c.total + c.aumento) <> 0')
-            ->order_by("b.nombre, a.comanda")
+            ->order_by('b.nombre, a.comanda')
             ->get()
             ->result();
     }
@@ -1351,7 +1352,7 @@ class Comanda_model extends General_Model
                     if (isset($cantPresArtDet)) {
                         if ((float)$cantPresArtDet->cantidad !== (float)1) {
                             // Si es diferente de (float)1, cambiar la presentación en detalle comanda por una equivalente de uno a uno con la UM
-                            $presR = $this->Presentacion_model->buscar([
+                            $presR = $this->Presentacion_model->buscar_presentaciones([
                                 'medida' => $cantPresArtDet->medida,
                                 'cantidad' => 1,
                                 '_uno' => true

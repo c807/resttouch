@@ -150,6 +150,8 @@ class Cuenta_model extends General_Model
 	{
 		$datos = [];
 
+		$campos = $this->getCampos(false, 'b.', 'detalle_comanda');
+
 		if (isset($args['descuento'])) {
 			$this->db->where('d.descuento', $args['descuento']);
 		}
@@ -158,7 +160,7 @@ class Cuenta_model extends General_Model
 			$this->db->where('b.impreso', $args['impreso']);
 		}
 
-		if (isset($args["cocinado"])) {
+		if (isset($args['cocinado'])) {
 			$this->db->where('b.cocinado', $args['cocinado']);
 		}
 
@@ -190,7 +192,7 @@ class Cuenta_model extends General_Model
 		}
 
 		$tmp = $this->db
-			->select('b.*, d.descuento, a.detalle_cuenta, a.cuenta_cuenta')
+			->select("{$campos}, d.descuento, a.detalle_cuenta, a.cuenta_cuenta")
 			->join('detalle_comanda b', 'a.detalle_comanda = b.detalle_comanda')
 			->join('articulo c', 'b.articulo = c.articulo')
 			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')

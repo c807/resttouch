@@ -74,6 +74,7 @@ class BodegaArticuloCosto_model extends General_model {
             $art = new Articulo_model($idArticulo);
             $costo = $art->getCosto(['bodega' => $idBodega]);
             if ($costo && (float)$costo > (float)0) {
+                $this->guardar_costos($idBodega, $idArticulo);
                 return (float)$costo * $pres->cantidad;
             } else {
                 $costo = $art->getCosto();

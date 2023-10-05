@@ -13,11 +13,11 @@ class Cgrupo extends CI_Controller
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
@@ -39,14 +39,14 @@ class Cgrupo extends CI_Controller
 				$datos['exito'] = $cat->guardar($req);
 	
 				if ($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['categoria'] = $cat;
 				} else {
 					$datos['mensaje'] = $cat->getMensaje();
 				}
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		$this->output->set_output(json_encode($datos));
 	}
@@ -68,17 +68,17 @@ class Cgrupo extends CI_Controller
 			foreach ($tmp as $row) {
 				if (!isset($_GET['_sede'])) {
 					$datos[] = $this->Catalogo_model->getCategoriaGrupo([
-						"categoria_grupo" => $row->categoria_grupo,
-						"raiz" => true,
-						"_uno" => true
+						'categoria_grupo' => $row->categoria_grupo,
+						// 'raiz' => true,
+						'_uno' => true
 					]);
 				} else {
 					$cat = new Categoria_model($row->categoria);
 					if ((int)$this->data->sede === (int)$cat->sede) {
 						$datos[] = $this->Catalogo_model->getCategoriaGrupo([
-							"categoria_grupo" => $row->categoria_grupo,
-							"raiz" => true,
-							"_uno" => true
+							'categoria_grupo' => $row->categoria_grupo,
+							// 'raiz' => true,
+							'_uno' => true
 						]);
 					}
 				}
@@ -87,23 +87,23 @@ class Cgrupo extends CI_Controller
 		} else if (is_object($tmp)) {
 			if (!isset($_GET['_sede'])) {
 				$datos[] = $this->Catalogo_model->getCategoriaGrupo([
-					"categoria_grupo" => $tmp->categoria_grupo,
-					"raiz" => true,
-					"_uno" => true
+					'categoria_grupo' => $tmp->categoria_grupo,
+					// 'raiz' => true,
+					'_uno' => true
 				]);
 			} else {
 				$cat = new Categoria_model($tmp->categoria);
 				if ((int)$this->data->sede === (int)$cat->sede) {
 					$datos[] = $this->Catalogo_model->getCategoriaGrupo([
-						"categoria_grupo" => $tmp->categoria_grupo,
-						"raiz" => true,
-						"_uno" => true
+						'categoria_grupo' => $tmp->categoria_grupo,
+						// 'raiz' => true,
+						'_uno' => true
 					]);
 				}
 			}
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function get_categoria_grupo()
@@ -121,7 +121,7 @@ class Cgrupo extends CI_Controller
 			$cg->impresora = new Impresora_model($cg->impresora);
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function dar_de_baja($id)
@@ -152,7 +152,7 @@ class Cgrupo extends CI_Controller
 	public function simple_search()
 	{
 		$datos = $this->Cgrupo_model->get_simple_list($_GET);
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 

@@ -106,7 +106,7 @@ class Factura_model extends General_model
 
 			if (count($receta) > 0 && $art->combo == 0 && $art->multiple == 0 && $nuevo && !isset($args['detalle_cuenta'])) {
 				foreach ($receta as $rec) {
-					$presR = $this->Presentacion_model->buscar([
+					$presR = $this->Presentacion_model->buscar_presentaciones([
 						'medida' => $rec->medida->medida,
 						'cantidad' => 1,
 						'_uno' => true

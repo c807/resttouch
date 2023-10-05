@@ -651,7 +651,7 @@ class Articulo extends CI_Controller
 			if ($row != 0) {
 				if (!empty(trim($col[0]))) {
 					$entidad['descripcion'] = trim($col[0]);
-					$result = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					$result = $this->Umedida_model->buscar_medidas(['descripcion' => $entidad['descripcion'], '_uno' => true]);
 					if (!$result) {
 						$umedida = new Umedida_model();
 						$umedida->guardar($entidad);
@@ -663,7 +663,7 @@ class Articulo extends CI_Controller
 
 	private function procesa_presentaciones($sheet_data = [])
 	{
-		$medidas = $this->Umedida_model->buscar();
+		$medidas = $this->Umedida_model->buscar_medidas();
 		$entidad = [];
 		foreach ($sheet_data as $row => $col) {
 			if ($row != 0) {
@@ -678,7 +678,7 @@ class Articulo extends CI_Controller
 					$entidad['medida'] = $medida->medida;
 					$entidad['descripcion'] = trim($col[1]);
 					$entidad['cantidad'] = (float)$col[2];
-					$result = $this->Presentacion_model->buscar(['medida' => $entidad['medida'], 'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					$result = $this->Presentacion_model->buscar_presentaciones(['medida' => $entidad['medida'], 'descripcion' => $entidad['descripcion'], '_uno' => true]);
 					if (!$result) {
 						$presentacion = new Presentacion_model();
 						$presentacion->guardar($entidad);
@@ -748,7 +748,7 @@ class Articulo extends CI_Controller
 		if ($sede) {
 			$cgrupo = new Cgrupo_model();
 			$art = new Articulo_model();
-			$presentaciones = $this->Presentacion_model->buscar(['debaja' => 0]);
+			$presentaciones = $this->Presentacion_model->buscar_presentaciones(['debaja' => 0]);
 			$subcategorias = $cgrupo->get_simple_list(['sede' => $sede, '_todos' => true, 'debaja' => 0]);
 			$entidad = [];
 			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
@@ -817,7 +817,7 @@ class Articulo extends CI_Controller
 				if ($receta) {
 					$articulo = $art->buscarArticulo(['sede' => $sede, 'descripcion' => $col[1], '_tolower' => true]);
 					if ($articulo) {
-						$medida = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[3]), '_uno' => true]);
+						$medida = $this->Umedida_model->buscar_medidas(['descripcion' => $col[3], '_uno' => true]);
 						if ($medida) {
 							$entidad = [
 								'receta' => (int)$receta->articulo,

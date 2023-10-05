@@ -190,15 +190,13 @@ class Comanda extends CI_Controller
 	}
 
 	public function guardar_detalle_combo($com, $cuenta)
-	{
-		// set_time_limit(600);
-		$comanda = new Comanda_model($com);
-		$mesa = $comanda->getMesas();
-		$cuenta = new Cuenta_model($cuenta);
-		$req = json_decode(file_get_contents('php://input'), true);
+	{		
 		$datos = ['exito' => false];
-
 		if ($this->input->method() == 'post') {
+			$comanda = new Comanda_model($com);
+			$mesa = $comanda->getMesas();
+			$cuenta = new Cuenta_model($cuenta);
+			$req = json_decode(file_get_contents('php://input'), true);
 			if ($mesa->estatus == 2) {
 				if ($cuenta->cerrada == 0) {
 					$val = validarCantidades($req);
@@ -225,7 +223,6 @@ class Comanda extends CI_Controller
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
-
 		$this->output->set_output(json_encode($datos));
 	}
 
@@ -234,7 +231,7 @@ class Comanda extends CI_Controller
 		$art = new Articulo_model($id_articulo);
 		$receta = $art->getReceta();
 		foreach ($receta as $rec) {
-			$presR = $this->Presentacion_model->buscar([
+			$presR = $this->Presentacion_model->buscar_presentaciones([
 				'medida' => $rec->medida->medida,
 				'cantidad' => 1,
 				'_uno' => true
@@ -705,10 +702,7 @@ class Comanda extends CI_Controller
 		$com = new Comanda_model($cta->comanda);
 		$req = json_decode(file_get_contents('php://input'), true);
 
-		$datos = [
-			'exito' => true,
-			'mensaje' => 'Datos Actualizados con exito'
-		];
+		$datos = ['exito' => true, 'mensaje' => 'Datos Actualizados con exito'];
 
 		if ((int)$pdf === 0) {
 			if ($pdf != 2) {

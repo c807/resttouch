@@ -34,7 +34,7 @@ class Articulo_model extends General_model
 	public $esextra = 0;
 	public $stock_minimo = null;
 	public $stock_maximo = null;
-	public $essellado = 0;
+	public $essellado = 0;	
 
 	public function __construct($id = '')
 	{
@@ -105,10 +105,24 @@ class Articulo_model extends General_model
 		}
 		return $this->db->select('b.bodega')
 			->from('articulo a')
-			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
-			// ->where('a.articulo', $this->articulo)
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')			
 			->where('a.articulo', $idArticulo)
 			->get()->row();
+	}
+
+	public function getListaBodegaArticulo()
+	{				
+		$tmp = $this->db
+			->select('a.articulo, b.bodega')
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->get('articulo a')
+			->result();
+		
+		$lista = [];
+		foreach($tmp as $item) {
+			$lista[(int)$item->articulo] = (object)['bodega' => $item->bodega];
+		}
+		return $lista;
 	}
 
 	public function getDataForDetalleComanda()
@@ -135,29 +149,33 @@ class Articulo_model extends General_model
 		return $result;
 	}
 
-	public function getReceta($args = [])
+	public function getReceta($args = [], $listaMedidas = null)
 	{
+		if (!$listaMedidas) {
+			$this->load->model(['Umedida_model']);
+			$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		}		
+
 		if (isset($args['_principal'])) {
 			$args['articulo'] = $this->articulo;
 		} else {
 			$args['receta'] = $this->articulo;
 		}
-		$args['anulado'] = 0;
-		// $rec = new Receta_model();
-		$det = $this->Receta_model->buscar($args);
+		$args['anulado'] = 0;		
+		$det = $this->Receta_model->buscar_recetas($args);
 		$datos = [];
 		if ($det) {
 			if (is_array($det)) {
 				foreach ($det as $row) {
 					$detalle = new Receta_model($row->articulo_detalle);
-					$row->articulo = $detalle->getArticulo();
-					$row->medida = $detalle->getMedida();
+					$row->articulo = $detalle->getArticulo();					
+					$row->medida = $listaMedidas[(int)$row->medida];
 					$datos[] = $row;
 				}
 			} else {
 				$detalle = new Receta_model($det->articulo_detalle);
-				$det->articulo = $detalle->getArticulo();
-				$det->medida = $detalle->getMedida();
+				$det->articulo = $detalle->getArticulo();				
+				$det->medida = $listaMedidas[(int)$det->medida];
 				$datos[] = $det;
 			}
 		}
@@ -1440,7 +1458,7 @@ class Articulo_model extends General_model
 		}
 
 		return $lista;
-	}
+	}	
 }
 
 /* End of file Articulo_model.php */
