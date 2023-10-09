@@ -11,6 +11,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	https://codeigniter.com/user_guide/general/hooks.html
 |
 */
+// $hook['pre_controller'][] = array(
+// 	'class'    => 'DatabaseHook',
+// 	'function' => 'switchDatabase',
+// 	'filename' => 'DatabaseHook.php',
+// 	'filepath' => 'hooks',
+// 	'params'   => array()
+// );
+
 $hook['post_controller_constructor'] = array(
 	'class'    => 'Inicio',
 	'function' => 'verificarSesion',
@@ -19,7 +27,7 @@ $hook['post_controller_constructor'] = array(
 	'params'   => array()
 );
 
-$hook['pre_controller'] = array(
+$hook['pre_controller'][] = array(
 	'class'    => 'Inicio',
 	'function' => 'headers',
 	'filename' => 'Inicio.php',

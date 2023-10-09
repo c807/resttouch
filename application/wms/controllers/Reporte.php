@@ -23,7 +23,8 @@ class Reporte extends CI_Controller
 			'Categoria_model',
 			'Bodega_model',
 			'BodegaArticuloCosto_model',
-			'Bitacora_model'
+			'Bitacora_model',
+			'Impresora_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -36,7 +37,7 @@ class Reporte extends CI_Controller
 
 	public function existencia()
 	{
-		$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',inicio,');
+		// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',inicio,');
 		ini_set('pcre.backtrack_limit', '15000000');
 		$data = [];
 		$_POST = json_decode(file_get_contents('php://input'), true);
@@ -53,6 +54,8 @@ class Reporte extends CI_Controller
 		}
 
 		$data['mostrar_inventario'] = 1;
+		// $listaImpresoras = $this->Impresora_model->get_lista_impresoras();
+		// $arts = $this->Catalogo_model->getArticulo($data, $listaImpresoras);
 		$arts = $this->Catalogo_model->getArticulo($data);
 		$args = [
 			'cliente' => '',
@@ -106,7 +109,7 @@ class Reporte extends CI_Controller
 			}
 		}
 
-		$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',medio,');
+		// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',medio,');
 
 		if (verDato($_POST, '_excel')) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -197,7 +200,7 @@ class Reporte extends CI_Controller
 
 			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
 			$writer->save("php://output");
-			$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (excel),' . json_encode($_POST));
+			// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (excel),' . json_encode($_POST));
 		} else {
 
 			$pdf = new \Mpdf\Mpdf([
@@ -213,7 +216,7 @@ class Reporte extends CI_Controller
 			$pdf->WriteHTML($vista);
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 			$pdf->Output("Existencias_{$rand}.pdf", "D");
-			$this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (pdf),' . json_encode($_POST));
+			// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',fin (pdf),' . json_encode($_POST));
 			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($args));
 		}
 	}
