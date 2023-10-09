@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, OnDestroy } from '@
 import { PageEvent, MatPaginator } from '@angular/material/paginator';
 import { GLOBAL, PaginarArray, MultiFiltro } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
+import * as moment from 'moment';
 
 import { Turno } from '@restaurante-interfaces/turno';
 import { TurnoService } from '@restaurante-services/turno.service';
@@ -26,6 +27,12 @@ export class ListaTurnoComponent implements OnInit, OnDestroy {
   public pageIndex = 0;
   public pageEvent: PageEvent;
   public txtFiltro = '';
+
+  public params = {
+    sede: null,
+    fdel: moment().startOf('month').format(GLOBAL.dbDateFormat),
+    fal: moment().endOf('month').format(GLOBAL.dbDateFormat)
+  }  
 
   private endSubs = new Subscription();
 
@@ -57,8 +64,9 @@ export class ListaTurnoComponent implements OnInit, OnDestroy {
   }
 
   loadTurnos = () => {
+    this.params.sede = (+this.ls.get(GLOBAL.usrTokenVar).sede || 0);
     this.endSubs.add(      
-      this.turnoSrvc.get({sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0)}).subscribe(lst => {
+      this.turnoSrvc.get(this.params).subscribe(lst => {
         if (lst) {
           if (lst.length > 0) {
             this.lstTurnos = lst;

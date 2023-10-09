@@ -177,7 +177,7 @@ class Catalogo_model extends CI_Model
 		return $datos;
 	}
 
-	public function getArticulo($args = [])
+	public function getArticulo($args = [], $listaImpresoras = null, $listaPresentaciones = null)
 	{
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
@@ -189,6 +189,24 @@ class Catalogo_model extends CI_Model
 		unset($args['_activos']);
 		unset($args['categoria']);
 		unset($args['_sin_propina']);
+
+		
+		if (!$listaImpresoras) {
+			$this->load->model('Impresora_model');
+			if ($sede) {
+				$listaImpresoras = $this->Impresora_model->get_lista_impresoras(['sede' => $sede]);
+			} else {
+				$listaImpresoras = $this->Impresora_model->get_lista_impresoras();
+			}
+		}
+
+		if(!$listaPresentaciones) {
+			$this->load->model('Presentacion_model');
+			$listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+		}
+
+		$campos = $this->get_campos_tabla('articulo', 'a.');
+
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -228,7 +246,7 @@ class Catalogo_model extends CI_Model
 		}
 
 		$qry = $this->db
-			->select('a.*, c.sede')
+			->select("{$campos}, c.sede, b.impresora AS impresora_subcategoria")
 			->join('categoria_grupo b', 'a.categoria_grupo = b.categoria_grupo')
 			->join('categoria c', 'c.categoria = b.categoria')
 			->order_by('a.articulo')
@@ -238,34 +256,16 @@ class Catalogo_model extends CI_Model
 
 		if (is_array($tmp)) {
 			$datos = [];
-			foreach ($tmp as $row) {
-				$row->impresora = $this->db
-					->select('b.*')
-					->join('impresora b', 'b.impresora = a.impresora')
-					->where('a.categoria_grupo', $row->categoria_grupo)
-					->get('categoria_grupo a')
-					->row();
-
-				$row->presentacion = $this->db
-					->where('presentacion', $row->presentacion)
-					->get('presentacion')
-					->row();
+			foreach ($tmp as $row) {				
+				$row->impresora = array_key_exists((int)$row->impresora_subcategoria, $listaImpresoras) ? $listaImpresoras[(int)$row->impresora_subcategoria] : null;				
+				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];
 
 				$datos[] = $row;
 			}
 			$tmp = $datos;
-		} else if ($tmp) {
-			$tmp->impresora = $this->db
-				->select('b.*')
-				->join('impresora b', 'b.impresora = a.impresora')
-				->where('a.categoria_grupo', $tmp->categoria_grupo)
-				->get('categoria_grupo a')
-				->row();
-
-			$tmp->presentacion = $this->db
-				->where('presentacion', $tmp->presentacion)
-				->get('presentacion')
-				->row();
+		} else if ($tmp) {			
+			$tmp->impresora = array_key_exists((int)$tmp->impresora_subcategoria, $listaImpresoras) ? $listaImpresoras[(int)$tmp->impresora_subcategoria] : null;					
+			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];
 		}
 
 		return ordenar_array_objetos($tmp, 'descripcion');
@@ -288,18 +288,36 @@ class Catalogo_model extends CI_Model
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function getCategoriaGrupo($args = [])
+	public function getCategoriaGrupo($args = [], $itemCategoria = null, $listaImpresoras = null, $listaPresentaciones = null)
 	{
-		$raiz = isset($args['raiz']);
+		// $raiz = isset($args['raiz']);
 		$sede = isset($args['sede']) ? $args['sede'] : false;
 		$todo = isset($args['_todo']);
 		$mostrarDebaja = isset($args['_mostrar_debaja']);
 		$sinPropina = isset($args['_sin_propina']);
-		unset($args['raiz']);
+		// unset($args['raiz']);
 		unset($args['sede']);
 		unset($args['_todo']);
 		unset($args['_mostrar_debaja']);
 		unset($args['_sin_propina']);
+
+		
+		if (!$listaImpresoras) {
+			$this->load->model('Impresora_model');
+			if ($sede) {
+				$listaImpresoras = $this->Impresora_model->get_lista_impresoras(['sede' => $sede]);
+			} else {
+				$listaImpresoras = $this->Impresora_model->get_lista_impresoras();
+			}
+		}
+
+		if (!$listaPresentaciones) {
+			$this->load->model('Presentacion_model');
+			$listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+		}
+
+		$campos = $this->get_campos_tabla('categoria_grupo', 'a.');
+
 		if (count($args) > 0) {
 			foreach ($args as $key => $row) {
 				if ($key != '_uno') {
@@ -325,7 +343,8 @@ class Catalogo_model extends CI_Model
 		}
 
 		$qry = $this->db
-			->select('a.*')
+			// ->select('a.*')
+			->select($campos)
 			->join('categoria b', 'b.categoria = a.categoria')
 			->order_by('categoria_grupo')
 			->group_by('a.categoria_grupo')
@@ -336,33 +355,34 @@ class Catalogo_model extends CI_Model
 		$datos = [];
 		if (is_array($grupo)) {
 			foreach ($grupo as $row) {
-				if ($raiz) {
-					$data = [
-						'categoria_grupo' => $row->categoria_grupo_grupo,
-						'raiz' => true
-					];
+				$row->categoria_grupo_grupo = [];
+				// if ($raiz) {
+				// 	$data = ['categoria_grupo' => $row->categoria_grupo_grupo, 'raiz' => true];
 
-					if ($todo) {
-						$data['_todo'] = true;
-					}
-					$row->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
-				} else {
-					$data = [
-						'categoria_grupo_grupo' => $row->categoria_grupo
-					];
+				// 	if ($todo) {
+				// 		$data['_todo'] = true;
+				// 	}
+				// 	$row->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
+				// } else {
+				// 	$data = ['categoria_grupo_grupo' => $row->categoria_grupo];
 
-					if ($todo) {
-						$data['_todo'] = true;
-					}
-					$row->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
-				}
+				// 	if ($todo) {
+				// 		$data['_todo'] = true;
+				// 	}
+				// 	$row->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
+				// }
+
 				$buscarArt['categoria_grupo'] = $row->categoria_grupo;
 
-				$row->articulo = $this->Catalogo_model->getArticulo($buscarArt);
-				$row->categoria = $this->Categoria_model->buscar([
-					'categoria' => $row->categoria,
-					'_uno' => true
-				]);
+				// $row->articulo = $this->Catalogo_model->getArticulo($buscarArt, $listaImpresoras, $listaPresentaciones);
+				$row->articulo = $this->getArticulo($buscarArt, $listaImpresoras, $listaPresentaciones);
+
+				if ($itemCategoria) {
+					$row->categoria = clone $itemCategoria;
+				} else {
+					$row->categoria = $this->Categoria_model->buscar(['categoria' => $row->categoria, '_uno' => true]);
+				}
+
 				$datos[] = $row;
 			}
 		} else if (is_object($grupo)) {
@@ -370,26 +390,30 @@ class Catalogo_model extends CI_Model
 			if ($todo) {
 				$data['_todo'] = true;
 			}
-			if ($raiz) {
-				$data['categoria_grupo'] = $grupo->categoria_grupo_grupo;
-				$data['raiz'] = true;
+			$grupo->categoria_grupo_grupo = [];
 
-				$grupo->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
-			} else {
-				$data['categoria_grupo_grupo'] = $grupo->categoria_grupo;
+			// if ($raiz) {
+			// 	$data['categoria_grupo'] = $grupo->categoria_grupo_grupo;
+			// 	$data['raiz'] = true;
 
-				$grupo->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
-			}
+			// 	$grupo->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
+			// } else {
+			// 	$data['categoria_grupo_grupo'] = $grupo->categoria_grupo;
+
+			// 	$grupo->categoria_grupo_grupo = $this->getCategoriaGrupo($data);
+			// }
 
 			$buscarArt['categoria_grupo'] = $grupo->categoria_grupo;
 
-			$grupo->articulo = $this->Catalogo_model->getArticulo([
-				'categoria_grupo' => $grupo->categoria_grupo
-			]);
-			$grupo->categoria = $this->Categoria_model->buscar([
-				'categoria' => $grupo->categoria,
-				'_uno' => true
-			]);
+			// $grupo->articulo = $this->Catalogo_model->getArticulo(['categoria_grupo' => $grupo->categoria_grupo], $listaImpresoras, $listaPresentaciones);
+			$grupo->articulo = $this->getArticulo(['categoria_grupo' => $grupo->categoria_grupo], $listaImpresoras, $listaPresentaciones);
+
+			if ($itemCategoria) {
+				$grupo->categoria = clone $itemCategoria;
+			} else {
+				$grupo->categoria = $this->Categoria_model->buscar(['categoria' => $grupo->categoria, '_uno' => true]);
+			}
+
 			$datos = $grupo;
 		}
 

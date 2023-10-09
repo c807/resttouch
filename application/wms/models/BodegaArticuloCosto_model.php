@@ -121,6 +121,7 @@ class BodegaArticuloCosto_model extends General_model
                 $pres = $this->db->select('cantidad')->where('presentacion', (int)$art->presentacion_reporte)->get('presentacion')->row();
                 $costo = $art->getCosto(['bodega' => $idBodega]);
                 if ($costo && (float)$costo > (float)0) {
+                    $this->guardar_costos($idBodega, $idArticulo);
                     return (float)$costo * (float)$pres->cantidad;
                 } else {
                     $costo = $art->getCosto();

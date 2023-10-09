@@ -16,12 +16,12 @@ class Catalogo extends CI_Controller {
 		]);
 		$headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']); 
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function index()
 	{
-		die("Forbidden");
+		die('Forbidden');
 	}
 
 	public function get_forma_pago()
@@ -87,7 +87,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_articulo()
 	{
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		set_time_limit(0);
 		ini_set('memory_limit', '-1');
 		$_GET['sede'] = isset($_GET['sede']) && (int)$_GET['sede'] > 0 ? $_GET['sede'] : $this->data->sede;
@@ -102,13 +102,13 @@ class Catalogo extends CI_Controller {
 		// 	$datos->subcategoria = $this->Cgrupo_model->buscar(['categoria_grupo' => $datos->categoria_grupo, '_uno' => true]);
 		// }
 
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 		$this->output->set_output(json_encode($datos));
 	}
 
 	public function get_articulo_ingreso()
 	{
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 		if (!$this->input->get('sede')) {
 			$_GET['sede'] = $this->data->sede;
 		}
@@ -117,7 +117,7 @@ class Catalogo extends CI_Controller {
 		// $datos = $this->Catalogo_model->getArticulo($_GET);
 		$datos = $this->Catalogo_model->getArticulo_v2($_GET);
 
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 		$this->output->set_output(json_encode($datos));
 	}
 
@@ -148,33 +148,41 @@ class Catalogo extends CI_Controller {
 
 	public function get_lista_articulo($sede)
 	{
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',inicio');
 
-		$this->load->model('Categoria_model');
+		$this->load->model(['Categoria_model', 'Impresora_model', 'Presentacion_model']);
 		$_GET['sede'] = $sede;
 
-		if (!isset($_GET['_activos'])) { $_GET['debaja'] = 0; }
+		if (!isset($_GET['_activos'])) { $_GET['debaja'] = 0; }		
+		
+		$cat = $this->Categoria_model->buscar_categorias($_GET);
 
-		$cat = $this->Categoria_model->buscar($_GET);		
+		$listaImpresoras = [];
+		if ($sede) {
+			$listaImpresoras = $this->Impresora_model->get_lista_impresoras(['sede' => $sede]);
+		} else {
+			$listaImpresoras = $this->Impresora_model->get_lista_impresoras();
+		}
+
+		$listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+
 		$datos = [];
 		foreach ($cat as $row) {
-			$data = [
-				"categoria" => $row->categoria,
-				"categoria_grupo_grupo" => null	
-			];
-			if (isset($_GET["_todo"])) {
+			$data = ['categoria' => $row->categoria, 'categoria_grupo_grupo' => null];
+
+			if (isset($_GET['_todo'])) {
 				$data['_todo'] = true;
 			}
 
 			if (!isset($_GET['_activos'])) { $data['debaja'] = 0; }
 
-			$grupo = $this->Catalogo_model->getCategoriaGrupo($data);
+			$grupo = $this->Catalogo_model->getCategoriaGrupo($data, $row, $listaImpresoras, $listaPresentaciones);
 			$row->categoria_grupo = $grupo;
 
 			$datos[] = $row;
 		}
 
-		$this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
+		// $this->Bitacora_model->log_to_file(Hoy(5).",{$this->data->dominio},".$this->php_self.','.get_mem_usage().',fin');
 
 		$this->output->set_output(json_encode($datos));
 	}
@@ -187,7 +195,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_sub_modulo($modulo)
 	{		
-		$menu = $this->config->item("menu");
+		$menu = $this->config->item('menu');
 		$datos = $menu[$modulo]['submodulo'];
 
 		$this->output
@@ -196,7 +204,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_opcion($modulo, $submodulo)
 	{
-		$menu = $this->config->item("menu");
+		$menu = $this->config->item('menu');
 		$datos = [];
 		if (isset($menu[$modulo]) && isset($menu[$modulo]['submodulo'][$submodulo])) {
 			$datos = $menu[$modulo]['submodulo'][$submodulo]['opciones'];	
@@ -223,9 +231,9 @@ class Catalogo extends CI_Controller {
 		$datos = [];
 		
 		$tmp = $this->Turno_model->getTurno([
-			"sede" => $this->data->sede,
+			'sede' => $this->data->sede,
 			'abierto' => true, 
-			"_uno" => true
+			'_uno' => true
 		]);
 		
 		if ($tmp) {
@@ -250,7 +258,7 @@ class Catalogo extends CI_Controller {
 
 	public function get_campos()
 	{
-		$campo = $this->config->item("campos");
+		$campo = $this->config->item('campos');
 		$datos = [];
 		if (empty($_GET)) {
 			$datos = $campo;
@@ -290,9 +298,9 @@ class Catalogo extends CI_Controller {
 
 		$art = new Articulo_model(5124);
 		$art->actualizarExistencia();
-		echo "<pre>";
+		echo '<pre>';
 		print_r ($art);
-		echo "</pre>";
+		echo '</pre>';
 	}
 
 	public function get_notificaciones_cliente()

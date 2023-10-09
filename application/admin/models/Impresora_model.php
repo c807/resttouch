@@ -36,13 +36,26 @@ class Impresora_model extends General_model {
 	{
 		$campos = $this->getCampos(false, '', 'impresora');
 
-		if (isset($args['sede']) && (int)$args['sede'] > 0) {
-			$this->db->where('sede', $args['sede']);
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('sede', $args['sede']);
+			} else if ((int)$args['sede'] > 0) {
+				$this->db->where('sede', $args['sede']);
+			}
 		}
 
 		return $this->db->select($campos)->get('impresora')->result();
 	}
 
+	public function get_lista_impresoras($args = [])
+	{
+		$lista = [];
+		$tmp = $this->get_lista($args);
+		foreach($tmp as $imp) {
+			$lista[(int)$imp->impresora] = clone $imp;
+		}
+		return $lista;
+	}
 }
 
 /* End of file Impresora_model.php */

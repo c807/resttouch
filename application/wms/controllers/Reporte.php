@@ -23,7 +23,8 @@ class Reporte extends CI_Controller
 			'Categoria_model',
 			'Bodega_model',
 			'BodegaArticuloCosto_model',
-			'Bitacora_model'
+			'Bitacora_model',
+			'Impresora_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -53,6 +54,8 @@ class Reporte extends CI_Controller
 		}
 
 		$data['mostrar_inventario'] = 1;
+		// $listaImpresoras = $this->Impresora_model->get_lista_impresoras();
+		// $arts = $this->Catalogo_model->getArticulo($data, $listaImpresoras);
 		$arts = $this->Catalogo_model->getArticulo($data);
 		$args = [
 			'cliente' => '',

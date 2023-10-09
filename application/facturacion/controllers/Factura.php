@@ -108,7 +108,7 @@ class Factura extends CI_Controller
 						$req['valor_impuesto_especial'] = $req['cantidad_gravable'] * (float)$art->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
 						$req['valor_impuesto_especial_ext'] = $req['cantidad_gravable'] * (float)$art->precio_sugerido * ((float)$impuesto_especial->porcentaje / 100);
 
-						$req['precio_unitario'] = (float)$req['precio_unitario'] - (float)$req['valor_impuesto_especial'] / (float)$req['cantidad'];
+						$req['precio_unitario'] = (float)$req['cantidad'] !== (float)0 ? ((float)$req['precio_unitario'] - (float)$req['valor_impuesto_especial'] / (float)$req['cantidad']) : 0;
 						$req['precio_unitario_ext'] = $req['precio_unitario'];
 
 						$req['total'] = $req['precio_unitario'] * (float)$req['cantidad'];
@@ -128,7 +128,7 @@ class Factura extends CI_Controller
 						$req['valor_impuesto_especial'] = $req['monto_base'] * ((float)$impuesto_especial->porcentaje / 100);
 						$req['valor_impuesto_especial_ext'] = $req['monto_base_ext'] * ((float)$impuesto_especial->porcentaje / 100);
 
-						$req['precio_unitario'] = (float)$req['precio_unitario'] - (float)$req['valor_impuesto_especial'] / (float)$req['cantidad'];
+						$req['precio_unitario'] = (float)$req['cantidad'] !== (float)0 ? ((float)$req['precio_unitario'] - (float)$req['valor_impuesto_especial'] / (float)$req['cantidad']) : 0;
 						$req['precio_unitario_ext'] = $req['precio_unitario'];
 
 						// $req['total'] = $req['precio_unitario'] * (float)$req['cantidad'];

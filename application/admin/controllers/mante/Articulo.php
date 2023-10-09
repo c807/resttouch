@@ -107,12 +107,21 @@ class Articulo extends CI_Controller
 		$datos = [];
 		$tmp = $this->Articulo_model->buscar($args);
 
+		$listaPresentaciones = $this->Presentacion_model->get_lista_presentaciones();
+
+		$fltr = [];
+		// if (isset($args['_sede'])) {
+		// 	$fltr['sede'] = $args['_sede'];
+		// }
+		$listaCategoriasGrupo = $this->Articulo_model->getListaCategoriaGrupo($fltr);
+
 		if (is_array($tmp)) {
 			foreach ($tmp as $row) {
-				$art = new Articulo_model($row->articulo);
-				$row->categoria_grupo = $art->getCategoriaGrupo();
-				$row->presentacion = $art->getPresentacion();
-				$row->presentacion_reporte = $art->getPresentacionReporte();
+				// $art = new Articulo_model($row->articulo);
+				// $row->categoria_grupo = $art->getCategoriaGrupo();				
+				$row->categoria_grupo = $listaCategoriasGrupo[(int)$row->categoria_grupo];
+				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];				
+				$row->presentacion_reporte = $listaPresentaciones[(int)$row->presentacion_reporte];
 				$row->usuariobaja = !empty($row->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $row->usuariobaja, '_uno' => true]) : $row->usuariobaja;
 
 				if ($row->usuariobaja && isset($row->usuariobaja->contrasenia)) {
@@ -128,10 +137,11 @@ class Articulo extends CI_Controller
 				}
 			}
 		} else if (is_object($tmp)) {
-			$art = new Articulo_model($tmp->articulo);
-			$tmp->categoria_grupo = $art->getCategoriaGrupo();
-			$tmp->presentacion = $art->getPresentacion();
-			$tmp->presentacion_reporte = $art->getPresentacionReporte();
+			// $art = new Articulo_model($tmp->articulo);
+			// $tmp->categoria_grupo = $art->getCategoriaGrupo();			
+			$tmp->categoria_grupo = $listaCategoriasGrupo[(int)$tmp->categoria_grupo];
+			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];			
+			$tmp->presentacion_reporte = $listaPresentaciones[(int)$tmp->presentacion_reporte];
 			$tmp->usuariobaja = !empty($tmp->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $tmp->usuariobaja, '_uno' => true]) : $tmp->usuariobaja;
 
 			if ($tmp->usuariobaja && isset($tmp->usuariobaja->contrasenia)) {
@@ -652,7 +662,7 @@ class Articulo extends CI_Controller
 			if ($row != 0) {
 				if (!empty(trim($col[0]))) {
 					$entidad['descripcion'] = trim($col[0]);
-					$result = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					$result = $this->Umedida_model->buscar_medidas(['descripcion' => $entidad['descripcion'], '_uno' => true]);
 					if (!$result) {
 						$umedida = new Umedida_model();
 						$umedida->guardar($entidad);
@@ -664,7 +674,7 @@ class Articulo extends CI_Controller
 
 	private function procesa_presentaciones($sheet_data = [])
 	{
-		$medidas = $this->Umedida_model->buscar();
+		$medidas = $this->Umedida_model->buscar_medidas();
 		$entidad = [];
 		foreach ($sheet_data as $row => $col) {
 			if ($row != 0) {
@@ -679,7 +689,7 @@ class Articulo extends CI_Controller
 					$entidad['medida'] = $medida->medida;
 					$entidad['descripcion'] = trim($col[1]);
 					$entidad['cantidad'] = (float)$col[2];
-					$result = $this->Presentacion_model->buscar(['medida' => $entidad['medida'], 'TRIM(LOWER(descripcion))' => strtolower($entidad['descripcion']), '_uno' => true]);
+					$result = $this->Presentacion_model->buscar_presentaciones(['medida' => $entidad['medida'], 'descripcion' => $entidad['descripcion'], '_uno' => true]);
 					if (!$result) {
 						$presentacion = new Presentacion_model();
 						$presentacion->guardar($entidad);
@@ -749,7 +759,7 @@ class Articulo extends CI_Controller
 		if ($sede) {
 			$cgrupo = new Cgrupo_model();
 			$art = new Articulo_model();
-			$presentaciones = $this->Presentacion_model->buscar(['debaja' => 0]);
+			$presentaciones = $this->Presentacion_model->buscar_presentaciones(['debaja' => 0]);
 			$subcategorias = $cgrupo->get_simple_list(['sede' => $sede, '_todos' => true, 'debaja' => 0]);
 			$entidad = [];
 			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
@@ -818,7 +828,7 @@ class Articulo extends CI_Controller
 				if ($receta) {
 					$articulo = $art->buscarArticulo(['sede' => $sede, 'descripcion' => $col[1], '_tolower' => true]);
 					if ($articulo) {
-						$medida = $this->Umedida_model->buscar(['TRIM(LOWER(descripcion))' => strtolower($col[3]), '_uno' => true]);
+						$medida = $this->Umedida_model->buscar_medidas(['descripcion' => $col[3], '_uno' => true]);
 						if ($medida) {
 							$entidad = [
 								'receta' => (int)$receta->articulo,

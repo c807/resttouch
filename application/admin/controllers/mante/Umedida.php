@@ -8,32 +8,32 @@ class Umedida extends CI_Controller {
         parent::__construct();
         $this->load->model('Umedida_model');
         $this->output
-		->set_content_type("application/json", "UTF-8");
+		->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = "") 
+	public function guardar($id = '') 
 	{
 		$medida = new Umedida_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 
-			$existe = $this->Umedida_model->buscar(['TRIM(UPPER(descripcion))' => trim(strtoupper($req['descripcion']))]);
+			$existe = $this->Umedida_model->buscar_medidas(['descripcion' => $req['descripcion']]);
 
 			if (!$existe) {
 				$datos['exito'] = $medida->guardar($req);
 	
 				if($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['unidad_medida'] = $medida;
 				} else {
 					$datos['mensaje'] = $medida->getMensaje();
 				}	
 			} else {
-				$datos['mensaje'] = "Ya existe esta unidad de medida.";
+				$datos['mensaje'] = 'Ya existe esta unidad de medida.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
@@ -42,11 +42,9 @@ class Umedida extends CI_Controller {
 
 	public function buscar()
 	{
-		$datos = $this->Umedida_model->buscar($_GET);
+		$datos = $this->Umedida_model->buscar_medidas($_GET);
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 }

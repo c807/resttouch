@@ -3036,6 +3036,8 @@ ALTER TABLE RT_DATABASE_NAME.webhook ADD INDEX Idx_Evento_ASC (evento ASC);
 ALTER TABLE RT_DATABASE_NAME.usuario_tipo_categoria_grupo ADD INDEX Idx_Usuario_tipo_Debaja_ASC (usuario_tipo ASC, debaja ASC);
 ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Activo_Descripcion_ASC (activo ASC, descripcion ASC);
 ALTER TABLE RT_DATABASE_NAME.cliente ADD INDEX Idx_Telefono_ASC (telefono ASC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Turno_DESC (turno DESC);
+ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Inicio_ASC (inicio ASC), ADD INDEX Idx_Inicio_Sede_ASC (sede ASC, inicio ASC);
 
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN fecha DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER existencia, ADD INDEX Fecha_Idx (fecha ASC);
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN cuc_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER articulo, ADD COLUMN cp_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER costo_ultima_compra;
