@@ -78,6 +78,7 @@ export class AjusteCostoExistenciaComponent implements OnInit, OnDestroy {
 
   getBodega = (fltr: any = {}) => {
     this.cargando = true;
+    fltr.debaja = 0;
     this.endSubs.add(
       this.bodegaSrvc.get(fltr).subscribe(res => {
         this.bodegas = res;
