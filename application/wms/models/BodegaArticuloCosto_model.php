@@ -28,7 +28,8 @@ class BodegaArticuloCosto_model extends General_model
         $this->load->model([
             'Articulo_model',
             'Sede_model',
-            'Empresa_model'
+            'Empresa_model',
+            'Ingreso_model'
         ]);
     }
 
@@ -91,7 +92,7 @@ class BodegaArticuloCosto_model extends General_model
                 return (float)$datos_costo->costo_promedio * $cantidad_presentacion;
             }
         } else {
-            
+
             $bac = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
 
             if ($bac) {
@@ -163,35 +164,30 @@ class BodegaArticuloCosto_model extends General_model
 
     public function get_articulos_excel($args = [])
     {
-        if (isset($args['sede']) && (int)$args['sede'] > 0) {
-            $this->db->where('d.sede', $args['sede']);
+        $args['fecha'] = date('Y-m-d');
+        $articulosConIngreso = $this->Ingreso_model->get_articulos_con_ingresos($args);
+
+        $lstArticulos = [];
+        foreach ($articulosConIngreso as $art) {
+            $lstArticulos[] = $art->articulo;
         }
 
-        if (isset($args['bodega']) && (int)$args['bodega'] > 0) {
-            $this->db->where('f.bodega', $args['bodega']);
+        if (count($lstArticulos) > 0) {
+            $campos = 'TRIM(CONCAT(d.nombre, IFNULL(CONCAT(" (", d.alias, ")"), ""))) AS descripcion_sede, c.descripcion AS descripcion_categoria, b.descripcion AS descripcion_subcategoria, ';
+            $campos .= "{$args['bodega']} AS bodega, (SELECT descripcion FROM bodega WHERE bodega = {$args['bodega']}) AS descripcion_bodega, ";
+            $campos .= 'a.articulo, a.descripcion AS descripcion_articulo, e.descripcion AS descripcion_presentacion, 0.00000 AS costo_unitario, 0.00 AS existencia';
+            return $this->db
+                ->select($campos, false)
+                ->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+                ->join('categoria c', 'c.categoria = b.categoria')
+                ->join('sede d', 'd.sede = c.sede')
+                ->join('presentacion e', 'e.presentacion = a.presentacion_reporte')
+                ->where_in('a.articulo', $lstArticulos)
+                ->get('articulo a')
+                ->result();
         }
 
-        if (isset($args['categoria']) && (int)$args['categoria'] > 0) {
-            $this->db->where('c.categoria', $args['categoria']);
-        }
-
-        if (isset($args['categoria_grupo']) && (int)$args['categoria_grupo'] > 0) {
-            $this->db->where('b.categoria_grupo', $args['categoria_grupo']);
-        }
-
-        $campos = 'TRIM(CONCAT(d.nombre, IFNULL(CONCAT(" (", d.alias, ")"), ""))) AS descripcion_sede, c.descripcion AS descripcion_categoria, b.descripcion AS descripcion_subcategoria, ';
-        $campos .= 'f.bodega, f.descripcion AS descripcion_bodega, a.articulo, a.descripcion AS descripcion_articulo, e.descripcion AS descripcion_presentacion, 0.00000 AS costo_unitario, 0.00 AS existencia';
-        return $this->db
-            ->select($campos, false)
-            ->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
-            ->join('categoria c', 'c.categoria = b.categoria')
-            ->join('sede d', 'd.sede = c.sede')
-            ->join('presentacion e', 'e.presentacion = a.presentacion_reporte')
-            ->join('bodega f', 'f.bodega = b.bodega')
-            ->where('a.mostrar_inventario', 1)
-            ->where('a.debaja', 0)
-            ->get('articulo a')
-            ->result();
+        return [];
     }
 
     public function ajustar_costo_promedio_existencia($args)
@@ -226,7 +222,7 @@ class BodegaArticuloCosto_model extends General_model
     public function get_detalle_carga_realizada($args)
     {
         $campos = 'a.fecha, CONCAT(c.nombre, IFNULL(CONCAT(" (", c.alias, ")"), "")) AS sede, b.descripcion AS bodega, d.descripcion AS articulo, e.descripcion AS presentacion, a.cuc_ingresado, ';
-        $campos.= 'a.cp_ingresado, a.existencia_ingresada, f.metodo_costeo';
+        $campos .= 'a.cp_ingresado, a.existencia_ingresada, f.metodo_costeo';
         return $this->db
             ->select($campos)
             ->join('bodega b', 'b.bodega = a.bodega')
