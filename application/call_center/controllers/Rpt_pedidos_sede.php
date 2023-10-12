@@ -21,7 +21,8 @@ class Rpt_pedidos_sede extends CI_Controller
             'Sede_model',
             'Configuracion_model',
             'Rpt_model',
-            'Sede_model'
+            'Sede_model',
+            'Seguimiento_callcenter_model'
         ]);
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
@@ -117,7 +118,6 @@ class Rpt_pedidos_sede extends CI_Controller
                         $hoja->setCellValue("C{$fila}", number_format((float)$row->monto, 2, '.', ''));
                         $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
-
                     }
                     $fila++;
                     $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
@@ -130,7 +130,6 @@ class Rpt_pedidos_sede extends CI_Controller
                     $montoTotal = 0;
                     $fila++;
                 }
-
             }
 
             $fila++;
@@ -169,7 +168,6 @@ class Rpt_pedidos_sede extends CI_Controller
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
             $writer->save("php://output");
-
         } else {
 
             $mpdf = new \Mpdf\Mpdf([
@@ -209,12 +207,13 @@ class Rpt_pedidos_sede extends CI_Controller
 
             set_time_limit(300); //
 
-            $mpdf->WriteHTML($this->load->view('detalle_pedido',
+            $mpdf->WriteHTML($this->load->view(
+                'detalle_pedido',
                 $data,
-                true));
+                true
+            ));
             $mpdf->Output("Detalle de Pedidos.pdf", "D");
         }
-
     }
 
     public function report_art()
@@ -516,4 +515,68 @@ class Rpt_pedidos_sede extends CI_Controller
         }
     }
 
+    public function reporte_motoristas()
+    {
+        $_GET['_order_asc'] = true;
+        $datos = $this->Seguimiento_callcenter_model->get_pedidos($_GET);
+        $info = [];
+
+        foreach($datos as $pedido) {
+            $dt = new DateTime($pedido->fhtomapedido);
+            $ahorita = new DateTime();
+            $diferencia = $dt->diff($ahorita);
+            $info[] = (object)[
+                'comanda' => $pedido->comanda,
+                'cliente' => $pedido->cliente,
+                'total' => (float)$pedido->total_pedido + (float)$pedido->total_propina,
+                'forma_pago' => $pedido->formas_pago,
+                'fecha' => $dt->format('d/m/Y'),
+                'hora' => $dt->format('H:i:s'),
+                'transcurrido' => $diferencia->format('%y años, %m meses, %d días, %h horas, %i minutos y %s segundos'),
+                'telefono' => $pedido->comanda_origen_datos->telefono,
+                'atendio' => "{$pedido->nombres} {$pedido->apellidos}",
+                'direccion_entrega' => $pedido->comanda_origen_datos->direccion_entrega,
+                'sede_atiende' => $pedido->sede_atiende,
+                'tiempo_ofrecido' => $pedido->tiempo_ofrecido,
+                'motorista' => $pedido->motorista,
+                'observaciones' => $pedido->observaciones,
+            ];
+        }
+
+        $vista = $this->load->view('reporte/motoristas/imprimir', ['params' => $_GET, 'info' => $info], true);
+        $nombre = 'Motoristas_'.date('YmdHis');
+
+        if (verDato($_GET, '_excel')) {
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$xlsx = $reader->loadFromString($vista);
+			$xlsx->setActiveSheetIndex(0);
+			$hoja = $xlsx->getActiveSheet();
+
+            foreach (range('A', 'N') as $col) {
+				$hoja->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombre}.xlsx");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+			
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
+			$writer->save('php://output');
+        } else {
+            $mpdf = new \Mpdf\Mpdf([
+                'tempDir' => sys_get_temp_dir(),
+                'format' => 'Letter'
+            ]);
+
+            $mpdf->AddPage('L');
+            $mpdf->WriteHTML($vista);
+            $mpdf->Output($nombre.'.pdf', 'D');
+        }
+
+        // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode(['params' => $_GET, 'info' => $info]));
+    }
 }

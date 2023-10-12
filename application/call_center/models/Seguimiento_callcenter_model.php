@@ -14,6 +14,12 @@ class Seguimiento_callcenter_model extends CI_Model
             $this->db->where('DATE(a.fhcreacion) <=', $args['_fal']);
         }
 
+        if (!isset($args['_order_asc'])) {
+            $this->db->order_by('a.fhcreacion', 'DESC');
+        } else {
+            $this->db->order_by('a.fhcreacion', 'ASC');
+        }
+
         if (count($args) > 0) {
             foreach ($args as $key => $row) {
                 if (substr($key, 0, 1) != '_') {
@@ -36,8 +42,7 @@ class Seguimiento_callcenter_model extends CI_Model
             ->join('tipo_domicilio g', 'g.tipo_domicilio = a.tipo_domicilio')
             ->join('repartidor h', 'h.repartidor = a.repartidor', 'left')
             ->where('a.tiempo_entrega IS NOT NULL')
-            ->where('a.tipo_domicilio IS NOT NULL')
-            ->order_by('a.fhcreacion', 'DESC')
+            ->where('a.tipo_domicilio IS NOT NULL')            
             ->get('comanda a')
             ->result();
 
@@ -92,14 +97,9 @@ class Seguimiento_callcenter_model extends CI_Model
             } catch (Exception $e) {
                 $pedido->comanda_origen_datos = (object)[];
             }
-            // $cmdHisto = $this->Cliente_master_model->get_historico(['comanda' => $pedido->comanda], false, false);
-            // $pedido->detalle = $cmdHisto && count($cmdHisto) > 0 ? $cmdHisto[0]->detalle : [];            
-            $pedido->detalle = $this->get_detalle_pedido($detalle_comandas, $pedido->comanda);
-            // $pedido->forma_pago = $this->Comanda_model->get_forma_pago($pedido->comanda);
-            $pedido->forma_pago = $this->get_forma_pago_comanda($formas_pago_comandas, $pedido->comanda);
-            // $cmd = new Comanda_model($pedido->comanda);
-            // $factura = $cmd->getFactura();
-            // $pedido->datos_facturacion = ($factura && isset($factura->cliente) && (int)$factura->cliente > 0) ? $this->db->select('nombre, nit, direccion, correo AS email')->where('cliente', $factura->cliente)->get('cliente')->row() : null;
+                        
+            $pedido->detalle = $this->get_detalle_pedido($detalle_comandas, $pedido->comanda);            
+            $pedido->forma_pago = $this->get_forma_pago_comanda($formas_pago_comandas, $pedido->comanda);            
             $pedido->datos_facturacion = $this->get_datos_facturacion($facturas_comandas, $pedido->comanda);
 
             $formas_pago = [];
