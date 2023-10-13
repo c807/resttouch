@@ -6,6 +6,7 @@ class Cliente_master extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->model([
             'Cliente_master_model',
             'Cliente_master_nota_model',
@@ -23,7 +24,7 @@ class Cliente_master extends CI_Controller
         if (isset($headers['Authorization'])) {
             $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         }
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function buscar()
@@ -49,13 +50,13 @@ class Cliente_master extends CI_Controller
         if ($this->input->method() == 'post') {
             $datos['exito'] = $clt->guardar($req);
             if ($datos['exito']) {
-                $datos['mensaje'] = "Datos actualizados con éxito.";
+                $datos['mensaje'] = 'Datos actualizados con éxito.';
                 $datos['cliente_master'] = $clt;
             } else {
                 $datos['mensaje'] = $clt->getMensaje();
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }
@@ -71,7 +72,7 @@ class Cliente_master extends CI_Controller
         if (isset($args['_parecido'])) {
             $args['_sin_escape'] = true;
             if (isset($args['numero']) && !empty(trim($args['numero']))) {
-                $args['numero'] = strtoupper(preg_replace("/[^0-9?!]/", '', $args['numero']));
+                $args['numero'] = strtoupper(preg_replace('/[^0-9?!]/', '', $args['numero']));
                 $numero = str_replace(' ', '%', trim($args['numero']));
                 unset($args['numero']);
                 $args['_like']['numero'] = $numero;
@@ -100,7 +101,6 @@ class Cliente_master extends CI_Controller
             $datos['mensaje'] = $cmt->getMensaje();
         }
         $this->output->set_output(json_encode($datos));
-
     }
 
     /**
@@ -118,7 +118,6 @@ class Cliente_master extends CI_Controller
             $datos['mensaje'] = $cmt->getMensaje();
         }
         $this->output->set_output(json_encode($datos));
-
     }
 
     /**
@@ -156,8 +155,6 @@ class Cliente_master extends CI_Controller
             } else {
                 $datos['mensaje'] = $cltDir->getMensaje();
             }
-
-
         } else {
             $datos['mensaje'] = 'Parámetros inválidos.';
         }
@@ -200,8 +197,6 @@ class Cliente_master extends CI_Controller
             } else {
                 $datos['mensaje'] = $cltDir->getMensaje();
             }
-
-
         } else {
             $datos['mensaje'] = 'Parámetros inválidos.';
         }
@@ -214,7 +209,7 @@ class Cliente_master extends CI_Controller
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
             if (isset($req['numero'])) {
-                $req['numero'] = preg_replace("/[^0-9?!]/", '', $req['numero']);
+                $req['numero'] = preg_replace('/[^0-9?!]/', '', $req['numero']);
                 $telefono = $this->Telefono_model->buscar(['numero' => $req['numero'], '_uno' => true]);
                 if ($telefono) {
                     $req['telefono'] = $telefono->telefono;
@@ -253,7 +248,7 @@ class Cliente_master extends CI_Controller
                 }
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }
@@ -273,14 +268,15 @@ class Cliente_master extends CI_Controller
 
         $this->output->set_output(json_encode($datos));
     }
-    public function asociar_cliente_master_cliente(){
+    public function asociar_cliente_master_cliente()
+    {
 
         // Check if nit already exist
-        $resultadoNoDbj = $this->Cliente_master_cliente_model->get_join_nit_no_debaja($_GET);        
+        $resultadoNoDbj = $this->Cliente_master_cliente_model->get_join_nit_no_debaja($_GET);
         $datos['exist'] = true;
 
-        if($resultadoNoDbj) {
-         // Already exist
+        if ($resultadoNoDbj) {
+            // Already exist
             $datos['exito'] = $resultadoNoDbj;
             $datos['datos_facturacion'] = (object)[
                 'cliente_master_cliente' => $resultadoNoDbj->cliente_master_cliente,
@@ -289,12 +285,11 @@ class Cliente_master extends CI_Controller
                 'debaja' => $resultadoNoDbj->debaja
             ];
             $datos['mensaje'] = 'Ya estaba asociado el dato de facturacion.';
-
-        }else{
+        } else {
             // Check if was debaja in cliente_master_cliente
             $resultado = $this->Cliente_master_cliente_model->get_join_nit_debaja($_GET);
             $cmt = null;
-            if($resultado) {
+            if ($resultado) {
                 $cmt = new Cliente_master_cliente_model($resultado->cliente_master_cliente);
                 $datos['exito'] = $cmt->guardar(['debaja' => 0]);
                 if ($datos['exito']) {
@@ -304,11 +299,11 @@ class Cliente_master extends CI_Controller
                 } else {
                     $datos['mensaje'] = $cmt->getMensaje();
                 }
-            }else{
+            } else {
                 // Not as Debaja, Search in Client --> ERROR IS HERE
                 $resultadoCliente = $this->Cliente_model->get_with_nit($_GET);
 
-                if($resultadoCliente){
+                if ($resultadoCliente) {
                     // Client Exist
                     $cmt = new Cliente_master_cliente_model();
                     $datos['exito'] = $cmt->guardar([
@@ -323,18 +318,15 @@ class Cliente_master extends CI_Controller
                     } else {
                         $datos['mensaje'] = $cmt->getMensaje();
                     }
-                }else{
+                } else {
                     // Client Does not Exist
                     $datos['mensaje'] = 'El dato de facturacion no existe';
                     $datos['exist'] = false;
                 }
-
-
             }
         }
 
         $this->output->set_output(json_encode($datos));
-
     }
     public function desasociar_cliente_cliente_master($id)
     {
@@ -427,7 +419,7 @@ class Cliente_master extends CI_Controller
     private function srch_datos_facturacion($args = [])
     {
         if (isset($args['nit']) && !empty(trim($args['nit']))) {
-            $args['nit'] = strtoupper(preg_replace("/[^0-9KkCcFf?!]/", '', $args['nit']));
+            $args['nit'] = strtoupper(preg_replace('/[^0-9KkCcFf?!]/', '', $args['nit']));
         }
 
         if (isset($args['_parecido'])) {
@@ -470,7 +462,7 @@ class Cliente_master extends CI_Controller
                     $cli->guardar([
                         'nombre' => $req['nombre'],
                         'direccion' => isset($req['direccion']) && !empty(trim($req['direccion'])) ? trim($req['direccion']) : 'Ciudad',
-                        'nit' => strtoupper(preg_replace("/[^0-9KkCcFf?!]/", '', $req['nit'])),
+                        'nit' => strtoupper(preg_replace('/[^0-9KkCcFf?!]/', '', $req['nit'])),
                         'correo' => isset($req['correo']) && !empty(trim($req['correo'])) ? trim($req['correo']) : null
                     ]);
                     $req['cliente'] = $cli->getPK();
@@ -494,7 +486,7 @@ class Cliente_master extends CI_Controller
                 $datos['mensaje'] = 'Este cliente ya tiene asociados estos datos de facturación.';
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }
@@ -503,5 +495,4 @@ class Cliente_master extends CI_Controller
     {
         $this->output->set_output(json_encode($this->Cliente_master_model->get_historico($_GET)));
     }
-
 }

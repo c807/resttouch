@@ -7,13 +7,12 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 ini_set('memory_limit', -1);
 set_time_limit(0);
 
-
 class Reporte extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->add_package_path('application/facturacion');
         $this->load->model([
             'Reporte_model',
@@ -1951,16 +1950,16 @@ class Reporte extends CI_Controller
             unset($req['suma']);
             $comanda->forma_pago = isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 ? $this->Reporte_model->get_formas_pago_comanda($req) : [];
             $comanda->factura = isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 ? $this->Reporte_model->get_facturas_comanda($req) : [];
-            
+
             $comanda->numero_orden = null;
             $json = null;
-            if(isset($comanda->comanda_origen_datos) && !is_null($comanda->comanda_origen_datos) && is_string($comanda->comanda_origen_datos)) {
+            if (isset($comanda->comanda_origen_datos) && !is_null($comanda->comanda_origen_datos) && is_string($comanda->comanda_origen_datos)) {
                 try {
                     $json = json_decode($comanda->comanda_origen_datos);
-                } catch(Exception $e) {
+                } catch (Exception $e) {
                     $json = null;
                 }
-                $comanda->numero_orden = isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);                
+                $comanda->numero_orden = isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);
             }
         }
 

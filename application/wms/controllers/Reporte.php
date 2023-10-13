@@ -1,17 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-
 ini_set('memory_limit', -1);
 set_time_limit(0);
 
 class Reporte extends CI_Controller
 {
-
 	private $php_self = '';
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->php_self = $_SERVER['PHP_SELF'];
 		$this->load->model([
 			'Sede_model',
@@ -952,7 +950,7 @@ class Reporte extends CI_Controller
 
 		$vista = $this->load->view('reporte/ingreso/imprimir', $ingreso, true);
 
-		$nombre = 'Ingreso_'.date('YmdHis');
+		$nombre = 'Ingreso_' . date('YmdHis');
 
 		if ((int)$excel === 1) {
 			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
@@ -965,11 +963,11 @@ class Reporte extends CI_Controller
 			$hoja->mergeCells('A3:F3');
 			$hoja->mergeCells('A4:F4');
 			$hoja->getStyle('A1:F4')->getFont()->setBold(true);
-			
+
 			$hoja->getStyle('A')->getAlignment()->setHorizontal('left');
 			$hoja->getStyle('B')->getAlignment()->setHorizontal('left');
 			$hoja->getStyle('C')->getAlignment()->setHorizontal('left');
-			
+
 			$hoja->getStyle('A7:A10')->getFont()->setBold(true);
 			$hoja->getStyle('C7')->getFont()->setBold(true);
 			$hoja->getStyle('C9')->getFont()->setBold(true);
@@ -982,7 +980,7 @@ class Reporte extends CI_Controller
 			$hoja->getStyle('E')->getAlignment()->setHorizontal('right');
 			$hoja->getStyle('F')->getNumberFormat()->setFormatCode('0.00');
 			$hoja->getStyle('F')->getAlignment()->setHorizontal('right');
-			
+
 			foreach (range('A', 'Z') as $col) {
 				$hoja->getColumnDimension($col)->setAutoSize(true);
 			}
@@ -994,7 +992,7 @@ class Reporte extends CI_Controller
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
 			header("Cache-Control: cache, must-revalidate");
 			header("Pragma: public");
-			
+
 			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
 			$writer->save('php://output');
 		} else {
@@ -1004,7 +1002,7 @@ class Reporte extends CI_Controller
 			]);
 
 			$mpdf->WriteHTML($vista);
-			$mpdf->Output($nombre.'.pdf', 'D');
+			$mpdf->Output($nombre . '.pdf', 'D');
 		}
 
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($ingreso));
@@ -1018,7 +1016,7 @@ class Reporte extends CI_Controller
 
 		$vista = $this->load->view('reporte/egreso/imprimir', $egreso, true);
 
-		$nombre = 'Egreso_'.date('YmdHis');
+		$nombre = 'Egreso_' . date('YmdHis');
 
 		if ((int)$excel === 1) {
 			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
@@ -1031,11 +1029,11 @@ class Reporte extends CI_Controller
 			$hoja->mergeCells('A3:F3');
 			$hoja->mergeCells('A4:F4');
 			$hoja->getStyle('A1:F4')->getFont()->setBold(true);
-			
+
 			$hoja->getStyle('A')->getAlignment()->setHorizontal('left');
 			$hoja->getStyle('B')->getAlignment()->setHorizontal('left');
 			$hoja->getStyle('C')->getAlignment()->setHorizontal('left');
-			
+
 			$hoja->getStyle('A7:A12')->getFont()->setBold(true);
 			$hoja->getStyle('C7')->getFont()->setBold(true);
 			$hoja->getStyle('C9')->getFont()->setBold(true);
@@ -1049,7 +1047,7 @@ class Reporte extends CI_Controller
 			$hoja->getStyle('E')->getAlignment()->setHorizontal('right');
 			$hoja->getStyle('F')->getNumberFormat()->setFormatCode('0.00');
 			$hoja->getStyle('F')->getAlignment()->setHorizontal('right');
-			
+
 			foreach (range('A', 'Z') as $col) {
 				$hoja->getColumnDimension($col)->setAutoSize(true);
 			}
@@ -1061,7 +1059,7 @@ class Reporte extends CI_Controller
 			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
 			header("Cache-Control: cache, must-revalidate");
 			header("Pragma: public");
-			
+
 			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
 			$writer->save('php://output');
 		} else {
@@ -1069,9 +1067,9 @@ class Reporte extends CI_Controller
 				'tempDir' => sys_get_temp_dir(), //Produccion
 				'format' => 'Letter'
 			]);
-	
+
 			$mpdf->WriteHTML($vista);
-			$mpdf->Output($nombre.'.pdf', 'D');
+			$mpdf->Output($nombre . '.pdf', 'D');
 		}
 		// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($egreso));
 	}

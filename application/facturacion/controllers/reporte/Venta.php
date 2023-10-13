@@ -1,15 +1,13 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-// error_reporting(-1);
-// ini_set('display_errors', 1);
-
 class Venta extends CI_Controller
 {
 
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->add_package_path('application/restaurante');
 
 		$this->load->model([
@@ -480,7 +478,7 @@ class Venta extends CI_Controller
 				$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
 			}
 
-			$fila+=3;
+			$fila += 3;
 			$hoja->setCellValue("A{$fila}", 'NOTA: Los ingresos por ventas con factura deben tener firma electrónica para que se vean reflejados.');
 			$hoja->setTitle('Ventas por Categoría');
 
@@ -505,12 +503,12 @@ class Venta extends CI_Controller
 			$mpdf->WriteHTML($vista);
 
 			if (verDato($req, '_rturno')) {
-				$ruta = $tmp.'/ventas_categoria_'.rand().'.pdf';
+				$ruta = $tmp . '/ventas_categoria_' . rand() . '.pdf';
 				$mpdf->Output($ruta, 'F');
 
 				$this->output
-				->set_content_type('application/json')
-				->set_output(json_encode(['ruta' => $ruta]));
+					->set_content_type('application/json')
+					->set_output(json_encode(['ruta' => $ruta]));
 			} else {
 				$mpdf->Output('Ventas_categoria.pdf', 'D');
 			}
@@ -609,7 +607,7 @@ class Venta extends CI_Controller
 		}
 		$req['_vivas'] = true;
 		$req['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
-		
+
 		$req = $this->addFiltersCallCenter($req);
 
 		$facts = $this->Factura_model->get_facturas($req);
@@ -929,7 +927,7 @@ class Venta extends CI_Controller
 				$data['_titulocc'] = $req['_titulocc'];
 			}
 
-			
+
 
 			if (verDato($req, '_excel')) {
 				$data = (object)$data;
@@ -945,7 +943,7 @@ class Venta extends CI_Controller
 
 				$hoja->setCellValue('A1', 'Reporte de ventas');
 				$hoja->setCellValue('A2', isset($data->turno) ? "Turno: {$data->turno->descripcion}" : '');
-				$hoja->setCellValue('A3', 'Por artículo'.($_WMS ? ' (coparativo para WMS)' : ''));
+				$hoja->setCellValue('A3', 'Por artículo' . ($_WMS ? ' (coparativo para WMS)' : ''));
 				$hoja->setCellValue('A4', 'Del: ' . formatoFecha($data->fdel, 2) . ' al: ' . formatoFecha($data->fal, 2));
 				if (isset($req['_titulocc'])) {
 					$hoja->setCellValue('A5', $req['_titulocc']);
@@ -1382,7 +1380,7 @@ class Venta extends CI_Controller
 			}
 
 			$req = $this->addFiltersCallCenter($req);
-			
+
 			$rpt = new Rpt_model();
 
 			foreach ($req['sede'] as $s) {

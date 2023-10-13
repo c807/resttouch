@@ -1,19 +1,14 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Tipo_usuario extends CI_Controller {
-
+class Tipo_usuario extends CI_Controller
+{
 	public function __construct()
 	{
-
 		parent::__construct();
-		$this->load->model([
-			"Tipo_usuario_model",
-			"Tipo_usuario_cgrupo_model",
-			"Cgrupo_model"
-		]);
-		$this->output
-		->set_content_type("application/json", "UTF-8");
+		set_database_server();
+		$this->load->model(['Tipo_usuario_model', 'Tipo_usuario_cgrupo_model', 'Cgrupo_model']);
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	private function chkExiste($descripcion)
@@ -22,34 +17,30 @@ class Tipo_usuario extends CI_Controller {
 		return $tu ? true : false;
 	}
 
-	public function guardar($id="")
+	public function guardar($id = '')
 	{
-		$datos = ["exito" => false];
+		$datos = ['exito' => false];
 
-		if ($this->input->method() == "post") {
-			$datos          = json_decode(file_get_contents("php://input"), true);
+		if ($this->input->method() == 'post') {
+			$datos          = json_decode(file_get_contents('php://input'), true);
 			$tusuario       = new Tipo_usuario_model($id);
 
-			if (!$this->chkExiste($datos['descripcion']))
-			{
-				$datos["exito"] = $tusuario->guardar($datos);
+			if (!$this->chkExiste($datos['descripcion'])) {
+				$datos['exito'] = $tusuario->guardar($datos);
 
-				if($datos["exito"]) {
-					$datos["mensaje"]   = "Datos actualizados con éxito.";
-					$datos["categoria"] = $tusuario;
+				if ($datos['exito']) {
+					$datos['mensaje']   = 'Datos actualizados con éxito.';
+					$datos['categoria'] = $tusuario;
 				} else {
-					$datos["mensaje"] = $tusuario->getMensaje();
+					$datos['mensaje'] = $tusuario->getMensaje();
 				}
 			} else {
-				$datos["mensaje"] = "Este tipo de empleado ya existe.";				
+				$datos['mensaje'] = 'Este tipo de empleado ya existe.';
 			}
 		} else {
-			$datos["mensaje"] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
-		
-
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar()
@@ -58,41 +49,39 @@ class Tipo_usuario extends CI_Controller {
 		$datos = [];
 		$tmp = $this->Tipo_usuario_model->buscar($_GET);
 
-		if(is_array($tmp)) {
+		if (is_array($tmp)) {
 			foreach ($tmp as $row) {
 				$tuser = new Tipo_usuario_model($row->usuario_tipo);
 				$row->jerarquia = $tuser->getJerarquia();
 				$datos[] = $row;
 			}
 			$datos = ordenar_array_objetos($datos, 'descripcion');
-		} else if(is_object($tmp)) {
+		} else if (is_object($tmp)) {
 			$tuser = new Tipo_usuario_model($tmp->usuario_tipo);
 			$tmp->jerarquia = $tuser->getJerarquia();
 			$datos = $tmp;
 		}
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
-	public function guardar_cgrupo($id="")
+	public function guardar_cgrupo($id = '')
 	{
-		$datos = ["exito" => false];
+		$datos = ['exito' => false];
 
-		if ($this->input->method() == "post") {
-			$datos = json_decode(file_get_contents("php://input"), true);
+		if ($this->input->method() == 'post') {
+			$datos = json_decode(file_get_contents('php://input'), true);
 			$tucg = new Tipo_usuario_cgrupo_model($id);
-			$datos["exito"] = $tucg->guardar($datos);;
+			$datos['exito'] = $tucg->guardar($datos);;
 
-			if($datos["exito"]) {
-				$datos["mensaje"]   = "Datos actualizados con éxito.";
-				$datos["tipo_usuario_cgrupo"] = $tucg;
+			if ($datos['exito']) {
+				$datos['mensaje']   = 'Datos actualizados con éxito.';
+				$datos['tipo_usuario_cgrupo'] = $tucg;
 			} else {
-				$datos["mensaje"] = $tucg->getMensaje();
-			}	
+				$datos['mensaje'] = $tucg->getMensaje();
+			}
 		} else {
-			$datos["mensaje"] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		$this->output->set_output(json_encode($datos));
 	}
@@ -103,7 +92,7 @@ class Tipo_usuario extends CI_Controller {
 		$datos = [];
 		$tmp = $this->Tipo_usuario_cgrupo_model->buscar($_GET);
 
-		if(is_array($tmp)) {
+		if (is_array($tmp)) {
 			foreach ($tmp as $row) {
 				$tuser = new Tipo_usuario_model($row->usuario_tipo);
 				$tuser->jerarquia = $tuser->getJerarquia();
@@ -113,8 +102,8 @@ class Tipo_usuario extends CI_Controller {
 				$row->categoria_grupo = $cg;
 
 				$datos[] = $row;
-			}			
-		} else if(is_object($tmp)) {
+			}
+		} else if (is_object($tmp)) {
 			$tuser = new Tipo_usuario_model($tmp->usuario_tipo);
 			$tuser->jerarquia = $tuser->getJerarquia();
 			$tmp->usuario_tipo = $tuser;
@@ -125,11 +114,8 @@ class Tipo_usuario extends CI_Controller {
 			$datos = $tmp;
 		}
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
-
 }
 
 /* End of file Tipo_usuario.php */

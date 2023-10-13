@@ -3,15 +3,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Api_gk extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
-        $this->load->model([
-            'Catalogo_model',
-            'Orden_gk_model'
-        ]);
-        $this->output->set_content_type("application/json", "UTF-8");
+        set_database_server();
+        $this->load->model(['Catalogo_model', 'Orden_gk_model']);
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     private function setDatosDB($llave)
@@ -33,9 +30,9 @@ class Api_gk extends CI_Controller
     {
         $comanda_origen = null;
         $origenes = $this->Catalogo_model->getComandaOrigen();
-        foreach($origenes as $origen) {
+        foreach ($origenes as $origen) {
             $pos = strpos(strtoupper(trim($host)), strtoupper(trim($origen->descripcion)));
-            if( $pos === false ) {
+            if ($pos === false) {
                 continue;
             } else {
                 $comanda_origen = $origen;
@@ -55,15 +52,15 @@ class Api_gk extends CI_Controller
             if (isset($req->llave)) {
                 $this->setDatosDB($req->llave);
                 $corporacion = $this->Catalogo_model->getCorporacion(['admin_llave' => $req->llave, '_uno' => true]);
-                if($corporacion) {
+                if ($corporacion) {
                     $origen = $this->get_origen_orden($req->host);
                     if ($origen) {
                         $ruta = $this->Catalogo_model->getDetalleConfigComandaOrigen([
                             'configuracion_comanda_origen' => 1,
                             'comanda_origen' => $origen->comanda_origen,
                             '_uno' => true
-                        ]);    
-                        if($ruta) {
+                        ]);
+                        if ($ruta) {
                             $ordengk = new Orden_gk_model();
                             $ordengk->corporacion = $corporacion->corporacion;
                             $ordengk->protocolo = $req->protocolo;
@@ -75,8 +72,8 @@ class Api_gk extends CI_Controller
                             $ordengk->numero_orden = get_dato_from_object($req->orden, $ruta->ruta);
 
                             $existe = $this->Orden_gk_model->buscar(['numero_orden' => $ordengk->numero_orden, '_uno' => true]);
-                            
-                            if(!$existe) {
+
+                            if (!$existe) {
                                 $ordengk->raw_orden = json_encode($req->orden);
                                 $ordenrt = $ordengk->get_orden_rt();
                                 if ($ordenrt) {
@@ -84,8 +81,7 @@ class Api_gk extends CI_Controller
                                     $ordengk->orden_rt = json_encode($ordenrt);
                                 }
                                 $datos->exito = $ordengk->guardar();
-                                if ($datos->exito)
-                                {
+                                if ($datos->exito) {
                                     $datos->mensaje = 'Orden guardada con éxito.';
                                     $datos->orden = $ordengk;
                                 } else {
@@ -99,7 +95,7 @@ class Api_gk extends CI_Controller
                         }
                     } else {
                         $datos->mensaje = "No existe el origen ({$req->host}) de la orden.";
-                    }                    
+                    }
                 } else {
                     $datos->mensaje = 'La llave no es válida.';
                 }

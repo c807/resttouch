@@ -8,13 +8,14 @@ class Chat extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $headers = $this->input->request_headers();
-        if(isset($headers['Authorization']) && !empty($headers['Authorization'])) {
+        if (isset($headers['Authorization']) && !empty($headers['Authorization'])) {
             $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         } else {
             die();
         }
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function query_chefbot()
@@ -27,7 +28,7 @@ class Chat extends CI_Controller
                 $open_ai_key = getenv('OPENAI_API_KEY');
                 $open_ai = new OpenAi($open_ai_key);
                 $open_ai->setORG('org-vLm4cxV8YfAVn8YRpxDeEk8C');
-        
+
                 $chat = $open_ai->completion([
                     'model' => 'text-davinci-003',
                     'prompt' => $prompt,
@@ -36,12 +37,12 @@ class Chat extends CI_Controller
                     'frequency_penalty' => 0,
                     'presence_penalty' => 0.6,
                 ]);
-        
+
                 $d = json_decode($chat);
 
                 if ($d && isset($d->choices) && is_array($d->choices) && count($d->choices) > 0) {
                     $datos['exito'] = true;
-                    $datos['mensaje'] = str_replace("\n", "", $d->choices[0]->text);                    
+                    $datos['mensaje'] = str_replace('\n', '', $d->choices[0]->text);
                 } else {
                     $datos['mensaje'] = 'Disculpe, no he comprendido su mensaje. ¿Podría intentar de nuevo, por favor?';
                 }

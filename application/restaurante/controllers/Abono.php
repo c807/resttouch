@@ -6,13 +6,9 @@ class Abono extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->add_package_path('application/facturacion');
-
-        $this->load->model([
-            'Abono_model',
-            'Abono_forma_pago_model'
-        ]);
-
+        $this->load->model(['Abono_model', 'Abono_forma_pago_model']);
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
@@ -94,7 +90,8 @@ class Abono extends CI_Controller
         $this->output->set_output(json_encode($datos));
     }
 
-    public function limpia_detalle_abono($idAbono) {
+    public function limpia_detalle_abono($idAbono)
+    {
         $abono = new Abono_model($idAbono);
         $ar = $abono->limpia_detalle();
         $this->output->set_output(json_encode(['exito' => true, 'eliminados' => $ar]));

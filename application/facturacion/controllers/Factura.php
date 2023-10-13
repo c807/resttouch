@@ -1,7 +1,4 @@
 <?php
-error_reporting(-1);
-ini_set('display_errors', 1);
-
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Factura extends CI_Controller
@@ -10,6 +7,7 @@ class Factura extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->add_package_path('application/admin');
 		$this->load->add_package_path('application/restaurante');
 		$this->load->add_package_path('application/wms');

@@ -6,6 +6,7 @@ class Orden_gk extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->model([
             'Catalogo_model',
             'Orden_gk_model',
@@ -37,8 +38,7 @@ class Orden_gk extends CI_Controller
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     private function getOrdenesGk($args = [])
@@ -85,18 +85,18 @@ class Orden_gk extends CI_Controller
             $req = json_decode(file_get_contents('php://input'));
             $bitComanda = new Bitacora_model();
             $usuario = new Usuario_model($this->data->idusuario);
-            $accion = $this->Accion_model->buscar(["descripcion" => "Modificacion", "_uno" => true]);
+            $accion = $this->Accion_model->buscar(['descripcion' => 'Modificacion', '_uno' => true]);
             $ordenGk = new Orden_gk_model($req->orden_gk);
             $ordenGk->guardar(['estatus_orden_gk' => 2]);
 
             $comentario = "Anulación: El usuario {$usuario->nombres} {$usuario->apellidos} anuló la orden {$ordenGk->numero_orden} de {$req->origen}. Motivo: {$req->comentario}";
 
             $bitComanda->guardar([
-                "accion" => $accion->accion,
-                "usuario" => $this->data->idusuario,
-                "tabla" => "orden_gk",
-                "registro" => $req->orden_gk,
-                "comentario" => $comentario
+                'accion' => $accion->accion,
+                'usuario' => $this->data->idusuario,
+                'tabla' => 'orden_gk',
+                'registro' => $req->orden_gk,
+                'comentario' => $comentario
             ]);
 
             $datos->exito = true;
@@ -244,9 +244,9 @@ class Orden_gk extends CI_Controller
                 $det->descuento = 0;
                 $det->descuento_ext = 0;
                 foreach ($descuentoArticulo as $desc) {
-                    if ($det->detalle_comanda == $desc["detalle"]) {
-                        $det->descuento += $desc["descuento"];
-                        $det->descuento_ext += $desc["descuento"];
+                    if ($det->detalle_comanda == $desc['detalle']) {
+                        $det->descuento += $desc['descuento'];
+                        $det->descuento_ext += $desc['descuento'];
                     }
                 }
             } else {

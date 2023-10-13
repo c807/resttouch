@@ -7,12 +7,12 @@ class Acceso extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model('Acceso_model');
-		$this->output
-			->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -38,13 +38,13 @@ class Acceso extends CI_Controller
 			$datos['exito'] = $acceso->guardar($req);
 
 			if ($datos['exito']) {
-				$datos['mensaje'] = "Datos actualizados con éxito.";
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 				$datos['acceso'] = $acceso;
 			} else {
 				$datos['mensaje'] = $acceso->getMensaje();
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -53,7 +53,7 @@ class Acceso extends CI_Controller
 
 	public function buscar()
 	{
-		$menu = $this->config->item("menu");
+		$menu = $this->config->item('menu');
 		$_GET['activo'] = 1;
 		$acceso = $this->Acceso_model->buscar($_GET);
 		$datos = [];

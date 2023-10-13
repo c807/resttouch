@@ -6,6 +6,7 @@ class Callcenter extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->add_package_path('application/facturacion');
 		$this->load->helper('api');
 		$this->load->model([
@@ -98,7 +99,7 @@ class Callcenter extends CI_Controller {
 										$sedeDest = $this->Catalogo_model->getSede(['sede' => $req->pedido->sede, '_uno' => true]);
 										$empresa = $this->Catalogo_model->getEmpresa(['empresa' => $sedeDest->empresa, '_uno' => true]);
 										$corporacion = $this->Catalogo_model->getCorporacion(['corporacion' => $empresa->corporacion, '_uno' => true]);
-										$corporacionUUID = "";
+										$corporacionUUID = '';
 										if ($corporacion) {
 											$corporacionUUID = "/{$corporacion->admin_llave}-{$empresa->empresa}-{$sedeDest->sede}";
 										}

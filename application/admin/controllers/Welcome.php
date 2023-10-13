@@ -1,8 +1,5 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-//use Restserver\Libraries\REST_Controller;
-//require APPPATH . '/libraries/REST_Controller.php';
-//require APPPATH . '/libraries/Format.php';
 
 class Welcome extends CI_Controller
 {
@@ -10,6 +7,7 @@ class Welcome extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model('Config_model');
 	}
 

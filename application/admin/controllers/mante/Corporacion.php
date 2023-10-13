@@ -6,12 +6,11 @@ class Corporacion extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model([
-			"Corporacion_model"
-		]);
+		set_database_server();
+		$this->load->model(['Corporacion_model']);
 	}
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		$corp = new Corporacion_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -20,16 +19,16 @@ class Corporacion extends CI_Controller {
 			$datos['exito'] = $corp->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos actualizados con éxito.";
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 				$datos['corporacion'] = $this->Corporacion_model->buscar([
-					"corporacion" => $corp->getPK(), 
-					"_uno" => true
+					'corporacion' => $corp->getPK(), 
+					'_uno' => true
 				]);
 			} else {
 				$datos['mensaje'] = $corp->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
@@ -38,9 +37,7 @@ class Corporacion extends CI_Controller {
 
 	public function buscar()
 	{
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($this->Corporacion_model->buscar($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($this->Corporacion_model->buscar($_GET)));
 	}
 
 }

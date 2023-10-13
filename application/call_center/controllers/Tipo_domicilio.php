@@ -6,17 +6,15 @@ class Tipo_domicilio extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model([
-            'Tipo_domicilio_model'
-        ]);
-
+        set_database_server();
+        $this->load->model(['Tipo_domicilio_model']);
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
         $this->data = new stdClass();
         if (isset($headers['Authorization'])) {
             $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         }
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function buscar()
@@ -32,11 +30,11 @@ class Tipo_domicilio extends CI_Controller
         if ($this->input->method() == 'post') {
             $entidad = new Tipo_domicilio_model($id);
             $req = json_decode(file_get_contents('php://input'), true);
-            $existe = $this->Tipo_domicilio_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);            
+            $existe = $this->Tipo_domicilio_model->buscar(['UPPER(TRIM(descripcion))' => strtoupper(trim($req['descripcion'])), '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $entidad->guardar($req);
                 if ($datos['exito']) {
-                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['mensaje'] = 'Datos actualizados con éxito.';
                     $datos['tipo_domicilio'] = $entidad;
                 } else {
                     $datos['mensaje'] = $entidad->getMensaje();
@@ -45,7 +43,7 @@ class Tipo_domicilio extends CI_Controller
                 $datos['mensaje'] = "'{$req['descripcion']}' ya existe en el listado.";
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }

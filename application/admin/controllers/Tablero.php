@@ -1,17 +1,14 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Tablero extends CI_Controller {
-
+class Tablero extends CI_Controller
+{
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model([
-			'Tablero_model',
-			'Configuracion_model'
-		]);
-		$this->output
-		->set_content_type('application/json', 'UTF-8');
+		set_database_server();
+		$this->load->model(['Tablero_model', 'Configuracion_model']);
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function index()
@@ -21,7 +18,6 @@ class Tablero extends CI_Controller {
 
 	private function getEsRangoPorFechaDeTurno()
 	{
-		// $config = $this->Configuracion_model->buscar();
 		$config = $this->Configuracion_model->buscar_configuraciones();
 		return get_configuracion($config, 'RT_REPORTES_FECHAS_TURNOS', 3);
 	}
@@ -31,7 +27,7 @@ class Tablero extends CI_Controller {
 		$res = ['exito' => false];
 
 		if ($this->input->get('fdel') && $this->input->get('fal')) {
-			
+
 			if (isset($_GET['sede']) && $_GET['sede'] == 0) {
 				unset($_GET['sede']);
 			}
@@ -56,12 +52,12 @@ class Tablero extends CI_Controller {
 			$period = new DatePeriod($fdel, new DateInterval('P1D'), $fal);
 
 			foreach ($period as $row) {
-				$idx = $row->format('Y').'-'.(int)$row->format('W');
+				$idx = $row->format('Y') . '-' . (int)$row->format('W');
 
 				if (!isset($wlista[$idx])) {
 					$wlista[$idx] = 0;
 				}
-				
+
 				$dias[$row->format('Y-m-d')] = 0;
 			}
 
@@ -95,7 +91,7 @@ class Tablero extends CI_Controller {
 				if (!isset($wlista[$value->semana])) {
 					$wlista[$value->semana] = 0;
 				}
-				
+
 				$dias[$value->fecha_factura] += $value->total;
 				$semana[$value->dia] += $value->total;
 				$horario[$value->hora] += $value->total;
@@ -130,7 +126,7 @@ class Tablero extends CI_Controller {
 				$udias = $dias;
 				$res['ultimos_dias'] = $diferencia;
 			}
-			
+
 			$dwl = graficaDatasets($wlista, false);
 			$dwl->borderColor = randomColor();
 			$dwl->fill = false;
@@ -156,10 +152,10 @@ class Tablero extends CI_Controller {
 				['Días', count($dias)],
 				['Mínimo', number_format(min($dias), 2)],
 				['Máximo', number_format(max($dias), 2)],
-				['Media', number_format(($total/count($dias)), 2)],
+				['Media', number_format(($total / count($dias)), 2)],
 				['TOTAL', number_format($total, 2)]
 			];
-			
+
 			$res['exito'] = true;
 		}
 
@@ -170,8 +166,7 @@ class Tablero extends CI_Controller {
 	{
 		$res = ['exito' => false];
 		$datos = [];
-		if ($this->input->get('fdel') && $this->input->get('fal'))
-		{
+		if ($this->input->get('fdel') && $this->input->get('fal')) {
 			$args = $_GET;
 			$args['_rango_turno'] = $this->getEsRangoPorFechaDeTurno();
 
@@ -179,7 +174,7 @@ class Tablero extends CI_Controller {
 			$datos['porcategoria'] = $this->Tablero_model->getVentasPorCategoria($args);
 			$datos['porturno'] = $this->Tablero_model->getVentasPorTurno($args);
 			$datos['pormesero'] = $this->Tablero_model->getVentasPorMesero($args);
-			
+
 			$res['pordia'] = $this->Tablero_model->agruparDatos(
 				$datos['pordia'],
 				verDato($args, '_grupo', 1)
@@ -210,7 +205,7 @@ class Tablero extends CI_Controller {
 
 	public function get_metabase_url()
 	{
-		$params = [];		
+		$params = [];
 		// $config = $this->Configuracion_model->buscar();
 		$config = $this->Configuracion_model->buscar_configuraciones();
 		$params['RT_METABASE_SITE_URL'] = get_configuracion($config, 'RT_METABASE_SITE_URL');

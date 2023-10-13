@@ -1,29 +1,29 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Compra extends CI_Controller {
-
+class Compra extends CI_Controller
+{
 	public function __construct()
 	{
-        parent::__construct();
-        $this->load->model([
-        	'Compra_model',
-        	'CDetalle_model',
-        	'Ingreso_model',
-        	'IDetalle_Model',
+		parent::__construct();
+		set_database_server();
+		$this->load->model([
+			'Compra_model',
+			'CDetalle_model',
+			'Ingreso_model',
+			'IDetalle_Model',
 			'Articulo_ultima_compra_model'
-        ]);
-
+		]);
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		if (isset($headers['Authorization'])) {
 			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		}
-
-        $this->output->set_content_type('application/json', 'UTF-8');
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = ''){
+	public function guardar($id = '')
+	{
 		$ocs = new Compra_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
@@ -39,22 +39,22 @@ class Compra extends CI_Controller {
 						$datos['exito'] = false;
 					}
 				}
-				if($datos['exito']) {
+				if ($datos['exito']) {
 					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['compra'] = $ocs;
 				} else {
 					$datos['mensaje'] = implode('<br>', $ocs->getMensaje());
-				}		
+				}
 			} else {
 				$datos['mensaje'] = 'Solo se pueden modificar órdenes en estatus abierto.';
-			}	
+			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
-		
+
 
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function guardar_detalle($orden, $id = '')
@@ -64,33 +64,32 @@ class Compra extends CI_Controller {
 		if ($this->input->method() == 'post') {
 			$det = $ocs->setDetalle($req, $id);;
 
-			if($det) {
+			if ($det) {
 				$datos['exito'] = true;
-				$datos['mensaje'] = 'Datos actualizados con éxito.';		
-				$datos['detalle'] = $det;		
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
+				$datos['detalle'] = $det;
 			} else {
 				$datos['mensaje'] = implode('<br>', $ocs->getMensaje());
-			}	
-
+			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function buscar()
 	{
 		$compras = $this->Compra_model->buscar($_GET);
 		$datos = [];
-		if(is_array($compras)) {
+		if (is_array($compras)) {
 			foreach ($compras as $row) {
 				$tmp = new Compra_model($row->orden_compra);
 				$datos[] = $row;
 			}
 			$datos = ordenar_array_objetos($datos, 'orden_compra', 1, 'desc');
-		} else if($compras){
+		} else if ($compras) {
 			$tmp = new Compra_model($compras->orden_compra);
 			$datos[] = $compras;
 		}
@@ -106,11 +105,11 @@ class Compra extends CI_Controller {
 
 	public function get_articulos_proveedor()
 	{
-		if(!isset($_GET['sede'])) {
+		if (!isset($_GET['sede'])) {
 			$_GET['sede'] = $this->data->sede;
 		}
 
-		if(!isset($_GET['proveedor'])) {
+		if (!isset($_GET['proveedor'])) {
 			$_GET['proveedor'] = 0;
 		}
 

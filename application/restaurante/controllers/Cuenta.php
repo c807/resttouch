@@ -3,10 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Cuenta extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Comanda_model',
 			'Dcomanda_model',

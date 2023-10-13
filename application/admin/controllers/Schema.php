@@ -6,12 +6,13 @@ class Schema extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->model([
             'Schema_model',
             'Cliente_rt_model',
             'Cliente_rt_corporacion_model'
         ]);
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function test()
@@ -94,7 +95,7 @@ class Schema extends CI_Controller
                 $datos['mensaje'] = "El esquema '{$req['esquema']}' ya existe.";
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }

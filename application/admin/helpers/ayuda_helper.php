@@ -657,3 +657,71 @@ if (!function_exists('get_mem_usage')) {
 		return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
 }
+
+if (!function_exists('set_database_server')) {
+	function set_database_server()
+	{
+		$ci = &get_instance();
+		$ci->load->helper(['jwt', 'authorization']);
+
+		$esVesuvio = false;
+		$credenciales = json_decode(file_get_contents('php://input'), true);
+		if (isset($credenciales['usr'])) {
+			$datosDominio = explode('@', $credenciales['usr']);
+			if (count($datosDominio) === 2) {
+				if (strcasecmp('vesuvio', $datosDominio[1]) == 0) {
+					$esVesuvio = true;
+				}
+			}
+		} else {
+			$headers = $ci->input->request_headers();
+			if (array_key_exists('Authorization', $headers)) {
+				$token = $headers['Authorization'];
+				try {
+					$data = AUTHORIZATION::validateToken($token);
+					if ($data && isset($data->dominio) && strcasecmp('vesuvio', $data->dominio) == 0) {
+						$esVesuvio = true;
+					}
+				} catch (Exception $e) {
+				}
+			}
+		}
+
+		if ($esVesuvio) {			
+			$ci->db = $ci->load->database('vesuvio', TRUE, TRUE);
+		}
+	}
+}
+
+if (!function_exists('is_vesuvio_user')) {
+	function is_vesuvio_user()
+	{
+		$ci = &get_instance();
+		$ci->load->helper(['jwt', 'authorization']);
+
+		$esVesuvio = false;
+		$credenciales = json_decode(file_get_contents('php://input'), true);
+		if (isset($credenciales['usr'])) {
+			$datosDominio = explode('@', $credenciales['usr']);
+			if (count($datosDominio) === 2) {
+				if (strcasecmp('vesuvio', $datosDominio[1]) == 0) {
+					$esVesuvio = true;
+				}
+			}
+		} else {
+			$headers = $ci->input->request_headers();
+			if (array_key_exists('Authorization', $headers)) {
+				$token = $headers['Authorization'];
+				try {
+					$data = AUTHORIZATION::validateToken($token);
+					if ($data && isset($data->dominio) && strcasecmp('vesuvio', $data->dominio) == 0) {
+						$esVesuvio = true;
+					}
+				} catch (Exception $e) {
+				}
+			}
+		}
+
+		return $esVesuvio;		
+	}
+}

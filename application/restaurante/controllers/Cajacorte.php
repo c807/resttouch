@@ -7,7 +7,7 @@ class Cajacorte extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-
+		set_database_server();
 		$this->load->model([
 			'Cajacorte_model',
 			'Dcajacorte_model',
@@ -23,15 +23,15 @@ class Cajacorte extends CI_Controller
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function guardar($id = '')
 	{
 		$data = ['exito' => false];
 		$mensajes = [];
-		if ($this->input->method() == "post") {
-			$req = json_decode(file_get_contents("php://input"));
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'));
 
 			$cc = new Cajacorte_model($id);
 			$cc->usuario = $this->data->idusuario;

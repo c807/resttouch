@@ -3,10 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Ingreso extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Ingreso_model',
 			'IDetalle_Model',
@@ -26,8 +26,7 @@ class Ingreso extends CI_Controller
 		if (isset($headers['Authorization'])) {
 			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		}
-
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function guardar($id = '')
@@ -43,16 +42,16 @@ class Ingreso extends CI_Controller
 					if ((int)$req['estatus_movimiento'] === 2) {
 						$this->actualiza_costo_ingreso_confirmado($ing->getPK());
 					}
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['ingreso'] = $ing;
 				} else {
-					$datos['mensaje'] = implode("<br>", $ing->getMensaje());
+					$datos['mensaje'] = implode('<br>', $ing->getMensaje());
 				}
 			} else {
-				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
+				$datos['mensaje'] = 'Solo puede editar ingresos en estatus Abierto';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 
@@ -87,8 +86,8 @@ class Ingreso extends CI_Controller
 
 				if ($pres->medida == $presArt->medida) {
 					$art->actualizarExistencia([
-						"bodega" => $ing->bodega,
-						"sede" => $bod->sede
+						'bodega' => $ing->bodega,
+						'sede' => $bod->sede
 					]);
 					$det = $ing->setDetalle($req, $id);
 					if ($det) {
@@ -96,19 +95,19 @@ class Ingreso extends CI_Controller
 							$this->actualiza_ultima_compra($ing, $det, $precioUnitarioIngresado);
 						}
 						$datos['exito'] = true;
-						$datos['mensaje'] = "Datos actualizados con éxito.";
+						$datos['mensaje'] = 'Datos actualizados con éxito.';
 						$datos['detalle'] = $det;
 					} else {
-						$datos['mensaje'] = implode("<br>", $ing->getMensaje());
+						$datos['mensaje'] = implode('<br>', $ing->getMensaje());
 					}
 				} else {
-					$datos['mensaje'] = "Las unidades de medida no coinciden";
+					$datos['mensaje'] = 'Las unidades de medida no coinciden';
 				}
 			} else {
-				$datos['mensaje'] = "Solo puede editar ingresos en estatus Abierto";
+				$datos['mensaje'] = 'Solo puede editar ingresos en estatus Abierto';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -140,11 +139,11 @@ class Ingreso extends CI_Controller
 			foreach ($ingresos as $row) {
 				$tmp = new Ingreso_model($row->ingreso);
 				$row->bodega = $tmp->getBodega();
-				if ((int)$row->bodega->sede === (int)$dataToken->sede) {					
-					$row->tipo_movimiento = $listaTiposMovimiento[(int)$row->tipo_movimiento];					
-					$row->proveedor = $listaProveedores[(int)$row->proveedor];					
-					$row->bodega_origen = is_null($row->bodega_origen) ? null : ((int)$row->bodega_origen > 0 ? $listaBodegas[(int)$row->bodega_origen] : null);					
-					$row->usuario = $listaUsuarios[(int)$row->usuario];					
+				if ((int)$row->bodega->sede === (int)$dataToken->sede) {
+					$row->tipo_movimiento = $listaTiposMovimiento[(int)$row->tipo_movimiento];
+					$row->proveedor = $listaProveedores[(int)$row->proveedor];
+					$row->bodega_origen = is_null($row->bodega_origen) ? null : ((int)$row->bodega_origen > 0 ? $listaBodegas[(int)$row->bodega_origen] : null);
+					$row->usuario = $listaUsuarios[(int)$row->usuario];
 					$row->egreso_origen = array_key_exists((int)$row->ingreso, $listaEgresosOrigen) ? $listaEgresosOrigen[(int)$row->ingreso] : null;
 					$datos[] = $row;
 				}
@@ -155,17 +154,17 @@ class Ingreso extends CI_Controller
 		} else if ($ingresos) {
 			$tmp = new Ingreso_model($ingresos->ingreso);
 			$ingresos->bodega = $tmp->getBodega();
-			if ((int)$ingresos->bodega->sede === (int)$dataToken->sede) {				
-				$ingresos->tipo_movimiento = $listaTiposMovimiento[(int)$ingresos->tipo_movimiento];				
-				$ingresos->proveedor = $listaProveedores[(int)$ingresos->proveedor];				
-				$ingresos->bodega_origen = is_null($ingresos->bodega_origen) ? null : ((int)$ingresos->bodega_origen > 0 ? $listaBodegas[(int)$ingresos->bodega_origen] : null);				
-				$ingresos->usuario = $listaUsuarios[(int)$ingresos->usuario];				
+			if ((int)$ingresos->bodega->sede === (int)$dataToken->sede) {
+				$ingresos->tipo_movimiento = $listaTiposMovimiento[(int)$ingresos->tipo_movimiento];
+				$ingresos->proveedor = $listaProveedores[(int)$ingresos->proveedor];
+				$ingresos->bodega_origen = is_null($ingresos->bodega_origen) ? null : ((int)$ingresos->bodega_origen > 0 ? $listaBodegas[(int)$ingresos->bodega_origen] : null);
+				$ingresos->usuario = $listaUsuarios[(int)$ingresos->usuario];
 				$ingresos->egreso_origen = array_key_exists((int)$ingresos->ingreso, $listaEgresosOrigen) ? $listaEgresosOrigen[(int)$ingresos->ingreso] : null;
 				$datos[] = $ingresos;
 			}
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function buscar_detalle($ingreso)
@@ -174,7 +173,7 @@ class Ingreso extends CI_Controller
 		$ingreso = new Ingreso_model($ingreso);
 		$_GET['_costo'] = true;
 		$this->output
-			->set_content_type("application/json")
+			->set_content_type('application/json')
 			->set_output(json_encode($ingreso->getDetalle($_GET)));
 	}
 
@@ -186,7 +185,7 @@ class Ingreso extends CI_Controller
 		$iva = 1 + $emp->porcentaje_iva;
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos actualizados con éxito.";
+		$datos['mensaje'] = 'Datos actualizados con éxito.';
 		foreach ($ingresos as $row) {
 			$ing = new Ingreso_model($row->ingreso);
 			foreach ($ing->getDetalle() as $val) {
@@ -199,13 +198,13 @@ class Ingreso extends CI_Controller
 					$det->guardar();
 					$art = new Articulo_model($det->articulo);
 					$costo = $art->getCosto();
-					$art->guardar(["costo" => $costo]);
+					$art->guardar(['costo' => $costo]);
 				}
 			}
 		}
 
 		$this->output
-			->set_content_type("application/json")
+			->set_content_type('application/json')
 			->set_output(json_encode($datos));
 	}
 
@@ -215,7 +214,7 @@ class Ingreso extends CI_Controller
 		$bac = new BodegaArticuloCosto_model();
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos actualizados con éxito.";
+		$datos['mensaje'] = 'Datos actualizados con éxito.';
 		foreach ($ingresos as $row) {
 			$ing = new Ingreso_model($row->ingreso);
 			foreach ($ing->getDetalle() as $val) {
@@ -224,12 +223,12 @@ class Ingreso extends CI_Controller
 			}
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	private function actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado)
 	{
-		$this->Ingreso_model->actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado);		
+		$this->Ingreso_model->actualiza_ultima_compra($ingreso, $detalle, $ultimo_costo_ingresado);
 	}
 
 	public function eliminar_detalle($id)
@@ -241,9 +240,9 @@ class Ingreso extends CI_Controller
 		if ((int)$ingreso->estatus_movimiento === 1) {
 			$datos['exito'] = $detalle->eliminar();
 			if ($datos['exito']) {
-				$datos['mensaje'] = "Detalle eliminado con éxito.";
+				$datos['mensaje'] = 'Detalle eliminado con éxito.';
 			} else {
-				$datos['mensaje'] = "Error al eliminar el detalle.";
+				$datos['mensaje'] = 'Error al eliminar el detalle.';
 			}
 		} else {
 			$datos['mensaje'] = "El ingreso {$ingreso->ingreso} ya fue confirmado. No se puede modificar.";

@@ -6,11 +6,8 @@ class Fpago extends CI_Controller {
 	public function __construct()
 	{
         parent::__construct();
-        $this->load->model([
-			'Fpago_model',
-			'Forma_pago_comanda_origen_model',
-			'Forma_pago_sede_cuenta_contable_model'
-		]);
+		set_database_server();
+        $this->load->model(['Fpago_model', 'Forma_pago_comanda_origen_model', 'Forma_pago_sede_cuenta_contable_model']);
         $this->output->set_content_type('application/json', 'UTF-8');		
 	}
 

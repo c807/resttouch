@@ -1,11 +1,12 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Factura extends CI_Controller {
-
+class Factura extends CI_Controller
+{
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->add_package_path('application/facturacion');
 		$this->load->model([
 			'Dfactura_model',
@@ -23,8 +24,8 @@ class Factura extends CI_Controller {
 			'ImpuestoEspecial_model',
 			'Cgrupo_model'
 		]);
-        $this->output->set_content_type('application/json', 'UTF-8');
-	}	
+		$this->output->set_content_type('application/json', 'UTF-8');
+	}
 
 	public function guardar()
 	{
@@ -52,7 +53,7 @@ class Factura extends CI_Controller {
 				}
 
 				$sede = $this->Catalogo_model->getSede(['sede' => $data->sede, '_uno' => true]);
-				
+
 				$req['usuario'] = $data->idusuario;
 				$req['sede'] = $data->sede;
 				$req['certificador_fel'] = $sede->certificador_fel;
@@ -63,13 +64,13 @@ class Factura extends CI_Controller {
 				} else {
 					$req['correo_receptor'] = $clt->correo;
 				}
-				
-				if($continuar){
+
+				if ($continuar) {
 					$fac = new Factura_model();
 					$result = $fac->guardar($req);
 					$fac->cargarEmpresa();
-					$pimpuesto = $fac->empresa->porcentaje_iva +1;
-					if($result) {
+					$pimpuesto = $fac->empresa->porcentaje_iva + 1;
+					if ($result) {
 						foreach ($req['cuentas'] as $row) {
 							$cta = new Cuenta_model($row['cuenta']);
 							$pdesc = $cta->get_descuento();
@@ -79,15 +80,15 @@ class Factura extends CI_Controller {
 								$det->articulo = $det->articulo->articulo;
 
 								$factorAumento = 1 + (float)$det->aumento_porcentaje / 100;
-								$det->total = (((float)$det->precio * $det->cantidad + (float)$det->monto_extra)) * $factorAumento;								
+								$det->total = (((float)$det->precio * $det->cantidad + (float)$det->monto_extra)) * $factorAumento;
 								$det->total_ext = $det->total;
-								
+
 								$det->precio_unitario = round($det->total / $det->cantidad, 2);
 								$det->precio_unitario_ext = $det->total_ext / $det->cantidad;
 
 								$det->descuento = $pdesc > 0 ? ($det->total * $pdesc) : 0;
 								$det->descuento_ext = $pdesc > 0 ? ($det->total_ext * $pdesc) : 0;
-								
+
 								$total = $det->total - (float)$det->descuento;
 								$total_ext = $det->total_ext - (float)$det->descuento_ext;
 
@@ -100,13 +101,13 @@ class Factura extends CI_Controller {
 								}
 								$art = new Articulo_model($det->articulo);
 								$impuesto_especial = $art->getImpuestoEspecial();
-								$desctEspecial = 0; $desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
+								$desctEspecial = 0;
+								$desctEspecial_ext = 0; // Chapuz para no afectar tanto el código. JA 28/01/2022.
 								if ($impuesto_especial) {
 									$det->impuesto_especial = $impuesto_especial->impuesto_especial;
 									$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
 
-									if ((float)$art->cantidad_gravable > 0 && (float)$art->precio_sugerido > 0)
-									{
+									if ((float)$art->cantidad_gravable > 0 && (float)$art->precio_sugerido > 0) {
 										$det->cantidad_gravable = (float)$art->cantidad_gravable * (float)$det->cantidad;
 										$det->precio_sugerido = $art->precio_sugerido;
 										$det->precio_sugerido_ext = $art->precio_sugerido;
@@ -126,7 +127,6 @@ class Factura extends CI_Controller {
 
 										$det->monto_base = ($total - $desctEspecial) / $pimpuesto;
 										$det->monto_base_ext = ($total_ext - $desctEspecial_ext) / $pimpuesto;
-
 									} else {
 										// Agregado el 19/09/2023 para extraer del monto el impuesto especial de turismo
 										$det->total = $det->precio_unitario * (float)$det->cantidad;
@@ -154,7 +154,7 @@ class Factura extends CI_Controller {
 										$total_ext -= $det->valor_impuesto_especial_ext;
 									}
 								}
-								$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;	
+								$det->monto_iva = ($total - $desctEspecial) - $det->monto_base;
 								$det->monto_iva_ext = ($total_ext - $desctEspecial_ext) - $det->monto_base_ext;
 								$fac->setDetalle((array) $det);
 							}
@@ -228,7 +228,7 @@ class Factura extends CI_Controller {
 							$fac->cargarSede();
 							$fac->cargarCertificadorFel();
 							$fac->procesar_factura($facturaRedondeaMontos && (int)$facturaRedondeaMontos->valor === 0 ? false : true);
-							
+
 							$funcion = $fac->getCertificador()->metodo_factura;
 							$resp = $fac->$funcion();
 							$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
@@ -250,8 +250,7 @@ class Factura extends CI_Controller {
 									$this->load->library('Webhook');
 									if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
 										$req = $fac->getXmlWebhook();
-
-									} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
+									} else if (strtolower(trim($webhook->tipo_llamada)) == 'json') {
 										$this->load->helper('api');
 										$req = $fac->getXmlWebhook(true);
 									}
@@ -263,9 +262,9 @@ class Factura extends CI_Controller {
 
 
 								$datos['exito'] = true;
-								$datos['mensaje'] = 'Datos actualizados con exito';	
-							} else {						
-								$datos['mensaje'] = 'Ocurrio un error al enviar la factura, intente nuevamente';			
+								$datos['mensaje'] = 'Datos actualizados con exito';
+							} else {
+								$datos['mensaje'] = 'Ocurrio un error al enviar la factura, intente nuevamente';
 							}
 							$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
 							$fac->datos_comanda = $fac->get_datos_comanda();
@@ -275,20 +274,19 @@ class Factura extends CI_Controller {
 							$datos['mensaje'] = 'Datos actualizados con exito';
 						}
 					} else {
-						$datos['mensaje'] = 'Ocurrio un error al guardar la factura, intente nuevamente';	
+						$datos['mensaje'] = 'Ocurrio un error al guardar la factura, intente nuevamente';
 					}
 				} else {
-					$datos['mensaje'] = 'La forma de pago de la cuenta no genera factura';	
+					$datos['mensaje'] = 'La forma de pago de la cuenta no genera factura';
 				}
-
 			} else {
-				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';	
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar';
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
-		}	
+		}
 
-		$this->output->set_content_type('application/json')->set_output(json_encode($datos));	
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function guardar_test()
@@ -306,7 +304,7 @@ class Factura extends CI_Controller {
 				// $config = $this->Configuracion_model->buscar(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
 				$config = $this->Configuracion_model->buscar_configuraciones(['campo' => 'RT_FACTURA_PROPINA', '_uno' => true]);
 
-				
+
 				$req['usuario'] = $data->idusuario;
 				$req['sede'] = $data->sede;
 				$req['certificador_fel'] = $sede->certificador_fel;
@@ -319,15 +317,14 @@ class Factura extends CI_Controller {
 					if (count($fpago) > 0) {
 						$continuar = false;
 					}
-
 				}
-				
-				if($continuar){
+
+				if ($continuar) {
 					$fac = new Factura_model();
 					$result = $fac->guardar($req);
 					$fac->cargarEmpresa();
-					$pimpuesto = $fac->empresa->porcentaje_iva +1;
-					if($result) {
+					$pimpuesto = $fac->empresa->porcentaje_iva + 1;
+					if ($result) {
 						foreach ($req['cuentas'] as $row) {
 							$cta = new Cuenta_model($row['cuenta']);
 							$pdesc = $cta->get_descuento();
@@ -335,9 +332,9 @@ class Factura extends CI_Controller {
 							foreach ($cta->getDetalle(['impreso' => 1]) as $det) {
 								$det->bien_servicio = $det->articulo->bien_servicio;
 								$det->articulo = $det->articulo->articulo;
-								
+
 								$det->descuento = $pdesc > 0 ? ($det->total * $pdesc) : 0;
-								
+
 								$det->precio_unitario = $det->precio;
 								$total = $det->total - $det->descuento;
 
@@ -353,7 +350,7 @@ class Factura extends CI_Controller {
 									$det->porcentaje_impuesto_especial = $impuesto_especial->porcentaje;
 									$det->valor_impuesto_especial = $det->monto_base * ((float)$impuesto_especial->porcentaje / 100);
 								}
-								$det->monto_iva = $total - $det->monto_base;	
+								$det->monto_iva = $total - $det->monto_base;
 								$fac->setDetalle((array) $det);
 							}
 						}
@@ -414,7 +411,7 @@ class Factura extends CI_Controller {
 						$fac->cargarSede();
 						$fac->cargarCertificadorFel();
 						$fac->procesar_factura();
-						
+
 						$funcion = $fac->getCertificador()->metodo_factura;
 						$resp = $fac->$funcion();
 						$fac->setBitacoraFel(['resultado' => json_encode($resp)]);
@@ -436,8 +433,7 @@ class Factura extends CI_Controller {
 								$this->load->library('Webhook');
 								if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
 									$req = $fac->getXmlWebhook();
-
-								} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
+								} else if (strtolower(trim($webhook->tipo_llamada)) == 'json') {
 									$this->load->helper('api');
 									$req = $fac->getXmlWebhook(true);
 								}
@@ -449,25 +445,24 @@ class Factura extends CI_Controller {
 
 
 							$datos['exito'] = true;
-							$datos['mensaje'] = 'Datos actualizados con éxito.';	
-						} else {						
-							$datos['mensaje'] = 'Ocurrió un error al enviar la factura, intente nuevamente.';			
+							$datos['mensaje'] = 'Datos actualizados con éxito.';
+						} else {
+							$datos['mensaje'] = 'Ocurrió un error al enviar la factura, intente nuevamente.';
 						}
 						$fac->empresa->direccion = !empty($fac->sedeFactura->direccion) ? $fac->sedeFactura->direccion : $fac->empresa->direccion;
 						$datos['factura'] = $fac;
 					} else {
-						$datos['mensaje'] = 'Ocurrió un error al guardar la factura, intente nuevamente.';	
+						$datos['mensaje'] = 'Ocurrió un error al guardar la factura, intente nuevamente.';
 					}
 				} else {
-					$datos['mensaje'] = 'La forma de pago de la cuenta no genera factura.';	
+					$datos['mensaje'] = 'La forma de pago de la cuenta no genera factura.';
 				}
-
 			} else {
-				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar.';	
+				$datos['mensaje'] = 'Hacen falta datos obligatorios para poder continuar.';
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
-		}	
+		}
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
@@ -482,9 +477,9 @@ class Factura extends CI_Controller {
 
 		$noPasaron = [];
 
-		if(!isset($laFactura)) {
+		if (!isset($laFactura)) {
 			$body = json_decode(file_get_contents('php://input'));
-			if(isset($body->facturas)) {
+			if (isset($body->facturas)) {
 				$listaFacturas = explode(',', $body->facturas);
 			}
 		} else {
@@ -502,35 +497,35 @@ class Factura extends CI_Controller {
 
 		foreach ($listaFacturas as $qFact) {
 			//if(!in_array((int)$qFact, $yaPasaron)){
-				try {
-					$fac = new Factura_model($qFact);
-					$fac->cargarFacturaSerie();
-					$fac->cargarEmpresa();
-					$fac->cargarMoneda();
-					$fac->cargarReceptor();
-					$fac->cargarSede();
-					//$fac->procesar_factura();
-					//$resp = $fac->enviarDigiFact();
-			
-					$req = $fac->getXmlWebhook(true);
-					// $elxml = $req;
-					// $client = new SoapClient('http://52.35.3.1/jk/php/ws/organization.wsdl');
-			
-					//$res = $client->setVenta($req);
-					$web = new Webhook($webhook);
-					$web->setRequest($req);
-					$res = $web->setEvento();
-					echo "<pre> $qFact - ";
-					print_r ($res);
-					echo '</pre>';				
-					unset($web);
-					unset($res);
-					unset($fac);
-				} catch(Exception $e) {
-					// echo "<pre> $qFact - ".$e->getMessage().'</pre>';
-					$noPasaron[] = $qFact;
-				}
-				// sleep(2);
+			try {
+				$fac = new Factura_model($qFact);
+				$fac->cargarFacturaSerie();
+				$fac->cargarEmpresa();
+				$fac->cargarMoneda();
+				$fac->cargarReceptor();
+				$fac->cargarSede();
+				//$fac->procesar_factura();
+				//$resp = $fac->enviarDigiFact();
+
+				$req = $fac->getXmlWebhook(true);
+				// $elxml = $req;
+				// $client = new SoapClient('http://52.35.3.1/jk/php/ws/organization.wsdl');
+
+				//$res = $client->setVenta($req);
+				$web = new Webhook($webhook);
+				$web->setRequest($req);
+				$res = $web->setEvento();
+				echo "<pre> $qFact - ";
+				print_r($res);
+				echo '</pre>';
+				unset($web);
+				unset($res);
+				unset($fac);
+			} catch (Exception $e) {
+				// echo "<pre> $qFact - ".$e->getMessage().'</pre>';
+				$noPasaron[] = $qFact;
+			}
+			// sleep(2);
 			//}// IF
 		}
 
@@ -544,12 +539,13 @@ class Factura extends CI_Controller {
 		$datos = json_decode(file_get_contents('php://input'), true);
 		$res   = ['exito' => false];
 
-		if (verDato($datos, 'fdel') &&
+		if (
+			verDato($datos, 'fdel') &&
 			verDato($datos, 'fal') &&
 			verDato($datos, 'sede')
 		) {
 			$lista = $this->Factura_model->getFacturas($datos);
-			
+
 			if ($lista) {
 				$res['exito'] = true;
 				$data = [];
@@ -576,13 +572,13 @@ class Factura extends CI_Controller {
 	{
 		set_time_limit(0);
 		$res = ['exito' => false];
-		
+
 		if ($this->input->method() === 'post') {
 
 			$datos = json_decode(file_get_contents('php://input'), true);
 
 			if (verDato($datos, 'facturas')) {
-				
+
 				$this->load->library('Webhook');
 				$this->load->helper('api');
 
@@ -608,17 +604,17 @@ class Factura extends CI_Controller {
 						$web->setRequest($req);
 						$ret = $web->setEvento();
 						$ret = json_decode($ret);
-						
+
 						if ($ret && verPropiedad($ret, 'exito')) {
 							$cont++;
 						} else {
 							$fallo[] = verPropiedad($ret, 'mensaje', 'Error al migrar');
 						}
-						
+
 						unset($web);
 						unset($ret);
 						unset($fac);
-					} catch(Exception $e) {
+					} catch (Exception $e) {
 						$fallo[] = $e->getMessage();
 					}
 				}

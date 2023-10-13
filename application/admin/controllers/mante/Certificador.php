@@ -6,15 +6,12 @@ class Certificador extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model([
-			'Certificador_fel_model',
-			'Certificador_configuracion_model'
-		]);
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+		set_database_server();
+		$this->load->model(['Certificador_fel_model', 'Certificador_configuracion_model']);
+        $this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	function guardar_configuracion($id = "")
+	public function guardar_configuracion($id = '')
 	{
 		$config = new Certificador_configuracion_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -28,23 +25,23 @@ class Certificador extends CI_Controller {
 					$config->actualizarCertificadores();
 				}
 				
-				$datos['mensaje'] = "Datos actualizados con éxito.";
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 				$datos['configuracion'] = $this->Certificador_configuracion_model->buscar([
-					"certificador_configuracion" => $config->getPK(),
-					"_uno" => true
+					'certificador_configuracion' => $config->getPK(),
+					'_uno' => true
 				]);
 			} else {
-				$datos['mensaje'] = implode(", ", $config->getMensaje());
+				$datos['mensaje'] = implode(', ', $config->getMensaje());
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
 		->set_output(json_encode($datos));
 	}
 
-	function guardar_certificador($conf, $id = "")
+	public function guardar_certificador($conf, $id = '')
 	{
 		$config = new Certificador_configuracion_model($conf);
 		$cert = new Certificador_fel_model($id);
@@ -65,37 +62,37 @@ class Certificador extends CI_Controller {
 
 			$datos['exito'] = $cert->guardar($req);
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos actualizados con éxito.";
+				$datos['mensaje'] = 'Datos actualizados con éxito.';
 				$datos['certificador'] = $this->Certificador_fel_model->buscar([
-					"certificador_fel" => $cert->getPK(),
-					"_uno" => true
+					'certificador_fel' => $cert->getPK(),
+					'_uno' => true
 				]);
 			} else {
-				$datos['mensaje'] = implode(", ", $cert->getMensaje());
+				$datos['mensaje'] = implode(', ', $cert->getMensaje());
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 		
 		$this->output
 		->set_output(json_encode($datos));
 	}
 
-	function get_configuracion()
+	public function get_configuracion()
 	{
 		$datos = $this->Certificador_configuracion_model->buscar($_GET);
 
 		$this->output
-		->set_content_type("application/json")
+		->set_content_type('application/json')
 		->set_output(json_encode($datos));
 	}
 
-	function get_certificador()
+	public function get_certificador()
 	{
 		$datos = $this->Certificador_fel_model->buscar($_GET);
 
 		$this->output
-		->set_content_type("application/json")
+		->set_content_type('application/json')
 		->set_output(json_encode($datos));
 	}
 

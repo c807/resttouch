@@ -5,32 +5,23 @@ class Usuario extends CI_Controller
 {
     public function __construct()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
-        if ($method == "OPTIONS") {
-            die();
-        }
-
         parent::__construct();
-        $this->load->model([
-            'Usuario_model',
-            'Catalogo_model'
-        ]);
-
-        $this->output->set_content_type("application/json", "UTF-8");
+        set_database_server();
+        $this->load->model(['Usuario_model', 'Catalogo_model']);
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function login()
     {
-        // $this->load->model('Acceso_model');
         $logged = ['status' => false];
         if ($this->input->method() == 'post') {
 
             $credenciales = json_decode(file_get_contents('php://input'), true);
-            $usr = explode("@", $credenciales['usr']);
+            $usr = explode('@', $credenciales['usr']);
 
             $credenciales['usr'] = $usr[0];
 
-            $usr = explode(".", $usr[1]);
+            $usr = explode('.', $usr[1]);
 
             $datosDb = $this->Catalogo_model->getCredenciales(['dominio' => $usr[0]]);
             if ($datosDb) {
@@ -41,15 +32,15 @@ class Usuario extends CI_Controller
                         'password' => $datosDb->db_password,
                         'database' => $datosDb->db_database
                     ];
-        
+
                     $db = conexion_db($conn);
-        
+
                     $this->db = $this->load->database($db, true);
-        
+
                     $credenciales['dominio'] = $usr[0];
                     $logged = $this->Usuario_model->logIn($credenciales);
-        
-                    if (!empty($logged['token'])) {                    
+
+                    if (!empty($logged['token'])) {
                         $datos = $this->set_accesos_usuario($logged);
                         $logged['acceso'] = array_values($datos);
                         $logged['status'] = true;
@@ -72,7 +63,7 @@ class Usuario extends CI_Controller
         $this->load->model('Acceso_model');
         $datos = [];
         $tmp = [];
-        $menu = $this->config->item("menu");
+        $menu = $this->config->item('menu');
         $args = ['activo' => 1, 'usuario' => $logged['idusr']];
         $acceso = $this->Acceso_model->buscar($args);
         foreach ($acceso as $row) {
@@ -103,7 +94,7 @@ class Usuario extends CI_Controller
         if (array_key_exists('Authorization', $headers)) {
             $data = AUTHORIZATION::validateToken($headers['Authorization']);
             if ($data === false) {
-                $logged['mensaje'] = "Token incorrecto.";
+                $logged['mensaje'] = 'Token incorrecto.';
             } else {
                 if ($this->input->method() == 'post') {
                     $credenciales = json_decode(file_get_contents('php://input'), true);
@@ -115,16 +106,16 @@ class Usuario extends CI_Controller
                         $logged['acceso'] = array_values($datos);
                         $logged['exito'] = true;
                     } else {
-                        $logged['mensaje'] = "Pin incorrecto.";
+                        $logged['mensaje'] = 'Pin incorrecto.';
                         $logged['exito'] = false;
                     }
                 } else {
-                    $logged['mensaje'] = "Llamada incorrecta.";
+                    $logged['mensaje'] = 'Llamada incorrecta.';
                     $logged['exito'] = false;
                 }
             }
         } else {
-            $logged['mensaje'] = "¡Acceso no autorizado!";
+            $logged['mensaje'] = '¡Acceso no autorizado!';
         }
         $this->output->set_output(json_encode($logged));
     }
@@ -190,10 +181,9 @@ class Usuario extends CI_Controller
     public function get_rol_turno($idUsuario = null)
     {
         $roles = '';
-        if ($idUsuario)
-        {
+        if ($idUsuario) {
             $usr = new Usuario_model($idUsuario);
-            $roles = $usr->getRolesTurno();            
+            $roles = $usr->getRolesTurno();
         }
         $this->output->set_output(json_encode(['roles' => $roles]));
     }

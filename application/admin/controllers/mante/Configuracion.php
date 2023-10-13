@@ -6,6 +6,7 @@ class Configuracion extends CI_Controller {
 	public function __construct()
 	{
         parent::__construct();
+		set_database_server();
         $this->load->model('Configuracion_model');
         $this->output->set_content_type('application/json', 'UTF-8');
 	}
@@ -37,7 +38,6 @@ class Configuracion extends CI_Controller {
 
 	public function buscar()
 	{		
-		// $datos = $this->Configuracion_model->buscar($_GET);
 		$datos = $this->Configuracion_model->buscar_configuraciones($_GET);
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}

@@ -6,12 +6,12 @@ class Impresora extends CI_Controller {
 	public function __construct()
 	{
         parent::__construct();
+		set_database_server();
         $this->load->model('Impresora_model');
-        $this->output
-		->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = "") 
+	public function guardar($id = '') 
 	{
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -37,17 +37,16 @@ class Impresora extends CI_Controller {
 			$datos['exito'] = $imp->guardar($req);
 
 			if($datos['exito']) {
-				$datos['mensaje'] = "Datos actualizados con éxito";
+				$datos['mensaje'] = 'Datos actualizados con éxito';
 				$datos['impresora'] = $imp;
 			} else {
 				$datos['mensaje'] = $imp->getMensaje();
 			}	
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos";
+			$datos['mensaje'] = 'Parámetros inválidos';
 		}
 		
-		$this->output
-		->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function buscar()
@@ -58,9 +57,7 @@ class Impresora extends CI_Controller {
 		$_GET['sede'] = $data->sede;
 		$datos = $this->Impresora_model->buscar($_GET);
 
-		$this->output
-		->set_content_type("application/json")
-		->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 }

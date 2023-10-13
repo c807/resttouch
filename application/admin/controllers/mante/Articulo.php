@@ -7,6 +7,7 @@ class Articulo extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Articulo_model',
 			'Receta_model',
@@ -20,7 +21,6 @@ class Articulo extends CI_Controller
 			'Accion_model',
 			'Schema_model', 'Catalogo_model', 'Sede_model', 'Bodega_model'
 		]);
-
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
@@ -28,8 +28,7 @@ class Articulo extends CI_Controller
 	}
 
 	public function chkCodigoExistente($codigo = '')
-	{
-		// $art = $this->Articulo_model->buscar(['codigo' => $codigo, '_uno' => true]);
+	{		
 		$art = $this->Articulo_model->buscarArticulo(['codigo' => $codigo, 'sede' => $this->data->sede]);
 		return $art ? true : false;
 	}
@@ -349,7 +348,7 @@ class Articulo extends CI_Controller
 		$arts = $this->Articulo_model->buscar();
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = 'Datos actualizados con éxito';
+		$datos['mensaje'] = 'Datos actualizados con éxito.';
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			$costo = $art->getCosto();
@@ -785,8 +784,7 @@ class Articulo extends CI_Controller
 						$entidad['presentacion'] = $presentacion->presentacion;
 						$entidad['descripcion'] = trim($col[1]);
 						$entidad['precio'] = (float)$col[2];
-						$entidad['bien_servicio'] = trim($col[3]);
-						$entidad['codigo'] = trim($col[4]);
+						$entidad['bien_servicio'] = trim($col[3]);						
 						$entidad['codigo'] = str_ireplace($reemplazar, '', trim($col[4]));
 						$entidad['presentacion_reporte'] = $presentacion->presentacion;
 						$entidad['mostrar_pos'] = (int)$col[6];

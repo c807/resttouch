@@ -3,10 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Conversor extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Sede_model',
 			'Empresa_model',
@@ -23,13 +23,11 @@ class Conversor extends CI_Controller
 			'BodegaArticuloCosto_model',
 			'Bodega_model'
 		]);
-
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		if (isset($headers['Authorization'])) {
 			$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		}
-
 		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 

@@ -7,12 +7,11 @@ class Cgrupo extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model(['Cgrupo_model', 'Catalogo_model', 'Categoria_model', 'Impresora_model']);
-
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-
 		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 

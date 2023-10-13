@@ -7,6 +7,7 @@ class Reserva extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Reserva_model', 'Dreserva_model', 'Mesa_model', 'Tarifa_reserva_model',
 			'Comanda_model', 'Cuenta_model', 'Dcomanda_model', 'Articulo_model',
@@ -316,7 +317,7 @@ class Reserva extends CI_Controller
 			$datos['resumen_clientes'] = $this->getResumenClienteHistorial($historial, $topN);
 			$datos['detalle'] = $historial;
 			$datos['exito'] = true;
-			
+
 			if (verDato($req, '_excel')) {
 				$this->output->set_content_type('application/vnd.ms-excel');
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -336,13 +337,13 @@ class Reserva extends CI_Controller
 				$hoja->mergeCells('A2:G2');
 				$hoja->setCellValue('A3', "Del: {$datos['fdel']} al {$datos['fal']}");
 				$hoja->mergeCells('A3:G3');
-				$hoja->setCellValue('A4', 'Total de reservas en el rango: '.count($datos['detalle']));
+				$hoja->setCellValue('A4', 'Total de reservas en el rango: ' . count($datos['detalle']));
 				$hoja->mergeCells('A4:G4');
 				if ($datos['topn'] > 0) {
 					$hoja->setCellValue('A5', "Se muestra el top {$datos['topn']}");
 					$hoja->mergeCells('A5:G5');
 				}
-				$hoja->getStyle('A1:A5')->getFont()->setBold(true);				
+				$hoja->getStyle('A1:A5')->getFont()->setBold(true);
 
 				$fila = $datos['topn'] > 0 ? 7 : 6;
 				$hoja->setCellValue("A{$fila}", 'RESERVABLES');
@@ -351,18 +352,18 @@ class Reserva extends CI_Controller
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				$hoja->setCellValue("A{$fila}", 'Reservable');
-            	$hoja->setCellValue("B{$fila}", 'Cantidad');
-            	$hoja->setCellValue("C{$fila}", 'Porcentaje');
+				$hoja->setCellValue("B{$fila}", 'Cantidad');
+				$hoja->setCellValue("C{$fila}", 'Porcentaje');
 				$hoja->getStyle("A{$fila}:C{$fila}")->getFont()->setBold(true);
 				$hoja->getStyle("B{$fila}:C{$fila}")->getAlignment()->setHorizontal('right');
 				$fila++;
-				foreach($datos['resumen_reservables'] as $rr) {
+				foreach ($datos['resumen_reservables'] as $rr) {
 					$hoja->setCellValue("A{$fila}", $rr['reservable']);
-            		$hoja->setCellValue("B{$fila}", $rr['cantidad']);
-            		$hoja->setCellValue("C{$fila}", $rr['porcentaje']);
+					$hoja->setCellValue("B{$fila}", $rr['cantidad']);
+					$hoja->setCellValue("C{$fila}", $rr['porcentaje']);
 					$hoja->getStyle("B{$fila}:C{$fila}")->getNumberFormat()->setFormatCode('0.00');
 					$hoja->getStyle("B{$fila}:C{$fila}")->getAlignment()->setHorizontal('right');
-					$fila++;					
+					$fila++;
 				}
 				$fila++;
 				$hoja->setCellValue("A{$fila}", 'CLIENTES');
@@ -371,18 +372,18 @@ class Reserva extends CI_Controller
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				$hoja->setCellValue("A{$fila}", 'Cliente');
-            	$hoja->setCellValue("B{$fila}", 'Cantidad');
-            	$hoja->setCellValue("C{$fila}", 'Porcentaje');
+				$hoja->setCellValue("B{$fila}", 'Cantidad');
+				$hoja->setCellValue("C{$fila}", 'Porcentaje');
 				$hoja->getStyle("A{$fila}:C{$fila}")->getFont()->setBold(true);
 				$hoja->getStyle("B{$fila}:C{$fila}")->getAlignment()->setHorizontal('right');
 				$fila++;
-				foreach($datos['resumen_clientes'] as $rc) {
+				foreach ($datos['resumen_clientes'] as $rc) {
 					$hoja->setCellValue("A{$fila}", $rc['cliente']);
-            		$hoja->setCellValue("B{$fila}", $rc['cantidad']);
-            		$hoja->setCellValue("C{$fila}", $rc['porcentaje']);
+					$hoja->setCellValue("B{$fila}", $rc['cantidad']);
+					$hoja->setCellValue("C{$fila}", $rc['porcentaje']);
 					$hoja->getStyle("B{$fila}:C{$fila}")->getNumberFormat()->setFormatCode('0.00');
 					$hoja->getStyle("B{$fila}:C{$fila}")->getAlignment()->setHorizontal('right');
-					$fila++;					
+					$fila++;
 				}
 				$fila++;
 				$hoja->setCellValue("A{$fila}", 'DETALLE');
@@ -391,8 +392,8 @@ class Reserva extends CI_Controller
 				$hoja->getStyle("A{$fila}")->getAlignment()->setHorizontal('center');
 				$fila++;
 				$hoja->setCellValue("A{$fila}", 'Del');
-            	$hoja->setCellValue("B{$fila}", 'Al');
-            	$hoja->setCellValue("C{$fila}", 'Reserva');
+				$hoja->setCellValue("B{$fila}", 'Al');
+				$hoja->setCellValue("C{$fila}", 'Reserva');
 				$hoja->setCellValue("D{$fila}", 'Ubicación');
 				$hoja->setCellValue("E{$fila}", 'Cliente');
 				$hoja->setCellValue("F{$fila}", 'Adultos');
@@ -402,7 +403,7 @@ class Reserva extends CI_Controller
 				$hoja->getStyle("F{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
 				$hoja->setAutoFilter("A{$fila}:G{$fila}");
 				$fila++;
-				foreach($datos['detalle'] as $det) {
+				foreach ($datos['detalle'] as $det) {
 					$hoja->setCellValue("A{$fila}", formatoFecha($det->fecha_del, 2));
 					$hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
 					$hoja->setCellValue("B{$fila}", formatoFecha($det->fecha_al, 2));
@@ -440,7 +441,7 @@ class Reserva extends CI_Controller
 					'format' => 'letter'
 				]);
 				$mpdf->WriteHTML($this->load->view('historial_reservas', $datos, true));
-				$mpdf->Output('Historial_reservas_' . date('YmdHis') . '.pdf', 'D');				
+				$mpdf->Output('Historial_reservas_' . date('YmdHis') . '.pdf', 'D');
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';

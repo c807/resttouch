@@ -3,11 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Comanda extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
-		//$this->datos = [];
+		set_database_server();
 		$this->load->add_package_path('application/facturacion');
 		$this->load->add_package_path('application/wms');
 
@@ -190,7 +189,7 @@ class Comanda extends CI_Controller
 	}
 
 	public function guardar_detalle_combo($com, $cuenta)
-	{		
+	{
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$comanda = new Comanda_model($com);
@@ -478,7 +477,7 @@ class Comanda extends CI_Controller
 
 	function get_comanda($mesa = '')
 	{
-		$this->load->helper(['jwt', 'authorization', 'api']);		
+		$this->load->helper(['jwt', 'authorization', 'api']);
 		$headers = $this->input->request_headers();
 		$data = AUTHORIZATION::validateToken($headers['Authorization']);
 
@@ -501,7 +500,7 @@ class Comanda extends CI_Controller
 			}
 
 			$tmp = $this->Comanda_model->getComandas($params);
-			foreach ($tmp as $row) {				
+			foreach ($tmp as $row) {
 				$comanda = new Comanda_model($row->comanda);
 				$item = $comanda->getComanda([
 					'_usuario' => $data->idusuario,
@@ -564,7 +563,7 @@ class Comanda extends CI_Controller
 					$updlst = json_decode(get_request("{$urlBaseWs}/api/updlstareas", []));
 					$datos->msgws = $updlst;
 				}
-			}			
+			}
 		}
 		$this->output->set_output(json_encode($datos));
 	}
