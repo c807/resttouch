@@ -257,7 +257,7 @@ class Articulo_model extends General_model
 		return $comandas->total + $facturas->total;
 	}
 
-	function getVentaRecetas($art, $args = [])
+	public function getVentaRecetas($art, $args = [])
 	{
 		$rec = new Articulo_model($art);
 		$principal = $rec->getReceta(['_principal' => true]);
@@ -272,7 +272,7 @@ class Articulo_model extends General_model
 		return $exist;
 	}
 
-	function actualizarExistencia($args = [])
+	public function actualizarExistencia($args = [])
 	{
 		if ($this->getPK()) {
 			$receta = $this->getReceta();
@@ -393,7 +393,7 @@ class Articulo_model extends General_model
 		return ($pres && isset($pres->cantidad) && (float)$pres->cantidad > 0) ? ((float)$ingresos->total - ((float)$egresos->total + (float)$venta / (float)$pres->cantidad)) * (float)$pres->cantidad : 0;
 	}
 
-	function getIngresoEgreso($articulo, $args = [])
+	public function getIngresoEgreso($articulo, $args = [])
 	{
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
@@ -460,7 +460,7 @@ class Articulo_model extends General_model
 		}
 	}
 
-	function getComandaFactura($articulo, $args = [])
+	public function getComandaFactura($articulo, $args = [])
 	{
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {

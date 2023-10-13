@@ -1,26 +1,20 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-header('Allow: GET, POST, OPTIONS, PUT, DELETE');
-
 class Area extends CI_Controller
 {
 
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model(['Area_model', 'Mesa_model']);
-
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		$mesa = new Area_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -47,16 +41,16 @@ class Area extends CI_Controller
 				$datos['exito'] = $mesa->guardar($req);
 	
 				if ($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['area'] = $mesa;
 				} else {
 					$datos['mensaje'] = $mesa->getMensaje();
 				}
 			} else {
-				$datos['mensaje'] = "Ya hay un área con ese nombre.";				
+				$datos['mensaje'] = 'Ya hay un área con ese nombre.';				
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output
@@ -90,7 +84,7 @@ class Area extends CI_Controller
 			$datos[] = $areas;
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function get_mesas_disponibles()
@@ -103,7 +97,7 @@ class Area extends CI_Controller
 		foreach($mesas as $mesa) {
 			$mesa->area = new Area_model($mesa->area);
 		}
-		$this->output->set_content_type("application/json")->set_output(json_encode($mesas));
+		$this->output->set_content_type('application/json')->set_output(json_encode($mesas));
 	}
 }
 

@@ -7,11 +7,12 @@ class Cliente extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model('Cliente_model');
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		$clt = new Cliente_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -70,7 +71,7 @@ class Cliente extends CI_Controller
 		// $datos = $this->Cliente_model->buscar($_GET);
 		$cli = new Cliente_model();
 		$datos = $cli->get_lista($_GET);
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function prettyNombreContribuyente($fullname)
@@ -112,14 +113,14 @@ class Cliente extends CI_Controller
 			$tmp->cargarCertificadorFel();
 			$cer = $tmp->getCertificador();
 
-			if ($cer->metodo_factura === "enviarInfile") {
+			if ($cer->metodo_factura === 'enviarInfile') {
 				$dnit = [
-					"emisor_codigo" => $cer->firma_alias,
-					"emisor_clave" => $cer->llave,
-					"nit_consulta" => $nit
+					'emisor_codigo' => $cer->firma_alias,
+					'emisor_clave' => $cer->llave,
+					'nit_consulta' => $nit
 				];
 
-				$ch = curl_init("https://consultareceptores.feel.com.gt/rest/action");
+				$ch = curl_init('https://consultareceptores.feel.com.gt/rest/action');
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dnit));
 				$res = curl_exec($ch);
@@ -144,12 +145,12 @@ class Cliente extends CI_Controller
 						$datos['mensaje'] = $json->mensaje;
 					}
 				} else {
-					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . "\n";
+					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . '\n';
 				}
-			} else if ($cer->metodo_factura === "enviarCofidi") {
+			} else if ($cer->metodo_factura === 'enviarCofidi') {
 				$tmp->sede = $sede->sede;
 				$tmp->cargarEmpresa();
-				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				$nitEmisor = str_repeat('0', 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
 
 				$url = "https://portal.cofidiguatemala.com/NITFEL/ConsultaNIT.asmx/getNIT?vNIT={$nit}&Entity={$nitEmisor}&Requestor={$cer->llave}";
 
@@ -178,16 +179,16 @@ class Cliente extends CI_Controller
 						$datos['mensaje'] = (string)$req->Response->error;
 					}
 				} else {
-					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . "\n";
+					$datos['mensaje'] = 'Unexpected HTTP code: ' . $http_code . '\n';
 				}
-			} else if ($cer->metodo_factura === "enviarDigiFact") {
+			} else if ($cer->metodo_factura === 'enviarDigiFact') {
 				$link = $cer->vinculo_factura;
 				$tmp->sede = $sede->sede;
 				$tmp->cargarEmpresa();
-				$nitEmisor = str_repeat("0", 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				$nitEmisor = str_repeat('0', 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
 				$datosDF = array(
-					"Username" => "{$tmp->empresa->pais_iso_dos}.{$nitEmisor}.{$cer->usuario}",
-					"Password" => $cer->llave
+					'Username' => "{$tmp->empresa->pais_iso_dos}.{$nitEmisor}.{$cer->usuario}",
+					'Password' => $cer->llave
 				);
 
 				$jsonToken = json_decode(post_request($link, json_encode($datosDF)));
@@ -219,7 +220,7 @@ class Cliente extends CI_Controller
 				} else {
 					$datos['mensaje'] = "{$jsonToken->message}. {$jsonToken->description}";
 				}
-			} else if ($cer->metodo_factura === "enviarCCG") {
+			} else if ($cer->metodo_factura === 'enviarCCG') {
 				$link = $cer->vinculo_factura;
 				$datosDF = array(
 					'username' => $cer->usuario,
@@ -262,7 +263,7 @@ class Cliente extends CI_Controller
 				$datos['mensaje'] = 'Servicio no disponible.';
 			}
 		}
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 }
 

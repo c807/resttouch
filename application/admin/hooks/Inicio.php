@@ -11,36 +11,6 @@ class Inicio
 		$this->ci->load->model('Catalogo_model');
 		$this->libres = ['/usuario/login', '/solicitud_registro/guardar'];
 
-		// $esVesuvio = false;
-		// $credenciales = json_decode(file_get_contents('php://input'), true);
-		// if (isset($credenciales['usr'])) {
-		// 	$datosDominio = explode('@', $credenciales['usr']);
-		// 	if (count($datosDominio) === 2) {
-		// 		if (strcasecmp('vesuvio', $datosDominio[1]) == 0) {
-		// 			$esVesuvio = true;
-		// 		}
-		// 	}
-		// } else {
-		// 	$headers = $this->ci->input->request_headers();
-		// 	if (array_key_exists('Authorization', $headers)) {
-		// 		$token = $headers['Authorization'];
-		// 		try {
-		// 			$data = AUTHORIZATION::validateToken($token);
-		// 			if ($data && isset($data->dominio) && strcasecmp('vesuvio', $data->dominio) == 0) {
-		// 				$esVesuvio = true;
-		// 			}
-		// 		} catch (Exception $e) {
-		// 		}
-		// 	}
-		// }
-
-		// if ($esVesuvio) {
-		// 	include(APPPATH . 'config/database.php');
-		// 	$this->ci->db->close();
-		// 	$this->ci->db = null;
-		// 	$this->ci->load->database($db['vesuvio'], TRUE);
-		// }
-
 		if (!in_array($_SERVER['PATH_INFO'], $this->libres)) {
 			$headers = $this->ci->input->request_headers();
 			$response = ['mensaje' => '¡Acceso no autorizado!', 'valido' => false];
@@ -92,5 +62,9 @@ class Inicio
 		header('Access-Control-Allow-Headers: Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
 		header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 		header('Allow: GET, POST, OPTIONS, PUT, DELETE');
+
+		if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+			die();
+		}
 	}
 }

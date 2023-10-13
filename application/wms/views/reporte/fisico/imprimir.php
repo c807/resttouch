@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
-	<title><?php echo ($esfisico ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') ?></title>	
+	<title><?php echo ($esfisico ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') ?></title>
 </head>
+
 <body>
 	<table class="tabla-contenido">
 		<?php $col = $esfisico ? (((int)$inventario->confirmado === 1) ? '4' : '3') : (((int)$inventario->confirmado === 1) ? '4' : '2'); ?>
@@ -99,18 +101,57 @@
 
 	</table>
 </body>
+
 </html>
 
 <style type="text/css">
-		body {font-family: sans-serif;}
-		table {width: 100%; border-collapse: collapse; border: 1px solid black;}
-		td {width: auto; border-collapse: collapse; border: 1px solid black;}
+	body {
+		font-family: sans-serif;
+	}
 
-		.text-right {text-align: right;}
-		.text-center {text-align: center;}
-		.tabla-contenido {font-size: 0.65em;}
-		.tabla-firma {font-size: 0.90em;}
-		.tabla-firma-td {border: none; text-align: center; padding: 15px 1px 15 1px;}
-		.titulo {text-align: center; vertical-align: middle; background-color: #E5E5E5; font-weight: bold;}
-		.totales {text-align: right; background-color: #E5E5E5;}
-	</style>
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		border: 1px solid black;
+	}
+
+	td {
+		width: auto;
+		border-collapse: collapse;
+		border: 1px solid black;
+	}
+
+	.text-right {
+		text-align: right;
+	}
+
+	.text-center {
+		text-align: center;
+	}
+
+	.tabla-contenido {
+		font-size: 0.65em;
+	}
+
+	.tabla-firma {
+		font-size: 0.90em;
+	}
+
+	.tabla-firma-td {
+		border: none;
+		text-align: center;
+		padding: 15px 1px 15 1px;
+	}
+
+	.titulo {
+		text-align: center;
+		vertical-align: middle;
+		background-color: #E5E5E5;
+		font-weight: bold;
+	}
+
+	.totales {
+		text-align: right;
+		background-color: #E5E5E5;
+	}
+</style>

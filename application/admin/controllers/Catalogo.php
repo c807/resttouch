@@ -1,21 +1,17 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Catalogo extends CI_Controller {
-
+class Catalogo extends CI_Controller
+{
 	private $php_self = '';
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->php_self = $_SERVER['PHP_SELF'];
-		$this->load->model([
-			'Catalogo_model',
-			'Cgrupo_model',
-			'Bitacora_model'
-		]);
+		$this->load->model(['Catalogo_model', 'Cgrupo_model', 'Bitacora_model']);
 		$headers = $this->input->request_headers();
-        $this->data = AUTHORIZATION::validateToken($headers['Authorization']); 
+		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
@@ -27,13 +23,13 @@ class Catalogo extends CI_Controller {
 	public function get_forma_pago()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getFormaPago($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getFormaPago($_GET)));
 	}
 
 	public function get_serie_factura()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getSerieFactura($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getSerieFactura($_GET)));
 	}
 
 	public function get_tipo_movimiento()
@@ -44,7 +40,7 @@ class Catalogo extends CI_Controller {
 	public function get_documento_tipo()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getDocumentoTipo($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getDocumentoTipo($_GET)));
 	}
 
 	public function get_bodega()
@@ -53,7 +49,7 @@ class Catalogo extends CI_Controller {
 		if (!$this->input->get('sede') && !$this->input->get('_todas')) {
 			$_GET['sede'] = $this->data->sede;
 		}
-		
+
 		if ($this->input->get('_todas')) {
 			unset($_GET['_todas']);
 			$todas = true;
@@ -62,7 +58,7 @@ class Catalogo extends CI_Controller {
 		$lasBodegas = $this->Catalogo_model->getBodega($_GET);
 
 		if ($todas) {
-			foreach($lasBodegas as $bodega) {
+			foreach ($lasBodegas as $bodega) {
 				$bodega->datos_sede = $this->Catalogo_model->getSede(['sede' => $bodega->sede, '_uno' => true]);
 				$bodega->order_by = "{$bodega->datos_sede->nombre}-{$bodega->descripcion}";
 				$usuarioBaja = $bodega->usuariodebaja ? $this->Catalogo_model->getUsuario(['usuario' => $bodega->usuariodebaja, '_uno' => true]) : null;
@@ -70,10 +66,10 @@ class Catalogo extends CI_Controller {
 			}
 			$lasBodegas = ordenar_array_objetos($lasBodegas, 'order_by');
 		} else {
-			foreach($lasBodegas as $bodega) {				
+			foreach ($lasBodegas as $bodega) {
 				$usuarioBaja = $bodega->usuariodebaja ? $this->Catalogo_model->getUsuario(['usuario' => $bodega->usuariodebaja, '_uno' => true]) : null;
 				$bodega->usrnamebaja = $usuarioBaja ? trim("{$usuarioBaja->nombres} {$usuarioBaja->apellidos}") : null;
-			}			
+			}
 		}
 
 		$this->output->set_output(json_encode($lasBodegas));
@@ -82,8 +78,8 @@ class Catalogo extends CI_Controller {
 	public function get_proveedor()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getProveedor($_GET)));
-	}	
+			->set_output(json_encode($this->Catalogo_model->getProveedor($_GET)));
+	}
 
 	public function get_articulo()
 	{
@@ -131,19 +127,19 @@ class Catalogo extends CI_Controller {
 	{
 		$_GET['sede'] = $this->data->sede;
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getUsuario($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getUsuario($_GET)));
 	}
 
 	public function get_sede()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getSede($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getSede($_GET)));
 	}
 
 	public function get_tipo_usuario()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getTipoUsuario($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getTipoUsuario($_GET)));
 	}
 
 	public function get_lista_articulo($sede)
@@ -153,8 +149,10 @@ class Catalogo extends CI_Controller {
 		$this->load->model(['Categoria_model', 'Impresora_model', 'Presentacion_model']);
 		$_GET['sede'] = $sede;
 
-		if (!isset($_GET['_activos'])) { $_GET['debaja'] = 0; }		
-		
+		if (!isset($_GET['_activos'])) {
+			$_GET['debaja'] = 0;
+		}
+
 		$cat = $this->Categoria_model->buscar_categorias($_GET);
 
 		$listaImpresoras = [];
@@ -174,7 +172,9 @@ class Catalogo extends CI_Controller {
 				$data['_todo'] = true;
 			}
 
-			if (!isset($_GET['_activos'])) { $data['debaja'] = 0; }
+			if (!isset($_GET['_activos'])) {
+				$data['debaja'] = 0;
+			}
 
 			$grupo = $this->Catalogo_model->getCategoriaGrupo($data, $row, $listaImpresoras, $listaPresentaciones);
 			$row->categoria_grupo = $grupo;
@@ -190,16 +190,16 @@ class Catalogo extends CI_Controller {
 	public function get_modulo()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getModulo($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getModulo($_GET)));
 	}
 
 	public function get_sub_modulo($modulo)
-	{		
+	{
 		$menu = $this->config->item('menu');
 		$datos = $menu[$modulo]['submodulo'];
 
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function get_opcion($modulo, $submodulo)
@@ -207,35 +207,35 @@ class Catalogo extends CI_Controller {
 		$menu = $this->config->item('menu');
 		$datos = [];
 		if (isset($menu[$modulo]) && isset($menu[$modulo]['submodulo'][$submodulo])) {
-			$datos = $menu[$modulo]['submodulo'][$submodulo]['opciones'];	
+			$datos = $menu[$modulo]['submodulo'][$submodulo]['opciones'];
 		}
-		
+
 		$this->output->set_output(json_encode($datos));
 	}
 
 	public function get_moneda()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getMoneda($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getMoneda($_GET)));
 	}
 
 	public function get_factura_serie()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getFacturaSerie($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getFacturaSerie($_GET)));
 	}
 
 	public function get_mesero()
 	{
 		$this->load->model(['Turno_model', 'Usuario_model']);
 		$datos = [];
-		
+
 		$tmp = $this->Turno_model->getTurno([
 			'sede' => $this->data->sede,
-			'abierto' => true, 
+			'abierto' => true,
 			'_uno' => true
 		]);
-		
+
 		if ($tmp) {
 			$turno = new Turno_model($tmp->turno);
 
@@ -247,13 +247,13 @@ class Catalogo extends CI_Controller {
 		}
 
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function get_jerarquia()
 	{
 		$this->output
-		->set_output(json_encode($this->Catalogo_model->getJerarquia($_GET)));
+			->set_output(json_encode($this->Catalogo_model->getJerarquia($_GET)));
 	}
 
 	public function get_campos()
@@ -266,22 +266,22 @@ class Catalogo extends CI_Controller {
 			foreach ($campo as $row) {
 				if (isset($_GET['por_fecha']) && $row['por_fecha'] == 1) {
 					$datos[] = $row;
-				} else if(isset($_GET['ordenar_por']) && $row['ordenar_por'] == 1){
+				} else if (isset($_GET['ordenar_por']) && $row['ordenar_por'] == 1) {
 					$datos[] = $row;
 				}
 			}
 		}
 
 		$this->output
-			 ->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function get_caja_corte_tipo()
 	{
 		$this->output
-		->set_output(json_encode(
-			$this->Catalogo_model->getCajaCorteTipo($_GET)
-		));
+			->set_output(json_encode(
+				$this->Catalogo_model->getCajaCorteTipo($_GET)
+			));
 	}
 
 	public function get_caja_corte_nominacion()
@@ -299,7 +299,7 @@ class Catalogo extends CI_Controller {
 		$art = new Articulo_model(5124);
 		$art->actualizarExistencia();
 		echo '<pre>';
-		print_r ($art);
+		print_r($art);
 		echo '</pre>';
 	}
 

@@ -1,17 +1,17 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Umedida extends CI_Controller {
-
+class Umedida extends CI_Controller
+{
 	public function __construct()
 	{
-        parent::__construct();
-        $this->load->model('Umedida_model');
-        $this->output
-		->set_content_type('application/json', 'UTF-8');
+		parent::__construct();
+		set_database_server();
+		$this->load->model('Umedida_model');
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = '') 
+	public function guardar($id = '')
 	{
 		$medida = new Umedida_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -22,22 +22,22 @@ class Umedida extends CI_Controller {
 
 			if (!$existe) {
 				$datos['exito'] = $medida->guardar($req);
-	
-				if($datos['exito']) {
+
+				if ($datos['exito']) {
 					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['unidad_medida'] = $medida;
 				} else {
 					$datos['mensaje'] = $medida->getMensaje();
-				}	
+				}
 			} else {
 				$datos['mensaje'] = 'Ya existe esta unidad de medida.';
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
-		
+
 		$this->output
-		->set_output(json_encode($datos));
+			->set_output(json_encode($datos));
 	}
 
 	public function buscar()
@@ -46,7 +46,6 @@ class Umedida extends CI_Controller {
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
-
 }
 
 /* End of file Umedida.php */

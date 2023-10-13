@@ -6,17 +6,15 @@ class Repartidor extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model([
-            'Repartidor_model'
-        ]);
-
+        set_database_server();
+        $this->load->model(['Repartidor_model']);
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
         $this->data = new stdClass();
         if (isset($headers['Authorization'])) {
             $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         }
-        $this->output->set_content_type("application/json", "UTF-8");
+        $this->output->set_content_type('application/json', 'UTF-8');
     }
 
     public function buscar()
@@ -39,7 +37,7 @@ class Repartidor extends CI_Controller
             if (!$existe) {
                 $datos['exito'] = $entidad->guardar($req);
                 if ($datos['exito']) {
-                    $datos['mensaje'] = "Datos actualizados con éxito.";
+                    $datos['mensaje'] = 'Datos actualizados con éxito.';
                     $datos['repartidor'] = $entidad;
                 } else {
                     $datos['mensaje'] = $entidad->getMensaje();
@@ -48,7 +46,7 @@ class Repartidor extends CI_Controller
                 $datos['mensaje'] = "'{$req['nombre']}' ya existe en el listado.";
             }
         } else {
-            $datos['mensaje'] = "Parámetros inválidos.";
+            $datos['mensaje'] = 'Parámetros inválidos.';
         }
         $this->output->set_output(json_encode($datos));
     }

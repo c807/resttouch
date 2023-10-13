@@ -1,7 +1,4 @@
 <?php
-error_reporting(-1);
-ini_set('display_errors', 1);
-
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Factura extends CI_Controller
@@ -10,6 +7,7 @@ class Factura extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->add_package_path('application/admin');
 		$this->load->add_package_path('application/restaurante');
 		$this->load->add_package_path('application/wms');
@@ -407,8 +405,7 @@ class Factura extends CI_Controller
 							$this->load->library('Webhook');
 							if (strtolower(trim($webhook->tipo_llamada)) == 'soap') {
 								$req = $fac->getXmlWebhook();
-
-							} else if(strtolower(trim($webhook->tipo_llamada)) == 'json') {
+							} else if (strtolower(trim($webhook->tipo_llamada)) == 'json') {
 								$this->load->helper('api');
 								$req = $fac->getXmlWebhook(true);
 							}
@@ -717,8 +714,7 @@ class Factura extends CI_Controller
 	private function reversa_articulo_sellado($factura)
 	{
 		$detalle = $factura->get_detalle_anulacion();
-		foreach($detalle as $det)
-		{
+		foreach ($detalle as $det) {
 			$articulo = new Articulo_model($det->articulo);
 			if ((int)$articulo->essellado === 1) {
 				if ((int)$det->detalle_factura > 0) {

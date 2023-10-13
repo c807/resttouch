@@ -7,8 +7,8 @@ class Rpt_pedidos_sede extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->add_package_path('application/restaurante');
-
         $this->load->model([
             'Comanda_model',
             'Dcomanda_model',
@@ -46,7 +46,7 @@ class Rpt_pedidos_sede extends CI_Controller
             return ($var->monto > 0);
         }));
 
-        //$this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($result));
+        //$this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($result));
         //return;
         //GET ALL SEDES IN RESPONSE
         $arraySEDES = [];
@@ -58,13 +58,13 @@ class Rpt_pedidos_sede extends CI_Controller
         $data = json_decode(file_get_contents('php://input'), true);
 
         //EXCEL
-        if (verDato($_GET, "_excel")) {
+        if (verDato($_GET, '_excel')) {
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Valorizado")
-                ->setSubject("Office 2007 xlsx Valorizado")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Valorizado')
+                ->setSubject('Office 2007 xlsx Valorizado')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
@@ -75,21 +75,21 @@ class Rpt_pedidos_sede extends CI_Controller
             $hoja->mergeCells('A1:K1');
             $hoja->mergeCells('A2:K2');
             $hoja->setCellValue('A1', 'Pedidos por sede');
-            $hoja->setCellValue('A2', "Del : " . formatoFecha($fdel, 2));
-            $hoja->setCellValue('A3', "Al : " . formatoFecha($fal, 2));
+            $hoja->setCellValue('A2', 'Del : ' . formatoFecha($fdel, 2));
+            $hoja->setCellValue('A3', 'Al : ' . formatoFecha($fal, 2));
             if ($sedeNName !== null) {
-                $hoja->setCellValue('A4', "Sede " . $sedeNName);
+                $hoja->setCellValue('A4', 'Sede ' . $sedeNName);
             }
             if ($tipoDName !== null) {
                 $hoja->setCellValue('A5', "Tipo domicilio $tipoDName");
             }
 
-            $hoja->setTitle("Pedidos por sede");
+            $hoja->setTitle('Pedidos por sede');
 
             $fila = 9;
-            $hoja->setCellValue("A{$fila}", "Sede");
-            $hoja->setCellValue("B{$fila}", "Pedido");
-            $hoja->setCellValue("C{$fila}", "Monto");
+            $hoja->setCellValue("A{$fila}", 'Sede');
+            $hoja->setCellValue("B{$fila}", 'Pedido');
+            $hoja->setCellValue("C{$fila}", 'Monto');
             $fila++;
 
 
@@ -122,7 +122,7 @@ class Rpt_pedidos_sede extends CI_Controller
                     $fila++;
                     $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
                     $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
-                    $hoja->setCellValue("B{$fila}", "Total");
+                    $hoja->setCellValue("B{$fila}", 'Total');
                     $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
                     $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     $hoja->setCellValue("C{$fila}", number_format((float)$montoTotal, 2, '.', ''));
@@ -136,18 +136,18 @@ class Rpt_pedidos_sede extends CI_Controller
             $fila++;
 
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
-            $hoja->setCellValue("B{$fila}", "Total de venta");
+            $hoja->setCellValue("B{$fila}", 'Total de venta');
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getNumberFormat()->setFormatCode('0.00');
             $hoja->setCellValue("C{$fila}", number_format($totalDeVenta, 2, '.', ''));
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $fila++;
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
-            $hoja->setCellValue("B{$fila}", "Cantidad de pedidos");
+            $hoja->setCellValue("B{$fila}", 'Cantidad de pedidos');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
             $hoja->setCellValue("C{$fila}", $result_count_no_cer);
             $fila++;
-            $hoja->setCellValue("B{$fila}", "Consumo/Pedido");
+            $hoja->setCellValue("B{$fila}", 'Consumo/Pedido');
             $hoja->getStyle("B{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("B{$fila}")->getFont()->setBold(true);
@@ -157,17 +157,17 @@ class Rpt_pedidos_sede extends CI_Controller
             // ITERATE THROUG THAT IN RESPONSE
 
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Valorizado.xls");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Valorizado.xls');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
+            $writer->save('php://output');
         } else {
 
             $mpdf = new \Mpdf\Mpdf([
@@ -212,7 +212,7 @@ class Rpt_pedidos_sede extends CI_Controller
                 $data,
                 true
             ));
-            $mpdf->Output("Detalle de Pedidos.pdf", "D");
+            $mpdf->Output('Detalle de Pedidos.pdf', 'D');
         }
     }
 
@@ -223,21 +223,21 @@ class Rpt_pedidos_sede extends CI_Controller
         $_GET['_vivas'] = true;
         $facts = $this->Factura_model->get_facturas($_GET);
         $distProp = $this->Propina_model->buscar([
-            "sede" => $this->data->sede,
-            "grupal" => 1,
-            "anulado" => 0
+            'sede' => $this->data->sede,
+            'grupal' => 1,
+            'anulado' => 0
         ]);
 
-        $grupos = array_result($distProp, "usuario_tipo");
+        $grupos = array_result($distProp, 'usuario_tipo');
         $datos = $_GET;
 
-        $datos['detalle'] = (isset($_GET['_detalle']) && $_GET['_detalle'] != "false");
+        $datos['detalle'] = (isset($_GET['_detalle']) && $_GET['_detalle'] != 'false');
 
         $datos['datos'] = [];
 
         foreach ($facts as $row) {
             $fac = new Factura_model($row->factura);
-            $propina = suma_field($fac->getPropina(), "propina_monto");
+            $propina = suma_field($fac->getPropina(), 'propina_monto');
             $comanda = $fac->getComanda();
             $fac->propina = $propina / 1.12;
 
@@ -247,8 +247,8 @@ class Rpt_pedidos_sede extends CI_Controller
                 $usuarios = $turno->getUsuarios(); // obtener usuarios del turno
                 foreach ($distProp as $prop) {
                     $tusuario = $this->Tipo_usuario_model->buscar([
-                        "usuario_tipo" => $prop->usuario_tipo,
-                        "_uno" => true
+                        'usuario_tipo' => $prop->usuario_tipo,
+                        '_uno' => true
                     ]);
 
                     if (isset($datos['datos'][$tusuario->usuario_tipo])) {
@@ -257,21 +257,21 @@ class Rpt_pedidos_sede extends CI_Controller
                         $datos['datos'][$tusuario->usuario_tipo]['grupal'] = (int)$prop->grupal;
                     } else {
                         $datos['datos'][$tusuario->usuario_tipo] = [
-                            "descripcion" => $tusuario->descripcion,
-                            "facturas" => [$fac],
-                            "porcentaje" => $prop->porcentaje,
-                            "propina" => ($propina * $prop->porcentaje / 100) / 1.12,
-                            "grupal" => (int)$prop->grupal
+                            'descripcion' => $tusuario->descripcion,
+                            'facturas' => [$fac],
+                            'porcentaje' => $prop->porcentaje,
+                            'propina' => ($propina * $prop->porcentaje / 100) / 1.12,
+                            'grupal' => (int)$prop->grupal
                         ];
                     }
                 }
 
                 foreach ($usuarios as $usu) {
                     $dist = $this->Propina_model->buscar([
-                        "sede" => $this->data->sede,
-                        "usuario_tipo" => $usu->usuario_tipo->usuario_tipo,
-                        "anulado" => 0,
-                        "_uno" => true
+                        'sede' => $this->data->sede,
+                        'usuario_tipo' => $usu->usuario_tipo->usuario_tipo,
+                        'anulado' => 0,
+                        '_uno' => true
                     ]);
 
                     if ($dist) {
@@ -279,9 +279,9 @@ class Rpt_pedidos_sede extends CI_Controller
                             if ($comanda->mesero == $usu->usuario->usuario) {
                                 if (!isset($datos['datos'][$usu->usuario_tipo->usuario_tipo])) {
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo] = [
-                                        "descripcion" => $usu->usuario_tipo->descripcion,
-                                        "porcentaje" => $dist->porcentaje,
-                                        "usuario" => []
+                                        'descripcion' => $usu->usuario_tipo->descripcion,
+                                        'porcentaje' => $dist->porcentaje,
+                                        'usuario' => []
                                     ];
                                 }
                                 if (isset($datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario])) {
@@ -289,18 +289,18 @@ class Rpt_pedidos_sede extends CI_Controller
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario]['propina'] += ($propina * $dist->porcentaje / 100) / 1.12;
                                 } else {
                                     $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario] = [
-                                        "nombre" => $usu->usuario->nombres . " " . $usu->usuario->apellidos,
-                                        "facturas" => [$fac],
-                                        "propina" => ($propina * $dist->porcentaje / 100) / 1.12
+                                        'nombre' => $usu->usuario->nombres . ' ' . $usu->usuario->apellidos,
+                                        'facturas' => [$fac],
+                                        'propina' => ($propina * $dist->porcentaje / 100) / 1.12
                                     ];
                                 }
                             }
                         } else {
                             if (!isset($datos['datos'][$usu->usuario_tipo->usuario_tipo])) {
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo] = [
-                                    "descripcion" => $usu->usuario_tipo->descripcion,
-                                    "porcentaje" => $dist->porcentaje,
-                                    "usuario" => []
+                                    'descripcion' => $usu->usuario_tipo->descripcion,
+                                    'porcentaje' => $dist->porcentaje,
+                                    'usuario' => []
                                 ];
                             }
 
@@ -309,9 +309,9 @@ class Rpt_pedidos_sede extends CI_Controller
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario]['propina'] += ($propina * $dist->porcentaje / 100) / 1.12;
                             } else {
                                 $datos['datos'][$usu->usuario_tipo->usuario_tipo]['usuario'][$usu->usuario->usuario] = [
-                                    "nombre" => $usu->usuario->nombres . " " . $usu->usuario->apellidos,
-                                    "facturas" => [$fac],
-                                    "propina" => ($propina * $dist->porcentaje / 100) / 1.12
+                                    'nombre' => $usu->usuario->nombres . ' ' . $usu->usuario->apellidos,
+                                    'facturas' => [$fac],
+                                    'propina' => ($propina * $dist->porcentaje / 100) / 1.12
                                 ];
                             }
                         }
@@ -333,13 +333,13 @@ class Rpt_pedidos_sede extends CI_Controller
 
         $sede = $this->Catalogo_model->getSede([
             'sede' => $this->data->sede,
-            "_uno" => true
+            '_uno' => true
         ]);
 
         if ($sede) {
             $emp = $this->Catalogo_model->getEmpresa([
-                "empresa" => $sede->empresa,
-                "_uno" => true
+                'empresa' => $sede->empresa,
+                '_uno' => true
             ]);
             if ($emp) {
                 $datos['empresa'] = $emp;
@@ -347,59 +347,59 @@ class Rpt_pedidos_sede extends CI_Controller
             }
         }
 
-        if (verDato($_GET, "_excel")) {
+        if (verDato($_GET, '_excel')) {
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
             $excel->getProperties()
-                ->setCreator("Restouch")
-                ->setTitle("Office 2007 xlsx Existencias")
-                ->setSubject("Office 2007 xlsx Existencias")
-                ->setKeywords("office 2007 openxml php");
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Existencias')
+                ->setSubject('Office 2007 xlsx Existencias')
+                ->setKeywords('office 2007 openxml php');
 
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
 
             /*Encabezado*/
-            $hoja->setCellValue("A1", $emp->nombre);
-            $hoja->setCellValue("A2", $sede->nombre);
-            $hoja->setCellValue("A3", "Distribución de Propinas");
-            $hoja->setCellValue("B4", "Del: " . formatoFecha($datos['fdel']) . " Al: " . formatoFecha($datos['fal']));
+            $hoja->setCellValue('A1', $emp->nombre);
+            $hoja->setCellValue('A2', $sede->nombre);
+            $hoja->setCellValue('A3', 'Distribución de Propinas');
+            $hoja->setCellValue('B4', 'Del: ' . formatoFecha($datos['fdel']) . ' Al: ' . formatoFecha($datos['fal']));
 
-            $hoja->getStyle("A1:C4")->getFont()->setBold(true);
-            $coltotal = "A";
-            $coltotalVal = "B";
+            $hoja->getStyle('A1:C4')->getFont()->setBold(true);
+            $coltotal = 'A';
+            $coltotalVal = 'B';
             $totalprop = 0;
 
             if ($datos['detalle']) {
-                $coltotal = "E";
-                $coltotalVal = "F";
+                $coltotal = 'E';
+                $coltotalVal = 'F';
 
                 $nombres = [
-                    "",
-                    "",
-                    "Fecha",
-                    "Comanda",
-                    "Facturas",
-                    "Propina"
+                    '',
+                    '',
+                    'Fecha',
+                    'Comanda',
+                    'Facturas',
+                    'Propina'
                 ];
 
-                $hoja->fromArray($nombres, null, "A6");
-                $hoja->getStyle("A6:F6")->getFont()->setBold(true);
+                $hoja->fromArray($nombres, null, 'A6');
+                $hoja->getStyle('A6:F6')->getFont()->setBold(true);
                 $hoja->getStyle('A6:F6')->getAlignment()->setHorizontal('center');
                 $fila = 7;
                 foreach ($datos['datos'] as $row) {
                     $hoja->setCellValue("A{$fila}", $row['descripcion']);
                     $hoja->getStyle("A{$fila}")->getFont()->setBold(true);
                     $fila++;
-                    if (verDato($row, "usuario")) {
+                    if (verDato($row, 'usuario')) {
                         $cntUsuarios = count($row['usuario']);
-                        foreach ($row["usuario"] as $key => $usu) {
+                        foreach ($row['usuario'] as $key => $usu) {
                             $hoja->setCellValue("A{$fila}", $usu['nombre']);
                             $fila++;
 
                             foreach ($usu['facturas'] as $fac) {
                                 $reg = [
-                                    "",
-                                    "",
+                                    '',
+                                    '',
                                     $fac->fecha_factura,
                                     $fac->getComanda()->comanda,
                                     $fac->numero_factura,
@@ -411,17 +411,17 @@ class Rpt_pedidos_sede extends CI_Controller
                                 $fila++;
                             }
                             $totalprop += $usu['propina'];
-                            $hoja->setCellValue("E{$fila}", "Total Empleado");
+                            $hoja->setCellValue("E{$fila}", 'Total Empleado');
                             $hoja->setCellValue("F{$fila}", round($usu['propina'], 2));
                             $hoja->getStyle("E{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         }
                     } else {
-                        $hoja->setCellValue("A{$fila}", "N/A");
+                        $hoja->setCellValue("A{$fila}", 'N/A');
                         $fila++;
                         foreach ($row['facturas'] as $fac) {
                             $reg = [
-                                "",
-                                "",
+                                '',
+                                '',
                                 $fac->fecha_factura,
                                 $fac->getComanda()->comanda,
                                 $fac->numero_factura,
@@ -433,19 +433,19 @@ class Rpt_pedidos_sede extends CI_Controller
                             $fila++;
                         }
                         $totalprop += $row['propina'];
-                        $hoja->setCellValue("E{$fila}", "Total Empleado");
+                        $hoja->setCellValue("E{$fila}", 'Total Empleado');
                         $hoja->setCellValue("F{$fila}", round($row['propina'], 2));
                         $hoja->getStyle("E{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
                     }
                 }
             } else {
                 $nombres = [
-                    "Empleado",
-                    "Propina"
+                    'Empleado',
+                    'Propina'
                 ];
 
-                $hoja->fromArray($nombres, null, "A6");
-                $hoja->getStyle("A6:B6")->getFont()->setBold(true);
+                $hoja->fromArray($nombres, null, 'A6');
+                $hoja->getStyle('A6:B6')->getFont()->setBold(true);
                 $hoja->getStyle('A6:F6')->getAlignment()->setHorizontal('center');
                 $fila = 7;
 
@@ -467,12 +467,12 @@ class Rpt_pedidos_sede extends CI_Controller
                     } else {
                         $totalTipo += $row['propina'];
                         $totalprop += $row['propina'];
-                        $hoja->setCellValue("A{$fila}", "N/A");
+                        $hoja->setCellValue("A{$fila}", 'N/A');
                         $hoja->setCellValue("B{$fila}", round($row['propina'], 2));
                         $hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $fila++;
                     }
-                    $hoja->setCellValue("A{$fila}", "Total por tipo:");
+                    $hoja->setCellValue("A{$fila}", 'Total por tipo:');
                     $hoja->setCellValue("B{$fila}", round($totalTipo, 2));
                     $hoja->getStyle("A{$fila}:B{$fila}")->getFont()->setBold(true);
                     $hoja->getStyle("A{$fila}:B{$fila}")
@@ -481,7 +481,7 @@ class Rpt_pedidos_sede extends CI_Controller
                 }
             }
 
-            $hoja->setCellValue("{$coltotal}{$fila}", "Total general:");
+            $hoja->setCellValue("{$coltotal}{$fila}", 'Total general:');
             $hoja->setCellValue("{$coltotalVal}{$fila}", round($totalprop, 2));
 
             $hoja->getStyle("{$coltotal}{$fila}:{$coltotalVal}{$fila}")
@@ -493,16 +493,16 @@ class Rpt_pedidos_sede extends CI_Controller
                 $hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
             }
 
-            header("Content-Type: application/vnd.ms-excel");
-            header("Content-Disposition: attachment;filename=Kardex.xlsx");
-            header("Cache-Control: max-age=1");
-            header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-            header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-            header("Cache-Control: cache, must-revalidate");
-            header("Pragma: public");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Kardex.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
 
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-            $writer->save("php://output");
+            $writer->save('php://output');
         } else {
             $mpdf = new \Mpdf\Mpdf([
                 'tempDir' => sys_get_temp_dir(),
@@ -510,8 +510,8 @@ class Rpt_pedidos_sede extends CI_Controller
             ]);
 
             $mpdf->WriteHTML($this->load->view('propina', $datos, true));
-            $mpdf->Output("Distribucion de Propina.pdf", "D");
-            // $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($datos));
+            $mpdf->Output('Distribucion de Propina.pdf', 'D');
+            // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($datos));
         }
     }
 
@@ -556,13 +556,13 @@ class Rpt_pedidos_sede extends CI_Controller
 				$hoja->getColumnDimension($col)->setAutoSize(true);
 			}
 
-			header("Content-Type: application/vnd.ms-excel");
+			header('Content-Type: application/vnd.ms-excel');
 			header("Content-Disposition: attachment;filename={$nombre}.xlsx");
-			header("Cache-Control: max-age=1");
-			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-			header("Cache-Control: cache, must-revalidate");
-			header("Pragma: public");
+			header('Cache-Control: max-age=1');
+			header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+			header('Cache-Control: cache, must-revalidate');
+			header('Pragma: public');
 			
 			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
 			$writer->save('php://output');

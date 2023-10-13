@@ -3,10 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Fisico extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Catalogo_model',
 			'Fisico_model',
@@ -192,7 +192,7 @@ class Fisico extends CI_Controller
 							$articulo = new Articulo_model($art->articulo);
 							$pres = $articulo->getPresentacionReporte();
 							$existencias = $art->existencia_sistema / $pres->cantidad;
-							
+
 							// Implementación solicitó quitar esta validación. 15/05/2023 15:21
 							// $diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
 							// if (round($diferencia, 2) == 0) {
@@ -255,7 +255,7 @@ class Fisico extends CI_Controller
 				// $parte1 = substr($vista, 0, $puntoDiv1);
 				// $parte2 = substr($vista, $puntoDiv1, $puntoDiv2 - $puntoDiv1);
 				// $parte3 = substr($vista, $puntoDiv2);
-				
+
 				$pdf   = new \Mpdf\Mpdf([
 					'tempDir' => sys_get_temp_dir(), //produccion
 					'format' => 'letter',
@@ -263,7 +263,7 @@ class Fisico extends CI_Controller
 				]);
 				// $rand  = rand();
 				$pdf->AddPage();
-				
+
 				$pdf->WriteHTML($vista);
 				// $pdf->WriteHTML($parte1);
 				// $pdf->WriteHTML($parte2);
@@ -271,7 +271,7 @@ class Fisico extends CI_Controller
 
 				$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 				$nombre = ($args['esfisico'] ? 'Inventario_Fisico_' : 'Cuadre_Diario_') . date('YmdHis') . '.pdf';
-				$pdf->Output($nombre, 'D');				
+				$pdf->Output($nombre, 'D');
 			}
 		}
 	}
@@ -536,7 +536,7 @@ class Fisico extends CI_Controller
 					}
 					// Termina código para generar ingresos de ajuste
 					if (count($idsArticulos) > 0) {
-						foreach($idsArticulos as $idArticulo) {
+						foreach ($idsArticulos as $idArticulo) {
 							$this->Articulo_model->recalcular_costos((int)$inv->sede, $idArticulo, (int)$inv->bodega);
 						}
 					}

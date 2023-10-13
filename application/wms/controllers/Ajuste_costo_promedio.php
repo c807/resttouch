@@ -3,10 +3,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Ajuste_costo_promedio extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->model([
             'Catalogo_model',
             'Ajuste_costo_promedio_model',
@@ -255,8 +255,8 @@ class Ajuste_costo_promedio extends CI_Controller
 
                                 $bit = new Bitacora_model();
                                 $acc = $this->Accion_model->buscar([
-                                    "descripcion" => "Modificacion",
-                                    "_uno" => true
+                                    'descripcion' => 'Modificacion',
+                                    '_uno' => true
                                 ]);
 
                                 $comentario = "El usuario {$nombreUsuario}, {$usuario->usrname}, realizó un ajuste en los costos de los artículos, ";
@@ -265,14 +265,14 @@ class Ajuste_costo_promedio extends CI_Controller
 
                                 $objBodega = $this->Bodega_model->buscar(['bodega' => $acp->bodega, '_uno' => true]);
 
-                                $comentario .= ($objBodega && $objBodega->descripcion ? " en la bodega {$objBodega->descripcion}" : "") . ".";
+                                $comentario .= ($objBodega && $objBodega->descripcion ? " en la bodega {$objBodega->descripcion}" : '') . '.';
 
                                 $bit->guardar([
-                                    "accion" => $acc->accion,
-                                    "usuario" => $this->data->idusuario,
-                                    "tabla" => 'ajuste_costo_promedio',
-                                    "registro" => $acp->getPK(),
-                                    "comentario" => $comentario
+                                    'accion' => $acc->accion,
+                                    'usuario' => $this->data->idusuario,
+                                    'tabla' => 'ajuste_costo_promedio',
+                                    'registro' => $acp->getPK(),
+                                    'comentario' => $comentario
                                 ]);
 
                                 $datos['mensaje'] = 'El ajuste de costo promedio fue confirmado con éxito.';

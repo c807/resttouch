@@ -7,6 +7,7 @@ class Articulo extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
+		set_database_server();
 		$this->load->model([
 			'Articulo_model',
 			'Receta_model',
@@ -19,21 +20,19 @@ class Articulo extends CI_Controller
 			'Bitacora_model',
 			'Accion_model'
 		]);
-
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function chkCodigoExistente($codigo = '')
-	{
-		// $art = $this->Articulo_model->buscar(['codigo' => $codigo, '_uno' => true]);
+	{		
 		$art = $this->Articulo_model->buscarArticulo(['codigo' => $codigo, 'sede' => $this->data->sede]);
 		return $art ? true : false;
 	}
 
-	public function guardar($id = "")
+	public function guardar($id = '')
 	{
 		$art = new Articulo_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -78,7 +77,7 @@ class Articulo extends CI_Controller
 								$datos['exito'] = $art->guardar($req);
 								if ($datos['exito']) {
 									$this->add_to_bitacora($art->getPK(), $comentario);
-									$datos['mensaje'] = "Datos actualizados con éxito.";
+									$datos['mensaje'] = 'Datos actualizados con éxito.';
 									$datos['articulo'] = $art;
 								} else {
 									$datos['mensaje'] = $art->getMensaje();
@@ -167,7 +166,7 @@ class Articulo extends CI_Controller
 	{
 		$datos = $this->search_product($_GET);
 		$datos = ordenar_array_objetos($datos, 'descripcion');
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function guardar_receta($articulo, $id = '')
@@ -180,7 +179,7 @@ class Articulo extends CI_Controller
 				if ((int)$articulo !== (int)$req['articulo']) {
 					$rec = new Articulo_model($req['articulo']);
 					if ($art->combo == 1 && $rec->combo == 1) {
-						$datos['mensaje'] = "No es posible agregar un combo a un combo como detalle.";
+						$datos['mensaje'] = 'No es posible agregar un combo a un combo como detalle.';
 					} else {
 						$continuar = true;
 						if ((int)$art->multiple === 1 || (int)$art->combo === 1) {
@@ -194,21 +193,21 @@ class Articulo extends CI_Controller
 							$det = $art->guardarReceta($req, $id);
 							if ($det) {
 								$datos['exito'] = true;
-								$datos['mensaje'] = "Datos actualizados con éxito.";
+								$datos['mensaje'] = 'Datos actualizados con éxito.';
 								$datos['detalle'] = $det;
 							} else {
-								$datos['mensaje'] = implode("<br>", $art->getMensaje());
+								$datos['mensaje'] = implode('<br>', $art->getMensaje());
 							}
 						}
 					}
 				} else {
-					$datos['mensaje'] = "No se puede agregar un producto a si mismo como parte de una receta/detalle.";
+					$datos['mensaje'] = 'No se puede agregar un producto a si mismo como parte de una receta/detalle.';
 				}
 			} else {
-				$datos['mensaje'] = "La cantidad debe ser mayor a cero.";
+				$datos['mensaje'] = 'La cantidad debe ser mayor a cero.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -276,7 +275,7 @@ class Articulo extends CI_Controller
 		]);
 		$mpdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 		$mpdf->WriteHTML($vista);
-		$mpdf->Output("Receta.pdf", "D");
+		$mpdf->Output('Receta.pdf', 'D');
 	}
 
 	public function buscar_receta($id)
@@ -284,7 +283,7 @@ class Articulo extends CI_Controller
 		$art = new Articulo_model($id);
 
 		$this->output
-			->set_content_type("application/json")
+			->set_content_type('application/json')
 			->set_output(json_encode($art->getReceta($_GET)));
 	}
 
@@ -292,29 +291,29 @@ class Articulo extends CI_Controller
 	{
 		ini_set('memory_limit', -1);
 		set_time_limit(0);
-		$this->load->model(["Categoria_model", "Cgrupo_model"]);
-		$datos = ["exito" => false, "mensaje" => "Error"];
+		$this->load->model(['Categoria_model', 'Cgrupo_model']);
+		$datos = ['exito' => false, 'mensaje' => 'Error'];
 		$headers = $this->input->request_headers();
 		$data = AUTHORIZATION::validateToken($headers['Authorization']);
 
 		if ($this->input->method() == 'post') {
 			$req = json_decode(file_get_contents('php://input'), true);
 
-			if (verDato($req, "sedes")) {
-				if (verDato($req, "articulo")) {
+			if (verDato($req, 'sedes')) {
+				if (verDato($req, 'articulo')) {
 					$tmp = $this->Articulo_model->buscar([
-						"articulo" => $req['articulo'],
+						'articulo' => $req['articulo'],
 						'debaja' => 0,
-						"_uno" => true
+						'_uno' => true
 					]);
 					$articulos[] = $tmp;
 				} else {
-					$articulos = $this->Catalogo_model->getArticulo(["sede" => $data->sede]);
+					$articulos = $this->Catalogo_model->getArticulo(['sede' => $data->sede]);
 				}
 
 				$usr = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
 				$sedeOrigen = $this->Sede_model->buscar(['sede' => $this->data->sede, '_uno' => true]);
-				foreach ($req["sedes"] as $sede) {
+				foreach ($req['sedes'] as $sede) {
 					foreach ($articulos as $row) {
 						$art = new Articulo_model($row->articulo);
 
@@ -351,14 +350,14 @@ class Articulo extends CI_Controller
 		$arts = $this->Articulo_model->buscar();
 		$datos = [];
 		$datos['exito'] = true;
-		$datos['mensaje'] = "Datos actualizados con éxito.";
+		$datos['mensaje'] = 'Datos actualizados con éxito.';
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			$costo = $art->getCosto();
-			$art->guardar(["costo" => $costo]);
+			$art->guardar(['costo' => $costo]);
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function articulos_de_pos()
@@ -369,7 +368,7 @@ class Articulo extends CI_Controller
 
 		$datos = $this->Articulo_model->articulosParaPOS(['sede' => $data->sede]);
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function tiene_movimientos($id = 0)
@@ -385,7 +384,7 @@ class Articulo extends CI_Controller
 			$datos->tiene_movimientos = null;
 			$datos->mensaje = 'Parámetros inválidos.';
 		}
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function get_articulos_sedes_codigo()
@@ -394,7 +393,7 @@ class Articulo extends CI_Controller
 			$_GET['sede'] = [];
 		}
 		$datos = $this->Articulo_model->get_lista_articulos_sede_codigo($_GET['sede']);
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function articulo_fast_edit()
@@ -412,7 +411,7 @@ class Articulo extends CI_Controller
 		} else {
 			$datos->mensaje = $articulo->getMensaje();
 		}
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 
 	public function dar_de_baja($id)
@@ -549,7 +548,7 @@ class Articulo extends CI_Controller
 		$this->output->set_output(json_encode($data));
 	}
 
-	public function guardar_articulo_tipo_cliente($id = "")
+	public function guardar_articulo_tipo_cliente($id = '')
 	{
 		$atc = new Articulo_tipo_cliente_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -571,16 +570,16 @@ class Articulo extends CI_Controller
 				$datos['exito'] = $atc->guardar($req);
 
 				if ($datos['exito']) {
-					$datos['mensaje'] = "Datos actualizados con éxito.";
+					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['articulo_tipo_cliente'] = $atc;
 				} else {
 					$datos['mensaje'] = $atc->getMensaje();
 				}
 			} else {
-				$datos['mensaje'] = "Ya existe un precio para este tipo de cliente.";
+				$datos['mensaje'] = 'Ya existe un precio para este tipo de cliente.';
 			}
 		} else {
-			$datos['mensaje'] = "Parámetros inválidos.";
+			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
 		$this->output->set_output(json_encode($datos));
@@ -774,8 +773,7 @@ class Articulo extends CI_Controller
 						$entidad['presentacion'] = $presentacion->presentacion;
 						$entidad['descripcion'] = trim($col[1]);
 						$entidad['precio'] = (float)$col[2];
-						$entidad['bien_servicio'] = trim($col[3]);
-						$entidad['codigo'] = trim($col[4]);
+						$entidad['bien_servicio'] = trim($col[3]);						
 						$entidad['codigo'] = str_ireplace($reemplazar, '', trim($col[4]));
 						$entidad['presentacion_reporte'] = $presentacion->presentacion;
 						$entidad['mostrar_pos'] = (int)$col[6];
@@ -912,7 +910,7 @@ class Articulo extends CI_Controller
 		if ($datos) {
 			$datos = ordenar_array_objetos($datos, 'descripcion');
 		}
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos ? $datos : []));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos ? $datos : []));
 	}
 
 	private function add_to_bitacora($idRegistro, $comentario)
@@ -952,7 +950,7 @@ class Articulo extends CI_Controller
 			];
 		}
 
-		$this->output->set_content_type("application/json")->set_output(json_encode($datos));
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 }
 

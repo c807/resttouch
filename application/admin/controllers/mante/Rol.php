@@ -7,8 +7,8 @@ class Rol extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        set_database_server();
         $this->load->model(['Rol_model', 'Rol_acceso_model', 'Catalogo_model']);
-
         $headers = $this->input->request_headers();
         $this->data = AUTHORIZATION::validateToken($headers['Authorization']);
         $this->output->set_content_type('application/json', 'UTF-8');

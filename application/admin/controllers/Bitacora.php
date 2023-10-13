@@ -3,17 +3,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Bitacora extends CI_Controller
 {
-
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model([
-			'Bitacora_model',
-			'Sede_model'
-		]);
+		set_database_server();
+		$this->load->model(['Bitacora_model', 'Sede_model']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
-		$this->output->set_content_type("application/json", "UTF-8");
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
 	public function get_tablas_bitacora()
@@ -29,45 +26,47 @@ class Bitacora extends CI_Controller
 	public function reporte()
 	{
 		$_POST = json_decode(file_get_contents('php://input'), true);
-		if(!isset($_POST['sede'])) { $_POST['sede'] = $this->data->sede; }
-		
+		if (!isset($_POST['sede'])) {
+			$_POST['sede'] = $this->data->sede;
+		}
+
 		$datos = $this->Bitacora_model->reporte($_POST);
 
 		$lstSedes = explode(',', $_POST['sede']);
 		$nombreSedes = '';
-		foreach($lstSedes as $s) {
+		foreach ($lstSedes as $s) {
 			$sede = new Sede_model($s);
-			if($nombreSedes !== '') {
+			if ($nombreSedes !== '') {
 				$nombreSedes .= ', ';
 			}
 			$nombreSedes .= $sede->nombre;
-		}		
+		}
 
 		$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$excel->getProperties()
-			->setCreator("Restouch")
-			->setTitle("Office 2007 xlsx Bitacora")
-			->setSubject("Office 2007 xlsx Bitacora")
-			->setKeywords("office 2007 openxml php");
+			->setCreator('Restouch')
+			->setTitle('Office 2007 xlsx Bitacora')
+			->setSubject('Office 2007 xlsx Bitacora')
+			->setKeywords('office 2007 openxml php');
 
 		$excel->setActiveSheetIndex(0);
 		$hoja = $excel->getActiveSheet();
 
-		/*Encabezado*/		
+		/*Encabezado*/
 		$hoja->setCellValue('A1', 'BITÁCORA');
-		$hoja->setCellValue('A2', 'FECHA: '.Hoy(5));
-		$hoja->setCellValue('A3', 'Sede'.(count($lstSedes) === 1 ? '' : 's').': '.$nombreSedes);
+		$hoja->setCellValue('A2', 'FECHA: ' . Hoy(5));
+		$hoja->setCellValue('A3', 'Sede' . (count($lstSedes) === 1 ? '' : 's') . ': ' . $nombreSedes);
 
 		$parametros = '';
 		if (isset($_POST['fdel']) && !empty($_POST['fdel'])) {
-			$parametros .= 'Del: '.formatoFecha($_POST['fdel'], 2);
+			$parametros .= 'Del: ' . formatoFecha($_POST['fdel'], 2);
 		}
 
 		if (isset($_POST['fal']) && !empty($_POST['fal'])) {
 			if ($parametros !== '') {
 				$parametros .= ' ';
 			}
-			$parametros .= 'Al: '.formatoFecha($_POST['fal'], 2);
+			$parametros .= 'Al: ' . formatoFecha($_POST['fal'], 2);
 		}
 
 		if (isset($_POST['tabla']) && !empty($_POST['tabla'])) {
@@ -99,7 +98,7 @@ class Bitacora extends CI_Controller
 
 		$hoja->mergeCells('A1:H1');
 		$hoja->mergeCells('A2:H2');
-		$hoja->mergeCells('A3:H3');		
+		$hoja->mergeCells('A3:H3');
 		$hoja->mergeCells('A4:H4');
 
 		$hoja->setCellValue('A6', 'Bitácora');
@@ -114,7 +113,7 @@ class Bitacora extends CI_Controller
 		$hoja->getStyle('A6:H6')->getFont()->setBold(true);
 
 		$fila = 7;
-		foreach($datos as $data) {
+		foreach ($datos as $data) {
 			$hoja->setCellValue("A{$fila}", $data->bitacora);
 			$hoja->setCellValue("B{$fila}", $data->sede);
 			$hoja->setCellValue("C{$fila}", $data->usuario);
@@ -130,22 +129,22 @@ class Bitacora extends CI_Controller
 		foreach (range('A', 'G') as $col) {
 			$hoja->getColumnDimension($col)->setAutoSize(true);
 		}
-		
+
 		$hoja->setAutoFilter('B6:F6');
 		$hoja->getStyle("A6:H{$fila}")->getAlignment()->setVertical('top');
 		$hoja->getColumnDimension('H')->setAutoSize(false);
 		$hoja->getColumnDimension('H')->setWidth(85);
 		$hoja->getStyle("H6:H{$fila}")->getAlignment()->setWrapText(true);
 
-		header("Content-Type: application/vnd.ms-excel");
-		header("Content-Disposition: attachment;filename=Bitacora.xlsx");
-		header("Cache-Control: max-age=1");
-		header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-		header("Cache-Control: cache, must-revalidate");
-		header("Pragma: public");
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename=Bitacora.xlsx');
+		header('Cache-Control: max-age=1');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+		header('Cache-Control: cache, must-revalidate');
+		header('Pragma: public');
 
 		$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-		$writer->save("php://output");
+		$writer->save('php://output');
 	}
 }

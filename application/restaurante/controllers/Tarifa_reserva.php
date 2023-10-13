@@ -1,16 +1,17 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Tarifa_reserva extends CI_Controller {
-
+class Tarifa_reserva extends CI_Controller
+{
 	public function __construct()
 	{
-        parent::__construct();
-        $this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model']);
-        $this->output->set_content_type('application/json', 'UTF-8');
+		parent::__construct();
+		set_database_server();
+		$this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model']);
+		$this->output->set_content_type('application/json', 'UTF-8');
 	}
 
-	public function guardar($id = '') 
+	public function guardar($id = '')
 	{
 		$tarifares = new Tarifa_reserva_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -19,16 +20,16 @@ class Tarifa_reserva extends CI_Controller {
 
 			$datos['exito'] = $tarifares->guardar($req);
 
-			if($datos['exito']) {
+			if ($datos['exito']) {
 				$datos['mensaje'] = 'Datos actualizados con éxito';
 				$datos['tarifa_reserva'] = $tarifares;
 			} else {
 				$datos['mensaje'] = $tarifares->getMensaje();
-			}	
+			}
 		} else {
 			$datos['mensaje'] = 'Parametros inválidos';
 		}
-		
+
 		$this->output->set_output(json_encode($datos));
 	}
 
@@ -47,5 +48,4 @@ class Tarifa_reserva extends CI_Controller {
 		}
 		$this->output->set_output(json_encode($datos));
 	}
-
 }

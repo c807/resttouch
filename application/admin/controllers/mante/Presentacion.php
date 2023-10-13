@@ -1,19 +1,20 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Presentacion extends CI_Controller {
-
+class Presentacion extends CI_Controller
+{
 	public function __construct()
 	{
-        parent::__construct();
-        $this->load->model(['Presentacion_model', 'Umedida_model']);
-        $this->output->set_content_type('application/json', 'UTF-8');
+		parent::__construct();
+		set_database_server();
+		$this->load->model(['Presentacion_model', 'Umedida_model']);
+		$this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 	}
 
-	public function guardar($id = '') 
+	public function guardar($id = '')
 	{
 		$presentacion = new Presentacion_model($id);
 		$req = json_decode(file_get_contents('php://input'), true);
@@ -29,20 +30,20 @@ class Presentacion extends CI_Controller {
 				}
 
 				$datos['exito'] = $presentacion->guardar($req);
-	
-				if($datos['exito']) {
+
+				if ($datos['exito']) {
 					$datos['mensaje'] = 'Datos actualizados con éxito.';
 					$datos['presentacion'] = $presentacion;
 				} else {
 					$datos['mensaje'] = $presentacion->getMensaje();
-				}	
+				}
 			} else {
 				$datos['mensaje'] = 'Ya hay una presentación con ese nombre.';
 			}
 		} else {
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
-		
+
 		$this->output->set_output(json_encode($datos));
 	}
 
@@ -51,19 +52,18 @@ class Presentacion extends CI_Controller {
 		$listaMedidas = $this->Umedida_model->get_lista_medidas();
 		$tmp = $this->Presentacion_model->buscar_presentaciones($_GET);
 		$datos = [];
-		if(is_array($tmp)) {
-			foreach ($tmp as $row) {				
+		if (is_array($tmp)) {
+			foreach ($tmp as $row) {
 				$row->medida = $listaMedidas[(int)$row->medida];
 				$datos[] = $row;
 			}
 			$datos = ordenar_array_objetos($datos, 'descripcion');
-		} else if($tmp){			
+		} else if ($tmp) {
 			$tmp->medida = $listaMedidas[(int)$tmp->medida];
 			$datos[] = $tmp;
 		}
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
-
 }
 
 /* End of file Presentacion.php */

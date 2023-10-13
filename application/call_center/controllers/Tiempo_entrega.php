@@ -6,10 +6,8 @@ class Tiempo_entrega extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model([
-            'Tiempo_entrega_model'
-        ]);
-
+        set_database_server();
+        $this->load->model(['Tiempo_entrega_model']);
         $this->load->helper(['jwt', 'authorization']);
         $headers = $this->input->request_headers();
         $this->data = new stdClass();
@@ -20,7 +18,7 @@ class Tiempo_entrega extends CI_Controller
     }
 
     public function buscar()
-    {        
+    {
         $datos = $this->Tiempo_entrega_model->buscar_tiempos_entrega($_GET);
         $datos = ordenar_array_objetos($datos, 'orden', 1);
         $this->output->set_output(json_encode($datos));
@@ -31,7 +29,7 @@ class Tiempo_entrega extends CI_Controller
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
             $tiempoEntrega = new Tiempo_entrega_model($id);
-            $req = json_decode(file_get_contents('php://input'), true);            
+            $req = json_decode(file_get_contents('php://input'), true);
             $existe = $this->Tiempo_entrega_model->buscar_tiempos_entrega(['descripcion' => $req['descripcion'], '_uno' => true]);
             if (!$existe) {
                 $datos['exito'] = $tiempoEntrega->guardar($req);
