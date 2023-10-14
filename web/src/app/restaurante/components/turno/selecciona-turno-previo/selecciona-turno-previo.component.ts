@@ -46,9 +46,9 @@ export class SeleccionaTurnoPrevioComponent implements OnInit, OnDestroy {
   loadTurnos = () => {
     this.lstTurnos = [];
     this.endSubs.add(      
-      this.turnoSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((lst: Turno[]) => {
+      this.turnoSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0), _limite: 6 }).subscribe((lst: Turno[]) => {
         if (lst && lst.length > 0) {
-          const limite = lst.length >= 11 ? 11 : lst.length;
+          const limite = lst.length >= 6 ? 6 : lst.length;
           for (let i = 0; i < limite; i++) {
             this.lstTurnos.push(lst[i]);
           }

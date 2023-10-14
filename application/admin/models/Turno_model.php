@@ -63,6 +63,10 @@ class Turno_model extends General_model
 			$this->db->where('inicio <= ', $args['fal'])->where('inicio >= ', $args['fdel']);
 		}
 
+		if (isset($args['_limite']) && (int)$args['_limite'] > 0) {
+			$this->db->limit((int)$args['_limite']);
+		}
+
 		$tmp = $this->db->select($campos)->order_by('turno DESC')->get('turno');
 
 		if (isset($args['_uno'])) {
