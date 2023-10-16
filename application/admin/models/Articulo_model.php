@@ -1206,8 +1206,9 @@ class Articulo_model extends General_model
 	{
 		$bac = $this->db->where('articulo', $this->getPK())->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
 		if ($bac) {
-			$pres = $this->getPresentacionReporte();
-			$existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
+			// $pres = $this->getPresentacionReporte();
+			// $existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
+			$existencias = round((float)$this->existencias, 2);
 			$this->db->where('bodega_articulo_costo', $bac->bodega_articulo_costo)->update('bodega_articulo_costo', ['existencia' => $existencias, 'fecha' => date('Y-m-d H:i:s')]);
 		} else {
 			// $this->db->insert('bodega_articulo_costo', [
