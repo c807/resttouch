@@ -415,9 +415,9 @@ class Factura_model extends General_model
 				->get('cuenta_forma_pago a')
 				->result();
 
-			if($distribucion && is_array($distribucion) && count($distribucion) > 0) {
+			if ($distribucion && is_array($distribucion) && count($distribucion) > 0) {
 				$cliente = [];
-				foreach($distribucion as $dist) {
+				foreach ($distribucion as $dist) {
 					$cliente[] = (object)[
 						'codigo' => $dist->cuenta_contable,
 						'conceptomayor' => $conceptoMayor,
@@ -431,7 +431,7 @@ class Factura_model extends General_model
 		return $cliente;
 	}
 
-	public function getXmlWebhook($raw = false) 
+	public function getXmlWebhook($raw = false)
 	{
 		$doc = new stdClass();
 		// $config = $this->Configuracion_model->buscar();
@@ -473,7 +473,7 @@ class Factura_model extends General_model
 
 
 		// Inicia modificación para hacer el debe en base a la forma de pago.
-		$this->load->model(['Forma_pago_sede_cuenta_contable_model']);		
+		$this->load->model(['Forma_pago_sede_cuenta_contable_model']);
 		$cliente = $this->get_distribucion_partida_forma_pago($conceptoMayor, $sumTotal);
 		//Finaliza modificación para hacer el debe en base a la forma de pago.
 
@@ -484,12 +484,11 @@ class Factura_model extends General_model
 		$iva->debe = 0;
 		$det->cuenta = [];
 
-		if (is_array($cliente))
-		{
-			foreach($cliente as $cli) {
+		if (is_array($cliente)) {
+			foreach ($cliente as $cli) {
 				array_push($det->cuenta, (array) $cli);
 			}
-		} else if(is_object($cliente)) {
+		} else if (is_object($cliente)) {
 			array_push($det->cuenta, (array) $cliente);
 		}
 
@@ -615,12 +614,12 @@ class Factura_model extends General_model
 			$emisor->setAttribute('CorreoEmisor', $this->empresa->correo_emisor);
 		}
 
-		$emisor->setAttribute('NITEmisor', str_replace('-', '', $this->empresa->nit));		
+		$emisor->setAttribute('NITEmisor', str_replace('-', '', $this->empresa->nit));
 		$emisor->setAttribute('NombreComercial', htmlspecialchars($this->sedeFactura->nombre, ENT_XML1));
 		$emisor->setAttribute('NombreEmisor', htmlspecialchars($this->empresa->nombre, ENT_XML1));
 
 		$direccionEmisor = $this->xml->getElementsByTagName('DireccionEmisor')->item(0);
-		
+
 		$laDireccion = !empty($this->sedeFactura->direccion) ? $this->sedeFactura->direccion : $this->empresa->direccion;
 		$direccionEmisor->appendChild($this->crearElemento('dte:Direccion', htmlspecialchars($laDireccion, ENT_XML1), array(), true));
 
@@ -642,11 +641,11 @@ class Factura_model extends General_model
 	}
 
 	public function set_receptor($args = array())
-	{		
+	{
 		$receptor = $this->xml->getElementsByTagName('Receptor')->item(0);
 
 		$receptor->setAttribute('CorreoReceptor', str_replace(' ', '', str_replace(',', ';', $this->correo_receptor)));
-		
+
 		// $receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $this->receptor->nit))); // Antes de SAT v1.7.4
 		// Cambios para SAT v1.7.4		
 		$documento = '';
@@ -671,7 +670,7 @@ class Factura_model extends General_model
 				$receptor->setAttribute('TipoEspecial', $this->tipo_documento_receptor);
 			}
 			$this->documento_receptor = $documento;
-		}		
+		}
 		$receptor->setAttribute('IDReceptor', str_replace('-', '', ($this->exenta ? 'CF' : $documento)));
 		// Fin de cambios para SAT v1.7.4
 
@@ -1323,7 +1322,7 @@ class Factura_model extends General_model
 			$datos['exito'] = false;
 			$datos['mensaje'] = "{$jsonToken->error}";
 		}
-	}	
+	}
 
 	public function enviarCCGAnulacion($args = [])
 	{
@@ -1356,9 +1355,9 @@ class Factura_model extends General_model
 		}
 	}
 
-	private function actualizaNombreCliente ($nombreCliente)
+	private function actualizaNombreCliente($nombreCliente)
 	{
-		if(!empty($nombreCliente)) {
+		if (!empty($nombreCliente)) {
 			$this->load->model('Cliente_model');
 			$cli = new Cliente_model($this->cliente);
 			$cli->guardar(['nombre' => $nombreCliente]);
@@ -1390,12 +1389,12 @@ class Factura_model extends General_model
 				$respuesta['mensaje'] = implode('; ', $this->getMensaje());
 			}
 		} else {
-			$respuesta['exito'] = false;			
+			$respuesta['exito'] = false;
 			if (isset($respuesta['errores'])) {
 				$respuesta['mensaje'] = $respuesta['errores'];
 				unset($respuesta['errores']);
 			} else {
-				$respuesta['mensaje'] = 'No se pudo firmar la factura.';				
+				$respuesta['mensaje'] = 'No se pudo firmar la factura.';
 			}
 		}
 
@@ -1423,7 +1422,7 @@ class Factura_model extends General_model
 				unset($respuesta['errores']);
 			} else {
 				$respuesta['mensaje'] = 'No se anular la factura.';
-			}			
+			}
 		}
 
 		return $respuesta;
@@ -2064,7 +2063,7 @@ class Factura_model extends General_model
 			$idsFacturas .= $item->factura;
 		}
 
-		if(!empty($idsFacturas)) {
+		if (!empty($idsFacturas)) {
 			$campos = 'IFNULL(c.descripcion, a.bien_servicio) AS tipo_venta, SUM(a.cantidad) AS cantidad, SUM(a.total + a.valor_impuesto_especial - a.descuento) AS total, ';
 			$campos .= 'ROUND(SUM(a.total + a.valor_impuesto_especial - a.descuento) * IFNULL(e.porcentaje_iva, 0.12), 2) AS iva';
 			$resumen = $this->db
@@ -2079,7 +2078,7 @@ class Factura_model extends General_model
 				->order_by('tipo_venta')
 				->get('detalle_factura a')
 				->result();
-	
+
 			return $resumen;
 		}
 		return [];
@@ -2089,7 +2088,7 @@ class Factura_model extends General_model
 	{
 		$detanula = [];
 		$hijos = $this->db->select('comanda, detalle_comanda, articulo')->where('detalle_comanda_id', $iddetalle)->get('detalle_comanda')->result();
-		foreach($hijos as $hijo) {
+		foreach ($hijos as $hijo) {
 			$detanula[] = (object)[
 				'factura' => null, 'detalle_factura' => null, 'comanda' => $hijo->comanda, 'detalle_comanda' => $hijo->detalle_comanda, 'articulo' => $hijo->articulo
 			];
@@ -2113,7 +2112,7 @@ class Factura_model extends General_model
 			->result();
 
 		$hijos = [];
-		foreach($det as $d) {
+		foreach ($det as $d) {
 			if ((int)$d->detalle_comanda > 0) {
 				$hd = $this->get_hijos_detalle_anulacion($d->detalle_comanda);
 				if (is_array($hd) && count($hd) > 0) {
@@ -2124,7 +2123,7 @@ class Factura_model extends General_model
 
 		return is_array($hijos) && count($hijos) > 0 ? array_merge($det, $hijos) : $det;
 	}
-	
+
 	public function enviarInfileSv()
 	{
 		$this->load->library('Felfacsv');
@@ -2144,7 +2143,7 @@ class Factura_model extends General_model
 
 		if ($respuesta->exito) {
 			$fel = $respuesta->fe;
-			
+
 			$data['fel_uuid']       = $fel->respuesta->codigoGeneracion;
 			$data['numero_factura'] = $fel->respuesta->codigoGeneracion;
 			$data['serie_factura']  = $this->serie->serie;
@@ -2157,7 +2156,7 @@ class Factura_model extends General_model
 		return $fel;
 	}
 
-	public function anularInfileSv($motivo='')
+	public function anularInfileSv($motivo = '')
 	{
 		$this->load->library('Felfacsv');
 
@@ -2179,7 +2178,7 @@ class Factura_model extends General_model
 
 		if ($respuesta->exito) {
 			$fel = $respuesta->fe;
-			
+
 			$data['fel_uuid_anulacion'] = $fel->respuesta->codigoGeneracion;
 			$this->guardar($data);
 		} else {
@@ -2195,6 +2194,29 @@ class Factura_model extends General_model
 			'documento' => "{$this->certificador->vinculo_grafo}{$this->fel_uuid}&formato=pdf",
 			'tipo'      => 'link'
 		];
+	}
+
+	public function getNoOrden()
+	{
+		$tmp = $this->db
+			->select('f.comanda_origen_datos')
+			->from('factura a')
+			->join('detalle_factura b', 'a.factura = b.factura')
+			->join('detalle_factura_detalle_cuenta c', 'c.detalle_factura = b.detalle_factura')
+			->join('detalle_cuenta d', 'c.detalle_cuenta = d.detalle_cuenta')
+			->join('cuenta e', 'd.cuenta_cuenta = e.cuenta')
+			->join('comanda f', 'f.comanda = e.comanda')
+			->where('a.factura', $this->getPK())
+			->group_by('f.comanda')
+			->get()
+			->row();
+
+		if ($tmp->comanda_origen_datos) {
+			$json = json_decode($tmp->comanda_origen_datos);
+			return isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);
+		}
+
+		return null;
 	}
 }
 

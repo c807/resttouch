@@ -26,6 +26,7 @@
                 <span mat-line>Cliente: {{element.cliente.nombre}}</span>
                 <span mat-line>Documento: {{element.documento_receptor || element.cliente.nit || element.cliente.cui || element.cliente.pasaporte}}</span>
                 <span mat-line *ngIf="+element.comanda > 0">Comanda: {{element.comanda}}</span>
+                <span mat-line *ngIf="element.orden">Orden: {{element.orden}}</span>
             </mat-list-item>
         </mat-nav-list>
         <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
