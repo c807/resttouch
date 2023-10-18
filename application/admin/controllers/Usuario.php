@@ -63,7 +63,7 @@ class Usuario extends CI_Controller
         $this->load->model('Acceso_model');
         $datos = [];
         $tmp = [];
-        $menu = $this->config->item('menu');
+        $menu = $this->config->item('menu');        
         $args = ['activo' => 1, 'usuario' => $logged['idusr']];
         $acceso = $this->Acceso_model->buscar($args);
         foreach ($acceso as $row) {
@@ -82,6 +82,8 @@ class Usuario extends CI_Controller
             $row['submodulo'] = array_values($row['submodulo']);
             $datos[] = $row;
         }
+
+        // $datos = $this->ordenar_menu($datos);
 
         return $datos;
     }
@@ -186,5 +188,29 @@ class Usuario extends CI_Controller
             $roles = $usr->getRolesTurno();
         }
         $this->output->set_output(json_encode(['roles' => $roles]));
+    }
+
+    private function ordenar_menu($menu)
+    {
+        uasort($menu, function ($a, $b) {
+            return strcasecmp($a['nombre'], $b['nombre']);
+        });
+
+        foreach ($menu as &$modulo) {
+            if (array_key_exists('submodulo', $modulo)) {
+                uasort($modulo['submodulo'], function ($a, $b) {
+                    return strcasecmp($a['nombre'], $b['nombre']);
+                });
+                foreach ($modulo['submodulo'] as &$submodulo) {
+                    if (array_key_exists('opciones', $submodulo)) {
+                        uasort($submodulo['opciones'], function ($a, $b) {
+                            return strcasecmp($a['nombre'], $b['nombre']);
+                        });
+                    }
+                }
+            }
+        }
+
+        return $menu;
     }
 }

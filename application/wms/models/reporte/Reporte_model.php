@@ -62,6 +62,10 @@ class Reporte_model extends CI_Model
 			}
 		}
 
+		if(isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$where .= ' and a.articulo = '.(int)$args['articulo'];
+		}
+
 		$this->sqlIngreso = <<<EOT
 select
 	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as cantidad,
@@ -117,6 +121,10 @@ EOT;
 			} else {
 				$where .= " and f.bodega = {$args['bodega']}";
 			}
+		}
+
+		if(isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$where .= ' and a.articulo = '.(int)$args['articulo'];
 		}
 
 		$this->sqlEgreso = <<<EOT
@@ -176,6 +184,10 @@ EOT;
 			}
 		}
 
+		if(isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$where .= ' and a.articulo = '.(int)$args['articulo'];
+		}
+
 		$this->sqlComanda = <<<EOT
 select 
 	sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as cantidad,
@@ -232,6 +244,9 @@ EOT;
 			}
 		}
 
+		if(isset($args['articulo']) && (int)$args['articulo'] > 0) {
+			$where .= ' and a.articulo = '.(int)$args['articulo'];
+		}
 
 		$this->sqlFactura = <<<EOT
 select
