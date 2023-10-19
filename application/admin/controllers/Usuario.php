@@ -194,20 +194,20 @@ class Usuario extends CI_Controller
     private function ordenar_menu($menu)
     {
         usort($menu, function ($a, $b) {
-            return strcasecmp($a['nombre'], $b['nombre']);
+            return strcasecmp(quitar_acentos($a['nombre']), quitar_acentos($b['nombre']));
         });
 
         $keysModulos = array_keys($menu);
         foreach ($keysModulos as $kM) {
             if (array_key_exists('submodulo', $menu[$kM])) {
                 usort($menu[$kM]['submodulo'], function ($a, $b) {
-                    return strcasecmp($a['nombre'], $b['nombre']);
+                    return strcasecmp(quitar_acentos($a['nombre']), quitar_acentos($b['nombre']));
                 });
                 $keysSubModulos = array_keys($menu[$kM]['submodulo']);
                 foreach ($keysSubModulos as $kSM) {
                     if (array_key_exists('opciones', $menu[$kM]['submodulo'][$kSM])) {
                         usort($menu[$kM]['submodulo'][$kSM]['opciones'], function ($a, $b) {
-                            return strcasecmp($a['nombre'], $b['nombre']);
+                            return strcasecmp(quitar_acentos($a['nombre']), quitar_acentos($b['nombre']));
                         });
                     }
                 }
