@@ -41,7 +41,7 @@ class Usuario extends CI_Controller
                     $logged = $this->Usuario_model->logIn($credenciales);
 
                     if (!empty($logged['token'])) {
-                        $datos = $this->set_accesos_usuario($logged);
+                        $datos = $this->set_accesos_usuario($logged);                        
                         $logged['acceso'] = array_values($datos);
                         $logged['status'] = true;
                     }
@@ -63,9 +63,10 @@ class Usuario extends CI_Controller
         $this->load->model('Acceso_model');
         $datos = [];
         $tmp = [];
-        $menu = $this->config->item('menu');        
+        $menu = $this->config->item('menu');
         $args = ['activo' => 1, 'usuario' => $logged['idusr']];
-        $acceso = $this->Acceso_model->buscar($args);
+        // $acceso = $this->Acceso_model->buscar($args);
+        $acceso = $this->Acceso_model->buscar_acceso($args);
         foreach ($acceso as $row) {
             $tmp[$row->modulo]['nombre'] = $menu[$row->modulo]['nombre'];
             $tmp[$row->modulo]['dispositivo'] = $menu[$row->modulo]['dispositivo'];
@@ -74,7 +75,7 @@ class Usuario extends CI_Controller
             $tmp[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'] = $menu[$row->modulo]['submodulo'][$row->submodulo]['dispositivo'];
 
             if (isset($menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion])) {
-                $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = $menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
+                $tmp[$row->modulo]['submodulo'][$row->submodulo]['opciones'][] = (array)$menu[$row->modulo]['submodulo'][$row->submodulo]['opciones'][$row->opcion];
             }
         }
 
@@ -83,7 +84,7 @@ class Usuario extends CI_Controller
             $datos[] = $row;
         }
 
-        // $datos = $this->ordenar_menu($datos);
+        $datos = $this->ordenar_menu($datos);
 
         return $datos;
     }
@@ -192,18 +193,20 @@ class Usuario extends CI_Controller
 
     private function ordenar_menu($menu)
     {
-        uasort($menu, function ($a, $b) {
+        usort($menu, function ($a, $b) {
             return strcasecmp($a['nombre'], $b['nombre']);
         });
 
-        foreach ($menu as &$modulo) {
-            if (array_key_exists('submodulo', $modulo)) {
-                uasort($modulo['submodulo'], function ($a, $b) {
+        $keysModulos = array_keys($menu);
+        foreach ($keysModulos as $kM) {
+            if (array_key_exists('submodulo', $menu[$kM])) {
+                usort($menu[$kM]['submodulo'], function ($a, $b) {
                     return strcasecmp($a['nombre'], $b['nombre']);
                 });
-                foreach ($modulo['submodulo'] as &$submodulo) {
-                    if (array_key_exists('opciones', $submodulo)) {
-                        uasort($submodulo['opciones'], function ($a, $b) {
+                $keysSubModulos = array_keys($menu[$kM]['submodulo']);
+                foreach ($keysSubModulos as $kSM) {
+                    if (array_key_exists('opciones', $menu[$kM]['submodulo'][$kSM])) {
+                        usort($menu[$kM]['submodulo'][$kSM]['opciones'], function ($a, $b) {
                             return strcasecmp($a['nombre'], $b['nombre']);
                         });
                     }
