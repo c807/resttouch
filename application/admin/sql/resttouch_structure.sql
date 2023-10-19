@@ -3038,6 +3038,689 @@ ALTER TABLE RT_DATABASE_NAME.forma_pago ADD INDEX Idx_Activo_Descripcion_ASC (ac
 ALTER TABLE RT_DATABASE_NAME.cliente ADD INDEX Idx_Telefono_ASC (telefono ASC);
 ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Turno_DESC (turno DESC);
 ALTER TABLE RT_DATABASE_NAME.turno ADD INDEX Idx_Inicio_ASC (inicio ASC), ADD INDEX Idx_Inicio_Sede_ASC (sede ASC, inicio ASC);
+ALTER TABLE RT_DATABASE_NAME.acceso ADD INDEX Idx_UsuarioActivo_ASC (usuario ASC, activo ASC);
+
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda DROP FOREIGN KEY fk_detalle_comanda_detalle_comanda1, DROP FOREIGN KEY fk_detalle_comanda_comanda1, DROP FOREIGN KEY fk_detalle_comanda_bodega1, DROP FOREIGN KEY fk_detalle_comanda_articulo1;
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD INDEX Idx_DetalleComandaId_ASC (detalle_comanda_id ASC), ADD INDEX Idx_Bodega_ASC (bodega ASC), ADD INDEX Idx_Articulo_ASC (articulo ASC), ADD INDEX Idx_Comanda_ASC (comanda ASC), DROP INDEX fk_detalle_comanda_detalle_comanda1_idx, DROP INDEX fk_detalle_comanda_bodega1_idx, DROP INDEX fk_detalle_comanda_articulo1_idx, DROP INDEX fk_detalle_comanda_comanda1_idx;
+ALTER TABLE RT_DATABASE_NAME.detalle_cuenta DROP FOREIGN KEY fk_detalle_cuenta_detalle_comanda1;
+ALTER TABLE RT_DATABASE_NAME.detalle_cuenta ADD INDEX Idx_DetalleComanda_ASC (detalle_comanda ASC), DROP INDEX fk_detalle_cuenta_detalle_comanda1_idx;
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda DROP PRIMARY KEY, ADD PRIMARY KEY (detalle_comanda, comanda);
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda PARTITION BY HASH(comanda) PARTITIONS 4;
+
+ALTER TABLE RT_DATABASE_NAME.comanda DROP FOREIGN KEY fk_comanda_usuario2, DROP FOREIGN KEY fk_comanda_usuario1, DROP FOREIGN KEY fk_comanda_turno1, DROP FOREIGN KEY fk_comanda_tipo_domicilio1,
+DROP FOREIGN KEY fk_comanda_tiempo_entrega1, DROP FOREIGN KEY fk_comanda_sede1, DROP FOREIGN KEY fk_comanda_reserva1, DROP FOREIGN KEY fk_comanda_repartidor1, DROP FOREIGN KEY fk_comanda_razon_anulacion1,
+DROP FOREIGN KEY fk_comanda_orden_gk1, DROP FOREIGN KEY fk_comanda_estatus_callcenter1, DROP FOREIGN KEY fk_comanda_comanda_origen1, DROP FOREIGN KEY fk_comanda_cliente_master1;
+
+ALTER TABLE RT_DATABASE_NAME.comanda ADD INDEX Idx_Usuario_ASC (usuario ASC), ADD INDEX Idx_Sede_ASC (sede ASC), ADD INDEX Idx_Turno_ASC (turno ASC), ADD INDEX Idx_ComandaOrigen_ASC (comanda_origen ASC),
+ADD INDEX Idx_OrdenGK_ASC (orden_gk ASC), ADD INDEX Idx_RazonAnulacion_ASC (razon_anulacion ASC), ADD INDEX Idx_ClienteMaster_ASC (cliente_master ASC), ADD INDEX Idx_TiempoEntrega_ASC (tiempo_entrega ASC),
+ADD INDEX Idx_EstatusCallCenter_ASC (estatus_callcenter ASC), ADD INDEX Idx_TipoDomicilio_ASC (tipo_domicilio ASC), ADD INDEX Idx_Repartidor_ASC (repartidor ASC), ADD INDEX Idx_Reserva_ASC (repartidor ASC),
+DROP INDEX fk_comanda_reserva1_idx, DROP INDEX fk_comanda_repartidor1_idx, DROP INDEX fk_comanda_tipo_domicilio1_idx, DROP INDEX fk_comanda_estatus_callcenter1_idx, DROP INDEX fk_comanda_tiempo_entrega1_idx,
+DROP INDEX fk_comanda_cliente_master1_idx, DROP INDEX fk_comanda_razon_anulacion1_idx, DROP INDEX fk_comanda_orden_gk1_idx, DROP INDEX fk_comanda_usuario2_idx, DROP INDEX fk_comanda_comanda_origen1_idx, 
+DROP INDEX fk_comanda_turno1_idx, DROP INDEX fk_comanda_sede1_idx, DROP INDEX fk_comanda_usuario1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.articulo_eliminado_comanda DROP FOREIGN KEY fk_articulo_eliminado_comanda_comanda1;
+ALTER TABLE RT_DATABASE_NAME.articulo_eliminado_comanda ADD INDEX Idx_Comanda_ASC (comanda ASC), DROP INDEX fk_articulo_eliminado_comanda_comanda1_idx;
+ALTER TABLE RT_DATABASE_NAME.comanda_has_mesa DROP FOREIGN KEY fk_comanda_has_mesa_comanda1;
+ALTER TABLE RT_DATABASE_NAME.cuenta DROP FOREIGN KEY fk_cuenta_comanda1;
+ALTER TABLE RT_DATABASE_NAME.cuenta ADD INDEX Idx_Comanda_ASC (comanda ASC), DROP INDEX fk_cuenta_comanda1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.comanda CHANGE COLUMN fhcreacion fhcreacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, DROP PRIMARY KEY, ADD PRIMARY KEY (comanda, fhcreacion);
+
+ALTER TABLE RT_DATABASE_NAME.comanda
+PARTITION BY RANGE(YEAR(fhcreacion))
+SUBPARTITION BY HASH(MONTH(fhcreacion))
+(
+    PARTITION p0 VALUES LESS THAN (2020) (
+        SUBPARTITION sp0_1 ENGINE = InnoDB,
+        SUBPARTITION sp0_2 ENGINE = InnoDB,        
+        SUBPARTITION sp0_3 ENGINE = InnoDB,
+        SUBPARTITION sp0_4 ENGINE = InnoDB,
+        SUBPARTITION sp0_5 ENGINE = InnoDB,
+        SUBPARTITION sp0_6 ENGINE = InnoDB,
+        SUBPARTITION sp0_7 ENGINE = InnoDB,
+        SUBPARTITION sp0_8 ENGINE = InnoDB,
+        SUBPARTITION sp0_9 ENGINE = InnoDB,
+        SUBPARTITION sp0_10 ENGINE = InnoDB,
+        SUBPARTITION sp0_11 ENGINE = InnoDB,
+        SUBPARTITION sp0_12 ENGINE = InnoDB
+    ),
+    PARTITION p1 VALUES LESS THAN (2021) (
+		SUBPARTITION sp1_1 ENGINE = InnoDB,
+        SUBPARTITION sp1_2 ENGINE = InnoDB,        
+        SUBPARTITION sp1_3 ENGINE = InnoDB,
+        SUBPARTITION sp1_4 ENGINE = InnoDB,
+        SUBPARTITION sp1_5 ENGINE = InnoDB,
+        SUBPARTITION sp1_6 ENGINE = InnoDB,
+        SUBPARTITION sp1_7 ENGINE = InnoDB,
+        SUBPARTITION sp1_8 ENGINE = InnoDB,
+        SUBPARTITION sp1_9 ENGINE = InnoDB,
+        SUBPARTITION sp1_10 ENGINE = InnoDB,
+        SUBPARTITION sp1_11 ENGINE = InnoDB,
+        SUBPARTITION sp1_12 ENGINE = InnoDB
+    ),
+    PARTITION p2 VALUES LESS THAN (2022) (
+		SUBPARTITION sp2_1 ENGINE = InnoDB,
+        SUBPARTITION sp2_2 ENGINE = InnoDB,        
+        SUBPARTITION sp2_3 ENGINE = InnoDB,
+        SUBPARTITION sp2_4 ENGINE = InnoDB,
+        SUBPARTITION sp2_5 ENGINE = InnoDB,
+        SUBPARTITION sp2_6 ENGINE = InnoDB,
+        SUBPARTITION sp2_7 ENGINE = InnoDB,
+        SUBPARTITION sp2_8 ENGINE = InnoDB,
+        SUBPARTITION sp2_9 ENGINE = InnoDB,
+        SUBPARTITION sp2_10 ENGINE = InnoDB,
+        SUBPARTITION sp2_11 ENGINE = InnoDB,
+        SUBPARTITION sp2_12 ENGINE = InnoDB
+    ),
+    PARTITION p3 VALUES LESS THAN (2023) (
+		SUBPARTITION sp3_1 ENGINE = InnoDB,
+        SUBPARTITION sp3_2 ENGINE = InnoDB,        
+        SUBPARTITION sp3_3 ENGINE = InnoDB,
+        SUBPARTITION sp3_4 ENGINE = InnoDB,
+        SUBPARTITION sp3_5 ENGINE = InnoDB,
+        SUBPARTITION sp3_6 ENGINE = InnoDB,
+        SUBPARTITION sp3_7 ENGINE = InnoDB,
+        SUBPARTITION sp3_8 ENGINE = InnoDB,
+        SUBPARTITION sp3_9 ENGINE = InnoDB,
+        SUBPARTITION sp3_10 ENGINE = InnoDB,
+        SUBPARTITION sp3_11 ENGINE = InnoDB,
+        SUBPARTITION sp3_12 ENGINE = InnoDB
+    ),
+    PARTITION p4 VALUES LESS THAN (2024) (
+		SUBPARTITION sp4_1 ENGINE = InnoDB,
+        SUBPARTITION sp4_2 ENGINE = InnoDB,        
+        SUBPARTITION sp4_3 ENGINE = InnoDB,
+        SUBPARTITION sp4_4 ENGINE = InnoDB,
+        SUBPARTITION sp4_5 ENGINE = InnoDB,
+        SUBPARTITION sp4_6 ENGINE = InnoDB,
+        SUBPARTITION sp4_7 ENGINE = InnoDB,
+        SUBPARTITION sp4_8 ENGINE = InnoDB,
+        SUBPARTITION sp4_9 ENGINE = InnoDB,
+        SUBPARTITION sp4_10 ENGINE = InnoDB,
+        SUBPARTITION sp4_11 ENGINE = InnoDB,
+        SUBPARTITION sp4_12 ENGINE = InnoDB
+    ),
+    PARTITION p5 VALUES LESS THAN (2025) (
+		SUBPARTITION sp5_1 ENGINE = InnoDB,
+        SUBPARTITION sp5_2 ENGINE = InnoDB,        
+        SUBPARTITION sp5_3 ENGINE = InnoDB,
+        SUBPARTITION sp5_4 ENGINE = InnoDB,
+        SUBPARTITION sp5_5 ENGINE = InnoDB,
+        SUBPARTITION sp5_6 ENGINE = InnoDB,
+        SUBPARTITION sp5_7 ENGINE = InnoDB,
+        SUBPARTITION sp5_8 ENGINE = InnoDB,
+        SUBPARTITION sp5_9 ENGINE = InnoDB,
+        SUBPARTITION sp5_10 ENGINE = InnoDB,
+        SUBPARTITION sp5_11 ENGINE = InnoDB,
+        SUBPARTITION sp5_12 ENGINE = InnoDB
+    ),    
+    PARTITION p6 VALUES LESS THAN (2026) (
+		SUBPARTITION sp6_1 ENGINE = InnoDB,
+        SUBPARTITION sp6_2 ENGINE = InnoDB,        
+        SUBPARTITION sp6_3 ENGINE = InnoDB,
+        SUBPARTITION sp6_4 ENGINE = InnoDB,
+        SUBPARTITION sp6_5 ENGINE = InnoDB,
+        SUBPARTITION sp6_6 ENGINE = InnoDB,
+        SUBPARTITION sp6_7 ENGINE = InnoDB,
+        SUBPARTITION sp6_8 ENGINE = InnoDB,
+        SUBPARTITION sp6_9 ENGINE = InnoDB,
+        SUBPARTITION sp6_10 ENGINE = InnoDB,
+        SUBPARTITION sp6_11 ENGINE = InnoDB,
+        SUBPARTITION sp6_12 ENGINE = InnoDB
+    ),
+    PARTITION p7 VALUES LESS THAN (2027) (
+		SUBPARTITION sp7_1 ENGINE = InnoDB,
+        SUBPARTITION sp7_2 ENGINE = InnoDB,        
+        SUBPARTITION sp7_3 ENGINE = InnoDB,
+        SUBPARTITION sp7_4 ENGINE = InnoDB,
+        SUBPARTITION sp7_5 ENGINE = InnoDB,
+        SUBPARTITION sp7_6 ENGINE = InnoDB,
+        SUBPARTITION sp7_7 ENGINE = InnoDB,
+        SUBPARTITION sp7_8 ENGINE = InnoDB,
+        SUBPARTITION sp7_9 ENGINE = InnoDB,
+        SUBPARTITION sp7_10 ENGINE = InnoDB,
+        SUBPARTITION sp7_11 ENGINE = InnoDB,
+        SUBPARTITION sp7_12 ENGINE = InnoDB
+    ),    
+    PARTITION p8 VALUES LESS THAN (2028) (
+		SUBPARTITION sp8_1 ENGINE = InnoDB,
+        SUBPARTITION sp8_2 ENGINE = InnoDB,        
+        SUBPARTITION sp8_3 ENGINE = InnoDB,
+        SUBPARTITION sp8_4 ENGINE = InnoDB,
+        SUBPARTITION sp8_5 ENGINE = InnoDB,
+        SUBPARTITION sp8_6 ENGINE = InnoDB,
+        SUBPARTITION sp8_7 ENGINE = InnoDB,
+        SUBPARTITION sp8_8 ENGINE = InnoDB,
+        SUBPARTITION sp8_9 ENGINE = InnoDB,
+        SUBPARTITION sp8_10 ENGINE = InnoDB,
+        SUBPARTITION sp8_11 ENGINE = InnoDB,
+        SUBPARTITION sp8_12 ENGINE = InnoDB
+    ),    
+    PARTITION p9 VALUES LESS THAN (2029) (
+		SUBPARTITION sp9_1 ENGINE = InnoDB,
+        SUBPARTITION sp9_2 ENGINE = InnoDB,        
+        SUBPARTITION sp9_3 ENGINE = InnoDB,
+        SUBPARTITION sp9_4 ENGINE = InnoDB,
+        SUBPARTITION sp9_5 ENGINE = InnoDB,
+        SUBPARTITION sp9_6 ENGINE = InnoDB,
+        SUBPARTITION sp9_7 ENGINE = InnoDB,
+        SUBPARTITION sp9_8 ENGINE = InnoDB,
+        SUBPARTITION sp9_9 ENGINE = InnoDB,
+        SUBPARTITION sp9_10 ENGINE = InnoDB,
+        SUBPARTITION sp9_11 ENGINE = InnoDB,
+        SUBPARTITION sp9_12 ENGINE = InnoDB
+    ),
+    PARTITION p10 VALUES LESS THAN (2030) (
+		SUBPARTITION sp10_1 ENGINE = InnoDB,
+        SUBPARTITION sp10_2 ENGINE = InnoDB,        
+        SUBPARTITION sp10_3 ENGINE = InnoDB,
+        SUBPARTITION sp10_4 ENGINE = InnoDB,
+        SUBPARTITION sp10_5 ENGINE = InnoDB,
+        SUBPARTITION sp10_6 ENGINE = InnoDB,
+        SUBPARTITION sp10_7 ENGINE = InnoDB,
+        SUBPARTITION sp10_8 ENGINE = InnoDB,
+        SUBPARTITION sp10_9 ENGINE = InnoDB,
+        SUBPARTITION sp10_10 ENGINE = InnoDB,
+        SUBPARTITION sp10_11 ENGINE = InnoDB,
+        SUBPARTITION sp10_12 ENGINE = InnoDB
+    ),
+    PARTITION p11 VALUES LESS THAN (2031) (
+		SUBPARTITION sp11_1 ENGINE = InnoDB,
+        SUBPARTITION sp11_2 ENGINE = InnoDB,        
+        SUBPARTITION sp11_3 ENGINE = InnoDB,
+        SUBPARTITION sp11_4 ENGINE = InnoDB,
+        SUBPARTITION sp11_5 ENGINE = InnoDB,
+        SUBPARTITION sp11_6 ENGINE = InnoDB,
+        SUBPARTITION sp11_7 ENGINE = InnoDB,
+        SUBPARTITION sp11_8 ENGINE = InnoDB,
+        SUBPARTITION sp11_9 ENGINE = InnoDB,
+        SUBPARTITION sp11_10 ENGINE = InnoDB,
+        SUBPARTITION sp11_11 ENGINE = InnoDB,
+        SUBPARTITION sp11_12 ENGINE = InnoDB
+    ),
+    PARTITION p12 VALUES LESS THAN (2032) (
+		SUBPARTITION sp12_1 ENGINE = InnoDB,
+        SUBPARTITION sp12_2 ENGINE = InnoDB,        
+        SUBPARTITION sp12_3 ENGINE = InnoDB,
+        SUBPARTITION sp12_4 ENGINE = InnoDB,
+        SUBPARTITION sp12_5 ENGINE = InnoDB,
+        SUBPARTITION sp12_6 ENGINE = InnoDB,
+        SUBPARTITION sp12_7 ENGINE = InnoDB,
+        SUBPARTITION sp12_8 ENGINE = InnoDB,
+        SUBPARTITION sp12_9 ENGINE = InnoDB,
+        SUBPARTITION sp12_10 ENGINE = InnoDB,
+        SUBPARTITION sp12_11 ENGINE = InnoDB,
+        SUBPARTITION sp12_12 ENGINE = InnoDB
+    ),
+    PARTITION p13 VALUES LESS THAN (2033) (
+		SUBPARTITION sp13_1 ENGINE = InnoDB,
+        SUBPARTITION sp13_2 ENGINE = InnoDB,        
+        SUBPARTITION sp13_3 ENGINE = InnoDB,
+        SUBPARTITION sp13_4 ENGINE = InnoDB,
+        SUBPARTITION sp13_5 ENGINE = InnoDB,
+        SUBPARTITION sp13_6 ENGINE = InnoDB,
+        SUBPARTITION sp13_7 ENGINE = InnoDB,
+        SUBPARTITION sp13_8 ENGINE = InnoDB,
+        SUBPARTITION sp13_9 ENGINE = InnoDB,
+        SUBPARTITION sp13_10 ENGINE = InnoDB,
+        SUBPARTITION sp13_11 ENGINE = InnoDB,
+        SUBPARTITION sp13_12 ENGINE = InnoDB
+    ),
+    PARTITION p14 VALUES LESS THAN (2034) (
+		SUBPARTITION sp14_1 ENGINE = InnoDB,
+        SUBPARTITION sp14_2 ENGINE = InnoDB,        
+        SUBPARTITION sp14_3 ENGINE = InnoDB,
+        SUBPARTITION sp14_4 ENGINE = InnoDB,
+        SUBPARTITION sp14_5 ENGINE = InnoDB,
+        SUBPARTITION sp14_6 ENGINE = InnoDB,
+        SUBPARTITION sp14_7 ENGINE = InnoDB,
+        SUBPARTITION sp14_8 ENGINE = InnoDB,
+        SUBPARTITION sp14_9 ENGINE = InnoDB,
+        SUBPARTITION sp14_10 ENGINE = InnoDB,
+        SUBPARTITION sp14_11 ENGINE = InnoDB,
+        SUBPARTITION sp14_12 ENGINE = InnoDB
+    ),
+    PARTITION p15 VALUES LESS THAN (2035) (
+		SUBPARTITION sp15_1 ENGINE = InnoDB,
+        SUBPARTITION sp15_2 ENGINE = InnoDB,        
+        SUBPARTITION sp15_3 ENGINE = InnoDB,
+        SUBPARTITION sp15_4 ENGINE = InnoDB,
+        SUBPARTITION sp15_5 ENGINE = InnoDB,
+        SUBPARTITION sp15_6 ENGINE = InnoDB,
+        SUBPARTITION sp15_7 ENGINE = InnoDB,
+        SUBPARTITION sp15_8 ENGINE = InnoDB,
+        SUBPARTITION sp15_9 ENGINE = InnoDB,
+        SUBPARTITION sp15_10 ENGINE = InnoDB,
+        SUBPARTITION sp15_11 ENGINE = InnoDB,
+        SUBPARTITION sp15_12 ENGINE = InnoDB
+    ),
+    PARTITION p16 VALUES LESS THAN (2036) (
+		SUBPARTITION sp16_1 ENGINE = InnoDB,
+        SUBPARTITION sp16_2 ENGINE = InnoDB,        
+        SUBPARTITION sp16_3 ENGINE = InnoDB,
+        SUBPARTITION sp16_4 ENGINE = InnoDB,
+        SUBPARTITION sp16_5 ENGINE = InnoDB,
+        SUBPARTITION sp16_6 ENGINE = InnoDB,
+        SUBPARTITION sp16_7 ENGINE = InnoDB,
+        SUBPARTITION sp16_8 ENGINE = InnoDB,
+        SUBPARTITION sp16_9 ENGINE = InnoDB,
+        SUBPARTITION sp16_10 ENGINE = InnoDB,
+        SUBPARTITION sp16_11 ENGINE = InnoDB,
+        SUBPARTITION sp16_12 ENGINE = InnoDB
+    ),
+    PARTITION p17 VALUES LESS THAN (2037) (
+		SUBPARTITION sp17_1 ENGINE = InnoDB,
+        SUBPARTITION sp17_2 ENGINE = InnoDB,        
+        SUBPARTITION sp17_3 ENGINE = InnoDB,
+        SUBPARTITION sp17_4 ENGINE = InnoDB,
+        SUBPARTITION sp17_5 ENGINE = InnoDB,
+        SUBPARTITION sp17_6 ENGINE = InnoDB,
+        SUBPARTITION sp17_7 ENGINE = InnoDB,
+        SUBPARTITION sp17_8 ENGINE = InnoDB,
+        SUBPARTITION sp17_9 ENGINE = InnoDB,
+        SUBPARTITION sp17_10 ENGINE = InnoDB,
+        SUBPARTITION sp17_11 ENGINE = InnoDB,
+        SUBPARTITION sp17_12 ENGINE = InnoDB
+    ),
+    PARTITION p18 VALUES LESS THAN (2038) (
+		SUBPARTITION sp18_1 ENGINE = InnoDB,
+        SUBPARTITION sp18_2 ENGINE = InnoDB,        
+        SUBPARTITION sp18_3 ENGINE = InnoDB,
+        SUBPARTITION sp18_4 ENGINE = InnoDB,
+        SUBPARTITION sp18_5 ENGINE = InnoDB,
+        SUBPARTITION sp18_6 ENGINE = InnoDB,
+        SUBPARTITION sp18_7 ENGINE = InnoDB,
+        SUBPARTITION sp18_8 ENGINE = InnoDB,
+        SUBPARTITION sp18_9 ENGINE = InnoDB,
+        SUBPARTITION sp18_10 ENGINE = InnoDB,
+        SUBPARTITION sp18_11 ENGINE = InnoDB,
+        SUBPARTITION sp18_12 ENGINE = InnoDB
+    ),
+    PARTITION p19 VALUES LESS THAN (2039) (
+		SUBPARTITION sp19_1 ENGINE = InnoDB,
+        SUBPARTITION sp19_2 ENGINE = InnoDB,        
+        SUBPARTITION sp19_3 ENGINE = InnoDB,
+        SUBPARTITION sp19_4 ENGINE = InnoDB,
+        SUBPARTITION sp19_5 ENGINE = InnoDB,
+        SUBPARTITION sp19_6 ENGINE = InnoDB,
+        SUBPARTITION sp19_7 ENGINE = InnoDB,
+        SUBPARTITION sp19_8 ENGINE = InnoDB,
+        SUBPARTITION sp19_9 ENGINE = InnoDB,
+        SUBPARTITION sp19_10 ENGINE = InnoDB,
+        SUBPARTITION sp19_11 ENGINE = InnoDB,
+        SUBPARTITION sp19_12 ENGINE = InnoDB
+    ),
+    PARTITION p20 VALUES LESS THAN (2040) (
+		SUBPARTITION sp20_1 ENGINE = InnoDB,
+        SUBPARTITION sp20_2 ENGINE = InnoDB,        
+        SUBPARTITION sp20_3 ENGINE = InnoDB,
+        SUBPARTITION sp20_4 ENGINE = InnoDB,
+        SUBPARTITION sp20_5 ENGINE = InnoDB,
+        SUBPARTITION sp20_6 ENGINE = InnoDB,
+        SUBPARTITION sp20_7 ENGINE = InnoDB,
+        SUBPARTITION sp20_8 ENGINE = InnoDB,
+        SUBPARTITION sp20_9 ENGINE = InnoDB,
+        SUBPARTITION sp20_10 ENGINE = InnoDB,
+        SUBPARTITION sp20_11 ENGINE = InnoDB,
+        SUBPARTITION sp20_12 ENGINE = InnoDB
+    ),
+    PARTITION p21 VALUES LESS THAN MAXVALUE (
+		SUBPARTITION sp21_1 ENGINE = InnoDB,
+        SUBPARTITION sp21_2 ENGINE = InnoDB,        
+        SUBPARTITION sp21_3 ENGINE = InnoDB,
+        SUBPARTITION sp21_4 ENGINE = InnoDB,
+        SUBPARTITION sp21_5 ENGINE = InnoDB,
+        SUBPARTITION sp21_6 ENGINE = InnoDB,
+        SUBPARTITION sp21_7 ENGINE = InnoDB,
+        SUBPARTITION sp21_8 ENGINE = InnoDB,
+        SUBPARTITION sp21_9 ENGINE = InnoDB,
+        SUBPARTITION sp21_10 ENGINE = InnoDB,
+        SUBPARTITION sp21_11 ENGINE = InnoDB,
+        SUBPARTITION sp21_12 ENGINE = InnoDB
+    )    
+);
+
+ALTER TABLE RT_DATABASE_NAME.detalle_factura DROP FOREIGN KEY fk_detalle_factura_impuesto_especial1, DROP FOREIGN KEY fk_detalle_factura_factura1, DROP FOREIGN KEY fk_detalle_factura_detalle_factura1, DROP FOREIGN KEY fk_detalle_factura_bodega1, DROP FOREIGN KEY fk_detalle_factura_articulo1;
+ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD INDEX Idx_Articulo_ASC (articulo ASC), ADD INDEX Idx_Bodega_ASC (bodega ASC), ADD INDEX Idx_DetalleFacturaId_ASC (detalle_factura_id ASC), ADD INDEX Idx_Factura_ASC (factura ASC), ADD INDEX Idx_ImpuestoEspecial_ASC (impuesto_especial ASC), 
+DROP INDEX fk_detalle_factura_bodega1_idx , DROP INDEX fk_detalle_factura_detalle_factura1_idx , DROP INDEX fk_detalle_factura_impuesto_especial1_idx , DROP INDEX fk_detalle_factura_articulo1_idx , DROP INDEX fk_detalle_factura_factura1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.detalle_factura_detalle_cuenta DROP FOREIGN KEY fk_detalle_factura_detalle_cuenta_detalle_factura1;
+ALTER TABLE RT_DATABASE_NAME.detalle_factura_detalle_cuenta ADD INDEX Idx_DetalleFactura_ASC (detalle_factura ASC), DROP INDEX fk_detalle_factura_detalle_cuenta_detalle_factura1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.factura DROP FOREIGN KEY fk_factura_usuario1, DROP FOREIGN KEY fk_factura_sede1, DROP FOREIGN KEY fk_factura_razon_anulacion1, DROP FOREIGN KEY fk_factura_moneda1,
+DROP FOREIGN KEY fk_factura_factura_serie1, DROP FOREIGN KEY fk_factura_cliente1, DROP FOREIGN KEY fk_factura_certificador_fel1, DROP FOREIGN KEY fk_factura_abono1;
+ALTER TABLE RT_DATABASE_NAME.factura ADD INDEX Idx_Abono_ASC (abono ASC), ADD INDEX Idx_CertificadorFel_ASC (certificador_fel ASC), ADD INDEX Idx_Cliente_ASC (cliente ASC), ADD INDEX Idx_FacturaSerie_ASC (factura_serie ASC),
+ADD INDEX Idx_Moneda_ASC (moneda ASC), ADD INDEX Idx_RazonAnulacion_ASC (razon_anulacion ASC), ADD INDEX Idx_Sede_ASC (sede ASC), ADD INDEX Idx_Usuario_ASC (usuario ASC), 
+DROP INDEX fk_factura_abono1_idx, DROP INDEX fk_factura_razon_anulacion1_idx, DROP INDEX fk_factura_sede1_idx, DROP INDEX fk_factura_certificador_fel1_idx, DROP INDEX fk_factura_moneda1_idx,
+DROP INDEX fk_factura_cliente1_idx, DROP INDEX fk_factura_factura_serie1_idx, DROP INDEX fk_factura_usuario1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.abono DROP FOREIGN KEY fk_abono_factura1;
+ALTER TABLE RT_DATABASE_NAME.abono ADD INDEX Idx_Factura_ASC (factura ASC), DROP INDEX fk_abono_factura1_idx;
+
+ALTER TABLE RT_DATABASE_NAME.factura_fel DROP FOREIGN KEY fk_factura_fel_usuario1, DROP FOREIGN KEY fk_factura_fel_factura1;
+ALTER TABLE RT_DATABASE_NAME.factura_fel ADD INDEX Idx_Factura_ASC (factura ASC), ADD INDEX Idx_Usuario_ASC (usuario ASC), DROP INDEX fk_factura_fel_usuario1_idx, DROP INDEX fk_factura_fel_factura1_idx;
+ALTER TABLE RT_DATABASE_NAME.factura_fel DROP PRIMARY KEY, ADD PRIMARY KEY (factura_fel, factura);
+
+ALTER TABLE RT_DATABASE_NAME.detalle_factura DROP PRIMARY KEY, ADD PRIMARY KEY (detalle_factura, factura);
+ALTER TABLE RT_DATABASE_NAME.factura CHANGE COLUMN fecha_factura fecha_factura DATE NOT NULL, DROP PRIMARY KEY, ADD PRIMARY KEY (factura, fecha_factura);
+
+ALTER TABLE RT_DATABASE_NAME.detalle_factura PARTITION BY HASH(factura) PARTITIONS 4;
+
+ALTER TABLE RT_DATABASE_NAME.factura
+PARTITION BY RANGE(YEAR(fecha_factura))
+SUBPARTITION BY HASH(MONTH(fecha_factura))
+(
+    PARTITION p0 VALUES LESS THAN (2020) (
+        SUBPARTITION sp0_1 ENGINE = InnoDB,
+        SUBPARTITION sp0_2 ENGINE = InnoDB,        
+        SUBPARTITION sp0_3 ENGINE = InnoDB,
+        SUBPARTITION sp0_4 ENGINE = InnoDB,
+        SUBPARTITION sp0_5 ENGINE = InnoDB,
+        SUBPARTITION sp0_6 ENGINE = InnoDB,
+        SUBPARTITION sp0_7 ENGINE = InnoDB,
+        SUBPARTITION sp0_8 ENGINE = InnoDB,
+        SUBPARTITION sp0_9 ENGINE = InnoDB,
+        SUBPARTITION sp0_10 ENGINE = InnoDB,
+        SUBPARTITION sp0_11 ENGINE = InnoDB,
+        SUBPARTITION sp0_12 ENGINE = InnoDB
+    ),
+    PARTITION p1 VALUES LESS THAN (2021) (
+		SUBPARTITION sp1_1 ENGINE = InnoDB,
+        SUBPARTITION sp1_2 ENGINE = InnoDB,        
+        SUBPARTITION sp1_3 ENGINE = InnoDB,
+        SUBPARTITION sp1_4 ENGINE = InnoDB,
+        SUBPARTITION sp1_5 ENGINE = InnoDB,
+        SUBPARTITION sp1_6 ENGINE = InnoDB,
+        SUBPARTITION sp1_7 ENGINE = InnoDB,
+        SUBPARTITION sp1_8 ENGINE = InnoDB,
+        SUBPARTITION sp1_9 ENGINE = InnoDB,
+        SUBPARTITION sp1_10 ENGINE = InnoDB,
+        SUBPARTITION sp1_11 ENGINE = InnoDB,
+        SUBPARTITION sp1_12 ENGINE = InnoDB
+    ),
+    PARTITION p2 VALUES LESS THAN (2022) (
+		SUBPARTITION sp2_1 ENGINE = InnoDB,
+        SUBPARTITION sp2_2 ENGINE = InnoDB,        
+        SUBPARTITION sp2_3 ENGINE = InnoDB,
+        SUBPARTITION sp2_4 ENGINE = InnoDB,
+        SUBPARTITION sp2_5 ENGINE = InnoDB,
+        SUBPARTITION sp2_6 ENGINE = InnoDB,
+        SUBPARTITION sp2_7 ENGINE = InnoDB,
+        SUBPARTITION sp2_8 ENGINE = InnoDB,
+        SUBPARTITION sp2_9 ENGINE = InnoDB,
+        SUBPARTITION sp2_10 ENGINE = InnoDB,
+        SUBPARTITION sp2_11 ENGINE = InnoDB,
+        SUBPARTITION sp2_12 ENGINE = InnoDB
+    ),
+    PARTITION p3 VALUES LESS THAN (2023) (
+		SUBPARTITION sp3_1 ENGINE = InnoDB,
+        SUBPARTITION sp3_2 ENGINE = InnoDB,        
+        SUBPARTITION sp3_3 ENGINE = InnoDB,
+        SUBPARTITION sp3_4 ENGINE = InnoDB,
+        SUBPARTITION sp3_5 ENGINE = InnoDB,
+        SUBPARTITION sp3_6 ENGINE = InnoDB,
+        SUBPARTITION sp3_7 ENGINE = InnoDB,
+        SUBPARTITION sp3_8 ENGINE = InnoDB,
+        SUBPARTITION sp3_9 ENGINE = InnoDB,
+        SUBPARTITION sp3_10 ENGINE = InnoDB,
+        SUBPARTITION sp3_11 ENGINE = InnoDB,
+        SUBPARTITION sp3_12 ENGINE = InnoDB
+    ),
+    PARTITION p4 VALUES LESS THAN (2024) (
+		SUBPARTITION sp4_1 ENGINE = InnoDB,
+        SUBPARTITION sp4_2 ENGINE = InnoDB,        
+        SUBPARTITION sp4_3 ENGINE = InnoDB,
+        SUBPARTITION sp4_4 ENGINE = InnoDB,
+        SUBPARTITION sp4_5 ENGINE = InnoDB,
+        SUBPARTITION sp4_6 ENGINE = InnoDB,
+        SUBPARTITION sp4_7 ENGINE = InnoDB,
+        SUBPARTITION sp4_8 ENGINE = InnoDB,
+        SUBPARTITION sp4_9 ENGINE = InnoDB,
+        SUBPARTITION sp4_10 ENGINE = InnoDB,
+        SUBPARTITION sp4_11 ENGINE = InnoDB,
+        SUBPARTITION sp4_12 ENGINE = InnoDB
+    ),
+    PARTITION p5 VALUES LESS THAN (2025) (
+		SUBPARTITION sp5_1 ENGINE = InnoDB,
+        SUBPARTITION sp5_2 ENGINE = InnoDB,        
+        SUBPARTITION sp5_3 ENGINE = InnoDB,
+        SUBPARTITION sp5_4 ENGINE = InnoDB,
+        SUBPARTITION sp5_5 ENGINE = InnoDB,
+        SUBPARTITION sp5_6 ENGINE = InnoDB,
+        SUBPARTITION sp5_7 ENGINE = InnoDB,
+        SUBPARTITION sp5_8 ENGINE = InnoDB,
+        SUBPARTITION sp5_9 ENGINE = InnoDB,
+        SUBPARTITION sp5_10 ENGINE = InnoDB,
+        SUBPARTITION sp5_11 ENGINE = InnoDB,
+        SUBPARTITION sp5_12 ENGINE = InnoDB
+    ),    
+    PARTITION p6 VALUES LESS THAN (2026) (
+		SUBPARTITION sp6_1 ENGINE = InnoDB,
+        SUBPARTITION sp6_2 ENGINE = InnoDB,        
+        SUBPARTITION sp6_3 ENGINE = InnoDB,
+        SUBPARTITION sp6_4 ENGINE = InnoDB,
+        SUBPARTITION sp6_5 ENGINE = InnoDB,
+        SUBPARTITION sp6_6 ENGINE = InnoDB,
+        SUBPARTITION sp6_7 ENGINE = InnoDB,
+        SUBPARTITION sp6_8 ENGINE = InnoDB,
+        SUBPARTITION sp6_9 ENGINE = InnoDB,
+        SUBPARTITION sp6_10 ENGINE = InnoDB,
+        SUBPARTITION sp6_11 ENGINE = InnoDB,
+        SUBPARTITION sp6_12 ENGINE = InnoDB
+    ),
+    PARTITION p7 VALUES LESS THAN (2027) (
+		SUBPARTITION sp7_1 ENGINE = InnoDB,
+        SUBPARTITION sp7_2 ENGINE = InnoDB,        
+        SUBPARTITION sp7_3 ENGINE = InnoDB,
+        SUBPARTITION sp7_4 ENGINE = InnoDB,
+        SUBPARTITION sp7_5 ENGINE = InnoDB,
+        SUBPARTITION sp7_6 ENGINE = InnoDB,
+        SUBPARTITION sp7_7 ENGINE = InnoDB,
+        SUBPARTITION sp7_8 ENGINE = InnoDB,
+        SUBPARTITION sp7_9 ENGINE = InnoDB,
+        SUBPARTITION sp7_10 ENGINE = InnoDB,
+        SUBPARTITION sp7_11 ENGINE = InnoDB,
+        SUBPARTITION sp7_12 ENGINE = InnoDB
+    ),    
+    PARTITION p8 VALUES LESS THAN (2028) (
+		SUBPARTITION sp8_1 ENGINE = InnoDB,
+        SUBPARTITION sp8_2 ENGINE = InnoDB,        
+        SUBPARTITION sp8_3 ENGINE = InnoDB,
+        SUBPARTITION sp8_4 ENGINE = InnoDB,
+        SUBPARTITION sp8_5 ENGINE = InnoDB,
+        SUBPARTITION sp8_6 ENGINE = InnoDB,
+        SUBPARTITION sp8_7 ENGINE = InnoDB,
+        SUBPARTITION sp8_8 ENGINE = InnoDB,
+        SUBPARTITION sp8_9 ENGINE = InnoDB,
+        SUBPARTITION sp8_10 ENGINE = InnoDB,
+        SUBPARTITION sp8_11 ENGINE = InnoDB,
+        SUBPARTITION sp8_12 ENGINE = InnoDB
+    ),    
+    PARTITION p9 VALUES LESS THAN (2029) (
+		SUBPARTITION sp9_1 ENGINE = InnoDB,
+        SUBPARTITION sp9_2 ENGINE = InnoDB,        
+        SUBPARTITION sp9_3 ENGINE = InnoDB,
+        SUBPARTITION sp9_4 ENGINE = InnoDB,
+        SUBPARTITION sp9_5 ENGINE = InnoDB,
+        SUBPARTITION sp9_6 ENGINE = InnoDB,
+        SUBPARTITION sp9_7 ENGINE = InnoDB,
+        SUBPARTITION sp9_8 ENGINE = InnoDB,
+        SUBPARTITION sp9_9 ENGINE = InnoDB,
+        SUBPARTITION sp9_10 ENGINE = InnoDB,
+        SUBPARTITION sp9_11 ENGINE = InnoDB,
+        SUBPARTITION sp9_12 ENGINE = InnoDB
+    ),
+    PARTITION p10 VALUES LESS THAN (2030) (
+		SUBPARTITION sp10_1 ENGINE = InnoDB,
+        SUBPARTITION sp10_2 ENGINE = InnoDB,        
+        SUBPARTITION sp10_3 ENGINE = InnoDB,
+        SUBPARTITION sp10_4 ENGINE = InnoDB,
+        SUBPARTITION sp10_5 ENGINE = InnoDB,
+        SUBPARTITION sp10_6 ENGINE = InnoDB,
+        SUBPARTITION sp10_7 ENGINE = InnoDB,
+        SUBPARTITION sp10_8 ENGINE = InnoDB,
+        SUBPARTITION sp10_9 ENGINE = InnoDB,
+        SUBPARTITION sp10_10 ENGINE = InnoDB,
+        SUBPARTITION sp10_11 ENGINE = InnoDB,
+        SUBPARTITION sp10_12 ENGINE = InnoDB
+    ),
+    PARTITION p11 VALUES LESS THAN (2031) (
+		SUBPARTITION sp11_1 ENGINE = InnoDB,
+        SUBPARTITION sp11_2 ENGINE = InnoDB,        
+        SUBPARTITION sp11_3 ENGINE = InnoDB,
+        SUBPARTITION sp11_4 ENGINE = InnoDB,
+        SUBPARTITION sp11_5 ENGINE = InnoDB,
+        SUBPARTITION sp11_6 ENGINE = InnoDB,
+        SUBPARTITION sp11_7 ENGINE = InnoDB,
+        SUBPARTITION sp11_8 ENGINE = InnoDB,
+        SUBPARTITION sp11_9 ENGINE = InnoDB,
+        SUBPARTITION sp11_10 ENGINE = InnoDB,
+        SUBPARTITION sp11_11 ENGINE = InnoDB,
+        SUBPARTITION sp11_12 ENGINE = InnoDB
+    ),
+    PARTITION p12 VALUES LESS THAN (2032) (
+		SUBPARTITION sp12_1 ENGINE = InnoDB,
+        SUBPARTITION sp12_2 ENGINE = InnoDB,        
+        SUBPARTITION sp12_3 ENGINE = InnoDB,
+        SUBPARTITION sp12_4 ENGINE = InnoDB,
+        SUBPARTITION sp12_5 ENGINE = InnoDB,
+        SUBPARTITION sp12_6 ENGINE = InnoDB,
+        SUBPARTITION sp12_7 ENGINE = InnoDB,
+        SUBPARTITION sp12_8 ENGINE = InnoDB,
+        SUBPARTITION sp12_9 ENGINE = InnoDB,
+        SUBPARTITION sp12_10 ENGINE = InnoDB,
+        SUBPARTITION sp12_11 ENGINE = InnoDB,
+        SUBPARTITION sp12_12 ENGINE = InnoDB
+    ),
+    PARTITION p13 VALUES LESS THAN (2033) (
+		SUBPARTITION sp13_1 ENGINE = InnoDB,
+        SUBPARTITION sp13_2 ENGINE = InnoDB,        
+        SUBPARTITION sp13_3 ENGINE = InnoDB,
+        SUBPARTITION sp13_4 ENGINE = InnoDB,
+        SUBPARTITION sp13_5 ENGINE = InnoDB,
+        SUBPARTITION sp13_6 ENGINE = InnoDB,
+        SUBPARTITION sp13_7 ENGINE = InnoDB,
+        SUBPARTITION sp13_8 ENGINE = InnoDB,
+        SUBPARTITION sp13_9 ENGINE = InnoDB,
+        SUBPARTITION sp13_10 ENGINE = InnoDB,
+        SUBPARTITION sp13_11 ENGINE = InnoDB,
+        SUBPARTITION sp13_12 ENGINE = InnoDB
+    ),
+    PARTITION p14 VALUES LESS THAN (2034) (
+		SUBPARTITION sp14_1 ENGINE = InnoDB,
+        SUBPARTITION sp14_2 ENGINE = InnoDB,        
+        SUBPARTITION sp14_3 ENGINE = InnoDB,
+        SUBPARTITION sp14_4 ENGINE = InnoDB,
+        SUBPARTITION sp14_5 ENGINE = InnoDB,
+        SUBPARTITION sp14_6 ENGINE = InnoDB,
+        SUBPARTITION sp14_7 ENGINE = InnoDB,
+        SUBPARTITION sp14_8 ENGINE = InnoDB,
+        SUBPARTITION sp14_9 ENGINE = InnoDB,
+        SUBPARTITION sp14_10 ENGINE = InnoDB,
+        SUBPARTITION sp14_11 ENGINE = InnoDB,
+        SUBPARTITION sp14_12 ENGINE = InnoDB
+    ),
+    PARTITION p15 VALUES LESS THAN (2035) (
+		SUBPARTITION sp15_1 ENGINE = InnoDB,
+        SUBPARTITION sp15_2 ENGINE = InnoDB,        
+        SUBPARTITION sp15_3 ENGINE = InnoDB,
+        SUBPARTITION sp15_4 ENGINE = InnoDB,
+        SUBPARTITION sp15_5 ENGINE = InnoDB,
+        SUBPARTITION sp15_6 ENGINE = InnoDB,
+        SUBPARTITION sp15_7 ENGINE = InnoDB,
+        SUBPARTITION sp15_8 ENGINE = InnoDB,
+        SUBPARTITION sp15_9 ENGINE = InnoDB,
+        SUBPARTITION sp15_10 ENGINE = InnoDB,
+        SUBPARTITION sp15_11 ENGINE = InnoDB,
+        SUBPARTITION sp15_12 ENGINE = InnoDB
+    ),
+    PARTITION p16 VALUES LESS THAN (2036) (
+		SUBPARTITION sp16_1 ENGINE = InnoDB,
+        SUBPARTITION sp16_2 ENGINE = InnoDB,        
+        SUBPARTITION sp16_3 ENGINE = InnoDB,
+        SUBPARTITION sp16_4 ENGINE = InnoDB,
+        SUBPARTITION sp16_5 ENGINE = InnoDB,
+        SUBPARTITION sp16_6 ENGINE = InnoDB,
+        SUBPARTITION sp16_7 ENGINE = InnoDB,
+        SUBPARTITION sp16_8 ENGINE = InnoDB,
+        SUBPARTITION sp16_9 ENGINE = InnoDB,
+        SUBPARTITION sp16_10 ENGINE = InnoDB,
+        SUBPARTITION sp16_11 ENGINE = InnoDB,
+        SUBPARTITION sp16_12 ENGINE = InnoDB
+    ),
+    PARTITION p17 VALUES LESS THAN (2037) (
+		SUBPARTITION sp17_1 ENGINE = InnoDB,
+        SUBPARTITION sp17_2 ENGINE = InnoDB,        
+        SUBPARTITION sp17_3 ENGINE = InnoDB,
+        SUBPARTITION sp17_4 ENGINE = InnoDB,
+        SUBPARTITION sp17_5 ENGINE = InnoDB,
+        SUBPARTITION sp17_6 ENGINE = InnoDB,
+        SUBPARTITION sp17_7 ENGINE = InnoDB,
+        SUBPARTITION sp17_8 ENGINE = InnoDB,
+        SUBPARTITION sp17_9 ENGINE = InnoDB,
+        SUBPARTITION sp17_10 ENGINE = InnoDB,
+        SUBPARTITION sp17_11 ENGINE = InnoDB,
+        SUBPARTITION sp17_12 ENGINE = InnoDB
+    ),
+    PARTITION p18 VALUES LESS THAN (2038) (
+		SUBPARTITION sp18_1 ENGINE = InnoDB,
+        SUBPARTITION sp18_2 ENGINE = InnoDB,        
+        SUBPARTITION sp18_3 ENGINE = InnoDB,
+        SUBPARTITION sp18_4 ENGINE = InnoDB,
+        SUBPARTITION sp18_5 ENGINE = InnoDB,
+        SUBPARTITION sp18_6 ENGINE = InnoDB,
+        SUBPARTITION sp18_7 ENGINE = InnoDB,
+        SUBPARTITION sp18_8 ENGINE = InnoDB,
+        SUBPARTITION sp18_9 ENGINE = InnoDB,
+        SUBPARTITION sp18_10 ENGINE = InnoDB,
+        SUBPARTITION sp18_11 ENGINE = InnoDB,
+        SUBPARTITION sp18_12 ENGINE = InnoDB
+    ),
+    PARTITION p19 VALUES LESS THAN (2039) (
+		SUBPARTITION sp19_1 ENGINE = InnoDB,
+        SUBPARTITION sp19_2 ENGINE = InnoDB,        
+        SUBPARTITION sp19_3 ENGINE = InnoDB,
+        SUBPARTITION sp19_4 ENGINE = InnoDB,
+        SUBPARTITION sp19_5 ENGINE = InnoDB,
+        SUBPARTITION sp19_6 ENGINE = InnoDB,
+        SUBPARTITION sp19_7 ENGINE = InnoDB,
+        SUBPARTITION sp19_8 ENGINE = InnoDB,
+        SUBPARTITION sp19_9 ENGINE = InnoDB,
+        SUBPARTITION sp19_10 ENGINE = InnoDB,
+        SUBPARTITION sp19_11 ENGINE = InnoDB,
+        SUBPARTITION sp19_12 ENGINE = InnoDB
+    ),
+    PARTITION p20 VALUES LESS THAN (2040) (
+		SUBPARTITION sp20_1 ENGINE = InnoDB,
+        SUBPARTITION sp20_2 ENGINE = InnoDB,        
+        SUBPARTITION sp20_3 ENGINE = InnoDB,
+        SUBPARTITION sp20_4 ENGINE = InnoDB,
+        SUBPARTITION sp20_5 ENGINE = InnoDB,
+        SUBPARTITION sp20_6 ENGINE = InnoDB,
+        SUBPARTITION sp20_7 ENGINE = InnoDB,
+        SUBPARTITION sp20_8 ENGINE = InnoDB,
+        SUBPARTITION sp20_9 ENGINE = InnoDB,
+        SUBPARTITION sp20_10 ENGINE = InnoDB,
+        SUBPARTITION sp20_11 ENGINE = InnoDB,
+        SUBPARTITION sp20_12 ENGINE = InnoDB
+    ),
+    PARTITION p21 VALUES LESS THAN MAXVALUE (
+		SUBPARTITION sp21_1 ENGINE = InnoDB,
+        SUBPARTITION sp21_2 ENGINE = InnoDB,        
+        SUBPARTITION sp21_3 ENGINE = InnoDB,
+        SUBPARTITION sp21_4 ENGINE = InnoDB,
+        SUBPARTITION sp21_5 ENGINE = InnoDB,
+        SUBPARTITION sp21_6 ENGINE = InnoDB,
+        SUBPARTITION sp21_7 ENGINE = InnoDB,
+        SUBPARTITION sp21_8 ENGINE = InnoDB,
+        SUBPARTITION sp21_9 ENGINE = InnoDB,
+        SUBPARTITION sp21_10 ENGINE = InnoDB,
+        SUBPARTITION sp21_11 ENGINE = InnoDB,
+        SUBPARTITION sp21_12 ENGINE = InnoDB
+    )    
+);
+
+ALTER TABLE RT_DATABASE_NAME.factura_fel PARTITION BY HASH(factura) PARTITIONS 4;
 
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN fecha DATETIME NULL DEFAULT CURRENT_TIMESTAMP AFTER existencia, ADD INDEX Fecha_Idx (fecha ASC);
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN cuc_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER articulo, ADD COLUMN cp_ingresado DECIMAL(10,5) NOT NULL DEFAULT 0.00000 AFTER costo_ultima_compra;
