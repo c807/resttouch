@@ -249,13 +249,14 @@ export class ProductoComponent implements OnInit, OnDestroy {
     );
   }
 
-  generarRepReceta(conIva: number = 0) {
-    this.paramsRep._coniva = conIva;
+  generarRepReceta(conIva: number = 0, enExcel: number = 0) {
+    this.paramsRep._coniva = +conIva;
+    this.paramsRep._excel = +enExcel;
     this.endSubs.add(
       this.pdfServicio.generar_receta_costo(this.paramsRep).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: "application/pdf" });
-          saveAs(blob, `Recetas_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+          const blob = new Blob([res], { type: +enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel' });
+          saveAs(blob, `Recetas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+enExcel === 0 ? 'pdf' : 'xlsx'}`);
         }
       })
     );
