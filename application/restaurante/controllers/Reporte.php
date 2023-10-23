@@ -630,6 +630,12 @@ class Reporte extends CI_Controller
                 $fila++;
             }
 
+            $fila += 2;
+            $hoja->setCellValue('A' . $fila, 'No incluye facturas manuales porque a las facturas manuales no se les asigna turno.');            
+            $hoja->getStyle('A' . $fila)->getFont()->setBold(true);
+            $hoja->getStyle('A' . $fila)->getAlignment()->setHorizontal('center');
+            $hoja->mergeCells("A{$fila}:F{$fila}");
+
             foreach (range('A', 'F') as $col) {
                 $hoja->getColumnDimension($col)->setAutoSize(true);
             }
@@ -637,7 +643,7 @@ class Reporte extends CI_Controller
             $hoja->setTitle('Reporte de caja por turnos');
 
             header('Content-Type: application/vnd.ms-excel');
-            header('Content-Disposition: attachment;filename=Ventas.xlsx');
+            header('Content-Disposition: attachment;filename=Reporte_Caja_Turno.xlsx');
             header('Cache-Control: max-age=1');
             header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');

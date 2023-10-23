@@ -137,5 +137,10 @@
 
     <?php endforeach ?>
 
+    <br/>
+    <div class="text-center">
+		<span style="font-weight: bold;">No incluye facturas manuales porque a las facturas manuales no se les asigna turno.</span>
+	</div>
+
 
     </html>

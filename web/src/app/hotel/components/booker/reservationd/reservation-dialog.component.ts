@@ -57,16 +57,21 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
 
   get cantidadNoches(): number {
     let noches: number = null;
-
+    
     if (moment(this.range.value.start).isValid && moment(this.range.value.end).isValid()) {
-      if (moment(this.range.value.end).isAfter(moment(this.range.value.start))) {
-        noches = moment(this.range.value.end).diff(moment(this.range.value.start), 'days') + 1;
+      const fDel = `${moment(this.range.value.start).format(GLOBAL.dbDateFormat)} 00:00:00`;
+      const fAl = `${moment(this.range.value.end).format(GLOBAL.dbDateFormat)} 00:00:00`;
+      if (moment(fAl).isAfter(moment(fDel))) {
+        noches = moment(fAl).diff(moment(fDel), 'days') + 1;
         if (noches === 0) {
           noches = 1;
         }
-      } else if (moment(this.range.value.end).isSame(moment(this.range.value.start))) {
+      } else if (moment(fAl).isSame(moment(fDel))) {
         noches = 1;
       }
+      // console.log('START = ', fDel);
+      // console.log('END = ', fAl);
+      // console.log('NOCHES = ', noches);
     }
 
     return noches;
@@ -401,7 +406,7 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   }
 
   filtroFecha = (d: Date | null): boolean => {
-    const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+    const hoy = moment(`${moment().subtract(1, 'day').format(GLOBAL.dbDateFormat)} 00:00:00`);
     const fecha = moment(`${moment(d).format(GLOBAL.dbDateFormat)} 00:00:00`);
     return hoy.isBefore(fecha) || hoy.isSame(fecha);
   }
