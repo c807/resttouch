@@ -174,34 +174,38 @@
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z4 full-width"
             *ngIf="detallesFactura.length > 0">
             <ng-container matColumnDef="articulo">
-                <th mat-header-cell *matHeaderCellDef>Artículo</th>
-                <td mat-cell *matCellDef="let element" class="text-wrap">{{element.articulo.descripcion}}</td>
+                <th mat-header-cell *matHeaderCellDef style="text-align: left !important;">Artículo</th>
+                <td mat-cell *matCellDef="let element" class="wrap">{{element.articulo.descripcion}}</td>
                 <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="cantidad">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Cant.</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.cantidad | number:'1.2-2'}}</td>
+                <th mat-header-cell *matHeaderCellDef class="rtxt">Cant.</th>
+                <td mat-cell *matCellDef="let element" class="rtxt">{{element.cantidad | number:'1.2-2'}}</td>
                 <td mat-footer-cell *matFooterCellDef>&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="precio_unitario">
-                <th mat-header-cell *matHeaderCellDef class="text-right">P./Uni.</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{element.precio_unitario | number:'1.2-2'}}</td>
-                <!-- <td mat-footer-cell *matFooterCellDef class="text-right"><strong>Total</strong></td> -->
-                <td mat-footer-cell *matFooterCellDef class="text-right">&nbsp;</td>
+                <th mat-header-cell *matHeaderCellDef class="rtxt">P./Uni.</th>
+                <td mat-cell *matCellDef="let element" class="rtxt">{{element.precio_unitario | number:'1.2-2'}}</td>                
+                <td mat-footer-cell *matFooterCellDef class="rtxt">&nbsp;</td>
+            </ng-container>
+            <ng-container matColumnDef="descuento">
+                <th mat-header-cell *matHeaderCellDef class="rtxt">Desc.</th>
+                <td mat-cell *matCellDef="let element" class="rtxt">{{element.descuento | number:'1.2-2'}}</td>                
+                <td mat-footer-cell *matFooterCellDef class="rtxt">&nbsp;</td>
             </ng-container>
             <ng-container matColumnDef="valor_impuesto_especial">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Imp. Esp.</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{(element.valor_impuesto_especial || 0) | number:'1.2-2'}}</td>
-                <td mat-footer-cell *matFooterCellDef class="text-right"><strong>Total</strong></td>
+                <th mat-header-cell *matHeaderCellDef class="rtxt">Imp. Esp.</th>
+                <td mat-cell *matCellDef="let element" class="rtxt">{{(element.valor_impuesto_especial || 0) | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="rtxt"><strong>Total</strong></td>
             </ng-container>
             <ng-container matColumnDef="total">
-                <th mat-header-cell *matHeaderCellDef class="text-right">Total</th>
-                <td mat-cell *matCellDef="let element" class="text-right">{{(+element.total + (element.valor_impuesto_especial ? +element.valor_impuesto_especial : 0)) | number:'1.2-2'}}</td>
-                <td mat-footer-cell *matFooterCellDef class="text-right"><strong>{{(totalDeFactura || 0) | number:'1.2-2'}}</strong></td>
+                <th mat-header-cell *matHeaderCellDef class="rtxt">Total</th>
+                <td mat-cell *matCellDef="let element" class="rtxt">{{(+element.total + (element.valor_impuesto_especial ? +element.valor_impuesto_especial : 0)) | number:'1.2-2'}}</td>
+                <td mat-footer-cell *matFooterCellDef class="rtxt"><strong>{{(totalDeFactura || 0) | number:'1.2-2'}}</strong></td>
             </ng-container>
             <ng-container matColumnDef="editItem">
                 <th mat-header-cell *matHeaderCellDef>&nbsp;</th>
-                <td mat-cell *matCellDef="let element" class="text-wrap">
+                <td mat-cell *matCellDef="let element" class="ctxt">
                     <button mat-raised-button type="button" color="accent"
                         (click)="getDetalleFactura(element.factura, element.detalle_factura)"
                         [disabled]="!!factura.fel_uuid || !!factura.fel_uuid_anulacion || refacturacion || cargando">
