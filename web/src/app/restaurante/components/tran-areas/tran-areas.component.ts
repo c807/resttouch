@@ -24,7 +24,11 @@ import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { Cliente } from '@admin-interfaces/cliente';
 import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
 
+import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
+import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
+
 import { Subscription } from 'rxjs';
+import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
 
 @Component({
   selector: 'app-tran-areas',
@@ -62,7 +66,8 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     public comandaSrvc: ComandaService,
     private configSrvc: ConfiguracionService,
     private socket: Socket,
-    private onlineSrvc: OnlineService
+    private onlineSrvc: OnlineService,
+    private notificacionClienteSrvc: NotificacionClienteService
   ) { }
 
   ngOnInit() {
@@ -127,13 +132,13 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.lstTabsAreasForUpdate = lasAreas;
       this.updateTableStatus(objMesaEnUso.mesaenuso);
-    }    
+    }
   }
 
   loadAreas = (saveOnTemp = false, objMesaEnUso: any = {}) => {
     this.cargando = true;
-    if(this.isOnline) {
-      this.endSubs.add(      
+    if (this.isOnline) {
+      this.endSubs.add(
         this.areaSrvc.get({ sede: (+this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((res) => {
           db.areas.clear().then(() => {
             db.areas.bulkAdd(res);
@@ -173,12 +178,12 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickMesa(m: any) {
     // console.log(m.mesaSelected); return;
     if (!this.cargando) {
-      if (+m.mesaSelected.eshabitacion === 1 && +m.mesaSelected.estatus === 1) {        
-        this.snackBar.open('Para modificar la cuenta debe hacer CHECK IN primero.', 'Habitaciones', {duration: 7000});
+      if (+m.mesaSelected.eshabitacion === 1 && +m.mesaSelected.estatus === 1) {
+        this.snackBar.open('Para modificar la cuenta debe hacer CHECK IN primero.', 'Habitaciones', { duration: 7000 });
         return;
       }
 
-      if (+m.mesaSelected.escallcenter === 0) {        
+      if (+m.mesaSelected.escallcenter === 0) {
         this.aperturaCargaMesa(m);
       } else {
         const varCliPedido = `${GLOBAL.rtClientePedido}_${m.mesaSelected.mesa}`;
@@ -197,7 +202,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
             data: { mesa: m.mesaSelected }
           });
 
-          this.endSubs.add(            
+          this.endSubs.add(
             pideTelefonoRef.afterClosed().subscribe((cli: Cliente) => {
               if (cli) {
                 this.clientePedido = cli;
@@ -238,7 +243,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   guardarMesa = (m: any) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.comandaSrvc.save(this.mesaSeleccionadaToOpen).subscribe(res => {
         // console.log(res);
         this.cargando = false;
@@ -296,7 +301,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
         data: this.mesaSeleccionadaToOpen
       });
 
-      this.endSubs.add(        
+      this.endSubs.add(
         abrirMesaRef.afterClosed().subscribe((result: Comanda) => {
           if (result) {
             this.mesaSeleccionadaToOpen = result;
@@ -308,7 +313,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
         })
       );
     } else {
-      if(+m.escallcenter === 1) {
+      if (+m.escallcenter === 1) {
         this.mesaSeleccionadaToOpen.cliente_master = (this.clientePedido as ClienteMaster).cliente_master || null;
       }
       this.mesaSeleccionadaToOpen.mesero = this.ls.get(GLOBAL.usrTokenVar).idusr;
@@ -377,7 +382,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   fuerzaCierreComanda = (shouldToggle: boolean) => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.comandaSrvc.cerrarEstacion(this.mesaSeleccionada.comanda).subscribe(resCierre => {
         this.loadComandaMesa(this.mesaSeleccionada.mesa, shouldToggle);
       })
@@ -391,7 +396,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
       data: { mesa: this.mesaSeleccionada, clientePedido: this.clientePedido }
     });
 
-    this.endSubs.add(      
+    this.endSubs.add(
       tranComandaRef.afterClosed().subscribe((res: any) => {
         this.checkEstatusMesa();
         if (res) {
@@ -405,13 +410,13 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   loadComandaMesa = (obj: any, shouldToggle = true) => {
     // console.log('OBJETO = ', obj);
-    if(shouldToggle && this.cargando) {
+    if (shouldToggle && this.cargando) {
       this.snackBar.open('El sistema está terminando de cargar información. Por favor intente de nuevo.', 'Áreas', { duration: 5000 });
       return;
     }
 
     this.cargando = true;
-    this.endSubs.add(      
+    this.endSubs.add(
       this.comandaSrvc.getComandaDeMesa(obj.mesa, false).subscribe((res: ComandaGetResponse) => {
         // console.log('RESPUESTA DE GET COMANDA = ', res);
         // this.cargando = false;
@@ -472,7 +477,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     const seguimientoCallCenterRef = this.dialog.open(DialogSeguimientoCallcenterComponent, {
       maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
       disableClose: true,
-      data: { }
+      data: {}
     });
 
     this.endSubs.add(
@@ -494,6 +499,24 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loadAreas(true, { mesaenuso: res });
         } else {
           this.cargando = false;
+        }
+      })
+    );
+  }
+
+  checkNotificaciones = (m: any) => {
+    this.endSubs.add(
+      this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
+        if (mensajes && mensajes.length > 0) {
+          const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
+            width: '75%',
+            autoFocus: true,
+            disableClose: true,
+            data: mensajes
+          });
+          this.endSubs.add(notiDialog.afterClosed().subscribe(() => this.onClickMesa(m)));
+        } else {
+          this.onClickMesa(m);
         }
       })
     );

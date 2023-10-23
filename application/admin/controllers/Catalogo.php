@@ -303,9 +303,9 @@ class Catalogo extends CI_Controller
 		echo '</pre>';
 	}
 
-	public function get_notificaciones_cliente()
+	public function get_notificaciones_cliente($pordominio = '')
 	{
-		$this->output->set_output(json_encode($this->Catalogo_model->notificacionesCliente($this->data->dominio)));
+		$this->output->set_output(json_encode($this->Catalogo_model->notificacionesCliente($this->data->dominio, (int)$pordominio === 0)));
 	}
 
 	public function get_comanda_origen()
