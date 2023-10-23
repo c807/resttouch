@@ -54,9 +54,9 @@
 					<tr>
 						<td class="cuerpo text-left"><?php echo $row->articulo->codigo?></td>
 						<td class="cuerpo text-left"><?php echo $row->articulo->descripcion?></td>
-						<td class="cuerpo text-center"><?php echo (int)$row->articulo->produccion === 1 ? '&#10004;' : '';?></td>
-						<td class="cuerpo text-center"><?php echo (int)$row->articulo->mostrar_inventario === 1 ? '&#10004;' : '';?></td>
-						<td class="cuerpo text-center"><?php echo (int)$row->articulo->esreceta === 1 ? '&#10004;' : '';?></td>
+						<td class="cuerpo text-center"><?php echo (int)$row->articulo->produccion === 1 ? ($data['enPDF'] ? '&#10004;' : 'X') : '';?></td>
+						<td class="cuerpo text-center"><?php echo (int)$row->articulo->mostrar_inventario === 1 ? ($data['enPDF'] ? '&#10004;' : 'X') : '';?></td>
+						<td class="cuerpo text-center"><?php echo (int)$row->articulo->esreceta === 1 ? ($data['enPDF'] ? '&#10004;' : 'X') : '';?></td>
 						<td class="cuerpo text-center"><?php echo number_format($row->cantidad, 2)." ".$row->medida->descripcion?></td>
 						<td class="cuerpo text-right"><?php echo number_format($row->articulo->costo, 5)?></td>
 						<td class="cuerpo text-right"><?php echo number_format($row->costo, 2)?></td>

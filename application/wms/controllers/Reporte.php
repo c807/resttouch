@@ -2039,19 +2039,21 @@ class Reporte extends CI_Controller
 			$data[] = $tmp;
 		}
 
-		$pdf = new \Mpdf\Mpdf([
-			'tempDir' => sys_get_temp_dir(),
-			'format'  => 'Letter'
-		]);
-
+		$data['enPDF'] = $enPDF;
+		
 		$vista = $this->load->view('reporte/articulo/receta_costo', ['data' => $data], true);
-
+		
 		if ($enPDF) {
+			$pdf = new \Mpdf\Mpdf([
+				'tempDir' => sys_get_temp_dir(),
+				'format'  => 'Letter'
+			]);
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
 			$pdf->WriteHTML($vista);
 			$pdf->Output("{$nombreArchivo}.pdf", 'D');
 		} else {
 			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$vista = str_replace('&', '&amp;', $vista);
 			$xlsx = $reader->loadFromString($vista);
 			$xlsx->setActiveSheetIndex(0);
 			$hoja = $xlsx->getActiveSheet();
