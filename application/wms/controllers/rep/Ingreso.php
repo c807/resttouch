@@ -10,7 +10,7 @@ class Ingreso extends CI_Controller
 	{
 		parent::__construct();
 		set_database_server();
-		$this->load->model('reporte/Reporte_model');
+		$this->load->model(['reporte/Reporte_model', 'Sede_model']);
 		$this->load->library('WmsRepIngreso');
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -34,6 +34,16 @@ class Ingreso extends CI_Controller
 			$lib = new WmsRepIngreso();
 			$lib->setLista($lista);
 			$lib->setArgs($args);
+
+			if (isset($args->sede) && is_array($args->sede)) {
+				foreach($args->sede as $s) {
+					$tmp = $this->Sede_model->buscar(['sede' => $s, '_uno' => true]);
+					if($lib->lasSedes !== '') {
+						$lib->lasSedes .= ', ';
+					}
+					$lib->lasSedes .= "{$tmp->nombre} ({$tmp->alias})";
+				}
+			}
 
 			if (isset($args->_excel)) {
 

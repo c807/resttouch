@@ -7,6 +7,8 @@ class WmsRepIngreso
 	private $lista;
 	private $args;
 	private $reportes;
+	
+	public $lasSedes = '';
 
 	public function __construct()
 	{
@@ -74,6 +76,8 @@ class WmsRepIngreso
 		} else {
 			$data = $this->lista;
 		}
+
+		$this->args->sedes = $this->lasSedes;
 
 		$vista = $this->ci->load->view($tmp, [
 			"args"  => $this->args,

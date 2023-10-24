@@ -413,7 +413,7 @@ EOT;
 			$this->db->select("
 				b.fecha, 
 				b.ingreso as num_documento, 
-				c.descripcion as bodega,
+				CONCAT(c.descripcion, ' (', z.nombre, ' - ', z.alias ,')') as bodega,
 				d.descripcion as producto,
 				a.cantidad, 
 				a.precio_unitario * {$porIva} as costo,
@@ -433,7 +433,8 @@ EOT;
 			->join("categoria_grupo f", "f.categoria_grupo = d.categoria_grupo")
 			->join("categoria g", "g.categoria = f.categoria")
 			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento")
-			->join("estatus_movimiento i", "i.estatus_movimiento = b.estatus_movimiento");
+			->join("estatus_movimiento i", "i.estatus_movimiento = b.estatus_movimiento")
+			->join('sede z', 'z.sede = c.sede');
 
 		$this->db->order_by("b.fecha", "asc")
 			->order_by("b.ingreso", "desc");
@@ -462,7 +463,7 @@ EOT;
 		}
 
 		return $this->db
-			->select('c.sede as idsede, f.nombre as sede, c.categoria as idcategoria, c.descripcion as categoria, a.categoria_grupo as idsubcategoria, b.descripcion as subcategoria, a.articulo, a.descripcion, a.codigo, a.presentacion as idpresentacion, d.descripcion as presentacion, a.presentacion_reporte as idpresentacion_reporte, e.descripcion as presentacion_reporte')
+			->select('c.sede as idsede, CONCAT(f.nombre, " (", IFNULL(f.alias, ""), ")") as sede, c.categoria as idcategoria, c.descripcion as categoria, a.categoria_grupo as idsubcategoria, b.descripcion as subcategoria, a.articulo, a.descripcion, a.codigo, a.presentacion as idpresentacion, d.descripcion as presentacion, a.presentacion_reporte as idpresentacion_reporte, e.descripcion as presentacion_reporte')
 			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
 			->join('categoria c', 'c.categoria = b.categoria')
 			->join('presentacion d', 'd.presentacion = a.presentacion')

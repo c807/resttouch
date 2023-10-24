@@ -6,7 +6,8 @@
 	<title>Margen de receta</title>
 </head>
 <body lang="es-GT" dir="ltr">
-	<h3 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;">Margen de receta</h3>
+	<h3 class="text-center encabezado" style="padding-bottom: 1px;">Margen de receta</h3>
+	<h4 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;"><?php echo "{$sede->nombre} ($sede->alias)"; ?></h4>
 	
 	<table class="table">
 		<thead>

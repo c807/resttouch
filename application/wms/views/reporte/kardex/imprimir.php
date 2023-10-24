@@ -32,7 +32,7 @@
 		<?php foreach ($sedes as $sede): ?>
 			<tr>
 				<td class="titulo" colspan="7">
-					Sede: <?php echo $sede->sede->nombre ?>
+					Sede: <?php echo "{$sede->sede->nombre} ({$sede->sede->alias})" ?>
 				</td>
 			</tr>
 			<tr>

@@ -19,6 +19,9 @@
 </head>
 <body>
 	<h3 class="text-center"><?php echo $reporte->titulo ?></h3>
+	<?php if ($args->reporte == 3): ?>
+		<h4 class="text-center"><?php echo $args->sedes ?></h4>
+	<?php endif ?>
 	<div class="text-center"><b>Del</b> <?php echo formatoFecha($args->fdel, 2)?> <b>al</b> <?php echo formatoFecha($args->fal, 2)?> </div>
 	<table class="tabla-contenido">
 		<?php if ($args->reporte == 3): ?>
