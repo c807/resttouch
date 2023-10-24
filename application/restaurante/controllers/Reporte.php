@@ -1706,7 +1706,7 @@ class Reporte extends CI_Controller
 
             /*Encabezado*/
             $hoja->setCellValue('A1', $emp->nombre);
-            $hoja->setCellValue('A2', $sede->nombre);
+            $hoja->setCellValue('A2', "{$sede->nombre} ({$sede->alias})");
             $hoja->setCellValue('A3', 'Distribución de Propinas');
             $hoja->setCellValue('B4', 'Del: ' . formatoFecha($datos['fdel']) . ' Al: ' . formatoFecha($datos['fal']));
 
