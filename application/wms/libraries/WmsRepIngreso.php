@@ -114,16 +114,20 @@ class WmsRepIngreso
 		$rep = $this->getReporte($this->args->reporte);
 		$lcol = $rep->ultcol;
 
-		$hoja->getStyle("A1:{$lcol}2")->getFont()->setBold(true);
-		$hoja->getStyle("A1:{$lcol}2")->getAlignment()->setHorizontal("center");
+		$hoja->getStyle("A1:{$lcol}3")->getFont()->setBold(true);
+		$hoja->getStyle("A1:{$lcol}3")->getAlignment()->setHorizontal("center");
 		$hoja->mergeCells("A1:{$lcol}1");
 		$hoja->mergeCells("A2:{$lcol}2");
+		$hoja->mergeCells("A3:{$lcol}3");
 
 
 		$hoja->setCellValue('A1', $rep->titulo);
-		$hoja->setCellValue('A2', 'Del ' . formatoFecha($this->args->fdel, 2) . ' al ' . formatoFecha($this->args->fal, 2));
+		if ($this->args->reporte == 3) {
+			$hoja->setCellValue('A2', $this->lasSedes);
+		}
+		$hoja->setCellValue('A3', 'Del ' . formatoFecha($this->args->fdel, 2) . ' al ' . formatoFecha($this->args->fal, 2));
 
-		$fila = 4;
+		$fila = $this->args->reporte == 3 ? 5 : 4;
 		if ($this->args->reporte == 3) {
 			$hoja->setCellValue("A{$fila}", "Producto");
 			$hoja->setCellValue("B{$fila}", "Último costo");
