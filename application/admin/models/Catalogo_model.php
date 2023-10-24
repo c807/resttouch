@@ -687,14 +687,19 @@ class Catalogo_model extends CI_Model
 		return $this->getCatalogo($qry, $args);
 	}
 
-	public function notificacionesCliente($dominio = '')
+	public function notificacionesCliente($dominio = '', $todas = true)
 	{
+		if ($todas) {
+			$this->db->where("(a.cliente_corporacion IS NULL OR TRIM(b.dominio) = '{$dominio}')");
+		} else {
+			$this->db->where("TRIM(b.dominio) = '{$dominio}'");
+		}
+
 		$qry = $this->db
 			->select('a.notificacion_cliente, a.notificacion, a.mostrar_del, a.mostrar_al, a.prioridad')
 			->join('administracion.cliente_corporacion b', 'b.id = a.cliente_corporacion', 'left')
 			->where('DATE(NOW()) >= a.mostrar_del')
-			->where('DATE(NOW()) <= a.mostrar_al')
-			->where("(a.cliente_corporacion IS NULL OR TRIM(b.dominio) = '{$dominio}')")
+			->where('DATE(NOW()) <= a.mostrar_al')			
 			->order_by('a.prioridad DESC, a.mostrar_del ASC')
 			->get('administracion.notificacion_cliente a');
 

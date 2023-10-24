@@ -1702,6 +1702,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_HORAS_VALIDEZ_TOKEN', '1', '12', 'Establece cantidad de horas de validez del token del usuario. 12 horas por defecto.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUTO_FIRMA_DTE_COMANDA_LINEA', '3', '0', 'Habilita/Desahabilita la firma automática desde comanda en línea.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_INCLUYE_SALDO_INICIAL', '3', '0', 'Habilita/Deshabilita tomar en cuenta el saldo inicial de caja en arqueos y saldos finales.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_APLICA_DESCUENTO_A_ENVIO', '3', '1', 'Habilita/Deshabilita si debe aplicar descuento al artículo Entrega cuando hayan descuentos en Shopify.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 

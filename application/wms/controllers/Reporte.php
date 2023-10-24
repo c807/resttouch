@@ -2008,6 +2008,11 @@ class Reporte extends CI_Controller
 			$porIva +=  ($emp ? (float)$emp->porcentaje_iva : 0);
 		}
 
+		$enPDF = true;
+		if (isset($req['_excel']) && (int)$req['_excel'] === 1) {
+			$enPDF = false;
+		}
+
 		foreach ($lista as $fila) {
 			$art = new Articulo_model($fila->articulo);
 			$tmp = [];
@@ -2041,14 +2046,40 @@ class Reporte extends CI_Controller
 			$data[] = $tmp;
 		}
 
-		$pdf = new \Mpdf\Mpdf([
-			'tempDir' => sys_get_temp_dir(),
-			'format'  => 'Letter'
-		]);
+		$data['enPDF'] = $enPDF;
+		
+		$vista = $this->load->view('reporte/articulo/receta_costo', ['data' => $data], true);
+		
+		if ($enPDF) {
+			$pdf = new \Mpdf\Mpdf([
+				'tempDir' => sys_get_temp_dir(),
+				'format'  => 'Letter'
+			]);
+			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+			$pdf->WriteHTML($vista);
+			$pdf->Output("{$nombreArchivo}.pdf", 'D');
+		} else {
+			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$vista = str_replace('&', '&amp;', $vista);
+			$xlsx = $reader->loadFromString($vista);
+			$xlsx->setActiveSheetIndex(0);
+			$hoja = $xlsx->getActiveSheet();
 
-		$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-		$pdf->WriteHTML($this->load->view('reporte/articulo/receta_costo', ['data' => $data], true));
-		$pdf->Output("{$nombreArchivo}.pdf", 'D');
+			foreach (range('A', 'Z') as $col) {
+				$hoja->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			header("Content-Type: application/vnd.ms-excel");
+			header("Content-Disposition: attachment;filename={$nombreArchivo}.xlsx");
+			header("Cache-Control: max-age=1");
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+			header("Cache-Control: cache, must-revalidate");
+			header("Pragma: public");
+
+			$writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($xlsx, 'Xlsx');
+			$writer->save('php://output');
+		}
 	}
 
 	public function consumos()

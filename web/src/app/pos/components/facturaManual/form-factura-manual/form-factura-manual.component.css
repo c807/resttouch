@@ -13,3 +13,11 @@
 .autocomplete-articulo-item {
     height: 50px;
 }
+
+th.mat-header-cell {
+    text-align: right;
+}
+
+.mat-column-editItem {    
+    padding: 0 !important;
+}

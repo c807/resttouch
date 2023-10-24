@@ -94,7 +94,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public detalleFactura: DetalleFactura;
   public articulos: Articulo[] = [];
   public filteredArticulos: Articulo[] = [];
-  public displayedColumns: string[] = ['articulo', 'cantidad', 'precio_unitario', 'valor_impuesto_especial', 'total', 'editItem'];
+  public displayedColumns: string[] = ['articulo', 'cantidad', 'precio_unitario', 'descuento', 'valor_impuesto_especial', 'total', 'editItem'];
   public dataSource: MatTableDataSource<DetalleFactura>;
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;

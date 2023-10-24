@@ -3,7 +3,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Rol extends CI_Controller
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -49,6 +48,28 @@ class Rol extends CI_Controller
                                 'incluido' => 0
                             ];
                         }
+                    }
+                }
+            }
+        }
+
+        // Ordenar alfabéticamente el menú
+        usort($arbol, function ($a, $b) {
+            return strcasecmp(quitar_acentos($a->descripcion), quitar_acentos($b->descripcion));
+        });
+
+        $keysModulos = array_keys($arbol);
+        foreach ($keysModulos as $kM) {
+            if (isset($arbol[$kM]->submodulos)) {
+                usort($arbol[$kM]->submodulos, function ($a, $b) {
+                    return strcasecmp(quitar_acentos($a->descripcion), quitar_acentos($b->descripcion));
+                });
+                $keysSubModulos = array_keys($arbol[$kM]->submodulos);
+                foreach ($keysSubModulos as $kSM) {
+                    if (isset($arbol[$kM]->submodulos[$kSM]->opciones)) {
+                        usort($arbol[$kM]->submodulos[$kSM]->opciones, function ($a, $b) {
+                            return strcasecmp(quitar_acentos($a->descripcion), quitar_acentos($b->descripcion));
+                        });
                     }
                 }
             }
@@ -120,14 +141,14 @@ class Rol extends CI_Controller
 
     public function buscar()
     {
-        $datos = $this->Rol_model->buscar($_GET);
+        $datos = $this->Rol_model->buscar_rol($_GET);
         $datos = ordenar_array_objetos($datos, 'descripcion');
         $this->output->set_output(json_encode($datos));
     }
 
     private function get_detalle_rol($idRol)
     {
-        $datos = $this->Rol_acceso_model->buscar(['rol' => $idRol]);
+        $datos = $this->Rol_acceso_model->buscar_rol_acceso(['rol' => $idRol]);
         $menu = $this->get_formatted_menu();
         foreach ($menu as $mKey => $modulo) {
             foreach ($modulo->submodulos as $smKey => $submodulo) {
@@ -158,21 +179,20 @@ class Rol extends CI_Controller
 
     public function guardar_detalle()
     {
-        $req = json_decode(file_get_contents('php://input'), true);
-
         $datos = ['exito' => false];
         if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
             $rol_acceso = new Rol_acceso_model();
 
             $fltr = [
-                'rol' => $req['rol'],
-                'modulo' => $req['modulo'],
-                'submodulo' => $req['submodulo'],
-                'opcion' => $req['opcion'],
+                'rol' => (int)$req['rol'],
+                'modulo' => (int)$req['modulo'],
+                'submodulo' => (int)$req['submodulo'],
+                'opcion' => (int)$req['opcion'],
                 '_uno' => true
             ];
 
-            $existe = $rol_acceso->buscar($fltr);
+            $existe = $rol_acceso->buscar_rol_acceso($fltr);
             if (!$existe) {
                 $datos['exito'] = $rol_acceso->guardar($req);
                 if ($datos['exito']) {
@@ -189,6 +209,7 @@ class Rol extends CI_Controller
                     $datos['mensaje'] = $ra->getMensaje();
                 }
             }
+            $this->Rol_acceso_model->actualiza_permisos_usuario_rol($req);
         } else {
             $datos['mensaje'] = 'Parámetros inválidos.';
         }

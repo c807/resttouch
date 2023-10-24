@@ -548,6 +548,7 @@ class Rpt_pedidos_sede extends CI_Controller
 
         if (verDato($_GET, '_excel')) {
             $reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$vista = str_replace('&', '&amp;', $vista);
 			$xlsx = $reader->loadFromString($vista);
 			$xlsx->setActiveSheetIndex(0);
 			$hoja = $xlsx->getActiveSheet();

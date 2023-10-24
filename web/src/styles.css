@@ -148,3 +148,7 @@ button .mat-icon {
 .half-width {
     width: 50%;
 }
+
+.wrap {
+    word-wrap: break-word;
+}

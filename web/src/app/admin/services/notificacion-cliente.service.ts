@@ -19,9 +19,9 @@ export class NotificacionClienteService {
     this.srvcErrHndl = new ServiceErrorHandler();
   }
 
-  get(): Observable<NotificacionCliente[]> {
+  get(pordominio = false): Observable<NotificacionCliente[]> {
     return this.http.get<NotificacionCliente[]>(
-      `${GLOBAL.urlCatalogos}/get_notificaciones_cliente`
+      `${GLOBAL.urlCatalogos}/get_notificaciones_cliente${pordominio ? '/1' : ''}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 

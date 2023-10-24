@@ -94,11 +94,11 @@ export class ReservacionComponent implements OnInit, OnDestroy {
 
   showDisponible(reservacionId: number = null) {
     if (+this.debaja === 0 || (+this.debaja === 1 && +reservacionId > 0)) {
-      const hoy = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+      const hoy = moment(`${moment().subtract(1, 'day').format(GLOBAL.dbDateFormat)} 00:00:00`);
       const fselected = moment(`${moment(this.cDate).format(GLOBAL.dbDateFormat)} 00:00:00`);
 
       if (fselected.isBefore(hoy) && (reservacionId === null || reservacionId === undefined)) {
-        this.snackBar.open('No puede hacer reservas con fechas pasadas.', 'Reserva', { duration: 7000 });
+        this.snackBar.open('No puede hacer reservas con fechas más antiguas de 1 día.', 'Reserva', { duration: 7000 });
       } else {
         const dialogRef = this.dialog.open(ReservationDialogComponent, {
           width: '75%',

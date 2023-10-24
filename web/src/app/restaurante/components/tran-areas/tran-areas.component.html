@@ -13,7 +13,7 @@
                             Seguimiento
                         </button>
                     </div>
-                    <app-mesa *ngFor="let m of tabA.mesas" [configuracion]="m" (onClickMesa)="!cargando && onClickMesa($event)" [isDisabled]="cargando"></app-mesa>
+                    <app-mesa *ngFor="let m of tabA.mesas" [configuracion]="m" (onClickMesa)="!cargando && checkNotificaciones($event)" [isDisabled]="cargando"></app-mesa>
                 </div>
             </mat-tab>
         </mat-tab-group>
