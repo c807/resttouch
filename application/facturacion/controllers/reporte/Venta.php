@@ -151,7 +151,7 @@ class Venta extends CI_Controller
 		$data = AUTHORIZATION::validateToken($headers['Authorization']);
 		// $req = $_GET;
 		$req = json_decode(file_get_contents('php://input'), true);
-		if (!$this->input->get('sede')) {
+		if (!isset($req['sede'])) {
 			$req['sede'] = [$this->data->sede];
 		}
 
@@ -261,7 +261,7 @@ class Venta extends CI_Controller
 						'_uno' => true
 					]);
 					$tmp[$row->sede] = [
-						'sede' => $tmpSede->nombre,
+						'sede' => "{$tmpSede->nombre} ({$tmpSede->alias})",
 						'articulos' => [$row]
 					];
 				}
@@ -304,7 +304,7 @@ class Venta extends CI_Controller
 				'_uno' => true
 			]);
 
-			$tmp[] = $sede->nombre;
+			$tmp[] = "{$sede->nombre} ({$sede->alias})";
 		}
 
 		if ($sede) {
@@ -900,7 +900,7 @@ class Venta extends CI_Controller
 
 				$sede->sede = $sedeObj->getPK();
 				$req['idsede'] = $sede->sede;
-				$sede->nombre = $sedeObj->nombre;
+				$sede->nombre = "{$sedeObj->nombre} ({$sedeObj->alias})";
 				$obj = $rpt->get_lista_comandas($req);
 				$sede->ventas = [];
 				$sede->suma_propinas = 0;
@@ -1097,7 +1097,7 @@ class Venta extends CI_Controller
 
 				$sede->sede = $sedeObj->getPK();
 				$req['idsede'] = $sede->sede;
-				$sede->nombre = $sedeObj->nombre;
+				$sede->nombre = "{$sedeObj->nombre} ({$sedeObj->alias})";
 				$obj = $rpt->get_lista_comandas($req);
 				$sede->ventas = [];
 				$sede->cantidad = 0;
@@ -1389,7 +1389,7 @@ class Venta extends CI_Controller
 
 				$sede->sede = $sedeObj->getPK();
 				$req['idsede'] = $sede->sede;
-				$sede->nombre = $sedeObj->nombre;
+				$sede->nombre = "{$sedeObj->nombre} ({$sedeObj->alias})";
 				$obj = $rpt->get_lista_comandas($req);
 				$sede->ventas = [];
 				$sede->cantidad = 0;

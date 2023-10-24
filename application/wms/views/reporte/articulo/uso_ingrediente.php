@@ -6,7 +6,8 @@
 	<title>Uso de Ingrediente</title>
 </head>
 <body lang="es-GT" dir="ltr">
-	<h3 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;">Uso de Ingrediente</h3>
+	<h3 class="text-center encabezado" style="padding-bottom: 1px;">Uso de Ingrediente</h3>
+	<h4 class="text-center encabezado" style="border-bottom: 1px solid black; padding-bottom: 5px;"><?php echo "{$params['sede']->nombre} ({$params['sede']->alias})"; ?></h4>
 	<div class="encabezado" style="border: 1px solid black; padding: 2.5px; border-radius: 10px;">
 		<p><b>Nombre: </b> <?php echo $params["articulo_nombre"]?></p>
 	</div><br>

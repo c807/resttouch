@@ -38,7 +38,7 @@
 			<?php foreach ($sedes as $sede): ?>
 				<?php $obj = new Sede_model($sede); ?>
 				<tr>
-					<td colspan="12" class="titulo"><?php echo $obj->nombre; ?></td>
+					<td colspan="12" class="titulo"><?php echo "{$obj->nombre} ({$obj->alias})"; ?></td>
 				</tr>
 				<tr>
 					<td colspan="12" class="titulo"><?php echo $bodegas[$obj->getPK()]; ?></td>

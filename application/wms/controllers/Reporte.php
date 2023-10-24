@@ -144,7 +144,7 @@ class Reporte extends CI_Controller
 			$fila = 5;
 			foreach ($args['sedes'] as $sede) {
 				$obj = new Sede_model($sede);
-				$hoja->setCellValue("A{$fila}", $obj->nombre);
+				$hoja->setCellValue("A{$fila}", "{$obj->nombre} ({$obj->alias})");
 				$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
 				$fila++;
 				$hoja->setCellValue("A{$fila}", $args['bodegas'][$obj->getPK()]);
@@ -238,7 +238,7 @@ class Reporte extends CI_Controller
 					$presentacionReporte = $articulo->getPresentacionReporte();
 					$sede = new Sede_model($s);
 					$datos[] = (object)[
-						'sede' => (object)['sede' => $sede->getPK(), 'nombre' => $sede->nombre],
+						'sede' => (object)['sede' => $sede->getPK(), 'nombre' => $sede->nombre, 'alias' => $sede->alias],
 						'presentacion' => $presentacionReporte->descripcion,
 						'bodegas' => []
 					];
@@ -339,7 +339,7 @@ class Reporte extends CI_Controller
 				$hoja->mergeCells("A{$fila}:G{$fila}");
 				$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
 				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
-				$hoja->setCellValue("A{$fila}", "Sede: {$sede->sede->nombre}");
+				$hoja->setCellValue("A{$fila}", "Sede: {$sede->sede->nombre} ({$sede->sede->alias})");
 				$fila++;
 				$hoja->mergeCells("A{$fila}:G{$fila}");
 				$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
@@ -456,7 +456,7 @@ class Reporte extends CI_Controller
 			$data[] = (object)[
 				'empresa' => (object)['empresa' => $empresa->getPK(), 'nombre' => $empresa->nombre, 'nombre_comercial' => $empresa->nombre_comercial],
 				'sede' => $sede->getPK(),
-				'nombre' => $sede->nombre,
+				'nombre' => "{$sede->nombre} ({$sede->alias})",
 				'bodegas' => []
 			];
 			$lastIdxSedes = count($data) - 1;
@@ -1670,6 +1670,8 @@ class Reporte extends CI_Controller
 			$nombreArchivo = "Uso_ingrediente_" . rand() . ".xls";
 			$lista         = $this->Reporte_model->getUsoIngrediente($datos);
 
+			$datos['sede'] = new Sede_model($this->data->sede);
+
 			if (verDato($datos, "_excel")) {
 				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 				$excel->setActiveSheetIndex(0);
@@ -1677,9 +1679,11 @@ class Reporte extends CI_Controller
 				$hoja->setTitle("Ingrediente");
 
 				$hoja->setCellValue("A1", "Uso de Ingrediente")->mergeCells("A1:D1");
+				$hoja->setCellValue("A2", "{$datos['sede']->nombre} ({$datos['sede']->alias})")->mergeCells("A2:D2");
 				$hoja->setCellValue("A3", "Nombre:");
 				$hoja->getStyle("A1:A3")->getFont()->setBold(true);
 				$hoja->getStyle("A1")->getAlignment()->setHorizontal("center");
+				$hoja->getStyle("A2")->getAlignment()->setHorizontal("center");
 				$hoja->setCellValue("B3", $datos["articulo_nombre"])->mergeCells("B3:D3");
 
 				$hoja->getStyle("A3:D3")->applyFromArray([
@@ -1785,6 +1789,8 @@ class Reporte extends CI_Controller
 			$hoja->setTitle("Margen");
 
 			$hoja->setCellValue("A1", "Margen de receta")->mergeCells("A1:F1");
+			$hoja->setCellValue("A2", "{$sede->nombre} ($sede->alias)")->mergeCells("A2:F2");
+			$hoja->getStyle("A1:F2")->getFont()->setBold(true);
 
 			$nombres = [
 				"Código",
@@ -1831,7 +1837,7 @@ class Reporte extends CI_Controller
 			]);
 
 			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
-			$pdf->WriteHTML($this->load->view("reporte/articulo/margen_receta", ["data" => $data, "params" => $datos], true));
+			$pdf->WriteHTML($this->load->view("reporte/articulo/margen_receta", ["data" => $data, "params" => $datos, 'sede' => $sede], true));
 			$pdf->Output("{$nombreArchivo}.pdf", "D");
 		}
 	}

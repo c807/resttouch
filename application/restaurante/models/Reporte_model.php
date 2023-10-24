@@ -92,7 +92,8 @@ class Reporte_model extends CI_Model
 		}
 
 		$campos = 'a.forma_pago, a.documento, f.descripcion, a.monto, a.propina, ifnull(e.factura, concat("Comanda ", h.comanda)) as factura, ifnull(e.numero_factura, concat("Comanda ", h.comanda)) as numero_factura, ';
-		$campos.= 'ifnull(e.fecha_factura, date(h.fhcreacion)) as fecha_factura, h.sede, j.nombre as nsede, ifnull(e.serie_factura, "") as serie_factura, h.estatus as estatus_comanda, f.esefectivo, ';
+		$campos.= 'ifnull(e.fecha_factura, date(h.fhcreacion)) as fecha_factura, h.sede, CONCAT(j.nombre, " (", IFNULL(j.alias, ""), ")") as nsede, ';
+		$campos.= 'ifnull(e.serie_factura, "") as serie_factura, h.estatus as estatus_comanda, f.esefectivo, ';
 		$campos.= 'group_concat(distinct h.comanda separator ",") as comanda, (SELECT IFNULL(SUM(valor_impuesto_especial), 0) FROM detalle_factura WHERE factura = e.factura) AS valor_impuesto_especial';
 		$tmp = $this->db
 			->select($campos)

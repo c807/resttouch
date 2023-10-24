@@ -195,7 +195,7 @@ class Reporte extends CI_Controller
         $tmp = [];
         foreach ($data['sede'] as $row) {
             $sede = $this->Catalogo_model->getSede(['sede' => $row, '_uno' => true]);
-            $tmp[] = $sede->nombre;
+            $tmp[] = "{$sede->nombre} ({$sede->alias})";
         }
 
         if ($sede) {
