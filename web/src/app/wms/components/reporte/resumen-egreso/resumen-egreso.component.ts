@@ -34,6 +34,8 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 	public paramsToSend: any = {};
 	public titulo: string = 'Resumen_egreso';
 	public cargando = false;
+	public archivo_pdf: string = null;
+
 	private endSubs = new Subscription();
 
 	public tiposMovimiento: TipoMovimiento[] = [];
@@ -73,6 +75,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 			sede: null
 		};
 		this.bodegas = [];
+		this.archivo_pdf = null;
 	}
 
 	getTipoMovimiento = () => {
@@ -92,7 +95,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 	}
 
 	onSedesSelected = (obj: any) => {
-		this.getBodega({ sede: this.params.sede });		
+		this.getBodega({ sede: this.params.sede });
 	}
 
 	getBodega = (params: any = {}) => {
@@ -129,7 +132,11 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 				this.pdfServicio.generar_resumen_egreso(this.paramsToSend).subscribe(res => {
 					if (res) {
 						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						if (+esExcel === 0) {
+							this.archivo_pdf = URL.createObjectURL(blob);
+						} else {
+							saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						}
 					} else {
 						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}

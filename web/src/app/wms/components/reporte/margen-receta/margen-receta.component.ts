@@ -31,6 +31,8 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 	public titulo: string = 'Margen_receta';
 	public subCategorias: CategoriaGrupoResponse[] = [];
 	public cargando = false;
+	public archivo_pdf: string = null;
+
 	private endSubs = new Subscription();
 
 	constructor(
@@ -54,10 +56,11 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 			categoria_grupo: null,
 			_coniva: '0'
 		}
+		this.archivo_pdf = null;
 	}
 
 	getSubCategorias = () => {
-		this.endSubs.add(      
+		this.endSubs.add(
 			this.articuloSrvc.getCategoriasGrupos({ _activos: true, _sede: this.ls.get(GLOBAL.usrTokenVar).sede }).subscribe(res => {
 				this.subCategorias = res.map(r => {
 					r.categoria_grupo = +r.categoria_grupo;
@@ -80,7 +83,11 @@ export class MargenRecetaComponent implements OnInit, OnDestroy {
 			this.pdfServicio.generar_margen_receta(this.params).subscribe(res => {
 				if (res) {
 					const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+					if (+esExcel === 0) {
+						this.archivo_pdf = URL.createObjectURL(blob);
+					} else {
+						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+					}
 				} else {
 					this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 				}

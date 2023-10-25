@@ -41,6 +41,8 @@ import { DialogComboComponent } from './components/dialog-combo/dialog-combo.com
 import { DialogElminarProductoComponent } from './components/dialog-elminar-producto/dialog-elminar-producto.component';
 import { ExtraProductoComponent } from './components/extra-producto/extra-producto.component';
 import { TruncarPipe } from './pipes/truncar.pipe';
+import { PdfViewerComponent } from './components/pdf-viewer/pdf-viewer.component';
+import { SafePipe } from './pipes/safe.pipe';
 
 const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options: {} };
 
@@ -58,7 +60,9 @@ const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options
     DialogComboComponent,
     DialogElminarProductoComponent,
     TruncarPipe,
-    ExtraProductoComponent
+    ExtraProductoComponent,
+    PdfViewerComponent,
+    SafePipe
   ],
   imports: [
     CommonModule,
@@ -99,7 +103,9 @@ const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options
     DialogPedidoComponent,
     DialogComboComponent,
     TruncarPipe,
-    ExtraProductoComponent
+    ExtraProductoComponent,
+    PdfViewerComponent,
+    SafePipe
   ]
 })
 export class SharedModule { }

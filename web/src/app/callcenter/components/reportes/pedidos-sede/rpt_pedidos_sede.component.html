@@ -17,7 +17,7 @@
             <mat-label>Sede</mat-label>
             <mat-select name="sede" [(ngModel)]="params.sede">
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
-                {{sede.sede.nombre}}
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -37,3 +37,4 @@
     </mat-card>
   </div>
 </div>
+<app-pdf-viewer [contenido]="archivo_pdf"></app-pdf-viewer>

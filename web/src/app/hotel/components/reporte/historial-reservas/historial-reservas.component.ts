@@ -25,6 +25,7 @@ export class HistorialReservasComponent implements OnInit {
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true
   };
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -56,6 +57,7 @@ export class HistorialReservasComponent implements OnInit {
       sede: null,
       topn: null
     };
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -67,7 +69,11 @@ export class HistorialReservasComponent implements OnInit {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }
