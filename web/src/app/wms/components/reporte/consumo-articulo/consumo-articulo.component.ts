@@ -35,6 +35,8 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 	public subCategorias: SubCategoriaSimpleSearch[] = [];
 	public sedes: UsuarioSede[] = [];
 	public cargando = false;
+	public archivo_pdf: any = null;
+
 	private endSubs = new Subscription();
 
 	constructor(
@@ -62,6 +64,7 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 			categoria_grupo: null,
 			_coniva: '0'
 		}
+		this.archivo_pdf = null;
 	}
 
 	getSede = (params: any = {}) => {
@@ -121,7 +124,11 @@ export class ConsumoArticuloComponent implements OnInit, OnDestroy {
 				this.pdfServicio.generar_consumo_articulo(this.paramsToSend).subscribe(res => {
 					if (res) {
 						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						if(+esExcel === 0) {
+							this.archivo_pdf = URL.createObjectURL(blob);							
+						} else {
+							saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						}
 					} else {
 						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}

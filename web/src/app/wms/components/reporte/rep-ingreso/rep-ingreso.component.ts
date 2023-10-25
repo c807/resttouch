@@ -39,19 +39,19 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
   public tiposMovimiento: TipoMovimiento[] = [];
 
   public reportes = [
-    {id: 1, descripcion: "Por proveedor"},
-    {id: 2, descripcion: "Por producto"},
-    {id: 3, descripcion: "Variación de precio"}
+    { id: 1, descripcion: "Por proveedor" },
+    { id: 2, descripcion: "Por producto" },
+    { id: 3, descripcion: "Variación de precio" }
   ];
 
   public iva = [
-    {id: 1, descripcion: "Con IVA"},
-    {id: 2, descripcion: "Sin IVA"}
+    { id: 1, descripcion: "Con IVA" },
+    { id: 2, descripcion: "Sin IVA" }
   ];
 
   public estatus = [
-    {id: 1, descripcion: "Abierto"},
-    {id: 2, descripcion: "Confirmado"}
+    { id: 1, descripcion: "Abierto" },
+    { id: 2, descripcion: "Confirmado" }
   ];
 
   private endSubs = new Subscription();
@@ -59,6 +59,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
   public filteredProveedores: Proveedor[] = [];
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public sedes: UsuarioSede[] = [];
+  public archivo_pdf: string = null;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -76,7 +77,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     // this.getBodega();
     this.loadTiposMovimiento();
     this.loadProveedores();
-    
+
     this.txtArticuloSelected = undefined;
     this.params.fdel = moment().startOf('month').format(GLOBAL.dbDateFormat);
     this.params.fal = moment().format(GLOBAL.dbDateFormat);
@@ -180,7 +181,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
   onSubmit(esExcel = 0) {
     // console.log(this.params); return;
     if (
-      this.params.fdel && moment(this.params.fdel).isValid() && 
+      this.params.fdel && moment(this.params.fdel).isValid() &&
       this.params.fal && moment(this.params.fal).isValid() &&
       this.params.reporte && this.params.sede
     ) {
@@ -190,7 +191,11 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
         this.pdfServicio.getReporteIngreso(this.params).subscribe(res => {
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            if (+esExcel === 0) {
+              this.archivo_pdf = URL.createObjectURL(blob);
+            } else {
+              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            }
           } else {
             this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
           }
@@ -216,6 +221,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     this.txtArticuloSelected = undefined;
     this.filteredArticulos = [];
     this.cargando = false;
+    this.archivo_pdf = null;
   }
 
 }

@@ -28,6 +28,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true
   };
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -68,7 +69,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
 
   onSubmit(esExcel = 0) {
     if (this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 && this.params.fecha && moment(this.params.fecha).isValid()) {
-      this.params._excel = esExcel;      
+      this.params._excel = esExcel;
       this.cargando = true;
       this.params._sinconfirmar = +this.params._sinconfirmar;
       this.endSubs.add(
@@ -76,7 +77,11 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
           this.cargando = false;
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            if (+esExcel === 0) {
+              this.archivo_pdf = URL.createObjectURL(blob);
+            } else {
+              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            }
           } else {
             this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
           }
@@ -98,6 +103,7 @@ export class ValorizadoComponent implements OnInit, OnDestroy {
       _sinconfirmar: '0'
     };
     this.cargando = false;
+    this.archivo_pdf = null;
   }
 
 }

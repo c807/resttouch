@@ -40,6 +40,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
   public cargando = false;
   public usuarios: Usuario[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -97,6 +98,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
       sede: undefined,
       tipo_venta: undefined
     };
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -112,7 +114,7 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
       // console.log(this.params);
       const idx = this.sedes.findIndex(s => +s.sede.sede === +this.params.sede);
       if (idx > -1) {
-        this.paramsToSend.sedeNName = this.sedes[idx].sede.nombre;
+        this.paramsToSend.sedeNName = `${this.sedes[idx].sede.nombre} (${this.sedes[idx].sede.alias})`;
       }
     }
 
@@ -130,7 +132,11 @@ export class RtpPedidosComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Reporte de pedidos.', { duration: 3000 });
         }

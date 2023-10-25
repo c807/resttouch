@@ -26,6 +26,7 @@ export class MotoristasComponent implements OnInit, OnDestroy {
 
   public params: any = {};
   public cargando = false;
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -47,6 +48,7 @@ export class MotoristasComponent implements OnInit, OnDestroy {
       _fdel: moment().startOf('week').format(GLOBAL.dbDateFormat),
       _fal: moment().format(GLOBAL.dbDateFormat)
     };
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -61,7 +63,11 @@ export class MotoristasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `Motoristas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `Motoristas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Reporte de motoristas.', { duration: 3000 });
         }

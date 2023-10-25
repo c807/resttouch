@@ -33,6 +33,7 @@ export class KardexComponent implements OnInit, OnDestroy {
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true
   };
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -105,7 +106,7 @@ export class KardexComponent implements OnInit, OnDestroy {
     if (
       this.params.sede && this.params.bodega && this.params.sede.length > 0 && this.params.bodega.length > 0 &&
       this.params.fdel && moment(this.params.fdel).isValid() && this.params.fal && moment(this.params.fal).isValid() &&
-      this.params.articulo && this.params.articulo.length > 0 
+      this.params.articulo && this.params.articulo.length > 0
     ) {
       this.params._excel = esExcel;
       // console.log(this.params); return;
@@ -114,7 +115,11 @@ export class KardexComponent implements OnInit, OnDestroy {
         this.pdfServicio.getReporteKardex(this.params).subscribe(res => {
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            if (+esExcel === 0) {
+              this.archivo_pdf = URL.createObjectURL(blob);
+            } else {
+              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            }
           } else {
             this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
           }
@@ -140,6 +145,7 @@ export class KardexComponent implements OnInit, OnDestroy {
     this.articulos = [];
     this.filteredArticulos = [];
     this.bodegas = [];
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 

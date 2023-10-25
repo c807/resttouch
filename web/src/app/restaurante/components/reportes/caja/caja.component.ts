@@ -53,6 +53,7 @@ export class CajaComponent implements OnInit, OnDestroy {
   public sedes: UsuarioSede[] = [];
   public grupos = GLOBAL.grupos;
   public impresora: Impresora;
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -132,6 +133,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       fdel: moment().format(GLOBAL.dbDateFormat),
       fal: moment().format(GLOBAL.dbDateFormat)
     };
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -143,7 +145,11 @@ export class CajaComponent implements OnInit, OnDestroy {
 
         console.log(res);
         const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-        saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        if (+enExcel === 0) {
+          this.archivo_pdf = URL.createObjectURL(blob);
+        } else {
+          saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+        }
 
       } else {
         this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
@@ -180,7 +186,11 @@ export class CajaComponent implements OnInit, OnDestroy {
             fr.readAsText(blob);
           } else {
             const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+            if (+enExcel === 0) {
+              this.archivo_pdf = URL.createObjectURL(blob);
+            } else {
+              saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
+            }
           }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });

@@ -1270,7 +1270,7 @@ class Comanda_model extends General_Model
         }
 
         return $this->db
-            ->select('b.nombre AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto')
+            ->select('CONCAT(b.nombre, " (", IFNULL(b.alias, ""), ")") AS sede, a.comanda AS pedido, SUM(c.total + c.aumento) AS monto')
             ->from('comanda a')
             ->join('sede b', 'b.sede = a.sede', 'inner')
             ->join('detalle_comanda c', 'a.comanda = c.comanda', 'inner')

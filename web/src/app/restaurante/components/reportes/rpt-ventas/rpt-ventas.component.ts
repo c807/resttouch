@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./rpt-ventas.component.css']
 })
 export class RptVentasComponent implements OnInit, OnDestroy {
-  
+
   get configBotones() {
     const deshabilitar = !moment(this.params.fdel).isValid() || !moment(this.params.fal).isValid() || !this.params.tipo_reporte;
     return {
@@ -48,6 +48,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   public cargando = false;
   public usuarios: Usuario[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -76,12 +77,12 @@ export class RptVentasComponent implements OnInit, OnDestroy {
 
   loadSedes = () => {
     this.endSubs.add(
-      this.sedeSrvc.getSedes({reporte: true}).subscribe(res => this.sedes = res)
+      this.sedeSrvc.getSedes({ reporte: true }).subscribe(res => this.sedes = res)
     );
   }
 
   loadTiposTurno = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.tipoTurnoSrvc.get().subscribe(res => this.tiposTurno = res)
     );
   }
@@ -103,7 +104,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   }
 
   loadUsuarios = () => {
-    this.endSubs.add(      
+    this.endSubs.add(
       this.usuarioSrvc.get({
         sede: this.ls.get(GLOBAL.usrTokenVar).sede || 0
       }).subscribe(res => {
@@ -122,6 +123,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
       fal: moment().endOf('week').format(GLOBAL.dbDateFormat),
       tipo_venta: undefined
     };
+    this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -130,9 +132,9 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.msgGenerandoReporte = 'GENERANDO REPORTE EN ';
     // console.log(this.paramsToSend); return;
     switch (tipo) {
-      case 1 : this.getEnPantalla(); break;
-      case 2 : this.getPdf(); break;
-      case 3 : this.getExcel(); break;
+      case 1: this.getEnPantalla(); break;
+      case 2: this.getPdf(); break;
+      case 3: this.getExcel(); break;
     }
   }
 
@@ -146,7 +148,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     }
   }
 
-  getExcel = () => {    
+  getExcel = () => {
     switch (this.params.tipo_reporte) {
       case 1: this.getPorCategoriaPdf(1); break;
       case 2: this.getPorArticuloPdf(1); break;
@@ -160,7 +162,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.paramsToSend._excel = 1;
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porCategoriaPdf(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
@@ -178,12 +180,16 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     // console.log(this.paramsToSend); return;
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porCategoriaPdf(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ventas por categoría', { duration: 3000 });
         }
@@ -196,12 +202,16 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.paramsToSend._wms = _wms;
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porArticuloPdf(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículo', { duration: 3000 });
         }
@@ -213,12 +223,16 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porCategoriaPorCombo(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ventas por categoría', { duration: 3000 });
         }
@@ -230,12 +244,16 @@ export class RptVentasComponent implements OnInit, OnDestroy {
     this.paramsToSend._excel = esExcel;
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porMesero(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          saveAs(blob, `Ventas_mesero_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          if (+esExcel === 0) {
+            this.archivo_pdf = URL.createObjectURL(blob);
+          } else {
+            saveAs(blob, `Ventas_mesero_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ventas por categoría', { duration: 3000 });
         }
@@ -255,7 +273,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   getPorCategoriaEnPantalla = () => {
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porCategoria(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {
@@ -270,7 +288,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   getPorArticuloEnPantalla = () => {
     this.cargando = true;
     this.cleanParams();
-    this.endSubs.add(      
+    this.endSubs.add(
       this.rptVentasSrvc.porArticulo(this.paramsToSend).subscribe(res => {
         this.cargando = false;
         if (res) {

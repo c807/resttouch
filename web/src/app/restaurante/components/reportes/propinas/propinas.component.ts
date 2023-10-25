@@ -19,6 +19,7 @@ export class PropinasComponent implements OnInit, OnDestroy {
     isHtmlDisabled: true, isPdfDisabled: false, isExcelDisabled: false, showHtml: false, showExcel: true, showPdf: true
   };
   public cargando = false;
+  public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -35,7 +36,8 @@ export class PropinasComponent implements OnInit, OnDestroy {
 
   resetParams = () => {
     this.params = {};
-    this.cargando = false;
+    this.archivo_pdf = null;
+    this.cargando = false;    
   }
 
   onSubmit() {
@@ -46,7 +48,7 @@ export class PropinasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: 'application/pdf' });
-          saveAs(blob, `${this.titulo}.pdf`);
+          this.archivo_pdf = URL.createObjectURL(blob);
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }

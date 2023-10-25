@@ -47,6 +47,8 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 		{ id: 2, descripcion: 'Confirmado' }
 	];
 
+	public archivo_pdf: string = null;
+
 	constructor(
 		private snackBar: MatSnackBar,
 		private pdfServicio: ReportePdfService,
@@ -76,6 +78,7 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 			sede: null,
 			iva: 1
 		}
+		this.archivo_pdf = null;
 	}
 
 	getTipoMovimiento = () => {
@@ -122,7 +125,11 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 				this.pdfServicio.generar_resumen_ingreso(this.paramsToSend).subscribe(res => {
 					if (res) {
 						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						if (+esExcel === 0) {
+							this.archivo_pdf = URL.createObjectURL(blob);
+						} else {
+							saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						}
 					} else {
 						this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
 					}
