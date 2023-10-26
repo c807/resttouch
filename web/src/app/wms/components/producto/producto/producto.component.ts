@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL, MultiFiltro } from '@shared/global';
+import { GLOBAL, MultiFiltro, openInNewTab } from '@shared/global';
 import { saveAs } from "file-saver";
 import * as moment from 'moment';
 
@@ -256,7 +256,11 @@ export class ProductoComponent implements OnInit, OnDestroy {
       this.pdfServicio.generar_receta_costo(this.paramsRep).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: +enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel' });
-          saveAs(blob, `Recetas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+enExcel === 0 ? 'pdf' : 'xlsx'}`);
+          if (+enExcel === 0) {
+            openInNewTab(URL.createObjectURL(blob));
+          } else {
+            saveAs(blob, `Recetas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+enExcel === 0 ? 'pdf' : 'xlsx'}`);
+          }
         }
       })
     );

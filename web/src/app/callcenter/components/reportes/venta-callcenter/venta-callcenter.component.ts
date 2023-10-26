@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 import { saveAs } from 'file-saver';
 
@@ -45,7 +45,7 @@ export class VentaCallcenterComponent implements OnInit, OnDestroy {
 	public tiposDomicilio: TipoDomicilio[] = [];
 	public listaCategoria: any[] = [];
 	public listaSubCategoria: any[] = [];
-	public archivo_pdf: string = null;
+	// public archivo_pdf: string = null;
 
 	private endSubs = new Subscription();
 
@@ -151,32 +151,7 @@ export class VentaCallcenterComponent implements OnInit, OnDestroy {
 		}
 
 		this.listaCategoria = data
-	}
-
-	/*setListaSubCategoria () {
-		let data = []
-		if (this.params.categoria !== undefined) {
-
-			let tmpCat = this.categorias.filter(obj => {
-				return obj.categoria == this.params.categoria
-			})[0]
-
-			let tmpSede = this.sedes.filter(obj => {
-				return obj.sede.sede == tmpCat.sede
-			})[0]
-
-			let tmp = {
-				indice: `${tmpCat.descripcion} - ${tmpSede.sede.nombre} (${tmpSede.sede.alias})`,
-				detalle: this.categoriasGrupos.filter(obj => {
-					return obj.categoria == this.params.categoria
-				})
-			}
-
-			data.push(tmp)
-		}
-
-		this.listaSubCategoria = data
-	}*/
+	}	
 
 	resetParams = () => {
 		this.msgGenerandoReporte = null;
@@ -188,7 +163,7 @@ export class VentaCallcenterComponent implements OnInit, OnDestroy {
 			categoria_grupo: undefined,
 			tipo_reporte: 1
 		};
-		this.archivo_pdf = null;
+		// this.archivo_pdf = null;
 		this.cargando = false;
 	}
 
@@ -216,11 +191,10 @@ export class VentaCallcenterComponent implements OnInit, OnDestroy {
 		this.endSubs.add(
 			this.ReporteSrvc.generar_archivo_venta(this.paramsToSend).subscribe(res => {
 				this.cargando = false;
-				if (res) {
-					console.log(res)
+				if (res) {					
 					const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-					if (+esExcel === 0) {
-						this.archivo_pdf = URL.createObjectURL(blob);
+					if (+esExcel === 0) {						
+						openInNewTab(URL.createObjectURL(blob));
 					} else {
 						saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 					}

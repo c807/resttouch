@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
@@ -59,7 +59,7 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
   public filteredProveedores: Proveedor[] = [];
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public sedes: UsuarioSede[] = [];
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -191,8 +191,8 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
         this.pdfServicio.getReporteIngreso(this.params).subscribe(res => {
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            if (+esExcel === 0) {
-              this.archivo_pdf = URL.createObjectURL(blob);
+            if (+esExcel === 0) {              
+              openInNewTab(URL.createObjectURL(blob));
             } else {
               saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
             }
@@ -220,8 +220,8 @@ export class RepIngresoComponent implements OnInit, OnDestroy {
     };
     this.txtArticuloSelected = undefined;
     this.filteredArticulos = [];
+    // this.archivo_pdf = null;
     this.cargando = false;
-    this.archivo_pdf = null;
   }
 
 }

@@ -17,7 +17,7 @@
                     <div class="form-group">
                         <mat-form-field class="fullWidth">
                             <mat-label>Tipo de turno</mat-label>
-                            <mat-select name="turno_tipo" [(ngModel)]="turno.turno_tipo" required>
+                            <mat-select name="turno_tipo" [(ngModel)]="turno.turno_tipo" required [disabled]="turnoCerrado">
                                 <mat-option *ngFor="let tt of tiposTurno" [value]="tt.turno_tipo">
                                     {{tt.descripcion}}
                                 </mat-option>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="form-group">
                         <mat-form-field class="fullWidth">
-                            <input matInput type="datetime-locale" placeholder="Inicio" name="inicio" [(ngModel)]="turno.inicio" required>
+                            <input matInput type="datetime-locale" placeholder="Inicio" name="inicio" [(ngModel)]="turno.inicio" required [disabled]="turnoCerrado">
                             <button type="button" *ngIf="!turno.inicio" mat-button matSuffix mat-icon-button (click)="turno.inicio=getNow()">
                                 <mat-icon class="iconFontSize">query_builder</mat-icon>
                             </button>
@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-group">
                         <mat-form-field class="fullWidth">
-                            <input matInput type="datetime-locale" placeholder="Fin" name="fin" [(ngModel)]="turno.fin">
+                            <input matInput type="datetime-locale" placeholder="Fin" name="fin" [(ngModel)]="turno.fin" [disabled]="turnoCerrado">
                             <button type="button" *ngIf="!turno.fin" mat-button matSuffix mat-icon-button (click)="turno.fin=getNow()">
                                 <mat-icon class="iconFontSize">query_builder</mat-icon>
                             </button>
@@ -85,16 +85,16 @@
             <mat-card-title>
                 <h4>
                     Detalle del turno {{turno.inicio | date:'dd/MM/yyyy HH:mm:ss'}}
-                    <button mat-icon-button type="button" color="accent" (click)="showDetalleTurnoForm = true;" *ngIf="!showDetalleTurnoForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleTurnoForm = true;" *ngIf="!showDetalleTurnoForm && !turnoCerrado">
                         <mat-icon class="iconFontSize">expand_more</mat-icon>
                     </button>
-                    <button mat-icon-button type="button" color="accent" (click)="showDetalleTurnoForm = false;" *ngIf="showDetalleTurnoForm">
+                    <button mat-icon-button type="button" color="accent" (click)="showDetalleTurnoForm = false;" *ngIf="showDetalleTurnoForm && !turnoCerrado">
                         <mat-icon class="iconFontSize">expand_less</mat-icon>
                     </button>
                 </h4>
             </mat-card-title>
             <mat-card-content>
-                <form #frmDetalleTurno="ngForm" *ngIf="showDetalleTurnoForm" (ngSubmit)="frmDetalleTurno.form.valid && onSubmitDetail()" novalidate>
+                <form #frmDetalleTurno="ngForm" *ngIf="showDetalleTurnoForm && !turnoCerrado" (ngSubmit)="frmDetalleTurno.form.valid && onSubmitDetail()" novalidate>
                     <div class="form-group">
                         <mat-form-field class="fullWidth">
                             <mat-label>Tipo</mat-label>

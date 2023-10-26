@@ -39,7 +39,7 @@ class Bitacora extends CI_Controller
 			if ($nombreSedes !== '') {
 				$nombreSedes .= ', ';
 			}
-			$nombreSedes .= $sede->nombre;
+			$nombreSedes .= "{$sede->nombre} ({$sede->alias})";
 		}
 
 		$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();

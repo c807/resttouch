@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -80,8 +80,8 @@ export class RptListaPedidosComponent implements OnInit, OnDestroy {
 
   onSubmit(esExcel = 0) {
     if (this.params.sede && this.params.bodega && this.params.fecha && moment(this.params.fecha).isValid()) {
-      this.params.fecha_del = moment(this.params.fecha).add(1, 'days').format(GLOBAL.dbDateFormat);      
-      this.cargando = true;   
+      this.params.fecha_del = moment(this.params.fecha).add(1, 'days').format(GLOBAL.dbDateFormat);
+      this.cargando = true;
       if (+esExcel === 1) {
         this.params._excel = true;
       } else {
@@ -92,7 +92,11 @@ export class RptListaPedidosComponent implements OnInit, OnDestroy {
           this.cargando = false;
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            if (+esExcel === 0) {              
+              openInNewTab(URL.createObjectURL(blob));
+            } else {
+              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            }
           } else {
             this.snackBar.open('No se pudo generar el reporte...', 'Pedidos', { duration: 3000 });
           }

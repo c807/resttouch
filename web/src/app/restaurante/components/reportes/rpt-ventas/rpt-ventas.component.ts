@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
+import { GLOBAL, OrdenarArrayObjetos, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { PorCategoria } from '@restaurante-interfaces/reporte-ventas';
@@ -48,7 +48,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
   public cargando = false;
   public usuarios: Usuario[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -123,7 +123,7 @@ export class RptVentasComponent implements OnInit, OnDestroy {
       fal: moment().endOf('week').format(GLOBAL.dbDateFormat),
       tipo_venta: undefined
     };
-    this.archivo_pdf = null;
+    // this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -185,8 +185,8 @@ export class RptVentasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          if (+esExcel === 0) {
-            this.archivo_pdf = URL.createObjectURL(blob);
+          if (+esExcel === 0) {            
+            openInNewTab(URL.createObjectURL(blob));
           } else {
             saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
           }
@@ -207,8 +207,8 @@ export class RptVentasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          if (+esExcel === 0) {
-            this.archivo_pdf = URL.createObjectURL(blob);
+          if (+esExcel === 0) {            
+            openInNewTab(URL.createObjectURL(blob));
           } else {
             saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
           }
@@ -228,8 +228,8 @@ export class RptVentasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          if (+esExcel === 0) {
-            this.archivo_pdf = URL.createObjectURL(blob);
+          if (+esExcel === 0) {            
+            openInNewTab(URL.createObjectURL(blob));
           } else {
             saveAs(blob, `${this.tituloCategoria}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
           }
@@ -249,8 +249,8 @@ export class RptVentasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          if (+esExcel === 0) {
-            this.archivo_pdf = URL.createObjectURL(blob);
+          if (+esExcel === 0) {            
+            openInNewTab(URL.createObjectURL(blob));
           } else {
             saveAs(blob, `Ventas_mesero_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
           }
