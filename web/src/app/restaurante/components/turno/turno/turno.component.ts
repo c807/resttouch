@@ -29,6 +29,7 @@ export class TurnoComponent implements OnInit {
   setTurno = (trn: Turno) => {    
     this.turno = trn;
     this.frmTurno.turno = this.turno;
+    this.frmTurno.turnoOriginal = { ...this.frmTurno.turno };
     this.frmTurno.loadDetalleTurno(+this.turno.turno);
     this.frmTurno.pendientes = false;
     this.frmTurno.comandas = [];

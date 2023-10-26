@@ -35,10 +35,15 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     return '';
   }
 
+  get turnoCerrado(): boolean {
+    return this.turnoOriginal && this.turnoOriginal.fin && moment(this.turnoOriginal.fin).isValid();    
+  }  
+
   @Input() turno: Turno;
   @Output() turnoSavedEv = new EventEmitter();
   @ViewChild('lstCajaCorte') lstCajaCorte: CajacorteListaComponent;
 
+  public turnoOriginal: Turno;
   public showTurnoForm = true;
   public showDetalleTurnoForm = true;
 
@@ -123,6 +128,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     this.turno = {
       turno: null, turno_tipo: null, inicio: moment().format(GLOBAL.dbDateTimeFormat), fin: null
     };
+    this.turnoOriginal = { ...this.turno };
     this.resetDetalleTurno();
     this.detallesTurno = [];
     this.updateTableDataSource();
@@ -148,6 +154,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
           this.turnoSavedEv.emit();
           this.resetTurno();
           this.turno = res.turno;
+          this.turnoOriginal = { ...this.turno };
           this.loadCortesCaja(this.turno);
           this.snackBar.open('Turno modificado con éxito...', 'Turno', { duration: 3000 });
         } else {
