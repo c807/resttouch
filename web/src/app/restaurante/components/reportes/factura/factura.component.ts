@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { saveAs } from 'file-saver';
 import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { UsuarioSede } from '@admin-interfaces/acceso';
@@ -24,7 +24,7 @@ export class FacturaComponent implements OnInit, OnDestroy {
   public configBotones: ConfiguracionBotones = {
     showPdf: true, showHtml: false, showExcel: true, isPdfDisabled: false, isExcelDisabled: false
   };
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -59,7 +59,7 @@ export class FacturaComponent implements OnInit, OnDestroy {
       fal: moment().format(GLOBAL.dbDateFormat),
       sede: null
     };
-    this.archivo_pdf = null;
+    // this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -70,8 +70,8 @@ export class FacturaComponent implements OnInit, OnDestroy {
       this.pdfServicio.getReporteFactura(this.params).subscribe(res => {
         this.cargando = false;
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          this.archivo_pdf = URL.createObjectURL(blob);          
+          const blob = new Blob([res], { type: 'application/pdf' });          
+          openInNewTab(URL.createObjectURL(blob));
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }

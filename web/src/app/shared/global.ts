@@ -263,3 +263,5 @@ export const seleccionaDocumentoReceptor = (c: Cliente, mupios: Municipio[]): { 
 }
 
 export const isNotNullOrUndefined = (obj: any): boolean => obj !== null && obj !== undefined;
+
+export const openInNewTab = (url: string) => window.open(url, '_blank').focus();

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { Socket } from 'ngx-socket-io';
 import * as moment from 'moment';
 
@@ -53,7 +53,7 @@ export class CajaComponent implements OnInit, OnDestroy {
   public sedes: UsuarioSede[] = [];
   public grupos = GLOBAL.grupos;
   public impresora: Impresora;
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -133,7 +133,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       fdel: moment().format(GLOBAL.dbDateFormat),
       fal: moment().format(GLOBAL.dbDateFormat)
     };
-    this.archivo_pdf = null;
+    // this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -145,8 +145,8 @@ export class CajaComponent implements OnInit, OnDestroy {
 
         console.log(res);
         const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-        if (+enExcel === 0) {
-          this.archivo_pdf = URL.createObjectURL(blob);
+        if (+enExcel === 0) {          
+          openInNewTab(URL.createObjectURL(blob));
         } else {
           saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
         }
@@ -186,8 +186,8 @@ export class CajaComponent implements OnInit, OnDestroy {
             fr.readAsText(blob);
           } else {
             const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            if (+enExcel === 0) {
-              this.archivo_pdf = URL.createObjectURL(blob);
+            if (+enExcel === 0) {              
+              openInNewTab(URL.createObjectURL(blob));
             } else {
               saveAs(blob, `${this.titulo}.${+enExcel === 0 ? 'pdf' : 'xls'}`);
             }

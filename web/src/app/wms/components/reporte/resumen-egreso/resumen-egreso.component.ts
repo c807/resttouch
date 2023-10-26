@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -34,7 +34,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 	public paramsToSend: any = {};
 	public titulo: string = 'Resumen_egreso';
 	public cargando = false;
-	public archivo_pdf: string = null;
+	// public archivo_pdf: string = null;
 
 	private endSubs = new Subscription();
 
@@ -75,7 +75,7 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 			sede: null
 		};
 		this.bodegas = [];
-		this.archivo_pdf = null;
+		// this.archivo_pdf = null;
 	}
 
 	getTipoMovimiento = () => {
@@ -132,8 +132,8 @@ export class ResumenEgresoComponent implements OnInit, OnDestroy {
 				this.pdfServicio.generar_resumen_egreso(this.paramsToSend).subscribe(res => {
 					if (res) {
 						const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-						if (+esExcel === 0) {
-							this.archivo_pdf = URL.createObjectURL(blob);
+						if (+esExcel === 0) {							
+							openInNewTab(URL.createObjectURL(blob));
 						} else {
 							saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
 						}

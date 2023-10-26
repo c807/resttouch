@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -26,7 +26,7 @@ export class MotoristasComponent implements OnInit, OnDestroy {
 
   public params: any = {};
   public cargando = false;
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -48,7 +48,7 @@ export class MotoristasComponent implements OnInit, OnDestroy {
       _fdel: moment().startOf('week').format(GLOBAL.dbDateFormat),
       _fal: moment().format(GLOBAL.dbDateFormat)
     };
-    this.archivo_pdf = null;
+    // this.archivo_pdf = null;
     this.cargando = false;
   }
 
@@ -63,8 +63,8 @@ export class MotoristasComponent implements OnInit, OnDestroy {
         this.cargando = false;
         if (res) {
           const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-          if (+esExcel === 0) {
-            this.archivo_pdf = URL.createObjectURL(blob);
+          if (+esExcel === 0) {            
+            openInNewTab(URL.createObjectURL(blob));
           } else {
             saveAs(blob, `Motoristas_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
           }

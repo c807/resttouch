@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -32,7 +32,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
     showPdf: true, showHtml: false, showExcel: true
   };
   public lstSubCategorias: SubCategoriaSimpleSearch[] = [];
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -96,8 +96,8 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
           this.cargando = false;
           if (res) {
             const blob = new Blob([res], { type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-            if (+esExcel === 0) {
-              this.archivo_pdf = URL.createObjectURL(blob);
+            if (+esExcel === 0) {              
+              openInNewTab(URL.createObjectURL(blob));
             } else {
               saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
             }
@@ -124,8 +124,8 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
       solo_bajo_minimo: 0,
       categoria_grupo: null
     };
+    // this.archivo_pdf = null;
     this.cargando = false;
-    this.archivo_pdf = null;
   }
 
 }

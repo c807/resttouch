@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -97,7 +97,11 @@ export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 				this.cargando = false;
 				if (res) {
 					const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-					saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+					if (+esExcel === 0) {
+						openInNewTab(URL.createObjectURL(blob));
+					} else {
+						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+					}
 				} else {
 					this.snackBar.open('No se pudo generar el reporte...', 'Resumen pedidos proveedor.', {duration: 3000});
 				}

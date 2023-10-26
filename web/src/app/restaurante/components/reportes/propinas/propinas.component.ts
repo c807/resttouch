@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import { ConfiguracionBotones } from '@shared-interfaces/config-reportes';
 
 import { Subscription } from 'rxjs';
+import { openInNewTab } from '@shared/global';
 
 @Component({
   selector: 'app-propinas',
@@ -19,7 +20,7 @@ export class PropinasComponent implements OnInit, OnDestroy {
     isHtmlDisabled: true, isPdfDisabled: false, isExcelDisabled: false, showHtml: false, showExcel: true, showPdf: true
   };
   public cargando = false;
-  public archivo_pdf: string = null;
+  // public archivo_pdf: string = null;
 
   private endSubs = new Subscription();
 
@@ -36,7 +37,7 @@ export class PropinasComponent implements OnInit, OnDestroy {
 
   resetParams = () => {
     this.params = {};
-    this.archivo_pdf = null;
+    // this.archivo_pdf = null;
     this.cargando = false;    
   }
 
@@ -47,8 +48,8 @@ export class PropinasComponent implements OnInit, OnDestroy {
       this.pdfServicio.getReportePropina(this.params).subscribe(res => {
         this.cargando = false;
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          this.archivo_pdf = URL.createObjectURL(blob);
+          const blob = new Blob([res], { type: 'application/pdf' });          
+          openInNewTab(URL.createObjectURL(blob));
         } else {
           this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
         }
