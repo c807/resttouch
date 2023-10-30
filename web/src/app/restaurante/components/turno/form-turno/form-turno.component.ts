@@ -36,8 +36,32 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   get turnoCerrado(): boolean {
-    return this.turnoOriginal && this.turnoOriginal.fin && moment(this.turnoOriginal.fin).isValid();    
-  }  
+    return this.turnoOriginal && this.turnoOriginal.fin && moment(this.turnoOriginal.fin).isValid();
+  }
+
+  // get isFechaInicioValid(): boolean {
+  //   if (moment(this.turno.inicio).isValid()) {
+  //     const hoyInicio = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+  //     const hoyFinal = moment(`${moment().format(GLOBAL.dbDateFormat)} 23:59:59`);
+  //     const turnoInicia = moment(this.turno.inicio);
+  //     if (turnoInicia.isBetween(hoyInicio, hoyFinal, undefined, '[]')) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+
+  // get isFechaFinalValid(): boolean {
+  //   if (moment(this.turno.inicio).isValid() && moment(this.turno.fin).isValid()) {
+  //     const turnoInicio = moment(this.turno.inicio);
+  //     const mananaFinal = moment(`${turnoInicio.add(1, 'day').format(GLOBAL.dbDateFormat)} 23:59:59`);
+  //     const turnoFinaliza = moment(this.turno.fin);
+  //     if (turnoFinaliza.isBetween(turnoInicio, mananaFinal, undefined, '[]')) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   @Input() turno: Turno;
   @Output() turnoSavedEv = new EventEmitter();
@@ -82,8 +106,8 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes): void {
-    if (+changes.turno?.currentValue?.turno > 0) {      
-      this.loadCortesCaja(changes.turno.currentValue);      
+    if (+changes.turno?.currentValue?.turno > 0) {
+      this.loadCortesCaja(changes.turno.currentValue);
     }
   }
 
@@ -95,7 +119,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     this.cargando = true;
     this.endSubs.add(
       this.tipoTurnoSrvc.get().subscribe(res => {
-        this.tiposTurno = res;        
+        this.tiposTurno = res;
         this.cargando = false;
       })
     );
@@ -193,7 +217,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
           maxWidth: '400px',
           data: new ConfirmDialogModel('Cerrar turno', 'La fecha de finalización cerrará el turno. ¿Desea continuar?', 'Sí', 'No')
         });
-  
+
         this.endSubs.add(
           dialogRef.afterClosed().subscribe(res => {
             if (res) {
