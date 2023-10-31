@@ -310,6 +310,21 @@ class Turno extends CI_Controller
 
 		$this->output->set_output(json_encode($datos));
 	}
+
+	private function checkTurnoAbierto($sede)
+	{
+		$turno = $this->Turno_model->getTurno(['sede' => (int)$sede, 'abierto' => true, '_uno' => true]);
+		if ($turno) {
+			return true;
+		}
+		return false;
+	}
+
+	public function check_turno_abierto()
+	{		
+		$datos = ['turno_abierto' => $this->checkTurnoAbierto($_GET['sede'])];
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));		
+	}
 }
 
 /* End of file Turno.php */

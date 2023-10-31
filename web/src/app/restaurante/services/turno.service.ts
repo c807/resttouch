@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { GLOBAL } from '@shared/global';
 import { ServiceErrorHandler } from '@shared/error-handler';
-import { Turno } from '@restaurante-interfaces/turno';
+import { Turno, TurnoAbierto } from '@restaurante-interfaces/turno';
 import { DetalleTurno } from '@restaurante-interfaces/detalle-turno';
 import { Observable } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
@@ -58,6 +58,12 @@ export class TurnoService {
   replicaDetalleTurno(idTurnoOriginal: number, idTurnoCopia: number): Observable<any> {
     return this.http.get<any>(
       `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/replica_detalle_turno/${idTurnoOriginal}/${idTurnoCopia}`
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
+  hayTurnoAbierto(idSede: number): Observable<TurnoAbierto> {
+    return this.http.get<TurnoAbierto>(
+      `${GLOBAL.urlMantenimientos}/${this.moduleUrl}/check_turno_abierto?sede=${idSede}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 }

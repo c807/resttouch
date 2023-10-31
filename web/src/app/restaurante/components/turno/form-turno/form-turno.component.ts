@@ -72,6 +72,7 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   @Input() turno: Turno;
+  @Input() esDialogo: boolean = false;
   @Output() turnoSavedEv = new EventEmitter();
   @ViewChild('lstCajaCorte') lstCajaCorte: CajacorteListaComponent;
 
@@ -187,7 +188,9 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
           this.resetTurno();
           this.turno = res.turno;
           this.turnoOriginal = { ...this.turno };
-          this.loadCortesCaja(this.turno);
+          if (!this.esDialogo) {
+            this.loadCortesCaja(this.turno);
+          }
           this.snackBar.open('Turno modificado con éxito...', 'Turno', { duration: 3000 });
         } else {
           if (res.pendientes) {
