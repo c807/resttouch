@@ -33,6 +33,7 @@
                             <button type="button" mat-button *ngIf="turno.inicio" matSuffix mat-icon-button aria-label="Clear" (click)="turno.inicio=null" [disabled]="turnoCerrado">
                                 <mat-icon class="iconFontSize">close</mat-icon>
                             </button>
+                            <mat-hint align="start" *ngIf="!isFechaInicioValid && !turno.turno">Fecha de inicio inválida.</mat-hint>
                         </mat-form-field>                
                     </div>
                     <div class="form-group">
@@ -44,13 +45,14 @@
                             <button type="button" mat-button *ngIf="turno.fin" matSuffix mat-icon-button aria-label="Clear" (click)="turno.fin=null" [disabled]="turnoCerrado">
                                 <mat-icon class="iconFontSize">close</mat-icon>
                             </button>
+                            <mat-hint align="start" *ngIf="!isFechaFinalValid && turno.turno && turno.fin">Fecha de finalizción inválida.</mat-hint>
                         </mat-form-field>                
                     </div>
                     <div *ngIf="+turno.facturas_sin_firmar > 0">
                         <span style="color: red; font-weight: bolder; font-size: 18pt;">Hay {{turno.facturas_sin_firmar}} facturas sin firmar en este turno.</span>
                     </div>
                     <div role="group" align="end">
-                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid || cargando || turnoCerrado">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTurno.form.valid || cargando || turnoCerrado || disableGuardarPorFechas">
                             Guardar
                         </button>
                         <button mat-raised-button type="button" color="accent" (click)="resetTurno()" *ngIf="turno.turno">

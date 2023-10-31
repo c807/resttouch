@@ -39,29 +39,37 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
     return this.turnoOriginal && this.turnoOriginal.fin && moment(this.turnoOriginal.fin).isValid();
   }
 
-  // get isFechaInicioValid(): boolean {
-  //   if (moment(this.turno.inicio).isValid()) {
-  //     const hoyInicio = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
-  //     const hoyFinal = moment(`${moment().format(GLOBAL.dbDateFormat)} 23:59:59`);
-  //     const turnoInicia = moment(this.turno.inicio);
-  //     if (turnoInicia.isBetween(hoyInicio, hoyFinal, undefined, '[]')) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
+  get isFechaInicioValid(): boolean {
+    if (moment(this.turno.inicio).isValid()) {
+      const hoyInicio = moment(`${moment().format(GLOBAL.dbDateFormat)} 00:00:00`);
+      const hoyFinal = moment(`${moment().format(GLOBAL.dbDateFormat)} 23:59:59`);
+      const turnoInicia = moment(this.turno.inicio);
+      if (turnoInicia.isBetween(hoyInicio, hoyFinal, undefined, '[]')) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  // get isFechaFinalValid(): boolean {
-  //   if (moment(this.turno.inicio).isValid() && moment(this.turno.fin).isValid()) {
-  //     const turnoInicio = moment(this.turno.inicio);
-  //     const mananaFinal = moment(`${turnoInicio.add(1, 'day').format(GLOBAL.dbDateFormat)} 23:59:59`);
-  //     const turnoFinaliza = moment(this.turno.fin);
-  //     if (turnoFinaliza.isBetween(turnoInicio, mananaFinal, undefined, '[]')) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
+  get isFechaFinalValid(): boolean {
+    if (moment(this.turno.inicio).isValid() && moment(this.turno.fin).isValid()) {
+      const turnoInicio = moment(this.turno.inicio);
+      const tmpIni = moment(this.turno.inicio);
+      const mananaFinal = moment(`${tmpIni.add(1, 'day').format(GLOBAL.dbDateFormat)} 23:59:59`);
+      const turnoFinaliza = moment(this.turno.fin);
+      if (turnoFinaliza.isBetween(turnoInicio, mananaFinal, undefined, '[]')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  get disableGuardarPorFechas(): boolean {
+    if ((!this.isFechaInicioValid && !this.turno.turno) || (!this.isFechaFinalValid && this.turno.turno && this.turno.fin)) {
+      return true;
+    }
+    return false;
+  }
 
   @Input() turno: Turno;
   @Output() turnoSavedEv = new EventEmitter();
