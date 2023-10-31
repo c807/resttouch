@@ -36,7 +36,7 @@ export const GLOBAL = {
   rtTipoDomicilio: 'rt_tipo_domicilio',
   rtDireccionEntrega: 'rt_direccion_entrega',
   rtClienteFactura: 'rt_cliente_factura',
-  usrLastModuleVar: 'rtlastmodule',  
+  usrLastModuleVar: 'rtlastmodule',
   reintentos: 0,
   IDIOMA_TECLADO: 'Español',
   DEEP_LINK_ANDROID: 'intent://scan/impresion/__INFOBASE64__#Intent;scheme=restouch;package=com.restouch.impresion;end',
@@ -122,8 +122,7 @@ export const GLOBAL = {
   ALLOWED_URLS: ['/admin/solicitud_registro']
 };
 
-export const PaginarArray = (array: any[], pageSize: number, pageNumber: number) =>
-  array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+export const PaginarArray = (array: any[], pageSize: number, pageNumber: number) => array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 
 export const CheckObjectType = (objeto, tipo: string) => Object.prototype.toString.call(objeto).toLowerCase().substring(7).indexOf(tipo.trim().toLowerCase()) > -1;
 
@@ -265,3 +264,48 @@ export const seleccionaDocumentoReceptor = (c: Cliente, mupios: Municipio[]): { 
 export const isNotNullOrUndefined = (obj: any): boolean => obj !== null && obj !== undefined;
 
 export const openInNewTab = (url: string) => window.open(url, '_blank').focus();
+
+export const checkForAcceso = (modulo: string, submodulo: string = null, opcion: string = null) => {
+  const ls = localStorage.getItem(GLOBAL.usrTokenVar);
+  let tieneAcceso = false;
+  if (ls) {
+    const tmp = JSON.parse(ls);
+    const accesos = tmp.acceso;
+    let moduloEncontrado = null;
+    let submoduloEncontrado = null;
+    let opcionEncontrada = null;
+
+    for (const m of accesos) {
+      if (m.nombre.trim().toLowerCase() === modulo.trim().toLowerCase()) {
+        moduloEncontrado = JSON.parse(JSON.stringify(m));
+        tieneAcceso = true;
+        break;
+      }
+    }
+
+    if (submodulo && moduloEncontrado) {
+      tieneAcceso = false;
+      for (const sm of moduloEncontrado.submodulo) {
+        if (sm.nombre.trim().toLowerCase() === submodulo.trim().toLowerCase()) {
+          submoduloEncontrado = JSON.parse(JSON.stringify(sm));
+          tieneAcceso = true;
+          break;
+        }
+      }
+    }
+
+    if (opcion && moduloEncontrado && submoduloEncontrado ) {
+      tieneAcceso = false;
+      for (const opc of submoduloEncontrado.opciones) {
+        if (opc.nombre.trim().toLowerCase() === opcion.trim().toLowerCase()) {
+          opcionEncontrada = JSON.parse(JSON.stringify(opc));
+          tieneAcceso = true;
+          break;
+        }
+      }
+    }
+
+  }
+
+  return tieneAcceso;
+};

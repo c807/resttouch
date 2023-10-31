@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTab } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSidenav, MatDrawerToggleResult } from '@angular/material/sidenav';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, checkForAcceso } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 import { Socket } from 'ngx-socket-io';
 
@@ -26,6 +26,11 @@ import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
 
 import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
 import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
+
+import { TurnoAbierto } from '@restaurante-interfaces/turno';
+import { TurnoService } from '@restaurante-services/turno.service';
+import { DialogTurnoComponent } from '@restaurante-components/turno/dialog-turno/dialog-turno.component';
+import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 
 import { Subscription } from 'rxjs';
 import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
@@ -67,10 +72,12 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private socket: Socket,
     private onlineSrvc: OnlineService,
-    private notificacionClienteSrvc: NotificacionClienteService
+    private notificacionClienteSrvc: NotificacionClienteService,
+    private turnoSrvc: TurnoService
   ) { }
 
   ngOnInit() {
+    this.checkTurnoAbierto();
     this.loadAreas();
     this.resetMesaSeleccionada();
     if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
@@ -144,13 +151,6 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
             db.areas.bulkAdd(res);
           });
           this.afterLoadAreas(res, saveOnTemp, objMesaEnUso);
-          // if (!saveOnTemp) {
-          //   this.lstTabsAreas = res;
-          //   this.cargando = false;
-          // } else {
-          //   this.lstTabsAreasForUpdate = res;
-          //   this.updateTableStatus(objMesaEnUso.mesaenuso);
-          // }
         })
       );
     } else {
@@ -517,6 +517,39 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
           this.endSubs.add(notiDialog.afterClosed().subscribe(() => this.onClickMesa(m)));
         } else {
           this.onClickMesa(m);
+        }
+      })
+    );
+  }
+
+  checkTurnoAbierto = () => {
+    this.endSubs.add(
+      this.turnoSrvc.hayTurnoAbierto(+this.ls.get(GLOBAL.usrTokenVar).sede || 0).subscribe((ta: TurnoAbierto) => {
+        if (!ta.turno_abierto) {
+
+          const tieneAccesoATurno = checkForAcceso('pos', 'transacción', 'turno');
+
+          const confDialogRef = this.dialog.open(ConfirmDialogComponent, {
+            maxWidth: '400px',
+            disableClose: true,
+            data: new ConfirmDialogModel(
+              'Turno',
+              `Para poder trabajar con normalidad necesita tener un turno abierto. ${tieneAccesoATurno ? '¿Desea abrir un turno?' : 'Por favor comuníquese con alguien que tenga acceso a abrir turnos.'}`,
+              tieneAccesoATurno ? 'Sí' : 'Cerrar', tieneAccesoATurno ? 'No' : null
+            )
+          });
+
+          this.endSubs.add(
+            confDialogRef.afterClosed().subscribe(cnf => {
+              if (cnf && tieneAccesoATurno) {
+                this.dialog.open(DialogTurnoComponent, {
+                  width: '50vw',
+                  height: '90vh',
+                  disableClose: true
+                });
+              }
+            })
+          );
         }
       })
     );

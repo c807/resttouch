@@ -7,3 +7,7 @@ export interface Turno {
     sede?: number;
     facturas_sin_firmar?: number;
 }
+
+export interface TurnoAbierto {
+    turno_abierto: boolean;
+}
