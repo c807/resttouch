@@ -986,10 +986,20 @@ class Articulo extends CI_Controller
 					$this->db = $this->load->database($db, true);
 
 					$sedes = $this->Sede_model->buscar();
+					$bckBodegaArticuloCosto = null;
+					$tmp = $this->Articulo_model->get_bodega_articulo_costo();
+					if ($tmp && is_array($tmp) && count($tmp) > 0) {
+						foreach($tmp as $item) {
+							$item->bodega = (int)$item->bodega;
+							$item->articulo = (int)$item->articulo;
+							$bckBodegaArticuloCosto["{$item->bodega}-{$item->articulo}"] = clone $item;
+						}
+					}
+
 					$fltrArticulo['_todos'] = true;
 					$fltrArticulo['mostrar_inventario'] = 1;
 					foreach ($sedes as $sede) {
-						$this->Articulo_model->recalcular_costos($sede->sede);
+						$this->Articulo_model->recalcular_costos($sede->sede, null, null, $bckBodegaArticuloCosto);
 
 						$fltrBodegas['sede'] = $sede->sede;
 						$bodegas = $this->Bodega_model->buscar($fltrBodegas);
