@@ -59,8 +59,12 @@ class Turno_model extends General_model
 			$this->db->where('tipo_turno', $args['tipo_turno']);
 		}
 
+		// if (isset($args['fal']) && isset($args['fdel'])) {
+		// 	$this->db->where('inicio <= ', $args['fal'])->where('inicio >= ', $args['fdel']);
+		// }
+
 		if (isset($args['fal']) && isset($args['fdel'])) {
-			$this->db->where('inicio <= ', $args['fal'])->where('inicio >= ', $args['fdel']);
+			$this->db->where('DATE(inicio) <= ', $args['fal'])->where('DATE(inicio) >= ', $args['fdel']);
 		}
 
 		if (isset($args['_limite']) && (int)$args['_limite'] > 0) {
