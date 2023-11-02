@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectChange } from '@angular/material/select';
-import { GLOBAL, OrdenarArrayObjetos } from '@shared/global'; 
+import { GLOBAL, OrdenarArrayObjetos, openInNewTab } from '@shared/global'; 
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -161,7 +161,7 @@ export class ReporteComponent implements OnInit, OnDestroy {
                   saveAs(blob, `${this.titulo}.xls`);
                 } else {
                   const blob = new Blob([resImp], { type: 'application/pdf' });
-                  saveAs(blob, `${this.titulo}.pdf`);
+                  openInNewTab(URL.createObjectURL(blob));                  
                 }
               })
             );
