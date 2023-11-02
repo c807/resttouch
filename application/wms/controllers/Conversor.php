@@ -233,7 +233,8 @@ class Conversor extends CI_Controller
 										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										$costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$ing->bodega,
@@ -311,7 +312,8 @@ class Conversor extends CI_Controller
 										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										$costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$merma->bodega,
@@ -566,7 +568,8 @@ class Conversor extends CI_Controller
 										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										$costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$ingr->bodega,
