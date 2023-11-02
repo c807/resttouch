@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { saveAs } from 'file-saver';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared-components/confirm-dialog/confirm-dialog.component'
@@ -127,7 +127,7 @@ export class FormInventarioFisicoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.pdfServicio.imprimirInventarioFisico(this.inventario.inventario_fisico, { existencia_fisica: true }).subscribe(resImp => {
         const blob = new Blob([resImp], { type: 'application/pdf' });
-        saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+        openInNewTab(URL.createObjectURL(blob));        
         this.cargando = false;
       })
     );
