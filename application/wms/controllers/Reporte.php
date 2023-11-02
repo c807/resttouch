@@ -954,6 +954,7 @@ class Reporte extends CI_Controller
 
 		if ((int)$excel === 1) {
 			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$vista = str_replace('&', '&amp;', $vista);
 			$xlsx = $reader->loadFromString($vista);
 			$xlsx->setActiveSheetIndex(0);
 			$hoja = $xlsx->getActiveSheet();
@@ -1020,6 +1021,7 @@ class Reporte extends CI_Controller
 
 		if ((int)$excel === 1) {
 			$reader = new \PhpOffice\PhpSpreadsheet\Reader\Html();
+			$vista = str_replace('&', '&amp;', $vista);
 			$xlsx = $reader->loadFromString($vista);
 			$xlsx->setActiveSheetIndex(0);
 			$hoja = $xlsx->getActiveSheet();

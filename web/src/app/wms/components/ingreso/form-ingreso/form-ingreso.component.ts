@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL, redondear } from '@shared/global';
+import { GLOBAL, openInNewTab, redondear } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -483,7 +483,11 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       this.pdfServicio.getIngreso(+this.ingreso.ingreso, excel).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: esPDF ? 'application/pdf' : 'application/vnd.ms-excel' });
-          saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);
+          if (esPDF) {
+            openInNewTab(URL.createObjectURL(blob));
+          } else {
+            saveAs(blob, `Ingreso_${this.ingreso.ingreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);            
+          } 
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ingreso', { duration: 3000 });
         }

@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { Egreso } from '@wms-interfaces/egreso';
@@ -493,7 +493,11 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
       this.pdfServicio.getEgreso(+this.egreso.egreso, excel).subscribe(res => {
         if (res) {
           const blob = new Blob([res], { type: esPDF ? 'application/pdf' : 'application/vnd.ms-excel' });
-          saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);
+          if (esPDF) {
+            openInNewTab(URL.createObjectURL(blob));
+          } else {
+            saveAs(blob, `Salida_${this.egreso.egreso}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${esPDF ? 'pdf' : 'xlsx'}`);
+          }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Egreso', { duration: 3000 });
         }
