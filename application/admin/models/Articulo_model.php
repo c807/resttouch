@@ -1334,6 +1334,9 @@ class Articulo_model extends General_model
 				->row();
 			if ($bodega && (int)$bodega->bodega > 0) {
 				$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodega->bodega, $this->getPK());
+				if (!$datos_costo) {
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo(null, $this->getPK());
+				}
 				if ($datos_costo) {
 					if ((int)$bodega->metodo_costeo === 1) {
 						$costo = (float)$datos_costo->costo_ultima_compra;

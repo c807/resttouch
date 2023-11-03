@@ -49,12 +49,21 @@ class BodegaArticuloCosto_model extends General_model
 
         $bac->costo_ultima_compra = $costoUltimaCompra ? $costoUltimaCompra : 0.00;
         $bac->costo_promedio = $costoPromedio ? $costoPromedio : 0.00;
+        $bac->fecha = Hoy(3);
 
         return $bac->guardar();
     }
 
-    public function get_datos_costo($idBodega, $idArticulo)
+    public function get_datos_costo($idBodega = null, $idArticulo = null)
     {
+        if ($idBodega) {
+            $this->db->where('a.bodega', $idBodega);
+        }
+
+        if ($idArticulo) {
+            $this->db->where('a.articulo', $idArticulo);
+        }
+
         return $this->db
             ->select('a.bodega_articulo_costo, f.metodo_costeo, a.costo_ultima_compra, a.costo_promedio, g.cantidad AS cantidad_presentacion, a.existencia')
             ->join('articulo b', 'b.articulo = a.articulo')
@@ -63,8 +72,7 @@ class BodegaArticuloCosto_model extends General_model
             ->join('sede e', 'e.sede = d.sede')
             ->join('empresa f', 'f.empresa = e.empresa')
             ->join('presentacion g', 'g.presentacion = b.presentacion_reporte')
-            ->where('a.bodega', $idBodega)
-            ->where('a.articulo', $idArticulo)
+            ->where('a.fecha IS NOT NULL')
             ->order_by('a.fecha DESC, a.bodega_articulo_costo DESC')
             ->limit(1)
             ->get('bodega_articulo_costo a')
@@ -74,6 +82,10 @@ class BodegaArticuloCosto_model extends General_model
     public function get_costo($idBodega, $idArticulo, $idPresentacion = null)
     {
         $datos_costo = $this->get_datos_costo($idBodega, $idArticulo);
+
+        if (!$datos_costo) {
+            $datos_costo = $this->get_datos_costo(null, $idArticulo);
+        }
 
         $cantidad_presentacion = (float)0;
         if ((int)$idPresentacion > 0) {
