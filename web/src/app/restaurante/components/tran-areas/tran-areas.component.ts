@@ -534,7 +534,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
             disableClose: true,
             data: new ConfirmDialogModel(
               'Turno',
-              `Para poder trabajar con normalidad necesita tener un turno abierto. ${tieneAccesoATurno ? '¿Desea abrir un turno?' : 'Por favor comuníquese con alguien que tenga acceso a abrir turnos.'}`,
+              `Para poder trabajar con normalidad necesita tener un turno abierto. ${tieneAccesoATurno ? '¿Desea abrir un turno?' : 'Por favor comuníquese con alguien de su equipo que tenga acceso a abrir turnos.'}`,
               tieneAccesoATurno ? 'Sí' : 'Cerrar', tieneAccesoATurno ? 'No' : null
             )
           });
