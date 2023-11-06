@@ -188,8 +188,36 @@ class Ajuste_costo_promedio extends CI_Controller
                                 'precio_costo_iva' => $precioUnitarioConIVA - $precioUnitarioSinIVA,
                             ];
 
-                            if ($ingreso->setDetalle($det)) {
-                                $idsArticulos[] = (int)$d->articulo;
+                            $detIngreso = $ingreso->setDetalle($det);
+
+                            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($acp->bodega, $d->articulo);
+                            if ($datos_costo) {
+                                $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                                $precio_unitario = $precioUnitarioSinIVA;
+                                $existencia_anterior = round((float)$datos_costo->existencia, 2);
+                                $cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
+                                $costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+                                $existencia_nueva = $existencia_anterior + ((float)1 * $cantidad_presentacion);
+                                $costo_total_nuevo = $costo_total_anterior + $precioUnitarioSinIVA;
+
+                                $nvaData = [
+                                    'bodega' => (int)$acp->bodega,
+                                    'articulo' => (int)$d->articulo,
+                                    'cuc_ingresado' => 0,
+                                    'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+                                    'cp_ingresado' => 0,
+                                    'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+                                    'existencia_ingresada' => 0,
+                                    'existencia' => $existencia_nueva,
+                                    'fecha' => date('Y-m-d H:i:s')
+                                ];
+
+                                $nvoBac = new BodegaArticuloCosto_model();
+                                $nvoBac->guardar($nvaData);
+                            } else {
+                                if ($detIngreso) {
+                                    $idsArticulos[] = (int)$d->articulo;
+                                }
                             }
                         }
 
@@ -211,21 +239,27 @@ class Ajuste_costo_promedio extends CI_Controller
                         ];
 
                         if ($egreso->guardar($dataEgreso)) {
+                            $idsArticulos = [];
                             foreach ($detalle as $d) {
                                 $art = new Articulo_model($d->articulo);
                                 $pres = $art->getPresentacionReporte();
-                                // $costo_promedio = $art->getCostoPromedio(['bodega' => $acp->bodega]);
 
-                                $bcosto = $this->BodegaArticuloCosto_model->buscar([
-                                    'bodega' => $acp->bodega,
-                                    'articulo' => $d->articulo,
-                                    '_uno' => true
-                                ]);
-
-                                if ($bcosto) {
-                                    $costo_promedio = $bcosto->costo_promedio;
+                                $costo_promedio = (float)0;
+                                $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($acp->bodega, $d->articulo);
+                                if ($datos_costo) {
+                                    $costo_promedio = $datos_costo->costo_promedio;
                                 } else {
-                                    $costo_promedio = $art->getCosto(['bodega' => $acp->bodega]);
+                                    $bcosto = $this->BodegaArticuloCosto_model->buscar([
+                                        'bodega' => $acp->bodega,
+                                        'articulo' => $d->articulo,
+                                        '_uno' => true
+                                    ]);
+
+                                    if ($bcosto) {
+                                        $costo_promedio = $bcosto->costo_promedio;
+                                    } else {
+                                        $costo_promedio = $art->getCosto(['bodega' => $acp->bodega]);
+                                    }
                                 }
 
                                 $cp = (float)$costo_promedio;
@@ -238,7 +272,26 @@ class Ajuste_costo_promedio extends CI_Controller
                                     'precio_unitario' => $precioUnitario,
                                     'precio_total' => $precioUnitario,
                                 ];
-                                $egreso->setDetalle($det);
+                                $detEgreso = $egreso->setDetalle($det);
+                                if ($datos_costo) {
+                                    $nvaData = [
+                                        'bodega' => (int)$acp->bodega,
+                                        'articulo' => (int)$d->articulo,
+                                        'cuc_ingresado' => 0,
+                                        'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                                        'cp_ingresado' => 0,
+                                        'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                                        'existencia_ingresada' => 0,
+                                        'existencia' => round((float)$datos_costo->existencia - ((float)1 * (float)$pres->cantidad), 2),
+                                        'fecha' => date('Y-m-d H:i:s')
+                                    ];
+                                    $nvoBac = new BodegaArticuloCosto_model();
+                                    $nvoBac->guardar($nvaData);
+                                } else {
+                                    if ($detEgreso) {
+                                        $idsArticulos[] = (int)$d->articulo;
+                                    }
+                                }
                             }
 
                             // Recálculo de costos de los artículos...

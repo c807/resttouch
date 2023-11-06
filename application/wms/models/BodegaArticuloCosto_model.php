@@ -57,11 +57,11 @@ class BodegaArticuloCosto_model extends General_model
     public function get_datos_costo($idBodega = null, $idArticulo = null)
     {
         if ($idBodega) {
-            $this->db->where('a.bodega', $idBodega);
+            $this->db->where('a.bodega', (int)$idBodega);
         }
 
         if ($idArticulo) {
-            $this->db->where('a.articulo', $idArticulo);
+            $this->db->where('a.articulo', (int)$idArticulo);
         }
 
         return $this->db

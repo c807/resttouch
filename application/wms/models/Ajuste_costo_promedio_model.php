@@ -79,16 +79,18 @@ class Ajuste_costo_promedio_model extends General_model {
 				$art = new Articulo_model($articulo->articulo);
 				$pres = $art->getPresentacionReporte();
 
-				$bcosto = $this->BodegaArticuloCosto_model->buscar([
-					'bodega' => $args['bodega'],
-					'articulo' => $articulo->articulo,
-					'_uno' => true
-				]);
-
-				if ($bcosto) {
-					$costo_promedio = $bcosto->costo_promedio;
+				$costo_promedio = (float)0;
+				$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], $articulo->articulo);
+				if ($datos_costo) {
+					$costo_promedio = $datos_costo->costo_promedio;
 				} else {
-					$costo_promedio = $art->getCosto(['bodega' => $args['bodega']]);
+					$bcosto = $this->BodegaArticuloCosto_model->buscar(['bodega' => $args['bodega'], 'articulo' => $articulo->articulo, '_uno' => true]);
+	
+					if ($bcosto) {
+						$costo_promedio = $bcosto->costo_promedio;
+					} else {
+						$costo_promedio = $art->getCosto(['bodega' => $args['bodega']]);
+					}
 				}
 				
 				$cp = (float)$costo_promedio;

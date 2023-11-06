@@ -108,7 +108,7 @@ class Conversor extends CI_Controller
 
 						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bod->getPK(), $art->getPK());
 						if ($datos_costo) {
-							if (((float)$datos_costo->existencias / (float)$pres->cantidad) < (float)$det['cantidad']) {
+							if (((float)$datos_costo->existencia / (float)$pres->cantidad) < (float)$det['cantidad']) {
 								$continuar = false;
 								$datos['mensaje'] = 'No hay existencias suficientes para realizar la transformación';
 							}
@@ -122,13 +122,13 @@ class Conversor extends CI_Controller
 						}
 
 						$cantidad = 0;
-						foreach ($req['ingreso']['detalle'] as $det) {
-							$cantidad += $det['cantidad_utilizada'];
+						foreach ($req['ingreso']['detalle'] as $detIng) {
+							$cantidad += $detIng['cantidad_utilizada'];
 						}
 
 						if (isset($req['merma'])) {
-							foreach ($req['merma'] as $det) {
-								$cantidad += $det['cantidad_utilizada'];
+							foreach ($req['merma'] as $detMerma) {
+								$cantidad += $detMerma['cantidad_utilizada'];
 							}
 						}
 
@@ -159,7 +159,7 @@ class Conversor extends CI_Controller
 										if ($emp->metodo_costeo == 1) {
 											$det['precio_unitario'] = (float)$datos_costo_egr->costo_ultima_compra * (float)$pres->cantidad;
 										} else if ($emp->metodo_costeo == 2) {
-											$det['precio_unitario'] = (float)$datos_costo_egr * (float)$pres->cantidad;
+											$det['precio_unitario'] = (float)$datos_costo_egr->costo_promedio * (float)$pres->cantidad;
 										} else {
 											$det['precio_unitario'] = 0;
 										}
