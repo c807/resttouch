@@ -152,6 +152,10 @@ import { ListaConocimientoComponent } from './components/conocimiento/lista-cono
 import { RolComponent } from './components/rol/rol/rol.component';
 import { FormRolComponent } from './components/rol/form-rol/form-rol.component';
 import { ListaRolComponent } from './components/rol/lista-rol/lista-rol.component';
+import { NotificacionClienteComponent } from './components/setup/notificacion-cliente/notificacion-cliente/notificacion-cliente.component';
+import { FormNotificacionClienteComponent } from './components/setup/notificacion-cliente/form-notificacion-cliente/form-notificacion-cliente.component';
+import { ListaNotificacionClienteComponent } from './components/setup/notificacion-cliente/lista-notificacion-cliente/lista-notificacion-cliente.component';
+import { BloquearClienteComponent } from './components/setup/bloquear-cliente/bloquear-cliente.component';
 
 @NgModule({
   declarations: [
@@ -177,7 +181,8 @@ import { ListaRolComponent } from './components/rol/lista-rol/lista-rol.componen
     SolicitudRegistroComponent, InitialSetupComponent, UpdateDataBasesComponent, SetConfigCorpComponent, SetupComponent, DoctoresComponent, LiberarMesaComponent, 
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
     VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
-    DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent, RolComponent, FormRolComponent, ListaRolComponent
+    DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent, RolComponent, FormRolComponent, ListaRolComponent, 
+    NotificacionClienteComponent, FormNotificacionClienteComponent, ListaNotificacionClienteComponent, BloquearClienteComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

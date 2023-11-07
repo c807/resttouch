@@ -12,6 +12,7 @@ class Cliente_rt_corporacion_model extends General_model
     public $db_username;
     public $db_password;
     public $db_database;
+    public $bloqueado = 0;
 
     public function __construct($id = '')
     {

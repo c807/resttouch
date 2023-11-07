@@ -43,6 +43,7 @@ import { ExtraProductoComponent } from './components/extra-producto/extra-produc
 import { TruncarPipe } from './pipes/truncar.pipe';
 import { PdfViewerComponent } from './components/pdf-viewer/pdf-viewer.component';
 import { SafePipe } from './pipes/safe.pipe';
+import { SanitizePipe } from './pipes/sanitize.pipe';
 
 const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options: {} };
 
@@ -62,7 +63,8 @@ const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options
     TruncarPipe,
     ExtraProductoComponent,
     PdfViewerComponent,
-    SafePipe
+    SafePipe,
+    SanitizePipe
   ],
   imports: [
     CommonModule,
@@ -105,7 +107,8 @@ const config: SocketIoConfig = { url: `${PROTOCOLO}//${ANFITRION}:8988`, options
     TruncarPipe,
     ExtraProductoComponent,
     PdfViewerComponent,
-    SafePipe
+    SafePipe,
+    SanitizePipe
   ]
 })
 export class SharedModule { }
