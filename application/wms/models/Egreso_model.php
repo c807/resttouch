@@ -304,42 +304,48 @@ class Egreso_model extends General_Model
 				if ($det) {
 					$this->db->set('egreso_detalle', $row->egreso_detalle)->set('ingreso_detalle', $det->ingreso_detalle)->insert('traslado_detalle');
 					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, (int)$row->articulo);
+
+					/*
+					06/11/2023 18:14
+					Como es un traslado, si no hay datos_costo, asumimos que es "primer ingreso" en la bodega y agregamos la línea como nueva					
+					*/
+
+					$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
+					$cantidad_presentacion = round((float)$pres->cantidad, 2);
+					$precio_unitario = round((float)$det->precio_unitario, 5);
+					$existencia_anterior = (float)0;
+					$cp_unitario_anterior = (float)0;					
+
 					if ($datos_costo) {						
-						$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-						$cantidad_presentacion = round((float)$pres->cantidad, 2);
-						$precio_unitario = round((float)$det->precio_unitario, 5);
 						$existencia_anterior = round((float)$datos_costo->existencia, 2);
 						$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
-						$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
-						$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);
-						// $costo_total_nuevo = $costo_total_anterior + round((float)$det->precio_total / $cantidad_presentacion, 5);
-						$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
-
-						$nvaData = [
-							'bodega' => (int)$ing->bodega,
-							'articulo' => (int)$row->articulo,
-							'cuc_ingresado' => 0,
-							'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
-							'cp_ingresado' => 0,
-							'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
-							'existencia_ingresada' => 0,
-							'existencia' => $existencia_nueva,
-							'fecha' => date('Y-m-d H:i:s')
-						];
-
-						$nvoBac = new BodegaArticuloCosto_model();
-						$nvoBac->guardar($nvaData);
-					} else {
-						$idsArticulos[] = (int)$row->articulo;
 					}
+					
+					$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+					$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);						
+					$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
+					$nvaData = [
+						'bodega' => (int)$ing->bodega,
+						'articulo' => (int)$row->articulo,
+						'cuc_ingresado' => 0,
+						'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+						'cp_ingresado' => 0,
+						'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+						'existencia_ingresada' => 0,
+						'existencia' => $existencia_nueva,
+						'fecha' => date('Y-m-d H:i:s')
+					];
+
+					$nvoBac = new BodegaArticuloCosto_model();
+					$nvoBac->guardar($nvaData);
 				}
 			}
 
-			if ($sede && (int)$sede->sede > 0 && count($idsArticulos) > 0) {
-				foreach ($idsArticulos as $idArticulo) {
-					$this->Articulo_model->recalcular_costos((int)$sede->sede, $idArticulo, (int)$ing->bodega);
-				}
-			}
+			// if ($sede && (int)$sede->sede > 0 && count($idsArticulos) > 0) {
+			// 	foreach ($idsArticulos as $idArticulo) {
+			// 		$this->Articulo_model->recalcular_costos((int)$sede->sede, $idArticulo, (int)$ing->bodega);
+			// 	}
+			// }
 
 			return $ing;
 		} else {
@@ -438,12 +444,12 @@ class Egreso_model extends General_Model
 			->where('a.egreso', $this->getPK())
 			->get('egreso_detalle a')
 			->result();
-		
-		foreach($detalle as $det) {
+
+		foreach ($detalle as $det) {
 			$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($this->bodega, $det->articulo);
 			if ($datos_costo) {
 				$nvaData = [
-					'bodega'=> (int)$this->bodega,
+					'bodega' => (int)$this->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
 					'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
