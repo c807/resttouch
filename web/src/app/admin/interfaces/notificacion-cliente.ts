@@ -7,3 +7,10 @@ export interface NotificacionCliente {
     prioridad: number;
     cliente_corporacion?: number;
 }
+
+export interface ClienteRT {
+    id: number;
+    cliente: string;
+    dominio: string;
+    bloqueado: number;
+}

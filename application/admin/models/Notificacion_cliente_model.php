@@ -23,8 +23,9 @@ class Notificacion_cliente_model extends General_model {
     public function get_lista_clientes()
     {
         return $this->db
-            ->select('a.id, b.nombre AS cliente, a.dominio')
+            ->select('a.id, b.nombre AS cliente, a.dominio, a.bloqueado')
             ->join('administracion.cliente b', 'b.id = a.cliente_id')
+            ->order_by('b.nombre, a.dominio')
             ->get('administracion.cliente_corporacion a')
             ->result();
     }

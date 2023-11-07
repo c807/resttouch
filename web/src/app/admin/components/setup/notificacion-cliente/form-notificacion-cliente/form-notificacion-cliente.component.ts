@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
-import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
+import { NotificacionCliente, ClienteRT } from '@admin-interfaces/notificacion-cliente';
 import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
 
 import { Subscription } from 'rxjs';
@@ -17,7 +17,7 @@ export class FormNotificacionClienteComponent implements OnInit, OnDestroy {
 
   @Input() notificacionCliente: NotificacionCliente;
   @Output() notificacionClienteSavedEv = new EventEmitter();
-  public listaClientes: any[] = [];
+  public listaClientes: ClienteRT[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
 
