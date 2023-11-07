@@ -1,0 +1,49 @@
+<mat-card class="mat-elevation-z4 fullWidth">
+    <mat-card-title>
+        <h4>Notificación a Cliente</h4>
+    </mat-card-title>
+    <mat-card-content>
+        <form #frmNotificacionCliente="ngForm" (ngSubmit)="frmNotificacionCliente.form.valid && onSubmit()" novalidate>
+            <mat-form-field class="fullWidth" appearance="fill">
+                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="text" placeholder="Asunto" name="asunto" [(ngModel)]="notificacionCliente.asunto" minlength="1" maxlength="100" required>
+                <input matInput *ngIf="esMovil" type="text" placeholder="Asunto" name="asunto" [(ngModel)]="notificacionCliente.asunto" minlength="1" maxlength="100" required>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" appearance="fill">                
+                <input matInput type="date" placeholder="Del" name="mostrar_del" [(ngModel)]="notificacionCliente.mostrar_del" required>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" appearance="fill">                
+                <input matInput type="date" placeholder="Al" name="mostrar_al" [(ngModel)]="notificacionCliente.mostrar_al" required>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" appearance="fill">                
+                <input matInput type="number" placeholder="Prioridad" name="prioridad" [(ngModel)]="notificacionCliente.prioridad" required>
+                <mat-hint align="start">Una mayor prioridad hará que la notificación salga de primero.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" appearance="fill">                                
+                <mat-label>Cliente</mat-label>
+                <mat-select name="cliente_corporacion" [(ngModel)]="notificacionCliente.cliente_corporacion">
+                    <mat-option *ngFor="let clirt of listaClientes" [value]="clirt.id">
+                        {{clirt.cliente}} ({{clirt.dominio}})
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="fullWidth" appearance="fill">                
+                <textarea matInput placeholder="Notificación" name="notificacion" [(ngModel)]="notificacionCliente.notificacion" rows="15" maxlength="5000"></textarea>
+                <mat-hint align="end">{{notificacionCliente?.notificacion?.length || 0}} / 5000</mat-hint>
+            </mat-form-field>
+            
+            <div align="end">
+                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmNotificacionCliente.form.valid">
+                    Guardar
+                </button>
+                <button mat-raised-button type="button" color="accent" (click)="resetNotificacionCliente()" *ngIf="notificacionCliente?.notificacion_cliente">
+                    Nueva
+                </button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>
