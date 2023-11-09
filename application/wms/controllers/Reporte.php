@@ -585,7 +585,8 @@ class Reporte extends CI_Controller
 						$hoja->setCellValue("C{$fila}", $bodega->descripcion);
 						$hoja->setCellValue("D{$fila}", $articulo->categoria);
 						$hoja->setCellValue("E{$fila}", $articulo->categoria_grupo);
-						$hoja->setCellValue("F{$fila}", "{$articulo->articulo}-{$articulo->descripcion}");
+						// $hoja->setCellValue("F{$fila}", "{$articulo->articulo}-{$articulo->descripcion}");
+						$hoja->setCellValue("F{$fila}", "{$articulo->descripcion}");
 						$hoja->setCellValue("G{$fila}", $articulo->presentacion);
 						$hoja->setCellValue("H{$fila}", $articulo->cantidad);
 						$hoja->setCellValue("I{$fila}", $articulo->ultima_compra);

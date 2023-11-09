@@ -2207,24 +2207,24 @@ class Factura_model extends General_model
 			->where('c.mostrar_inventario', 1)
 			->get('detalle_factura a')
 			->result();
-		
-		foreach($detalle as $det) {
+
+		foreach ($detalle as $det) {
 			$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($det->bodega, $det->articulo);
-			if ($datos_costo) {				
+			if ($datos_costo) {
 				$cu = (float)0;
 				if ((int)$datos_costo->metodo_costeo === 1) {
 					$cu = (float)$datos_costo->costo_ultima_compra * (float)$det->cantidad_presentacion;
 				} else if ((int)$datos_costo->metodo_costeo === 2) {
 					$cu = (float)$datos_costo->costo_promedio * (float)$det->cantidad_presentacion;
 				}
-				
+
 				$this->db->where('detalle_factura', $det->detalle_factura)->update('detalle_factura', [
-					'costo_unitario' => $cu, 
+					'costo_unitario' => $cu,
 					'costo_total' => $cu * (float)$det->cantidad_inventario
 				]);
 
 				$nvaData = [
-					'bodega'=> (int)$det->bodega,
+					'bodega' => (int)$det->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
 					'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
@@ -2234,9 +2234,21 @@ class Factura_model extends General_model
 					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
 					'fecha' => date('Y-m-d H:i:s')
 				];
-				$nvoBac = new BodegaArticuloCosto_model();
-				$nvoBac->guardar($nvaData);				
+			} else {
+				$nvaData = [
+					'bodega' => (int)$det->bodega,
+					'articulo' => (int)$det->articulo,
+					'cuc_ingresado' => 0,
+					'costo_ultima_compra' => 0,
+					'cp_ingresado' => 0,
+					'costo_promedio' => 0,
+					'existencia_ingresada' => 0,
+					'existencia' => round((float)0 - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
+					'fecha' => date('Y-m-d H:i:s')
+				];
 			}
+			$nvoBac = new BodegaArticuloCosto_model();
+			$nvoBac->guardar($nvaData);
 		}
 	}
 
@@ -2257,8 +2269,8 @@ class Factura_model extends General_model
 
 		if ($tmp->comanda_origen_datos) {
 			$json = json_decode($tmp->comanda_origen_datos);
-			return isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);			
-		}		
+			return isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);
+		}
 
 		return null;
 	}

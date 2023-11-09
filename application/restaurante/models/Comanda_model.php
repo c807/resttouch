@@ -31,7 +31,7 @@ class Comanda_model extends General_Model
     public $reserva = null;
 
     private $_listaPresentaciones = null;
-    private $_listaBodegaArticulo = null;    
+    private $_listaBodegaArticulo = null;
     private $_listaMedidas = null;
 
     public function __construct($id = '')
@@ -45,7 +45,7 @@ class Comanda_model extends General_Model
             $this->fhcreacion = date('Y-m-d H:i:s');
         }
 
-        $this->load->model(['Presentacion_model', 'Umedida_model']);                
+        $this->load->model(['Presentacion_model', 'Umedida_model']);
     }
 
     public function getMesas()
@@ -168,7 +168,7 @@ class Comanda_model extends General_Model
     }
 
     public function guardarDetalle(array $args)
-    {        
+    {
         $config = $this->Configuracion_model->buscar_configuraciones();
         $vnegativo = get_configuracion($config, 'RT_VENDE_NEGATIVO', 3);
         $id = isset($args['detalle_comanda']) ? $args['detalle_comanda'] : '';
@@ -178,6 +178,7 @@ class Comanda_model extends General_Model
         $validar = true;
         $cantidad = 0;
         $articulo = $det->articulo;
+        $cantResta = (float)0;
         if (empty($id)) {
             $articulo = $args['articulo'];
             $cantidad = $args['cantidad'];
@@ -210,7 +211,7 @@ class Comanda_model extends General_Model
                 }
             }
         }
-        $art = new Articulo_model($articulo);        
+        $art = new Articulo_model($articulo);
         $pres = $this->_listaPresentaciones ? $this->_listaPresentaciones[(int)$art->presentacion] : $art->getPresentacion();
         $args['presentacion'] = $art->presentacion;
         // $bodega = $art->getBodega();
@@ -221,7 +222,7 @@ class Comanda_model extends General_Model
         $oldart = new Articulo_model($det->articulo);
 
         if (!empty($menu) && !$vnegativo) {
-            $art->actualizarExistencia(['bodega' => $args['bodega']]);            
+            $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
@@ -236,6 +237,10 @@ class Comanda_model extends General_Model
             if ($datos_costo) {
                 $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
                 $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                    $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                }
                 $nvaData = [
                     'bodega' => (int)$args['bodega'],
                     'articulo' => (int)$art->articulo,
@@ -244,7 +249,7 @@ class Comanda_model extends General_Model
                     'cp_ingresado' => 0,
                     'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                     'existencia_ingresada' => 0,
-                    'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                    'existencia' => $existencia_nueva,
                     'fecha' => date('Y-m-d H:i:s')
                 ];
                 $nvoBac = new BodegaArticuloCosto_model();
@@ -270,7 +275,7 @@ class Comanda_model extends General_Model
             $idx = $det->getPK();
             $receta = $art->getReceta([], $this->_listaMedidas);
 
-            if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {                
+            if (count($receta) > 0 && (int)$art->combo === 0 && (int)$art->multiple === 0 && $nuevo && (int)$art->produccion === 0) {
                 foreach ($receta as $rec) {
                     $presR = $this->Presentacion_model->buscar_presentaciones([
                         'medida' => $rec->medida->medida,
@@ -303,6 +308,10 @@ class Comanda_model extends General_Model
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
                             $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                                $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            }
                             $nvaData = [
                                 'bodega' => (int)$bodegaR->bodega,
                                 'articulo' => (int)$rec->articulo->articulo,
@@ -311,7 +320,7 @@ class Comanda_model extends General_Model
                                 'cp_ingresado' => 0,
                                 'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                                 'existencia_ingresada' => 0,
-                                'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                                'existencia' => $existencia_nueva_receta,
                                 'fecha' => date('Y-m-d H:i:s')
                             ];
                             $nvoBac = new BodegaArticuloCosto_model();
@@ -350,7 +359,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);                
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -387,6 +396,7 @@ class Comanda_model extends General_Model
         $cantidad = 0;
         $articulo = $det->articulo;
         $oldart = null;
+        $cantResta = (float)0;
         if (empty($id)) {
             $articulo = $args['articulo'];
             $cantidad = $args['cantidad'];
@@ -444,6 +454,10 @@ class Comanda_model extends General_Model
             if ($datos_costo) {
                 $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
                 $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                    $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                }
                 $nvaData = [
                     'bodega' => (int)$args['bodega'],
                     'articulo' => (int)$art->articulo,
@@ -452,7 +466,8 @@ class Comanda_model extends General_Model
                     'cp_ingresado' => 0,
                     'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                     'existencia_ingresada' => 0,
-                    'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                    // 'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                    'existencia' => $existencia_nueva,
                     'fecha' => date('Y-m-d H:i:s')
                 ];
                 $nvoBac = new BodegaArticuloCosto_model();
@@ -510,6 +525,10 @@ class Comanda_model extends General_Model
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
                             $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                                $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            }
                             $nvaData = [
                                 'bodega' => (int)$bodegaR->bodega,
                                 'articulo' => (int)$rec->articulo->articulo,
@@ -518,7 +537,8 @@ class Comanda_model extends General_Model
                                 'cp_ingresado' => 0,
                                 'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                                 'existencia_ingresada' => 0,
-                                'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                                // 'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                                'existencia' => $existencia_nueva_receta,
                                 'fecha' => date('Y-m-d H:i:s')
                             ];
                             $nvoBac = new BodegaArticuloCosto_model();
@@ -557,7 +577,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true);
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -807,7 +827,7 @@ class Comanda_model extends General_Model
             $args['_totalCero'] = true;
         }
 
-        if (isset($args['_lstImpresorasSede']) && is_array($args['_lstImpresorasSede']) && count($args['_lstImpresorasSede']) > 0) {
+        if (isset($args['_lstImpresorasSede']) && is_array($args['_lstImpresorasSede']) && count((array)$args['_lstImpresorasSede']) > 0) {
             $tmp->impresora_defecto = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefecto', '1');
             $tmp->impresora_defecto_cuenta = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefectocuenta', '1');
             $tmp->impresora_defecto_factura = $this->buscar_en_lista($args['_lstImpresorasSede'], 'pordefectofactura', '1');
@@ -817,7 +837,7 @@ class Comanda_model extends General_Model
             $tmp->impresora_defecto_factura = $this->db->where('sede', $this->sede)->where('pordefectofactura', 1)->get('impresora')->row();
         }
 
-        if (isset($args['_lstTipoDomicilio']) && is_array($args['_lstTipoDomicilio']) && count($args['_lstTipoDomicilio']) > 0) {
+        if (isset($args['_lstTipoDomicilio']) && is_array($args['_lstTipoDomicilio']) && count((array)$args['_lstTipoDomicilio']) > 0) {
             $tmp->tipo_domicilio = $this->buscar_en_lista($args['_lstTipoDomicilio'], 'tipo_domicilio', $this->tipo_domicilio);
         } else {
             $tmp->tipo_domicilio = $this->tipo_domicilio ? $this->db->where('tipo_domicilio', $this->tipo_domicilio)->get('tipo_domicilio')->row() : null;
@@ -831,7 +851,7 @@ class Comanda_model extends General_Model
         $tmp->numero_pedido = $this->numero_pedido;
         $tmp->notas_generales = $this->notas_generales;
         $estatusCC = null;
-        if (isset($args['_lstEstatusCallCenter']) && is_array($args['_lstEstatusCallCenter']) && count($args['_lstEstatusCallCenter']) > 0) {
+        if (isset($args['_lstEstatusCallCenter']) && is_array($args['_lstEstatusCallCenter']) && count((array)$args['_lstEstatusCallCenter']) > 0) {
             $estatusCC = $this->buscar_en_lista($args['_lstEstatusCallCenter'], 'estatus_callcenter', ((int)$this->estatus_callcenter > 0 ? $this->estatus_callcenter : '0'));
         } else {
             $estatusCC = $this->get_estatus_callcenter();

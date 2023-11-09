@@ -49,7 +49,7 @@ class BodegaArticuloCosto_model extends General_model
 
         $bac->costo_ultima_compra = $costoUltimaCompra ? $costoUltimaCompra : 0.00;
         $bac->costo_promedio = $costoPromedio ? $costoPromedio : 0.00;
-        $bac->fecha = Hoy(3);
+        $bac->fecha = date('Y-m-d H:i:s');
 
         return $bac->guardar();
     }
