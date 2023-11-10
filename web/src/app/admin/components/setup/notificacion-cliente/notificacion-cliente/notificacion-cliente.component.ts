@@ -17,7 +17,7 @@ export class NotificacionClienteComponent implements OnInit {
 
   constructor() {
     this.notifCliente = {
-      notificacion_cliente: null, asunto: null, notificacion: null, mostrar_del: null, mostrar_al: null, prioridad: 1, cliente_corporacion: null
+      notificacion_cliente: null, asunto: null, notificacion: null, mostrar_del: null, mostrar_al: null, prioridad: 1, cliente_corporacion: null, intensidad: null
     };
   }
 

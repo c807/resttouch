@@ -507,12 +507,13 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   checkNotificaciones = (m: any) => {
     this.endSubs.add(
       this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
-        if (mensajes && mensajes.length > 0) {
+        const lstMensajes: NotificacionCliente[] = (mensajes && mensajes.length > 0) ? mensajes.filter(m => +m.intensidad <= 2) : [];
+        if (lstMensajes && lstMensajes.length > 0) {
           const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
             width: '75%',
             autoFocus: true,
             disableClose: true,
-            data: mensajes
+            data: lstMensajes
           });
           this.endSubs.add(notiDialog.afterClosed().subscribe(() => this.onClickMesa(m)));
         } else {

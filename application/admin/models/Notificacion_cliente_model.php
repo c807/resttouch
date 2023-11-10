@@ -10,6 +10,7 @@ class Notificacion_cliente_model extends General_model {
     public $mostrar_al;
     public $prioridad = 1;
     public $cliente_corporacion = null;
+    public $intensidad = null;
 
 	public function __construct($id = '')
 	{

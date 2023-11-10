@@ -13,6 +13,7 @@ import { NotificacionClienteService } from '@admin-services/notificacion-cliente
 import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
 
 import { Subscription } from 'rxjs';
+import { NotificacionCliente } from '@admin/interfaces/notificacion-cliente';
 
 @Component({
   selector: 'app-lista-producto-alt',
@@ -130,12 +131,13 @@ export class ListaProductoAltComponent implements OnInit, OnDestroy {
   checkNotificaciones = (scat: ArbolCategoriaGrupo) => {
     this.endSubs.add(
       this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
-        if (mensajes && mensajes.length > 0) {
+        const lstMensajes: NotificacionCliente[] = (mensajes && mensajes.length > 0) ? mensajes.filter(m => +m.intensidad >= 2) : [];
+        if (lstMensajes && lstMensajes.length > 0) {
           const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
             width: '75%',
             autoFocus: true,
             disableClose: true,
-            data: mensajes
+            data: lstMensajes
           });
           this.endSubs.add(notiDialog.afterClosed().subscribe(() => {            
             this.clickOnSubCategoria(scat);

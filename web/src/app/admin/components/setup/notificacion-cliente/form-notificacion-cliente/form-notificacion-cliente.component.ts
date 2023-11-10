@@ -20,6 +20,10 @@ export class FormNotificacionClienteComponent implements OnInit, OnDestroy {
   public listaClientes: ClienteRT[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
+  public nivelesIntensidad = [
+    {nivel: '1', descripcion: 'Soft'},    
+    {nivel: '2', descripcion: 'Hard'},
+  ];
 
   private endSubs = new Subscription();
 
@@ -45,7 +49,7 @@ export class FormNotificacionClienteComponent implements OnInit, OnDestroy {
     );
   }
 
-  resetNotificacionCliente = () => this.notificacionCliente = { notificacion_cliente: null, asunto: null, notificacion: null, mostrar_del: null, mostrar_al: null, prioridad: 1, cliente_corporacion: null };
+  resetNotificacionCliente = () => this.notificacionCliente = { notificacion_cliente: null, asunto: null, notificacion: null, mostrar_del: null, mostrar_al: null, prioridad: 1, cliente_corporacion: null, intensidad: null };
 
   onSubmit = () => {
     this.endSubs.add(
@@ -53,7 +57,7 @@ export class FormNotificacionClienteComponent implements OnInit, OnDestroy {
         if (res.exito) {
           this.notificacionClienteSavedEv.emit();
           this.resetNotificacionCliente();
-          this.snackBar.open('Notificación de cliente agregada...', 'Notificación de Cliente', { duration: 3000 });
+          this.snackBar.open('Notificación de cliente guardada...', 'Notificación de Cliente', { duration: 3000 });
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Notificación de Cliente', { duration: 7000 });
         }

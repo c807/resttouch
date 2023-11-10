@@ -692,7 +692,7 @@ class Catalogo_model extends CI_Model
 		}
 
 		$qry = $this->db
-			->select('a.notificacion_cliente, a.notificacion, a.mostrar_del, a.mostrar_al, a.prioridad')
+			->select('a.notificacion_cliente, a.notificacion, a.mostrar_del, a.mostrar_al, a.prioridad, a.intensidad')
 			->join('administracion.cliente_corporacion b', 'b.id = a.cliente_corporacion', 'left')
 			->where('DATE(NOW()) >= a.mostrar_del')
 			->where('DATE(NOW()) <= a.mostrar_al')			
