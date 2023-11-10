@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatInput } from '@angular/material/input';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, isNotNullOrUndefined } from '@shared/global';
 import { TranComanda } from '@restaurante-classes/tran-comanda';
 
 import { Socket } from 'ngx-socket-io';
@@ -18,6 +18,9 @@ import { ArticuloService } from '@wms-services/articulo.service';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { UsuarioService } from '@admin-services/usuario.service';
 import { CorrelativoService } from '@admin-services/correlativo.service';
+
+import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
+import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
 
 @Component({
   selector: 'app-tran-comanda-alt',
@@ -47,7 +50,8 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
     protected articuloSrvc: ArticuloService,
     protected bsAccionesCmd: MatBottomSheet,
     protected usuarioSrvc: UsuarioService,
-    protected correlativoSrvc: CorrelativoService
+    protected correlativoSrvc: CorrelativoService,
+    private notificacionClienteSrvc: NotificacionClienteService
   ) {
     super(dialog, snackBar, comandaSrvc, socket, ls, pdfServicio, configSrvc, articuloSrvc, bsAccionesCmd, usuarioSrvc, correlativoSrvc);
   }
@@ -150,5 +154,33 @@ export class TranComandaAltComponent extends TranComanda implements OnInit, OnDe
       // this.agregarProductos(obj);
       this.pedirCantidadArticulo(obj);
     }
+  }
+
+  checkNotificaciones = (cat: any = null, subcat: any = null, idx: number = 0, p: Articulo = null) => {
+    this.endSubs.add(
+      this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
+        if (mensajes && mensajes.length > 0) {
+          const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
+            width: '75%',
+            autoFocus: true,
+            disableClose: true,
+            data: mensajes
+          });
+          this.endSubs.add(notiDialog.afterClosed().subscribe(() => {
+            if (isNotNullOrUndefined(p)) {
+              this.addArticulo(p);
+            } else {
+              this.loadSubcategorias(cat, subcat, idx);
+            }
+          }));
+        } else {          
+          if (isNotNullOrUndefined(p)) {
+            this.addArticulo(p);
+          } else {
+            this.loadSubcategorias(cat, subcat, idx);
+          }
+        }
+      })
+    );
   }
 }

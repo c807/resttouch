@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
@@ -7,6 +8,9 @@ import { db } from '@offline/db';
 
 import { ArbolArticulos, ArbolCategoriaGrupo, Articulo, NodoProducto } from '@wms-interfaces/articulo';
 import { ArticuloService } from '@wms-services/articulo.service';
+
+import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
+import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
 
 import { Subscription } from 'rxjs';
 
@@ -33,7 +37,9 @@ export class ListaProductoAltComponent implements OnInit, OnDestroy {
   constructor(
     private articuloSrvc: ArticuloService,
     private ls: LocalstorageService,
-    private onlineSrvc: OnlineService
+    private onlineSrvc: OnlineService,
+    private notificacionClienteSrvc: NotificacionClienteService,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -119,5 +125,25 @@ export class ListaProductoAltComponent implements OnInit, OnDestroy {
     this.productoClickedEv.emit(obj);
     // this.subcategorias = [];
     // this.articulos = [];
+  }
+
+  checkNotificaciones = (scat: ArbolCategoriaGrupo) => {
+    this.endSubs.add(
+      this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
+        if (mensajes && mensajes.length > 0) {
+          const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
+            width: '75%',
+            autoFocus: true,
+            disableClose: true,
+            data: mensajes
+          });
+          this.endSubs.add(notiDialog.afterClosed().subscribe(() => {            
+            this.clickOnSubCategoria(scat);
+          }));
+        } else {          
+          this.clickOnSubCategoria(scat);
+        }
+      })
+    );
   }
 }

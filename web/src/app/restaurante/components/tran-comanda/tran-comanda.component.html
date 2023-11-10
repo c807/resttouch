@@ -41,7 +41,7 @@
                     [ngModelOptions]="{standalone: true}" (onDetected)="buscarArticulo()">
             </mat-form-field><br *ngIf="usaCodigoBarras" />
             <ng-container *ngFor="let c of categorias">
-                <button mat-raised-button class="btnAccion" color="accent" (click)="clickOnCategoria(c)"
+                <button mat-raised-button class="btnAccion" color="accent" (click)="checkNotificaciones(12, c)"
                     [disabled]="!cuentaActiva || bloqueoBotones || !cuentaActiva.cuenta" *ngIf="c.mostrarEnPos">
                     {{c.descripcion}}
                 </button>
@@ -60,7 +60,7 @@
                     </eco-fab-speed-dial-trigger>
                     <eco-fab-speed-dial-actions>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="getNotasGenerales()" [disabled]="bloqueoBotones">
+                            (click)="checkNotificaciones(4)" [disabled]="bloqueoBotones">
                             Notas
                         </button>
                         <!-- <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
@@ -74,12 +74,12 @@
                             Cuenta
                         </button> -->
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="distribuirProductos()" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
+                            (click)="checkNotificaciones(5)" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                             Distribuir
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="unirCuentas()" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
+                            (click)="checkNotificaciones(6)" [disabled]="mesaEnUso.cuentas.length < 2 || bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.eshabitacion === 0">
                             Unir cuentas
                         </button>
@@ -89,27 +89,27 @@
                             Cobrar cuenta
                         </button> -->
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="verHistorico()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
+                            (click)="checkNotificaciones(7)" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                             *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
                             Histórico
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="enviarPedido()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
+                            (click)="checkNotificaciones(8)" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
                             *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 1">
                             Enviar pedido
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="trasladoMesa(cuentaActiva.cuenta)"
+                            (click)="checkNotificaciones(9, cuentaActiva.cuenta)"
                             [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.eshabitacion === 0">
                             Trasladar cuenta
                         </button>
                         <button mat-mini-fab type="button" color="warn" class="btnAccion btnAccionComanda"
-                            (click)="trasladoMesa()" [disabled]="bloqueoBotones"
+                            (click)="checkNotificaciones(10)" [disabled]="bloqueoBotones"
                             *ngIf="mesaEnUso && +mesaEnUso.mesa.esmostrador === 0 && +mesaEnUso.mesa.eshabitacion === 0">
                             Trasladar todo
                         </button>
-                        <button mat-mini-fab type="button" color="warn" class="btnAccionComanda" (click)="cerrarMesa()"
+                        <button mat-mini-fab type="button" color="warn" class="btnAccionComanda" (click)="checkNotificaciones(11)"
                             *ngIf="mesaEnUso && lstProductosSeleccionados.length <= 0" [disabled]="bloqueoBotones">
                             Cerrar {{+mesaEnUso.mesa.eshabitacion === 0 ? (+mesaEnUso.mesa.esmostrador === 0 ? 'Mesa' :
                             (+mesaEnUso.mesa.escallcenter === 0 ? 'Mostrador' : 'Pedido')) : 'Habitación'}}
@@ -119,17 +119,17 @@
             </div>
             <div align="center" style="padding-top: 7px;">
                 <button mat-raised-button type="button" color="warn" class="btnAccion btnAccionComanda"
-                    (click)="validarImpresion()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
+                    (click)="checkNotificaciones(1)" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                     *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
                     Comanda
                 </button>
                 <button mat-raised-button type="button" color="warn" class="btnAccion btnAccionComanda"
-                    (click)="printCuenta()" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
+                    (click)="checkNotificaciones(2)" [disabled]="!cuentaActiva.nombre || bloqueoBotones"
                     *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.esmostrador === 0">
                     Cuenta
                 </button>
                 <button mat-raised-button type="button" color="warn" class="btnAccion btnAccionComanda"
-                    (click)="cobrarCuenta()" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
+                    (click)="checkNotificaciones(3)" [disabled]="!cuentaActiva.nombre || !esCajero || bloqueoBotones"
                     *ngIf="cuentaActiva && mesaEnUso && +mesaEnUso.mesa.escallcenter === 0">
                     Cobrar cuenta
                 </button>
@@ -141,7 +141,7 @@
     </div>
     <div class="row">
         <div class="col m6 s12 mat-elevation-z3 colProductos">
-            <app-lista-producto-alt #appLstProdAlt (productoClickedEv)="pedirCantidadArticulo($event)"
+            <app-lista-producto-alt #appLstProdAlt (productoClickedEv)="checkNotificaciones(13, $event)"
                 (categoriasFilledEv)="setListaCategorias($event)" [bloqueoBotones]="bloqueoBotones">
             </app-lista-producto-alt>
         </div>
