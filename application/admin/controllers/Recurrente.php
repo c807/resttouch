@@ -60,7 +60,7 @@ class Recurrente extends CI_Controller
                 $datos['cliente_recurrente'] = $this->call_post($this->recurrent->crear_usuario, $req);
                 if ($datos['cliente_recurrente'] && $req['idcliente']) {
                     $crt = new Cliente_rt_corporacion_model($req['idcliente']);
-                    $crt->guardar(['id_recurrente' => $datos['cliente_recurrente']->id]);
+                    $crt->guardar(['correo' => $req['email'], 'id_recurrente' => $datos['cliente_recurrente']->id]);
                 }
                 $datos['exito'] = true;
                 $datos['mensaje'] = 'Cliente creado en recurrente.com.';
