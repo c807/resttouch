@@ -31,6 +31,15 @@
                 </mat-select>
             </mat-form-field>
 
+            <mat-form-field class="fullWidth" appearance="fill">                                
+                <mat-label>Intensidad</mat-label>
+                <mat-select name="intensidad" [(ngModel)]="notificacionCliente.intensidad">
+                    <mat-option *ngFor="let nivel of nivelesIntensidad" [value]="nivel.nivel">
+                        {{nivel.descripcion}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
             <mat-form-field class="fullWidth" appearance="fill">                
                 <textarea matInput placeholder="Notificación" name="notificacion" [(ngModel)]="notificacionCliente.notificacion" rows="15" maxlength="5000"></textarea>
                 <mat-hint align="end">{{notificacionCliente?.notificacion?.length || 0}} / 5000</mat-hint>

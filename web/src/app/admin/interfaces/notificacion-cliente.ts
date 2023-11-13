@@ -6,6 +6,7 @@ export interface NotificacionCliente {
     mostrar_al: string;
     prioridad: number;
     cliente_corporacion?: number;
+    intensidad?: number;
 }
 
 export interface ClienteRT {

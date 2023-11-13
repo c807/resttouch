@@ -1,0 +1,25 @@
+<table #tblClientesRT>
+    <thead>
+        <tr>
+            <th>Cliente</th>            
+            <th>Último monto cobrado</th>
+            <th>Último enlace de cobroo</th>
+            <th>Fecha de último enlace</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let clirt of listaClientes">
+            <td>{{clirt.cliente}} ({{clirt.dominio}})</td>            
+            <td>{{clirt.ultimo_monto | number:'1.2-2'}}</td>
+            <td>{{clirt.ultimo_checkout}}</td>
+            <td>{{clirt.fecha_ultimo_checkout | date:'dd/MM/yyyy HH:mm:ss'}}</td>
+            <td>
+                <button mat-raised-button type="button" color="accent" (click)="generarIdClienteRecurrente()" *ngIf="!clirt.id_recurrente">
+                    Crear cliente en recurrente.com
+                </button>
+                <span *ngIf="clirt.id_recurrente">{{clirt.id_recurrente}}</span>
+            </td>
+        </tr>
+    </tbody>
+</table>

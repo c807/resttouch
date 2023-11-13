@@ -37,7 +37,11 @@ import { Base64 } from 'js-base64';
 import { Correlativo } from '@admin-interfaces/correlativo';
 import { CorrelativoService } from '@admin-services/correlativo.service';
 
+import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
+import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
+
 import { Subscription } from 'rxjs';
+import { NotificacionCliente } from '@admin/interfaces/notificacion-cliente';
 
 @Component({
   selector: 'app-tran-comanda',
@@ -90,7 +94,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     private configSrvc: ConfiguracionService,
     private articuloSrvc: ArticuloService,
     private usuarioSrvc: UsuarioService,
-    private correlativoSrvc: CorrelativoService
+    private correlativoSrvc: CorrelativoService,
+    private notificacionClienteSrvc: NotificacionClienteService
   ) { }
 
   ngOnInit() {
@@ -1309,4 +1314,45 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  execFunc = (fnc: number, param: any = null) => {
+    switch(fnc) {
+      case 1: this.validarImpresion(); break;
+      case 2: this.printCuenta(); break;
+      case 3: this.cobrarCuenta(); break;
+      case 4: this.getNotasGenerales(); break;
+      case 5: this.distribuirProductos(); break;
+      case 6: this.unirCuentas(); break;
+      case 7: this.verHistorico(); break;
+      case 8: this.enviarPedido(); break;
+      case 9: this.trasladoMesa(param); break;
+      case 10: this.trasladoMesa(); break;
+      case 11: this.cerrarMesa(); break;
+      case 12: this.clickOnCategoria(param); break;
+      case 13: this.pedirCantidadArticulo(param);
+    }
+  }
+
+  checkNotificaciones = (fnc: number, param: any = null) => {
+    this.endSubs.add(
+      this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
+        const lstMensajes: NotificacionCliente[] = (mensajes && mensajes.length > 0) ? mensajes.filter(m => +m.intensidad >= 2) : [];
+        if (lstMensajes && lstMensajes.length > 0) {
+          const notiDialog = this.dialog.open(NotificacionesClienteComponent, {
+            width: '75%',
+            autoFocus: true,
+            disableClose: true,
+            data: lstMensajes
+          });
+          this.endSubs.add(notiDialog.afterClosed().subscribe(() => {            
+            this.execFunc(fnc, param);
+          }));
+        } else {          
+          this.execFunc(fnc, param);
+        }
+      })
+    );
+  }  
+
+
 }

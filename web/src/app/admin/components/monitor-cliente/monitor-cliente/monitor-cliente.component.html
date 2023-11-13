@@ -20,4 +20,7 @@
     <mat-tab label="Ventas sin factura de clientes">
         <app-ventas-sin-factura-cliente #ventaSinFacturaClientes (refrescarVentasSinFacturaEv)="loadVentasSinFactura($event)"></app-ventas-sin-factura-cliente>
     </mat-tab>
+    <mat-tab label="Generación de cobros con recurrente">
+        <app-recurrente></app-recurrente>
+    </mat-tab>
 </mat-tab-group>

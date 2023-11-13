@@ -49,7 +49,7 @@
   <!-- Inicia Categorias -->
   <div fxLayout="row wrap" fxLayout.xs="column" fxLayoutAlign="start center">
     <mat-chip-list>
-      <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="loadSubcategorias(cat)"
+      <mat-chip selected color="accent" *ngFor="let cat of categorias" (click)="checkNotificaciones(cat)"
                 [disabled]="bloqueoBotones">
         {{cat.descripcion}}
       </mat-chip>
@@ -62,7 +62,7 @@
        *ngFor="let lstSubCat of listaSubCategorias; index as i; last as isLast" class="divSubCategorias">
     <mat-chip-list>
       <mat-chip selected color="warn" class="btnAccion" *ngFor="let subcat of lstSubCat"
-                (click)="loadSubcategorias({ categoria: subcat.categoria }, subcat, i)" [disabled]="bloqueoBotones">
+                (click)="checkNotificaciones({ categoria: subcat.categoria }, subcat, i)" [disabled]="bloqueoBotones">
         {{subcat.descripcion}}
       </mat-chip>
     </mat-chip-list>
@@ -73,7 +73,7 @@
     <div fxFlex="55%" fxFlex.xs="100%" fxFlex.sm="100%" class="divArticulos" fxLayout="row wrap"
          fxLayoutGap="8px grid" fxLayoutAlign="start start">
       <div fxFlex="20%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="25%" *ngFor="let producto of articulos">
-        <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && addArticulo(producto)"
+        <mat-card class="mat-elevation-z4" (click)="!bloqueoBotones && checkNotificaciones(null, null, 0, producto)"
                   *ngIf="+producto.precio > 0">
           <!--
           <mat-card-header>

@@ -13,6 +13,11 @@ class Cliente_rt_corporacion_model extends General_model
     public $db_password;
     public $db_database;
     public $bloqueado = 0;
+    public $correo = null;
+    public $id_recurrente = null;
+    public $ultimo_monto = null;
+    public $ultimo_checkout = null;
+    public $fecha_ultimo_checkout = null;
 
     public function __construct($id = '')
     {
