@@ -7,6 +7,7 @@
 </head>
 <body lang="es-GT" dir="ltr">
 	<?php foreach ($data as $llave => $fila): ?>
+		<?php if(is_array($fila)): ?>
 		<div class="encabezado" style="border: 1px solid black; padding: 2.5px; border-radius: 10px; width: 100%; position: relative;">
 			<table class="table encabezado">
 				<tr>
@@ -70,6 +71,7 @@
 			</tbody>
 		</table>
 		<br><hr><br>
+		<?php endif ?>
 	<?php endforeach ?>
 </body>
 </html>
