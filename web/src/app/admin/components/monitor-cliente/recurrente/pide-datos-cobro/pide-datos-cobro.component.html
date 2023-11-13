@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Generar cobro en recurrente.com</h1>
+<div mat-dialog-content>
+    <mat-form-field class="fullWidth">                
+        <input matInput type="text" placeholder="Descripción del cobro" [(ngModel)]="datos_cobro.nombre_producto_recurrente" [ngModelOptions]="{standalone: true}">                
+    </mat-form-field>
+    <mat-form-field class="fullWidth">                
+        <input matInput type="number" placeholder="Monto a cobrar" [(ngModel)]="datos_cobro.monto" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button type="button" (click)="dialogRef.close(null)" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" (click)="dialogRef.close(datos_cobro)" color="accent" [disabled]="!datos_cobro.nombre_producto_recurrente || datos_cobro.nombre_producto_recurrente.trim().length === 0 || !datos_cobro.monto || +datos_cobro.monto <= 0">
+        Generar
+    </button>
+</div>

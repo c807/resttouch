@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Correo del cliente</h1>
+<div mat-dialog-content>
+    <mat-form-field class="fullWidth">                
+        <input matInput type="text" placeholder="Correo del cliente" [(ngModel)]="correo_cliente" [ngModelOptions]="{standalone: true}">                
+    </mat-form-field>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button type="button" (click)="dialogRef.close(null)" color="warn">
+        Cancelar
+    </button>
+    <button mat-raised-button type="button" (click)="validarCorreo()" color="accent" [disabled]="!correo_cliente">
+        Generar
+    </button>
+</div>
