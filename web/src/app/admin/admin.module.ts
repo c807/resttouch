@@ -157,6 +157,8 @@ import { FormNotificacionClienteComponent } from './components/setup/notificacio
 import { ListaNotificacionClienteComponent } from './components/setup/notificacion-cliente/lista-notificacion-cliente/lista-notificacion-cliente.component';
 import { BloquearClienteComponent } from './components/setup/bloquear-cliente/bloquear-cliente.component';
 import { RecurrenteComponent } from './components/monitor-cliente/recurrente/recurrente.component';
+import { PideCorreoClienteComponent } from './components/monitor-cliente/recurrente/pide-correo-cliente/pide-correo-cliente.component';
+import { PideDatosCobroComponent } from './components/monitor-cliente/recurrente/pide-datos-cobro/pide-datos-cobro.component';
 
 @NgModule({
   declarations: [
@@ -183,7 +185,7 @@ import { RecurrenteComponent } from './components/monitor-cliente/recurrente/rec
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
     VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
     DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent, RolComponent, FormRolComponent, ListaRolComponent, 
-    NotificacionClienteComponent, FormNotificacionClienteComponent, ListaNotificacionClienteComponent, BloquearClienteComponent, RecurrenteComponent
+    NotificacionClienteComponent, FormNotificacionClienteComponent, ListaNotificacionClienteComponent, BloquearClienteComponent, RecurrenteComponent, PideCorreoClienteComponent, PideDatosCobroComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

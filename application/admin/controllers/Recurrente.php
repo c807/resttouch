@@ -58,12 +58,54 @@ class Recurrente extends CI_Controller
             $req = json_decode(file_get_contents('php://input'), true);
             if (isset($req['email']) && isset($req['full_name'])) {
                 $datos['cliente_recurrente'] = $this->call_post($this->recurrent->crear_usuario, $req);
-                if ($datos['cliente_recurrente'] && $req['idcliente']) {
-                    $crt = new Cliente_rt_corporacion_model($req['idcliente']);
-                    $crt->guardar(['correo' => $req['email'], 'id_recurrente' => $datos['cliente_recurrente']->id]);
+                if ($datos['cliente_recurrente']) {
+                    if (isset($req['idcliente'])) {
+                        $crt = new Cliente_rt_corporacion_model($req['idcliente']);
+                        $crt->guardar(['correo' => $req['email'], 'id_recurrente' => $datos['cliente_recurrente']->id]);
+                    }
+                    $datos['exito'] = true;
+                    $datos['mensaje'] = 'Cliente creado en recurrente.com.';
+                } else {
+                    $datos['mensaje'] = 'Error al crear el cliente en recurrente.com.';
                 }
-                $datos['exito'] = true;
-                $datos['mensaje'] = 'Cliente creado en recurrente.com.';
+            }
+        } else {
+            $datos['mensaje'] = 'Parámetros inválidos.';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
+    public function generar_cobro()
+    {
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
+            if (isset($req['id_recurrente']) && isset($req['nombre_producto_recurrente']) && isset($req['monto'])) {
+                $cobro = (object)[
+                    'items' => [(object)[
+                        'amount_in_cents' => (float)$req['monto'] * 100,
+                        'currency' => 'GTQ',
+                        'name' => $req['nombre_producto_recurrente'],
+                        'quantity' => 1
+                    ]],
+                    'user_id' => $req['id_recurrente']
+                ];
+                $datos['checkout_recurrente'] = $this->call_post($this->recurrent->crear_checkout, $cobro);
+                if ($datos['checkout_recurrente']) {
+                    if (isset($req['idcliente'])) {
+                        $crt = new Cliente_rt_corporacion_model($req['idcliente']);
+                        $datos['checkout_recurrente']->fecha_ultimo_checkout = date('Y-m-d H:i:s');
+                        $crt->guardar([
+                            'ultimo_monto' => $req['monto'],
+                            'ultimo_checkout' => $datos['checkout_recurrente']->checkout_url,
+                            'fecha_ultimo_checkout' => $datos['checkout_recurrente']->fecha_ultimo_checkout
+                        ]);
+                    }
+                    $datos['exito'] = true;
+                    $datos['mensaje'] = 'Cobro creado en recurrente.com.';
+                } else {
+                    $datos['mensaje'] = 'Error al crear cobro en recurrente.com.';
+                }
             }
         } else {
             $datos['mensaje'] = 'Parámetros inválidos.';

@@ -14,4 +14,9 @@ export interface ClienteRT {
     cliente: string;
     dominio: string;
     bloqueado: number;
+    correo?: string;
+    id_recurrente?: string;
+    ultimo_monto?: number;
+    ultimo_checkout?: string;
+    fecha_ultimo_checkout?: string;
 }
