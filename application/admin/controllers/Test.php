@@ -94,4 +94,25 @@ class Test extends CI_Controller
 
         $this->output->set_output(json_encode($arbol));
     }
+
+    public function menu_as_tabla()
+    {
+        $menu = $this->config->item('menu');
+        $arbol = [];
+        foreach ($menu as $mKey => $modulo) {
+            foreach ($modulo['submodulo'] as $smKey => $submodulo) {
+                foreach ($submodulo['opciones'] as $oKey => $opcion) {
+                    $arbol[] = (object)[
+                        'idmodulo' => $mKey,
+                        'modulo' => $modulo['nombre'],
+                        'idsubmodulo' => $smKey,
+                        'submodulo' => $submodulo['nombre'],
+                        'idopcion' => $oKey,
+                        'opcion' => $opcion['nombre']
+                    ];
+                }
+            }
+        }
+        $this->output->set_output(json_encode($arbol));
+    }
 }
