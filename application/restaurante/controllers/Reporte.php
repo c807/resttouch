@@ -73,6 +73,9 @@ class Reporte extends CI_Controller
         $data['descuento'] = 0;
         $data['ingresos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
+        if(isset($data['_facturadas'])) {
+            unset($data['_facturadas']);
+        }
         $tmp = $this->Reporte_model->get_ingresos($data);
         unset($data['comandas']);
         $data['ingresos'] = array_merge($data['ingresos'], $tmp);
@@ -121,9 +124,13 @@ class Reporte extends CI_Controller
         }
 
         //$data['ingreso_sin_fact'] = $this->Reporte_model->get_ingresos_sin_fac($data);
+        $data['_facturadas'] = true;
         $data['descuento'] = 1;
         $data['descuentos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
+        if(isset($data['_facturadas'])) {
+            unset($data['_facturadas']);
+        }
         $tmp = $this->Reporte_model->get_ingresos($data);
         unset($data['comandas']);
         $data['descuentos'] = array_merge($data['descuentos'], $tmp);
@@ -159,8 +166,12 @@ class Reporte extends CI_Controller
         if (isset($data['_detalle']) && filter_var($data['_detalle'], FILTER_VALIDATE_BOOLEAN)) {
             $data['detalle'] = 1;
             unset($data['descuento']);
+            $data['_facturadas'] = true;
             $det = $this->Reporte_model->get_ingresos($data);
             $data['comandas'] = true;
+            if(isset($data['_facturadas'])) {
+                unset($data['_facturadas']);
+            }
             $tmp = $this->Reporte_model->get_ingresos($data);
             $det = array_merge($det, $tmp);
             $data['detalle'] = [];

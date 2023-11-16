@@ -15,7 +15,7 @@ class Reporte_model extends CI_Model
 			$this->db->where('f.descuento', $args['descuento']);
 		}
 
-		if (isset($args['facturadas'])) {
+		if (isset($args['facturadas']) || isset($args['_facturadas'])) {
 			$this->db->where('e.numero_factura is not null');
 			$this->db->where("e.fel_uuid_anulacion is null");
 		}
