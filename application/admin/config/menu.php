@@ -224,12 +224,7 @@ $config['menu'] = [
 						'nombre' => 'Ventas',
 						'link' => '/restaurante/rptvtascat',
 						'dispositivo' => 1
-					],
-					2 => [
-						'nombre' => 'Turnos',
-						'link' => '/restaurante/rptturnos',
-						'dispositivo' => 1
-					],
+					],					
 					3 => [
 						'nombre' => 'Propinas',
 						'link' => '/restaurante/rptpropinas',
