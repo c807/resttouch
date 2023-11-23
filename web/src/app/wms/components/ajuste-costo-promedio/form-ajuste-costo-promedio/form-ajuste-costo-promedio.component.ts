@@ -66,6 +66,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public txtFiltro = '';
+  public cargando = false;
 
   private endSubs = new Subscription();
 
@@ -172,6 +173,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.cargando = true;
     this.endSubs.add(
       this.ajusteCostoPromedioSrvc.save(this.ajusteCostoPromedio).subscribe((res) => {
         if (res.exito) {
@@ -182,11 +184,13 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
         }
+        this.cargando = false;
       })
     );
   }
 
   loadDetalleAjusteCostoPromedio = (idAjusteCostoPromedio: number = null) => {
+    this.cargando = true;
     if (!idAjusteCostoPromedio) {
       idAjusteCostoPromedio = this.ajusteCostoPromedio.ajuste_costo_promedio;
     }
@@ -195,6 +199,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
       this.ajusteCostoPromedioSrvc.getDetalle({ ajuste_costo_promedio: idAjusteCostoPromedio }).subscribe((res) => {
         this.detalleAjusteCostoPromedioOriginal = res;
         this.detalleAjusteCostoPromedio = JSON.parse(JSON.stringify(this.detalleAjusteCostoPromedioOriginal));
+        this.cargando = false;
       })
     );
   }
@@ -223,6 +228,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   }
 
   saveDetalleAjusteCostoPromedio = (obj: DetalleAjusteCostoPromedio) => {
+    this.cargando = true;
     if (obj && obj.costo_promedio_correcto && +obj.costo_promedio_correcto > 0) {
       this.endSubs.add(
         this.ajusteCostoPromedioSrvc.saveDetalle(obj).subscribe((res) => {
@@ -240,10 +246,12 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
           } else {
             this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
           }
+          this.cargando = false;
         })
       );
     } else {
       this.snackBar.open(`ERROR: El costo promedio correcto debe ser mayor a cero (0).`, 'Ajuste', { duration: 5000 });
+      this.cargando = false;
     }
   }
 
@@ -256,6 +264,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       confirmRef.afterClosed().subscribe((confirma: boolean) => {
         if (confirma) {
+          this.cargando = true;
           this.endSubs.add(
             this.ajusteCostoPromedioSrvc.confirmar(this.ajusteCostoPromedio.ajuste_costo_promedio).subscribe((res) => {
               if (res.exito) {
@@ -265,8 +274,30 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
               } else {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
               }
+              this.cargando = false;
             })
           );
+        }
+      })
+    );
+  }
+
+  saveAllDetalle = () => {
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel('Ajuste de costo promedio', 'Esto guardará todos los detalles con costo mayor a cero (0). ¿Desea continuar?', 'Sí', 'No')
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe(async (confirma: boolean) => {
+        if (confirma) {
+          this.cargando = true;
+          for (const dacp of this.detalleAjusteCostoPromedio) {
+            if (dacp && dacp.costo_promedio_correcto && +dacp.costo_promedio_correcto > 0) {
+              await this.ajusteCostoPromedioSrvc.saveDetalle(dacp).toPromise();
+            }
+          }
+          this.cargando = false;
         }
       })
     );

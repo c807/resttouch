@@ -55,13 +55,13 @@
       </mat-form-field>
 
       <div align="end">
-        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmAjusteCostoPromedio.form.valid">
+        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmAjusteCostoPromedio.form.valid || cargando">
           Guardar
         </button>
-        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" [disabled]="noSePuedeConfirmar || +ajusteCostoPromedio.confirmado === 1">
+        <button mat-raised-button type="button" color="accent" class="btnAccion" (click)="confirmarAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" [disabled]="noSePuedeConfirmar || +ajusteCostoPromedio.confirmado === 1 || cargando">
           Confirmar
         </button>
-        <button mat-raised-button type="button" color="accent" (click)="resetAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio">
+        <button mat-raised-button type="button" color="accent" (click)="resetAjusteCostoPromedio()" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" [disabled]="cargando">
           Nuevo
         </button>
       </div>
@@ -69,6 +69,7 @@
   </mat-card-content>
 </mat-card>
 <hr *ngIf="ajusteCostoPromedio.ajuste_costo_promedio" />
+<!-- <app-cargando *ngIf="cargando"></app-cargando> -->
 <mat-card class="mat-elevation-z4 fullWidth" *ngIf="ajusteCostoPromedio.ajuste_costo_promedio">
   <mat-card-title>
     <h4>Detalle de ajuste promedio No. {{ajusteCostoPromedio.ajuste_costo_promedio}}</h4>
@@ -86,7 +87,16 @@
           <th>Presentación</th>
           <th class="rtxt">Costo del sistema<br/>(con IVA)</th>
           <th class="rtxt">Costo correcto<br/>(con IVA)</th>          
-          <th class="ctxt">&nbsp;</th>
+          <th class="ctxt">
+            <button mat-raised-button type="button" color="accent" (click)="saveAllDetalle()" *ngIf="+ajusteCostoPromedio.confirmado === 0" [disabled]="cargando">
+              Guardar todo
+            </button>
+          </th>
+        </tr>
+        <tr *ngIf="cargando">
+          <th colspan="5">
+            <app-cargando></app-cargando>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -101,13 +111,31 @@
             <span *ngIf="+detacp.confirmado === 1">{{detacp.costo_promedio_correcto | number:'1.2-5' }}</span>
           </td>
           <td class="ctxt">
-            <button mat-raised-button type="button" color="accent" (click)="saveDetalleAjusteCostoPromedio(detacp)" *ngIf="+detacp.confirmado === 0">
+            <button mat-raised-button type="button" color="accent" (click)="saveDetalleAjusteCostoPromedio(detacp)" *ngIf="+detacp.confirmado === 0" [disabled]="cargando">
               Guardar
             </button>
             <span *ngIf="+detacp.confirmado === 1">&nbsp;</span>
           </td>
         </tr>
       </tbody>
+      <tfoot>
+        <tr>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>
+            <button mat-raised-button type="button" color="accent" (click)="saveAllDetalle()" *ngIf="+ajusteCostoPromedio.confirmado === 0" [disabled]="cargando">
+            Guardar todo
+            </button>
+        </td>
+        </tr>
+        <tr *ngIf="cargando">
+          <th colspan="5">
+            <app-cargando></app-cargando>
+          </th>
+        </tr>
+      </tfoot>
     </table>
   </mat-card-content>
 </mat-card>
