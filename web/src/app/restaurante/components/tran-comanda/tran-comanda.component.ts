@@ -156,7 +156,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     return cats;
   }
 
-  clickOnCategoria = (c: ArbolArticulos) => this.appLstProdAlt.fillSubCategorias(c.categoria_grupo);
+  clickOnCategoria = (c: ArbolArticulos) => {
+    this.appLstProdAlt.fillSubCategorias(c.categoria_grupo);
+    this.bloqueoBotones = false;
+  };
 
   buscarArticulo = () => {
     // console.log(`CODIGO BARRAS = ${this.codigoBarras}`);
@@ -295,6 +298,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         // console.log('FALLA PARA CERRAR LA MESA...', res);
         this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
       }
+      this.bloqueoBotones = false;
     });
   }
 
@@ -310,10 +314,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
 
   setSelectedCuenta(noCuenta: number, fozarRecarga: boolean = false) {
     this.bloqueoBotones = true;
-    const idx = this.mesaEnUso.cuentas.findIndex((c: Cuenta) => +c.numero === +noCuenta);    
+    const idx = this.mesaEnUso.cuentas.findIndex((c: Cuenta) => +c.numero === +noCuenta);
     this.cuentaActiva = this.mesaEnUso.cuentas[idx];
     if (this.cuentaActiva.productos.length === 0 || fozarRecarga) {
-      this.endSubs.add(        
+      this.endSubs.add(
         this.comandaSrvc.obtenerDetalleCuenta({ cuenta: +this.cuentaActiva.cuenta }).subscribe((res: DetalleCuentaSimplified[]) => {
           this.lstProductosCuentaAlt = res;
           this.bloqueoBotones = false;
@@ -632,7 +636,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             for (const detimp of p.detalle_impresion) {
               if (+imp.impresora === +detimp.Impresora.impresora) {
                 const detalles = detimp.Nombre.split('|');
-                detalles.forEach((d, i) => {                  
+                detalles.forEach((d, i) => {
                   // obj.detalle.push(`${i != 1 ? '' : ((+detimp.Cantidad > 0 && +detimp.Cantidad !== 1) ? detimp.Cantidad : '')} ${d}`.trim());
                   let descripcion = '';
                   if (i !== 1 && +detimp.Cantidad > 0 && +detimp.Cantidad !== 1) {
@@ -927,10 +931,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   }
 
   prntCmd = () => {
+    this.bloqueoBotones = true;
     const meu: ComandaGetResponse = JSON.parse(JSON.stringify(this.mesaEnUso));
     const tmpCuentaActiva: Cuenta = JSON.parse(JSON.stringify(this.cuentaActiva));
 
-    this.bloqueoBotones = true;
     this.impreso = 0;
     const modoComanda = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_MODO_COMANDA) || 1;
     meu.cuentas = meu.cuentas.filter(cta => +cta.cerrada === 0);
@@ -946,7 +950,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             const productosAImprimir: ProductoSelected[] = [];
             listaProductos.forEach(p => productosAImprimir.push(this.convertToProductoSelected(p)));
             // console.log('productosAImprimir = ', productosAImprimir);
-            const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);            
+            const lstProductosAImprimir = this.procesarProductosAImprimir(productosAImprimir);
             // console.log('PRODUCTOS A IMPRIMIR = ', lstProductosAImprimir);
             // await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
             let AImpresoraNormal: ProductoSelected[] = [];
@@ -1033,37 +1037,42 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           for (const cta of meu.cuentas) {
             await this.comandaSrvc.setProductoImpreso(cta.cuenta).toPromise();
           }
-          this.bloqueoBotones = false;
+          // this.bloqueoBotones = false;
           this.socket.emit('refrescar:mesa', { mesaenuso: meu });
           this.socket.emit('refrescar:listaCocina', { mesaenuso: meu });
           if (+meu.mesa.esmostrador === 0) {
             this.closeSideNavEv.emit();
+            this.bloqueoBotones = false;
           } else {
             this.lstProductosCuentaAlt = this.lstProductosCuentaAlt.map(p => {
               p.impreso = 1;
               return p;
             });
             this.cobrarCuenta();
+            this.bloqueoBotones = false;
           }
         } else {
           this.snackBar.open('No hay nada pendiente de comandar.', 'Comanda', { duration: 3000 });
         }
+        // console.log('Aquí estoy poniendo la cuenta activa...', tmpCuentaActiva.numero);
+        this.cuentaActiva = JSON.parse(JSON.stringify(tmpCuentaActiva));
+        this.setSelectedCuenta(this.cuentaActiva.numero);
       })
     );
-    this.cuentaActiva = JSON.parse(JSON.stringify(tmpCuentaActiva));
-    this.setSelectedCuenta(this.cuentaActiva.numero);
+    // this.cuentaActiva = JSON.parse(JSON.stringify(tmpCuentaActiva));
+    // this.setSelectedCuenta(this.cuentaActiva.numero);
   }
 
   printToBT = (msgToPrint: string = '') => {
     const convertir = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_ENVIA_COMO_BASE64);
-    const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;    
+    const data = convertir ? Base64.encode(msgToPrint, true) : msgToPrint;
     const AppHref = GLOBAL.DEEP_LINK_ANDROID.replace('__INFOBASE64__', data);
 
     try {
       window.location.href = AppHref;
     } catch (error) {
       this.snackBar.open('No se pudo conectar con la aplicación de impresión', 'Comanda', { duration: 3000 });
-    }    
+    }
     this.bloqueoBotones = false;
   }
 
@@ -1127,11 +1136,14 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         this.printToBT(JSON.stringify(msgToPrint));
       }
       this.snackBar.open(`Imprimiendo cuenta de ${this.cuentaActiva.nombre}`, 'Cuenta', { duration: 7000 });
-      this.closeSideNavEv.emit();
+      // this.closeSideNavEv.emit();
+      setTimeout(() => this.bloqueoBotones = false, 1000);
+      // this.bloqueoBotones = false;
     } else {
       this.snackBar.open(`La cuenta de ${this.cuentaActiva.nombre} no tiene ningún artículo.`, 'Cuenta', { duration: 7000 });
+      this.bloqueoBotones = false;
     }
-    this.bloqueoBotones = false;
+    // this.bloqueoBotones = false;
   }
 
   unirCuentas = async () => {
@@ -1146,6 +1158,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       if (result) {
         this.closeSideNavEv.emit();
       }
+      this.bloqueoBotones = false;
     });
   }
 
@@ -1185,10 +1198,12 @@ export class TranComandaComponent implements OnInit, OnDestroy {
                   }
                   // this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
                 }
+                this.bloqueoBotones = false;
               })
             );
           } else {
             this.snackBar.open('Cobro', 'Sin productos a cobrar.', { duration: 3000 });
+            this.bloqueoBotones = false;
           }
         }
       })
@@ -1222,7 +1237,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             this.cobrarCuenta();
           });
         }
+        this.bloqueoBotones = false;
       });
+    } else {
+      this.bloqueoBotones = false;
     }
   }
 
@@ -1242,6 +1260,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
         this.closeSideNavEv.emit(this.mesaEnUso);
       }
+      this.bloqueoBotones = false;
     });
   }
 
@@ -1262,8 +1281,9 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           } else {
             this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
           }
-        });        
+        });
       }
+      this.bloqueoBotones = false;
     });
   }
 
@@ -1292,6 +1312,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       if (result) {
         this.closeSideNavEv.emit();
       }
+      this.bloqueoBotones = false;
     });
   }
 
@@ -1311,12 +1332,13 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           this.cuentaActiva.productos = [];
           this.setSelectedCuenta(+this.cuentaActiva.numero);
         }
+        this.bloqueoBotones = false;
       })
     );
   }
 
   execFunc = (fnc: number, param: any = null) => {
-    switch(fnc) {
+    switch (fnc) {
       case 1: this.validarImpresion(); break;
       case 2: this.printCuenta(); break;
       case 3: this.cobrarCuenta(); break;
@@ -1334,6 +1356,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   }
 
   checkNotificaciones = (fnc: number, param: any = null) => {
+    this.bloqueoBotones = true;
     this.endSubs.add(
       this.notificacionClienteSrvc.get(true).subscribe(mensajes => {
         const lstMensajes: NotificacionCliente[] = (mensajes && mensajes.length > 0) ? mensajes.filter(m => +m.intensidad >= 2) : [];
@@ -1344,15 +1367,15 @@ export class TranComandaComponent implements OnInit, OnDestroy {
             disableClose: true,
             data: lstMensajes
           });
-          this.endSubs.add(notiDialog.afterClosed().subscribe(() => {            
+          this.endSubs.add(notiDialog.afterClosed().subscribe(() => {
             this.execFunc(fnc, param);
           }));
-        } else {          
+        } else {
           this.execFunc(fnc, param);
         }
       })
     );
-  }  
+  }
 
 
 }
