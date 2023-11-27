@@ -542,15 +542,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
                       }
                       this.resetFactReq();
                       this.snackBar.open('Factura', `${resFact.mensaje}`, { duration: 3000 });
-                      this.facturando = false;
                       this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
+                      this.facturando = false;
                     })
                   );
                 } else {
-                  this.facturando = false;
                   this.snackBar.open('Factura', `ERROR: ${res.mensaje}`, { duration: 7000 });
                   this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
                   this.dialogRef.close(res.cuenta);
+                  this.facturando = false;
                 }
               })
             );
@@ -570,10 +570,10 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             );
           }
         } else {
-          this.facturando = false;
           this.snackBar.open('Cobro', `ERROR: ${res.mensaje}`, { duration: 7000 });
           this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
           this.dialogRef.close('closePanel');
+          this.facturando = false;
         }
       })
     );
@@ -611,7 +611,6 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     // console.log('PEDIDO = ', obj); // return;
     this.endSubs.add(
       this.comandaSrvc.enviarPedido(+this.data.mesaenuso.comanda, obj).subscribe(res => {
-        this.facturando = false;
         // this.socket.emit('refrescar:mesa', { mesaenuso: this.data.mesaenuso });
         if (res.exito) {
           this.ls.clear(`${GLOBAL.rtClientePedido}_${this.data.mesaenuso.mesa.mesa}`);
@@ -620,6 +619,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
           this.snackBar.open(`ERROR: ${res.mensaje}`, 'Pedido', { duration: 7000 });
         }
+        this.facturando = false;
       })
     );
   }
