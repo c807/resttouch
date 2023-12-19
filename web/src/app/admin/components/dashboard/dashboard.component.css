@@ -9,3 +9,27 @@
     width: 150px;
     height: 85px;
 }
+
+.container-mat-tab-group {
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.dark-bck {
+    background-color: #cfcfcf;
+}
+
+.mid-bck {
+    background-color: #e1e1e1;
+
+}
+
+.light-bck {
+    background-color: #ededed;
+}
+
+.col-padding {
+    padding: 0px 0.25rem;
+}
+

@@ -674,6 +674,171 @@ class Tablero_model extends General_model
 
 		return array_merge($ingresos, $egresos);
 	}
+
+
+	private function raw_ventas_facturadas($args = [])
+	{
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('b.sede', (int)$args['sede']);
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$this->db->where('b.fecha_factura >=', $args['fdel']);
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$this->db->where('b.fecha_factura <=', $args['fal']);
+		}
+
+		$campos = 'a.factura, a.detalle_factura, e.categoria AS idcategoria, e.descripcion AS categoria, d.categoria_grupo AS idsubcategoria, d.descripcion AS subcategoria, ';
+		$campos .= 'c.articulo AS idarticulo, c.descripcion AS articulo, a.total, a.descuento, a.monto_iva AS iva, a.valor_impuesto_especial AS impuesto_especial, a.cantidad';
+		$facturados = $this->db
+			->select($campos)
+			->join('factura b', 'b.factura = a.factura')
+			->join('articulo c', 'c.articulo = a.articulo')
+			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
+			->join('categoria e', 'e.categoria = d.categoria')
+			->where('b.fel_uuid_anulacion IS NULL')
+			->get('detalle_factura a')
+			->result();
+
+		return $facturados;
+	}
+
+	private function raw_ventas_sin_factura($args = [])
+	{
+		$subQuery = 'SELECT d.comanda ';
+		$subQuery .= 'FROM cuenta_forma_pago a JOIN forma_pago b ON b.forma_pago = a.forma_pago JOIN cuenta c ON c.cuenta = a.cuenta JOIN comanda d ON d.comanda = c.comanda ';
+		$subQuery .= 'WHERE b.sinfactura = 1';
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$subQuery .= " AND d.sede = {$args['sede']}";
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$subQuery .= " AND DATE(d.fhcreacion) >= '{$args['fdel']}' ";
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$subQuery .= " AND DATE(d.fhcreacion) <= '{$args['fal']}' ";
+		}
+
+		$campos = 'a.comanda AS factura, a.detalle_comanda AS detalle_factura, e.categoria AS idcategoria, e.descripcion AS categoria, d.categoria_grupo AS idsubcategoria, d.descripcion AS subcategoria, ';
+		$campos .= 'c.articulo AS idarticulo, c.descripcion AS articulo, a.total, 0 AS descuento, 0 AS iva, 0 AS impuesto_especial, a.cantidad';
+		$sinFactura = $this->db
+			->select($campos, FALSE)
+			->join('articulo c', 'c.articulo = a.articulo')
+			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
+			->join('categoria e', 'e.categoria = d.categoria')
+			->where("a.comanda IN ({$subQuery})", NULL, FALSE)
+			->where('a.cantidad <>', 0)
+			->where('a.total <>', 0)
+			->get('detalle_comanda a')
+			->result();
+
+		return $sinFactura;
+	}
+
+	private function get_articulos_no_vendidos($args, $siVendidos)
+	{
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('c.sede', (int)$args['sede']);
+		}
+
+		$sinVender = $this->db
+			->select('a.articulo AS idarticulo, a.descripcion AS articulo, 0 AS cantidad, 0 AS monto', FALSE)
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+			->join('categoria c', 'c.categoria = b.categoria')
+			->where('a.mostrar_pos', 1)
+			->where('a.precio <>', 0)
+			->where("a.articulo NOT IN({$siVendidos})")
+			->get('articulo a')
+			->result();
+
+		return ordenar_array_objetos($sinVender, 'articulo') ;
+	}
+	
+	public function get_datos_panorama($args)
+	{
+		$porIva = 0.12;
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$tmp = $this->db->select('b.porcentaje_iva')->join('empresa b', 'b.empresa = a.empresa')->where('a.sede', (int)$args['sede'])->get('sede a')->row();
+			if ($tmp) {
+				$porIva = (float)$tmp->porcentaje_iva;
+			}
+		}
+
+
+		$raw_facturados = $this->raw_ventas_facturadas($args);
+		$raw_sin_factura = $this->raw_ventas_sin_factura($args);
+		$raw_data = array_merge($raw_facturados, $raw_sin_factura);
+
+		$totales = array();
+		$totales['total'] = (float)0;
+		$totales['descuento'] = (float)0;
+		$totales['iva'] = (float)0;
+		$totales['total_sin_iva'] = (float)0;
+		$totales['impuesto_especial'] = (float)0;
+		$totales['por_categoria'] = [];
+		$totales['productos'] = [
+			'mas_vendidos' => [],
+			'menos_vendidos' => [],
+			'no_vendidos' => []
+		];
+
+		$lstVentasPorProducto = [];
+
+		$productosExcluidos = ['propina', 'tip'];
+		foreach ($raw_data as $rf) {
+			$totales['total'] += ((float)$rf->total - (float)$rf->descuento);
+			$totales['descuento'] += (float)$rf->descuento;
+			$totales['iva'] += (float)$rf->iva;
+			$totales['impuesto_especial'] += (float)$rf->impuesto_especial;
+			if (array_key_exists((int)$rf->idcategoria, $totales['por_categoria'])) {
+				$totales['por_categoria'][(int)$rf->idcategoria]['total'] += round(((float)$rf->total - (float)$rf->descuento) / ((float)1 + $porIva), 2);
+			} else {
+				$totales['por_categoria'][(int)$rf->idcategoria] = [
+					'idcategoria' => (int)$rf->idcategoria,
+					'categoria' => $rf->categoria,
+					'total' => round(((float)$rf->total - (float)$rf->descuento) / ((float)1 + $porIva), 2)
+				];
+			}
+
+			if (!in_array(trim(strtolower($rf->articulo)), $productosExcluidos)) {
+				if (array_key_exists((int)$rf->idarticulo, $lstVentasPorProducto)) {
+					$lstVentasPorProducto[(int)$rf->idarticulo]['cantidad'] += (float)$rf->cantidad;
+					$lstVentasPorProducto[(int)$rf->idarticulo]['monto'] += (float)$rf->total;
+				} else {
+					$lstVentasPorProducto[(int)$rf->idarticulo] = [
+						'idarticulo' => (int)$rf->idarticulo,
+						'articulo' => $rf->articulo,
+						'cantidad' => (float)$rf->cantidad,
+						'monto' => (float)$rf->total
+					];
+				}
+			}
+		}
+
+		$totales['total_sin_iva'] = $totales['total'] - $totales['iva'];
+
+		$totales['por_categoria'] = ordenar_array_objetos(array_values($totales['por_categoria']), 'total', 1, 'desc');
+
+		//Extraer articulos no vendidos
+		$siVendidos = array_keys($lstVentasPorProducto);
+		$totales['productos']['no_vendidos'] = $this->get_articulos_no_vendidos($args, join(',', $siVendidos));
+
+		//Extraer los 10 más vendidos
+		$lstVentasPorProducto = ordenar_array_objetos(array_values($lstVentasPorProducto), 'cantidad', 1, 'desc');
+		$totales['productos']['mas_vendidos'] = array_slice($lstVentasPorProducto, 0, 5);
+
+		//Extraer los 10 menos vendidos
+		$lstVentasPorProducto = ordenar_array_objetos($lstVentasPorProducto, 'cantidad', 1);
+		$totales['productos']['menos_vendidos'] = array_slice($lstVentasPorProducto, 0, 5);
+
+		return (object)[
+			'totales' => $totales
+		];
+	}
 }
 
 /* End of file Tipo_usuario_model.php */

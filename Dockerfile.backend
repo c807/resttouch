@@ -1,0 +1,20 @@
+FROM php:7.4.32-apache
+WORKDIR /var/www/html/api
+RUN apt-get update \
+    && apt-get install -y libxml2-dev libzip-dev nano \
+    && docker-php-ext-install pdo pdo_mysql mysqli soap zip opcache
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+RUN a2enmod rewrite
+RUN echo "ServerName localhost:80" >> /etc/apache2/apache2.conf
+COPY opcache.ini "$PHP_INI_DIR/conf.d/opcache.ini"
+COPY call_center.php facturacion.php ghost_kitchen.php index.php restaurante.php router.php wms.php info.php ./
+COPY application/ ./application
+COPY sonidos/ ./sonidos
+COPY system/ ./system
+COPY vendor/ ./vendor
+WORKDIR /var/www/html/api/application
+RUN rm -rf vendor er composer.lock
+WORKDIR /var/www/html
+RUN chown -R www-data:www-data api
+RUN chmod -R 755 /var/www/html
+# USER www-data

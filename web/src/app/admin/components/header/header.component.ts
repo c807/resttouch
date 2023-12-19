@@ -186,4 +186,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mbs.open(ChatComponent);
   }
 
+  goToDashboard = () => this.router.navigate(['/admin/dashboard']);
+
+
 }

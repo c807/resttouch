@@ -1,0 +1,24 @@
+<form #frmDashboardParameters="ngForm" novalidate>
+    <ng-container *ngIf="+tipoDashboard === 1">
+        <mat-form-field class="mat-form-field-date">
+            <input matInput type="date" name="fdel" placeholder="Del" [(ngModel)]="params.fdel" required>
+        </mat-form-field>
+        <mat-form-field class="mat-form-field-date">
+            <input matInput type="date" name="fal" placeholder="Al" [(ngModel)]="params.fal" required>
+        </mat-form-field>
+    </ng-container>
+    <mat-form-field class="mat-form-field-select">
+        <mat-label>Sede</mat-label>
+        <mat-select name="sede" [(ngModel)]="params.sede">
+            <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
+                {{sede.sede.nombre}} ({{sede.sede.alias}})
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button type="button" mat-raised-button color="accent" class="btnAccion" (click)="refreshAll()">
+        <mat-icon class="btnRefresh">developer_board</mat-icon>
+    </button>
+    <button type="button" mat-raised-button color="accent" (click)="resetParams()">
+        <mat-icon class="btnRefresh">refresh</mat-icon>
+    </button>
+</form>
