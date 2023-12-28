@@ -755,9 +755,139 @@ class Tablero_model extends General_model
 			->get('articulo a')
 			->result();
 
-		return ordenar_array_objetos($sinVender, 'articulo') ;
+		return ordenar_array_objetos($sinVender, 'articulo');
 	}
-	
+
+	private function get_datos_forma_pago($args = [])
+	{
+		$subQuery = 'SELECT z.cuenta_cuenta	
+		FROM detalle_cuenta z 
+		JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta 
+		JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura
+		JOIN factura w ON w.factura = x.factura
+		WHERE w.fel_uuid_anulacion IS NULL ';
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$subQuery .= " AND w.sede = {$args['sede']}";
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$subQuery .= " AND w.fecha_factura >= '{$args['fdel']}'";
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$subQuery .= " AND w.fecha_factura <= '{$args['fal']}'";
+		}
+
+		$campos = 'a.forma_pago AS idformapago, b.descripcion AS forma_pago, SUM(a.monto) AS monto, SUM(a.propina) AS propina, b.descuento';
+		$facturados = $this->db
+			->select($campos)
+			->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+			->where('b.sinfactura', 0)
+			->where("a.cuenta IN ({$subQuery})", NULL, FALSE)
+			->group_by('a.forma_pago')
+			->get('cuenta_forma_pago a')
+			->result();
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('d.sede', (int)$args['sede']);
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$this->db->where('DATE(d.fhcreacion) >=', $args['fdel']);
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$this->db->where('DATE(d.fhcreacion) <=', $args['fal']);
+		}
+
+		$sinFactura = $this->db
+			->select($campos)
+			->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+			->join('cuenta c', 'c.cuenta = a.cuenta')
+			->join('comanda d', 'd.comanda = c.comanda')
+			->where('b.sinfactura', 1)
+			->group_by('a.forma_pago')
+			->get('cuenta_forma_pago a')
+			->result();
+
+		return ordenar_array_objetos(array_merge($facturados, $sinFactura), 'monto', 1, 'desc');
+	}
+
+	private function get_datos_ventas_mesero($args = [])
+	{
+		$subQuery = 'SELECT z.cuenta_cuenta	
+		FROM detalle_cuenta z 
+		JOIN detalle_factura_detalle_cuenta y ON z.detalle_cuenta = y.detalle_cuenta 
+		JOIN detalle_factura x ON x.detalle_factura = y.detalle_factura
+		JOIN factura w ON w.factura = x.factura
+		WHERE w.fel_uuid_anulacion IS NULL ';
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$subQuery .= " AND w.sede = {$args['sede']}";
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$subQuery .= " AND w.fecha_factura >= '{$args['fdel']}'";
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$subQuery .= " AND w.fecha_factura <= '{$args['fal']}'";
+		}
+
+		$campos = 'd.mesero AS idmesero, TRIM(CONCAT(IFNULL(TRIM(e.nombres), ""), " ", IFNULL(TRIM(e.apellidos), ""))) AS mesero, SUM(a.monto) AS monto, SUM(a.propina) AS propina, b.descuento';
+		$facturados = $this->db
+			->select($campos)
+			->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+			->join('cuenta c', 'c.cuenta = a.cuenta')
+			->join('comanda d', 'd.comanda = c.comanda')
+			->join('usuario e', 'e.usuario = d.mesero')
+			->where('b.sinfactura', 0)
+			->where("a.cuenta IN ({$subQuery})", NULL, FALSE)
+			->group_by('d.mesero')
+			->get('cuenta_forma_pago a')
+			->result();
+
+		$meserosFacturados = [];
+		foreach ($facturados as $f) {
+			$meserosFacturados[(int)$f->idmesero] = $f;
+		}
+
+		if (isset($args['sede']) && (int)$args['sede'] > 0) {
+			$this->db->where('d.sede', (int)$args['sede']);
+		}
+
+		if (isset($args['fdel']) && !empty($args['fdel'])) {
+			$this->db->where('DATE(d.fhcreacion) >=', $args['fdel']);
+		}
+
+		if (isset($args['fal']) && !empty($args['fal'])) {
+			$this->db->where('DATE(d.fhcreacion) <=', $args['fal']);
+		}
+
+		$sinFactura = $this->db
+			->select($campos)
+			->join('forma_pago b', 'b.forma_pago = a.forma_pago')
+			->join('cuenta c', 'c.cuenta = a.cuenta')
+			->join('comanda d', 'd.comanda = c.comanda')
+			->join('usuario e', 'e.usuario = d.mesero')
+			->where('b.sinfactura', 1)
+			->group_by('d.mesero')
+			->get('cuenta_forma_pago a')
+			->result();
+
+		foreach ($sinFactura as $sf) {
+			if (array_key_exists((int)$sf->idmesero, $meserosFacturados)) {
+				$meserosFacturados[(int)$sf->idmesero]->monto += (float)$sf->monto;
+				$meserosFacturados[(int)$sf->idmesero]->propina += (float)$sf->propina;
+			} else {
+				$meserosFacturados[(int)$sf->idmesero] = $sf;
+			}
+		}
+
+		return ordenar_array_objetos(array_values($meserosFacturados), 'monto', 1, 'desc');
+	}
+
 	public function get_datos_panorama($args)
 	{
 		$porIva = 0.12;
@@ -784,6 +914,14 @@ class Tablero_model extends General_model
 			'mas_vendidos' => [],
 			'menos_vendidos' => [],
 			'no_vendidos' => []
+		];
+		$totales['formas_pago'] = [
+			'ingresos' => [],
+			'descuentos' => [],
+			'total_ingresos_monto' => (float)0,
+			'total_ingresos_propina' => (float)0,
+			'total_descuentos_monto' => (float)0,
+			'total_descuentos_propina' => (float)0
 		];
 
 		$lstVentasPorProducto = [];
@@ -834,6 +972,23 @@ class Tablero_model extends General_model
 		//Extraer los 10 menos vendidos
 		$lstVentasPorProducto = ordenar_array_objetos($lstVentasPorProducto, 'cantidad', 1);
 		$totales['productos']['menos_vendidos'] = array_slice($lstVentasPorProducto, 0, 5);
+
+		// Datos para formas de pago (caja)
+		$formas_de_pago = $this->get_datos_forma_pago($args);
+
+		foreach ($formas_de_pago as $fp) {
+			if ((int)$fp->descuento === 0) {
+				$totales['formas_pago']['ingresos'][] = $fp;
+				$totales['formas_pago']['total_ingresos_monto'] += (float)$fp->monto;
+				$totales['formas_pago']['total_ingresos_propina'] += (float)$fp->propina;
+			} else {
+				$totales['formas_pago']['descuentos'][] = $fp;
+				$totales['formas_pago']['total_descuentos_monto'] += (float)$fp->monto;
+				$totales['formas_pago']['total_descuentos_propina'] += (float)$fp->propina;
+			}
+		}
+
+		$totales['por_mesero'] = $this->get_datos_ventas_mesero($args);
 
 		return (object)[
 			'totales' => $totales

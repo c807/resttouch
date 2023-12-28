@@ -33,3 +33,11 @@
     padding: 0px 0.25rem;
 }
 
+mat-icon {
+    font-size: 20pt;
+}
+
+.separacion {
+    margin-left: 10px;
+}
+
