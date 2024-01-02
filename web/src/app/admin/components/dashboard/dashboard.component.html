@@ -1,8 +1,269 @@
-<div class="row">
+<div class="row" *ngIf="moduloEnUso === null || moduloEnUso === undefined">
+    <!-- <div class="row"> -->
     <div class="col m12 s12" align="center">
         <h4>¿En qué módulo quieres empezar a trabajar?</h4>
-        <button mat-raised-button class="divBtnSize btnAccion" color="accent" *ngFor="let modulo of appMenu" (click)="handleClick(modulo.nombre)">
+        <button mat-raised-button class="divBtnSize btnAccion" color="accent" *ngFor="let modulo of appMenu"
+            (click)="handleClick(modulo.nombre)">
             <span class="lnkBoton">{{modulo.nombre}}</span>
         </button>
     </div>
 </div>
+<mat-tab-group class="container-mat-tab-group">
+    <mat-tab label="Por sede y rango de fecha">
+        <mat-card class="fullWidth">
+            <mat-card-content>
+                <app-dashboard-parameters #paramsPorFecha tipoDashboard="1" (refreshAllEv)="reloadAllPorFecha($event)"></app-dashboard-parameters>
+            </mat-card-content>
+        </mat-card>
+        <div class="row" style="margin-top: 5px;">
+            <div class="col m4 s1 col-padding">
+                <mat-card class="light-bck" style="height: 30%; width: 100%;">
+                    <mat-card-subtitle align="center">
+                        VENTAS
+                        <small>
+                            (rango de fechas y sede(s) seleccionada)
+                        </small>
+                    </mat-card-subtitle>
+                    <mat-card-content align="center">
+                        <h3>{{dataPorSedeFecha.total | number:'1.2-2'}}</h3>
+                    </mat-card-content>
+                    <mat-card-footer align="center">
+                        Incluye propina e I.V.A.
+                    </mat-card-footer>
+                </mat-card>
+                <mat-card style="height: 70%; width: 100%; margin-top: 5px;">
+                    <mat-card-content>
+                        <mat-tab-group>                            
+                            <mat-tab label="Categoría">                                
+                                <table class="dark-bck">
+                                    <caption>
+                                        <button mat-flat-button type="button" class="fullWidth" color="accent" (click)="downloadCategoriasPDF()">
+                                            Descargar reporte
+                                        </button>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Categoría</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let vpc of dataPorSedeFecha.por_categoria">
+                                            <td>{{vpc.categoria}}</td>
+                                            <td class="rtxt">{{vpc.total | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </mat-tab>
+                            <mat-tab label="Meseros">                                
+                                <table class="mid-bck">
+                                    <caption>
+                                        <button mat-flat-button type="button" class="fullWidth" color="accent" (click)="downloadMeserosPDF()">
+                                            Descargar reporte
+                                        </button>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Mesero</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let vpm of dataPorSedeFecha.por_mesero">
+                                            <td>{{vpm.mesero}}</td>
+                                            <td class="rtxt">{{vpm.monto | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            <div class="col m4 s1 col-padding">
+                <mat-card class="light-bck" style="height: 30%; width: 100%;">
+                    <mat-card-content align="center">
+                        <table>
+                            <tr>
+                                <th class="rtxt">VENTAS SIN I.V.A.</th>
+                                <td class="rtxt">{{dataPorSedeFecha.total_sin_iva | number:'1.2-2'}}</td>
+                            </tr>
+                            <tr>
+                                <th class="rtxt">I.V.A.</th>
+                                <td class="rtxt">{{dataPorSedeFecha.iva | number:'1.2-2'}}</td>
+                            </tr>
+                            <tr>
+                                <th class="rtxt">PROPINA</th>
+                                <td class="rtxt">
+                                    <ng-container *ngIf="dataPorSedeFecha.formas_pago">
+                                        {{(+dataPorSedeFecha.formas_pago.total_ingresos_propina +
+                                        +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2' }}
+                                    </ng-container>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="rtxt">INGRESOS</th>
+                                <td class="rtxt">{{dataPorSedeFecha.total | number:'1.2-2'}}</td>
+                            </tr>
+                            <tr>
+                                <th class="rtxt">DESCUENTOS</th>
+                                <td class="rtxt">{{dataPorSedeFecha.descuento | number:'1.2-2'}}</td>
+                            </tr>
+                        </table>
+                    </mat-card-content>
+                </mat-card>
+                <mat-card style="height: 70%; width: 100%; margin-top: 5px;" *ngIf="dataPorSedeFecha.productos">
+                    <mat-card-content>
+                        <mat-card-subtitle>Productos</mat-card-subtitle>
+                        <mat-tab-group>
+                            <mat-tab label="Más vendidos">
+                                <table class="dark-bck">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pmasv of dataPorSedeFecha.productos.mas_vendidos">
+                                            <td>{{pmasv.articulo}}</td>
+                                            <td class="rtxt">{{pmasv.cantidad | number:'1.2-2'}}</td>
+                                            <td class="rtxt">{{pmasv.monto | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </mat-tab>
+                            <mat-tab label="Menos vendidos">
+                                <table class="mid-bck">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pmenosv of dataPorSedeFecha.productos.menos_vendidos">
+                                            <td>{{pmenosv.articulo}}</td>
+                                            <td class="rtxt">{{pmenosv.cantidad | number:'1.2-2'}}</td>
+                                            <td class="rtxt">{{pmenosv.monto | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </mat-tab>
+                            <mat-tab label="No vendidos">
+                                <div style="height: 350px; overflow-y: auto;">
+                                    <table class="light-bck">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let psinv of dataPorSedeFecha.productos.no_vendidos">
+                                                <td>{{psinv.articulo}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+            <div class="col m4 s1 col-padding">
+                <mat-card *ngIf="dataPorSedeFecha.formas_pago">                    
+                    <mat-card-content>
+                        <mat-tab-group>
+                            <mat-tab label="INGRESOS">
+                                <table class="dark-bck">
+                                    <caption>
+                                        <button mat-flat-button type="button" class="fullWidth" color="accent" (click)="downloadCajaPDF()">
+                                            Descargar reporte
+                                        </button>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Forma de pago</th>
+                                            <th>Monto</th>
+                                            <th>Propina</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let fpi of dataPorSedeFecha.formas_pago.ingresos">
+                                            <td>{{fpi.forma_pago}}</td>
+                                            <td class="rtxt">{{fpi.monto | number:'1.2-2'}}</td>
+                                            <td class="rtxt">{{fpi.propina | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="rtxt">SUBTOTAL INGRESOS</th>
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_ingresos_monto |
+                                                number:'1.2-2'}}</th>
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_ingresos_propina |
+                                                number:'1.2-2'}}</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" class="rtxt">TOTAL INGRESOS</th>
+                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
+                                                +dataPorSedeFecha.formas_pago.total_ingresos_propina) | number:'1.2-2'}}
+                                            </th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </mat-tab>
+                            <mat-tab label="DESCUENTOS">
+                                <table class="mid-bck">
+                                    <caption>
+                                        <button mat-flat-button type="button" class="fullWidth" color="accent" (click)="downloadCajaPDF()">
+                                            Descargar reporte
+                                        </button>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th>Forma de pago</th>
+                                            <th>Monto</th>
+                                            <th>Propina</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let fpd of dataPorSedeFecha.formas_pago.descuentos">
+                                            <td>{{fpd.forma_pago}}</td>
+                                            <td class="rtxt">{{fpd.monto | number:'1.2-2'}}</td>
+                                            <td class="rtxt">{{fpd.propina | number:'1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="rtxt">SUBTOTAL DESCUENTOS</th>
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_monto |
+                                                number:'1.2-2'}}</th>
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_propina |
+                                                number:'1.2-2'}}</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="2" class="rtxt">TOTAL DESCUENTOS</th>
+                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_descuentos_monto +
+                                                +dataPorSedeFecha.formas_pago.total_descuentos_propina) |
+                                                number:'1.2-2'}}</th>
+                                        </tr>
+                                </table>
+                            </mat-tab>
+                        </mat-tab-group>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+    </mat-tab>
+    <!-- <mat-tab label="Por sede y turno">
+        <mat-card class="mat-elevation-z4 fullWidth">            
+            <mat-card-content>
+                <app-dashboard-parameters tipoDashboard="2" (refreshAllEv)="reloadAllPorTurno($event)"></app-dashboard-parameters>
+                <h3>En construcción...</h3>
+            </mat-card-content>
+        </mat-card>        
+    </mat-tab> -->
+</mat-tab-group>

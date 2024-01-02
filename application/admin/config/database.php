@@ -49,12 +49,12 @@ if (isset($_SERVER["GAE_APPLICATION"])) {
 	$db['default']['database'] = 'administracion';
 } else {
 	/* LOCAL */
-	$db['default']['hostname'] = '127.0.0.1';
+	$db['default']['hostname'] = '127.0.0.1';	
 	$db['default']['username'] = 'root';
 	$db['default']['password'] = 'PoChoco2016';
 	$db['default']['database'] = 'administracion';
 
-	$db['vesuvio']['hostname'] = '127.0.0.1:6603';
+	$db['vesuvio']['hostname'] = '127.0.0.1:6603';	
 	$db['vesuvio']['username'] = 'root';
 	$db['vesuvio']['password'] = 'PoChoco2016';
 	$db['vesuvio']['database'] = 'administracion';	

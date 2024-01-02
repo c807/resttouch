@@ -50,4 +50,11 @@ export class TableroService {
     return this.http.get<any>(`${GLOBAL.url}/tablero/get_datos_wms?${qs.stringify(params)}`    
     ).pipe( retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  getDatosPanoramaSedeFecha = (params: object): Observable<any> => {
+    return this.http.post<any>(
+      `${GLOBAL.url}/tablero/get_datos_panorama`,
+      params
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+  }
 }

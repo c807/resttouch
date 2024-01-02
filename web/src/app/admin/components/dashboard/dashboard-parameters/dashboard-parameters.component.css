@@ -1,0 +1,15 @@
+mat-form-field {
+    margin-right: 15px;
+}
+
+.mat-form-field-date {
+    width: 11%;    
+}
+
+.mat-form-field-select {
+    width: 30%;    
+}
+
+.btnRefresh {
+    font-size: 25px;
+}

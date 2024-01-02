@@ -159,6 +159,7 @@ import { BloquearClienteComponent } from './components/setup/bloquear-cliente/bl
 import { RecurrenteComponent } from './components/monitor-cliente/recurrente/recurrente.component';
 import { PideCorreoClienteComponent } from './components/monitor-cliente/recurrente/pide-correo-cliente/pide-correo-cliente.component';
 import { PideDatosCobroComponent } from './components/monitor-cliente/recurrente/pide-datos-cobro/pide-datos-cobro.component';
+import { DashboardParametersComponent } from './components/dashboard/dashboard-parameters/dashboard-parameters.component';
 
 @NgModule({
   declarations: [
@@ -185,7 +186,7 @@ import { PideDatosCobroComponent } from './components/monitor-cliente/recurrente
     CuentaCobradaOtraEstacionComponent, PlantillaDatosComponent, MonitorClienteComponent, UltimaComandaComponent, UltimaFacturaComponent, FacturacionClienteComponent, 
     VentasSinFacturaClienteComponent, MetabaseComponent, MetabaseDashboardComponent, TipoDocumentoComponent, FormTipoDocumentoComponent, ListaTipoDocumentoComponent, ChatComponent, 
     DialogFormPresentacionComponent, ConocimientoComponent, FormConocimientoComponent, ListaConocimientoComponent, RolComponent, FormRolComponent, ListaRolComponent, 
-    NotificacionClienteComponent, FormNotificacionClienteComponent, ListaNotificacionClienteComponent, BloquearClienteComponent, RecurrenteComponent, PideCorreoClienteComponent, PideDatosCobroComponent
+    NotificacionClienteComponent, FormNotificacionClienteComponent, ListaNotificacionClienteComponent, BloquearClienteComponent, RecurrenteComponent, PideCorreoClienteComponent, PideDatosCobroComponent, DashboardParametersComponent
   ],
   imports: [
     CommonModule, AdminRoutingModule, HttpClientModule, FormsModule, SharedModule, MatListModule, MatIconModule, MatFormFieldModule,

@@ -232,4 +232,20 @@ class Tablero extends CI_Controller
 
 		$this->output->set_output(json_encode($res));
 	}
+
+	public function get_datos_panorama()
+	{
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$params = json_decode(file_get_contents('php://input'), true);
+
+			$datos['info'] = $this->Tablero_model->get_datos_panorama($params);
+
+			$datos['exito'] = true;
+			$datos['mensaje'] = 'Datos para panorama.';
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+		$this->output->set_output(json_encode($datos));
+	}
 }

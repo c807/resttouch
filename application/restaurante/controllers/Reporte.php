@@ -1980,262 +1980,264 @@ class Reporte extends CI_Controller
             }
         }
 
-        $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
-        \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
-        $excel->getProperties()
-            ->setCreator('Restouch')
-            ->setTitle('Office 2007 xlsx Comandas')
-            ->setSubject('Office 2007 xlsx Comandas')
-            ->setKeywords('office 2007 openxml php');
-
-        $excel->setActiveSheetIndex(0);
-        $hoja = $excel->getActiveSheet();
-
-        $hoja->setCellValue('A1', 'DETALLE DE COMANDAS');
-        $hoja->mergeCells('A1:N1');
-        $hoja->getStyle('A1:N1')->getFont()->setBold(true);
-
-        $parametros = $this->procesaParametrosDetalleComanda($req);
-        $hoja->setCellValue('A2', $parametros);
-        $hoja->mergeCells('A2:N2');
-        $hoja->getStyle('A2:N2')->getFont()->setBold(true);
-
-        $fila = 4;
-        foreach ($comandas as $cmd) {
-            $filaIniciaComanda = $fila;
-            $hoja->setCellValue("A{$fila}", 'Sede');
-            $hoja->setCellValue("B{$fila}", 'Orden GK');
-            $hoja->setCellValue("C{$fila}", 'Comanda');
-            $hoja->setCellValue("D{$fila}", 'Fecha de comanda');
-            $hoja->setCellValue("E{$fila}", 'Turno');
-            $hoja->setCellValue("F{$fila}", 'Tipo de turno');
-            $hoja->setCellValue("G{$fila}", 'Fecha de turno');
-            $hoja->setCellValue("H{$fila}", 'Inicio de turno');
-            $hoja->setCellValue("I{$fila}", 'Fin de turno');
-            $hoja->setCellValue("J{$fila}", 'Creada por');
-            $hoja->setCellValue("K{$fila}", 'Mesero');
-            $hoja->setCellValue("L{$fila}", 'Notas de comanda');
-            $hoja->setCellValue("M{$fila}", 'Razón de anulación de comanda');
-            $hoja->setCellValue("N{$fila}", 'Total de comanda');
-            $hoja->setCellValue("O{$fila}", 'Comensales');
-            $hoja->setCellValue("P{$fila}", 'No. Orden');
-            $hoja->getStyle("A{$fila}:P{$fila}")->getFont()->setBold(true);
-            $hoja->getStyle("A{$fila}:P{$fila}")->getAlignment()->setHorizontal('center');
-            $fila++;
-            $hoja->setCellValue("A{$fila}", $cmd->sede);
-            $hoja->setCellValue("B{$fila}", $cmd->orden_gk);
-            $hoja->setCellValue("C{$fila}", $cmd->comanda);
-            $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('center');
-            $hoja->setCellValue("D{$fila}", $cmd->fecha_comanda);
-            $hoja->setCellValue("E{$fila}", $cmd->turno);
-            $hoja->setCellValue("F{$fila}", $cmd->turno_tipo);
-            $hoja->setCellValue("G{$fila}", $cmd->fecha_turno);
-            $hoja->setCellValue("H{$fila}", $cmd->inicio_turno);
-            $hoja->setCellValue("I{$fila}", $cmd->fin_turno);
-            $hoja->setCellValue("J{$fila}", $cmd->usuario);
-            $hoja->setCellValue("K{$fila}", $cmd->mesero);
-            $hoja->setCellValue("L{$fila}", $cmd->notas_generales);
-            $hoja->setCellValue("M{$fila}", $cmd->razon_anulacion);
-            $hoja->setCellValue("N{$fila}", $cmd->total_detalle);
-            $hoja->setCellValue("O{$fila}", $cmd->comensales);
-            $hoja->setCellValue("P{$fila}", $cmd->numero_orden);
-            $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
-            $fila++;
-            // Detalle de comanda
-            if (count($cmd->detalle) > 0) {
-                $hoja->setCellValue("B{$fila}", "Detalle de comanda {$cmd->comanda}");
-                $hoja->mergeCells("B{$fila}:I{$fila}");
-                $hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
+        if(isset($req['asjson']) && (int)$req['asjson'] === 1) {
+            $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($comandas));
+        } else {
+            $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+            \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder(new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder());
+            $excel->getProperties()
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Comandas')
+                ->setSubject('Office 2007 xlsx Comandas')
+                ->setKeywords('office 2007 openxml php');
+    
+            $excel->setActiveSheetIndex(0);
+            $hoja = $excel->getActiveSheet();
+    
+            $hoja->setCellValue('A1', 'DETALLE DE COMANDAS');
+            $hoja->mergeCells('A1:N1');
+            $hoja->getStyle('A1:N1')->getFont()->setBold(true);
+    
+            $parametros = $this->procesaParametrosDetalleComanda($req);
+            $hoja->setCellValue('A2', $parametros);
+            $hoja->mergeCells('A2:N2');
+            $hoja->getStyle('A2:N2')->getFont()->setBold(true);
+    
+            $fila = 4;
+            foreach ($comandas as $cmd) {
+                $filaIniciaComanda = $fila;
+                $hoja->setCellValue("A{$fila}", 'Sede');
+                $hoja->setCellValue("B{$fila}", 'Orden GK');
+                $hoja->setCellValue("C{$fila}", 'Comanda');
+                $hoja->setCellValue("D{$fila}", 'Fecha de comanda');
+                $hoja->setCellValue("E{$fila}", 'Turno');
+                $hoja->setCellValue("F{$fila}", 'Tipo de turno');
+                $hoja->setCellValue("G{$fila}", 'Fecha de turno');
+                $hoja->setCellValue("H{$fila}", 'Inicio de turno');
+                $hoja->setCellValue("I{$fila}", 'Fin de turno');
+                $hoja->setCellValue("J{$fila}", 'Creada por');
+                $hoja->setCellValue("K{$fila}", 'Mesero');
+                $hoja->setCellValue("L{$fila}", 'Notas de comanda');
+                $hoja->setCellValue("M{$fila}", 'Razón de anulación de comanda');
+                $hoja->setCellValue("N{$fila}", 'Total de comanda');
+                $hoja->setCellValue("O{$fila}", 'Comensales');
+                $hoja->setCellValue("P{$fila}", 'No. Orden');
+                $hoja->getStyle("A{$fila}:P{$fila}")->getFont()->setBold(true);
+                $hoja->getStyle("A{$fila}:P{$fila}")->getAlignment()->setHorizontal('center');
                 $fila++;
-                $hoja->setCellValue("B{$fila}", 'Artículo');
-                $hoja->setCellValue("C{$fila}", 'Presentación');
-                $hoja->setCellValue("D{$fila}", 'Cantidad');
-                $hoja->setCellValue("E{$fila}", 'Precio');
-                $hoja->setCellValue("F{$fila}", 'Total');
-                $hoja->setCellValue("G{$fila}", 'Notas');
-                $hoja->setCellValue("H{$fila}", 'Bodega');
-                $hoja->setCellValue("I{$fila}", 'Cantidad de inventario');
-                $hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
-                $hoja->getStyle("B{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
+                $hoja->setCellValue("A{$fila}", $cmd->sede);
+                $hoja->setCellValue("B{$fila}", $cmd->orden_gk);
+                $hoja->setCellValue("C{$fila}", $cmd->comanda);
+                $hoja->getStyle("C{$fila}")->getAlignment()->setHorizontal('center');
+                $hoja->setCellValue("D{$fila}", $cmd->fecha_comanda);
+                $hoja->setCellValue("E{$fila}", $cmd->turno);
+                $hoja->setCellValue("F{$fila}", $cmd->turno_tipo);
+                $hoja->setCellValue("G{$fila}", $cmd->fecha_turno);
+                $hoja->setCellValue("H{$fila}", $cmd->inicio_turno);
+                $hoja->setCellValue("I{$fila}", $cmd->fin_turno);
+                $hoja->setCellValue("J{$fila}", $cmd->usuario);
+                $hoja->setCellValue("K{$fila}", $cmd->mesero);
+                $hoja->setCellValue("L{$fila}", $cmd->notas_generales);
+                $hoja->setCellValue("M{$fila}", $cmd->razon_anulacion);
+                $hoja->setCellValue("N{$fila}", $cmd->total_detalle);
+                $hoja->setCellValue("O{$fila}", $cmd->comensales);
+                $hoja->setCellValue("P{$fila}", $cmd->numero_orden);
+                $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
-                foreach ($cmd->detalle as $det) {
-                    $descArticulo = '';
-                    if (!empty($det->detalle_comanda_id)) {
-                        $descArticulo .= '    ';
-                        if ((int)$det->multiple === 0) {
-                            $descArticulo .= '        ';
+                // Detalle de comanda
+                if (count($cmd->detalle) > 0) {
+                    $hoja->setCellValue("B{$fila}", "Detalle de comanda {$cmd->comanda}");
+                    $hoja->mergeCells("B{$fila}:I{$fila}");
+                    $hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
+                    $fila++;
+                    $hoja->setCellValue("B{$fila}", 'Artículo');
+                    $hoja->setCellValue("C{$fila}", 'Presentación');
+                    $hoja->setCellValue("D{$fila}", 'Cantidad');
+                    $hoja->setCellValue("E{$fila}", 'Precio');
+                    $hoja->setCellValue("F{$fila}", 'Total');
+                    $hoja->setCellValue("G{$fila}", 'Notas');
+                    $hoja->setCellValue("H{$fila}", 'Bodega');
+                    $hoja->setCellValue("I{$fila}", 'Cantidad de inventario');
+                    $hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
+                    $fila++;
+                    foreach ($cmd->detalle as $det) {
+                        $descArticulo = '';
+                        if (!empty($det->detalle_comanda_id)) {
+                            $descArticulo .= '    ';
+                            if ((int)$det->multiple === 0) {
+                                $descArticulo .= '        ';
+                            }
                         }
+                        $descArticulo .= "{$det->articulo}";
+                        $hoja->setCellValue("B{$fila}", $descArticulo);
+                        $hoja->setCellValue("C{$fila}", $det->presentacion);
+                        $hoja->setCellValue("D{$fila}", $det->cantidad);
+                        $hoja->getStyle("D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("E{$fila}", $det->precio);
+                        $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("F{$fila}", $det->total);
+                        $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("G{$fila}", $det->notas);
+                        $hoja->setCellValue("H{$fila}", $det->bodega);
+                        $hoja->setCellValue("I{$fila}", $det->cantidad_inventario);
+                        $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $fila++;
                     }
-                    $descArticulo .= "{$det->articulo}";
-                    $hoja->setCellValue("B{$fila}", $descArticulo);
-                    $hoja->setCellValue("C{$fila}", $det->presentacion);
-                    $hoja->setCellValue("D{$fila}", $det->cantidad);
-                    $hoja->getStyle("D{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->setCellValue("E{$fila}", $det->precio);
-                    $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->setCellValue("F{$fila}", $det->total);
-                    $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->setCellValue("G{$fila}", $det->notas);
-                    $hoja->setCellValue("H{$fila}", $det->bodega);
-                    $hoja->setCellValue("I{$fila}", $det->cantidad_inventario);
-                    $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $fila++;
                 }
-            }
-            //Formas de pago
-            $filaIniciaFormasPago = null;
-            $filaTerminaFormasPago = null;
-            if (count($cmd->forma_pago) > 0) {
-                $filaIniciaFormasPago = $fila;
-                $hoja->setCellValue("B{$fila}", "Formas de pago de comanda {$cmd->comanda}");
-                $hoja->mergeCells("B{$fila}:F{$fila}");
-                $hoja->getStyle("B{$fila}:F{$fila}")->getFont()->setBold(true);
-                $fila++;
-                $hoja->setCellValue("B{$fila}", 'Cuenta');
-                $hoja->setCellValue("C{$fila}", 'No. Cuenta');
-                $hoja->setCellValue("D{$fila}", 'Forma de pago');
-                $hoja->setCellValue("E{$fila}", 'Monto');
-                $hoja->setCellValue("F{$fila}", 'Propina');
-                $hoja->getStyle("B{$fila}:F{$fila}")->getFont()->setBold(true);
-                $hoja->getStyle("B{$fila}:F{$fila}")->getAlignment()->setHorizontal('center');
-                $fila++;
-                foreach ($cmd->forma_pago as $fp) {
-                    $hoja->setCellValue("B{$fila}", $fp->nombre_cuenta);
-                    $hoja->setCellValue("C{$fila}", $fp->numero_cuenta);
-                    $hoja->setCellValue("D{$fila}", $fp->forma_pago);
-                    $hoja->setCellValue("E{$fila}", $fp->monto);
-                    $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->setCellValue("F{$fila}", $fp->propina);
-                    $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                //Formas de pago
+                $filaIniciaFormasPago = null;
+                $filaTerminaFormasPago = null;
+                if (count($cmd->forma_pago) > 0) {
+                    $filaIniciaFormasPago = $fila;
+                    $hoja->setCellValue("B{$fila}", "Formas de pago de comanda {$cmd->comanda}");
+                    $hoja->mergeCells("B{$fila}:F{$fila}");
+                    $hoja->getStyle("B{$fila}:F{$fila}")->getFont()->setBold(true);
                     $fila++;
+                    $hoja->setCellValue("B{$fila}", 'Cuenta');
+                    $hoja->setCellValue("C{$fila}", 'No. Cuenta');
+                    $hoja->setCellValue("D{$fila}", 'Forma de pago');
+                    $hoja->setCellValue("E{$fila}", 'Monto');
+                    $hoja->setCellValue("F{$fila}", 'Propina');
+                    $hoja->getStyle("B{$fila}:F{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}:F{$fila}")->getAlignment()->setHorizontal('center');
+                    $fila++;
+                    foreach ($cmd->forma_pago as $fp) {
+                        $hoja->setCellValue("B{$fila}", $fp->nombre_cuenta);
+                        $hoja->setCellValue("C{$fila}", $fp->numero_cuenta);
+                        $hoja->setCellValue("D{$fila}", $fp->forma_pago);
+                        $hoja->setCellValue("E{$fila}", $fp->monto);
+                        $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("F{$fila}", $fp->propina);
+                        $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $fila++;
+                    }
+                    $filaTerminaFormasPago = $fila - 1;
                 }
-                $filaTerminaFormasPago = $fila - 1;
-            }
-            //Factuaras de comanda
-            $filaIniciaFacturas = null;
-            $filaTerminaFacturas = null;
-            if (count($cmd->factura) > 0) {
-                $filaIniciaFacturas = $fila;
-                $hoja->setCellValue("B{$fila}", "Facturas de comanda {$cmd->comanda}");
-                $hoja->mergeCells("B{$fila}:H{$fila}");
-                $hoja->getStyle("B{$fila}:H{$fila}")->getFont()->setBold(true);
-                $fila++;
-                $hoja->setCellValue("B{$fila}", 'Serie');
-                $hoja->setCellValue("C{$fila}", 'Número');
-                $hoja->setCellValue("D{$fila}", 'Fecha');
-                $hoja->setCellValue("E{$fila}", 'Nombre');
-                $hoja->setCellValue("F{$fila}", 'N.I.T.');
-                $hoja->setCellValue("G{$fila}", 'Total');
-                $hoja->setCellValue("H{$fila}", 'Razón de anulación de factura');
-                $hoja->getStyle("B{$fila}:H{$fila}")->getFont()->setBold(true);
-                $hoja->getStyle("B{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
-                $fila++;
-                foreach ($cmd->factura as $fact) {
-                    $hoja->setCellValue("B{$fila}", $fact->serie_factura);
-                    $hoja->setCellValue("C{$fila}", $fact->numero_factura);
-                    $hoja->setCellValue("D{$fila}", $fact->fecha_factura);
-                    $hoja->setCellValue("E{$fila}", $fact->cliente);
-                    $docReceptor = $fact->documento_receptor ?? $fact->nit;
-                    $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT(' . $docReceptor . ', "0")' : $docReceptor);
-                    $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
-                    $hoja->setCellValue("G{$fila}", $fact->total_factura);
-                    $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                    $hoja->setCellValue("H{$fila}", $fact->razon_anulacion);
+                //Factuaras de comanda
+                $filaIniciaFacturas = null;
+                $filaTerminaFacturas = null;
+                if (count($cmd->factura) > 0) {
+                    $filaIniciaFacturas = $fila;
+                    $hoja->setCellValue("B{$fila}", "Facturas de comanda {$cmd->comanda}");
+                    $hoja->mergeCells("B{$fila}:H{$fila}");
+                    $hoja->getStyle("B{$fila}:H{$fila}")->getFont()->setBold(true);
                     $fila++;
-                    //Detalle de factura
-                    if (count($fact->detalle_factura) > 0) {
-                        $hoja->setCellValue("C{$fila}", "Detalle de factura {$fact->serie_factura}-{$fact->numero_factura} de comanda {$cmd->comanda}");
-                        $hoja->mergeCells("C{$fila}:I{$fila}");
-                        $hoja->getStyle("C{$fila}:I{$fila}")->getFont()->setBold(true);
+                    $hoja->setCellValue("B{$fila}", 'Serie');
+                    $hoja->setCellValue("C{$fila}", 'Número');
+                    $hoja->setCellValue("D{$fila}", 'Fecha');
+                    $hoja->setCellValue("E{$fila}", 'Nombre');
+                    $hoja->setCellValue("F{$fila}", 'N.I.T.');
+                    $hoja->setCellValue("G{$fila}", 'Total');
+                    $hoja->setCellValue("H{$fila}", 'Razón de anulación de factura');
+                    $hoja->getStyle("B{$fila}:H{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+                    $fila++;
+                    foreach ($cmd->factura as $fact) {
+                        $hoja->setCellValue("B{$fila}", $fact->serie_factura);
+                        $hoja->setCellValue("C{$fila}", $fact->numero_factura);
+                        $hoja->setCellValue("D{$fila}", $fact->fecha_factura);
+                        $hoja->setCellValue("E{$fila}", $fact->cliente);
+                        $docReceptor = $fact->documento_receptor ?? $fact->nit;
+                        $hoja->setCellValue("F{$fila}", is_numeric($docReceptor) ? '=TEXT(' . $docReceptor . ', "0")' : $docReceptor);
+                        $hoja->getStyle("F{$fila}")->getAlignment()->setHorizontal('left');
+                        $hoja->setCellValue("G{$fila}", $fact->total_factura);
+                        $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("H{$fila}", $fact->razon_anulacion);
                         $fila++;
-                        $hoja->setCellValue("C{$fila}", 'Artículo');
-                        $hoja->setCellValue("D{$fila}", 'Cantidad');
-                        $hoja->setCellValue("E{$fila}", 'Precio');
-                        $hoja->setCellValue("F{$fila}", 'Total');
-                        $hoja->setCellValue("G{$fila}", 'Base');
-                        $hoja->setCellValue("H{$fila}", 'I.V.A.');
-                        $hoja->setCellValue("I{$fila}", 'Descuento');
-                        $hoja->getStyle("C{$fila}:I{$fila}")->getFont()->setBold(true);
-                        $hoja->getStyle("C{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
-                        $fila++;
-                        foreach ($fact->detalle_factura as $df) {
-                            $hoja->setCellValue("C{$fila}", $df->articulo);
-                            $hoja->setCellValue("D{$fila}", $df->cantidad);
-                            $hoja->getStyle("D{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                            $hoja->setCellValue("E{$fila}", $df->precio_unitario);
-                            $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                            $hoja->setCellValue("F{$fila}", $df->total);
-                            $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                            $hoja->setCellValue("G{$fila}", $df->monto_base);
-                            $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                            $hoja->setCellValue("H{$fila}", $df->monto_iva);
-                            $hoja->getStyle("H{$fila}")->getNumberFormat()->setFormatCode('0.00');
-                            $hoja->setCellValue("I{$fila}", $df->descuento);
-                            $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        //Detalle de factura
+                        if (count($fact->detalle_factura) > 0) {
+                            $hoja->setCellValue("C{$fila}", "Detalle de factura {$fact->serie_factura}-{$fact->numero_factura} de comanda {$cmd->comanda}");
+                            $hoja->mergeCells("C{$fila}:I{$fila}");
+                            $hoja->getStyle("C{$fila}:I{$fila}")->getFont()->setBold(true);
                             $fila++;
+                            $hoja->setCellValue("C{$fila}", 'Artículo');
+                            $hoja->setCellValue("D{$fila}", 'Cantidad');
+                            $hoja->setCellValue("E{$fila}", 'Precio');
+                            $hoja->setCellValue("F{$fila}", 'Total');
+                            $hoja->setCellValue("G{$fila}", 'Base');
+                            $hoja->setCellValue("H{$fila}", 'I.V.A.');
+                            $hoja->setCellValue("I{$fila}", 'Descuento');
+                            $hoja->getStyle("C{$fila}:I{$fila}")->getFont()->setBold(true);
+                            $hoja->getStyle("C{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
+                            $fila++;
+                            foreach ($fact->detalle_factura as $df) {
+                                $hoja->setCellValue("C{$fila}", $df->articulo);
+                                $hoja->setCellValue("D{$fila}", $df->cantidad);
+                                $hoja->getStyle("D{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $hoja->setCellValue("E{$fila}", $df->precio_unitario);
+                                $hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $hoja->setCellValue("F{$fila}", $df->total);
+                                $hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $hoja->setCellValue("G{$fila}", $df->monto_base);
+                                $hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $hoja->setCellValue("H{$fila}", $df->monto_iva);
+                                $hoja->getStyle("H{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $hoja->setCellValue("I{$fila}", $df->descuento);
+                                $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                                $fila++;
+                            }
                         }
+                        $filaTerminaFacturas = $fila - 1;
                     }
-                    $filaTerminaFacturas = $fila - 1;
                 }
-            }
-            $filaFinComanda = $fila - 1;
-            $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")
-                ->getBorders()
-                ->getOutline()
-                ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
-                ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-
-            $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")->getFill()
-                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                ->getStartColor()
-                ->setARGB('EEECE1');
-
-            if (isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 && !empty($filaIniciaFormasPago) && !empty($filaTerminaFormasPago)) {
-                $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")
+                $filaFinComanda = $fila - 1;
+                $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")
                     ->getBorders()
                     ->getOutline()
                     ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                     ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-
-                $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")->getFill()
+    
+                $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()
-                    ->setARGB('C4BD97');
+                    ->setARGB('EEECE1');
+    
+                if (isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 && !empty($filaIniciaFormasPago) && !empty($filaTerminaFormasPago)) {
+                    $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")
+                        ->getBorders()
+                        ->getOutline()
+                        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+                        ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+    
+                    $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB('C4BD97');
+                }
+    
+                if (isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 && !empty($filaIniciaFacturas) && !empty($filaTerminaFacturas)) {
+                    $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")
+                        ->getBorders()
+                        ->getOutline()
+                        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+                        ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+    
+                    $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()
+                        ->setARGB('948A54');
+                }
+                $fila += 2;
             }
-
-            if (isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 && !empty($filaIniciaFacturas) && !empty($filaTerminaFacturas)) {
-                $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")
-                    ->getBorders()
-                    ->getOutline()
-                    ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
-                    ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-
-                $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()
-                    ->setARGB('948A54');
+    
+            foreach (range('A', 'P') as $col) {
+                $hoja->getColumnDimension($col)->setAutoSize(true);
             }
-            $fila += 2;
-        }
-
-        foreach (range('A', 'P') as $col) {
-            $hoja->getColumnDimension($col)->setAutoSize(true);
-        }
-
-        $hoja->setTitle('Comandas');
-
-        header('Content-Type: application/vnd.ms-excel');
-        header('Content-Disposition: attachment;filename=Comandas_' . date('YmdHis') . '.xlsx');
-        header('Cache-Control: max-age=1');
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
-        header('Cache-Control: cache, must-revalidate');
-        header('Pragma: public');
-
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-        $writer->save('php://output');
-
-        // $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($comandas));
+    
+            $hoja->setTitle('Comandas');
+    
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Comandas_' . date('YmdHis') . '.xlsx');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GTM');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
+    
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+            $writer->save('php://output');
+        }        
     }
 
     private function get_por_tipo_venta($data)

@@ -4,6 +4,9 @@
         <span class="spacer"></span>
         <app-clock [idleStatus]="idleState"></app-clock>
         <span class="spacer"></span>
+        <button mat-raised-button color="accent" class="btnAccion" (click)="goToDashboard()">
+            <mat-icon>dashboard</mat-icon>            
+        </button>
         <button mat-raised-button color="accent" class="btnAccion" (click)="openChat()">
             <mat-icon>question_answer</mat-icon>            
         </button>
