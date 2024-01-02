@@ -740,22 +740,23 @@ class Tablero_model extends General_model
 	}
 
 	private function get_articulos_no_vendidos($args, $siVendidos)
-	{
-		if (isset($args['sede']) && (int)$args['sede'] > 0) {
-			$this->db->where('c.sede', (int)$args['sede']);
+	{		
+		if (!empty($siVendidos)) {
+			if (isset($args['sede']) && (int)$args['sede'] > 0) {
+				$this->db->where('c.sede', (int)$args['sede']);
+			}
+			$sinVender = $this->db
+				->select('a.articulo AS idarticulo, a.descripcion AS articulo, 0 AS cantidad, 0 AS monto', FALSE)
+				->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+				->join('categoria c', 'c.categoria = b.categoria')
+				->where('a.mostrar_pos', 1)
+				->where('a.precio <>', 0)
+				->where("a.articulo NOT IN({$siVendidos})")
+				->get('articulo a')
+				->result();
 		}
 
-		$sinVender = $this->db
-			->select('a.articulo AS idarticulo, a.descripcion AS articulo, 0 AS cantidad, 0 AS monto', FALSE)
-			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
-			->join('categoria c', 'c.categoria = b.categoria')
-			->where('a.mostrar_pos', 1)
-			->where('a.precio <>', 0)
-			->where("a.articulo NOT IN({$siVendidos})")
-			->get('articulo a')
-			->result();
-
-		return ordenar_array_objetos($sinVender, 'articulo');
+		return !empty($siVendidos) ? ordenar_array_objetos($sinVender, 'articulo') : [];
 	}
 
 	private function get_datos_forma_pago($args = [])

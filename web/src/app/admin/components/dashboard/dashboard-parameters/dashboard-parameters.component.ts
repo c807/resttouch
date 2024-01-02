@@ -40,10 +40,10 @@ export class DashboardParametersComponent implements OnInit, OnDestroy {
 
   resetParams = () => {
     this.params = {
-      // fdel: +this.tipoDashboard === 1 ? moment().format(GLOBAL.dbDateFormat) : null,
-      fdel: +this.tipoDashboard === 1 ? moment('2023-10-13').format(GLOBAL.dbDateFormat) : null, //Solo para pruebas
-      // fal: +this.tipoDashboard === 1 ? moment().format(GLOBAL.dbDateFormat) : null,
-      fal: +this.tipoDashboard === 1 ? moment('2023-10-13').format(GLOBAL.dbDateFormat) : null, //Solo para pruebas
+      fdel: +this.tipoDashboard === 1 ? moment().format(GLOBAL.dbDateFormat) : null,
+      // fdel: +this.tipoDashboard === 1 ? moment('2023-10-13').format(GLOBAL.dbDateFormat) : null, //Solo para pruebas
+      fal: +this.tipoDashboard === 1 ? moment().format(GLOBAL.dbDateFormat) : null,
+      // fal: +this.tipoDashboard === 1 ? moment('2023-10-13').format(GLOBAL.dbDateFormat) : null, //Solo para pruebas
       sede: this.ls.get(GLOBAL.usrTokenVar).sede.toString() || '0',
       tipo_turno: null
     }
