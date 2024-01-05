@@ -78,7 +78,7 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
   }  
 
   resetUsuario() {
-    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0, null);
+    this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0, null, 0);
   }
 
   onSubmit() {

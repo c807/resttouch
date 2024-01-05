@@ -34,8 +34,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public appMenu: any[];
-
   public dataPorSedeFecha: any = {};
+  public verPanorama: boolean = false;
 
   private endSubs = new Subscription();
 
@@ -53,6 +53,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.verPanorama = (+this.ls.get(GLOBAL.usrTokenVar).pos?.ver_panorama || 0) === 1;
     this.dns.havePermission().then((res) => {
       if (!res) {
         this.dns.requestPermission();

@@ -1,4 +1,4 @@
-<div class="row" *ngIf="moduloEnUso === null || moduloEnUso === undefined">
+<div class="row" *ngIf="!verPanorama || moduloEnUso === null || moduloEnUso === undefined">
     <!-- <div class="row"> -->
     <div class="col m12 s12" align="center">
         <h4>¿En qué módulo quieres empezar a trabajar?</h4>
@@ -8,7 +8,7 @@
         </button>
     </div>
 </div>
-<mat-tab-group class="container-mat-tab-group">
+<mat-tab-group class="container-mat-tab-group" *ngIf="verPanorama">
     <mat-tab label="Por sede y rango de fecha">
         <mat-card class="fullWidth">
             <mat-card-content>
