@@ -151,7 +151,7 @@ class Articulo_model extends General_model
 		return $result;
 	}
 
-	public function getReceta($args = [], $listaMedidas = null)
+	public function getReceta($args = [], $listaMedidas = null, $listaArticulos = null)
 	{
 		if (!$listaMedidas) {
 			$this->load->model(['Umedida_model']);
@@ -170,13 +170,15 @@ class Articulo_model extends General_model
 			if (is_array($det)) {
 				foreach ($det as $row) {
 					$detalle = new Receta_model($row->articulo_detalle);
-					$row->articulo = $detalle->getArticulo();
+					// $row->articulo = $detalle->getArticulo();					
+					$row->articulo = $listaArticulos && array_key_exists((int)$row->articulo, $listaArticulos) ? $listaArticulos[(int)$row->articulo] : $detalle->getArticulo();
 					$row->medida = $listaMedidas[(int)$row->medida];
 					$datos[] = $row;
 				}
 			} else {
 				$detalle = new Receta_model($det->articulo_detalle);
-				$det->articulo = $detalle->getArticulo();
+				// $det->articulo = $detalle->getArticulo();				
+				$det->articulo = $listaArticulos && array_key_exists((int)$det->articulo, $listaArticulos) ? $listaArticulos[(int)$det->articulo] : $detalle->getArticulo();
 				$det->medida = $listaMedidas[(int)$det->medida];
 				$datos[] = $det;
 			}
@@ -539,11 +541,11 @@ class Articulo_model extends General_model
 		}
 	}
 
-	public function getExistencias($args)
+	public function getExistencias($args, $listaMedidas = null, $listaArticulos = null)
 	{
 		$this->load->model('Presentacion_model');
-		$receta = $this->getReceta();
-		// $principal = $this->getReceta(['_principal' => true]);
+		$receta = $this->getReceta([], $listaMedidas, $listaArticulos);
+		// $principal = $this->getReceta(['_principal' => true], $listaMedidas, $listaArticulos);
 		$ingresos = 0;
 		$egresos = 0;
 		$comandas = 0;
@@ -559,7 +561,7 @@ class Articulo_model extends General_model
 				$args['tipo'] = 1;
 				$ingr = $this->getIngresoEgreso($row->articulo->articulo, $args);
 				$args['tipo'] = 2;
-				$egr = $this->getIngresoEgreso($row->articulo->articulo, $args);
+				// $egr = $this->getIngresoEgreso($row->articulo->articulo, $args);
 
 				$grupos[] = (int)($ingr / $row->cantidad);
 			}

@@ -22,7 +22,8 @@ class Reporte extends CI_Controller
 			'Bodega_model',
 			'BodegaArticuloCosto_model',
 			'Bitacora_model',
-			'Impresora_model'
+			'Impresora_model',
+			'Umedida_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -33,6 +34,7 @@ class Reporte extends CI_Controller
 		}
 	}
 
+	/** Inicia función para el cálculo de existencias */
 	public function existencia()
 	{
 		// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',inicio,');
@@ -64,10 +66,11 @@ class Reporte extends CI_Controller
 			'fecha_del' => formatoFecha($_POST['fecha_del'], 2)
 		];
 
+		$listaBodegas = $this->Bodega_model->get_lista_bodegas();
 		foreach ($_POST['sede'] as $s) {
 			$nbodega = [];
-			foreach ($_POST['bodega'] as $bode) {
-				$bodega = new Bodega_model($bode);
+			foreach ($_POST['bodega'] as $bode) {				
+				$bodega = $listaBodegas[(int)$bode];
 				if ((int)$s === (int)$bodega->sede) {
 					$nbodega[] = $bodega->descripcion;
 				}
@@ -75,12 +78,14 @@ class Reporte extends CI_Controller
 			$args['bodegas'][$s] = implode(', ', $nbodega);
 		}
 
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			// $art->actualizarExistencia($_POST);
-			$rec = $art->getReceta();
+			$rec = $art->getReceta([], $listaMedidas, $listaArticulos);
 			if (count($rec) == 0 || $art->produccion || (count($rec) > 0 && (int)$art->mostrar_inventario === 1)) {
-				$args['reg'][$row->sede][] = $art->getExistencias($_POST);
+				$args['reg'][$row->sede][] = $art->getExistencias($_POST, $listaMedidas, $listaArticulos);
 			}
 		}
 
@@ -89,7 +94,7 @@ class Reporte extends CI_Controller
 		foreach ($args['reg'] as $key => $registro) {
 			foreach ($registro as $llave => $value) {
 				$art = new Articulo_model($value->articulo->articulo);
-				$obj = $art->getExistencias($_POST);
+				$obj = $art->getExistencias($_POST, $listaMedidas, $listaArticulos);
 				// $args['reg'][$key][$llave]->saldo_inicial = $obj->saldo_inicial;
 				$value->saldo_inicial = $obj->saldo_inicial;
 				$value->existencia = (float)$obj->saldo_inicial + (float)$value->ingresos - ((float)$value->egresos + (float)$value->comandas + (float)$value->facturas);
@@ -218,6 +223,7 @@ class Reporte extends CI_Controller
 			// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($args));
 		}
 	}
+	/** Finaliza función para el cálculo de existencias */
 
 	private function get_info_kardex($parametros)
 	{

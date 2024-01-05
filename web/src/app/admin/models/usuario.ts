@@ -21,7 +21,8 @@ export class usrLogInResponse {
         public usatecladovirtual: number,
         public dominio: string,
         public wms: any,
-        public rol: number
+        public rol: number,
+        public pos: any
     ) { }
 }
 
@@ -39,6 +40,7 @@ export class Usuario {
         public usatecladovirtual: number,
         public confirmar_ingreso?: number,
         public confirmar_egreso?: number,
-        public rol?: number
+        public rol?: number,
+        public ver_panorama?: number
     ) { }
 }

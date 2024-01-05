@@ -16,6 +16,7 @@ class Usuario_model extends General_model
     public $confirmar_ingreso = 0;
     public $confirmar_egreso = 0;
     public $rol = null;
+    public $ver_panorama = 0;
 
     public function __construct($id = '')
     {
@@ -67,7 +68,7 @@ class Usuario_model extends General_model
 
             $campos = 'a.usuario, a.contrasenia, a.pindesbloqueo, a.usrname, a.nombres, a.apellidos, a.sede, b.empresa, b.nombre as sede_nombre, b.direccion as sede_direccion, b.correo as sede_correo, ';
             $campos .= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
-            $campos .= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo';
+            $campos .= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo, a.ver_panorama';
             $dbusr = $this->db
                 ->select($campos)                
                 ->join('sede b', 'b.sede = a.sede')
@@ -130,6 +131,9 @@ class Usuario_model extends General_model
                             'confirmar_egreso' => $dbusr->confirmar_egreso
                         ],
                         'rol' => $dbusr->rol ?? 0,
+                        'pos' => (object)[
+                            'ver_panorama' => $dbusr->ver_panorama
+                        ]
                     );
                 } else {
                     return array(
@@ -242,7 +246,7 @@ class Usuario_model extends General_model
         }
 
         return $this->db
-            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol')
+            ->select('usuario, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol, ver_panorama')
             ->from($this->tabla)
             ->where('sede', $data->sede)
             ->get()
@@ -260,7 +264,7 @@ class Usuario_model extends General_model
         }
 
         $tmp = $this->db
-            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol')
+            ->select('usuario, sede, nombres, apellidos, usrname, debaja, esmesero, pindesbloqueo, usatecladovirtual, confirmar_ingreso, confirmar_egreso, rol, ver_panorama')
             ->from($this->tabla)
             ->get();
 
