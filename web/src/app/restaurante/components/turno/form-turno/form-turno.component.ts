@@ -54,10 +54,14 @@ export class FormTurnoComponent implements OnInit, OnChanges, OnDestroy {
   get isFechaFinalValid(): boolean {
     if (moment(this.turno.inicio).isValid() && moment(this.turno.fin).isValid()) {
       const turnoInicio = moment(this.turno.inicio);
-      const tmpIni = moment(this.turno.inicio);
-      const mananaFinal = moment(`${tmpIni.add(1, 'day').format(GLOBAL.dbDateFormat)} 23:59:59`);
+      // const tmpIni = moment(this.turno.inicio);
+      // const mananaFinal = moment(`${tmpIni.add(1, 'day').format(GLOBAL.dbDateFormat)} 23:59:59`);
       const turnoFinaliza = moment(this.turno.fin);
-      if (turnoFinaliza.isBetween(turnoInicio, mananaFinal, undefined, '[]')) {
+      // if (turnoFinaliza.isBetween(turnoInicio, mananaFinal, undefined, '[]')) {
+      //   return true;
+      // }
+      if (turnoFinaliza.isAfter(turnoInicio)) {
+        // console.log('IS AFTER...');
         return true;
       }
     }
