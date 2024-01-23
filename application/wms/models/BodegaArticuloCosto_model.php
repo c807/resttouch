@@ -33,7 +33,7 @@ class BodegaArticuloCosto_model extends General_model
         ]);
     }
 
-    public function guardar_costos($idBodega, $idArticulo)
+    public function guardar_costos($idBodega, $idArticulo, $existencia = null)
     {
         $obj = $this->buscar(['bodega' => $idBodega, 'articulo' => $idArticulo, '_uno' => true]);
         $bac = new BodegaArticuloCosto_model($obj ? $obj->bodega_articulo_costo : '');
@@ -48,8 +48,12 @@ class BodegaArticuloCosto_model extends General_model
         $costoPromedio = $art->getCosto(['bodega' => $idBodega, 'metodo_costeo' => 2]);
 
         $bac->costo_ultima_compra = $costoUltimaCompra ? $costoUltimaCompra : 0.00;
-        $bac->costo_promedio = $costoPromedio ? $costoPromedio : 0.00;
+        $bac->costo_promedio = $costoPromedio ? $costoPromedio : 0.00;        
         $bac->fecha = date('Y-m-d H:i:s');
+
+        if (!is_null($existencia)) {
+            $bac->existencia = $existencia;
+        }
 
         return $bac->guardar();
     }

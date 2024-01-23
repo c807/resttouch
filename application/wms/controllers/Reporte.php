@@ -511,7 +511,7 @@ class Reporte extends CI_Controller
 										} else {
 											$row->precio_unitario = $art->getCosto(['bodega' => $bode]);
 											$nvoBac = new BodegaArticuloCosto_model();
-											$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo);
+											$nvoBac->BodegaArticuloCosto_model->guardar_costos($bode, $row->articulo, ($art->existencias * (float)$pres->cantidad));
 										}
 									}
 								} else {
