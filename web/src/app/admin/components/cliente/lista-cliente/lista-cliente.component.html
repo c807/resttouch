@@ -10,9 +10,12 @@
                 Nuevo
             </button>
         </mat-form-field>
+        <button type="button" class="fullWidth" mat-raised-button color="accent" (click)="setClienteCF()">
+            Consumidor Final
+        </button>
         <cdk-virtual-scroll-viewport itemSize="55">
             <mat-nav-list dense>
-                <ng-container *cdkVirtualFor="let cli of lstClientesPaged; let index = index">
+                <ng-container *cdkVirtualFor="let cli of lstClientesPaged; let index = index" (click)="!desHabilitaCliente(cli) && getCliente(cli)">
                     <mat-list-item matRipple (click)="!desHabilitaCliente(cli) && getCliente(cli)" [ngClass]="{'cliente-no-valido': desHabilitaCliente(cli)}">
                         <button mat-line mat-icon-button mat-list-icon aria-label="Editar cliente" *ngIf="+totalDeCuenta > 0" (click)="agregarCliente(cli, index)">
                             <mat-icon style="font-size: 20pt">edit</mat-icon>
