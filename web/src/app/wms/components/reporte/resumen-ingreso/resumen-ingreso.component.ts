@@ -76,7 +76,8 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 			estatus_movimiento: null,
 			bodega: null,
 			sede: null,
-			iva: 1
+			iva: 0,
+			resumen: 0
 		}
 		// this.archivo_pdf = null;
 	}
@@ -109,13 +110,18 @@ export class ResumenIngresoComponent implements OnInit, OnDestroy {
 		this.getBodega({ sede: this.params.sede });
 		this.params.bodega = null
 	}
-
+	
 	requestPDF = (esExcel = 0) => {
 		if (
+
 			this.params.fdel && moment(this.params.fdel).isValid() &&
-			this.params.fal && moment(this.params.fal).isValid()
+			this.params.fal && moment(this.params.fal).isValid() &&
+			this.params.iva && 
+			this.params.sede
+			
 		) {
 			this.cargando = true;
+			this.paramsToSend.detalle = this.params.detalle;
 			this.paramsToSend = JSON.parse(JSON.stringify(this.params));
 			this.paramsToSend._excel = esExcel;
 			this.paramsToSend.fdel = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
