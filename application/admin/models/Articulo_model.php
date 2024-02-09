@@ -1416,16 +1416,14 @@ class Articulo_model extends General_model
 						$params['metodo_costeo'] = 2;
 						$costoPromedio = (float)$articulo->getCosto($params);
 					}
-
-					if ($costoUltimaCompra !== (float)0 || $costoPromedio !== (float)0) {
-						$this->db->insert('bodega_articulo_costo', [
-							'bodega' => $bodega->bodega,
-							'articulo' => $ai->articulo,
-							'costo_ultima_compra' => $costoUltimaCompra,
-							'costo_promedio' => $costoPromedio,
-							'fecha' => date('Y-m-d H:i:s')
-						]);
-					}
+					
+					$this->db->insert('bodega_articulo_costo', [
+						'bodega' => $bodega->bodega,
+						'articulo' => $ai->articulo,
+						'costo_ultima_compra' => $costoUltimaCompra,
+						'costo_promedio' => $costoPromedio,
+						'fecha' => date('Y-m-d H:i:s')
+					]);					
 				}
 				$costoMetodoEmpresa = (float)$articulo->getCosto();
 				if ($costoMetodoEmpresa !== (float)0) {
