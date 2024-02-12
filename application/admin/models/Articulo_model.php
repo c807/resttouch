@@ -1416,14 +1416,16 @@ class Articulo_model extends General_model
 						$params['metodo_costeo'] = 2;
 						$costoPromedio = (float)$articulo->getCosto($params);
 					}
-					
-					$this->db->insert('bodega_articulo_costo', [
-						'bodega' => $bodega->bodega,
-						'articulo' => $ai->articulo,
-						'costo_ultima_compra' => $costoUltimaCompra,
-						'costo_promedio' => $costoPromedio,
-						'fecha' => date('Y-m-d H:i:s')
-					]);					
+
+					if ($articulo->tiene_movimientos_en_bodega((int)$bodega->bodega)) {
+						$this->db->insert('bodega_articulo_costo', [
+							'bodega' => $bodega->bodega,
+							'articulo' => $ai->articulo,
+							'costo_ultima_compra' => $costoUltimaCompra,
+							'costo_promedio' => $costoPromedio,
+							'fecha' => date('Y-m-d H:i:s')
+						]);
+					}
 				}
 				$costoMetodoEmpresa = (float)$articulo->getCosto();
 				if ($costoMetodoEmpresa !== (float)0) {
@@ -1520,6 +1522,47 @@ class Articulo_model extends General_model
 		$campos = 'bodega_articulo_costo, bodega, articulo, costo_ultima_compra, costo_promedio';
 		$res = $this->db->select($campos)->get('bodega_articulo_costo')->result();
 		return $res;
+	}
+
+	public function tiene_movimientos_en_bodega($idBodega)
+	{
+		$ingresos = $this->db
+			->select('COUNT(*) AS conteo')
+			->join('ingreso b', 'b.ingreso = a.ingreso')
+			->where('b.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('ingreso_detalle a')
+			->row();
+
+		$egresos = $this->db
+			->select('COUNT(*) AS conteo')
+			->join('egreso b', 'b.egreso = a.egreso')
+			->where('b.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('egreso_detalle a')
+			->row();
+
+		$comandas = $this->db
+			->select('COUNT(*) AS conteo')
+			->where('a.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('detalle_comanda a')
+			->row();
+
+		$facturas = $this->db
+			->select('COUNT(a.detalle_factura) AS conteo')			
+			->join('factura b', 'b.factura = a.factura')
+			->where('b.fel_uuid_anulacion IS NULL')
+			->where('a.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('detalle_factura a')
+			->row();
+
+		if ((int)$ingresos->conteo > 0 || (int)$egresos->conteo > 0 || (int)$comandas->conteo > 0 || (int)$facturas->conteo > 0) {
+			return true;
+		}
+		
+		return false;
 	}
 }
 
