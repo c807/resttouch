@@ -3730,6 +3730,7 @@ ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN existencia_ingresa
 ALTER TABLE RT_DATABASE_NAME.detalle_factura ADD COLUMN cantidad_inventario_backup DECIMAL(10,2) NULL AFTER cantidad_inventario;
 ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN cantidad_inventario_backup DECIMAL(10,2) NULL AFTER costo_total;
 ALTER TABLE RT_DATABASE_NAME.bodega_articulo_costo ADD COLUMN esajuste TINYINT(1) NOT NULL DEFAULT 0 AFTER fecha;
+ALTER TABLE RT_DATABASE_NAME.egreso_detalle CHANGE COLUMN precio_unitario precio_unitario DECIMAL(10,4) NOT NULL DEFAULT '0.00' ;
 ALTER TABLE RT_DATABASE_NAME.usuario ADD COLUMN ver_panorama TINYINT(1) NULL DEFAULT 0 AFTER rol;
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
