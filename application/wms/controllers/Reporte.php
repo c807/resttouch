@@ -483,7 +483,12 @@ class Reporte extends CI_Controller
 							$pathSubcat = $art->get_path_subcategorias();
 							$receta = $art->getReceta();
 							if (count($receta) === 0 || (int)$art->produccion === 1 || (count($receta) > 0 && (int)$art->mostrar_inventario === 1)) {
-								$art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)]);
+								// 12/02/2024 JM solicitó cambio en el siguiente proceso, que en ves de llamar actualizarExistencia, de una vez
+								// se llame el proceso obtenerExistencia, para que hale el valor de la existencia en base a la tabla boodega_articulo_costo
+								// este cambio probablemente afecte los artículos que son recetas o tienen detalle.
+								// $art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)]);
+								$args = ['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)];
+								$art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
 
