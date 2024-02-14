@@ -564,7 +564,7 @@ EOT;
 	function get_ingreso($idIngreso)
 	{
 		$campos = "a.ingreso, b.descripcion AS tipo_movimiento, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
-		$campos.= "CONCAT(c.descripcion, ' - ', IFNULL(CONCAT(f.nombre, ' (', f.alias, ')'), '')) AS bodega, c.merma, d.usrname AS usuario, ";
+		$campos.= "c.descripcion AS bodega, c.merma, d.usrname AS usuario, ";
 		$campos.= "CONCAT(h.descripcion, ' - ', IFNULL(CONCAT(j.nombre, ' (', j.alias, ')'), '')) as bodega_origen, ";
 		$campos.= "a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
 		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus";

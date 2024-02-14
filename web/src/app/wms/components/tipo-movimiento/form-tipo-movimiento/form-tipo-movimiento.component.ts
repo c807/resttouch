@@ -59,4 +59,9 @@ export class FormTipoMovimientoComponent implements OnInit, OnDestroy {
 
   chgEsRequisicion = (obj: MatCheckboxChange) => this.tipoMovimiento.egreso = obj.checked ? 1 : 0;
 
+  chgEsAjusteCP = (obj: MatCheckboxChange) => {
+    this.tipoMovimiento.ingreso = obj.checked ? 1 : 0;
+    this.tipoMovimiento.egreso = obj.checked ? 1 : 0;
+  }
+
 }

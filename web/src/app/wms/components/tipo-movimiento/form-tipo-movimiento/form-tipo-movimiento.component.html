@@ -13,7 +13,7 @@
             <mat-checkbox name="ingreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.ingreso">Para ingresos</mat-checkbox>
             <mat-checkbox name="egreso" class="fullWidth" [(ngModel)]="+tipoMovimiento.egreso">Para egresos</mat-checkbox>
             <mat-checkbox name="requisicion" class="fullWidth" [(ngModel)]="+tipoMovimiento.requisicion" (change)="chgEsRequisicion($event)">Para requisiciones</mat-checkbox>
-            <mat-checkbox name="esajuste_cp" class="fullWidth" [(ngModel)]="+tipoMovimiento.esajuste_cp" *ngIf="+empresaMetodoCosteo === 2">Para ajuste de costo promedio</mat-checkbox>
+            <mat-checkbox name="esajuste_cp" class="fullWidth" [(ngModel)]="+tipoMovimiento.esajuste_cp" *ngIf="+empresaMetodoCosteo === 2" (change)="chgEsAjusteCP($event)">Para ajuste de costo promedio</mat-checkbox>
 
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmTipoMovimiento.form.valid">

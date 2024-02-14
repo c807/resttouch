@@ -62,8 +62,7 @@
 						</mat-select>
 					</mat-form-field>
 
-					<input type="checkbox" id="resumen" name="resumen" [(ngModel)]="params.resumen">
-					<label for="resumen"> Resumen Detallado</label>
+					<mat-checkbox name="resumen" [(ngModel)]="params.resumen" >Resumen Detallado</mat-checkbox>
 
 					<app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
 				</form>
