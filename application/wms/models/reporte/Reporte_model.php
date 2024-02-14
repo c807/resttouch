@@ -394,6 +394,7 @@ EOT;
 		}
 
 		if ($args->reporte == 3) {
+			$this->load->model(['BodegaArticuloCosto_model']);
 			$this->db
 				->select("
 				 	f.descripcion as subcategoria,
@@ -401,7 +402,8 @@ EOT;
 				 	d.descripcion as producto,
 				 	a.precio_unitario * {$porIva} as ultimo_costo,
 				 	avg(a.precio_unitario * {$porIva}) as costo_promedio,
-				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion
+				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion,
+					d.articulo AS idarticulo, y.cantidad AS cantidad_presentacion, f.bodega AS bodega_descarga
 				 ", FALSE)
 				->order_by("g.descripcion, f.descripcion, a.articulo")
 				->group_by("d.codigo");
@@ -434,7 +436,8 @@ EOT;
 			->join("categoria g", "g.categoria = f.categoria")
 			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento")
 			->join("estatus_movimiento i", "i.estatus_movimiento = b.estatus_movimiento")
-			->join('sede z', 'z.sede = c.sede');
+			->join('sede z', 'z.sede = c.sede')
+			->join('presentacion y', 'y.presentacion = d.presentacion_reporte');
 
 		$this->db->order_by("b.fecha", "asc")
 			->order_by("b.ingreso", "desc");
@@ -442,6 +445,21 @@ EOT;
 		$tmp = $this->db->get();
 
 		if ($tmp->num_rows() > 0) {
+			if ($args->reporte == 3) {
+				$res = $tmp->result();
+				$cntRes = count($res);				
+				for ($i = 0; $i < $cntRes; $i++) {
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($res[$i]->bodega_descarga , $res[$i]->idarticulo);
+					$cp = 0;
+					if ($datos_costo) {
+						$cp = $datos_costo->costo_promedio;
+					}
+					$res[$i]->costo_promedio = ((float)$cp * $porIva) * (float)$res[$i]->cantidad_presentacion;
+				}				
+
+				return $res;
+			}
+
 			return $tmp->result();
 		}
 
