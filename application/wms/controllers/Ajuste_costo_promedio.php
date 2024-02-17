@@ -173,7 +173,7 @@ class Ajuste_costo_promedio extends CI_Controller
                         $idsArticulos = [];
                         foreach ($detalle as $d) {
                             $art = new Articulo_model($d->articulo);
-                            $art->actualizarExistencia(['fecha' => $ingreso->fecha, 'sede' => $acp->sede, 'bodega' => $acp->bodega, '_sinconfirmar' => 0]);
+                            $art->actualizarExistencia_v2(['fecha' => $ingreso->fecha, 'sede' => $acp->sede, 'bodega' => $acp->bodega, '_sinconfirmar' => 0]);
                             $pres = $art->getPresentacionReporte();
                             $art->existencias = (float)$art->existencias / (float)$pres->cantidad;
                             $precioUnitarioConIVA = ((float)$d->costo_promedio_correcto * ($art->existencias + (float)1)) - ($art->existencias * (float)$d->costo_promedio_sistema);

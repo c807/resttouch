@@ -282,8 +282,9 @@ class Articulo_model extends General_model
 			$receta = $this->getReceta();
 			// $principal = $this->getReceta(['_principal' => true]);
 			// La siguiente validación es la que debería ponerse. Se decidió hacer el cambio más adelante. 21/05/2023 17:42.
-			// if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
-			if (count($receta) > 0 && $this->produccion == 0) {
+			// 17/02/2024 11:12: JM autorizó el camibio de la validación...
+			// if (count($receta) > 0 && $this->produccion == 0) { // Este era el IF original.
+			if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
 				$grupos = [];
 				//$venta = $this->getVentaReceta();
 				foreach ($receta as $row) {
@@ -1550,7 +1551,7 @@ class Articulo_model extends General_model
 			->row();
 
 		$facturas = $this->db
-			->select('COUNT(a.detalle_factura) AS conteo')			
+			->select('COUNT(a.detalle_factura) AS conteo')
 			->join('factura b', 'b.factura = a.factura')
 			->where('b.fel_uuid_anulacion IS NULL')
 			->where('a.bodega', $idBodega)
@@ -1561,8 +1562,28 @@ class Articulo_model extends General_model
 		if ((int)$ingresos->conteo > 0 || (int)$egresos->conteo > 0 || (int)$comandas->conteo > 0 || (int)$facturas->conteo > 0) {
 			return true;
 		}
-		
+
 		return false;
+	}
+
+	function actualizarExistencia_v2($args = [], $useOldWay = false)
+	{
+		if ($this->getPK()) {
+			$receta = $this->getReceta();
+			if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
+				$grupos = [];
+				foreach ($receta as $row) {
+					$art = new Articulo_model($row->articulo->articulo);
+					$art->actualizarExistencia_v2($args, $useOldWay);
+					$grupos[] = (int)($art->existencias / $row->cantidad);
+				}
+
+				$exist = min($grupos);
+			} else {
+				$exist = $this->obtenerExistencia($args, $this->articulo, false, $useOldWay);
+			}
+			return $this->guardar(['existencias' => $exist]);
+		}
 	}
 }
 

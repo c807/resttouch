@@ -1011,7 +1011,7 @@ class Articulo extends CI_Controller
 									$art = new Articulo_model($articulo->articulo);
 									if ((int)$art->getPK() > 0) {
 										foreach ($bodegas as $bodega) {
-											$art->actualizarExistencia(['bodega' => $bodega->bodega], true);
+											$art->actualizarExistencia_v2(['bodega' => $bodega->bodega], true);
 											$art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
 										}
 									}
