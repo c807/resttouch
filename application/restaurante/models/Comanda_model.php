@@ -227,7 +227,7 @@ class Comanda_model extends General_Model
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
         // Actualizado el 23/08/2023
-        if ((int)$art->mostrar_inventario === 1) {
+        if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
             if (!isset($args['cantidad_inventario'])) {
                 $args['cantidad_inventario'] = $det->cantidad_inventario;
             }
@@ -302,7 +302,7 @@ class Comanda_model extends General_Model
                     // Actualizado el 23/08/2023
                     $costo_unitario_rec = 0;
                     $costo_total_rec = 0;
-                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
+                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
                         $pu = (float)0;
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
                         if ($datos_costo) {
@@ -444,7 +444,7 @@ class Comanda_model extends General_Model
 
         // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
         // Actualizado el 23/08/2023
-        if ((int)$art->mostrar_inventario === 1) {
+        if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
             if (!isset($args['cantidad_inventario'])) {
                 $args['cantidad_inventario'] = $det->cantidad_inventario;
             }
@@ -519,7 +519,7 @@ class Comanda_model extends General_Model
                     // Actualizado el 23/08/2023
                     $costo_unitario_rec = 0;
                     $costo_total_rec = 0;
-                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0) {
+                    if ((int)$rec->articulo->mostrar_inventario === 1 && $bodegaR && (int)$bodegaR->bodega > 0 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
                         $pu = (float)0;
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
                         if ($datos_costo) {
