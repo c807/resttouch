@@ -159,6 +159,8 @@ class Reporte extends CI_Controller
 					$art = new Articulo_model($row->articulo->articulo);
 					$rec = $art->getReceta();
 
+					$existencia = round($row->existencia / $row->presentacion->cantidad, 2);
+
 					$reg = [
 						(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
 						"{$row->articulo->articulo} " . $row->articulo->descripcion,
@@ -171,7 +173,8 @@ class Reporte extends CI_Controller
 						((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->facturas != 0) ? round($row->facturas / $row->presentacion->cantidad, 2) : "0.00",
 						((float) $row->total_egresos != 0) ? round($row->total_egresos / $row->presentacion->cantidad, 2) : "0.00",
-						(count($rec) > 0 && $art->produccion == 0) ? "0.00" : (((float) $row->existencia != 0) ? round($row->existencia / $row->presentacion->cantidad, 2) : "0.00")
+						// (count($rec) > 0 && $art->produccion == 0) ? "0.00" : (((float) $row->existencia != 0) ? round($row->existencia / $row->presentacion->cantidad, 2) : "0.00")
+						(float)$existencia === (float)0 ? "0.00" : $existencia
 					];
 
 					$hoja->fromArray($reg, null, "A{$fila}");
