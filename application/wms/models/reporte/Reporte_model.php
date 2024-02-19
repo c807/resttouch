@@ -260,7 +260,7 @@ join categoria d on d.categoria = c.categoria
 join factura f on a.factura = f.factura and f.sede = d.sede
 join presentacion p on a.presentacion = p.presentacion
 left join detalle_factura_detalle_cuenta e on a.detalle_factura = e.detalle_factura
-where e.detalle_factura_detalle_cuenta is null and b.mostrar_inventario = 1 and f.fel_uuid IS NOT NULL and f.fel_uuid_anulacion IS NULL
+where e.detalle_factura_detalle_cuenta is null and b.mostrar_inventario = 1 and f.fel_uuid IS NOT NULL
 {$where} {$group}
 EOT;
 	}
