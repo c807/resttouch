@@ -535,6 +535,8 @@ class Articulo_model extends General_model
 				->join('presentacion p', 'a.presentacion = p.presentacion')
 				->where('a.articulo', $articulo)
 				->where('e.detalle_factura_detalle_cuenta is null')
+				->where('f.fel_uuid IS NOT NULL')
+				->where('f.fel_uuid_anulacion IS NULL')
 				->get('detalle_factura a')
 				->row(); //total ventas factura manual
 
