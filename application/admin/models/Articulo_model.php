@@ -552,7 +552,7 @@ class Articulo_model extends General_model
 		$comandas = 0;
 		$facturas = 0;
 
-		if (count($receta) > 0 && $this->produccion == 0) {
+		if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
 			$grupos = [];
 			$args['tipo'] = 1;
 			$comandas = $this->getComandaFactura($this->getPK(), $args);
