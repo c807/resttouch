@@ -239,6 +239,8 @@ class Ingreso_model extends General_Model
 			->select('a.articulo, MAX(b.fecha) AS fecha')
 			->join('ingreso b', 'b.ingreso = a.ingreso')
 			->join('bodega c', 'c.bodega = b.bodega')
+			->join('articulo d', 'd.articulo = a.articulo')
+			->where('d.mostrar_inventario', 1)
 			->group_by('a.articulo')
 			->get('ingreso_detalle a')
 			->result();
@@ -276,6 +278,7 @@ class Ingreso_model extends General_Model
 			->join('articulo c', 'c.articulo = a.articulo')
 			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
 			->join('categoria e', 'e.categoria = d.categoria')
+			->where('c.mostrar_inventario', 1)
 			->group_by('a.articulo')
 			->order_by('e.descripcion, d.descripcion, c.descripcion')
 			->get('bodega_articulo_costo a')
