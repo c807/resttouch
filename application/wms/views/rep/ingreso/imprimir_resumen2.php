@@ -31,7 +31,7 @@
 				<tr>
 					<th class="encabezado text-center" colspan="2">Fecha</th>
 					<th class="encabezado text-left" colspan="2">Documento</th>
-					<th class="encabezado text-center" colspan="1">Estatus egreso</th>
+					<th class="encabezado text-center" colspan="1">Estatus ingreso</th>
 					<th class="encabezado text-center tipo" colspan="1">Tipo</th>
 					<th class="encabezado text-center">Bodega</th>
 					<th class="encabezado text-center"></th>
