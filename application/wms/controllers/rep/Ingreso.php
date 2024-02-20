@@ -181,7 +181,7 @@ class Ingreso extends CI_Controller
 					$titulo = [
 						"Fecha",
 						"Documento",
-						"Estatus egreso",
+						"Estatus ingreso",
 						"Tipo",
 						"",
 						"Bodega",
