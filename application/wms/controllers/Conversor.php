@@ -422,6 +422,7 @@ class Conversor extends CI_Controller
 						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$req['bodega'], (int)$row->articulo->articulo);
 						if ($datos_costo) {
 							$existencia_rec = (float)$datos_costo->existencia / (float)$datos_costo->cantidad_presentacion;
+							// Está comparando la cantidad en presentación contra la cantidad de la receta en unidad de medida
 							if (($existencia_rec < ((float)$row->cantidad * (float)$det['cantidad'] / (float)$art->rendimiento))) {
 								$continuar = false;
 								$ingredientes_insuficientes[] = $art->descripcion;
