@@ -19,9 +19,6 @@
 
 			<?php foreach ($sedes as $cd => $tcd): ?>
 				<tr>
-					<th colspan="8" class="encabezado text-left sborder"><small>Bodega: <?php echo $tcd["bodega"]; ?></small></th>
-				</tr>
-				<tr>
 					<th colspan="8" class="encabezado text-left sborder"><small>Sede: <?php echo $tcd["sede"]; ?></small></th>
 				</tr>
 				<tr>

@@ -168,11 +168,6 @@ class Ingreso extends CI_Controller
 					$hoja->setCellValue("A{$pos}", 'Sede: ');
 					$hoja->setCellValue("B{$pos}", "{$tmp['sede']}");
 					$hoja->getStyle("A{$pos}")->getFont()->setBold(true);
-					$pos++;
-
-					$hoja->setCellValue("A{$pos}", 'Bodega: ');
-					$hoja->setCellValue("B{$pos}", "{$tmp['bodega']}");
-					$hoja->getStyle("A{$pos}")->getFont()->setBold(true);
 					$pos += 2;
 
 					#$pos   = 8;
