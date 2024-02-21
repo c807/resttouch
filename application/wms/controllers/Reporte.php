@@ -54,8 +54,12 @@ class Reporte extends CI_Controller
 		}
 
 		$data['mostrar_inventario'] = 1;
-		// $listaImpresoras = $this->Impresora_model->get_lista_impresoras();
-		// $arts = $this->Catalogo_model->getArticulo($data, $listaImpresoras);
+
+		// 20/02/2024 19:07: Con JM se decidió mejor quitar este filtro para no afectar el funcionamiento original del reporte de existencias.
+		// if (isset($_POST['bodega'])) {
+		// 	$data['bodega'] = $_POST['bodega'];
+		// }
+
 		$arts = $this->Catalogo_model->getArticulo($data);
 		$args = [
 			'cliente' => '',
@@ -69,7 +73,7 @@ class Reporte extends CI_Controller
 		$listaBodegas = $this->Bodega_model->get_lista_bodegas();
 		foreach ($_POST['sede'] as $s) {
 			$nbodega = [];
-			foreach ($_POST['bodega'] as $bode) {				
+			foreach ($_POST['bodega'] as $bode) {
 				$bodega = $listaBodegas[(int)$bode];
 				if ((int)$s === (int)$bodega->sede) {
 					$nbodega[] = $bodega->descripcion;
@@ -89,28 +93,30 @@ class Reporte extends CI_Controller
 			}
 		}
 
-		// Inicia calculo de saldo inicial
-		$_POST['_saldo_inicial'] = 1;
-		foreach ($args['reg'] as $key => $registro) {
-			foreach ($registro as $llave => $value) {
-				$art = new Articulo_model($value->articulo->articulo);
-				$obj = $art->getExistencias($_POST, $listaMedidas, $listaArticulos);
-				// $args['reg'][$key][$llave]->saldo_inicial = $obj->saldo_inicial;
-				$value->saldo_inicial = $obj->saldo_inicial;
-				$value->existencia = (float)$obj->saldo_inicial + (float)$value->ingresos - ((float)$value->egresos + (float)$value->comandas + (float)$value->facturas);
-			}
-		}
-		// Finaliza calculo de saldo inicial
-
-		if (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) {
+		if (count($arts) > 0) {
+			$_POST['_saldo_inicial'] = 1;
 			foreach ($args['reg'] as $key => $registro) {
 				foreach ($registro as $llave => $value) {
-					if (round((float)$value->existencia / (float)$value->presentacion->cantidad, 2) > (float)$value->articulo->stock_minimo) {
-						unset($args['reg'][$key][$llave]);
+					$art = new Articulo_model($value->articulo->articulo);
+					$obj = $art->getExistencias($_POST, $listaMedidas, $listaArticulos);
+					// $args['reg'][$key][$llave]->saldo_inicial = $obj->saldo_inicial;
+					$value->saldo_inicial = $obj->saldo_inicial;
+					$value->existencia = (float)$obj->saldo_inicial + (float)$value->ingresos - ((float)$value->egresos + (float)$value->comandas + (float)$value->facturas);
+				}
+			}
+			// Finaliza calculo de saldo inicial
+	
+			if (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) {
+				foreach ($args['reg'] as $key => $registro) {
+					foreach ($registro as $llave => $value) {
+						if (round((float)$value->existencia / (float)$value->presentacion->cantidad, 2) > (float)$value->articulo->stock_minimo) {
+							unset($args['reg'][$key][$llave]);
+						}
 					}
 				}
 			}
 		}
+		// Inicia calculo de saldo inicial
 
 		// $this->Bitacora_model->log_to_file(Hoy(5) . ",{$this->data->dominio}," . $this->php_self . ',' . get_mem_usage() . ',medio,');
 
@@ -147,39 +153,41 @@ class Reporte extends CI_Controller
 			$hoja->getStyle('A4:L4')->getAlignment()->setHorizontal('center');
 			$hoja->getStyle('A1:L2')->getFont()->setBold(true);
 			$fila = 5;
-			foreach ($args['sedes'] as $sede) {
-				$obj = new Sede_model($sede);
-				$hoja->setCellValue("A{$fila}", "{$obj->nombre} ({$obj->alias})");
-				$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
-				$fila++;
-				$hoja->setCellValue("A{$fila}", $args['bodegas'][$obj->getPK()]);
-				$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
-				$fila++;
-				foreach ($args["reg"][$sede] as $row) {
-					$art = new Articulo_model($row->articulo->articulo);
-					$rec = $art->getReceta();
-
-					$existencia = round($row->existencia / $row->presentacion->cantidad, 2);
-
-					$reg = [
-						(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
-						"{$row->articulo->articulo} " . $row->articulo->descripcion,
-						$row->presentacion->descripcion,
-						round((float)$row->articulo->stock_minimo, 2),
-						round((float)$row->articulo->stock_maximo, 2),
-						((float) $row->saldo_inicial != 0) ? round($row->saldo_inicial / $row->presentacion->cantidad, 2) : "0.00",
-						((float) $row->ingresos != 0) ? round($row->ingresos / $row->presentacion->cantidad, 2) : "0.00",
-						((float) $row->egresos != 0) ? round($row->egresos / $row->presentacion->cantidad, 2) : "0.00",
-						((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",
-						((float) $row->facturas != 0) ? round($row->facturas / $row->presentacion->cantidad, 2) : "0.00",
-						((float) $row->total_egresos != 0) ? round($row->total_egresos / $row->presentacion->cantidad, 2) : "0.00",
-						// (count($rec) > 0 && $art->produccion == 0) ? "0.00" : (((float) $row->existencia != 0) ? round($row->existencia / $row->presentacion->cantidad, 2) : "0.00")
-						(float)$existencia === (float)0 ? "0.00" : $existencia
-					];
-
-					$hoja->fromArray($reg, null, "A{$fila}");
-					$hoja->getStyle("D{$fila}:L{$fila}")->getNumberFormat()->setFormatCode('0.00');
+			if (count($arts) > 0) {
+				foreach ($args['sedes'] as $sede) {
+					$obj = new Sede_model($sede);
+					$hoja->setCellValue("A{$fila}", "{$obj->nombre} ({$obj->alias})");
+					$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
 					$fila++;
+					$hoja->setCellValue("A{$fila}", $args['bodegas'][$obj->getPK()]);
+					$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
+					$fila++;
+					foreach ($args["reg"][$sede] as $row) {
+						$art = new Articulo_model($row->articulo->articulo);
+						$rec = $art->getReceta();
+	
+						$existencia = round($row->existencia / $row->presentacion->cantidad, 2);
+	
+						$reg = [
+							(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
+							"{$row->articulo->articulo} " . $row->articulo->descripcion,
+							$row->presentacion->descripcion,
+							round((float)$row->articulo->stock_minimo, 2),
+							round((float)$row->articulo->stock_maximo, 2),
+							((float) $row->saldo_inicial != 0) ? round($row->saldo_inicial / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->ingresos != 0) ? round($row->ingresos / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->egresos != 0) ? round($row->egresos / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->facturas != 0) ? round($row->facturas / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->total_egresos != 0) ? round($row->total_egresos / $row->presentacion->cantidad, 2) : "0.00",
+							// (count($rec) > 0 && $art->produccion == 0) ? "0.00" : (((float) $row->existencia != 0) ? round($row->existencia / $row->presentacion->cantidad, 2) : "0.00")
+							(float)$existencia === (float)0 ? "0.00" : $existencia
+						];
+	
+						$hoja->fromArray($reg, null, "A{$fila}");
+						$hoja->getStyle("D{$fila}:L{$fila}")->getNumberFormat()->setFormatCode('0.00');
+						$fila++;
+					}
 				}
 			}
 
@@ -504,10 +512,10 @@ class Reporte extends CI_Controller
 											$row->precio_unitario = $datos_costo->costo_promedio;
 										} else {
 											$row->precio_unitario = 0;
-										}										
+										}
 									} else {
 										$bcosto = $this->BodegaArticuloCosto_model->buscar(['bodega' => $bode, 'articulo' => $row->articulo, '_uno' => true]);
-	
+
 										if ($bcosto) {
 											if ($empresa->metodo_costeo == 1) {
 												$row->precio_unitario = $bcosto->costo_ultima_compra;
@@ -2070,9 +2078,9 @@ class Reporte extends CI_Controller
 		}
 
 		$data['enPDF'] = $enPDF;
-		
+
 		$vista = $this->load->view('reporte/articulo/receta_costo', ['data' => $data], true);
-		
+
 		if ($enPDF) {
 			$pdf = new \Mpdf\Mpdf([
 				'tempDir' => sys_get_temp_dir(),

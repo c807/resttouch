@@ -180,16 +180,17 @@ class Catalogo_model extends CI_Model
 	public function getArticulo($args = [], $listaImpresoras = null, $listaPresentaciones = null)
 	{
 		$sede = isset($args['sede']) ? $args['sede'] : false;
+		$bodega = isset($args['bodega']) ? $args['bodega'] : false;
 		$ingreso = isset($args['ingreso']) ? $args['ingreso'] : false;
 		$activos = isset($args['_activos']) ? true : false;
 		$categoria = isset($args['categoria']) ? (int)$args['categoria'] : false;
 		$sinPropina = isset($args['_sin_propina']);
 		unset($args['ingreso']);
 		unset($args['sede']);
+		unset($args['bodega']);
 		unset($args['_activos']);
 		unset($args['categoria']);
 		unset($args['_sin_propina']);
-
 		
 		if (!$listaImpresoras) {
 			$this->load->model('Impresora_model');
@@ -220,6 +221,14 @@ class Catalogo_model extends CI_Model
 				$this->db->where_in('c.sede', $sede);
 			} else {
 				$this->db->where('c.sede', $sede);
+			}
+		}
+
+		if ($bodega) {
+			if (is_array($bodega)) {
+				$this->db->where_in('b.bodega', $bodega);
+			} else {
+				$this->db->where('b.bodega', $bodega);
 			}
 		}
 
