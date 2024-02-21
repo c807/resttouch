@@ -36,7 +36,14 @@ class Articulo extends CI_Controller
 	public function guardar($id = '')
 	{
 		$art = new Articulo_model($id);
+		$mostrarInventarioOriginal = (int)$art->mostrar_inventario ?? 0;
 		$req = json_decode(file_get_contents('php://input'), true);
+
+		$mostrarInventarioNuevo = $mostrarInventarioOriginal;
+		if (isset($req['mostrar_inventario'])) {
+			$mostrarInventarioNuevo = (int)$req['mostrar_inventario'];			
+		}
+
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
@@ -78,6 +85,9 @@ class Articulo extends CI_Controller
 								$datos['exito'] = $art->guardar($req);
 								if ($datos['exito']) {
 									$this->add_to_bitacora($art->getPK(), $comentario);
+									if ((int)$mostrarInventarioOriginal !== (int)$mostrarInventarioNuevo && (int)$mostrarInventarioNuevo === 1) {
+										$this->gregar_a_bodega_articulo_costo($art);
+									}
 									$datos['mensaje'] = 'Datos actualizados con éxito.';
 									$datos['articulo'] = $art;
 								} else {
@@ -1041,6 +1051,36 @@ class Articulo extends CI_Controller
 		}
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
+	}
+
+	private function gregar_a_bodega_articulo_costo($art)
+	{
+		$this->load->add_package_path('application/wms');
+		$this->load->model(['BodegaArticuloCosto_model']);
+		$bodegaDescargo = $art->getBodega();
+		$existencia_nueva = $art->obtenerExistencia(['bodega' => (int)$bodegaDescargo->bodega, 'sede' => $this->data->sede], $art->getPK(), (int)$art->esreceta === 1, true);
+		
+		$nvaData = [
+			'bodega' => (int)$bodegaDescargo->bodega,
+			'articulo' => (int)$art->getPK(),
+			'cuc_ingresado' => 0,
+			'costo_ultima_compra' => 0,
+			'cp_ingresado' => 0,
+			'costo_promedio' => 0,
+			'existencia_ingresada' => 0,
+			'existencia' => $existencia_nueva,
+			'fecha' => null
+		];
+		
+		$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaDescargo->bodega, $art->getPK());
+		if ($datos_costo) {
+			$nvaData['costo_ultima_compra'] = $datos_costo->costo_ultima_compra;
+			$nvaData['costo_promedio'] = $datos_costo->costo_promedio;
+		}
+
+		$nvaData['fecha'] = date('Y-m-d H:i:s');
+		$nvoBac = new BodegaArticuloCosto_model();
+		$nvoBac->guardar($nvaData);
 	}
 }
 
