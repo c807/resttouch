@@ -27,7 +27,7 @@
 			<td class="titulo text-right">Número</td>
 			<td class="titulo">Estatus ingreso</td>
 			<td class="titulo">Tipo</td>
-			<td class="titulo text-right">Egreso/Requisición</td>
+			<td class="titulo text-right">Egr./Req./ACP</td>
 			<td class="titulo">Sede</td>
 			<td class="titulo">Bodega</td>
 			<td class="titulo">Proveedor</td>

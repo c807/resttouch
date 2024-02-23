@@ -26,21 +26,21 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field class="fullWidth">
+      <!-- <mat-form-field class="fullWidth">
         <mat-label>Categoría</mat-label>
         <mat-select name="categoria" (selectionChange)="onCategoriaSelected($event)">
           <mat-option *ngFor="let cat of categorias" [value]="cat">
             {{cat.descripcion}}
           </mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
       <mat-form-field class="fullWidth">
         <mat-label>Sub-categoría</mat-label>
         <mat-select name="categoria_grupo" [(ngModel)]="ajusteCostoPromedio.categoria_grupo"
           (selectionChange)="subcategoriaSelectedEv($event)">
           <mat-option *ngFor="let subcatpadre of categoriasGruposPadre" [value]="subcatpadre.categoria_grupo">
-            {{subcatpadre.descripcion}}
+            {{subcatpadre.descripcion}} ({{subcatpadre.categoria.descripcion}})
           </mat-option>
         </mat-select>
       </mat-form-field>

@@ -14,7 +14,7 @@ import { BodegaService } from '@wms-services/bodega.service';
 import { UsuarioSede } from '@admin-interfaces/acceso';
 import { AccesoUsuarioService } from '@admin-services/acceso-usuario.service';
 import { Categoria } from '@wms-interfaces/categoria';
-import { CategoriaGrupo } from '@wms-interfaces/categoria-grupo';
+import { CategoriaGrupoResponse } from '@wms-interfaces/categoria-grupo';
 import { Articulo } from '@wms-interfaces/articulo';
 import { ArticuloService } from '@wms-services/articulo.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
@@ -60,7 +60,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
   public bodegas: Bodega[] = [];
   public sedes: UsuarioSede[] = [];
   public categorias: Categoria[] = [];
-  public categoriasGruposPadre: CategoriaGrupo[] = [];
+  public categoriasGruposPadre: CategoriaGrupoResponse[] = [];
   public lstArticulos: Articulo[] = [];
   public lstArticulosOriginal: Articulo[] = [];
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
@@ -106,7 +106,8 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     this.ajusteCostoPromedio.categoria_grupo = null;
     this.ajusteCostoPromedio.articulo = null;
     this.loadBodegas({ sede: +obj.value });
-    this.loadCategorias({ sede: +obj.value });
+    // this.loadCategorias({ sede: +obj.value });
+    this.loadSubCategorias({ _sede: +obj.value });
     this.loadArticulos({ sede: +obj.value });
   }
 
@@ -126,23 +127,26 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     );
   }
 
-  onCategoriaSelected = (obj: MatSelectChange) => {
-    this.ajusteCostoPromedio.categoria_grupo = null;
-    this.ajusteCostoPromedio.articulo = null;
-    this.loadSubCategorias(+obj.value.categoria);
-    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.subcategoria.categoria === +obj.value.categoria);
-  };
+  // onCategoriaSelected = (obj: MatSelectChange) => {
+  //   this.ajusteCostoPromedio.categoria_grupo = null;
+  //   this.ajusteCostoPromedio.articulo = null;
+  //   this.loadSubCategorias(+obj.value.categoria);
+  //   this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.subcategoria.categoria === +obj.value.categoria);
+  // };
 
-  loadSubCategorias = (idcategoria: number) => {
+  loadSubCategorias = (fltr: any) => {
+    fltr._activos = true;
     this.endSubs.add(
-      this.articuloSrvc.getCategoriasGrupos({ categoria: +idcategoria }).subscribe(res => {
-        this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);
+      this.articuloSrvc.getCategoriasGrupos(fltr).subscribe(res => {
+        // this.categoriasGruposPadre = this.articuloSrvc.adaptCategoriaGrupoResponse(res);
+        this.categoriasGruposPadre = [...res];
+        // console.log(this.categoriasGruposPadre);
       })
     );
   }
 
-  subcategoriaSelectedEv = (obj: MatSelectChange) => {
-    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);
+  subcategoriaSelectedEv = (obj: MatSelectChange) => {    
+    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);    
     this.ajusteCostoPromedio.articulo = null;
   }
 
@@ -150,8 +154,8 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     params.mostrar_inventario = 1;
     this.endSubs.add(
       this.articuloSrvc.getArticulos(params).subscribe(res => {
-        this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');
-        this.lstArticulosOriginal = JSON.parse(JSON.stringify(this.lstArticulos));
+        this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');        
+        this.lstArticulosOriginal = [...this.lstArticulos];
       })
     );
   }

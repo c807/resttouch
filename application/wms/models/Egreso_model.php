@@ -17,6 +17,7 @@ class Egreso_model extends General_Model
 	public $raw_egreso = null;
 	public $bodega_destino = null;
 	public $comentario;
+	public $ajuste_costo_promedio = null;
 
 	public function __construct($id = '')
 	{

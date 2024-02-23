@@ -164,7 +164,8 @@ class Ajuste_costo_promedio extends CI_Controller
                         'proveedor' => $idProv,
                         'estatus_movimiento' => 2,
                         'ajuste' => 0,
-                        'comentario' => "Ingreso automático generado por el proceso de ajuste de costo promedio No. {$acp->ajuste_costo_promedio}., usuario: {$nombreUsuario}, {$usuario->usrname}."
+                        'comentario' => "Ingreso automático generado por el proceso de ajuste de costo promedio No. {$acp->ajuste_costo_promedio}., usuario: {$nombreUsuario}, {$usuario->usrname}.",
+                        'ajuste_costo_promedio' => $acp->ajuste_costo_promedio
                     ];
                     if ($ingreso->guardar($dataIng)) {
                         $sede = new Sede_model($acp->sede);
@@ -235,7 +236,8 @@ class Ajuste_costo_promedio extends CI_Controller
                             'usuario' => $this->data->idusuario,
                             'estatus_movimiento' => 2,
                             'ajuste' => 0,
-                            'comentario' => "Egreso automático generado por el proceso de ajuste de costo promedio No. {$acp->ajuste_costo_promedio}., usuario: {$nombreUsuario}, {$usuario->usrname}."
+                            'comentario' => "Egreso automático generado por el proceso de ajuste de costo promedio No. {$acp->ajuste_costo_promedio}., usuario: {$nombreUsuario}, {$usuario->usrname}.",
+                            'ajuste_costo_promedio' => $acp->ajuste_costo_promedio
                         ];
 
                         if ($egreso->guardar($dataEgreso)) {

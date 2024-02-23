@@ -14,6 +14,7 @@ class Ingreso_model extends General_Model
 	public $proveedor;
 	public $estatus_movimiento;
 	public $ajuste = 0;
+	public $ajuste_costo_promedio = null;
 
 	public function __construct($id = '')
 	{

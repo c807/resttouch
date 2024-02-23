@@ -300,7 +300,7 @@ class Ingreso extends CI_Controller
 					'Número',
 					'Estatus ingreso',
 					'Tipo',
-					'Egreso/Requisición',
+					'Egr./Req./ACP',
 					'Sede',
 					'Bodega',
 					'Proveedor',

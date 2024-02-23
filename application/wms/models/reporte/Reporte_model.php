@@ -403,7 +403,7 @@ EOT;
 				 	a.precio_unitario * {$porIva} as ultimo_costo,
 				 	avg(a.precio_unitario * {$porIva}) as costo_promedio,
 				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion,
-					d.articulo AS idarticulo, y.cantidad AS cantidad_presentacion, f.bodega AS bodega_descarga
+					d.articulo AS idarticulo, y.cantidad AS cantidad_presentacion, f.bodega AS bodega_descarga, b.ajuste_costo_promedio
 				 ", FALSE)
 				->order_by("g.descripcion, f.descripcion, a.articulo")
 				->group_by("d.codigo");
@@ -422,7 +422,8 @@ EOT;
 				e.razon_social as nproveedor,
 				a.precio_total * {$porIva} as costo_total,
 				h.descripcion as ntipo_movimiento,
-				i.descripcion as nestatus
+				i.descripcion as nestatus,
+				b.ajuste_costo_promedio
 			", FALSE);
 		}
 
@@ -585,7 +586,7 @@ EOT;
 		$campos.= "c.descripcion AS bodega, c.merma, d.usrname AS usuario, ";
 		$campos.= "CONCAT(h.descripcion, ' - ', IFNULL(CONCAT(j.nombre, ' (', j.alias, ')'), '')) as bodega_origen, ";
 		$campos.= "a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
-		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus";
+		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus, a.ajuste_costo_promedio";
 		$ingreso = $this->db		
 			->select($campos)
 			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
@@ -630,7 +631,7 @@ EOT;
 			->get('traslado_detalle a')
 			->row();
 
-			$ingreso->egreso_origen = $egreso_origen ? $egreso_origen->egreso : null;
+			$ingreso->egreso_origen = $egreso_origen ? $egreso_origen->egreso : (!is_null($ingreso->ajuste_costo_promedio) ? $ingreso->ajuste_costo_promedio : null);
 		}
 		return $ingreso;
 	}

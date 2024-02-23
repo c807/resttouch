@@ -52,12 +52,13 @@ export class AjusteCostoPromedioComponent implements OnInit {
     this.ajusteCostoPromedio = acp;
     this.frmAjusteCostoPromedio.ajusteCostoPromedio = this.ajusteCostoPromedio;
     this.frmAjusteCostoPromedio.loadBodegas({ sede: this.ajusteCostoPromedio.sede });
-    this.frmAjusteCostoPromedio.loadCategorias({ sede: this.ajusteCostoPromedio.sede });
+    // this.frmAjusteCostoPromedio.loadCategorias({ sede: this.ajusteCostoPromedio.sede });
+    this.frmAjusteCostoPromedio.loadSubCategorias({ _sede: this.ajusteCostoPromedio.sede });
     this.frmAjusteCostoPromedio.loadArticulos({ sede: this.ajusteCostoPromedio.sede });
 
     if (+this.ajusteCostoPromedio.categoria_grupo > 0) {
-      this.ajusteCostoPromedio.categoria_grupo = +this.ajusteCostoPromedio.categoria_grupo;
-      this.frmAjusteCostoPromedio.loadSubCategorias(+this.ajusteCostoPromedio.categoria);
+      this.ajusteCostoPromedio.categoria_grupo = this.ajusteCostoPromedio.categoria_grupo;
+      // this.frmAjusteCostoPromedio.loadSubCategorias(+this.ajusteCostoPromedio.categoria);
     }
 
     this.frmAjusteCostoPromedio.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
