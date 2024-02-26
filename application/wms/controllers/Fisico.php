@@ -491,7 +491,7 @@ class Fisico extends CI_Controller
 
 								$egr->setDetalle($datos);
 							}
-							$egr->actualiza_costo_existencia();
+							$egr->actualiza_costo_existencia(true);
 						}
 					}
 					// Termina código para generar salidas de ajuste
@@ -530,22 +530,17 @@ class Fisico extends CI_Controller
 
 								$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $row->articulo);
 								if ($datos_costo) {
-									$cantidad_presentacion = round((float)$pres->cantidad, 2);
-									$precio_unitario = round((float)$datos['precio_unitario'], 5);
+									$cantidad_presentacion = round((float)$pres->cantidad, 2);									
 									$existencia_anterior = round((float)$datos_costo->existencia, 2);
-									$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
-									$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
-									$existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);
-									// $costo_total_nuevo = $costo_total_anterior + round((float)$datos['precio_total'] / $cantidad_presentacion, 5);
-									$costo_total_nuevo = $costo_total_anterior + (float)$datos['precio_total'];
+									$existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);									
 
 									$nvaData = [
 										'bodega' => (int)$ing->bodega,
 										'articulo' => (int)$row->articulo,
-										'cuc_ingresado' => 0,
-										'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+										'cuc_ingresado' => 0,										
+										'costo_ultima_compra' => $datos_costo->costo_ultima_compra,
 										'cp_ingresado' => 0,
-										'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+										'costo_promedio' => $datos_costo->costo_promedio,
 										'existencia_ingresada' => 0,
 										'existencia' => $existencia_nueva,
 										'fecha' => date('Y-m-d H:i:s')

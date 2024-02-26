@@ -437,7 +437,7 @@ class Egreso_model extends General_Model
 		return false;
 	}
 
-	public function actualiza_costo_existencia()
+	public function actualiza_costo_existencia($deInventarioFisico = false)
 	{
 		$detalle = $this->db
 			->select('a.egreso_detalle, a.cantidad, a.articulo, a.precio_unitario, a.precio_total, a.presentacion, b.cantidad AS cantidad_presentacion')
@@ -453,9 +453,9 @@ class Egreso_model extends General_Model
 					'bodega' => (int)$this->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
-					'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+					'costo_ultima_compra' => !$deInventarioFisico ? round((float)$datos_costo->costo_ultima_compra, 5) : $datos_costo->costo_ultima_compra,
 					'cp_ingresado' => 0,
-					'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+					'costo_promedio' => !$deInventarioFisico ? round((float)$datos_costo->costo_promedio, 5) : $datos_costo->costo_promedio,
 					'existencia_ingresada' => 0,
 					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad * (float)$det->cantidad_presentacion), 2),
 					'fecha' => date('Y-m-d H:i:s')
