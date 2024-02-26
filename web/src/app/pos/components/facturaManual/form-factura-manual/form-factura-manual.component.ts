@@ -307,7 +307,11 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
               moneda: res.factura.moneda,
               exenta: +res.factura.exenta,
               notas: res.factura.notas,
+              usuario: res.factura.usuario,
+              numero_factura: res.factura.numero_factura,
+              serie_factura: res.factura.serie_factura,
               fel_uuid: res.factura.fel_uuid,
+              fel_uuid_anulacion: res.factura.fel_uuid_anulacion,              
               enviar_descripcion_unica: +res.factura.enviar_descripcion_unica,
               descripcion_unica: res.factura.descripcion_unica
             };
