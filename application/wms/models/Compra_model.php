@@ -94,8 +94,8 @@ class Compra_model extends General_Model
 		$iva = 1 + $emp->porcentaje_iva;
 
 		if ($ing->guardar($datos)) {
-			$bac = new BodegaArticuloCosto_model();
-			$bod = new Bodega_model($ing->bodega);
+			// $bac = new BodegaArticuloCosto_model();
+			// $bod = new Bodega_model($ing->bodega);
 			$detOcs = $this->getDetalle();
 			foreach ($detOcs as $row) {
 				if ((float)$row->cantidad > (float)0) {
@@ -105,50 +105,43 @@ class Compra_model extends General_Model
 					$row->precio_unitario = $costo;
 					$row->precio_total = $costo * $row->cantidad;
 					$row->precio_costo_iva = $row->precio_total * $emp->porcentaje_iva;
-					$pres = new Presentacion_model($row->presentacion);
-
+					
 					$det = $ing->setDetalle((array) $row);
 					if ($det) {
 						$art = new Articulo_model($row->articulo);
-						$art->actualizarExistencia([
-							"bodega" => $ing->bodega,
-							"sede" => $bod->sede
-						]);
+						$presArt = $art->getPresentacion();
+						$pres = new Presentacion_model($row->presentacion);
 
-						$bcosto = $this->BodegaArticuloCosto_model->buscar([
-							'bodega' => $ing->bodega,
-							'articulo' => $art->getPK(),
-							'_uno' => true
-						]);
-
-						$costo = $art->getCosto(["bodega" => $ing->bodega]);
-
-						if ($bcosto) {
-							$bac->cargar($bcosto->bodega_articulo_costo);
-							/*Ultima compra*/
-							$costo_uc = $art->getCosto([
-								"bodega" => $ing->bodega,
-								"metodo_costeo" => 1
-							]);
-							$bac->costo_ultima_compra = $costo_uc;
-
-							/*Costo promedio*/
-							$costo = $bcosto->costo_promedio * $art->existencias + $row->precio_total;
-							$existencia = $art->existencias + $row->cantidad * $pres->cantidad;
-							if ($existencia != 0) {
-								$costo = $costo / $existencia;
-							}
-
-							$bac->costo_promedio = $costo;
-						} else {
-							$bac->bodega = $ing->bodega;
-							$bac->articulo = $art->getPK();
-							$bac->costo_ultima_compra = $costo ?? 0;
-							$bac->costo_promedio = $costo ?? 0;
-						}
-
-						$art->guardar(["costo" => $costo]);
-						$bac->guardar();
+						if ($pres->medida == $presArt->medida) {
+							$idArticulo = $row->articulo;
+							$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $idArticulo);							
+							$cantidad_presentacion = round((float)$pres->cantidad, 2);
+							$precio_unitario = round((float)$det->precio_unitario, 5);
+							$existencia_anterior = (float)0;
+							$cp_unitario_anterior = (float)0;
+							if ($datos_costo) {						
+								$existencia_anterior = round((float)$datos_costo->existencia, 2);
+								$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
+							} 
+							$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+							$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);						
+							$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
+		
+							$nvaData = [
+								'bodega' => (int)$ing->bodega,
+								'articulo' => (int)$idArticulo,
+								'cuc_ingresado' => 0,
+								'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+								'cp_ingresado' => 0,
+								'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+								'existencia_ingresada' => 0,
+								'existencia' => $existencia_nueva,
+								'fecha' => date('Y-m-d H:i:s')
+							];
+		
+							$nvoBac = new BodegaArticuloCosto_model();
+							$nvoBac->guardar($nvaData);							
+						}						
 
 						if ((int)$ing->ajuste === 0) {
 							$this->Ingreso_model->actualiza_ultima_compra($ing, $det, $row->monto);
@@ -157,11 +150,9 @@ class Compra_model extends General_Model
 						$this->mensaje = $ing->getMensaje();
 					}
 				}
-			}
-			$this->db
-				->set('ingreso', $ing->ingreso)
-				->set('orden_compra', $this->orden_compra)
-				->insert('ingreso_has_orden_compra');
+			}			
+
+			$this->db->set('ingreso', $ing->ingreso)->set('orden_compra', $this->orden_compra)->insert('ingreso_has_orden_compra');
 			return $ing;
 		} else {
 			$this->mensaje = $ing->getMensaje();
