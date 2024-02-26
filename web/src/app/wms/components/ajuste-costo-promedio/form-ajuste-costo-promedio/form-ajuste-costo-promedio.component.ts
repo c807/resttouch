@@ -145,8 +145,8 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     );
   }
 
-  subcategoriaSelectedEv = (obj: MatSelectChange) => {    
-    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);    
+  subcategoriaSelectedEv = (obj: MatSelectChange) => {
+    this.lstArticulos = this.lstArticulosOriginal.filter(a => +a.categoria_grupo === +obj.value);
     this.ajusteCostoPromedio.articulo = null;
   }
 
@@ -154,7 +154,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
     params.mostrar_inventario = 1;
     this.endSubs.add(
       this.articuloSrvc.getArticulos(params).subscribe(res => {
-        this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');        
+        this.lstArticulos = OrdenarArrayObjetos(res, 'descripcion');
         this.lstArticulosOriginal = [...this.lstArticulos];
       })
     );
@@ -272,8 +272,9 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
           this.endSubs.add(
             this.ajusteCostoPromedioSrvc.confirmar(this.ajusteCostoPromedio.ajuste_costo_promedio).subscribe((res) => {
               if (res.exito) {
-                this.ajusteCostoPromedio = res.ajuste_costo_promedio as AjusteCostoPromedio;
+                this.ajusteCostoPromedio = res.ajuste_costo_promedio as AjusteCostoPromedio;                
                 this.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
+                this.ajusteCostoPromedioSavedEv.emit();
                 this.snackBar.open(res.mensaje, 'Ajuste', { duration: 5000 });
               } else {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Ajuste', { duration: 5000 });
@@ -302,6 +303,7 @@ export class FormAjusteCostoPromedioComponent implements OnInit, OnDestroy {
             }
           }
           this.cargando = false;
+          this.loadDetalleAjusteCostoPromedio(this.ajusteCostoPromedio.ajuste_costo_promedio);
         }
       })
     );
