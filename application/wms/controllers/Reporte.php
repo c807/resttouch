@@ -1297,7 +1297,7 @@ class Reporte extends CI_Controller
 
 			$lista = $this->Reporte_model->get_lista_compra($params);
 
-			if ($lista) {
+			// if ($lista) {
 				$data = [];
 				$nombreArchivo = "resumen_pedidos_proveedor_" . rand();
 
@@ -1310,6 +1310,9 @@ class Reporte extends CI_Controller
 					$data = ordenar_array_objetos($data, 'orden_alfa');
 				}
 
+				$params['datos_sede'] = $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]);
+				$params['datos_bodega'] = $this->Bodega_model->buscar(['bodega' => $params['bodega'], '_uno' => true]);
+
 				if (verDato($params, "_excel")) {
 					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 
@@ -1318,14 +1321,17 @@ class Reporte extends CI_Controller
 					$hoja->setTitle("Reporte");
 
 					$hoja->setCellValue("A1", "Resumen de pedidos por proveedor")->mergeCells("A1:D1");
-					$hoja->setCellValue("A3", "Del: ");
-					$hoja->setCellValue("A4", "Al: ");
-					$hoja->getStyle("A1:A4")->getFont()->setBold(true);
+					$hoja->setCellValue("A2", "Sede: ");
+					$hoja->setCellValue("A3", "Las existencias se calculan con base en la bodega: {$params['datos_bodega']->descripcion}")->mergeCells("A3:D3");
+					$hoja->setCellValue("A4", "Del: ");
+					$hoja->setCellValue("A5", "Al: ");
+					
+					$hoja->setCellValue("B2", "{$params['datos_sede']->nombre} ({$params['datos_sede']->alias})");
+					$hoja->setCellValue("B4", formatoFecha($params["fdel"], 2));
+					$hoja->setCellValue("B5", formatoFecha($params["fal"], 2));
+					$hoja->getStyle("A1:B5")->getFont()->setBold(true);
 
-					$hoja->setCellValue("B3", formatoFecha($params["fdel"], 2));
-					$hoja->setCellValue("B4", formatoFecha($params["fal"], 2));
-
-					$pos   = 6;
+					$pos   = 8;
 					$total = 0;
 
 					foreach ($data as $key => $row) {
@@ -1341,9 +1347,9 @@ class Reporte extends CI_Controller
 						$hoja->setCellValue("A{$pos}", $row->notas)->mergeCells("A{$pos}:F{$pos}");
 
 						$pos++;
-						$hoja->setCellValue("B{$pos}", "Codigo");
-						$hoja->setCellValue("C{$pos}", "Descripcion");
-						$hoja->setCellValue("D{$pos}", "Presentacion");
+						$hoja->setCellValue("B{$pos}", "Código");
+						$hoja->setCellValue("C{$pos}", "Descripción");
+						$hoja->setCellValue("D{$pos}", "Presentación");
 						$hoja->setCellValue("E{$pos}", "Existencia");
 						$hoja->setCellValue("F{$pos}", "Cantidad");
 						$hoja->setCellValue("G{$pos}", "Costo U.");
@@ -1415,7 +1421,7 @@ class Reporte extends CI_Controller
 
 					// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
 				}
-			}
+			//} //If lista
 		}
 	}
 

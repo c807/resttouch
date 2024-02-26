@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { GLOBAL, openInNewTab } from '@shared/global';
+import { GLOBAL, isNotNullOrUndefined, openInNewTab } from '@shared/global';
 import { saveAs } from 'file-saver';
 import * as moment from 'moment';
 
@@ -84,28 +84,32 @@ export class ResumenPedidosProveedorComponent implements OnInit, OnDestroy {
 	}
 
 	requestPDF = (esExcel = 0) => {
-		this.cargando            = true;
-		this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
-		this.paramsToSend._excel = esExcel;
-		this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
-		this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
-		this.paramsToSend._alfa    = this.params._alfa;
-		this.paramsToSend.bodega = this.params.bodega;
-
-		this.endSubs.add(
-			this.ReporteSrvc.generar_archivo_pedidos_proveedor(this.paramsToSend).subscribe(res => {
-				this.cargando = false;
-				if (res) {
-					const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
-					if (+esExcel === 0) {
-						openInNewTab(URL.createObjectURL(blob));
+		if (isNotNullOrUndefined(this.params.sede) && isNotNullOrUndefined(this.params.bodega)) {			
+			this.cargando            = true;
+			this.paramsToSend        = JSON.parse(JSON.stringify(this.params));
+			this.paramsToSend._excel = esExcel;
+			this.paramsToSend.fdel   = moment(this.paramsToSend.fdel).format('YYYY-MM-DD');
+			this.paramsToSend.fal    = moment(this.paramsToSend.fal).format('YYYY-MM-DD');
+			this.paramsToSend._alfa    = this.params._alfa;
+			this.paramsToSend.bodega = this.params.bodega;
+	
+			this.endSubs.add(
+				this.ReporteSrvc.generar_archivo_pedidos_proveedor(this.paramsToSend).subscribe(res => {
+					this.cargando = false;
+					if (res) {
+						const blob = new Blob([res], {type: (+esExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel')});
+						if (+esExcel === 0) {
+							openInNewTab(URL.createObjectURL(blob));
+						} else {
+							saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						}
 					} else {
-						saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+						this.snackBar.open('No se pudo generar el reporte...', 'Resumen pedidos proveedor.', {duration: 3000});
 					}
-				} else {
-					this.snackBar.open('No se pudo generar el reporte...', 'Resumen pedidos proveedor.', {duration: 3000});
-				}
-			})
-		);
+				})
+			);
+		} else {
+			this.snackBar.open('Por favor seleccionar sede y bodega para generar el reporte.', 'Resumen pedidos proveedor.', {duration: 3000});
+		}
 	}
 }
