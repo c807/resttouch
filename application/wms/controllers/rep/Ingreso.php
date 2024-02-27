@@ -117,6 +117,7 @@ class Ingreso extends CI_Controller
 
 				foreach ($tmp->detalle as $llave => $fila) {
 					$total += $datos['iva'] == 1 ? $fila->costo_total_con_iva : $fila->costo_total_con_iva / 1.12;
+					$fila->costo = $datos['iva'] == 1 ? $fila->costo_total_con_iva : $fila->costo_total_con_iva / 1.12;
 				}
 
 				$data[] = (object) [
@@ -226,12 +227,12 @@ class Ingreso extends CI_Controller
 								$hoja->setCellValue("C{$pos}", $fila->articulo);
 								$hoja->setCellValue("D{$pos}", $fila->presentacion);
 								$hoja->setCellValue("E{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
-								$hoja->setCellValue("F{$pos}", number_format((float)$fila->costo_total_con_iva, 2, ".", ""));
+								$hoja->setCellValue("F{$pos}", number_format((float)$fila->costo, 2, ".", ""));
 								$hoja->getStyle("E{$pos}:F{$pos}")
 									->getNumberFormat()
 									->setFormatCode("0.00");
 
-								$tmpTotal += $fila->costo_total_con_iva;
+								$tmpTotal += $fila->costo;
 								$pos++;
 							}
 

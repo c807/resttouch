@@ -61,7 +61,7 @@
 								<td class="cuerpo text-left" colspan="2"><?php echo $det->articulo ?></td>
 								<td class="cuerpo text-left" colspan="2"><?php echo $det->presentacion?></td>
 								<td class="cuerpo text-right"><?php echo number_format($det->cantidad, 2)?></td>
-								<td class="cuerpo text-right"><?php echo number_format($det->costo_total_con_iva, 2)?></td>
+								<td class="cuerpo text-right"><?php echo number_format($det->costo, 2)?></td>
 							</tr>
 						<?php endforeach ?>
 						<tr class="total-documento">
