@@ -80,7 +80,8 @@ class Fisico extends CI_Controller
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			$rec = $art->getReceta();
-			if (count($rec) == 0 || $art->produccion) {
+			$cntReceta = count($rec);
+			if ($cntReceta == 0 || $art->produccion || ($cntReceta !== 0 && (int)$art->mostrar_inventario === 1)) {
 				$articulos[] = $row;
 			}
 		}
