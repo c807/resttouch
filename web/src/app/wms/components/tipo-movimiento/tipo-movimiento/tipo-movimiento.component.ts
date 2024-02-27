@@ -20,7 +20,12 @@ export class TipoMovimientoComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  setTipoMovimiento = (tm: TipoMovimiento) => this.tipoMovimiento = tm;
+  setTipoMovimiento = (tm: TipoMovimiento) => {
+    this.tipoMovimiento = { tipo_movimiento: null, descripcion: null, ingreso: 0, egreso: 0, requisicion: 0, esajuste_cp: 0 };
+    for (let i in tm) {
+      this.tipoMovimiento[i] = tm[i]
+    }
+  };
 
   refreshTipoMovimientoList = () => this.lstTipoMovimiento.loadTiposMovimiento();
 
