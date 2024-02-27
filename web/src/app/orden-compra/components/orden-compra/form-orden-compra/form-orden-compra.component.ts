@@ -366,8 +366,7 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra, +this.ordenCompra.bodega).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          // saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+          const blob = new Blob([res], { type: 'application/pdf' });          
           openInNewTab(URL.createObjectURL(blob));
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'OC', { duration: 3000 });
