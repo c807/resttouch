@@ -88,6 +88,7 @@ export class CajaComponent implements OnInit, OnDestroy {
   checkValue() {
     if (this.params.porTurno) {
       this.params.sede = [];
+      this.params.turno_tipo = null;
     }
   }
 
@@ -143,7 +144,7 @@ export class CajaComponent implements OnInit, OnDestroy {
       this.cargando = false;
       if (res) {
 
-        console.log(res);
+        // console.log(res);
         const blob = new Blob([res], { type: (+enExcel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
         if (+enExcel === 0) {          
           openInNewTab(URL.createObjectURL(blob));
@@ -166,7 +167,7 @@ export class CajaComponent implements OnInit, OnDestroy {
     this.params._digital = true;
 
     if (this.params.porTurno) {
-      console.log("Printing por turno");
+      // console.log("Printing por turno");
       this.printPorTurno(enExcel);
       return;
     }

@@ -144,7 +144,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));
+  loadMunicipios = () => this.endSubs.add(this.mupioSrvc.get().subscribe(res => this.municipios = res));                                            
 
   getCliente = (obj: Cliente) => this.getClienteEv.emit(obj);
 
@@ -167,7 +167,7 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
             }
           }
           this.loadClientes();
-          this.getCliente(result);
+          this.getCliente(result);                             
           this.txtFiltro = (result as Cliente).nombre;
           this.applyFilter();
           if (+idx > 0) {
@@ -192,4 +192,21 @@ export class ListaClienteComponent implements OnInit, OnDestroy {
       this.lstClientes[idxListaOriginal] = cli;
     }
   }
+
+  setClienteCF = () => {
+    let cf = this.lstClientes.filter(e => {
+      return e.nit.toLowerCase() == "cf"
+    })
+
+    if (cf.length > 0) {
+      let cli = cf[0]
+      if (!this.desHabilitaCliente(cli)) {
+        this.getCliente(cli)
+      } else {
+        this.snackBar.open('No se puede seleccionar Consumidor Final cuando el monto soprepasa los Q2,500', 'Elija otro cliente', { duration: 3000 });
+      }
+    }
+
+  }
 }
+

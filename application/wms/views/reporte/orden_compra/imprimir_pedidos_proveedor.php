@@ -7,13 +7,20 @@
 </head>
 <body lang="es-GT" dir="ltr">
 	<p class="text-center"><b>Resumen de pedidos por proveedor</b></p>
-	<table style="width: 35%;" class="sborder">
+	<table style="width: 100%;" class="sborder">
 		<tr>
-			<td class="sborder"><b>Del: </b> </td>
+			<td class="sborder td-title-width"><b>Sede:</b></td>
+			<td class="sborder"><?php echo "{$params['datos_sede']->nombre} ({$params['datos_sede']->alias})"?></td>
+		</tr>
+		<tr>			
+			<td class="sborder" colspan="2"><b><?php echo "Las existencias se calculan con base en la bodega: {$params['datos_bodega']->descripcion}"?></b></td>
+		</tr>
+		<tr>
+			<td class="sborder td-title-width"><b>Del:</b></td>
 			<td class="sborder"><?php echo formatoFecha($params["fdel"], 2)?></td>
 		</tr>
 		<tr>
-			<td class="sborder"><b>Al:</b> </td>
+			<td class="sborder td-title-width"><b>Al:</b></td>
 			<td class="sborder"><?php echo formatoFecha($params["fal"], 2)?></td>
 		</tr>
 	</table>
@@ -34,9 +41,9 @@
 					</tr>
 					<tr>
 						<td class="sborder"><br></td>
-						<td class="titulo">Codigo</td>
-						<td class="titulo">Descripcion</td>
-						<td class="titulo">Presentacion</td>
+						<td class="titulo">Código</td>
+						<td class="titulo">Descripción</td>
+						<td class="titulo">Presentación</td>
 						<td class="titulo text-right">Existencias</td>
 						<td class="titulo text-right">Cantidad</td>
 						<td class="titulo text-right">Costo U.</td>
@@ -74,8 +81,8 @@
 <style type="text/css">
 	body {font-family: sans-serif;}
 	table {width: 100%; border-collapse: collapse; border: 1px solid black; padding: 5px;}
-	td {width: auto; border-collapse: collapse; border: 1px solid black;}
-
+	td { border-collapse: collapse; border: 1px solid black;}
+	
 	.text-right {text-align: right;}
 	.text-center {text-align: center;}
 	.tabla-contenido {font-size: 0.65em;}
@@ -84,4 +91,5 @@
 	.titulo {text-align: center; vertical-align: middle; background-color: #E5E5E5; font-weight: bold;}
 	.totales {text-align: right; background-color: #E5E5E5; }
 	.sborder {border: none;}
+	.td-title-width {width: 7%;}
 </style>

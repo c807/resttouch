@@ -47,7 +47,6 @@ import { ListaEgresoComponent } from './components/egreso/lista-egreso/lista-egr
 import { FormEgresoComponent } from './components/egreso/form-egreso/form-egreso.component';
 import { TransformacionComponent } from './components/transformacion/transformacion.component';
 
-// import { TransformacionService } from './services/transformacion.service';
 import { ExistenciasComponent } from './components/reporte/existencias/existencias.component';
 import { KardexComponent } from './components/reporte/kardex/kardex.component';
 import { ListaProductoAltComponent } from './components/producto/lista-producto-alt/lista-producto-alt.component';
@@ -80,6 +79,8 @@ import { DetalleRecetaWizardComponent } from './components/producto/wizards/rece
 import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
 import { FormAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/form-ajuste-costo-promedio/form-ajuste-costo-promedio.component';
 import { ListaAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/lista-ajuste-costo-promedio/lista-ajuste-costo-promedio.component';
+import { AjusteCostoExistenciaComponent } from './components/ajuste-costo-existencia/ajuste-costo-existencia/ajuste-costo-existencia.component';
+import { DetalleCargaRealizadaComponent } from './components/ajuste-costo-existencia/detalle-carga-realizada/detalle-carga-realizada.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,9 @@ import { ListaAjusteCostoPromedioComponent } from './components/ajuste-costo-pro
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
     FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
     ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
-    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent, AjusteCostoPromedioComponent, FormAjusteCostoPromedioComponent, ListaAjusteCostoPromedioComponent
+    PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, 
+    DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent, AjusteCostoPromedioComponent, FormAjusteCostoPromedioComponent, ListaAjusteCostoPromedioComponent, 
+    AjusteCostoExistenciaComponent, DetalleCargaRealizadaComponent
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,39 @@
+<h1 mat-dialog-title>Detalle de carga del {{data.fecha | date:'dd/MM/yyyy'}}</h1>
+<div mat-dialog-content class="contenido">
+    <table>
+        <caption>
+            <mat-form-field class="fullWidth">                
+                <input matInput type="text" (keyup)="applyFilter()" placeholder="Buscar..." [(ngModel)]="txtFiltro" [ngModelOptions]="{standalone: true}">
+            </mat-form-field>            
+        </caption>
+        <thead>
+            <tr>
+                <th>Fecha/Hora</th>
+                <th>Sede</th>
+                <th>Bodega</th>
+                <th>Artículo</th>
+                <th>Presentación</th>
+                <th class="rtxt">Costo ingresado</th>
+                <th class="rtxt">Existencia ingresada</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let det of detalleFiltered">
+                <td>{{det.fecha | date:'HH:mm:ss'}}</td>
+                <td>{{det.sede}}</td>
+                <td>{{det.bodega}}</td>
+                <td>{{det.articulo}}</td>
+                <td>{{det.presentacion}}</td>
+                <td *ngIf="+det.metodo_costeo === 1" class="rtxt">{{det.cuc_ingresado | number:'1.5-5'}}</td>
+                <td *ngIf="+det.metodo_costeo === 2" class="rtxt">{{det.cp_ingresado | number:'1.5-5'}}</td>
+                <td class="rtxt">{{det.existencia_ingresada | number:'1.2-2'}}</td>
+            </tr>
+        </tbody>
+    </table>    
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-raised-button (click)="cerrar()" color="warn">
+        Cerrar
+    </button>
+</div>
+

@@ -62,6 +62,8 @@
 						</mat-select>
 					</mat-form-field>
 
+					<mat-checkbox name="resumen" [(ngModel)]="params.resumen" >Resumen Detallado</mat-checkbox>
+
 					<app-rpt-botones [configuracion]="configBotones" (excelClick) = "requestPDF(1)" (pdfClick)="requestPDF()" (resetParamsClick)="resetParams()"></app-rpt-botones>
 				</form>
 				<app-cargando *ngIf="cargando"></app-cargando>

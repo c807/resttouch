@@ -4,8 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectChange } from '@angular/material/select';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
-import { saveAs } from 'file-saver';
+import { GLOBAL, openInNewTab } from '@shared/global';
 import * as moment from 'moment';
 
 import { OrdenCompra } from '@orden-compra-interfaces/orden-compra';
@@ -367,8 +366,8 @@ export class FormOrdenCompraComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.pdfServicio.getOrdenCompra(+this.ordenCompra.orden_compra, +this.ordenCompra.bodega).subscribe(res => {
         if (res) {
-          const blob = new Blob([res], { type: 'application/pdf' });
-          saveAs(blob, `OC_${this.ordenCompra.orden_compra}_${moment().format(GLOBAL.dateTimeFormatRptName)}.pdf`);
+          const blob = new Blob([res], { type: 'application/pdf' });          
+          openInNewTab(URL.createObjectURL(blob));
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'OC', { duration: 3000 });
         }

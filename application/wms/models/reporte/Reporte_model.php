@@ -260,7 +260,7 @@ join categoria d on d.categoria = c.categoria
 join factura f on a.factura = f.factura and f.sede = d.sede
 join presentacion p on a.presentacion = p.presentacion
 left join detalle_factura_detalle_cuenta e on a.detalle_factura = e.detalle_factura
-where e.detalle_factura_detalle_cuenta is null and b.mostrar_inventario = 1 
+where e.detalle_factura_detalle_cuenta is null and b.mostrar_inventario = 1 and f.fel_uuid IS NOT NULL
 {$where} {$group}
 EOT;
 	}
@@ -394,6 +394,7 @@ EOT;
 		}
 
 		if ($args->reporte == 3) {
+			$this->load->model(['BodegaArticuloCosto_model']);
 			$this->db
 				->select("
 				 	f.descripcion as subcategoria,
@@ -401,7 +402,8 @@ EOT;
 				 	d.descripcion as producto,
 				 	a.precio_unitario * {$porIva} as ultimo_costo,
 				 	avg(a.precio_unitario * {$porIva}) as costo_promedio,
-				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion
+				 	ifnull(stddev_samp(a.precio_unitario * {$porIva}),0) as desviacion,
+					d.articulo AS idarticulo, y.cantidad AS cantidad_presentacion, f.bodega AS bodega_descarga, b.ajuste_costo_promedio
 				 ", FALSE)
 				->order_by("g.descripcion, f.descripcion, a.articulo")
 				->group_by("d.codigo");
@@ -420,7 +422,8 @@ EOT;
 				e.razon_social as nproveedor,
 				a.precio_total * {$porIva} as costo_total,
 				h.descripcion as ntipo_movimiento,
-				i.descripcion as nestatus
+				i.descripcion as nestatus,
+				b.ajuste_costo_promedio
 			", FALSE);
 		}
 
@@ -434,7 +437,8 @@ EOT;
 			->join("categoria g", "g.categoria = f.categoria")
 			->join("tipo_movimiento h", "h.tipo_movimiento = b.tipo_movimiento")
 			->join("estatus_movimiento i", "i.estatus_movimiento = b.estatus_movimiento")
-			->join('sede z', 'z.sede = c.sede');
+			->join('sede z', 'z.sede = c.sede')
+			->join('presentacion y', 'y.presentacion = d.presentacion_reporte');
 
 		$this->db->order_by("b.fecha", "asc")
 			->order_by("b.ingreso", "desc");
@@ -442,6 +446,21 @@ EOT;
 		$tmp = $this->db->get();
 
 		if ($tmp->num_rows() > 0) {
+			if ($args->reporte == 3) {
+				$res = $tmp->result();
+				$cntRes = count($res);				
+				for ($i = 0; $i < $cntRes; $i++) {
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($res[$i]->bodega_descarga , $res[$i]->idarticulo);
+					$cp = 0;
+					if ($datos_costo) {
+						$cp = $datos_costo->costo_promedio;
+					}
+					$res[$i]->costo_promedio = ((float)$cp * $porIva) * (float)$res[$i]->cantidad_presentacion;
+				}				
+
+				return $res;
+			}
+
 			return $tmp->result();
 		}
 
@@ -564,10 +583,10 @@ EOT;
 	function get_ingreso($idIngreso)
 	{
 		$campos = "a.ingreso, b.descripcion AS tipo_movimiento, DATE_FORMAT(a.fecha, '%d/%m/%Y') AS fecha, DATE_FORMAT(a.creacion, '%d/%m/%Y %H:%i:%s') AS creacion, ";
-		$campos.= "CONCAT(c.descripcion, ' - ', IFNULL(CONCAT(f.nombre, ' (', f.alias, ')'), '')) AS bodega, c.merma, d.usrname AS usuario, ";
+		$campos.= "c.descripcion AS bodega, c.merma, d.usrname AS usuario, ";
 		$campos.= "CONCAT(h.descripcion, ' - ', IFNULL(CONCAT(j.nombre, ' (', j.alias, ')'), '')) as bodega_origen, ";
 		$campos.= "a.comentario, e.razon_social as proveedor, IF(a.ajuste = 0, 'No', 'Sí') AS ajuste, f.nombre AS sede, ";
-		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus";
+		$campos.= "f.alias AS alias_sede, g.nombre AS empresa, i.descripcion as nestatus, a.ajuste_costo_promedio";
 		$ingreso = $this->db		
 			->select($campos)
 			->join('tipo_movimiento b', 'b.tipo_movimiento = a.tipo_movimiento')
@@ -612,7 +631,7 @@ EOT;
 			->get('traslado_detalle a')
 			->row();
 
-			$ingreso->egreso_origen = $egreso_origen ? $egreso_origen->egreso : null;
+			$ingreso->egreso_origen = $egreso_origen ? $egreso_origen->egreso : (!is_null($ingreso->ajuste_costo_promedio) ? $ingreso->ajuste_costo_promedio : null);
 		}
 		return $ingreso;
 	}

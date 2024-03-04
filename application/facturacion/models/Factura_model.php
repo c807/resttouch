@@ -251,7 +251,7 @@ class Factura_model extends General_model
 			}
 			unset($valores['detalle_factura']);
 			$valores['factura'] = $factura;
-			$valores['cantidad_inventario'] = $valores['cantidad'];
+			$valores['cantidad_inventario'] = is_null($valores['cantidad_inventario_backup']) ? $valores['cantidad'] : $valores['cantidad_inventario_backup'];
 
 			$this->db->insert('detalle_factura', $valores);
 
@@ -2194,6 +2194,62 @@ class Factura_model extends General_model
 			'documento' => "{$this->certificador->vinculo_grafo}{$this->fel_uuid}&formato=pdf",
 			'tipo'      => 'link'
 		];
+	}
+
+	public function actualiza_costo_existencia()
+	{
+		$detalle = $this->db
+			->select('a.detalle_factura, a.cantidad_inventario, a.articulo, a.bodega, b.cantidad AS cantidad_presentacion')
+			->join('presentacion b', 'b.presentacion = a.presentacion')
+			->join('articulo c', 'c.articulo = a.articulo')
+			->where('a.factura', $this->getPK())
+			->where('a.bodega IS NOT NULL')
+			->where('c.mostrar_inventario', 1)
+			->get('detalle_factura a')
+			->result();
+
+		foreach ($detalle as $det) {
+			$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($det->bodega, $det->articulo);
+			if ($datos_costo) {
+				$cu = (float)0;
+				if ((int)$datos_costo->metodo_costeo === 1) {
+					$cu = (float)$datos_costo->costo_ultima_compra * (float)$det->cantidad_presentacion;
+				} else if ((int)$datos_costo->metodo_costeo === 2) {
+					$cu = (float)$datos_costo->costo_promedio * (float)$det->cantidad_presentacion;
+				}
+
+				$this->db->where('detalle_factura', $det->detalle_factura)->update('detalle_factura', [
+					'costo_unitario' => $cu,
+					'costo_total' => $cu * (float)$det->cantidad_inventario
+				]);
+
+				$nvaData = [
+					'bodega' => (int)$det->bodega,
+					'articulo' => (int)$det->articulo,
+					'cuc_ingresado' => 0,
+					'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+					'cp_ingresado' => 0,
+					'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+					'existencia_ingresada' => 0,
+					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
+					'fecha' => date('Y-m-d H:i:s')
+				];
+			} else {
+				$nvaData = [
+					'bodega' => (int)$det->bodega,
+					'articulo' => (int)$det->articulo,
+					'cuc_ingresado' => 0,
+					'costo_ultima_compra' => 0,
+					'cp_ingresado' => 0,
+					'costo_promedio' => 0,
+					'existencia_ingresada' => 0,
+					'existencia' => round((float)0 - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
+					'fecha' => date('Y-m-d H:i:s')
+				];
+			}
+			$nvoBac = new BodegaArticuloCosto_model();
+			$nvoBac->guardar($nvaData);
+		}
 	}
 
 	public function getNoOrden()

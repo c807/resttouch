@@ -17,7 +17,7 @@
         </mat-card>
         <div class="row" style="margin-top: 5px;">
             <div class="col m4 s1 col-padding">
-                <mat-card class="light-bck" style="height: 30%; width: 100%;">
+                <mat-card class="withe" style="height: 30%; width: 100%;">
                     <mat-card-subtitle align="center">
                         VENTAS
                         <small>
@@ -25,12 +25,32 @@
                         </small>
                     </mat-card-subtitle>
                     <mat-card-content align="center">
-                        <h3>{{dataPorSedeFecha.total | number:'1.2-2'}}</h3>
+                        <h3>{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
+                            +dataPorSedeFecha.formas_pago.total_ingresos_propina +
+                            +dataPorSedeFecha.formas_pago.total_descuentos_monto +
+                            +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2'}}</h3>
+                    </mat-card-content>
+                    <mat-card-footer align="center">
+                        Incluye propina e I.V.A. sin restar los descuentos.
+                    </mat-card-footer>
+                </mat-card>
+                <mat-card class="light-bck" style="height: 30%; width: 100%; margin-top: 5px;">
+                    <mat-card-subtitle align="center">
+                        INGRESOS NETOS
+                        <small>
+                            (rango de fechas y sede(s) seleccionada)
+                        </small>
+                    </mat-card-subtitle>
+                    <mat-card-content align="center">
+                        <h3>{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
+                            +dataPorSedeFecha.formas_pago.total_ingresos_propina +
+                            +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2'}}
+                        </h3>
                     </mat-card-content>
                     <mat-card-footer align="center">
                         Incluye propina e I.V.A.
                     </mat-card-footer>
-                </mat-card>
+                </mat-card> 
                 <mat-card style="height: 70%; width: 100%; margin-top: 5px;">
                     <mat-card-content>
                         <mat-tab-group>                            
@@ -85,12 +105,16 @@
                     <mat-card-content align="center">
                         <table>
                             <tr>
-                                <th class="rtxt">VENTAS SIN I.V.A.</th>
-                                <td class="rtxt">{{dataPorSedeFecha.total_sin_iva | number:'1.2-2'}}</td>
+                                <th class="rtxt">INGRESOS NETOS SIN I.V.A.</th>
+                                <td class="rtxt">{{((+dataPorSedeFecha.formas_pago.total_ingresos_monto +
+                                                    +dataPorSedeFecha.formas_pago.total_ingresos_propina +
+                                                    +dataPorSedeFecha.formas_pago.total_descuentos_propina)/1.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">I.V.A.</th>
-                                <td class="rtxt">{{dataPorSedeFecha.iva | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{(((+dataPorSedeFecha.formas_pago.total_ingresos_monto +
+                                                     +dataPorSedeFecha.formas_pago.total_ingresos_propina +
+                                                     +dataPorSedeFecha.formas_pago.total_descuentos_propina)/1.12)*0.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">PROPINA</th>
@@ -102,12 +126,13 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="rtxt">INGRESOS</th>
-                                <td class="rtxt">{{dataPorSedeFecha.total | number:'1.2-2'}}</td>
+                                <th class="rtxt">INGRESOS CON IVA</th>
+                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">DESCUENTOS</th>
-                                <td class="rtxt">{{dataPorSedeFecha.descuento | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_monto |
+                                    number:'1.2-2'}}</td>
                             </tr>
                         </table>
                     </mat-card-content>

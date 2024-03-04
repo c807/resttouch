@@ -80,7 +80,8 @@ class Fisico extends CI_Controller
 		foreach ($arts as $row) {
 			$art = new Articulo_model($row->articulo);
 			$rec = $art->getReceta();
-			if (count($rec) == 0 || $art->produccion) {
+			$cntReceta = count($rec);
+			if ($cntReceta == 0 || $art->produccion || ($cntReceta !== 0 && (int)$art->mostrar_inventario === 1)) {
 				$articulos[] = $row;
 			}
 		}
@@ -110,8 +111,7 @@ class Fisico extends CI_Controller
 		}
 
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	public function imprimir($id = '')
@@ -373,8 +373,7 @@ class Fisico extends CI_Controller
 			$datos['mensaje'] = 'Parámetros inválidos.';
 		}
 
-		$this->output
-			->set_output(json_encode($datos));
+		$this->output->set_output(json_encode($datos));
 	}
 
 	private function getMovAjuste($deIngreso = 0, $deEgreso = 0)
@@ -476,9 +475,9 @@ class Fisico extends CI_Controller
 							foreach ($egreso as $row) {
 								$bac = new BodegaArticuloCosto_model();
 								$art = new Articulo_model($row->articulo);
-								if (!in_array($row->articulo, $idsArticulos)) {
-									$idsArticulos[] = (int)$row->articulo;
-								}
+								// if (!in_array($row->articulo, $idsArticulos)) {
+								// 	$idsArticulos[] = (int)$row->articulo;
+								// }
 								$pres = $art->getPresentacionReporte();
 
 								$costo = $bac->get_costo($egr->bodega, $row->articulo, $pres->presentacion);
@@ -493,6 +492,7 @@ class Fisico extends CI_Controller
 
 								$egr->setDetalle($datos);
 							}
+							$egr->actualiza_costo_existencia(true);
 						}
 					}
 					// Termina código para generar salidas de ajuste
@@ -515,9 +515,6 @@ class Fisico extends CI_Controller
 							foreach ($ingreso as $row) {
 								$bac = new BodegaArticuloCosto_model();
 								$articulo = new Articulo_model($row->articulo);
-								if (!in_array($row->articulo, $idsArticulos)) {
-									$idsArticulos[] = (int)$row->articulo;
-								}
 								$pres = $articulo->getPresentacionReporte();
 								$costo = $bac->get_costo($ing->bodega, $row->articulo, $pres->presentacion);
 
@@ -531,6 +528,32 @@ class Fisico extends CI_Controller
 								];
 
 								$ing->setDetalle($datos);
+
+								$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $row->articulo);
+								if ($datos_costo) {
+									$cantidad_presentacion = round((float)$pres->cantidad, 2);									
+									$existencia_anterior = round((float)$datos_costo->existencia, 2);
+									$existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);									
+
+									$nvaData = [
+										'bodega' => (int)$ing->bodega,
+										'articulo' => (int)$row->articulo,
+										'cuc_ingresado' => 0,										
+										'costo_ultima_compra' => $datos_costo->costo_ultima_compra,
+										'cp_ingresado' => 0,
+										'costo_promedio' => $datos_costo->costo_promedio,
+										'existencia_ingresada' => 0,
+										'existencia' => $existencia_nueva,
+										'fecha' => date('Y-m-d H:i:s')
+									];
+
+									$nvoBac = new BodegaArticuloCosto_model();
+									$nvoBac->guardar($nvaData);
+								} else {
+									if (!in_array($row->articulo, $idsArticulos)) {
+										$idsArticulos[] = (int)$row->articulo;
+									}
+								}
 							}
 						}
 					}

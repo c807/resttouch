@@ -27,6 +27,7 @@ class Dcomanda_model extends General_Model
 	public $cantidad_inventario = null;
 	public $costo_unitario = null;
 	public $costo_total = null;
+	public $cantidad_inventario_backup = null;
 
 	public function __construct($id = '')
 	{
@@ -107,7 +108,7 @@ class Dcomanda_model extends General_Model
 		return $montoExtra;
 	}
 
-	public function actualizarCantidadHijos($regresa_inventario = true)
+	public function actualizarCantidadHijos($regresa_inventario = true, $esNuevo = false)
 	{
 		$tmp = $this->db
 			->select('a.detalle_comanda, b.articulo')
@@ -126,6 +127,26 @@ class Dcomanda_model extends General_Model
 	
 				if ($regresa_inventario) {
 					$args['cantidad_inventario'] = $this->cantidad_inventario * $rec[0]->cantidad;
+
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($det->bodega, $det->articulo);
+					if ($datos_costo && !$esNuevo) {
+						$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
+						$cantidad_presentacion = round((float)$pres->cantidad, 2);						
+						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
+						$nvaData = [
+							'bodega' => (int)$det->bodega,
+							'articulo' => (int)$det->articulo,
+							'cuc_ingresado' => 0,
+							'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+							'cp_ingresado' => 0,
+							'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+							'existencia_ingresada' => 0,							
+							'existencia' => $existencia_nueva_hijo,
+							'fecha' => date('Y-m-d H:i:s')
+						];
+						$nvoBac = new BodegaArticuloCosto_model();
+						$nvoBac->guardar($nvaData);						
+					}
 				}
 				
 				$det->guardar($args);

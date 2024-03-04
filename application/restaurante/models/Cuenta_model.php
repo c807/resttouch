@@ -60,7 +60,7 @@ class Cuenta_model extends General_Model
 		$numero = $this->getNumeroDetalle($com->getPK());
 		foreach ($det as $row) {
 			$args = [
-				'detalle_comanda' => $row->detalle_comanda,
+				// 'detalle_comanda' => $row->detalle_comanda,
 				'impreso' => 1
 			];
 
@@ -69,7 +69,8 @@ class Cuenta_model extends General_Model
 				$args['fecha_impresion'] = Hoy(3);
 			}
 
-			$com->guardarDetalle($args);
+			// $com->guardarDetalle($args);
+			$this->db->where('detalle_comanda', $row->detalle_comanda)->update('detalle_comanda', $args);
 		}
 	}
 

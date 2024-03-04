@@ -34,7 +34,7 @@ class Articulo_model extends General_model
 	public $esextra = 0;
 	public $stock_minimo = null;
 	public $stock_maximo = null;
-	public $essellado = 0;	
+	public $essellado = 0;
 
 	public function __construct($id = '')
 	{
@@ -72,7 +72,7 @@ class Articulo_model extends General_model
 			->result();
 
 		$lista = [];
-		foreach($tmp as $item) {
+		foreach ($tmp as $item) {
 			$lista[(int)$item->categoria_grupo] = clone $item;
 		}
 		return $lista;
@@ -103,23 +103,24 @@ class Articulo_model extends General_model
 		if (empty($idArticulo)) {
 			$idArticulo = $this->articulo;
 		}
-		return $this->db->select('b.bodega')
+		return $this->db
+			->select('b.bodega')
 			->from('articulo a')
-			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')			
+			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
 			->where('a.articulo', $idArticulo)
 			->get()->row();
 	}
 
 	public function getListaBodegaArticulo()
-	{				
+	{
 		$tmp = $this->db
 			->select('a.articulo, b.bodega')
 			->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
 			->get('articulo a')
 			->result();
-		
+
 		$lista = [];
-		foreach($tmp as $item) {
+		foreach ($tmp as $item) {
 			$lista[(int)$item->articulo] = (object)['bodega' => $item->bodega];
 		}
 		return $lista;
@@ -127,7 +128,8 @@ class Articulo_model extends General_model
 
 	public function getDataForDetalleComanda()
 	{
-		return $this->db->select('b.cantidad as cant_pres_reporte, c.bodega')
+		return $this->db
+			->select('b.cantidad as cant_pres_reporte, c.bodega')
 			->join('presentacion b', 'b.presentacion = a.presentacion_reporte')
 			->join('categoria_grupo c', 'c.categoria_grupo = a.categoria_grupo')
 			->where('a.articulo', $this->articulo)
@@ -154,14 +156,14 @@ class Articulo_model extends General_model
 		if (!$listaMedidas) {
 			$this->load->model(['Umedida_model']);
 			$listaMedidas = $this->Umedida_model->get_lista_medidas();
-		}		
+		}
 
 		if (isset($args['_principal'])) {
 			$args['articulo'] = $this->articulo;
 		} else {
 			$args['receta'] = $this->articulo;
 		}
-		$args['anulado'] = 0;		
+		$args['anulado'] = 0;
 		$det = $this->Receta_model->buscar_recetas($args);
 		$datos = [];
 		if ($det) {
@@ -274,125 +276,127 @@ class Articulo_model extends General_model
 		return $exist;
 	}
 
-	public function actualizarExistencia($args = [])
+	function actualizarExistencia($args = [], $useOldWay = false)
 	{
 		if ($this->getPK()) {
 			$receta = $this->getReceta();
-			$principal = $this->getReceta(['_principal' => true]);
+			// $principal = $this->getReceta(['_principal' => true]);
 			// La siguiente validación es la que debería ponerse. Se decidió hacer el cambio más adelante. 21/05/2023 17:42.
-			// if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
-			if (count($receta) > 0 && $this->produccion == 0) {
+			// 17/02/2024 11:12: JM autorizó el camibio de la validación...
+			// if (count($receta) > 0 && $this->produccion == 0) { // Este era el IF original.
+			if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
 				$grupos = [];
 				//$venta = $this->getVentaReceta();
 				foreach ($receta as $row) {
 					$art = new Articulo_model($row->articulo->articulo);
-					$art->actualizarExistencia($args);
-					$existR = $art->existencias;
+					$art->actualizarExistencia($args, $useOldWay);
+					// $existR = $art->existencias;
 
 					$grupos[] = (int)($art->existencias / $row->cantidad);
 				}
 
 				$exist = min($grupos);
 			} else {
-				$exist = $this->obtenerExistencia($args, $this->articulo);
+				$exist = $this->obtenerExistencia($args, $this->articulo, false, $useOldWay);
 			}
 
 			return $this->guardar(['existencias' => $exist]);
 		}
 	}
 
-	public function obtenerExistencia($args = [], $articulo, $receta = false)
+	public function obtenerExistencia($args = [], $articulo, $receta = false, $useOldWay = false)
 	{
-		$pres = $this->getPresentacionReporte();
-		if (isset($args['sede'])) {
-			if (is_array($args['sede'])) {
-				$this->db->where_in('f.sede', $args['sede']);
-			} else {
-				$this->db->where('f.sede', $args['sede']);
-			}
+
+		$datos_existencia = null;
+		if (isset($args['bodega']) && (int)$args['bodega'] > 0 && !$useOldWay) {
+			$this->load->model('BodegaArticuloCosto_model');
+			$datos_existencia = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], $articulo);
 		}
 
-		if (isset($args['bodega'])) {
-			if (is_array($args['bodega'])) {
-				$this->db->where_in('f.bodega', $args['bodega']);
-			} else {
-				$this->db->where('f.bodega', $args['bodega']);
-			}
+		if ($datos_existencia) {
+			return round((float)$datos_existencia->existencia, 2);
 		} else {
-			$this->db->where('f.merma', 0);
-		}
-
-		if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
-			$this->db->where('e.estatus_movimiento', 2);
-		}
-
-		if (verDato($args, 'fecha')) {
-			$this->db->where('date(e.fecha) <=', $args['fecha']);
-		}
-
-		$ingresos = $this->db
-			->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
-			->join('articulo b', 'a.articulo = b.articulo')
-			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
-			->join('categoria d', 'd.categoria = c.categoria')
-			->join('ingreso e', 'e.ingreso = a.ingreso')
-			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
-			->join('presentacion p', 'a.presentacion = p.presentacion')
-			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)
-			->get('ingreso_detalle a')
-			->row(); //total ingresos
-
-		// $qi = $this->db->last_query();
-
-		if (isset($args['sede'])) {
-			if (is_array($args['sede'])) {
-				$this->db->where_in('f.sede', $args['sede']);
-			} else {
-				$this->db->where('f.sede', $args['sede']);
+			$pres = $this->getPresentacionReporte();
+			if (isset($args['sede'])) {
+				if (is_array($args['sede'])) {
+					$this->db->where_in('f.sede', $args['sede']);
+				} else {
+					$this->db->where('f.sede', $args['sede']);
+				}
 			}
-		}
 
-		if (isset($args['bodega'])) {
-			if (is_array($args['bodega'])) {
-				$this->db->where_in('f.bodega', $args['bodega']);
+			if (isset($args['bodega'])) {
+				if (is_array($args['bodega'])) {
+					$this->db->where_in('f.bodega', $args['bodega']);
+				} else {
+					$this->db->where('f.bodega', $args['bodega']);
+				}
 			} else {
-				$this->db->where('f.bodega', $args['bodega']);
+				$this->db->where('f.merma', 0);
 			}
+
+			if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
+				$this->db->where('e.estatus_movimiento', 2);
+			}
+
+			if (verDato($args, 'fecha')) {
+				$this->db->where('date(e.fecha) <=', $args['fecha']);
+			}
+
+			$ingresos = $this->db
+				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('ingreso e', 'e.ingreso = a.ingreso')
+				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
+				->where('a.articulo', $articulo)
+				->get('ingreso_detalle a')
+				->row(); //total ingresos			
+
+			if (isset($args['sede'])) {
+				if (is_array($args['sede'])) {
+					$this->db->where_in('f.sede', $args['sede']);
+				} else {
+					$this->db->where('f.sede', $args['sede']);
+				}
+			}
+
+			if (isset($args['bodega'])) {
+				if (is_array($args['bodega'])) {
+					$this->db->where_in('f.bodega', $args['bodega']);
+				} else {
+					$this->db->where('f.bodega', $args['bodega']);
+				}
+			}
+
+			if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
+				$this->db->where('e.estatus_movimiento', 2);
+			}
+
+			if (verDato($args, 'fecha')) {
+				$this->db->where('date(e.fecha) <=', $args['fecha']);
+			}
+
+			$egresos = $this->db
+				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+				->join('articulo b', 'a.articulo = b.articulo')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
+				->join('categoria d', 'd.categoria = c.categoria')
+				->join('egreso e', 'e.egreso = a.egreso')
+				->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
+				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
+				->where('a.articulo', $articulo)
+				->get('egreso_detalle a')
+				->row(); //total egresos wms			
+
+			$venta = $this->getVentaReceta(null, $args);
+
+			return ($pres && isset($pres->cantidad) && (float)$pres->cantidad > 0) ? ((float)$ingresos->total - ((float)$egresos->total + (float)$venta / (float)$pres->cantidad)) * (float)$pres->cantidad : 0;
 		}
-
-		if (!isset($args['_sinconfirmar']) || (isset($args['_sinconfirmar']) && (int)$args['_sinconfirmar'] === 0)) {
-			$this->db->where('e.estatus_movimiento', 2);
-		}
-
-		if (verDato($args, 'fecha')) {
-			$this->db->where('date(e.fecha) <=', $args['fecha']);
-		}
-
-		$egresos = $this->db
-			->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
-			->join('articulo b', 'a.articulo = b.articulo')
-			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
-			->join('categoria d', 'd.categoria = c.categoria')
-			->join('egreso e', 'e.egreso = a.egreso')
-			->join('bodega f', 'f.bodega = e.bodega and f.sede = d.sede')
-			->join('presentacion p', 'a.presentacion = p.presentacion')
-			->join('presentacion pr', 'b.presentacion_reporte = pr.presentacion')
-			->where('a.articulo', $articulo)
-			->get('egreso_detalle a')
-			->row(); //total egresos wms
-
-		// $qe = $this->db->last_query();
-
-		//if (!$receta) {
-		$venta = $this->getVentaReceta(null, $args);
-
-		//} else {
-		//$venta = 0;
-		//}
-
-
-		return ($pres && isset($pres->cantidad) && (float)$pres->cantidad > 0) ? ((float)$ingresos->total - ((float)$egresos->total + (float)$venta / (float)$pres->cantidad)) * (float)$pres->cantidad : 0;
 	}
 
 	public function getIngresoEgreso($articulo, $args = [])
@@ -531,6 +535,7 @@ class Articulo_model extends General_model
 				->join('presentacion p', 'a.presentacion = p.presentacion')
 				->where('a.articulo', $articulo)
 				->where('e.detalle_factura_detalle_cuenta is null')
+				->where('f.fel_uuid IS NOT NULL')				
 				->get('detalle_factura a')
 				->row(); //total ventas factura manual
 
@@ -548,7 +553,7 @@ class Articulo_model extends General_model
 		$comandas = 0;
 		$facturas = 0;
 
-		if (count($receta) > 0 && $this->produccion == 0) {
+		if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
 			$grupos = [];
 			$args['tipo'] = 1;
 			$comandas = $this->getComandaFactura($this->getPK(), $args);
@@ -779,26 +784,31 @@ class Articulo_model extends General_model
 		$receta = $this->getReceta();
 		$costo = 0;
 		if (count($receta) > 0) {
-
 			foreach ($receta as $row) {
 				$art = new Articulo_model($row->articulo->articulo);
+				$args['presentacion'] = $art->presentacion_reporte;
 				$tmp = $art->getCostoReceta($args);
+				unset($args['presentacion']);
 				$costo += $tmp * ($row->cantidad);
 			}
 		} else {
+			if (!isset($args['presentacion'])) {
+				$args['presentacion'] = $this->presentacion_reporte;
+			}
 			if (isset($args['bodega']) && isset($args['presentacion'])) {
-				$bac = $this->BodegaArticuloCosto_model->buscar([
-					'articulo' => $this->getPK(),
-					'bodega' => $args['bodega'],
-					'_uno' => true
-				]);
-				if ($bac) {
-					$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
-				} else {
-					$bac = new BodegaArticuloCosto_model();
-					$bac->guardar_costos($args['bodega'], $this->getPK());
-				}
-				$costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
+				// $bac = $this->BodegaArticuloCosto_model->buscar([
+				// 	'articulo' => $this->getPK(),
+				// 	'bodega' => $args['bodega'],
+				// 	'_uno' => true
+				// ]);
+				// if ($bac) {
+				// 	$bac = new BodegaArticuloCosto_model($bac->bodega_articulo_costo);
+				// } else {
+				// 	$bac = new BodegaArticuloCosto_model();
+				// 	$bac->guardar_costos($args['bodega'], $this->getPK());
+				// }
+				// $costo = $bac->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
+				$costo = $this->BodegaArticuloCosto_model->get_costo($args['bodega'], $this->getPK(), $args['presentacion']);
 			} else {
 				$costo = $this->getCosto($args);
 			}
@@ -1198,17 +1208,19 @@ class Articulo_model extends General_model
 
 	public function actualiza_existencia_bodega_articulo_costo($idbodega)
 	{
-		$bac = $this->db->where('articulo', $this->_pk)->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
+		$bac = $this->db->where('articulo', $this->getPK())->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
 		if ($bac) {
-			$this->db
-				->where('bodega_articulo_costo', $bac->bodega_articulo_costo)
-				->update('bodega_articulo_costo', ['existencia' => $this->existencias]);
+			// $pres = $this->getPresentacionReporte();
+			// $existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
+			$existencias = round((float)$this->existencias, 2);
+			$this->db->where('bodega_articulo_costo', $bac->bodega_articulo_costo)->update('bodega_articulo_costo', ['existencia' => $existencias, 'fecha' => date('Y-m-d H:i:s')]);
 		} else {
-			$this->db->insert('bodega_articulo_costo', [
-				'bodega' => $idbodega,
-				'articulo' => $this->_pk,
-				'existencia' => $this->existencias
-			]);
+			// $this->db->insert('bodega_articulo_costo', [
+			// 	'bodega' => $idbodega,
+			// 	'articulo' => $this->getPK(),
+			// 	'existencia' => $this->existencias,
+			// 	'fecha' => date('Y-m-d H:i:s')
+			// ]);
 		}
 		return $this->db->affected_rows() > 0;
 	}
@@ -1315,13 +1327,38 @@ class Articulo_model extends General_model
 				$costo    += round($tmp, 2);
 			}
 		} else {
-			$costo = $this->getCosto();
+			$bodega = $this->db
+				->select('b.bodega, e.metodo_costeo')
+				->join('categoria_grupo b', 'b.categoria_grupo = a.categoria_grupo')
+				->join('categoria c', 'c.categoria = b.categoria')
+				->join('sede d', 'd.sede = c.sede')
+				->join('empresa e', 'e.empresa = d.empresa')
+				->where('a.articulo', $this->getPK())
+				->get('articulo a')
+				->row();
+			if ($bodega && (int)$bodega->bodega > 0) {
+				$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodega->bodega, $this->getPK());
+				if (!$datos_costo) {
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo(null, $this->getPK());
+				}
+				if ($datos_costo) {
+					if ((int)$bodega->metodo_costeo === 1) {
+						$costo = (float)$datos_costo->costo_ultima_compra;
+					} else if ((int)$bodega->metodo_costeo === 2) {
+						$costo = (float)$datos_costo->costo_promedio;
+					}
+				} else {
+					$costo = $this->getCosto();
+				}
+			} else {
+				$costo = $this->getCosto();
+			}
 		}
 
 		return $costo;
 	}
 
-	public function recalcular_costos($idSede, $idArticulo = null, $idBodega = null)
+	public function recalcular_costos($idSede, $idArticulo = null, $idBodega = null, $bckBodegaArticuloCosto = null)
 	{
 		//Halar artículos de inventario de la sede
 		if ((int)$idArticulo > 0) {
@@ -1359,16 +1396,36 @@ class Articulo_model extends General_model
 			foreach ($articulosInventario as $ai) {
 				$articulo = new Articulo_model($ai->articulo);
 				foreach ($bodegas as $bodega) {
-					$params = ['bodega' => $bodega->bodega, 'metodo_costeo' => 1];
-					$costoUltimaCompra = (float)$articulo->getCosto($params);
-					$params['metodo_costeo'] = 2;
-					$costoPromedio = (float)$articulo->getCosto($params);
-					if ($costoUltimaCompra !== (float)0 || $costoPromedio !== (float)0) {
+					$costoUltimaCompra = (float)0;
+					$costoPromedio = (float)0;
+					$foundInBackup = false;
+
+					if (is_array($bckBodegaArticuloCosto) && count($bckBodegaArticuloCosto) > 0) {
+						$idBodega = (int)$bodega->bodega;
+						$idArticulo = (int)$ai->articulo;
+						$idx = "{$idBodega}-{$idArticulo}";
+						if (array_key_exists($idx, $bckBodegaArticuloCosto)) {
+							$foundInBackup = true;
+							$item = clone $bckBodegaArticuloCosto[$idx];
+							$costoUltimaCompra = (float)$item->costo_ultima_compra;
+							$costoPromedio = (float)$item->costo_promedio;
+						}
+					}
+
+					if (!$foundInBackup) {
+						$params = ['bodega' => $bodega->bodega, 'metodo_costeo' => 1];
+						$costoUltimaCompra = (float)$articulo->getCosto($params);
+						$params['metodo_costeo'] = 2;
+						$costoPromedio = (float)$articulo->getCosto($params);
+					}
+
+					if ($articulo->tiene_movimientos_en_bodega((int)$bodega->bodega)) {
 						$this->db->insert('bodega_articulo_costo', [
 							'bodega' => $bodega->bodega,
 							'articulo' => $ai->articulo,
 							'costo_ultima_compra' => $costoUltimaCompra,
-							'costo_promedio' => $costoPromedio
+							'costo_promedio' => $costoPromedio,
+							'fecha' => date('Y-m-d H:i:s')
 						]);
 					}
 				}
@@ -1460,7 +1517,75 @@ class Articulo_model extends General_model
 		}
 
 		return $lista;
-	}	
+	}
+
+	public function get_bodega_articulo_costo()
+	{
+		$campos = 'bodega_articulo_costo, bodega, articulo, costo_ultima_compra, costo_promedio';
+		$res = $this->db->select($campos)->get('bodega_articulo_costo')->result();
+		return $res;
+	}
+
+	public function tiene_movimientos_en_bodega($idBodega)
+	{
+		$ingresos = $this->db
+			->select('COUNT(*) AS conteo')
+			->join('ingreso b', 'b.ingreso = a.ingreso')
+			->where('b.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('ingreso_detalle a')
+			->row();
+
+		$egresos = $this->db
+			->select('COUNT(*) AS conteo')
+			->join('egreso b', 'b.egreso = a.egreso')
+			->where('b.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('egreso_detalle a')
+			->row();
+
+		$comandas = $this->db
+			->select('COUNT(*) AS conteo')
+			->where('a.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('detalle_comanda a')
+			->row();
+
+		$facturas = $this->db
+			->select('COUNT(a.detalle_factura) AS conteo')
+			->join('factura b', 'b.factura = a.factura')
+			->where('b.fel_uuid_anulacion IS NULL')
+			->where('a.bodega', $idBodega)
+			->where('a.articulo', $this->_pk)
+			->get('detalle_factura a')
+			->row();
+
+		if ((int)$ingresos->conteo > 0 || (int)$egresos->conteo > 0 || (int)$comandas->conteo > 0 || (int)$facturas->conteo > 0) {
+			return true;
+		}
+
+		return false;
+	}
+
+	function actualizarExistencia_v2($args = [], $useOldWay = false)
+	{
+		if ($this->getPK()) {
+			$receta = $this->getReceta();
+			if (count($receta) > 0 && $this->produccion == 0 && (int)$this->mostrar_inventario === 0) {
+				$grupos = [];
+				foreach ($receta as $row) {
+					$art = new Articulo_model($row->articulo->articulo);
+					$art->actualizarExistencia_v2($args, $useOldWay);
+					$grupos[] = (int)($art->existencias / $row->cantidad);
+				}
+
+				$exist = min($grupos);
+			} else {
+				$exist = $this->obtenerExistencia($args, $this->articulo, false, $useOldWay);
+			}
+			return $this->guardar(['existencias' => $exist]);
+		}
+	}
 }
 
 /* End of file Articulo_model.php */

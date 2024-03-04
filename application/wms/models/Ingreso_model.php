@@ -14,6 +14,7 @@ class Ingreso_model extends General_Model
 	public $proveedor;
 	public $estatus_movimiento;
 	public $ajuste = 0;
+	public $ajuste_costo_promedio = null;
 
 	public function __construct($id = '')
 	{
@@ -217,8 +218,45 @@ class Ingreso_model extends General_Model
 			->result();
 	}
 
+	private function get_ultimos_ingresos_articulos($args = [])
+	{
+		if (isset($args['sede'])) {
+			if (is_array($args['sede'])) {
+				$this->db->where_in('c.sede', $args['sede']);
+			} else {
+				$this->db->where('c.sede', $args['sede']);
+			}
+		}
+
+		if (isset($args['bodega'])) {
+			if (is_array($args['bodega'])) {
+				$this->db->where_in('b.bodega', $args['bodega']);
+			} else {
+				$this->db->where('b.bodega', $args['bodega']);
+			}
+		}
+
+		$uc = $this->db
+			->select('a.articulo, MAX(b.fecha) AS fecha')
+			->join('ingreso b', 'b.ingreso = a.ingreso')
+			->join('bodega c', 'c.bodega = b.bodega')
+			->join('articulo d', 'd.articulo = a.articulo')
+			->where('d.mostrar_inventario', 1)
+			->group_by('a.articulo')
+			->get('ingreso_detalle a')
+			->result();
+
+		$res = [];
+		foreach ($uc as $item) {
+			$res[(int)$item->articulo] = $item->fecha;
+		}
+		return $res;
+	}
+
 	private function articulos_ingresos($args = [])
 	{
+		$ultimos_ingresos = $this->get_ultimos_ingresos_articulos($args);
+
 		if (isset($args['sede'])) {
 			if (is_array($args['sede'])) {
 				$this->db->where_in('b.sede', $args['sede']);
@@ -236,21 +274,22 @@ class Ingreso_model extends General_Model
 		}
 
 		$ai = $this->db
-			->select('c.articulo, max(a.fecha) as fecha, 0 as precio_unitario')
-			->join('bodega b', 'a.bodega = b.bodega')
-			->join('ingreso_detalle c', 'a.ingreso = c.ingreso')
-			->join('articulo d', 'c.articulo = d.articulo')
-			->join('presentacion e', 'c.presentacion = e.presentacion')
-			->join('categoria_grupo f', 'f.categoria_grupo = d.categoria_grupo')
-			->join('categoria g', 'g.categoria = f.categoria')
-			->where("a.fecha <= '{$args['fecha']}'")
-			->where('d.mostrar_inventario', 1)
-			->group_by('c.articulo')
-			->order_by('g.descripcion, f.descripcion, d.descripcion')
-			->get('ingreso a')
+			->select('a.articulo, NULL AS fecha, 0 AS precio_unitario', false)
+			->join('bodega b', 'b.bodega = a.bodega')
+			->join('articulo c', 'c.articulo = a.articulo')
+			->join('categoria_grupo d', 'd.categoria_grupo = c.categoria_grupo')
+			->join('categoria e', 'e.categoria = d.categoria')
+			->where('c.mostrar_inventario', 1)
+			->group_by('a.articulo')
+			->order_by('e.descripcion, d.descripcion, c.descripcion')
+			->get('bodega_articulo_costo a')
 			->result();
 
-		$q1 = $this->db->last_query();
+		foreach ($ai as $art) {
+			if (array_key_exists((int)$art->articulo, $ultimos_ingresos)) {
+				$art->fecha = $ultimos_ingresos[(int)$art->articulo];
+			}
+		}
 
 		return $ai;
 	}
@@ -349,7 +388,7 @@ class Ingreso_model extends General_Model
 		$campos .= 'e.estatus_movimiento, e.traslado, e.idcomandafox, e.ajuste, e.raw_egreso, e.bodega_destino, ';
 		$campos .= 'CONCAT(g.descripcion, " - ", CONCAT(i.nombre, IFNULL(CONCAT(" (", i.alias, ")"), ""))) AS nombre_bodega_destino, e.comentario';
 		return $this->db
-			->select($campos)			
+			->select($campos)
 			->join('ingreso_detalle b', 'b.ingreso_detalle = a.ingreso_detalle')
 			->join('ingreso c', 'c.ingreso = b.ingreso')
 			->join('egreso_detalle d', 'd.egreso_detalle = a.egreso_detalle')
@@ -378,7 +417,7 @@ class Ingreso_model extends General_Model
 		$campos = 'DISTINCT c.ingreso, e.egreso, e.tipo_movimiento, e.bodega, CONCAT(f.descripcion, " - ", CONCAT(h.nombre, IFNULL(CONCAT(" (", h.alias, ")"), ""))) AS nombre_bodega_origen, e.fecha, e.creacion, e.usuario, ';
 		$campos .= 'e.estatus_movimiento, e.traslado, e.idcomandafox, e.ajuste, e.raw_egreso, e.bodega_destino, ';
 		$campos .= 'CONCAT(g.descripcion, " - ", CONCAT(i.nombre, IFNULL(CONCAT(" (", i.alias, ")"), ""))) AS nombre_bodega_destino, e.comentario';
-		
+
 		$tmp = $this->db
 			->select($campos, FALSE)
 			->join('ingreso_detalle b', 'b.ingreso_detalle = a.ingreso_detalle')
@@ -388,16 +427,16 @@ class Ingreso_model extends General_Model
 			->join('bodega f', 'f.bodega = e.bodega')
 			->join('bodega g', 'g.bodega = e.bodega_destino')
 			->join('sede h', 'h.sede = f.sede')
-			->join('sede i', 'i.sede = g.sede')			
+			->join('sede i', 'i.sede = g.sede')
 			->get('traslado_detalle a')
 			->result();
 
 		$lista = [];
-		foreach($tmp as $eo) {
+		foreach ($tmp as $eo) {
 			$lista[(int)$eo->ingreso] = clone $eo;
 		}
 
-		return $lista;	
+		return $lista;
 	}
 }
 

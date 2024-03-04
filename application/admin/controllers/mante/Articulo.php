@@ -18,7 +18,8 @@ class Articulo extends CI_Controller
 			'Categoria_model',
 			'Cgrupo_model',
 			'Bitacora_model',
-			'Accion_model'
+			'Accion_model',
+			'Schema_model', 'Catalogo_model', 'Sede_model', 'Bodega_model'
 		]);
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -35,7 +36,14 @@ class Articulo extends CI_Controller
 	public function guardar($id = '')
 	{
 		$art = new Articulo_model($id);
+		$mostrarInventarioOriginal = (int)$art->mostrar_inventario ?? 0;
 		$req = json_decode(file_get_contents('php://input'), true);
+
+		$mostrarInventarioNuevo = $mostrarInventarioOriginal;
+		if (isset($req['mostrar_inventario'])) {
+			$mostrarInventarioNuevo = (int)$req['mostrar_inventario'];			
+		}
+
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$reemplazar = ['\\', '"', ',', ';', '<', '>', 'Ñ', 'ñ', '.', ' '];
@@ -77,6 +85,9 @@ class Articulo extends CI_Controller
 								$datos['exito'] = $art->guardar($req);
 								if ($datos['exito']) {
 									$this->add_to_bitacora($art->getPK(), $comentario);
+									if ((int)$mostrarInventarioOriginal !== (int)$mostrarInventarioNuevo && (int)$mostrarInventarioNuevo === 1) {
+										$this->gregar_a_bodega_articulo_costo($art);
+									}
 									$datos['mensaje'] = 'Datos actualizados con éxito.';
 									$datos['articulo'] = $art;
 								} else {
@@ -84,7 +95,7 @@ class Articulo extends CI_Controller
 								}
 							}
 						} else {
-							$datos['mensaje'] = 'Las unidades de medida no coinciden';
+							$datos['mensaje'] = 'Las unidades de medida no coinciden.';
 						}
 					}
 				} else {
@@ -281,10 +292,7 @@ class Articulo extends CI_Controller
 	public function buscar_receta($id)
 	{
 		$art = new Articulo_model($id);
-
-		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode($art->getReceta($_GET)));
+		$this->output->set_content_type('application/json')->set_output(json_encode($art->getReceta($_GET)));
 	}
 
 	public function copiar()
@@ -442,76 +450,89 @@ class Articulo extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
-	public function calcula_existencias()
-	{
-		$inicia = time();
-		set_time_limit(0);
-		ini_set('memory_limit', '1536M');
-		$this->load->model(['Sede_model', 'Bodega_model']);
+	// public function calcula_existencias()
+	// {
+	// 	$inicia = time();
+	// 	set_time_limit(0);
+	// 	ini_set('memory_limit', '1536M');
+	// 	$this->load->model(['Sede_model', 'Bodega_model']);
 
-		$fltrSedes = [];
-		if (isset($_GET['sede']) && !empty((int)$_GET['sede'])) {
-			$fltrSedes['sede'] = $_GET['sede'];
-		}
+	// 	$fltrSedes = [];
+	// 	if (isset($_GET['sede']) && !empty((int)$_GET['sede'])) {
+	// 		$fltrSedes['sede'] = $_GET['sede'];
+	// 	}
 
-		$fltrBodegas = [];
-		if (isset($_GET['bodega']) && !empty((int)$_GET['bodega'])) {
-			$fltrBodegas['bodega'] = $_GET['bodega'];
-		}
+	// 	$fltrBodegas = [];
+	// 	if (isset($_GET['bodega']) && !empty((int)$_GET['bodega'])) {
+	// 		$fltrBodegas['bodega'] = $_GET['bodega'];
+	// 	}
 
-		$fltrArticulo = [];
-		$fltrArticulo['_todos'] = true;
-		if (isset($_GET['articulo']) && !empty((int)$_GET['articulo'])) {
-			$fltrArticulo['articulo'] = $_GET['articulo'];
-		}
-		if (isset($_GET['codigo']) && !empty(trim($_GET['codigo']))) {
-			$fltrArticulo['codigo'] = trim($_GET['codigo']);
-		}
-		if (isset($_GET['categoria']) && !empty((int)$_GET['categoria'])) {
-			$fltrArticulo['categoria'] = $_GET['categoria'];
-		}
-		if (isset($_GET['categoria_grupo']) && !empty((int)$_GET['categoria_grupo'])) {
-			$fltrArticulo['categoria_grupo'] = $_GET['categoria_grupo'];
-		}
+	// 	$fltrArticulo = [];
+	// 	$fltrArticulo['_todos'] = true;
 
-		$sedes = $this->Sede_model->buscar($fltrSedes);
-		$errores = [];
-		foreach ($sedes as $sede) {
-			$fltrBodegas['sede'] = $sede->sede;
-			$bodegas = $this->Bodega_model->buscar($fltrBodegas);
-			if (count($bodegas) > 0) {
-				$fltrArticulo['sede'] = $sede->sede;
-				$articulos = $this->Articulo_model->buscarArticulo($fltrArticulo);
-				foreach ($articulos as $articulo) {
-					$art = new Articulo_model($articulo->articulo);
-					if ((int)$art->getPK() > 0) {
-						foreach ($bodegas as $bodega) {
-							$art->actualizarExistencia(['bodega' => $bodega->bodega]);
-							$seActualizo = $art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
-							if (!$seActualizo) {
-								$errores[] = $art->getMensaje();
-							}
-						}
-					}
-				}
-			}
-		}
-		$finaliza = time();
+	// 	if (isset($_GET['articulo']) && !empty((int)$_GET['articulo'])) {
+	// 		$fltrArticulo['articulo'] = $_GET['articulo'];
+	// 	}
 
-		$transcurrido = ($finaliza - $inicia) / 60;
+	// 	if (isset($_GET['codigo']) && !empty(trim($_GET['codigo']))) {
+	// 		$fltrArticulo['codigo'] = trim($_GET['codigo']);
+	// 	}
 
-		$datos = new stdClass();
-		$datos->exito = true;
-		$datos->mensaje = 'Existencias calculadas con éxito.';
-		$datos->minutos_transcurridos = $transcurrido;
-		if (count($errores) > 0) {
-			$datos->exito = false;
-			$datos->mensaje = $errores;
-		}
+	// 	if (isset($_GET['categoria']) && !empty((int)$_GET['categoria'])) {
+	// 		$fltrArticulo['categoria'] = $_GET['categoria'];
+	// 	}
+
+	// 	if (isset($_GET['categoria_grupo']) && !empty((int)$_GET['categoria_grupo'])) {
+	// 		$fltrArticulo['categoria_grupo'] = $_GET['categoria_grupo'];
+	// 	}
+
+	// 	if (isset($_GET['mostrar_inventario']) && !empty((int)$_GET['mostrar_inventario'])) {
+	// 		$fltrArticulo['mostrar_inventario'] = $_GET['mostrar_inventario'];
+	// 	}
+
+	// 	$_use_old_way = false;
+	// 	if (isset($_GET['_use_old_way']) && (int)$_GET['_use_old_way'] === 1) {
+	// 		$_use_old_way = true;
+	// 	}
+
+	// 	$sedes = $this->Sede_model->buscar($fltrSedes);
+	// 	$errores = [];
+	// 	foreach ($sedes as $sede) {
+	// 		$fltrBodegas['sede'] = $sede->sede;
+	// 		$bodegas = $this->Bodega_model->buscar($fltrBodegas);
+	// 		if (count($bodegas) > 0) {
+	// 			$fltrArticulo['sede'] = $sede->sede;
+	// 			$articulos = $this->Articulo_model->buscarArticulo($fltrArticulo);
+	// 			foreach ($articulos as $articulo) {
+	// 				$art = new Articulo_model($articulo->articulo);
+	// 				if ((int)$art->getPK() > 0) {
+	// 					foreach ($bodegas as $bodega) {
+	// 						$art->actualizarExistencia(['bodega' => $bodega->bodega], $_use_old_way);
+	// 						$seActualizo = $art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
+	// 						if (!$seActualizo) {
+	// 							$errores[] = $art->getMensaje();
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	$finaliza = time();
+
+	// 	$transcurrido = ($finaliza - $inicia) / 60;
+
+	// 	$datos = new stdClass();
+	// 	$datos->exito = true;
+	// 	$datos->mensaje = 'Existencias calculadas con éxito.';
+	// 	$datos->minutos_transcurridos = $transcurrido;
+	// 	if (count($errores) > 0) {
+	// 		$datos->exito = false;
+	// 		$datos->mensaje = $errores;
+	// 	}
 
 
-		$this->output->set_output(json_encode($datos));
-	}
+	// 	$this->output->set_output(json_encode($datos));
+	// }
 
 	public function test_get_existencia_bodega($idArticulo = null)
 	{
@@ -951,6 +972,115 @@ class Articulo extends CI_Controller
 		}
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
+	}
+
+	public function prepare_data_bodega_articulo_costo()
+	{
+		$datos['exito'] = false;
+		if ($this->input->method() == 'post') {
+			set_time_limit(0);
+			$req = json_decode(file_get_contents('php://input'), true);
+			$skip = [];
+			if (isset($req['skip']) && is_string($req['skip']) && !empty($req['skip'])) {
+				$skip = explode(',', $req['skip']);
+			}
+						
+			$esquemas = $this->Schema_model->get_schemas();
+			$esquemasActualizados = [];
+			$sedesActualizadas = [];
+			foreach ($esquemas as $esquema) {
+				if (!in_array($esquema->SCHEMA_NAME, $skip)) {
+					$datosDb = $this->Catalogo_model->getCredenciales(['db_database' => $esquema->SCHEMA_NAME]);
+					$conn = ['host' => $datosDb->db_hostname, 'user' => $datosDb->db_username, 'password' => $datosDb->db_password, 'database' => $datosDb->db_database];
+					$db = conexion_db($conn);
+					$this->db = $this->load->database($db, true);
+
+					$sedes = $this->Sede_model->buscar();
+					$bckBodegaArticuloCosto = null;
+					$tmp = $this->Articulo_model->get_bodega_articulo_costo();
+					if ($tmp && is_array($tmp) && count($tmp) > 0) {
+						foreach($tmp as $item) {
+							$item->bodega = (int)$item->bodega;
+							$item->articulo = (int)$item->articulo;
+							$bckBodegaArticuloCosto["{$item->bodega}-{$item->articulo}"] = clone $item;
+						}
+					}
+
+					$fltrArticulo['_todos'] = true;
+					$fltrArticulo['mostrar_inventario'] = 1;
+					foreach ($sedes as $sede) {
+						$this->Articulo_model->recalcular_costos($sede->sede, null, null, $bckBodegaArticuloCosto);
+
+						$fltrBodegas['sede'] = $sede->sede;
+						$bodegas = $this->Bodega_model->buscar($fltrBodegas);
+						if (count($bodegas) > 0) {
+							$fltrArticulo['sede'] = $sede->sede;
+							$articulos = $this->Articulo_model->buscarArticulo($fltrArticulo);
+							if ($articulos) {
+								foreach ($articulos as $articulo) {
+									$art = new Articulo_model($articulo->articulo);
+									if ((int)$art->getPK() > 0) {
+										foreach ($bodegas as $bodega) {
+											$art->actualizarExistencia_v2(['bodega' => $bodega->bodega], true);
+											$art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
+										}
+									}
+								}
+							}
+						}
+
+						$sedesActualizadas[] = "{$esquema->SCHEMA_NAME}->{$sede->nombre} ($sede->alias)";
+					}
+
+					$esquemasActualizados[] = $esquema->SCHEMA_NAME;
+				}
+			}
+
+			$datosDb = $this->Catalogo_model->getCredenciales(['dominio' => $this->data->dominio]);
+			$conn = ['host' => $datosDb->db_hostname, 'user' => $datosDb->db_username, 'password' => $datosDb->db_password, 'database' => $datosDb->db_database];
+			$db = conexion_db($conn);
+			$this->db = $this->load->database($db, true);
+
+			$datos['exito'] = true;
+			$datos['mensaje'] = 'Los datos para la tabla bodega_articulo_costo fueron preparados para su uso.';
+			$datos['dominio'] = $this->data->dominio;
+			$datos['esquemas'] = $esquemasActualizados;
+			$datos['sedes'] = $sedesActualizadas;
+		} else {
+			$datos['mensaje'] = 'Parametros inválidos';
+		}
+
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
+	}
+
+	private function gregar_a_bodega_articulo_costo($art)
+	{
+		$this->load->add_package_path('application/wms');
+		$this->load->model(['BodegaArticuloCosto_model']);
+		$bodegaDescargo = $art->getBodega();
+		$existencia_nueva = $art->obtenerExistencia(['bodega' => (int)$bodegaDescargo->bodega, 'sede' => $this->data->sede], $art->getPK(), (int)$art->esreceta === 1, true);
+		
+		$nvaData = [
+			'bodega' => (int)$bodegaDescargo->bodega,
+			'articulo' => (int)$art->getPK(),
+			'cuc_ingresado' => 0,
+			'costo_ultima_compra' => 0,
+			'cp_ingresado' => 0,
+			'costo_promedio' => 0,
+			'existencia_ingresada' => 0,
+			'existencia' => $existencia_nueva,
+			'fecha' => null
+		];
+		
+		$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaDescargo->bodega, $art->getPK());
+		if ($datos_costo) {
+			$nvaData['costo_ultima_compra'] = $datos_costo->costo_ultima_compra;
+			$nvaData['costo_promedio'] = $datos_costo->costo_promedio;
+		}
+
+		$nvaData['fecha'] = date('Y-m-d H:i:s');
+		$nvoBac = new BodegaArticuloCosto_model();
+		$nvoBac->guardar($nvaData);
 	}
 }
 
