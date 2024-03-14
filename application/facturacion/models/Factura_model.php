@@ -461,8 +461,8 @@ class Factura_model extends General_model
 		$enca->total = $sumTotal;
 		$enca->idmoneda = 1;
 		$enca->tipocambio = 1;
-		$enca->pagada = 1;
-		$enca->fechapago = $this->fecha_factura;
+		$enca->pagada = (int)$this->sedeFactura->enviar_factura_pagada;
+		$enca->fechapago = (int)$this->sedeFactura->enviar_factura_pagada === 1 ? $this->fecha_factura : null;
 		$enca->esinsertada = 1;
 		$enca->anulada = empty($this->fel_uuid_anulacion) ? 0 : 1;
 		$enca->idrazonanulafactura = 0;
