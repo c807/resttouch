@@ -21,6 +21,7 @@ class Sede_model extends General_model {
     public $pais_iso_dos = null;
 	public $debaja_monitor = 0;
 	public $fechabaja = null;
+	public $enviar_factura_pagada = 1;
 
 	public function __construct($id = "")
 	{

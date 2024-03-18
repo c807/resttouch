@@ -60,6 +60,7 @@
 					</mat-option>
 				</mat-select>
 			</mat-form-field>
+            <mat-checkbox name="enviar_factura_pagada" [(ngModel)]="+sede.enviar_factura_pagada" class="fullWidth">Enviar facturas a contabilidad como pagadas.</mat-checkbox>
             <div align="end">
                 <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmSede.form.valid || !empresa.empresa">
                     Guardar
