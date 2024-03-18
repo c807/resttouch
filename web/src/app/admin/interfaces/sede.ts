@@ -14,7 +14,8 @@ export interface Sede {
     codigo_postal?: string;
     municipio?: string;
     departamento?: string;
-    pais_iso_dos?: string;    
+    pais_iso_dos?: string;   
+    enviar_factura_pagada?: number 
 }
 
 export interface Corporacion {

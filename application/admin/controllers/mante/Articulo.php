@@ -979,6 +979,7 @@ class Articulo extends CI_Controller
 		$datos['exito'] = false;
 		if ($this->input->method() == 'post') {
 			set_time_limit(0);
+			ini_set('memory_limit', -1);
 			$req = json_decode(file_get_contents('php://input'), true);
 			$skip = [];
 			if (isset($req['skip']) && is_string($req['skip']) && !empty($req['skip'])) {

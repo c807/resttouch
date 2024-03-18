@@ -45,7 +45,7 @@
                             <button type="button" mat-button *ngIf="turno.fin" matSuffix mat-icon-button aria-label="Clear" (click)="turno.fin=null" [disabled]="turnoCerrado">
                                 <mat-icon class="iconFontSize">close</mat-icon>
                             </button>
-                            <mat-hint align="start" *ngIf="!isFechaFinalValid && turno.turno && turno.fin">Fecha de finalizción inválida.</mat-hint>
+                            <mat-hint align="start" *ngIf="!isFechaFinalValid && turno.turno && turno.fin">Fecha de finalización inválida.</mat-hint>
                         </mat-form-field>                
                     </div>
                     <div *ngIf="+turno.facturas_sin_firmar > 0">

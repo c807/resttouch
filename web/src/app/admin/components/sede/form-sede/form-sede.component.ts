@@ -71,7 +71,12 @@ export class FormSedeComponent implements OnInit, OnDestroy {
     telefono: null,
     correo: null,
     codigo: null,
-    cuenta_contable: null, codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null
+    cuenta_contable: null, 
+    codigo_postal: null, 
+    municipio: null, 
+    departamento: null, 
+    pais_iso_dos: null,
+    enviar_factura_pagada: null
   }
 
   onSubmit = () => {
