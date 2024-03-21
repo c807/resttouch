@@ -244,7 +244,10 @@ class Reserva_model extends General_model
 			}
 		}
 
-		$reserva->abonos = [];
+		if (isset($reserva->abonos)) {
+			$reserva->abonos = [];
+		}
+
 		$abonos = $this->db
 			->select('a.fecha, c.descripcion AS forma_pago, SUM(b.monto) AS monto')
 			->join('abono_forma_pago b', 'a.abono = b.abono')

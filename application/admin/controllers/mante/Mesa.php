@@ -57,7 +57,7 @@ class Mesa extends CI_Controller
 			foreach ($datos as $k => $dato) {
 				$dato->area = $this->Area_model->get_lista(['area' => $dato->area, '_uno' => true]);
 				$dato->tipo_habitacion = $this->Tipo_habitacion_model->buscar(['tipo_habitacion' => $dato->tipo_habitacion, '_uno' => true]);
-				#$dato->ordenar_por = $dato->area->nombre . '-' . ($dato->etiqueta ?? $dato->numero);
+				$dato->ordenar_por = $dato->area->nombre . '-' . ($dato->etiqueta ?? $dato->numero);
 
 				if (isset($_GET['_sede']) && (int)$_GET['_sede'] > 0) {
 					if ((int)$dato->area->sede !== (int)$_GET['_sede']) {
@@ -65,7 +65,7 @@ class Mesa extends CI_Controller
 					}
 				}
 			}
-			$datos = ordenar_array_objetos($datos, 'numero', 1);
+			$datos = ordenar_array_objetos($datos, 'ordenar_por');
 		}
 		$this->output->set_output(json_encode($datos));
 	}

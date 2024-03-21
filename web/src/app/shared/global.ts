@@ -166,6 +166,8 @@ export const OrdenarArrayObjetos = (objs: any[], campo: string, tipo = 2) => {
         return 0
       }
     });
+  } else if(tipo === 4) {
+    return objs.sort((a, b) => parseInt(a[campo]) -parseInt(b[campo]));
   } else {
     return objs.sort((a, b) => (a[campo] > b[campo]) ? 1 : ((b[campo] > a[campo]) ? -1 : 0));
   }
