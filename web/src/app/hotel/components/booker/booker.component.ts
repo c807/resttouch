@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { FilterComponent } from '@hotel-components/booker/filtro/filter.component';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { GLOBAL, OrdenarArrayObjetos } from '@shared/global';
 
 import { TipoHabitacion } from '@hotel-interfaces/tipo-habitacion';
 import { TipoHabitacionService } from '@hotel-services/tipo-habitacion.service';
@@ -228,6 +228,7 @@ export class BookerComponent implements OnInit, AfterViewInit, OnDestroy {
         const obj: DayCalendar = this.procesaResevablesReservaciones(reservable, rsrvs.reservas);
         this.dataSourceTemp.push(obj);
       });
+      this.dataSourceTemp = OrdenarArrayObjetos(this.dataSourceTemp, 'habitacionName', 4)
 
       // console.log('DataSource Temp ' + JSON.stringify(this.dataSourceTemp));
       this.dataSource = new MatTableDataSource<DayCalendar>(this.dataSourceTemp);
