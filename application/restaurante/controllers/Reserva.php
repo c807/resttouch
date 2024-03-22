@@ -225,28 +225,31 @@ class Reserva extends CI_Controller
 		$cantidadReservas = count($reservas);
 		$reservables = [];
 		foreach ($reservas as $reserva) {
-			$existe = false;
-			$i = null;
-			foreach ($reservables as $key => $reservable) {
-				if ((int)$reservable['idreservable'] === (int)$reserva->idmesa) {
-					$i = (int)$key;
-					$existe = true;
-					break;
-				}
-			}
+			if (!empty ($reserva) ){
 
-			if ($existe) {
-				$reservables[$i]['cantidad']++;
-				$reservables[$i]['porcentaje'] = round($reservables[$i]['cantidad'] * 100 / $cantidadReservas, 2);
-				$reservables[$i]['orderby'] = "{$reservables[$i]['cantidad']}-{$reservables[$i]['reservable']}";
-			} else {
-				$reservables[] = [
-					'idreservable' => (int)$reserva->idmesa,
-					'reservable' => "{$reserva->area} - {$reserva->reservable}",
-					'cantidad' => 1,
-					'porcentaje' => round(100 / $cantidadReservas, 2),
-					'orderby' => "1-{$reserva->area}-{$reserva->reservable}"
-				];
+				$existe = false;
+				$i = null;
+				foreach ($reservables as $key => $reservable) {
+					if ((int)$reservable['idreservable'] === (int)$reserva->idmesa) {
+						$i = (int)$key;
+						$existe = true;
+						break;
+					}
+				}
+
+				if ($existe) {
+					$reservables[$i]['cantidad']++;
+					$reservables[$i]['porcentaje'] = round($reservables[$i]['cantidad'] * 100 / $cantidadReservas, 2);
+					$reservables[$i]['orderby'] = "{$reservables[$i]['cantidad']}-{$reservables[$i]['reservable']}";
+				} else {
+					$reservables[] = [
+						'idreservable' => (int)$reserva->idmesa,
+						'reservable' => "{$reserva->area} - {$reserva->reservable}",
+						'cantidad' => 1,
+						'porcentaje' => round(100 / $cantidadReservas, 2),
+						'orderby' => "1-{$reserva->area}-{$reserva->reservable}"
+					];
+				}
 			}
 		}
 
@@ -260,28 +263,31 @@ class Reserva extends CI_Controller
 		$cantidadReservas = count($reservas);
 		$clientes = [];
 		foreach ($reservas as $reserva) {
-			$existe = false;
-			$i = null;
-			foreach ($clientes as $key => $reservable) {
-				if ((int)$reservable['idcliente'] === (int)$reserva->idcliente) {
-					$i = (int)$key;
-					$existe = true;
-					break;
-				}
-			}
+			if (!empty ($reserva) ){
 
-			if ($existe) {
-				$clientes[$i]['cantidad']++;
-				$clientes[$i]['porcentaje'] = round($clientes[$i]['cantidad'] * 100 / $cantidadReservas, 2);
-				$clientes[$i]['orderby'] = "{$clientes[$i]['cantidad']}-{$clientes[$i]['cliente']}";
-			} else {
-				$clientes[] = [
-					'idcliente' => (int)$reserva->idcliente,
-					'cliente' => $reserva->cliente,
-					'cantidad' => 1,
-					'porcentaje' => round(100 / $cantidadReservas, 2),
-					'orderby' => "1-{$reserva->cliente}"
-				];
+				$existe = false;
+				$i = null;
+				foreach ($clientes as $key => $reservable) {
+					if ((int)$reservable['idcliente'] === (int)$reserva->idcliente) {
+						$i = (int)$key;
+						$existe = true;
+						break;
+					}
+				}
+
+				if ($existe) {
+					$clientes[$i]['cantidad']++;
+					$clientes[$i]['porcentaje'] = round($clientes[$i]['cantidad'] * 100 / $cantidadReservas, 2);
+					$clientes[$i]['orderby'] = "{$clientes[$i]['cantidad']}-{$clientes[$i]['cliente']}";
+				} else {
+					$clientes[] = [
+						'idcliente' => (int)$reserva->idcliente,
+						'cliente' => $reserva->cliente,
+						'cantidad' => 1,
+						'porcentaje' => round(100 / $cantidadReservas, 2),
+						'orderby' => "1-{$reserva->cliente}"
+					];
+				}
 			}
 		}
 
@@ -404,18 +410,20 @@ class Reserva extends CI_Controller
 				$hoja->setAutoFilter("A{$fila}:G{$fila}");
 				$fila++;
 				foreach ($datos['detalle'] as $det) {
-					$hoja->setCellValue("A{$fila}", formatoFecha($det->fecha_del, 2));
-					$hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
-					$hoja->setCellValue("B{$fila}", formatoFecha($det->fecha_al, 2));
-					$hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
-					$hoja->setCellValue("C{$fila}", $det->reserva);
-					$hoja->getStyle("A{$fila}:C{$fila}")->getAlignment()->setHorizontal('center');
-					$hoja->setCellValue("D{$fila}", "{$det->area} - {$det->reservable}");
-					$hoja->setCellValue("E{$fila}", $det->cliente);
-					$hoja->setCellValue("F{$fila}", $det->cantidad_adultos);
-					$hoja->setCellValue("G{$fila}", $det->cantidad_menores);
-					$hoja->getStyle("F{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-					$fila++;
+					if (!empty ($det) ){
+						$hoja->setCellValue("A{$fila}", formatoFecha($det->fecha_del, 2));
+						$hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+						$hoja->setCellValue("B{$fila}", formatoFecha($det->fecha_al, 2));
+						$hoja->getStyle("B{$fila}")->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY);
+						$hoja->setCellValue("C{$fila}", $det->reserva);
+						$hoja->getStyle("A{$fila}:C{$fila}")->getAlignment()->setHorizontal('center');
+						$hoja->setCellValue("D{$fila}", "{$det->area} - {$det->reservable}");
+						$hoja->setCellValue("E{$fila}", $det->cliente);
+						$hoja->setCellValue("F{$fila}", $det->cantidad_adultos);
+						$hoja->setCellValue("G{$fila}", $det->cantidad_menores);
+						$hoja->getStyle("F{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
+						$fila++;
+					}
 				}
 
 				foreach (range('A', 'G') as $col) {
