@@ -30,3 +30,7 @@ mat-dialog-content {
   border-top: solid 1px black;
   border-bottom: double 3.5px black;
 }
+
+.no-margin {
+  margin: 0px;
+}
