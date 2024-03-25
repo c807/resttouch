@@ -1,9 +1,18 @@
 <h1 mat-dialog-title>
     {{data.caja_corte.caja_corte_tipo.descripcion}} del {{data.caja_corte.creacion | date:'dd/MM/YYYY HH:mm:ss'}}<br/>
-    <small>        
-        TOTAL: {{data.caja_corte.total | number:'1.2-2'}}
-    </small>
 </h1>
+<div class="row no-margin">
+    <div class="col m4 s12 no-margin">        
+        TOTAL: {{data.caja_corte.total | number:'1.2-2'}}
+    </div>
+    <div class="col m8 s12 no-margin">
+        <div align="end">
+            <button mat-raised-button (click)="cerrar()" color="warn">
+                Cerrar
+            </button>  
+          </div>
+    </div>
+</div>
 <div mat-dialog-content>
     <span *ngIf="data.caja_corte.numero">
         <strong>Documento:</strong> {{data.caja_corte.serie}} {{data.caja_corte.numero}} <strong>del:</strong> {{data.caja_corte.fecha | date:'dd/MM/YYYY'}}<br/>
