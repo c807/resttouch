@@ -417,4 +417,23 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
       data: { reserva: +this.reserva.reserva }
     });
   }
+
+  generarComandaDoc = () => {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        'Fix para abrir comanda de habitación',
+        'Esto abrirá una comanda nueva para esta reservación. ¿Desea continuar?',
+        'Sí', 'No', null, true
+      )
+    });
+
+    this.endSubs.add(
+      dialogRef.afterClosed().subscribe(res => {
+        if (res) {          
+          this.abrirComandaDeHabitacion(this.reserva);    
+        }
+      })
+    );
+  }
 }
