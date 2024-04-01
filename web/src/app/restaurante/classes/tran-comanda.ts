@@ -43,6 +43,8 @@ import { CorrelativoService } from '@admin-services/correlativo.service';
 
 import { Subscription } from 'rxjs';
 
+import { ConfirmDialogModel as ConfDiagMod, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+
 export class TranComanda {
 
   get esCajero() {
@@ -315,7 +317,7 @@ export class TranComanda {
     this.ctSlect = idx;
     this.cuentaActiva = this.mesaEnUso.cuentas[idx];
     if (this.cuentaActiva.productos.length === 0 || fozarRecarga) {
-      this.endSubs.add(        
+      this.endSubs.add(
         this.comandaSrvc.obtenerDetalleCuenta({ cuenta: +this.cuentaActiva.cuenta }).subscribe((res: DetalleCuentaSimplified[]) => {
           this.lstProductosCuentaAlt = res;
           this.bloqueoBotones = false;
@@ -489,13 +491,13 @@ export class TranComanda {
     } else {
       this.agregarProductos(producto);
     }
-  }  
+  }
 
   addProductoSelected(producto: any, cantidadArticulos: number = 1) {
     // console.log('PRODUCTO = ', producto); return;
     this.bloqueoBotones = true;
     if (+this.cuentaActiva.numero) {
-      const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));      
+      const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
       const idx = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0);
 
       if (idx < 0) {
@@ -505,7 +507,7 @@ export class TranComanda {
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
             // console.log('NUEVO DETALLE COMANDA = ', res);
-            if (res.exito) {              
+            if (res.exito) {
               this.setSelectedCuenta(+this.cuentaActiva.numero, true);
             } else {
               this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
@@ -513,7 +515,7 @@ export class TranComanda {
             this.bloqueoBotones = false;
           })
         );
-      } else {        
+      } else {
         const tmp: ProductoSelected = prodsSel[idx];
         this.detalleComanda = {
           detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id,
@@ -523,7 +525,7 @@ export class TranComanda {
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
             // console.log('UPDATE DETALLE COMANDA = ', res);
-            if (res.exito) {              
+            if (res.exito) {
               this.setSelectedCuenta(+this.cuentaActiva.numero, true);
             } else {
               this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
@@ -1165,6 +1167,43 @@ export class TranComanda {
     );
   }
 
+  makeCobro = <T>(productosACobrar: ProductoSelected[], dialogRef: MatDialogRef<T> = null) => {
+    const cobrarCtaRef = this.dialog.open(CobrarPedidoComponent, {
+      maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
+      data: {
+        mesaenuso: this.mesaEnUso,
+        cuenta: this.cuentaActiva.nombre,
+        idcuenta: this.cuentaActiva.cuenta,
+        productosACobrar,
+        porcentajePropina: 0.00,
+        impresora: +this.mesaEnUso.mesa.esmostrador === 0 ?
+          (this.mesaEnUso.mesa.area.impresora_factura || null) :
+          (this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora),
+        clientePedido: this.clientePedido
+      }
+    });
+    this.endSubs.add(
+      cobrarCtaRef.afterClosed().subscribe(resAC => {
+        if (resAC && resAC !== 'closePanel') {
+          this.cambiarEstatusCuenta(resAC);
+          if (dialogRef) {
+            dialogRef.close(this.mesaEnUso);
+          } else {
+            this.closeSideNavEv.emit(this.mesaEnUso);
+          }
+        } else {
+          if (resAC === 'closePanel') {
+            if (dialogRef) {
+              dialogRef.close(this.mesaEnUso);
+            } else {
+              this.closeSideNavEv.emit();
+            }
+          }
+        }
+      })
+    );
+  }
+
   cobrarCuenta<T>(dialogRef: MatDialogRef<T> = null) {
     this.endSubs.add(
       this.comandaSrvc.obtenerDetalleCuenta({ cuenta: this.cuentaActiva.cuenta, impreso: 0 }).subscribe(res => {
@@ -1174,40 +1213,33 @@ export class TranComanda {
           this.lstProductosDeCuenta = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
           const productosACobrar = this.lstProductosDeCuenta.filter(p => +p.impreso === 1);
           if (productosACobrar.length > 0) {
-            const cobrarCtaRef = this.dialog.open(CobrarPedidoComponent, {
-              maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
-              data: {
-                mesaenuso: this.mesaEnUso,
-                cuenta: this.cuentaActiva.nombre,
-                idcuenta: this.cuentaActiva.cuenta,
-                productosACobrar,
-                porcentajePropina: 0.00,
-                impresora: +this.mesaEnUso.mesa.esmostrador === 0 ?
-                  (this.mesaEnUso.mesa.area.impresora_factura || null) :
-                  (this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora),
-                clientePedido: this.clientePedido
-              }
-            });
-            this.endSubs.add(
-              cobrarCtaRef.afterClosed().subscribe(resAC => {
-                if (resAC && resAC !== 'closePanel') {
-                  this.cambiarEstatusCuenta(resAC);
-                  if (dialogRef) {
-                    dialogRef.close(this.mesaEnUso);
-                  } else {
-                    this.closeSideNavEv.emit(this.mesaEnUso);
-                  }
-                } else {
-                  if (resAC === 'closePanel') {
-                    if (dialogRef) {
-                      dialogRef.close(this.mesaEnUso);
-                    } else {
-                      this.closeSideNavEv.emit();
+            if (+this.mesaEnUso.mesa.eshabitacion === 0) {
+              this.makeCobro(productosACobrar, dialogRef);
+            } else {
+              const cantidadDeCuentas = this.mesaEnUso.cuentas.length;
+              const cantidadDeCuentasCerradas = this.mesaEnUso.cuentas.filter(c => +c.cerrada === 1).length;
+              const noEsLaUltima = (cantidadDeCuentas - cantidadDeCuentasCerradas) > 1;
+              if (noEsLaUltima) {
+                this.makeCobro(productosACobrar, dialogRef);
+              } else {
+                const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+                  maxWidth: '400px',
+                  data: new ConfDiagMod(
+                    'Cierre de habitación',
+                    'Está por cobrar la última cuenta de la habitación. Si factura hará check out de la habitación. ¿Desea continuar?',
+                    'Sí', 'No', null, true
+                  )
+                });
+
+                this.endSubs.add(
+                  dialogRef.afterClosed().subscribe(res => {
+                    if (res) {
+                      this.makeCobro(productosACobrar);
                     }
-                  }
-                }
-              })
-            );
+                  })
+                );
+              }
+            }
           } else {
             this.snackBar.open('Cobro', 'Sin productos a cobrar.', { duration: 3000 });
           }
@@ -1296,7 +1328,7 @@ export class TranComanda {
                 this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comanda', { duration: 7000 });
               }
             })
-          );          
+          );
         }
       })
     );
