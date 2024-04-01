@@ -181,7 +181,7 @@ export class TableroComponent implements OnInit, OnDestroy {
             filters: [],
             columns: [{ name: 'dia', caption: 'Día' }],
             rows: [
-                { name: 'grupo', caption: 'Grupo' },
+                { name: 'grupo', caption: 'Sub-Categoria' },
                 { name: 'descripcion', caption: 'Producto' }
             ],
             values: [{ name: 'total', caption: 'Monto' }],
