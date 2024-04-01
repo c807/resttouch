@@ -65,9 +65,13 @@
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button color="warn" (click)="onNoClick()">Cancelar</button>
+  <button mat-raised-button (click)="generarComandaDoc()" *ngIf="+reserva.estatus_reserva === 2 && +reserva.comanda === 0" style="background-color: #8bc78b;">
+    <mat-icon style="font-size: 15pt;">auto_fix_high</mat-icon>
+    Crear comanda
+  </button>
   <button mat-raised-button color="secondary" (click)="cancelarReservacion()" *ngIf="+reserva.estatus_reserva === 1">Cancelar reservación</button>
   <button mat-raised-button color="accent" (click)="cambiarHabitacion()" *ngIf="[1, 2].indexOf(+reserva.estatus_reserva) > -1">Cambiar habitación</button>
-  <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()" [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+idEstatusReservaInicial === 2">Agregar cobro de habitación</button>
+  <button mat-raised-button color="accent" (click)="agregarCobroHabitacion()" [disabled]="!reservaLista || +reserva.cobradoencomanda === 1" *ngIf="+idEstatusReservaInicial === 2 && +reserva.comanda > 0">Agregar cobro de habitación</button>
   <button mat-raised-button color="accent" (click)="addAbono()" *ngIf="+reserva?.reserva > 0">Abonos</button>
   <button mat-raised-button color="accent" (click)="addReservation()" [disabled]="!reservaLista">Guardar</button>
 </div>
