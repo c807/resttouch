@@ -26,10 +26,10 @@ class Tablero_model extends General_model
 		}
 
 		return $this->db
-			->select("e.total, 'B' AS bien_servicio, f.fhcreacion, HOUR(f.fhcreacion) AS hora, DATE(f.fhcreacion) AS fecha_factura, MONTHNAME(f.fhcreacion) AS mes, 
+			->select("if(c.descuento = 1, 0, e.total) as total, 'B' AS bien_servicio, f.fhcreacion, HOUR(f.fhcreacion) AS hora, DATE(f.fhcreacion) AS fecha_factura, MONTHNAME(f.fhcreacion) AS mes, 
 					  CONCAT(YEAR(f.fhcreacion), '-', WEEK(f.fhcreacion)) AS semana, CONCAT(DAYOFWEEK(f.fhcreacion), '-', DAYNAME(f.fhcreacion)) as dia, g.descripcion, 
 					  h.descripcion AS grupo, i.nombre AS sede, 'Comanda' AS operacion, IF(f.domicilio = 1, 'SI', 'NO') AS domicilio, k.descripcion AS turno, 
-					  CONCAT(mr.nombres, ' ', mr.apellidos) AS nombre_mesero, f.comanda")
+					  CONCAT(mr.nombres, ' ', mr.apellidos) AS nombre_mesero, f.comanda, l.descripcion as categoria")
 			->from('cuenta a')
 			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
 			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
@@ -41,6 +41,7 @@ class Tablero_model extends General_model
 			->join('sede i', 'i.sede = f.sede')
 			->join('turno j', 'j.turno = f.turno')
 			->join('turno_tipo k', 'k.turno_tipo = j.turno_tipo')
+			->join('categoria l', 'l.categoria = h.categoria')
 			/* Mesero */
 			->join('usuario mr', 'mr.usuario = f.mesero', 'left')
 			->where('e.detalle_comanda_id IS NULL')
@@ -86,7 +87,8 @@ class Tablero_model extends General_model
 		    if(f.detalle_factura is null, 'Manual','Comanda') as operacion,
 		    if(i.domicilio=1,'SI','NO') as domicilio,
 		    k.descripcion as turno,
-		    concat(mr.nombres,' ',mr.apellidos) as nombre_mesero")
+		    concat(mr.nombres,' ',mr.apellidos) as nombre_mesero,
+				l.descripcion as categoria")
 			->from("detalle_factura a")
 			->join("factura b", "b.factura = a.factura")
 			->join("articulo c", "c.articulo = a.articulo")
@@ -98,6 +100,7 @@ class Tablero_model extends General_model
 			->join("comanda i", "i.comanda = h.comanda", "left")
 			->join("turno j", "j.turno = i.turno", "left")
 			->join("turno_tipo k", "k.turno_tipo = j.turno_tipo", "left")
+			->join("categoria l", "l.categoria = d.categoria")
 			/* Mesero */
 			->join('usuario mr', 'mr.usuario = i.mesero', 'left')
 			->where("b.fel_uuid is not null")

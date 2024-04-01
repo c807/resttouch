@@ -1111,8 +1111,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       this.setSumaCuenta(this.lstProductosAImprimir);
       const totalCuenta = this.sumaDetalle(this.lstProductosAImprimir);
       const printerToUse = this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora;
-      const imprimePropSugerida = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_PROPINA_SUGERIDA);
-
+      const imprimePropSugerida = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) as number) || 0;
       const msgToPrint = {
         Tipo: 'Cuenta',
         Nombre: this.cuentaActiva.nombre,
@@ -1121,7 +1120,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         Total: totalCuenta,
         Empresa: this.ls.get(GLOBAL.usrTokenVar).empresa,
         Restaurante: this.ls.get(GLOBAL.usrTokenVar).restaurante,
-        PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
+        PropinaSugerida: imprimePropSugerida ? (totalCuenta * (imprimePropSugerida / 100)).toFixed(2) : null,
         Impresora: printerToUse,
         IdComanda: +this.mesaEnUso.comanda || 0,
         IdCuenta: +this.cuentaActiva.cuenta || 0,
