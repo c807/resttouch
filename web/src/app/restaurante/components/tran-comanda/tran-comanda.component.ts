@@ -43,6 +43,8 @@ import { NotificacionesClienteComponent } from '@admin/components/notificaciones
 import { Subscription } from 'rxjs';
 import { NotificacionCliente } from '@admin/interfaces/notificacion-cliente';
 
+import { ConfirmDialogModel as ConfDiagMod, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+
 @Component({
   selector: 'app-tran-comanda',
   templateUrl: './tran-comanda.component.html',
@@ -1162,6 +1164,39 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     });
   }
 
+  makeCobro = (productosACobrar: ProductoSelected[]) => {
+    // Inicia cobro de cuenta. Abre el diálogo de cobro.
+    const cobrarCtaRef = this.dialog.open(CobrarPedidoComponent, {
+      maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
+      data: {
+        mesaenuso: this.mesaEnUso,
+        cuenta: this.cuentaActiva.nombre,
+        idcuenta: this.cuentaActiva.cuenta,
+        productosACobrar,
+        porcentajePropina: 0.00,
+        impresora: +this.mesaEnUso.mesa.esmostrador === 0 ?
+          (this.mesaEnUso.mesa.area.impresora_factura || null) :
+          (this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora),
+        clientePedido: this.clientePedido
+      }
+    });
+    // Después del diálogo de cobro
+    this.endSubs.add(
+      cobrarCtaRef.afterClosed().subscribe(resAC => {
+        if (resAC && resAC !== 'closePanel') {
+          this.cambiarEstatusCuenta(resAC);
+          this.closeSideNavEv.emit(this.mesaEnUso);
+        } else {
+          if (resAC === 'closePanel') {
+            this.closeSideNavEv.emit();
+          }
+        }
+        this.bloqueoBotones = false;
+      })
+    );
+    // Finaliza cobro de cuenta.
+  }
+
   cobrarCuenta() {
     this.endSubs.add(
       this.comandaSrvc.obtenerDetalleCuenta({ cuenta: this.cuentaActiva.cuenta, impreso: 0 }).subscribe(res => {
@@ -1171,36 +1206,35 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           this.lstProductosDeCuenta = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
           const productosACobrar = this.lstProductosDeCuenta.filter(p => +p.impreso === 1);
           if (productosACobrar.length > 0) {
-            const cobrarCtaRef = this.dialog.open(CobrarPedidoComponent, {
-              maxWidth: '100vw', maxHeight: '90vh', width: '97vw', height: '90vh',
-              data: {
-                mesaenuso: this.mesaEnUso,
-                cuenta: this.cuentaActiva.nombre,
-                idcuenta: this.cuentaActiva.cuenta,
-                productosACobrar,
-                porcentajePropina: 0.00,
-                impresora: +this.mesaEnUso.mesa.esmostrador === 0 ?
-                  (this.mesaEnUso.mesa.area.impresora_factura || null) :
-                  (this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora),
-                clientePedido: this.clientePedido
+            if (+this.mesaEnUso.mesa.eshabitacion === 0) {
+              this.makeCobro(productosACobrar);
+            } else {
+              const cantidadDeCuentas = this.mesaEnUso.cuentas.length;
+              const cantidadDeCuentasCerradas = this.mesaEnUso.cuentas.filter(c => +c.cerrada === 1).length;
+              const noEsLaUltima = (cantidadDeCuentas - cantidadDeCuentasCerradas) > 1;
+              if (noEsLaUltima) {
+                this.makeCobro(productosACobrar);
+              } else {
+                const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+                  maxWidth: '400px',
+                  data: new ConfDiagMod(
+                    'Cierre de habitación',
+                    'Está por cobrar la última cuenta de la habitación. Si factura hará check out de la habitación. ¿Desea continuar?',
+                    'Sí', 'No', null, true
+                  )
+                });
+
+                this.endSubs.add(
+                  dialogRef.afterClosed().subscribe(res => {
+                    if (res) {
+                      this.makeCobro(productosACobrar);
+                    } else {
+                      this.bloqueoBotones = false;
+                    }
+                  })
+                );
               }
-            });
-            this.endSubs.add(
-              cobrarCtaRef.afterClosed().subscribe(resAC => {
-                // console.log(resAC);
-                if (resAC && resAC !== 'closePanel') {
-                  // console.log(res);
-                  this.cambiarEstatusCuenta(resAC);
-                  this.closeSideNavEv.emit(this.mesaEnUso);
-                } else {
-                  if (resAC === 'closePanel') {
-                    this.closeSideNavEv.emit();
-                  }
-                  // this.socket.emit('refrescar:mesa', { mesaenuso: this.mesaEnUso });
-                }
-                this.bloqueoBotones = false;
-              })
-            );
+            }
           } else {
             this.snackBar.open('Cobro', 'Sin productos a cobrar.', { duration: 3000 });
             this.bloqueoBotones = false;
