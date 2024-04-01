@@ -1,6 +1,22 @@
-<h1 mat-dialog-title>CAJA {{data.tipo.descripcion | uppercase}}</h1>
-<h6>TOTAL: {{granTotal | number:'1.2-2'}}</h6>
-<h6 *ngIf="+data.tipo.caja_corte_tipo > 2" style="color: red; font-style: italic;">Recuerde contabilizar el saldo inicial de apertura de caja.</h6>
+<h1 mat-dialog-title class="no-margin">CAJA {{data.tipo.descripcion | uppercase}}</h1>
+<div class="row no-margin">
+  <div class="col m4 s12 no-margin">
+    <h6>TOTAL: {{granTotal | number:'1.2-2'}}</h6>
+  </div>
+  <div class="col m8 s12 no-margin">
+    <div align="end">
+      <button mat-raised-button (click)="cancelar()" color="warn" class="btnAccion">
+        Cancelar
+      </button>
+      <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion"
+        [disabled]="cargando || noGuardar || !frmEfectivoCaja.form.valid">
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>
+<h6 *ngIf="+data.tipo.caja_corte_tipo > 2" style="color: red; font-style: italic;">Recuerde contabilizar el saldo
+  inicial de apertura de caja.</h6>
 <div mat-dialog-content>
   <mat-card class="mat-elevation-z4 fullWidth">
     <mat-card-content>
@@ -8,20 +24,22 @@
         <div class="col m6 s12">
           <!-- Efectivo -->
           <form #frmEfectivoCaja="ngForm" novalidate>
-            <table class="tbl tblNominaciones">              
-              <thead>                
+            <table class="tbl tblNominaciones">
+              <thead>
                 <tr>
                   <th class="ctxt" style="width: 25%;"></th>
                   <th class="rtxt" style="width: 35%;">Cantidad</th>
                   <th class="rtxt">Total</th>
-                </tr>                
+                </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let ccn of ccorteNomi; index as i">
                   <td class="rtxt bld" style="width: 25%;">{{ccn.nombre}}</td>
                   <td style="width: 35%;">
-                    <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{i}}" matInput type="number" placeholder="Cantidad" name="cantidad_{{i}}"
-                      [(ngModel)]="ccn.cantidad" step="1" (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)" (keyup.enter)="moveNextElement($event)" max="999999">
+                    <input onKeyPress="if(this.value.length==30) return false;" id="txtCantidad_{{i}}" matInput
+                      type="number" placeholder="Cantidad" name="cantidad_{{i}}" [(ngModel)]="ccn.cantidad" step="1"
+                      (change)="ccn.total = +ccn.cantidad * +ccn.valor" (keypress)="validateNominacion($event)"
+                      (keyup.enter)="moveNextElement($event)" max="999999">
                   </td>
                   <td class="rtxt bld">{{ccn.total | number:'1.2-2'}}</td>
                 </tr>
@@ -48,7 +66,9 @@
               <tr *ngFor="let ccfp of formasPago; index as i">
                 <td class="rtxt bld" style="width: 60%;">{{ccfp.descripcion}}</td>
                 <td>
-                  <input onKeyPress="if(this.value.length==30) return false;" id="txtFP_{{i}}" matInput type="number" placeholder="Monto" name="montocc" [(ngModel)]="ccfp.montocc" step="1" (keyup.enter)="moveNextElementFP($event)">
+                  <input onKeyPress="if(this.value.length==30) return false;" id="txtFP_{{i}}" matInput type="number"
+                    placeholder="Monto" name="montocc" [(ngModel)]="ccfp.montocc" step="1"
+                    (keyup.enter)="moveNextElementFP($event)">
                 </td>
               </tr>
             </tbody>
@@ -67,7 +87,8 @@
             <input type="text" [maxLength]="30" matInput name="serie" placeholder="Serie" [(ngModel)]="documento.serie">
           </mat-form-field>
           <mat-form-field style="width: 33.33%;">
-            <input type="text" [maxLength]="30" matInput name="numero" placeholder="Número" [(ngModel)]="documento.numero" required>
+            <input type="text" [maxLength]="30" matInput name="numero" placeholder="Número"
+              [(ngModel)]="documento.numero" required>
           </mat-form-field>
           <mat-form-field style="width: 33.34%;">
             <input type="date" matInput name="fecha" placeholder="Fecha" [(ngModel)]="documento.fecha" required>
@@ -77,7 +98,8 @@
       <div class="row" *ngIf="verDocumento">
         <div class="col m12 s12">
           <mat-form-field class="fullWidth">
-            <input type="text" [maxLength]="50" matInput name="Descripción" placeholder="Descripción" [(ngModel)]="documento.descripcion_documento" minlength="5"  required>
+            <input type="text" [maxLength]="50" matInput name="Descripción" placeholder="Descripción"
+              [(ngModel)]="documento.descripcion_documento" minlength="5" required>
           </mat-form-field>
         </div>
       </div>
@@ -86,9 +108,10 @@
 </div>
 <div mat-dialog-actions align="end">
   <button mat-raised-button (click)="cancelar()" color="warn" class="btnAccion">
-      Cancelar
+    Cancelar
   </button>
-  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion" [disabled]="cargando || noGuardar || !frmEfectivoCaja.form.valid">
+  <button mat-raised-button (click)="guardar()" color="accent" class="btnAccion"
+    [disabled]="cargando || noGuardar || !frmEfectivoCaja.form.valid">
     Guardar
-</button>
+  </button>
 </div>
