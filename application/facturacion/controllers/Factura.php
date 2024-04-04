@@ -718,6 +718,7 @@ class Factura extends CI_Controller
 	{
 		$detalle = $factura->get_detalle_anulacion();
 		foreach ($detalle as $det) {
+			$noLoReverse = true;
 			$articulo = new Articulo_model($det->articulo);
 			// if ((int)$articulo->essellado === 1) { }
 			if ((int)$det->detalle_factura > 0) {
@@ -727,7 +728,7 @@ class Factura extends CI_Controller
 					$df->cantidad_inventario = 0;
 				}
 				$df->guardar();
-				if ((int)$df->bodega > 0 && (int)$articulo->essellado === 1) {
+				if ((int)$df->bodega > 0 && (int)$articulo->essellado === 1 && $noLoReverse) {
 					$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo);
 					if ($datos_costo_df) {
 						$pres = new Presentacion_model($df->presentacion);
@@ -752,7 +753,9 @@ class Factura extends CI_Controller
 						];
 
 						$nvoBac = new BodegaArticuloCosto_model();
-						$nvoBac->guardar($nvaData);
+						if($nvoBac->guardar($nvaData)) {
+							$noLoReverse = false;
+						}
 					}
 				}
 			}
@@ -764,7 +767,7 @@ class Factura extends CI_Controller
 					$dc->cantidad_inventario = 0;
 				}
 				$dc->guardar();
-				if ((int)$dc->bodega > 0 && (int)$articulo->essellado === 1) {
+				if ((int)$dc->bodega > 0 && (int)$articulo->essellado === 1 && $noLoReverse) {
 					$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo);
 					if ($datos_costo_dc) {
 						$pres = new Presentacion_model($dc->presentacion);
@@ -789,7 +792,9 @@ class Factura extends CI_Controller
 						];
 
 						$nvoBac = new BodegaArticuloCosto_model();
-						$nvoBac->guardar($nvaData);
+						if($nvoBac->guardar($nvaData)) {
+							$noLoReverse = false;
+						}
 					}
 				}
 			}
@@ -808,14 +813,15 @@ class Factura extends CI_Controller
 	{
 		$detalle = $factura->get_detalle_anulacion();
 		foreach ($detalle as $det) {
-			$articulo = new Articulo_model($det->articulo);
+			$sinDescargar = true;
+			// $articulo = new Articulo_model($det->articulo);
 			// if ((int)$articulo->essellado === 1) {} // Se quita esta validación para que saque sea sellado o no en la refacturación. 20/02/2024 19:40.
 			if ((int)$det->detalle_factura > 0) {
 				$df = new Dfactura_model($det->detalle_factura);
 				$df->cantidad_inventario = !is_null($df->cantidad_inventario_backup) ? $df->cantidad_inventario_backup : 0;
 				$df->cantidad_inventario_backup = null;
 				$df->guardar();
-				if ((int)$df->bodega > 0) {
+				if ((int)$df->bodega > 0 && $sinDescargar) {
 					$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo);
 					if ($datos_costo_df) {
 						$pres = new Presentacion_model($df->presentacion);
@@ -832,7 +838,9 @@ class Factura extends CI_Controller
 						];
 
 						$nvoBac = new BodegaArticuloCosto_model();
-						$nvoBac->guardar($nvaData);
+						if($nvoBac->guardar($nvaData)) {
+							$sinDescargar = false;
+						}
 					}
 				}
 			}
@@ -842,7 +850,7 @@ class Factura extends CI_Controller
 				$dc->cantidad_inventario = !is_null($dc->cantidad_inventario_backup) ? $dc->cantidad_inventario_backup : 0;
 				$dc->cantidad_inventario_backup = null;
 				$dc->guardar();
-				if ((int)$dc->bodega > 0) {
+				if ((int)$dc->bodega > 0 && $sinDescargar) {
 					$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo);
 					if ($datos_costo_dc) {
 						$pres = new Presentacion_model($dc->presentacion);
@@ -859,7 +867,9 @@ class Factura extends CI_Controller
 						];
 
 						$nvoBac = new BodegaArticuloCosto_model();
-						$nvoBac->guardar($nvaData);
+						if($nvoBac->guardar($nvaData)) {
+							$sinDescargar = false;
+						}
 					}
 				}
 			}

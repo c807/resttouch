@@ -1003,11 +1003,36 @@ class Comanda extends CI_Controller
 
 			if ($pasa) {
 				foreach ($detalle as $det) {
+					$cantResta = (float)$det->cantidad - (float)$req['cantidad'];
 					$dc = new Dcomanda_model($det->detalle_comanda);
 					$dc->cantidad = (float)$req['cantidad'];
 					$dc->total = (float)$req['total'];
 					if ($req['regresa_inventario'] || (int)$det->mostrar_inventario === 0) {
 						$dc->cantidad_inventario = (float)$req['cantidad'];
+						// Inicia proceso de reversión en la tabla BAC. 03/04/2024
+						if ($req['regresa_inventario'] && (int)$det->mostrar_inventario === 1 && (int)$det->bodega > 0) {
+							$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$det->bodega, (int)$det->articulo);
+							if ($datos_costo) {
+								$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
+								$cantidad_presentacion = round((float)$pres->cantidad, 2);
+								$existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+
+								$nvaData = [
+									'bodega' => (int)$det->bodega,
+									'articulo' => (int)$det->articulo,
+									'cuc_ingresado' => 0,
+									'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+									'cp_ingresado' => 0,
+									'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+									'existencia_ingresada' => 0,
+									'existencia' => $existencia_nueva,
+									'fecha' => date('Y-m-d H:i:s')
+								];
+								$nvoBac = new BodegaArticuloCosto_model();
+								$nvoBac->guardar($nvaData);
+							}
+						}
+						// Finaliza proceso de reversión en la tabla BAC. 03/04/2024
 					}
 					$exito = $dc->guardar();
 					if (!$exito) {
