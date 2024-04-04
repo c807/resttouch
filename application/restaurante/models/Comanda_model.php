@@ -224,52 +224,51 @@ class Comanda_model extends General_Model
         if (!empty($menu) && !$vnegativo) {
             $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
-
-        // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
-        // Actualizado el 23/08/2023
-        if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
-            if (!isset($args['cantidad_inventario'])) {
-                $args['cantidad_inventario'] = $det->cantidad_inventario;
-            }
-
-            $pu = (float)0;
-            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
-            if ($datos_costo) {
-                $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
-                $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
-                if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
-                    $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
-                }
-                $nvaData = [
-                    'bodega' => (int)$args['bodega'],
-                    'articulo' => (int)$art->articulo,
-                    'cuc_ingresado' => 0,
-                    'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
-                    'cp_ingresado' => 0,
-                    'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                    'existencia_ingresada' => 0,
-                    'existencia' => $existencia_nueva,
-                    'fecha' => date('Y-m-d H:i:s')
-                ];
-                $nvoBac = new BodegaArticuloCosto_model();
-                $nvoBac->guardar($nvaData);
-
-                if ((int)$datos_costo->metodo_costeo === 1) {
-                    $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
-                } else if ((int)$datos_costo->metodo_costeo === 2) {
-                    $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
-                }
-            } else {
-                $bac = new BodegaArticuloCosto_model();
-                $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
-            }
-            $args['costo_unitario'] = (float)$pu ?? (float)0;
-            $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
-        }
-        // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
-
+        
         if ($vnegativo || empty($menu) || (!$validar || (float)$art->existencias >= ((float)$cantidad * (float)$cantPres))) {
+            // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+            // Actualizado el 23/08/2023
+            if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
+                if (!isset($args['cantidad_inventario'])) {
+                    $args['cantidad_inventario'] = $det->cantidad_inventario;
+                }
+    
+                $pu = (float)0;
+                $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
+                if ($datos_costo) {
+                    $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
+                    $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                    $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                    if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                        $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                    }
+                    $nvaData = [
+                        'bodega' => (int)$args['bodega'],
+                        'articulo' => (int)$art->articulo,
+                        'cuc_ingresado' => 0,
+                        'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                        'cp_ingresado' => 0,
+                        'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                        'existencia_ingresada' => 0,
+                        'existencia' => $existencia_nueva,
+                        'fecha' => date('Y-m-d H:i:s')
+                    ];
+                    $nvoBac = new BodegaArticuloCosto_model();
+                    $nvoBac->guardar($nvaData);
+    
+                    if ((int)$datos_costo->metodo_costeo === 1) {
+                        $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                    } else if ((int)$datos_costo->metodo_costeo === 2) {
+                        $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                    }
+                } else {
+                    $bac = new BodegaArticuloCosto_model();
+                    $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+                }
+                $args['costo_unitario'] = (float)$pu ?? (float)0;
+                $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
+            }
+            // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
             $result = $det->guardar($args);
             $idx = $det->getPK();
@@ -441,53 +440,52 @@ class Comanda_model extends General_Model
         if (!empty($menu) && !$vnegativo) {
             $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
-
-        // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
-        // Actualizado el 23/08/2023
-        if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
-            if (!isset($args['cantidad_inventario'])) {
-                $args['cantidad_inventario'] = $det->cantidad_inventario;
-            }
-
-            $pu = (float)0;
-            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
-            if ($datos_costo) {
-                $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
-                $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
-                if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
-                    $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
-                }
-                $nvaData = [
-                    'bodega' => (int)$args['bodega'],
-                    'articulo' => (int)$art->articulo,
-                    'cuc_ingresado' => 0,
-                    'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
-                    'cp_ingresado' => 0,
-                    'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                    'existencia_ingresada' => 0,
-                    // 'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
-                    'existencia' => $existencia_nueva,
-                    'fecha' => date('Y-m-d H:i:s')
-                ];
-                $nvoBac = new BodegaArticuloCosto_model();
-                $nvoBac->guardar($nvaData);
-
-                if ((int)$datos_costo->metodo_costeo === 1) {
-                    $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
-                } else if ((int)$datos_costo->metodo_costeo === 2) {
-                    $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
-                }
-            } else {
-                $bac = new BodegaArticuloCosto_model();
-                $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
-            }
-            $args['costo_unitario'] = (float)$pu ?? (float)0;
-            $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
-        }
-        // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
-
+        
         if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
+            // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
+            // Actualizado el 23/08/2023
+            if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
+                if (!isset($args['cantidad_inventario'])) {
+                    $args['cantidad_inventario'] = $det->cantidad_inventario;
+                }
+    
+                $pu = (float)0;
+                $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
+                if ($datos_costo) {
+                    $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
+                    $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                    $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                    if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                        $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                    }
+                    $nvaData = [
+                        'bodega' => (int)$args['bodega'],
+                        'articulo' => (int)$art->articulo,
+                        'cuc_ingresado' => 0,
+                        'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                        'cp_ingresado' => 0,
+                        'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                        'existencia_ingresada' => 0,
+                        // 'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                        'existencia' => $existencia_nueva,
+                        'fecha' => date('Y-m-d H:i:s')
+                    ];
+                    $nvoBac = new BodegaArticuloCosto_model();
+                    $nvoBac->guardar($nvaData);
+    
+                    if ((int)$datos_costo->metodo_costeo === 1) {
+                        $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
+                    } else if ((int)$datos_costo->metodo_costeo === 2) {
+                        $pu = (float)$datos_costo->costo_promedio * $cantidad_presentacion;
+                    }
+                } else {
+                    $bac = new BodegaArticuloCosto_model();
+                    $pu = $bac->get_costo($args['bodega'], $art->articulo, $args['presentacion']);
+                }
+                $args['costo_unitario'] = (float)$pu ?? (float)0;
+                $args['costo_total'] = $args['costo_unitario'] * (float)$args['cantidad_inventario'];
+            }
+            // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
             $result = $det->guardar($args);
             $idx = $det->getPK();
