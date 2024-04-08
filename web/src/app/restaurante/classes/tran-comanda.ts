@@ -502,7 +502,7 @@ export class TranComanda {
 
       if (idx < 0) {
         this.detalleComanda = {
-          articulo: producto.id, cantidad: cantidadArticulos, precio: +producto.precio, total: cantidadArticulos * +producto.precio, notas: ''
+          articulo: producto.id, cantidad: cantidadArticulos, precio: +producto.precio, total: cantidadArticulos * +producto.precio, notas: '', factor_modificacion: +cantidadArticulos
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
@@ -520,7 +520,7 @@ export class TranComanda {
         this.detalleComanda = {
           detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id,
           cantidad: ((+tmp.cantidad) + +cantidadArticulos), precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio),
-          notas: tmp.notas
+          notas: tmp.notas, factor_modificacion: +cantidadArticulos
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
