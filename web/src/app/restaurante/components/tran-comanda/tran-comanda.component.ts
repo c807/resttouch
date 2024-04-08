@@ -504,7 +504,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
 
       if (idx < 0) {
         this.detalleComanda = {
-          articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: ''
+          articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: '', factor_modificacion: +cantidadArticulos
         };
         this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
           // console.log('NUEVO DETALLE COMANDA = ', res);
@@ -519,7 +519,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         const tmp: ProductoSelected = prodsSel[idx];
         this.detalleComanda = {
           detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id, cantidad: (+tmp.cantidad) + +cantidadArticulos,
-          precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio), notas: tmp.notas
+          precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio), notas: tmp.notas, factor_modificacion: +cantidadArticulos
         };
         this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
           // console.log('UPDATE DETALLE COMANDA = ', res);

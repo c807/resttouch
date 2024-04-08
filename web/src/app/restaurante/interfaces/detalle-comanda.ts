@@ -9,4 +9,5 @@ export interface DetalleComanda {
     autorizado?: boolean;
     gerente?: number;
     regresa_inventario?: boolean;
+    factor_modificacion?: number;
 }

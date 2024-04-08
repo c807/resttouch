@@ -238,8 +238,10 @@ class Comanda_model extends General_Model
                 if ($datos_costo) {
                     $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
                     $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                    $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                    $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
+                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 2);
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                        $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : $cantResta;
                         $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
                     }
                     $nvaData = [
@@ -454,9 +456,11 @@ class Comanda_model extends General_Model
                 if ($datos_costo) {
                     $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
                     $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                    $existencia_nueva = round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2);
+                    $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
+                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 2);
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
-                        $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                        $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : $cantResta;
+                        $existencia_nueva = round((float)$datos_costo->existencia + ($factor_modificacion * $cantidad_presentacion), 2);
                     }
                     $nvaData = [
                         'bodega' => (int)$args['bodega'],
@@ -465,8 +469,7 @@ class Comanda_model extends General_Model
                         'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
                         'cp_ingresado' => 0,
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                        'existencia_ingresada' => 0,
-                        // 'existencia' => round((float)$datos_costo->existencia - ((float)$args['cantidad_inventario'] * $cantidad_presentacion), 2),
+                        'existencia_ingresada' => 0,                        
                         'existencia' => $existencia_nueva,
                         'fecha' => date('Y-m-d H:i:s')
                     ];
