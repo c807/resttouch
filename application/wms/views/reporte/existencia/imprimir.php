@@ -57,7 +57,7 @@
 						<tr>
 							<td><?php echo (!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo)?></td>
 							<td>
-								<?php echo "{$row->articulo->articulo} ". $row->articulo->descripcion ?>
+								<?php echo $row->articulo->descripcion ?>
 									
 							</td>
 							<td>

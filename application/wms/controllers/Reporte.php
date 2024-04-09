@@ -170,7 +170,7 @@ class Reporte extends CI_Controller
 	
 						$reg = [
 							(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
-							"{$row->articulo->articulo} " . $row->articulo->descripcion,
+							$row->articulo->descripcion,
 							$row->presentacion->descripcion,
 							round((float)$row->articulo->stock_minimo, 2),
 							round((float)$row->articulo->stock_maximo, 2),
