@@ -17,6 +17,13 @@
 		</tr>
 
 		<tr>
+			<td colspan="5">Sede: <?php echo $sede; ?></td>
+		</tr>
+		<tr> 
+			<td colspan="5">Bodega: <?php echo $bodega; ?></td>
+		</tr>
+
+		<tr>
 			<td class="titulo">Descripcion</td>
 			<td class="titulo">Código</td>
 			<td class="titulo">Presentación</td>
@@ -73,7 +80,13 @@
 
 						<?php if ($esfisico || (!$esfisico && (int)$inventario->confirmado === 1)) : ?>
 							<td class="text-center">
-								<?php echo number_format($art->existencia_sistema / $pres->cantidad, 2) ?>
+								<?php 
+									if ($pres->cantidad != 0) {
+											echo number_format($art->existencia_sistema / $pres->cantidad, 2);
+									} else {
+											echo "0.00";
+									}
+								?>
 							</td>
 						<?php endif ?>
 

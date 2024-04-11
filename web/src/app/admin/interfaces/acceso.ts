@@ -9,7 +9,7 @@ export interface Acceso {
 
 export interface UsuarioSede {
 	usuario_sede: number,
-	sede: number,
+	sede: any,
 	usuario: number,
 	anulado: number
 }
