@@ -224,7 +224,7 @@ class Comanda_model extends General_Model
         if (!empty($menu) && !$vnegativo) {
             $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
-        
+
         if ($vnegativo || empty($menu) || (!$validar || (float)$art->existencias >= ((float)$cantidad * (float)$cantPres))) {
             // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
             // Actualizado el 23/08/2023
@@ -232,7 +232,7 @@ class Comanda_model extends General_Model
                 if (!isset($args['cantidad_inventario'])) {
                     $args['cantidad_inventario'] = $det->cantidad_inventario;
                 }
-    
+
                 $pu = (float)0;
                 $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
                 if ($datos_costo) {
@@ -257,7 +257,7 @@ class Comanda_model extends General_Model
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
-    
+
                     if ((int)$datos_costo->metodo_costeo === 1) {
                         $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
                     } else if ((int)$datos_costo->metodo_costeo === 2) {
@@ -442,7 +442,7 @@ class Comanda_model extends General_Model
         if (!empty($menu) && !$vnegativo) {
             $art->actualizarExistencia(['bodega' => $args['bodega']]);
         }
-        
+
         if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
             // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
             // Actualizado el 23/08/2023
@@ -450,7 +450,7 @@ class Comanda_model extends General_Model
                 if (!isset($args['cantidad_inventario'])) {
                     $args['cantidad_inventario'] = $det->cantidad_inventario;
                 }
-    
+
                 $pu = (float)0;
                 $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
                 if ($datos_costo) {
@@ -469,13 +469,13 @@ class Comanda_model extends General_Model
                         'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
                         'cp_ingresado' => 0,
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                        'existencia_ingresada' => 0,                        
+                        'existencia_ingresada' => 0,
                         'existencia' => $existencia_nueva,
                         'fecha' => date('Y-m-d H:i:s')
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
-    
+
                     if ((int)$datos_costo->metodo_costeo === 1) {
                         $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
                     } else if ((int)$datos_costo->metodo_costeo === 2) {
@@ -1136,7 +1136,7 @@ class Comanda_model extends General_Model
     }
 
     public function enviarDetalleSede($enviar = true, $sedeDestino = null)
-    {
+    {        
         $exito = true;
         $faltantes = [];
         // $detCom = $this->getDetalle();
@@ -1174,6 +1174,30 @@ class Comanda_model extends General_Model
                     $bodegaDestino = $this->Articulo_model->getBodega($art->articulo);
                     $det = new Dcomanda_model($row->detalle_comanda);
                     $det->guardar(['articulo' => $art->articulo, 'bodega' => $bodegaDestino && isset($bodegaDestino->bodega) ? $bodegaDestino->bodega : null]);
+
+                    // Inicia proceso de modificación de bodega_articulo_costo. 11/04/2024
+                    if ((int)$art->mostrar_inventario === 1 && $bodegaDestino && isset($bodegaDestino->bodega) && (int)$bodegaDestino->bodega > 0) {
+                        $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodegaDestino->bodega, (int)$art->articulo);
+                        if ($datos_costo) {
+                            $pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
+                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $existencia_nueva = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
+                            $nvaData = [
+                                'bodega' => (int)$bodegaDestino->bodega,
+                                'articulo' => (int)$art->articulo,
+                                'cuc_ingresado' => 0,
+                                'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                                'cp_ingresado' => 0,
+                                'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                                'existencia_ingresada' => 0,
+                                'existencia' => $existencia_nueva,
+                                'fecha' => date('Y-m-d H:i:s')
+                            ];
+                            $nvoBac = new BodegaArticuloCosto_model();
+                            $nvoBac->guardar($nvaData);
+                        }
+                    }
+                    // Finaliza proceso de modificación de bodega_articulo_costo. 11/04/2024
                 }
             } else {
                 $exito = false;

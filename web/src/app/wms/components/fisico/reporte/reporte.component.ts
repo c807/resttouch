@@ -153,6 +153,15 @@ export class ReporteComponent implements OnInit, OnDestroy {
           this.cargando = false;      
           if (res.exito) {
             this.cargando = true;
+            let sedeFound = this.sedes.find(sede => sede.sede.sede === this.params.sede);
+              if (sedeFound && sedeFound.sede) {
+                this.params.sede = sedeFound.sede.nombre + " (" + sedeFound.sede.alias + ")";
+              }
+
+            let bodegaFound = this.bodegas.find(bodega => bodega.bodega === this.params.bodega);
+              if (bodegaFound) {
+                this.params.bodega = bodegaFound.descripcion;
+              }
             this.endSubs.add(          
               this.pdfServicio.imprimirInventarioFisico(res.inventario, this.params).subscribe(resImp => {
                 this.cargando = false;
