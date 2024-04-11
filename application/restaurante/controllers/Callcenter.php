@@ -8,6 +8,7 @@ class Callcenter extends CI_Controller {
 		parent::__construct();
 		set_database_server();
 		$this->load->add_package_path('application/facturacion');
+		$this->load->add_package_path('application/wms');
 		$this->load->helper('api');
 		$this->load->model([
 			'Comanda_model', 
@@ -21,7 +22,8 @@ class Callcenter extends CI_Controller {
 			'Factura_model',
 			'Configuracion_model',
 			'Turno_model',
-			'Catalogo_model'
+			'Catalogo_model',
+			'BodegaArticuloCosto_model'
 		]);
 
 		$this->output->set_content_type('application/json', 'UTF-8');
