@@ -173,11 +173,19 @@ class Fisico extends CI_Controller
 				$hoja->setCellValue('A1', "Inventario Físico #{$args['inventario']->inventario_fisico}");
 				$hoja->setCellValue('D1', 'Fecha: ' . formatoFecha($args['inventario']->fhcreacion, 2));
 
-				$hoja->fromArray($nombres, null, 'A3');
-				$hoja->getStyle('A1:G3')->getFont()->setBold(true);
-				$hoja->getStyle('A1:G3')->getAlignment()->setHorizontal('center');
+				$sede = $args['sede'];
+				$bodega = $args['bodega'];
 
-				$fila = 4;
+				$hoja->setCellValue('A3', "Sede:");
+				$hoja->setCellValue('B3', $sede);
+				$hoja->setCellValue('A4', "Bodega:");
+				$hoja->setCellValue('B4', $bodega);
+
+				$hoja->fromArray($nombres, null, 'A6');
+				$hoja->getStyle('A1:G6')->getFont()->setBold(true);
+				$hoja->getStyle('A1:G6')->getAlignment()->setHorizontal('center');
+
+				$fila = 7;
 				foreach ($args['detalle'] as $key => $cat) {
 					$hoja->setCellValue("A{$fila}", $cat['descripcion']);
 					$hoja->getStyle("A{$fila}")->getFont()->setBold(true);
@@ -191,7 +199,11 @@ class Fisico extends CI_Controller
 						foreach ($gcat['datos'] as $art) {
 							$articulo = new Articulo_model($art->articulo);
 							$pres = $articulo->getPresentacionReporte();
-							$existencias = $art->existencia_sistema / $pres->cantidad;
+							if ($pres->cantidad != 0) {
+								$existencias = $art->existencia_sistema / $pres->cantidad;
+							} else {
+									$existencias = 0;
+							}
 
 							// Implementación solicitó quitar esta validación. 15/05/2023 15:21
 							// $diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
@@ -296,7 +308,11 @@ class Fisico extends CI_Controller
 				foreach ($fisico->getDetalle() as $row) {
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
-					$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 2);
+					if ($pres->cantidad != 0) {
+							$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 2);
+					} else {
+							$row->existencia_sistema = 0;
+					}
 					$row->existencia_fisica = (float)$row->existencia_fisica;
 					$row->diferencia = (float)$row->diferencia;
 					if (!isset($datos[$row->categoria])) {
