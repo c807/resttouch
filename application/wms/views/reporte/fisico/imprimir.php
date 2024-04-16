@@ -17,10 +17,10 @@
 		</tr>
 
 		<tr>
-			<td colspan="5">Sede: <?php echo $sede; ?></td>
+			<td colspan="5">Sede: <?php echo $inventario->nombre_sede; ?></td>
 		</tr>
 		<tr> 
-			<td colspan="5">Bodega: <?php echo $bodega; ?></td>
+			<td colspan="5">Bodega: <?php echo $inventario->nombre_bodega; ?></td>
 		</tr>
 
 		<tr>
