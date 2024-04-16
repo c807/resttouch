@@ -27,7 +27,8 @@ class Reporte extends CI_Controller
             'Catalogo_model',
             'Configuracion_model',
             'Tipo_domicilio_model',
-            'Sede_model'
+            'Sede_model',
+            'Reserva_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -73,7 +74,7 @@ class Reporte extends CI_Controller
         $data['descuento'] = 0;
         $data['ingresos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
-        if(isset($data['_facturadas'])) {
+        if (isset($data['_facturadas'])) {
             unset($data['_facturadas']);
         }
         $tmp = $this->Reporte_model->get_ingresos($data);
@@ -128,7 +129,7 @@ class Reporte extends CI_Controller
         $data['descuento'] = 1;
         $data['descuentos'] = $this->Reporte_model->get_ingresos($data);
         $data['comandas'] = true;
-        if(isset($data['_facturadas'])) {
+        if (isset($data['_facturadas'])) {
             unset($data['_facturadas']);
         }
         $tmp = $this->Reporte_model->get_ingresos($data);
@@ -169,7 +170,7 @@ class Reporte extends CI_Controller
             $data['_facturadas'] = true;
             $det = $this->Reporte_model->get_ingresos($data);
             $data['comandas'] = true;
-            if(isset($data['_facturadas'])) {
+            if (isset($data['_facturadas'])) {
                 unset($data['_facturadas']);
             }
             $tmp = $this->Reporte_model->get_ingresos($data);
@@ -642,7 +643,7 @@ class Reporte extends CI_Controller
             }
 
             $fila += 2;
-            $hoja->setCellValue('A' . $fila, 'No incluye facturas manuales porque a las facturas manuales no se les asigna turno.');            
+            $hoja->setCellValue('A' . $fila, 'No incluye facturas manuales porque a las facturas manuales no se les asigna turno.');
             $hoja->getStyle('A' . $fila)->getFont()->setBold(true);
             $hoja->getStyle('A' . $fila)->getAlignment()->setHorizontal('center');
             $hoja->mergeCells("A{$fila}:F{$fila}");
@@ -1978,9 +1979,18 @@ class Reporte extends CI_Controller
                 }
                 $comanda->numero_orden = isset($json->numero_orden) ? $json->numero_orden : (isset($json->order_number) ? $json->order_number : null);
             }
+
+            //Obtener datos de una reserva
+            if (isset($comanda->reserva) && (int)$comanda->reserva > 0) {
+                $comanda->datos_reserva = null;                
+                $reserva = $this->Reserva_model->get_info_reserva($comanda->reserva, false);
+                if ($reserva) {
+                    $comanda->datos_reserva = $reserva;
+                }
+            }
         }
 
-        if(isset($req['asjson']) && (int)$req['asjson'] === 1) {
+        if (isset($req['asjson']) && (int)$req['asjson'] === 1) {
             $this->output->set_content_type('application/json', 'UTF-8')->set_output(json_encode($comandas));
         } else {
             $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
@@ -1990,19 +2000,19 @@ class Reporte extends CI_Controller
                 ->setTitle('Office 2007 xlsx Comandas')
                 ->setSubject('Office 2007 xlsx Comandas')
                 ->setKeywords('office 2007 openxml php');
-    
+
             $excel->setActiveSheetIndex(0);
             $hoja = $excel->getActiveSheet();
-    
+
             $hoja->setCellValue('A1', 'DETALLE DE COMANDAS');
             $hoja->mergeCells('A1:N1');
             $hoja->getStyle('A1:N1')->getFont()->setBold(true);
-    
+
             $parametros = $this->procesaParametrosDetalleComanda($req);
             $hoja->setCellValue('A2', $parametros);
             $hoja->mergeCells('A2:N2');
             $hoja->getStyle('A2:N2')->getFont()->setBold(true);
-    
+
             $fila = 4;
             foreach ($comandas as $cmd) {
                 $filaIniciaComanda = $fila;
@@ -2022,8 +2032,13 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("N{$fila}", 'Total de comanda');
                 $hoja->setCellValue("O{$fila}", 'Comensales');
                 $hoja->setCellValue("P{$fila}", 'No. Orden');
-                $hoja->getStyle("A{$fila}:P{$fila}")->getFont()->setBold(true);
-                $hoja->getStyle("A{$fila}:P{$fila}")->getAlignment()->setHorizontal('center');
+                $hoja->setCellValue("Q{$fila}", 'Reserva');
+                $hoja->setCellValue("R{$fila}", 'Habitación');
+                $hoja->setCellValue("S{$fila}", 'Nombre del cliente');
+                $hoja->setCellValue("T{$fila}", 'Del');
+                $hoja->setCellValue("U{$fila}", 'Al');
+                $hoja->getStyle("A{$fila}:U{$fila}")->getFont()->setBold(true);
+                $hoja->getStyle("A{$fila}:U{$fila}")->getAlignment()->setHorizontal('center');
                 $fila++;
                 $hoja->setCellValue("A{$fila}", $cmd->sede);
                 $hoja->setCellValue("B{$fila}", $cmd->orden_gk);
@@ -2042,6 +2057,21 @@ class Reporte extends CI_Controller
                 $hoja->setCellValue("N{$fila}", $cmd->total_detalle);
                 $hoja->setCellValue("O{$fila}", $cmd->comensales);
                 $hoja->setCellValue("P{$fila}", $cmd->numero_orden);
+
+                $hoja->setCellValue("Q{$fila}", '');
+                $hoja->setCellValue("R{$fila}", '');
+                $hoja->setCellValue("S{$fila}", '');
+                $hoja->setCellValue("T{$fila}", '');
+                $hoja->setCellValue("U{$fila}", '');
+
+                if (isset($cmd->datos_reserva)) {
+                    $hoja->setCellValue("Q{$fila}", $cmd->datos_reserva->reserva ?? '');
+                    $hoja->setCellValue("R{$fila}", "{$cmd->datos_reserva->area}-{$cmd->datos_reserva->reservable}");
+                    $hoja->setCellValue("S{$fila}", $cmd->datos_reserva->cliente ?? '');
+                    $hoja->setCellValue("T{$fila}", $cmd->datos_reserva->fecha_del ?? '');
+                    $hoja->setCellValue("U{$fila}", $cmd->datos_reserva->fecha_al ?? '');
+                }
+
                 $hoja->getStyle("N{$fila}")->getNumberFormat()->setFormatCode('0.00');
                 $fila++;
                 // Detalle de comanda
@@ -2182,37 +2212,37 @@ class Reporte extends CI_Controller
                     }
                 }
                 $filaFinComanda = $fila - 1;
-                $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")
+                $hoja->getStyle("A{$filaIniciaComanda}:U{$filaFinComanda}")
                     ->getBorders()
                     ->getOutline()
                     ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                     ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-    
-                $hoja->getStyle("A{$filaIniciaComanda}:P{$filaFinComanda}")->getFill()
+
+                $hoja->getStyle("A{$filaIniciaComanda}:U{$filaFinComanda}")->getFill()
                     ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                     ->getStartColor()
                     ->setARGB('EEECE1');
-    
+
                 if (isset($req['ver_forma_pago']) && (int)$req['ver_forma_pago'] === 1 && !empty($filaIniciaFormasPago) && !empty($filaTerminaFormasPago)) {
                     $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")
                         ->getBorders()
                         ->getOutline()
                         ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                         ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-    
+
                     $hoja->getStyle("B{$filaIniciaFormasPago}:F{$filaTerminaFormasPago}")->getFill()
                         ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                         ->getStartColor()
                         ->setARGB('C4BD97');
                 }
-    
+
                 if (isset($req['ver_facturas']) && (int)$req['ver_facturas'] === 1 && !empty($filaIniciaFacturas) && !empty($filaTerminaFacturas)) {
                     $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")
                         ->getBorders()
                         ->getOutline()
                         ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                         ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
-    
+
                     $hoja->getStyle("B{$filaIniciaFacturas}:I{$filaTerminaFacturas}")->getFill()
                         ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                         ->getStartColor()
@@ -2220,13 +2250,13 @@ class Reporte extends CI_Controller
                 }
                 $fila += 2;
             }
-    
-            foreach (range('A', 'P') as $col) {
+
+            foreach (range('A', 'U') as $col) {
                 $hoja->getColumnDimension($col)->setAutoSize(true);
             }
-    
+
             $hoja->setTitle('Comandas');
-    
+
             header('Content-Type: application/vnd.ms-excel');
             header('Content-Disposition: attachment;filename=Comandas_' . date('YmdHis') . '.xlsx');
             header('Cache-Control: max-age=1');
@@ -2234,10 +2264,10 @@ class Reporte extends CI_Controller
             header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GTM');
             header('Cache-Control: cache, must-revalidate');
             header('Pragma: public');
-    
+
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
             $writer->save('php://output');
-        }        
+        }
     }
 
     private function get_por_tipo_venta($data)
