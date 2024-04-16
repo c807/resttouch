@@ -20,7 +20,9 @@ class Fisico extends CI_Controller
 			'Ingreso_model',
 			'IDetalle_Model',
 			'Presentacion_model',
-			'BodegaArticuloCosto_model'
+			'BodegaArticuloCosto_model',
+			'Sede_model',
+			'Bodega_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -130,6 +132,12 @@ class Fisico extends CI_Controller
 
 			$args['esfisico'] = (int)$args['inventario']->escuadrediario === 0;
 
+			$sedeInvFisico = $this->Sede_model->buscar(['sede' => $args['inventario']->sede, '_uno' => true]);
+			$args['inventario']->nombre_sede = "{$sedeInvFisico->nombre} ({$sedeInvFisico->alias})";
+
+			$bodegaInvFisico = $this->Bodega_model->buscar(['bodega' => $args['inventario']->bodega, '_uno' => true]);
+			$args['inventario']->nombre_bodega = $bodegaInvFisico->descripcion;
+
 			foreach ($fisico->getDetalle() as $row) {
 				if (!isset($args['detalle'][$row->categoria])) {
 					$args['detalle'][$row->categoria] = [
@@ -173,13 +181,11 @@ class Fisico extends CI_Controller
 				$hoja->setCellValue('A1', "Inventario Físico #{$args['inventario']->inventario_fisico}");
 				$hoja->setCellValue('D1', 'Fecha: ' . formatoFecha($args['inventario']->fhcreacion, 2));
 
-				$sede = $args['sede'];
-				$bodega = $args['bodega'];
 
 				$hoja->setCellValue('A3', "Sede:");
-				$hoja->setCellValue('B3', $sede);
+				$hoja->setCellValue('B3', "{$args['inventario']->nombre_sede}");
 				$hoja->setCellValue('A4', "Bodega:");
-				$hoja->setCellValue('B4', $bodega);
+				$hoja->setCellValue('B4', "{$args['inventario']->nombre_bodega}");
 
 				$hoja->fromArray($nombres, null, 'A6');
 				$hoja->getStyle('A1:G6')->getFont()->setBold(true);

@@ -309,23 +309,25 @@ class Comanda_model extends General_Model
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
                             $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                            $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
-                            if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
-                                $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
-                            }
-                            $nvaData = [
-                                'bodega' => (int)$bodegaR->bodega,
-                                'articulo' => (int)$rec->articulo->articulo,
-                                'cuc_ingresado' => 0,
-                                'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
-                                'cp_ingresado' => 0,
-                                'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                                'existencia_ingresada' => 0,
-                                'existencia' => $existencia_nueva_receta,
-                                'fecha' => date('Y-m-d H:i:s')
-                            ];
-                            $nvoBac = new BodegaArticuloCosto_model();
-                            $nvoBac->guardar($nvaData);
+                            // Se comenta esta parte porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
+                            // $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            // if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                            //     $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            // }
+                            // $nvaData = [
+                            //     'bodega' => (int)$bodegaR->bodega,
+                            //     'articulo' => (int)$rec->articulo->articulo,
+                            //     'cuc_ingresado' => 0,
+                            //     'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                            //     'cp_ingresado' => 0,
+                            //     'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                            //     'existencia_ingresada' => 0,
+                            //     'existencia' => $existencia_nueva_receta,
+                            //     'fecha' => date('Y-m-d H:i:s')
+                            // ];
+                            // $nvoBac = new BodegaArticuloCosto_model();
+                            // $nvoBac->guardar($nvaData);
+                            // Fin de lo comentado porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
 
                             if ((int)$datos_costo->metodo_costeo === 1) {
                                 $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
@@ -526,24 +528,26 @@ class Comanda_model extends General_Model
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
                             $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                            $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
-                            if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
-                                $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
-                            }
-                            $nvaData = [
-                                'bodega' => (int)$bodegaR->bodega,
-                                'articulo' => (int)$rec->articulo->articulo,
-                                'cuc_ingresado' => 0,
-                                'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
-                                'cp_ingresado' => 0,
-                                'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
-                                'existencia_ingresada' => 0,
-                                // 'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
-                                'existencia' => $existencia_nueva_receta,
-                                'fecha' => date('Y-m-d H:i:s')
-                            ];
-                            $nvoBac = new BodegaArticuloCosto_model();
-                            $nvoBac->guardar($nvaData);
+                            // Se comenta esta parte porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
+                            // $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            // if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
+                            //     $existencia_nueva_receta = round((float)$datos_costo->existencia + ((float)$rec->cantidad * $cantidad_presentacion), 2);
+                            // }
+                            // $nvaData = [
+                            //     'bodega' => (int)$bodegaR->bodega,
+                            //     'articulo' => (int)$rec->articulo->articulo,
+                            //     'cuc_ingresado' => 0,
+                            //     'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                            //     'cp_ingresado' => 0,
+                            //     'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                            //     'existencia_ingresada' => 0,
+                            //     // 'existencia' => round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2),
+                            //     'existencia' => $existencia_nueva_receta,
+                            //     'fecha' => date('Y-m-d H:i:s')
+                            // ];
+                            // $nvoBac = new BodegaArticuloCosto_model();
+                            // $nvoBac->guardar($nvaData);
+                            // Fin de lo comentado porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
 
                             if ((int)$datos_costo->metodo_costeo === 1) {
                                 $pu = (float)$datos_costo->costo_ultima_compra * $cantidad_presentacion;
