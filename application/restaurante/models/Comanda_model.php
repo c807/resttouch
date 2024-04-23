@@ -1141,7 +1141,7 @@ class Comanda_model extends General_Model
         return new Sede_model($this->sede);
     }
 
-    public function enviarDetalleSede($enviar = true, $sedeDestino = null)
+    public function enviarDetalleSede($enviar = true, $sedeDestino = null, $esDiferenteSede = true)
     {        
         $exito = true;
         $faltantes = [];
@@ -1182,7 +1182,7 @@ class Comanda_model extends General_Model
                     $det->guardar(['articulo' => $art->articulo, 'bodega' => $bodegaDestino && isset($bodegaDestino->bodega) ? $bodegaDestino->bodega : null]);
 
                     // Inicia proceso de modificación de bodega_articulo_costo. 11/04/2024
-                    if ((int)$art->mostrar_inventario === 1 && $bodegaDestino && isset($bodegaDestino->bodega) && (int)$bodegaDestino->bodega > 0) {
+                    if ((int)$art->mostrar_inventario === 1 && $bodegaDestino && isset($bodegaDestino->bodega) && (int)$bodegaDestino->bodega > 0 && $esDiferenteSede) {
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodegaDestino->bodega, (int)$art->articulo);
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();

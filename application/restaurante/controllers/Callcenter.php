@@ -53,7 +53,9 @@ class Callcenter extends CI_Controller {
 					]);
 
 					if ($turno) {
-						$siHayTodos = $com->enviarDetalleSede(false, (int)$req->pedido->sede);
+						$esDiferenteSede = (int)$com->sede !== (int)$req->pedido->sede;
+
+						$siHayTodos = $com->enviarDetalleSede(false, (int)$req->pedido->sede, $esDiferenteSede);
 						if ($siHayTodos->exito) {
 							$detOriginal = $this->Cuenta_model->obtener_detalle(['comanda' => $com->getPK()]);						
 							$com->guardar([
@@ -69,7 +71,7 @@ class Callcenter extends CI_Controller {
 								'fhtomapedido' => date('Y-m-d H:i:s')
 							]);
 							
-							$exito = $com->enviarDetalleSede();
+							$exito = $com->enviarDetalleSede(true, null, $esDiferenteSede);
 	
 							$opciones = array(
 									'http' => array(
