@@ -136,7 +136,8 @@ class Compra_model extends General_Model
 								'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
 								'existencia_ingresada' => 0,
 								'existencia' => $existencia_nueva,
-								'fecha' => date('Y-m-d H:i:s')
+								'fecha' => date('Y-m-d H:i:s'),
+								'notas' => "Ingreso No. {$ing->getPK()} por orden de compra {$this->orden_compra}"
 							];
 		
 							$nvoBac = new BodegaArticuloCosto_model();

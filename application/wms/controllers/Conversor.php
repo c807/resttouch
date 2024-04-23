@@ -245,7 +245,8 @@ class Conversor extends CI_Controller
 											'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
 											'existencia_ingresada' => 0,
 											'existencia' => $existencia_nueva,
-											'fecha' => date('Y-m-d H:i:s')
+											'fecha' => date('Y-m-d H:i:s'),
+											'notas' => "Ingreso No. {$ing->getPK()} por transformación."
 										];
 
 										$nvoBac = new BodegaArticuloCosto_model();
@@ -583,7 +584,8 @@ class Conversor extends CI_Controller
 											'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
 											'existencia_ingresada' => 0,
 											'existencia' => $existencia_nueva,
-											'fecha' => date('Y-m-d H:i:s')
+											'fecha' => date('Y-m-d H:i:s'),
+											'notas' => "Ingreso No. {$ingr->getPK()} por producción."
 										];
 
 										$nvoBac = new BodegaArticuloCosto_model();

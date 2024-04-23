@@ -566,7 +566,8 @@ class Fisico extends CI_Controller
 										'costo_promedio' => $datos_costo->costo_promedio,
 										'existencia_ingresada' => 0,
 										'existencia' => $existencia_nueva,
-										'fecha' => date('Y-m-d H:i:s')
+										'fecha' => date('Y-m-d H:i:s'),
+										'notas' => "Ingreso No. {$ing->getPK()} por Inventario Físico No. {$id}."
 									];
 
 									$nvoBac = new BodegaArticuloCosto_model();

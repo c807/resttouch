@@ -15,6 +15,7 @@ class BodegaArticuloCosto_model extends General_model
     public $existencia = 0.00;
     public $fecha;
     public $esajuste = 0;
+    public $notas = null;
 
     public function __construct($id = "")
     {

@@ -253,7 +253,8 @@ class Comanda_model extends General_Model
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                         'existencia_ingresada' => 0,
                         'existencia' => $existencia_nueva,
-                        'fecha' => date('Y-m-d H:i:s')
+                        'fecha' => date('Y-m-d H:i:s'),
+                        'notas' => "Comanda {$det->comanda}"
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
@@ -473,7 +474,8 @@ class Comanda_model extends General_Model
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                         'existencia_ingresada' => 0,
                         'existencia' => $existencia_nueva,
-                        'fecha' => date('Y-m-d H:i:s')
+                        'fecha' => date('Y-m-d H:i:s'),
+                        'notas' => "Comanda {$det->comanda}"
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
@@ -1151,7 +1153,7 @@ class Comanda_model extends General_Model
         }
 
         $detCom = $this->db
-            ->select('a.detalle_comanda, b.codigo, b.descripcion, a.detalle_comanda_id')
+            ->select('a.detalle_comanda, b.codigo, b.descripcion, a.detalle_comanda_id, a.comanda')
             ->join('articulo b', 'b.articulo = a.articulo')
             ->where('a.comanda', $this->getPK())
             ->get('detalle_comanda a')
@@ -1195,7 +1197,8 @@ class Comanda_model extends General_Model
                                 'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                                 'existencia_ingresada' => 0,
                                 'existencia' => $existencia_nueva,
-                                'fecha' => date('Y-m-d H:i:s')
+                                'fecha' => date('Y-m-d H:i:s'),
+                                'notas' => "Comanda (CC) {$row->comanda}"
                             ];
                             $nvoBac = new BodegaArticuloCosto_model();
                             $nvoBac->guardar($nvaData);
