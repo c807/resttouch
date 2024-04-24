@@ -253,7 +253,8 @@ class Comanda_model extends General_Model
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                         'existencia_ingresada' => 0,
                         'existencia' => $existencia_nueva,
-                        'fecha' => date('Y-m-d H:i:s')
+                        'fecha' => date('Y-m-d H:i:s'),
+                        'notas' => "Comanda {$det->comanda}"
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
@@ -473,7 +474,8 @@ class Comanda_model extends General_Model
                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                         'existencia_ingresada' => 0,
                         'existencia' => $existencia_nueva,
-                        'fecha' => date('Y-m-d H:i:s')
+                        'fecha' => date('Y-m-d H:i:s'),
+                        'notas' => "Comanda {$det->comanda}"
                     ];
                     $nvoBac = new BodegaArticuloCosto_model();
                     $nvoBac->guardar($nvaData);
@@ -1139,7 +1141,7 @@ class Comanda_model extends General_Model
         return new Sede_model($this->sede);
     }
 
-    public function enviarDetalleSede($enviar = true, $sedeDestino = null)
+    public function enviarDetalleSede($enviar = true, $sedeDestino = null, $esDiferenteSede = true)
     {        
         $exito = true;
         $faltantes = [];
@@ -1151,7 +1153,7 @@ class Comanda_model extends General_Model
         }
 
         $detCom = $this->db
-            ->select('a.detalle_comanda, b.codigo, b.descripcion, a.detalle_comanda_id')
+            ->select('a.detalle_comanda, b.codigo, b.descripcion, a.detalle_comanda_id, a.comanda')
             ->join('articulo b', 'b.articulo = a.articulo')
             ->where('a.comanda', $this->getPK())
             ->get('detalle_comanda a')
@@ -1180,7 +1182,7 @@ class Comanda_model extends General_Model
                     $det->guardar(['articulo' => $art->articulo, 'bodega' => $bodegaDestino && isset($bodegaDestino->bodega) ? $bodegaDestino->bodega : null]);
 
                     // Inicia proceso de modificación de bodega_articulo_costo. 11/04/2024
-                    if ((int)$art->mostrar_inventario === 1 && $bodegaDestino && isset($bodegaDestino->bodega) && (int)$bodegaDestino->bodega > 0) {
+                    if ((int)$art->mostrar_inventario === 1 && $bodegaDestino && isset($bodegaDestino->bodega) && (int)$bodegaDestino->bodega > 0 && $esDiferenteSede) {
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodegaDestino->bodega, (int)$art->articulo);
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
@@ -1195,7 +1197,8 @@ class Comanda_model extends General_Model
                                 'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                                 'existencia_ingresada' => 0,
                                 'existencia' => $existencia_nueva,
-                                'fecha' => date('Y-m-d H:i:s')
+                                'fecha' => date('Y-m-d H:i:s'),
+                                'notas' => "Comanda (CC) {$row->comanda}"
                             ];
                             $nvoBac = new BodegaArticuloCosto_model();
                             $nvoBac->guardar($nvaData);

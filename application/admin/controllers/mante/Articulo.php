@@ -1070,7 +1070,8 @@ class Articulo extends CI_Controller
 			'costo_promedio' => 0,
 			'existencia_ingresada' => 0,
 			'existencia' => $existencia_nueva,
-			'fecha' => null
+			'fecha' => null,
+			'notas' => 'Agregado por primera vez a la tabla bodega_articulo_costo.'
 		];
 		
 		$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaDescargo->bodega, $art->getPK());

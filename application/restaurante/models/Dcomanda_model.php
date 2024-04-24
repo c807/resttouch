@@ -148,7 +148,8 @@ class Dcomanda_model extends General_Model
 						'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
 						'existencia_ingresada' => 0,							
 						'existencia' => $existencia_nueva_hijo,
-						'fecha' => date('Y-m-d H:i:s')
+						'fecha' => date('Y-m-d H:i:s'),
+						'notas' => "Comanda {$det->comanda}"
 					];
 					$nvoBac = new BodegaArticuloCosto_model();
 					$nvoBac->guardar($nvaData);						

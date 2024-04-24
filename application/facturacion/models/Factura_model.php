@@ -2199,7 +2199,7 @@ class Factura_model extends General_model
 	public function actualiza_costo_existencia()
 	{
 		$detalle = $this->db
-			->select('a.detalle_factura, a.cantidad_inventario, a.articulo, a.bodega, b.cantidad AS cantidad_presentacion')
+			->select('a.detalle_factura, a.cantidad_inventario, a.articulo, a.bodega, b.cantidad AS cantidad_presentacion, a.factura')
 			->join('presentacion b', 'b.presentacion = a.presentacion')
 			->join('articulo c', 'c.articulo = a.articulo')
 			->where('a.factura', $this->getPK())
@@ -2247,6 +2247,7 @@ class Factura_model extends General_model
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			}
+			$nvaData['notas'] = "Factura con ID {$det->factura}";
 			$nvoBac = new BodegaArticuloCosto_model();
 			$nvoBac->guardar($nvaData);
 		}

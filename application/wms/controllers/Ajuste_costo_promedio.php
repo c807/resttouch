@@ -210,7 +210,8 @@ class Ajuste_costo_promedio extends CI_Controller
                                     'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
                                     'existencia_ingresada' => 0,
                                     'existencia' => $existencia_nueva,
-                                    'fecha' => date('Y-m-d H:i:s')
+                                    'fecha' => date('Y-m-d H:i:s'),
+                                    'notas' => "Ingreso No. {$ingreso->getPK()} por ajuste de costo promedio No. {$acp->ajuste_costo_promedio}."
                                 ];
 
                                 $nvoBac = new BodegaArticuloCosto_model();
@@ -285,7 +286,8 @@ class Ajuste_costo_promedio extends CI_Controller
                                         'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
                                         'existencia_ingresada' => 0,
                                         'existencia' => round((float)$datos_costo->existencia - ((float)1 * (float)$pres->cantidad), 2),
-                                        'fecha' => date('Y-m-d H:i:s')
+                                        'fecha' => date('Y-m-d H:i:s'),
+                                        'notas' => "Egreso No. {$egreso->getPK()} por ajuste de costo promedio No. {$acp->ajuste_costo_promedio}."
                                     ];
                                     $nvoBac = new BodegaArticuloCosto_model();
                                     $nvoBac->guardar($nvaData);

@@ -1026,7 +1026,8 @@ class Comanda extends CI_Controller
 									'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
 									'existencia_ingresada' => 0,
 									'existencia' => $existencia_nueva,
-									'fecha' => date('Y-m-d H:i:s')
+									'fecha' => date('Y-m-d H:i:s'),
+									'notas' => "Reversión de inventario por eliminación de detalle de comanda {$det->comanda}."
 								];
 								$nvoBac = new BodegaArticuloCosto_model();
 								$nvoBac->guardar($nvaData);
