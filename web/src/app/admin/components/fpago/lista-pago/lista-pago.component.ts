@@ -70,6 +70,7 @@ export class ListaPagoComponent implements OnInit, OnDestroy {
               fp.pedirautorizacion = +fp.pedirautorizacion;
               fp.sinfactura = +fp.sinfactura;
               fp.activo = +fp.activo;
+              fp.permitir_propina = +fp.permitir_propina;
               fp.escobrohabitacion = +fp.escobrohabitacion;
               return fp;
             });

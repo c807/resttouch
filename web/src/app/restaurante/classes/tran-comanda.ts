@@ -51,6 +51,13 @@ export class TranComanda {
     return this.rolesUsuario.indexOf('cajero') > -1;
   }
 
+  get nombreMesero() {
+    if(this.mesaEnUso && this.mesaEnUso.mesero) {
+      return `${this.mesaEnUso.mesero.nombres} ${this.mesaEnUso.mesero.apellidos}`;
+    }
+    return '';
+  }
+
   public ctSlect: number = null;
 
   public mesaEnUso: ComandaGetResponse;
@@ -1411,4 +1418,17 @@ export class TranComanda {
     );
   }
 
+  saveCantidadComensales = () => {
+    if(+this.mesaEnUso.comensales > 0) {
+      this.endSubs.add(
+        this.comandaSrvc.saveCantidadDeComensales(+this.mesaEnUso.comanda, +this.mesaEnUso.comensales).subscribe(res => {
+          if (res.exito) {
+            this.snackBar.open(res.mensaje, 'Comensales', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comensales', { duration: 7000 });
+          }
+        })
+      );
+    }
+  }
 }

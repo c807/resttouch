@@ -15,4 +15,5 @@ export interface FormaPago {
     montocc?: number;
     escobrohabitacion?: number;
     porcentaje_maximo_descuento?: number;
+    permitir_propina?: number;
 }

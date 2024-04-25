@@ -47,9 +47,9 @@
         </mat-form-field>
         <!--Fin de input de monto por forma de pago-->
         <!--Inicia input de propina por forma de pago-->
-        <mat-form-field class="fullWidth">
-          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()">
-          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina">
+        <mat-form-field class="fullWidth" >
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina" (input)="onPropinaInputChage()" [readonly]="!permitirPropina">
+          <input [disabled]="RT_AUTORIZA_CAMBIO_PROPINA || (+data.mesaenuso.mesa.escallcenter === 1 && !aceptaPropinaEnCallCenter)" matInput *ngIf="esMovil" (input)="onPropinaInputChage()" placeholder="Propina" name="propina" [(ngModel)]="formaPago.propina" [readonly]="!permitirPropina">
           <!-- Warning Icon ,Tip Quantity Exceed -->
           <mat-icon *ngIf="isTipExceeded" matTooltipClass="tool-tip" matTooltipPosition="left" [matTooltip]="MaxTooltTipMessage" style="color:orange;" matSuffix>warning</mat-icon>
           <mat-icon (click)="autorizaCambioPropina()" *ngIf="RT_AUTORIZA_CAMBIO_PROPINA_ICON" matTooltipClass="tool-tip" matTooltipPosition="left" style="color:orange;" matSuffix>lock</mat-icon>

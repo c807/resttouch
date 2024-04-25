@@ -170,6 +170,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public municipios: Municipio[] = [];
   public mesaEnUso: ComandaGetResponse = null;
   public porcentajeMaximoDescuento: number = 0.00;
+  public permitirPropina = false;
 
   private endSubs = new Subscription();
 
@@ -794,6 +795,8 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         this.porcentajeMaximoDescuento = 0.00;
       }
 
+      this.permitirPropina = +this.lstFormasPago[idx].permitir_propina == 1
+
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
       this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
@@ -809,7 +812,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.calcTipAuto();
 
-    if (+this.lstFormasPago[idx].esabono === 1) {
+    if (+this.lstFormasPago[idx].esabono === 1 || !this.permitirPropina) {
       this.formaPago.propina = 0.00;
     }
   }
@@ -914,7 +917,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
 
     if (this.formaPago && +this.formaPago.forma_pago > 0) {
       const fp = this.lstFormasPago.find(f => +f.forma_pago === +this.formaPago.forma_pago);
-      if (fp && +fp.esabono === 1) {
+      if (fp && (+fp.esabono === 1 || !this.permitirPropina)) {
         this.formaPago.propina = 0.00;
       }
     }
