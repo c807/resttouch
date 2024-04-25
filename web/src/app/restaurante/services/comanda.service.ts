@@ -130,9 +130,9 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  trasladarMesa(idComanda: number, idMesaOrigen: number, idMesaDestino: number, idCuenta: number = null, params:any = {}): Observable<any> {
+  trasladarMesa(idComanda: number, idMesaOrigen: number, idMesaDestino: number, idCuenta: number = null, params: any = {}): Observable<any> {
     return this.http.get<any>(
-      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/trasladar_mesa/${idComanda}/${idMesaOrigen}/${idMesaDestino}${+idCuenta > 0 ? ('/'+idCuenta) : ''}?${qs.stringify(params)}`
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/trasladar_mesa/${idComanda}/${idMesaOrigen}/${idMesaDestino}${+idCuenta > 0 ? ('/' + idCuenta) : ''}?${qs.stringify(params)}`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -179,20 +179,20 @@ export class ComandaService {
   getDetalleCuenta(idcuenta: number, fltr = {}): Observable<DetalleCuentaResponse[]> {
     return this.http.get<DetalleCuentaResponse[]>(
       `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/get_detalle_cuenta/${idcuenta}?${qs.stringify(fltr)}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   obtenerDetalleCuenta(fltr: any = {}): Observable<DetalleCuentaSimplified[]> {
     return this.http.get<DetalleCuentaSimplified[]>(
       `${GLOBAL.urlAppRestaurante}/${this.ctaModuleUrl}/obtener_detalle_cuenta?${qs.stringify(fltr)}`
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));    
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   eliminarDetalleComanda(params: any) {
     return this.http.post<any>(
       `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/eliminar_detalle`,
       params
-    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));        
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
   duplicarDetalleComanda(params: any): Observable<any> {
@@ -222,4 +222,10 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  saveCantidadDeComensales(comanda: number, comensales: number): Observable<any> {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar_comensales`,
+      { comanda, comensales }
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
 }

@@ -1170,6 +1170,21 @@ class Comanda extends CI_Controller
 		$this->Comanda_model->fix_comandas_abiertas_domicilio($_GET);
 		$this->output->set_output(json_encode(['exito' => true, 'mensaje' => 'Proceso ejecutado con éxito, por favor revise.']));
 	}
+
+	public function guardar_comensales() {
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'));
+			$cmd = new Comanda_model($req->comanda);
+			$params['comensales'] = $req->comensales;
+			if($cmd->guardar($params)) {
+				$this->output->set_output(json_encode(['exito' => true, 'mensaje' => 'Cantidad de comensales actualizada con éxito.']));
+			} else {
+				$this->output->set_output(json_encode(['exito' => false, 'mensaje' => implode('; ', $cmd->getMensaje())]));
+			}
+		} else {
+			$this->output->set_output(json_encode(['exito' => false, 'mensaje' => 'Parámetros inválidos.']));		
+		}
+	}
 }
 
 /* End of file Comanda.php */
