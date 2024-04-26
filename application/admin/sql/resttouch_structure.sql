@@ -1703,6 +1703,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUTO_FIRMA_DTE_COMANDA_LINEA', '3', '0', 'Habilita/Desahabilita la firma automática desde comanda en línea.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_INCLUYE_SALDO_INICIAL', '3', '0', 'Habilita/Deshabilita tomar en cuenta el saldo inicial de caja en arqueos y saldos finales.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_APLICA_DESCUENTO_A_ENVIO', '3', '1', 'Habilita/Deshabilita si debe aplicar descuento al artículo Entrega cuando hayan descuentos en Shopify.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_BLOQUEO_MESA_POR_MESERO', '3', '0', 'Habilita/Deshabilita funcionalidad para que solo el mesero que abrió la comanda pueda trabajarla a menos que sea el cajero.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 

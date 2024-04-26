@@ -51,10 +51,16 @@ export class UsuarioService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  desbloquear = (pindesbloqueo: number) => {
+  desbloquear = (pindesbloqueo: number, idusuario: number = null) => {
+    let params: any = { pindesbloqueo };
+
+    if (+idusuario > 0) {
+      params = { ...params, usuario: +idusuario };
+    }
+
     return this.http.post<any>(
       `${GLOBAL.url}/${this.moduleUrl}/desbloqueo_usuario`,
-      { pindesbloqueo }      
+      params
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
@@ -75,7 +81,7 @@ export class UsuarioService {
         }
       }
       resolve(false);
-    });    
+    });
   }
 
   get(filtros: any): Observable<Usuario[]> {
@@ -85,7 +91,7 @@ export class UsuarioService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
-  getMeserosTurno(): Observable<Usuario[]> {    
+  getMeserosTurno(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(
       `${GLOBAL.urlCatalogos}/get_mesero`
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
@@ -95,7 +101,7 @@ export class UsuarioService {
     if (entidad.usuario) {
       return this.http.post<any>(
         `${GLOBAL.url}/${this.moduleUrl}/guardar_usuario/${entidad.usuario}`,
-        entidad        
+        entidad
       ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
     } else {
       if (!entidad.contrasenia) {
@@ -103,11 +109,11 @@ export class UsuarioService {
       }
       return this.http.post<any>(
         `${GLOBAL.url}/${this.moduleUrl}/guardar_usuario`,
-        entidad        
+        entidad
       ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
     }
 
-  }  
+  }
 
   getAppMenu = (): AccesoUsuario[] => this.ls.get(GLOBAL.usrTokenVar).acceso || [];
 
