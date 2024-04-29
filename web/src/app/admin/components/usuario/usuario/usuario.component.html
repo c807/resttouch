@@ -11,7 +11,7 @@
                 <app-lista-usuario #lstUsuarioComponent (getUsuarioEv)="setUsuario($event)"></app-lista-usuario>
             </div>
             <div class="col m7 s12">
-                <app-form-usuario [usuario]="usuario" (usrSavedEv)="refreshUserList()"></app-form-usuario>
+                <app-form-usuario #frmUsuarioComponent [usuario]="usuario" (usrSavedEv)="refreshUserList()"></app-form-usuario>
             </div>
         </div>
     </mat-tab>
