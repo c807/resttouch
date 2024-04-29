@@ -30,6 +30,10 @@ class Usuario_bodega_model extends General_model
             $this->db->where('a.bodega', (int)$args['bodega']);
         }
 
+        if (isset($args['debaja'])) {
+            $this->db->where('a.debaja', (int)$args['debaja']);
+        }
+
         return $this->db
             ->select("{$campos}, b.descripcion AS bodega_descripcion, b.debaja AS bodega_debaja")
             ->join('bodega b', 'b.bodega = a.bodega')
