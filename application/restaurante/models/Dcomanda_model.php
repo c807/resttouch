@@ -108,7 +108,7 @@ class Dcomanda_model extends General_Model
 		return $montoExtra;
 	}
 
-	public function actualizarCantidadHijos($regresa_inventario = true, $esNuevo = false)
+	public function actualizarCantidadHijos($regresa_inventario = true, $esNuevo = false, $cantidadInventarioOriginalPadre = null)
 	{
 		$tmp = $this->db
 			->select('a.detalle_comanda, b.articulo')
@@ -137,7 +137,8 @@ class Dcomanda_model extends General_Model
 					$cantidad_presentacion = round((float)$pres->cantidad, 2);						
 					$existencia_nueva_hijo = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
 					if ($regresa_inventario && !$esNuevo) {
-						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
+						$valorCantidadInventarioOriginal = $cantidadInventarioOriginalPadre ? $cantidadInventarioOriginalPadre : $det->cantidad_inventario;
+						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$valorCantidadInventarioOriginal * $cantidad_presentacion), 2);
 					}
 					$nvaData = [
 						'bodega' => (int)$det->bodega,
