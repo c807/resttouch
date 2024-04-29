@@ -6,6 +6,7 @@ class Fpago_model extends General_model {
 	public $forma_pago;
 	public $descripcion;
 	public $activo = 1;
+	public $permitir_propina = 1;
 	public $descuento = 0;
 	public $aumento_porcentaje = 0.00;
 	public $comision_porcentaje = 0.00;
@@ -43,6 +44,10 @@ class Fpago_model extends General_model {
 
 		if (isset($args['activo']) && in_array((int)$args['activo'], [0, 1])) {
 			$this->db->where('activo', $args['activo']);
+		}
+
+		if (isset($args['permitir_propina']) && in_array((int)$args['permitir_propina'], [0, 1])) {
+			$this->db->where('permitir_propina', $args['permitir_propina']);
 		}
 
 		if (isset($args['descuento']) && in_array((int)$args['descuento'], [0, 1])) {

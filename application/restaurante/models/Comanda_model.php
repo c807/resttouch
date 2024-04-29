@@ -273,6 +273,7 @@ class Comanda_model extends General_Model
             }
             // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
+            $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
             $result = $det->guardar($args);
             $idx = $det->getPK();
             $receta = $art->getReceta([], $this->_listaMedidas);
@@ -363,7 +364,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo);
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo, $cantidadInventarioOriginalPadre);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -494,6 +495,7 @@ class Comanda_model extends General_Model
             }
             // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
+            $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
             $result = $det->guardar($args);
             $idx = $det->getPK();
             $receta = $art->getReceta();
@@ -584,7 +586,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo);
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo, $cantidadInventarioOriginalPadre);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -868,6 +870,7 @@ class Comanda_model extends General_Model
         $tmp->abonado = $this->get_monto_abonado_comanda();
         $tmp->monto_abono_usado = $this->get_monto_abono_usado();
         $tmp->saldo_abono = $tmp->abonado - $tmp->monto_abono_usado;
+        $tmp->comensales = (int)$this->comensales;
         return $tmp;
     }
 

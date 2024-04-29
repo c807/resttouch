@@ -5,8 +5,7 @@
       <mat-calendar (selectedChange)="dateChanged($event)" [(selected)]="selected"></mat-calendar>
     </mat-card>
   </div>
-
-  <div fxLayout="column">
+  <div style="overflow-y:auto; max-height:650px;">
     <table #tblReservas mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
       <ng-container matColumnDef="habitacion">

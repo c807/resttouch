@@ -60,6 +60,7 @@ export interface ComandaGetResponse {
     abonado?: number;
     monto_abono_usado?: number;
     saldo_abono?: number;
+    comensales?: number;
 }
 
 export interface IDatosTranComanda {

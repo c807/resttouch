@@ -33,6 +33,8 @@ export class FormPagoComponent implements OnInit, OnDestroy {
 
   private endSubs = new Subscription();
 
+  public mostrarUsoPropina = false;
+
   constructor(
     private snackBar: MatSnackBar,
     private fpagoSrvc: FpagoService,
@@ -62,7 +64,7 @@ export class FormPagoComponent implements OnInit, OnDestroy {
 
   resetFormaPago = () => {
     this.fpago = {
-      forma_pago: null, descripcion: null, activo: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
+      forma_pago: null, descripcion: null, activo: 1, permitir_propina: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
       retencion_porcentaje: 0.00, pedirdocumento: 0, adjuntararchivo: 0, pedirautorizacion: 0,
       sinfactura: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00
     };
@@ -116,8 +118,16 @@ export class FormPagoComponent implements OnInit, OnDestroy {
   }
 
   esDescuentoChecked = (obj: MatCheckboxChange) =>{
+    this.mostrarUsoPropina = false;
+
     if (!obj.checked) {
       this.fpago.porcentaje_maximo_descuento = 0.00;
+    } else {
+      this.mostrarUsoPropina = true;
+    }
+
+    if (this.mostrarUsoPropina && this.fpago.forma_pago === null) {
+      this.fpago.permitir_propina = 1
     }
   }
 }

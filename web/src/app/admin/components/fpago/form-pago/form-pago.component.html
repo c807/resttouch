@@ -29,7 +29,8 @@
                     <mat-checkbox name="pedirdocumento" class="btnAccion" [(ngModel)]="+fpago.pedirdocumento">Pedir número de documento</mat-checkbox>
                     <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
                     <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>
-                    <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>                    
+                    <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>  
+                    <mat-checkbox *ngIf="+fpago.descuento === 1" name="usodepropina" class="btnAccion" [(ngModel)]="+fpago.permitir_propina">Permitir uso de propina</mat-checkbox>                  
                     <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+fpago.activo">Activo</mat-checkbox>
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFpago.form.valid">

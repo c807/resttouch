@@ -56,6 +56,13 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     return this.rolesUsuario.indexOf('cajero') > -1;
   }
 
+  get nombreMesero() {
+    if(this.mesaEnUso && this.mesaEnUso.mesero) {
+      return `${this.mesaEnUso.mesero.nombres} ${this.mesaEnUso.mesero.apellidos}`;
+    }
+    return '';
+  }
+
   @Input() mesaEnUso: ComandaGetResponse;
   @Input() clientePedido: (Cliente | ClienteMaster) = null;
   @Output() closeSideNavEv = new EventEmitter();
@@ -1410,5 +1417,17 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     );
   }
 
-
+  saveCantidadComensales = () => {
+    if(+this.mesaEnUso.comensales > 0) {
+      this.endSubs.add(
+        this.comandaSrvc.saveCantidadDeComensales(+this.mesaEnUso.comanda, +this.mesaEnUso.comensales).subscribe(res => {
+          if (res.exito) {
+            this.snackBar.open(res.mensaje, 'Comensales', { duration: 3000 });
+          } else {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Comensales', { duration: 7000 });
+          }
+        })
+      );
+    }
+  }
 }
