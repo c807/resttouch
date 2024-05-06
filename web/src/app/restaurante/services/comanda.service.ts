@@ -72,6 +72,13 @@ export class ComandaService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  saveNotasPredefinidas(entidad: any) {
+    return this.http.post<any>(
+      `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar_notas_predefinidas/${entidad.detalle_comanda}`,
+      entidad
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   saveDetalle(idcomanda: number, idcuenta: number, detalle: DetalleComanda) {
     return this.http.post<any>(
       `${GLOBAL.urlAppRestaurante}/${this.moduleUrl}/guardar_detalle/${idcomanda}/${idcuenta}`,

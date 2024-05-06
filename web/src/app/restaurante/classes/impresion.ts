@@ -32,6 +32,7 @@ export class Impresion {
                 cantidad: +item.cantidad,
                 total: +item.total,
                 notas: item.notas || '',
+                notas_predefinidas: item.notas_predefinidas || '',
                 impresora: {
                     impresora: +item.articulo.impresora.impresora,
                     sede: +item.articulo.impresora.sede,
@@ -138,7 +139,7 @@ export class Impresion {
         if (lstProductosAImprimir.length > 0) {
             const totalCuenta = this.sumaDetalle(lstProductosAImprimir);
             const printerToUse = obj.impresora_defecto_cuenta || obj.impresora_defecto;
-            const imprimePropSugerida = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_PROPINA_SUGERIDA);
+            const imprimePropSugerida = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) as number) || 0;
             const ngen = +obj.domicilio === 1 ? (obj.notas_generales || null) : null;
 
             const msgToPrint = {
@@ -149,7 +150,7 @@ export class Impresion {
                 Total: totalCuenta,
                 Empresa: this.ls.get(GLOBAL.usrTokenVar).empresa,
                 Restaurante: this.ls.get(GLOBAL.usrTokenVar).restaurante,
-                PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
+                PropinaSugerida: imprimePropSugerida ? (totalCuenta * (imprimePropSugerida / 100)).toFixed(2) : null,
                 Impresora: printerToUse,
                 Ubicacion: mesaEnUso && mesaEnUso.area ? `${mesaEnUso.area.nombre} - Mesa ${mesaEnUso.etiqueta || mesaEnUso.numero} - Comanda ${obj.comanda}` : `Comanda ${obj.comanda}`,
                 Mesero: (`${obj.mesero.nombres || ''} ${obj.mesero.apellidos || ''}`).trim(),

@@ -420,6 +420,25 @@ class Comanda extends CI_Controller
 		$this->output->set_output(json_encode($datos));
 	}
 
+	public function guardar_notas_predefinidas($dcomanda)
+	{
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'), true);
+			if (isset($req['notas_predefinidas'])) {
+				$dcom = new Dcomanda_model($dcomanda);
+				$req['notas_predefinidas'] = trim($req['notas_predefinidas']) !== '' ? trim($req['notas_predefinidas']) : null;
+				$datos['exito'] = $dcom->guardar($req);
+				if ($datos['exito']) {
+					$datos['mensaje'] = 'Notas predefinidas actualizadas con éxito.';
+				} else {
+					$datos['mensaje'] = implode('<br>', $dcom->getMensaje());
+				}
+			}
+		}
+		$this->output->set_output(json_encode($datos));
+	}
+
 	public function set_detalle_comanda($com, $cuenta)
 	{
 		$comanda = new Comanda_model($com);

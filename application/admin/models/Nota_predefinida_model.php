@@ -14,7 +14,14 @@ class Nota_predefinida_model extends General_model {
 		if(!empty($id)) {
 			$this->cargar($id);
 		}
-	}	
+	}
+
+	public function getGrupos()
+	{
+		return $this->Categoria_grupo_nota_predefinida_model->buscar([
+			'nota_predefinida' => $this->getPK()
+		]);
+	}
 
 }
 

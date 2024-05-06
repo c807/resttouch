@@ -18,6 +18,7 @@ interface IDatosCuentas {
     precio?: number;
     total?: number;
     notas?: string;
+    notas_predefinidas?: string;
     showInputNotas: boolean;
     itemListHeight: string;
     detalle_comanda?: number;
