@@ -40,17 +40,28 @@ export class SolicitaPinInactividadComponent implements OnInit, OnDestroy {
 
   verificaPin = () => {
     const tmpPinDesbloqueo = +this.pinDesbloqueo.replace(/[^0-9]/gi, '').substr(0, 36).trim();
-    this.endSubs.add(      
-      this.usuarioSrvc.desbloquear(tmpPinDesbloqueo).subscribe(res => {
+    let idusuario = null;
+    if (this.data && +this.data.idusuario > 0) {
+      idusuario = +this.data.idusuario;
+    }
+
+    this.endSubs.add(
+      this.usuarioSrvc.desbloquear(tmpPinDesbloqueo, idusuario).subscribe(res => {
         if (res.exito && res.token) {
-          this.ls.set(GLOBAL.usrUnlockVar, {
-            token: res.token, usuario: res.usrname, nombres: res.nombres, apellidos: res.apellidos, sede: +res.sede,
-            idusr: +res.idusr, sede_uuid: res.sede_uuid, empresa: res.empresa, restaurante: res.restaurante
-          });
-          this.dialogRef.close();
+          if (!this.data || (this.data && this.data.no_reemplazar_data)) {
+            this.ls.set(GLOBAL.usrUnlockVar, {
+              token: res.token, usuario: res.usrname, nombres: res.nombres, apellidos: res.apellidos, sede: +res.sede,
+              idusr: +res.idusr, sede_uuid: res.sede_uuid, empresa: res.empresa, restaurante: res.restaurante
+            });
+          }
+          this.dialogRef.close(true);
         } else {
           this.pinDesbloqueo = undefined;
-          this.snackBar.open(`ERROR: ${res.mensaje}`, 'Desbloqueo', { duration: 7000 });
+          if (!this.data || (this.data && this.data.no_reemplazar_data)) {
+            this.snackBar.open(`ERROR: ${res.mensaje}`, 'Desbloqueo', { duration: 7000 });
+          } else {
+            this.dialogRef.close(false);
+          }
         }
       })
     );

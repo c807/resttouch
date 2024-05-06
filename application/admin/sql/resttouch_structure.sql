@@ -1703,6 +1703,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_AUTO_FIRMA_DTE_COMANDA_LINEA', '3', '0', 'Habilita/Desahabilita la firma automática desde comanda en línea.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_INCLUYE_SALDO_INICIAL', '3', '0', 'Habilita/Deshabilita tomar en cuenta el saldo inicial de caja en arqueos y saldos finales.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_APLICA_DESCUENTO_A_ENVIO', '3', '1', 'Habilita/Deshabilita si debe aplicar descuento al artículo Entrega cuando hayan descuentos en Shopify.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_BLOQUEO_MESA_POR_MESERO', '3', '0', 'Habilita/Deshabilita funcionalidad para que solo el mesero que abrió la comanda pueda trabajarla a menos que sea el cajero.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 
@@ -3726,6 +3727,28 @@ ALTER TABLE RT_DATABASE_NAME.factura_fel PARTITION BY HASH(factura) PARTITIONS 4
 ALTER TABLE RT_DATABASE_NAME.usuario ADD COLUMN ver_panorama TINYINT(1) NULL DEFAULT 0 AFTER rol;
 
 ALTER TABLE RT_DATABASE_NAME.sede ADD COLUMN enviar_factura_pagada TINYINT(1) NOT NULL DEFAULT 1;
+
+ALTER TABLE RT_DATABASE_NAME.orden_compra_detalle CHANGE COLUMN cantidad cantidad DECIMAL(10,2) NOT NULL DEFAULT '0.00' ;
+
+CREATE TABLE RT_DATABASE_NAME.usuario_bodega (
+  usuario_bodega INT NOT NULL AUTO_INCREMENT,
+  usuario INT NOT NULL,
+  bodega INT NOT NULL,
+  debaja TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (usuario_bodega),
+  INDEX fk_usuario_bodega_usuario1_idx (usuario ASC),
+  INDEX fk_usuario_bodega_bodega1_idx (bodega ASC),
+  UNIQUE INDEX UsuarioBodega_idx (usuario ASC, bodega ASC),
+  CONSTRAINT fk_usuario_bodega_usuario1
+    FOREIGN KEY (usuario)
+    REFERENCES RT_DATABASE_NAME.usuario (usuario)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_usuario_bodega_bodega1
+    FOREIGN KEY (bodega)
+    REFERENCES RT_DATABASE_NAME.bodega (bodega)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

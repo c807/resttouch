@@ -66,6 +66,10 @@ class Usuario_model extends General_model
                 $this->db->where('a.sede', $credenciales['sede']);
             }
 
+            if (isset($credenciales['usuario'])) {
+                $this->db->where('a.usuario', (int)$credenciales['usuario']);
+            }
+
             $campos = 'a.usuario, a.contrasenia, a.pindesbloqueo, a.usrname, a.nombres, a.apellidos, a.sede, b.empresa, b.nombre as sede_nombre, b.direccion as sede_direccion, b.correo as sede_correo, ';
             $campos .= 'c.nombre as empresa_nombre, c.nit as empresa_nit, c.visa_merchant_id, CONCAT(d.admin_llave, "-", c.empresa, "-", b.sede) AS sede_uuid, a.usatecladovirtual, b.alias AS sede_alias, ';
             $campos .= 'a.confirmar_ingreso, a.confirmar_egreso, a.rol, c.metodo_costeo, a.ver_panorama';

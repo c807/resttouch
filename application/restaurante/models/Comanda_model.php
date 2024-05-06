@@ -732,6 +732,7 @@ class Comanda_model extends General_Model
         $tmp->abonado = $this->get_monto_abonado_comanda();
         $tmp->monto_abono_usado = $this->get_monto_abono_usado();
         $tmp->saldo_abono = $tmp->abonado - $tmp->monto_abono_usado;
+        $tmp->comensales = (int)$this->comensales;
         return $tmp;
     }
 

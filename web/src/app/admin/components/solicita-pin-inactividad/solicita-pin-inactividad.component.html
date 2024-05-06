@@ -1,13 +1,18 @@
 <h1 mat-dialog-title>Pin de desbloqueo</h1>
 <div mat-dialog-content>
-    <form #frmDesbloqueo="ngForm" (ngSubmit)="frmDesbloqueo.form.valid && verificaPin()" novalidate>
-        <mat-form-field class="fullWidth">
-            <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin de desbloqueo" name="pinDesbloqueo" [(ngModel)]="pinDesbloqueo" required>
-            <input matInput *ngIf="esMovil" type="password" placeholder="Pin de desbloqueo" name="pinDesbloqueo" [(ngModel)]="pinDesbloqueo" required>
+    <form #frmDesbloqueo="ngForm" (ngSubmit)="frmDesbloqueo.form.valid && verificaPin()" novalidate autocomplete="off">
+        <mat-form-field class="fullWidth">            
+            <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin de desbloqueo" name="pinDesbloqueo" [(ngModel)]="pinDesbloqueo" required
+            (focus)="$event.target.setAttribute('autocomplete', 'off')" (keydown.enter)="verificaPin()">
+            <input matInput *ngIf="esMovil" type="password" placeholder="Pin de desbloqueo" name="pinDesbloqueo" [(ngModel)]="pinDesbloqueo" required
+            (focus)="$event.target.setAttribute('autocomplete', 'off')" (keydown.enter)="verificaPin()">
         </mat-form-field>
     </form>
 </div>
 <div mat-dialog-actions align="end">
+    <button mat-raised-button type="button" (click)="dialogRef.close(false)" *ngIf="data && !data.no_reemplazar_data">
+        <span>Cancelar</span>
+    </button>
     <button mat-raised-button type="submit" color="accent" (click)="verificaPin()"
         [disabled]="!frmDesbloqueo.form.valid">
         <span>Validar</span>
