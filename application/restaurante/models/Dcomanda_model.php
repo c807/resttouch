@@ -136,9 +136,8 @@ class Dcomanda_model extends General_Model
 					$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
 					$cantidad_presentacion = round((float)$pres->cantidad, 2);						
 					$existencia_nueva_hijo = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
-					if ($regresa_inventario && !$esNuevo) {
-						// $valorCantidadInventarioOriginal = $cantidadInventarioOriginalPadre ? $cantidadInventarioOriginalPadre : $det->cantidad_inventario;
-						$valorCantidadInventarioOriginal = $det->cantidad_inventario;
+					if ($regresa_inventario && !$esNuevo) {						
+						$valorCantidadInventarioOriginal = (float)$det->cantidad_inventario === (float)0 ? $cantidadInventarioOriginalPadre : $det->cantidad_inventario;
 						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$valorCantidadInventarioOriginal * $cantidad_presentacion), 2);
 					}
 					$nvaData = [
