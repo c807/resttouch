@@ -36,7 +36,7 @@
                 </mat-card>
                 <mat-card class="light-bck" style="height: 30%; width: 100%; margin-top: 5px;">
                     <mat-card-subtitle align="center">
-                        INGRESOS NETOS
+                        INGRESOS
                         <small>
                             (rango de fechas y sede(s) seleccionada)
                         </small>
@@ -105,7 +105,7 @@
                     <mat-card-content align="center">
                         <table>
                             <tr>
-                                <th class="rtxt">INGRESOS NETOS SIN I.V.A.</th>
+                                <th class="rtxt">INGRESOS SIN I.V.A.</th>
                                 <td class="rtxt">{{((+dataPorSedeFecha.formas_pago.total_ingresos_monto +
                                                     +dataPorSedeFecha.formas_pago.total_ingresos_propina +
                                                     +dataPorSedeFecha.formas_pago.total_descuentos_propina)/1.12) | number:'1.2-2'}}</td>
@@ -128,6 +128,10 @@
                             <tr>
                                 <th class="rtxt">INGRESOS CON IVA</th>
                                 <td class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto) | number:'1.2-2'}}</td>
+                            </tr>
+                            <tr>
+                                <th class="rtxt">INGRESOS NETOS (Sin propina y sin I.V.A.)</th>
+                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto / 1.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">DESCUENTOS</th>
