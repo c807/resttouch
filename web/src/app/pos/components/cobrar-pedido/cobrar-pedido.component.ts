@@ -477,6 +477,13 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         this.datosPedido.telefono = obj.telefono;
       }
     }
+
+    if (this.formaPago && +this.formaPago.forma_pago > 0) {
+      const fp = this.lstFormasPago.find(f => +f.forma_pago === +this.formaPago.forma_pago);
+      if (fp && (+fp.esabono === 1 || !this.permitirPropina)) {
+        this.formaPago.propina = 0.00;
+      }
+    }
   }
 
   cobrar = () => {
