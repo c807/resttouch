@@ -397,9 +397,10 @@ class CI_Loader {
 
 		// Load the DB class
 		// Inicia lo agregado por JAragon para cambiar el servidor de BD. 13/10/2023 12:50
-		if (is_vesuvio_user()) {
-			$params = 'vesuvio';
-		}
+		// Se comenta la condición porque Vesuvio ya está en sus servidores. 16/05/2024 09:06
+		// if (is_vesuvio_user()) {
+		// 	$params = 'vesuvio';
+		// }
 		// Finaliza lo agregado por JAragon para cambiar el servidor de BD. 13/10/2023 12:50
 		$CI->db =& DB($params, $query_builder);
 		return $this;
