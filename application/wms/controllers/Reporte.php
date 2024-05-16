@@ -170,7 +170,8 @@ class Reporte extends CI_Controller
 	
 						$reg = [
 							(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
-							"{$row->articulo->articulo} " . $row->articulo->descripcion,
+							// "{$row->articulo->articulo} " . $row->articulo->descripcion,
+							$row->articulo->descripcion,
 							$row->presentacion->descripcion,
 							round((float)$row->articulo->stock_minimo, 2),
 							round((float)$row->articulo->stock_maximo, 2),
@@ -540,7 +541,7 @@ class Reporte extends CI_Controller
 								$obj = (object)[
 									"articulo" => $art->getPK(),
 									"presentacion" => $pres->descripcion,
-									"cantidad" => $art->existencias,
+									"cantidad" => round((float)$art->existencias, 2),
 									"total" => (float)$art->existencias * $row->precio_unitario,
 									"descripcion" => $art->descripcion,
 									"precio_unitario" => $row->precio_unitario,

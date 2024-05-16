@@ -28,7 +28,7 @@ class Articulo extends CI_Controller
 	}
 
 	public function chkCodigoExistente($codigo = '')
-	{		
+	{
 		$art = $this->Articulo_model->buscarArticulo(['codigo' => $codigo, 'sede' => $this->data->sede]);
 		return $art ? true : false;
 	}
@@ -41,7 +41,7 @@ class Articulo extends CI_Controller
 
 		$mostrarInventarioNuevo = $mostrarInventarioOriginal;
 		if (isset($req['mostrar_inventario'])) {
-			$mostrarInventarioNuevo = (int)$req['mostrar_inventario'];			
+			$mostrarInventarioNuevo = (int)$req['mostrar_inventario'];
 		}
 
 		$datos = ['exito' => false];
@@ -129,7 +129,7 @@ class Articulo extends CI_Controller
 				// $art = new Articulo_model($row->articulo);
 				// $row->categoria_grupo = $art->getCategoriaGrupo();				
 				$row->categoria_grupo = $listaCategoriasGrupo[(int)$row->categoria_grupo];
-				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];				
+				$row->presentacion = $listaPresentaciones[(int)$row->presentacion];
 				$row->presentacion_reporte = $listaPresentaciones[(int)$row->presentacion_reporte];
 				$row->usuariobaja = !empty($row->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $row->usuariobaja, '_uno' => true]) : $row->usuariobaja;
 
@@ -149,7 +149,7 @@ class Articulo extends CI_Controller
 			// $art = new Articulo_model($tmp->articulo);
 			// $tmp->categoria_grupo = $art->getCategoriaGrupo();			
 			$tmp->categoria_grupo = $listaCategoriasGrupo[(int)$tmp->categoria_grupo];
-			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];			
+			$tmp->presentacion = $listaPresentaciones[(int)$tmp->presentacion];
 			$tmp->presentacion_reporte = $listaPresentaciones[(int)$tmp->presentacion_reporte];
 			$tmp->usuariobaja = !empty($tmp->usuariobaja) ? $this->Usuario_model->buscar(['usuario' => $tmp->usuariobaja, '_uno' => true]) : $tmp->usuariobaja;
 
@@ -794,7 +794,7 @@ class Articulo extends CI_Controller
 						$entidad['presentacion'] = $presentacion->presentacion;
 						$entidad['descripcion'] = trim($col[1]);
 						$entidad['precio'] = (float)$col[2];
-						$entidad['bien_servicio'] = trim($col[3]);						
+						$entidad['bien_servicio'] = trim($col[3]);
 						$entidad['codigo'] = str_ireplace($reemplazar, '', trim($col[4]));
 						$entidad['presentacion_reporte'] = $presentacion->presentacion;
 						$entidad['mostrar_pos'] = (int)$col[6];
@@ -985,7 +985,7 @@ class Articulo extends CI_Controller
 			if (isset($req['skip']) && is_string($req['skip']) && !empty($req['skip'])) {
 				$skip = explode(',', $req['skip']);
 			}
-						
+
 			$esquemas = $this->Schema_model->get_schemas();
 			$esquemasActualizados = [];
 			$sedesActualizadas = [];
@@ -1000,7 +1000,7 @@ class Articulo extends CI_Controller
 					$bckBodegaArticuloCosto = null;
 					$tmp = $this->Articulo_model->get_bodega_articulo_costo();
 					if ($tmp && is_array($tmp) && count($tmp) > 0) {
-						foreach($tmp as $item) {
+						foreach ($tmp as $item) {
 							$item->bodega = (int)$item->bodega;
 							$item->articulo = (int)$item->articulo;
 							$bckBodegaArticuloCosto["{$item->bodega}-{$item->articulo}"] = clone $item;
@@ -1060,7 +1060,7 @@ class Articulo extends CI_Controller
 		$this->load->model(['BodegaArticuloCosto_model']);
 		$bodegaDescargo = $art->getBodega();
 		$existencia_nueva = $art->obtenerExistencia(['bodega' => (int)$bodegaDescargo->bodega, 'sede' => $this->data->sede], $art->getPK(), (int)$art->esreceta === 1, true);
-		
+
 		$nvaData = [
 			'bodega' => (int)$bodegaDescargo->bodega,
 			'articulo' => (int)$art->getPK(),
@@ -1073,7 +1073,7 @@ class Articulo extends CI_Controller
 			'fecha' => null,
 			'notas' => 'Agregado por primera vez a la tabla bodega_articulo_costo.'
 		];
-		
+
 		$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaDescargo->bodega, $art->getPK());
 		if ($datos_costo) {
 			$nvaData['costo_ultima_compra'] = $datos_costo->costo_ultima_compra;
@@ -1083,6 +1083,38 @@ class Articulo extends CI_Controller
 		$nvaData['fecha'] = date('Y-m-d H:i:s');
 		$nvoBac = new BodegaArticuloCosto_model();
 		$nvoBac->guardar($nvaData);
+	}
+
+	public function compara_ajusta_existencias()
+	{
+		$datos = ['exito' => false];
+		if ($this->input->method() == 'post') {
+			$this->load->add_package_path('application/wms');
+			$this->load->model(['BodegaArticuloCosto_model']);
+			set_time_limit(0);
+			ini_set('memory_limit', -1);
+			$req = json_decode(file_get_contents('php://input'), true);
+			$idArticulo = (int)$req['articulo'];
+			$idBodega = (int)$req['bodega'];
+
+			$art = new Articulo_model($idArticulo);
+			$presRep = $art->getPresentacionReporte();
+			$art->actualizarExistencia_v2(['bodega' => $idBodega], true);
+			$datos['existencias_oldway'] = (float)$art->existencias;
+			$datos['existencias_oldway_presentacion'] = round((float)$art->existencias / (float)$presRep->cantidad, 2);
+			$datos['existencias_newway'] = 'Sin datos en la tabla bodega_articulo_costo.';
+			$datos['cantidad_presentacion_reporte'] = (float)$presRep->cantidad;
+			$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($idBodega, $idArticulo);
+			if ($datos_costo) {
+				$datos['existencias_newway'] = (float)$datos_costo->existencia;
+				$datos['existencias_newway_presentacion'] = round((float)$datos_costo->existencia / (float)$presRep->cantidad, 2);
+			}
+			$datos['exito'] = true;
+		} else {
+			$datos['mensaje'] = 'Parámetros inválidos.';
+		}
+
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
 }
 

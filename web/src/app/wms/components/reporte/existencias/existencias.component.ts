@@ -99,7 +99,7 @@ export class ExistenciasComponent implements OnInit, OnDestroy {
             if (+esExcel === 0) {              
               openInNewTab(URL.createObjectURL(blob));
             } else {
-              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+              saveAs(blob, `${this.titulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xlsx'}`);
             }
           } else {
             this.snackBar.open('No se pudo generar el reporte...', this.titulo, { duration: 3000 });
