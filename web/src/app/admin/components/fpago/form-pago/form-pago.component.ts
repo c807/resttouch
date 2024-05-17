@@ -66,12 +66,18 @@ export class FormPagoComponent implements OnInit, OnDestroy {
     this.fpago = {
       forma_pago: null, descripcion: null, activo: 1, permitir_propina: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
       retencion_porcentaje: 0.00, pedirdocumento: 0, adjuntararchivo: 0, pedirautorizacion: 0,
-      sinfactura: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00
+      sinfactura: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00, porcentaje_descuento_aplicado: 0.00
     };
     this.resetFpscc();
   }
 
   onSubmit = () => {
+
+    if (this.fpago.porcentaje_descuento_aplicado > this.fpago.porcentaje_maximo_descuento) {
+      this.snackBar.open('El porcentaje de descuento a aplicar no puede ser mayor que el porcentaje máximo de descuento.', 'Error', { duration: 7000 });
+      return;
+    }
+
     this.endSubs.add(
       this.fpagoSrvc.save(this.fpago).subscribe(res => {
         if (res.exito) {

@@ -38,6 +38,11 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+        <!--Inicia input de porcentaje de descuento a calcular-->
+        <mat-form-field class="fullWidth" *ngIf="esDescuento">
+          <input matInput type="number" placeholder="Porcentaje de descuento" name="porcentaje_descuento" [(ngModel)]="formaPago.porcentaje_descuento" (input)="calcularDescuento(); resetearMontoSiDescuentoVacio()">
+        </mat-form-field>
+        <!--Fin input de porcentaje de descuento a calcular-->
         <!--Inicia input de monto por forma de pago-->
         <mat-form-field class="fullWidth" [ngClass]="{'excede-monto': excedeMontoMaximo || excedeMontoMaximoDescuento}">
           <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="monto" name="monto" [(ngModel)]="formaPago.monto" (input)="calculaVuelto(formaPago); setPropina()" required>

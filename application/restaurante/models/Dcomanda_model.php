@@ -235,7 +235,7 @@ class Dcomanda_model extends General_Model
 		}
 		$articulosImpresion = [];
 		$tmp = $this->db
-			->select("a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta, b.articulo, c.impresora, a.notas, np.notas_predefinidas")
+			->select("a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta, b.articulo, c.impresora, a.notas, a.notas_predefinidas")
 			->join("articulo b", "a.articulo = b.articulo")
 			->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
 			->where("a.detalle_comanda_id", $this->getPK())
