@@ -1096,12 +1096,35 @@ class Articulo extends CI_Controller
 			$req = json_decode(file_get_contents('php://input'), true);
 			$idArticulo = (int)$req['articulo'];
 			$idBodega = (int)$req['bodega'];
+			$idSede = (int)$req['sede'];
 
 			$art = new Articulo_model($idArticulo);
 			$presRep = $art->getPresentacionReporte();
 			$art->actualizarExistencia_v2(['bodega' => $idBodega], true);
-			$datos['existencias_oldway'] = (float)$art->existencias;
-			$datos['existencias_oldway_presentacion'] = round((float)$art->existencias / (float)$presRep->cantidad, 2);
+
+			$listaMedidas = $this->Umedida_model->get_lista_medidas();
+			$listaArticulos = $this->Articulo_model->get_lista_articulos();
+			$datos['existencias_oldway'] = 'Sin datos en la forma de sacar la existencia.';			
+			$datos['existencias_oldway_presentacion'] = 'Sin datos en la forma de sacar la existencia.';
+
+			$args = [
+				"fecha" => "2024-05-12",
+				"fecha_del" => "2024-05-12",
+				"fecha_al" => "2024-05-12",
+				"solo_bajo_minimo" => 0,
+				"sede" => [0 => $idSede],
+				"bodega" => [0 => $idBodega],
+				"categoria_grupo" => 7,
+				"_excel" => 0
+			];
+
+			$calculo = $art->getExistencias($args, $listaMedidas, $listaArticulos);
+			if ($calculo && isset($calculo->existencia) && isset($calculo->presentacion)) {
+				$datos['calculo'] = $calculo;
+				$datos['existencias_oldway'] = (float)$calculo->existencia;
+				$datos['existencias_oldway_presentacion'] = round((float)$calculo->existencia / (float)$presRep->cantidad, 2);
+			}
+
 			$datos['existencias_newway'] = 'Sin datos en la tabla bodega_articulo_costo.';
 			$datos['cantidad_presentacion_reporte'] = (float)$presRep->cantidad;
 			$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($idBodega, $idArticulo);
