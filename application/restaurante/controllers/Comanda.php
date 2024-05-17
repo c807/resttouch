@@ -425,8 +425,9 @@ class Comanda extends CI_Controller
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
 			$req = json_decode(file_get_contents('php://input'), true);
-			if (isset($req['notas_predefinidas'])) {
+			if (array_key_exists('notas_predefinidas', $req)) {
 				$dcom = new Dcomanda_model($dcomanda);
+				$req['notas_predefinidas'] = is_null($req['notas_predefinidas']) ? '' : $req['notas_predefinidas'];
 				$req['notas_predefinidas'] = trim($req['notas_predefinidas']) !== '' ? trim($req['notas_predefinidas']) : null;
 				$datos['exito'] = $dcom->guardar($req);
 				if ($datos['exito']) {

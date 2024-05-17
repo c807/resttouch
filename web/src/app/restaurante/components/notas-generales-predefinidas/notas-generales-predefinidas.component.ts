@@ -6,11 +6,10 @@ import { LocalstorageService } from '@admin-services/localstorage.service';
 import { NotaPredefinidaService } from '@restaurante-services/nota-predefinida.service';
 
 import { NotaPredefinida } from '@restaurante-interfaces/nota-predefinida';
-import { Subscription, Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import { NotaSubCategoriaService } from '@restaurante-services/nota-subcategoria.service';
-import { NotaSubCategoria, NotaSubCategoriaReq } from '@restaurante-interfaces/nota-subcategoria';
+import { NotaSubCategoria } from '@restaurante-interfaces/nota-subcategoria';
 
 interface IDatosNotas {
   titulo: string;
@@ -30,11 +29,11 @@ export class NotasGeneralesPredefinidasComponent implements OnInit, OnDestroy {
   public lstNotasPredefinidas: NotaPredefinida[] = [];
   public todasNotasPredefinidas: NotaPredefinida[] = [];
   public txtNotasPre = new FormControl();
-  public notasSeleccionadas: {[nota: string]: boolean} = {};
+  public notasSeleccionadas: { [nota: string]: boolean } = {};
   public lstNotaSubCategoria: NotaSubCategoria[] = [];
 
   private endSubs = new Subscription();
-  
+
   constructor(
     public dialogRef: MatDialogRef<NotasGeneralesPredefinidasComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IDatosNotas,
@@ -66,7 +65,7 @@ export class NotasGeneralesPredefinidasComponent implements OnInit, OnDestroy {
     this.notasSeleccionadas[nota] = !this.notasSeleccionadas[nota];
     const notasSeleccionadas = Object.keys(this.notasSeleccionadas).filter(nota => this.notasSeleccionadas[nota]);
     this.txtNotasPre.setValue(notasSeleccionadas.join(' | '));
-}
+  }
 
   ngOnDestroy(): void {
     this.endSubs.unsubscribe();
@@ -78,7 +77,7 @@ export class NotasGeneralesPredefinidasComponent implements OnInit, OnDestroy {
   };
 
   loadNotasPredefinidas = () => this.endSubs.add(this.notaPredefinidaSrvc.get().subscribe(res => {
-    for(const n of res) {
+    for (const n of res) {
       this.todasNotasPredefinidas.push(n);
     }
 
@@ -86,7 +85,7 @@ export class NotasGeneralesPredefinidasComponent implements OnInit, OnDestroy {
 
   }));
 
-  loadNotaSubCategoria = () => this.endSubs.add(this.notaSubCategoriaSrvc.get({categoria_grupo: this.data.categoria_grupo }).subscribe(res => {
+  loadNotaSubCategoria = () => this.endSubs.add(this.notaSubCategoriaSrvc.get({ categoria_grupo: this.data.categoria_grupo }).subscribe(res => {
     const notas = res.map(i => i.nota_predefinida)
 
     this.lstNotasPredefinidas = this.todasNotasPredefinidas.filter(n => notas.includes(n.nota_predefinida))
