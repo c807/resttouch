@@ -21,11 +21,11 @@
                     <mat-form-field class="fullWidth">
                         <input matInput type="number" placeholder="Porcentaje de retención" name="retencion_porcentaje" [(ngModel)]="fpago.retencion_porcentaje" pattern="[0-9.]{1,50}">
                     </mat-form-field>
-                    <mat-form-field class="fullWidth" *ngIf="+fpago.descuento === 1">
+                    <!-- <mat-form-field class="fullWidth" *ngIf="+fpago.descuento === 1">
                         <input matInput type="number" placeholder="Porcentaje de descuento a Aplicar" name="porcentaje_descuento_aplicado" [(ngModel)]="fpago.porcentaje_descuento_aplicado" min="1" max="100">
-                    </mat-form-field>
+                    </mat-form-field> -->
                     <mat-form-field class="fullWidth" *ngIf="+fpago.descuento === 1">
-                        <input matInput type="number" placeholder="Porcentaje máximo de descuento" name="porcentaje_maximo_descuento" [(ngModel)]="fpago.porcentaje_maximo_descuento" min="1" max="100.00" pattern="[0-9.]{1,50}" step="0.01">
+                        <input matInput type="number" placeholder="Porcentaje máximo de descuento" name="porcentaje_maximo_descuento" [(ngModel)]="fpago.porcentaje_maximo_descuento" min="0" max="100.00" pattern="[0-9.]{1,50}" step="0.01">
                     </mat-form-field>
                     <mat-checkbox name="descuento" class="btnAccion" [(ngModel)]="+fpago.descuento" (change)="esDescuentoChecked($event)">¿Es descuento?</mat-checkbox>
                     <mat-checkbox name="esabono" class="btnAccion" [(ngModel)]="+fpago.esabono">Para abonos</mat-checkbox>
@@ -33,7 +33,7 @@
                     <mat-checkbox name="adjuntararchivo" class="btnAccion" [(ngModel)]="+fpago.adjuntararchivo">Debe adjuntar archivo de respaldo</mat-checkbox>
                     <mat-checkbox name="pedirautorizacion" class="btnAccion" [(ngModel)]="+fpago.pedirautorizacion">Pedir autorización del gerente de turno</mat-checkbox>
                     <mat-checkbox name="sinfactura" class="btnAccion" [(ngModel)]="+fpago.sinfactura" [disabled]="noComandaSinFactura">Sin factura</mat-checkbox>  
-                    <mat-checkbox *ngIf="+fpago.descuento === 1" name="usodepropina" class="btnAccion" [(ngModel)]="+fpago.permitir_propina">Permitir uso de propina</mat-checkbox>                  
+                    <!-- <mat-checkbox *ngIf="+fpago.descuento === 1" name="usodepropina" class="btnAccion" [(ngModel)]="+fpago.permitir_propina">Permitir uso de propina</mat-checkbox>                   -->
                     <mat-checkbox name="activo" class="fullWidth" [(ngModel)]="+fpago.activo">Activo</mat-checkbox>
                     <div align="end">
                         <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmFpago.form.valid">
