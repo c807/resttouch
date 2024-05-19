@@ -3750,6 +3750,11 @@ CREATE TABLE RT_DATABASE_NAME.usuario_bodega (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
+CREATE TABLE RT_DATABASE_NAME.categoria_grupo_nota_predefinida (categoria_grupo_nota_predefinida INT AUTO_INCREMENT PRIMARY KEY, categoria_grupo INT NOT NULL, nota_predefinida INT NOT NULL, FOREIGN KEY (categoria_grupo) REFERENCES RT_DATABASE_NAME.categoria_grupo(categoria_grupo), FOREIGN KEY (nota_predefinida) REFERENCES RT_DATABASE_NAME.nota_predefinida(nota_predefinida));
+ALTER TABLE RT_DATABASE_NAME.detalle_comanda ADD COLUMN notas_predefinidas TEXT NULL;
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN permitir_propina TINYINT(1) NULL DEFAULT 1;
+ALTER TABLE RT_DATABASE_NAME.forma_pago ADD COLUMN porcentaje_descuento_aplicado TINYINT UNSIGNED NOT NULL DEFAULT 0;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
