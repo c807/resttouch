@@ -12,6 +12,8 @@
                 <span>{{p.cantidad | number: '1.0-0'}} {{p.descripcion}}</span>                
                 <br *ngIf="p.detalle.length > 0 || (p.notas && p.notas.length > 0)" />
                 <span class="tooltiptext" *ngIf="p.notas && p.notas.length > 0">{{p.notas}}</span>
+                <br *ngIf="p.detalle.length > 0 || (p.notas_predefinidas && p.notas_predefinidas.length > 0)" />
+                <span class="notas-predefinidas" *ngIf="p.notas_predefinidas && p.notas_predefinidas.length > 0" [innerHTML]="formatNotasPredefinidas(p.notas_predefinidas)"></span>
                 <app-producto-comanda-alt *ngIf="p.detalle.length > 0" [detalle]="p.detalle"></app-producto-comanda-alt>
             </div>
             <div class="second product-margin" align="right">
@@ -34,9 +36,13 @@
                             *ngIf="p.detalle.length <= 1 && +p.impreso === 0 && +p.combo === 0">
                             <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
                         </button>
-                        <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="accent"
+                        <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="warn"
                             [disabled]="bloqueoBotones" *ngIf="+p.impreso === 0">
                             <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
+                        </button>
+                        <button mat-mini-fab (click)="toggleShowNotasPre(p)" color="warn"
+                            [disabled]="bloqueoBotones" *ngIf="+p.impreso === 0">
+                            <mat-icon style="font-size: 16pt !important;">checklist_rtl</mat-icon>
                         </button>
                         <!-- Acciones después de mandarse a comandar -->
                         <button mat-mini-fab (click)="deleteProductoFromListAfterPrinted(p, i)" color="warn"

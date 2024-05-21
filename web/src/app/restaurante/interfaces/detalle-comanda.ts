@@ -6,6 +6,7 @@ export interface DetalleComanda {
     precio: number;
     total: number;
     notas: string;
+    notas_predefinidas?: string;
     autorizado?: boolean;
     gerente?: number;
     regresa_inventario?: boolean;

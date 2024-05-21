@@ -1,21 +1,63 @@
-<mat-card class="mat-elevation-z4 fullWidth">
-    <mat-card-title>
-        <h4>Nota predefinida</h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmNotaPredefinida="ngForm" (ngSubmit)="frmNotaPredefinida.form.valid && onSubmit()" novalidate>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nota predefinida" name="nota" [(ngModel)]="notaPredefinida.nota" minlength="1" maxlength="1000" required>
-                <input matInput *ngIf="esMovil" placeholder="Nota predefinida" name="nota" [(ngModel)]="notaPredefinida.nota" minlength="1" maxlength="1000" required>
-            </mat-form-field>            
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmNotaPredefinida.form.valid">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetNotaPredefinida()" *ngIf="notaPredefinida.nota">
-                    Nueva
-                </button>
-            </div>
-        </form>
-    </mat-card-content>
-</mat-card>
+<mat-tab-group #mtNotPre>
+    <mat-tab label="Nota Predefinida">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Nota predefinida</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmNotaPredefinida="ngForm" (ngSubmit)="frmNotaPredefinida.form.valid && onSubmit()" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nota predefinida" name="nota" [(ngModel)]="notaPredefinida.nota" minlength="1" maxlength="1000" required>
+                        <input matInput *ngIf="esMovil" placeholder="Nota predefinida" name="nota" [(ngModel)]="notaPredefinida.nota" minlength="1" maxlength="1000" required>
+                    </mat-form-field>            
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmNotaPredefinida.form.valid">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetNotaPredefinida()" *ngIf="notaPredefinida.nota">
+                            Nueva
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+
+    <mat-tab label="Subcategorías" *ngIf="!!notaPredefinida.nota_predefinida">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-content>
+                <form #formSubCategoria="ngForm" (ngSubmit)="formSubCategoria.form.valid && onSubmitCategoria()" novalidate>
+                    <div>
+                        <mat-grid-list cols="12" rowHeight="100px" *ngFor="let cat of categorias">
+                            <h5>
+                                <mat-checkbox 
+                                    name="mostrar_detalle" 
+                                    class="fullWidth" 
+                                    (change)="checkTodos($event.checked, cat.categoria)"
+                                > {{cat.descripcion}}
+                                </mat-checkbox>
+                            </h5>
+                            <div class="row">
+                                <div class="col" *ngFor="let grupo of cat.grupos">
+                                    <mat-checkbox 
+                                        name="mostrar_detalle"
+                                        class="fullWidth"
+                                        [(ngModel)]="grupo._marcado"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        > {{grupo.descripcion}}
+                                    </mat-checkbox>
+                                </div>
+                            </div>
+                        </mat-grid-list>
+                    </div>
+
+
+                    <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!formSubCategoria.form.valid">
+                        Guardar
+                    </button>
+                </form>
+
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+</mat-tab-group>

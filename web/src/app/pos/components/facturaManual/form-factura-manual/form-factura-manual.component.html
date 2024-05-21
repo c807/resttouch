@@ -28,6 +28,9 @@
                 <mat-form-field class="fullWidth">
                     <mat-label>Cliente</mat-label>
                     <input type="text" [(ngModel)]="clienteSelected" [ngModelOptions]="{standalone: true}" placeholder="Cliente" matInput [matAutocomplete]="auto" (keyup)="filtrar(clienteSelected)" required>
+                    <button type="button" mat-raised-button matSuffix color="accent" (click)="agregarCliente()" *ngIf="mostrarBotonNuevo">
+                        Nuevo
+                    </button>
                     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCliente">
                         <cdk-virtual-scroll-viewport class="autocomplete-test-viewport" [ngStyle]="{'height': height}" style="overflow-x: hidden;" itemSize="25">
                             <mat-option *cdkVirtualFor="let cli of filteredClientes" [value]="cli" [disabled]="desHabilitaCliente(cli)" class="autocomplete-cliente-item">

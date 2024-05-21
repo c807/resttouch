@@ -395,7 +395,7 @@ class Reporte_model extends CI_Model
 			$this->db->where('a.cantidad >', 0);
 		}
 
-		$select = 'a.detalle_comanda, a.comanda, TRIM(b.descripcion) AS articulo, a.cantidad, a.precio, a.total, TRIM(a.notas) AS notas, TRIM(c.descripcion) AS presentacion, ';
+		$select = 'a.detalle_comanda, a.comanda, TRIM(b.descripcion) AS articulo, a.cantidad, a.precio, a.total, TRIM(a.notas) AS notas, TRIM(a.notas_predefinidas) AS notas_predefinidas, TRIM(c.descripcion) AS presentacion, ';
 		$select .= 'TRIM(d.descripcion) AS bodega, IFNULL(a.cantidad_inventario, a.cantidad) AS cantidad_inventario, a.detalle_comanda_id, b.multiple';
 
 		if (isset($args['suma'])) {

@@ -81,6 +81,7 @@ import { ConfiguraMesaComponent } from './components/area/configura-mesa/configu
 import { TranCocinaComponent } from './components/tran-cocina/tran-cocina.component';
 import { TranComandaAltComponent } from './components/tran-comanda-alt/tran-comanda-alt.component';
 import { NotasGeneralesComandaComponent } from './components/notas-generales-comanda/notas-generales-comanda.component';
+import { NotasGeneralesPredefinidasComponent } from '@restaurante-components/notas-generales-predefinidas/notas-generales-predefinidas.component';
 import { NuevaCuentaComponent } from './components/nueva-cuenta/nueva-cuenta.component';
 import { DistribuirProductosCuentasComponent } from './components/distribuir-productos-cuentas/distribuir-productos-cuentas.component';
 import { AccionesComandaComponent } from './components/acciones-comanda/acciones-comanda.component';
@@ -113,7 +114,7 @@ import { DialogTurnoComponent } from './components/turno/dialog-turno/dialog-tur
     PropinasComponent, ComandaEnLineaComponent, CajaComponent, FacturaComponent, ListaTurnoTipoComponent, FormTurnoTipoComponent,
     TurnoTipoComponent, PropinaComponent, FormPropinaComponent, ListaPropinaComponent, AutoconsultaComponent,
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
-    ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
+    ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesPredefinidasComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
     ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent, NotaPredefinidaComponent, FormNotaPredefinidaComponent, ListaNotaPredefinidaComponent, ArticulosEliminadosComponent, DialogTurnoComponent
   ],

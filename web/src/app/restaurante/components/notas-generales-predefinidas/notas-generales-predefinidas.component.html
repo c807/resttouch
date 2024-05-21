@@ -1,0 +1,21 @@
+<h1 mat-dialog-title style="text-align: center;">{{data.titulo}}</h1>
+<mat-dialog-content>
+    
+    <div class="grid-container">
+        <button mat-raised-button *ngFor="let nota of lstNotasPredefinidas" 
+                color="warn"
+                [class.selected]="notasSeleccionadas[nota.nota]"
+                (click)="toggleNota(nota.nota)">
+                {{nota.nota}}
+        </button>
+    </div>
+    
+    <textarea readonly class="fullWidth styledTextarea" style="margin-top: 20px;" [formControl]="txtNotasPre">{{txtNotasPre.value}}</textarea>
+    
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-raised-button (click)="terminar()" color="accent">
+        Regresar
+    </button>
+</mat-dialog-actions>

@@ -208,6 +208,7 @@ export class TranComanda {
           precio: +p.precio || 10.00,
           total: +p.total || (+p.cantidad * +p.precio),
           notas: p.notas || '',
+          notas_predefinidas: p.notas_predefinidas || '',
           showInputNotas: false,
           itemListHeight: '70px',
           detalle_comanda: +p.detalle_comanda,
@@ -241,6 +242,7 @@ export class TranComanda {
         precio: parseFloat(p.precio) || 10.00,
         total: parseFloat(p.total) || (parseFloat(p.cantidad) * parseFloat(p.precio)),
         notas: p.notas || '',
+        notas_predefinidas: p.notas_predefinidas || '',
         showInputNotas: false,
         itemListHeight: '70px',
         detalle_comanda: +p.detalle_comanda,
@@ -268,6 +270,7 @@ export class TranComanda {
         precio: parseFloat(p.precio) || 10.00,
         total: parseFloat(p.total) || (parseFloat(p.cantidad) * parseFloat(p.precio)),
         notas: p.notas || '',
+        notas_predefinidas: p.notas_predefinidas || '',
         showInputNotas: false,
         itemListHeight: '70px',
         detalle_comanda: +p.detalle_comanda,
@@ -509,7 +512,7 @@ export class TranComanda {
 
       if (idx < 0) {
         this.detalleComanda = {
-          articulo: producto.id, cantidad: cantidadArticulos, precio: +producto.precio, total: cantidadArticulos * +producto.precio, notas: '', factor_modificacion: +cantidadArticulos
+          articulo: producto.id, cantidad: cantidadArticulos, precio: +producto.precio, total: cantidadArticulos * +producto.precio, notas: '', notas_predefinidas: '', factor_modificacion: +cantidadArticulos
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
@@ -527,7 +530,7 @@ export class TranComanda {
         this.detalleComanda = {
           detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id,
           cantidad: ((+tmp.cantidad) + +cantidadArticulos), precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio),
-          notas: tmp.notas, factor_modificacion: +cantidadArticulos
+          notas: tmp.notas, notas_predefinidas: tmp.notas_predefinidas, factor_modificacion: +cantidadArticulos
         };
         this.endSubs.add(
           this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
@@ -578,6 +581,7 @@ export class TranComanda {
         precio: p.precio,
         total: p.total,
         notas: p.notas,
+        notas_predefinidas: p.notas_predefinidas,
         impreso: 1,
         detalle_comanda: p.detalle_comanda,
         detalle_cuenta: p.detalle_cuenta
@@ -639,6 +643,7 @@ export class TranComanda {
               cantidad: p.cantidad,
               total: p.total,
               notas: p.notas,
+              notas_predefinidas: p.notas_predefinidas,
               detalle: [],
               impresora: imp,
               impreso: p.impreso,
@@ -871,6 +876,7 @@ export class TranComanda {
           Cantidad: +det.cantidad,
           Total: 0,
           Notas: det.notas,
+          Notas_predefinidas: det.notas_predefinidas,
           Detalle: [],
           Impresora: {
             impresora: +det.impresora,
@@ -906,6 +912,7 @@ export class TranComanda {
       cantidad: +p.cantidad,
       total: +p.total,
       notas: p.notas,
+      notas_predefinidas: p.notas_predefinidas,
       detalle: p.detalle.length === 0 ? [] : (this.getDetalle(p.detalle) as string[]),
       monto_extra: montExt,
       impresora: {
@@ -1115,7 +1122,7 @@ export class TranComanda {
       this.setSumaCuenta(this.lstProductosAImprimir);
       const totalCuenta = this.sumaDetalle(this.lstProductosAImprimir);
       const printerToUse = this.mesaEnUso.mesa.impresora || this.mesaEnUso.mesa.area.impresora;
-      const imprimePropSugerida = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_PROPINA_SUGERIDA);
+      const imprimePropSugerida = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PORCENTAJE_PROPINA) as number) || 0;
 
       const msgToPrint = {
         Tipo: 'Cuenta',
@@ -1125,7 +1132,7 @@ export class TranComanda {
         Total: totalCuenta,
         Empresa: this.ls.get(GLOBAL.usrTokenVar).empresa,
         Restaurante: this.ls.get(GLOBAL.usrTokenVar).restaurante,
-        PropinaSugerida: imprimePropSugerida ? (totalCuenta * 0.10).toFixed(2) : null,
+        PropinaSugerida: imprimePropSugerida ? (totalCuenta * (imprimePropSugerida / 100)).toFixed(2) : null,
         Impresora: printerToUse,
         IdComanda: +this.mesaEnUso.comanda || 0,
         IdCuenta: +this.cuentaActiva.cuenta || 0,

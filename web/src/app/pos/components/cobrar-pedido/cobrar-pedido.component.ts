@@ -160,6 +160,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public porcentajeAumento = 1;
   public bloqueaMonto = false;
   public esEfectivo = false;
+  public esDescuento = false;
   public porcentajePropina = 0;
   public aceptaPropinaEnCallCenter = false;
   public seActualizaronLosPrecios = false;
@@ -426,6 +427,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
     this.bloqueaMonto = false;
     this.formaPago.forma_pago = null;
     this.esEfectivo = false;
+    this.esDescuento = false
     this.calcTipExceeded();
     this.calcTipAuto()
   }
@@ -476,6 +478,39 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
         this.datosPedido.direccion_entrega = obj.direccion;
         this.datosPedido.telefono = obj.telefono;
       }
+    }
+
+    if (this.formaPago && +this.formaPago.forma_pago > 0) {
+      const fp = this.lstFormasPago.find(f => +f.forma_pago === +this.formaPago.forma_pago);
+      if (fp && (+fp.esabono === 1 || !this.permitirPropina)) {
+        this.formaPago.propina = 0.00;
+      }
+    }
+  }
+
+  calcularDescuentoAplicado(porcentajeDescuentoAplicado: number) {
+    if (porcentajeDescuentoAplicado) {
+        const porcentajeAplicado = +porcentajeDescuentoAplicado;
+        const montoOriginal = +this.inputData.saldo;
+        const nuevoMonto = (montoOriginal * porcentajeAplicado) / 100;
+        this.formaPago.monto = nuevoMonto.toFixed(2);
+    } 
+  }
+
+  calcularDescuento() {
+    if (this.formaPago.porcentaje_descuento) {
+      const porcentaje = +this.formaPago.porcentaje_descuento;
+      const montoOriginal = +this.inputData.saldo;
+      const nuevoMonto = (montoOriginal * porcentaje) / 100;
+      this.formaPago.monto = nuevoMonto.toFixed(2);
+    }
+  }
+
+  resetearMontoSiDescuentoVacio() {
+    if (!this.formaPago.porcentaje_descuento) {
+      let sumFormasPago = 0.00;
+      this.formasPagoDeCuenta.forEach(fp => sumFormasPago += +fp.monto);
+      this.formaPago.monto = (+this.inputData.totalDeCuenta - sumFormasPago).toFixed(2);
     }
   }
 
@@ -796,7 +831,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       this.permitirPropina = +this.lstFormasPago[idx].permitir_propina == 1
-
+      this.esDescuento = +this.lstFormasPago[idx].descuento === 1 && +this.lstFormasPago[idx].porcentaje_descuento_aplicado === 0;
       this.pideDocumento = +this.lstFormasPago[idx].pedirdocumento === 1;
       this.esEfectivo = +this.lstFormasPago[idx].esefectivo === 1;
       if (+this.lstFormasPago[idx].aumento_porcentaje > 0) {
@@ -809,6 +844,12 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       this.calculaTotalDeCuenta();
       this.actualizaSaldo();
+
+      if (+this.lstFormasPago[idx].porcentaje_descuento_aplicado > 0) {
+        const porcentajeDescuentoAplicado = +this.lstFormasPago[idx].porcentaje_descuento_aplicado;
+        this.calcularDescuentoAplicado(porcentajeDescuentoAplicado);
+      }
+
     }
     this.calcTipAuto();
 

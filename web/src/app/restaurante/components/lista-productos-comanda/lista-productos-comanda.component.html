@@ -36,7 +36,7 @@
                                 <button mat-mini-fab (click)="removeProducto(p, i)" color="warn" [disabled]="bloqueoBotones" *ngIf="p.detalle.length <= 1">
                                     <mat-icon style="font-size: 16pt !important;">remove_circle</mat-icon>
                                 </button>
-                                <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="accent" [disabled]="bloqueoBotones">
+                                <button mat-mini-fab (click)="toggleShowInputNotas(p)" color="warn" [disabled]="bloqueoBotones">
                                     <mat-icon style="font-size: 16pt !important;">notes</mat-icon>
                                 </button>
                             </eco-fab-speed-dial-actions>

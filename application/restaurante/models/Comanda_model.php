@@ -84,6 +84,7 @@ class Comanda_model extends General_Model
             'articulo' => $combo->getPK(),
             'cantidad' => $cantidad,
             'notas' => '',
+            'notas_predefinidas' => '',
             'precio' => $precio,
             'total' => (is_null($cantidadPadre) || $esHijoNoMultipleCobrable) ? (float)$precio * $cantidad : (float)$precio * (float)$cantidadPadre,
             'detalle_comanda_id' => $padre,

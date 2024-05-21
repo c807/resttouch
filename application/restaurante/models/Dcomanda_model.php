@@ -14,6 +14,7 @@ class Dcomanda_model extends General_Model
 	public $aumento_porcentaje = 0.0;
 	public $aumento = 0.0;
 	public $notas;
+	public $notas_predefinidas;
 	public $cocinado = 0;
 	public $presentacion;
 	public $presentacion_bck = null;
@@ -197,6 +198,7 @@ class Dcomanda_model extends General_Model
 						"impreso" => $this->impreso,
 						"total" => $this->precio * $args['cantidad'],
 						"notas" => $this->notas,
+						"notas_predefinidas" => $this->notas_predefinidas,
 						"cocinado" => $this->cocinado,
 						"presentacion" => $this->presentacion,
 						"numero" => $this->numero,
@@ -270,7 +272,7 @@ class Dcomanda_model extends General_Model
 		}
 		$articulosImpresion = [];
 		$tmp = $this->db
-			->select("a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta, b.articulo, c.impresora, a.notas")
+			->select("a.detalle_comanda, b.descripcion, a.cantidad, b.multiple, b.esreceta, b.articulo, c.impresora, a.notas, a.notas_predefinidas")
 			->join("articulo b", "a.articulo = b.articulo")
 			->join("categoria_grupo c", "c.categoria_grupo = b.categoria_grupo")
 			->where("a.detalle_comanda_id", $this->getPK())
@@ -286,6 +288,7 @@ class Dcomanda_model extends General_Model
 					'Cantidad' => $row->cantidad,
 					'Total' => 0,
 					'Notas' => !empty($row->notas) ? $row->notas : '',
+					'Notas Predefinidas' => !empty($row->notas_predefinidas) ? $row->notas_predefinidas : '',
 					'Detalle' => [],
 					'Impresora' => $this->Impresora_model->buscar(['impresora' => $row->impresora, '_uno' => true])
 				];
