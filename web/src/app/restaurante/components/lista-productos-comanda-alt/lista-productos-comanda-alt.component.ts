@@ -137,12 +137,18 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       notas: p.notas,
       autorizado: estaAutorizado,
       gerente,
-      regresa_inventario
+      regresa_inventario,
+      factor_modificacion: 1
     };
 
     if (cantidad) {
       this.detalleComanda.cantidad = +p.cantidad - +cantidad;
-      this.detalleComanda.total = (this.detalleComanda.cantidad * this.detalleComanda.precio)
+      this.detalleComanda.total = (this.detalleComanda.cantidad * this.detalleComanda.precio);
+      if (+this.detalleComanda.cantidad === 0) {
+        delete this.detalleComanda.factor_modificacion;
+      } else {
+        this.detalleComanda.factor_modificacion = +cantidad;
+      }
     }
 
     const params = {

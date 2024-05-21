@@ -989,6 +989,9 @@ class Articulo extends CI_Controller
 			$esquemas = $this->Schema_model->get_schemas();
 			$esquemasActualizados = [];
 			$sedesActualizadas = [];
+			$hoy = date('Y-m-d');
+			$listaMedidas = $this->Umedida_model->get_lista_medidas();
+			$listaArticulos = $this->Articulo_model->get_lista_articulos();
 			foreach ($esquemas as $esquema) {
 				if (!in_array($esquema->SCHEMA_NAME, $skip)) {
 					$datosDb = $this->Catalogo_model->getCredenciales(['db_database' => $esquema->SCHEMA_NAME]);
@@ -1022,8 +1025,15 @@ class Articulo extends CI_Controller
 									$art = new Articulo_model($articulo->articulo);
 									if ((int)$art->getPK() > 0) {
 										foreach ($bodegas as $bodega) {
-											$art->actualizarExistencia_v2(['bodega' => $bodega->bodega], true);
-											$art->actualiza_existencia_bodega_articulo_costo($bodega->bodega);
+											// $art->actualizarExistencia_v2(['bodega' => $bodega->bodega], true);
+											$paramsExist = [
+												'sede' => [0 => $sede->sede], 'bodega' => [0 => $bodega->bodega], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
+												'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => $articulo->categoria_grupo, 'fecha' => $hoy,
+												'_saldo_inicial' => 1
+											];
+											$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+											$saldo_inicial = $existencia && $existencia->saldo_inicial ? $existencia->saldo_inicial : 0;
+											$art->actualiza_existencia_bodega_articulo_costo($bodega->bodega, (float)$saldo_inicial);
 										}
 									}
 								}
@@ -1104,7 +1114,7 @@ class Articulo extends CI_Controller
 
 			$listaMedidas = $this->Umedida_model->get_lista_medidas();
 			$listaArticulos = $this->Articulo_model->get_lista_articulos();
-			$datos['existencias_oldway'] = 'Sin datos en la forma de sacar la existencia.';			
+			$datos['existencias_oldway'] = 'Sin datos en la forma de sacar la existencia.';
 			$datos['existencias_oldway_presentacion'] = 'Sin datos en la forma de sacar la existencia.';
 
 			$args = [
@@ -1120,7 +1130,7 @@ class Articulo extends CI_Controller
 
 			$calculo = $art->getExistencias($args, $listaMedidas, $listaArticulos);
 			if ($calculo && isset($calculo->existencia) && isset($calculo->presentacion)) {
-				$datos['calculo'] = $calculo;
+				// $datos['calculo'] = $calculo;
 				$datos['existencias_oldway'] = (float)$calculo->existencia;
 				$datos['existencias_oldway_presentacion'] = round((float)$calculo->existencia / (float)$presRep->cantidad, 2);
 			}

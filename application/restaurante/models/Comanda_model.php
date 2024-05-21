@@ -273,7 +273,7 @@ class Comanda_model extends General_Model
             }
             // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
-            $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
+            // $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
             $result = $det->guardar($args);
             $idx = $det->getPK();
             $receta = $art->getReceta([], $this->_listaMedidas);
@@ -364,7 +364,7 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo, $cantidadInventarioOriginalPadre);
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {
@@ -450,6 +450,7 @@ class Comanda_model extends General_Model
         if ($vnegativo || empty($menu) || (!$validar || $art->existencias >= ($cantidad * $cantPres))) {
             // Inicia código para guardar el costo si el articulo es de inventario. 08/05/2023
             // Actualizado el 23/08/2023
+            $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
             if ((int)$art->mostrar_inventario === 1 && (!isset($args['regresa_inventario']) || (isset($args['regresa_inventario']) && $args['regresa_inventario']))) {
                 if (!isset($args['cantidad_inventario'])) {
                     $args['cantidad_inventario'] = $det->cantidad_inventario;
@@ -460,7 +461,7 @@ class Comanda_model extends General_Model
                 if ($datos_costo) {
                     $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
                     $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                    $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
+                    // $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
                     $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 2);
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
                         $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : $cantResta;
@@ -495,7 +496,7 @@ class Comanda_model extends General_Model
             }
             // Finaliza código para guardar el costo si el articulo es de inventario. 08/05/2023
             $nuevo = ($det->getPK() == null);
-            $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
+            // $cantidadInventarioOriginalPadre = $det->cantidad_inventario;
             $result = $det->guardar($args);
             $idx = $det->getPK();
             $receta = $art->getReceta();
@@ -586,7 +587,8 @@ class Comanda_model extends General_Model
                 }
             }
             if ($det->getPK() && (int)$art->combo === 0 && (int)$art->multiple === 0) {
-                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : true, $nuevo, $cantidadInventarioOriginalPadre);
+                $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : null;
+                $det->actualizarCantidadHijos(isset($args['regresa_inventario']) ? $args['regresa_inventario'] : null, $nuevo, $factor_modificacion);
             }
             if ($result) {
                 if (!empty($menu) && !$vnegativo) {

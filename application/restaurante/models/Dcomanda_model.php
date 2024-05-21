@@ -108,7 +108,7 @@ class Dcomanda_model extends General_Model
 		return $montoExtra;
 	}
 
-	public function actualizarCantidadHijos($regresa_inventario = true, $esNuevo = false, $cantidadInventarioOriginalPadre = null)
+	public function actualizarCantidadHijos($regresa_inventario = null, $esNuevo = false, $factor_modificacion = null)
 	{
 		$tmp = $this->db
 			->select('a.detalle_comanda, b.articulo')
@@ -123,9 +123,10 @@ class Dcomanda_model extends General_Model
 			$rec = $art->getReceta(['articulo' => $row->articulo, '_uno' => true]);
 
 			if ($rec && is_array($rec) && is_object($rec[0])) {
+				$valorCantidadInventarioOriginalDetalle = (float)$det->cantidad_inventario;
 				$args = ['cantidad' => $this->cantidad * $rec[0]->cantidad];
 	
-				if ($regresa_inventario) {
+				if ($regresa_inventario || is_null($regresa_inventario)) {
 					$args['cantidad_inventario'] = $this->cantidad_inventario * $rec[0]->cantidad;
 				}
 				
@@ -134,11 +135,19 @@ class Dcomanda_model extends General_Model
 				$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($det->bodega, $det->articulo);
 				if ($datos_costo) {
 					$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-					$cantidad_presentacion = round((float)$pres->cantidad, 2);						
-					$existencia_nueva_hijo = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
-					if ($regresa_inventario && !$esNuevo) {						
-						$valorCantidadInventarioOriginal = (float)$det->cantidad_inventario === (float)0 ? $cantidadInventarioOriginalPadre : $det->cantidad_inventario;
-						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$valorCantidadInventarioOriginal * $cantidad_presentacion), 2);
+					$cantidad_presentacion = round((float)$pres->cantidad, 2);
+
+					if ((int)$art->mostrar_pos === 1) {
+						$existencia_nueva_hijo = round((float)$datos_costo->existencia - (((float)$det->cantidad_inventario / ((float)$this->cantidad !== (float)0 ? (float)$this->cantidad : 1)) * $cantidad_presentacion), 2);
+					} else {
+						$existencia_nueva_hijo = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
+					}
+					
+					if ($regresa_inventario && !$esNuevo) {	
+						if(!is_null($factor_modificacion) && is_numeric($factor_modificacion)) {
+							$valorCantidadInventarioOriginalDetalle = $factor_modificacion * (float)$rec[0]->cantidad;
+						}
+						$existencia_nueva_hijo = round((float)$datos_costo->existencia + ((float)$valorCantidadInventarioOriginalDetalle * $cantidad_presentacion), 2);
 					}
 					$nvaData = [
 						'bodega' => (int)$det->bodega,
@@ -156,6 +165,7 @@ class Dcomanda_model extends General_Model
 					$nvoBac->guardar($nvaData);						
 				}
 
+				// $det->actualizarCantidadHijos($regresa_inventario, $esNuevo, true);
 				$det->actualizarCantidadHijos();
 			}
 		}

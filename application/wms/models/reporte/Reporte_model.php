@@ -68,7 +68,7 @@ class Reporte_model extends CI_Model
 
 		$this->sqlIngreso = <<<EOT
 select
-	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as cantidad,
+	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5)) as cantidad,
 	b.articulo 
 	{$select}
 from ingreso_detalle a
@@ -129,7 +129,7 @@ EOT;
 
 		$this->sqlEgreso = <<<EOT
 select
-	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as cantidad,
+	sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5)) as cantidad,
 	b.articulo 
 	{$select}
 from egreso_detalle a
@@ -190,7 +190,7 @@ EOT;
 
 		$this->sqlComanda = <<<EOT
 select 
-	sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as cantidad,
+	sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as cantidad,
 	b.articulo
 	{$select}
 from detalle_comanda a
@@ -250,7 +250,7 @@ EOT;
 
 		$this->sqlFactura = <<<EOT
 select
-	sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as cantidad,
+	sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as cantidad,
 	b.articulo  
 	{$select}
 from detalle_factura a
@@ -749,7 +749,7 @@ EOT;
 					$objExistencias = $art->getExistencias($args);
 					if ($objExistencias) {
 						if ((float)$objExistencias->presentacion->cantidad !== (float)0) {
-							$det->existencias = round($objExistencias->saldo_inicial / (float)$objExistencias->presentacion->cantidad, 2);
+							$det->existencias = round($objExistencias->saldo_inicial / (float)$objExistencias->presentacion->cantidad, 5);
 						}
 					}
 				}
