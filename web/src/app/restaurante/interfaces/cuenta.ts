@@ -21,6 +21,7 @@ export interface DetalleCuentaResponse {
     impreso: number;
     total: number;
     notas: string;
+    notas_predefinidas: string;
     cocinado: number;
     presentacion: number;
     numero: number;
@@ -54,6 +55,7 @@ export interface DetalleCuentaSimplified {
     precio: number;
     total: number;
     notas: string;
+    notas_predefinidas: string;
     combo: number;
     categoria_grupo: number;
     descripcion: string;

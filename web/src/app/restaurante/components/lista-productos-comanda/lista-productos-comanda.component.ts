@@ -78,6 +78,7 @@ export class ListaProductosComandaComponent implements OnInit, OnDestroy {
       precio: +p.precio,
       total: +p.cantidad > 1 ? ((+p.cantidad) - 1) * (+p.precio) : 0,
       notas: p.notas,
+      notas_predefinidas: p.notas_predefinidas,
       autorizado: estaAutorizado
     };
 
@@ -106,6 +107,7 @@ export class ListaProductosComandaComponent implements OnInit, OnDestroy {
   deleteProductoFromList = (p: ProductoSelected, idx: number, estaAutorizado = false) => {
     p.cantidad = 0;
     p.notas = '';
+    p.notas_predefinidas = '';
     this.removeProducto(p, idx, estaAutorizado);
   }
 
@@ -155,6 +157,16 @@ export class ListaProductosComandaComponent implements OnInit, OnDestroy {
   saveNotasProducto = (p: ProductoSelected) => {
     this.endSubs.add(
       this.comandaSrvc.saveNotasProducto({ detalle_comanda: p.detalle_comanda, notas: p.notas }).subscribe(res => {
+        if (res.exito) {
+          this.snackBar.open('Notas de producto guardadas con éxito...', 'Producto', { duration: 3000 });
+        }
+      })
+    );
+  }
+
+  saveNotasPredefinidas = (p: ProductoSelected) => {
+    this.endSubs.add(
+      this.comandaSrvc.saveNotasPredefinidas({ detalle_comanda: p.detalle_comanda, notas_predefinidas: p.notas_predefinidas }).subscribe(res => {
         if (res.exito) {
           this.snackBar.open('Notas de producto guardadas con éxito...', 'Producto', { duration: 3000 });
         }

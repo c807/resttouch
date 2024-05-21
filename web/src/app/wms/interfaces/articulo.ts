@@ -131,6 +131,7 @@ export interface ProductoSelected {
     precio?: number;
     total?: number;
     notas?: string;
+    notas_predefinidas?: string;
     showInputNotas: boolean;
     itemListHeight: string;
     detalle_comanda?: number;
@@ -173,6 +174,7 @@ export interface ArticuloImpresion {
     Cantidad: number;
     Total: number;
     Notas: string;
+    Notas_predefinidas?: string;
     Detalle: string[];
     Impresora: Impresora;
 }

@@ -37,6 +37,7 @@ import { MunicipioService } from '@admin-services/municipio.service';
 import { Abono } from '@hotel/interfaces/abono';
 
 import { Subscription } from 'rxjs';
+import { FormClienteDialogComponent } from '@admin/components/cliente/form-cliente-dialog/form-cliente-dialog.component';
 
 @Component({
   selector: 'app-form-factura-manual',
@@ -64,6 +65,14 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     }
   }
 
+  get nuevoCliente(): Cliente {
+    const nvoCli: Cliente = {
+      cliente: null, nombre: null, direccion: null, nit: null, cui: null, pasaporte: null, telefono: null, correo: null,
+      codigo_postal: null, municipio: null, departamento: null, pais_iso_dos: null, observaciones: null, tipo_cliente: null
+    };
+    return nvoCli;
+  }
+
   get noPuedeFirmar() {
     if (this.abono?.abono) {
       if (+this.totalDeFactura !== +this.abono.monto) {
@@ -83,6 +92,7 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   @Input() factura: Factura;
   @Input() abono: Abono;
   @Output() facturaSavedEv = new EventEmitter();
+  @Output() getClienteEv = new EventEmitter();
 
   public showForm = true;
   public showFormDetalle = true;
@@ -110,6 +120,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
   public clienteOriginal: Cliente = null;
   public totalFacturaOriginal: number = 0;
   public permiteDetalleFacturaPersonalizado = true;
+  public lstClientes: Cliente[];
+  public mostrarBotonNuevo: boolean = false;
 
   private readonly WIN_FEATURES = 'height=700,width=800,menubar=no,location=no,resizable=no,scrollbars=no,status=no';
 
@@ -128,7 +140,8 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
     private ls: LocalstorageService,
     private configSrvc: ConfiguracionService,
     private impresoraSrvc: ImpresoraService,
-    private mupioSrvc: MunicipioService    
+    private mupioSrvc: MunicipioService,    
+    public dialogAddCliente: MatDialog
   ) { }
 
   ngOnInit() {
@@ -174,6 +187,12 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
       this.filteredClientes = this.clientes.filter(c => c.nombre?.toLowerCase().includes(filterValue) || c.nit?.toLowerCase().includes(filterValue) || c.cui?.toLowerCase().includes(filterValue) || c.pasaporte?.toLowerCase().includes(filterValue));
     } else {
       this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));
+    }
+
+    if (this.filteredClientes.length === 0) {
+      this.mostrarBotonNuevo = true;
+    } else {
+      this.mostrarBotonNuevo = false;
     }
 
     if (this.filteredClientes.length < 7) {
@@ -229,6 +248,33 @@ export class FormFacturaManualComponent implements OnInit, OnDestroy {
         this.clientes = res;
         this.filteredClientes = JSON.parse(JSON.stringify(this.clientes));        
         this.cargando = false;
+      })
+    );
+  }
+
+  getCliente = (obj: Cliente) => this.getClienteEv.emit(obj);
+
+  agregarCliente = (cli: Cliente = this.nuevoCliente, idx: number = 0) => {
+    const addClienteRef = this.dialogAddCliente.open(FormClienteDialogComponent, {
+      width: '75%',
+      data: { esDialogo: true, cliente: JSON.parse(JSON.stringify(cli)) }
+    });
+
+    this.endSubs.add(
+      addClienteRef.afterClosed().subscribe(result => {
+        if (result) {
+          if (!(+idx > 0) && this.clienteSrvc.lstClientes.length > 0) {
+            const indice = this.clienteSrvc.lstClientes.findIndex(c => +c.cliente === +(result as Cliente).cliente);
+            if (indice > 0) {
+              this.clienteSrvc.lstClientes[indice] = {...(result as Cliente)};
+            } else {
+              this.clienteSrvc.lstClientes.push(result as Cliente);
+            }
+          }
+          this.loadClientes();
+          this.getCliente(result);                             
+          this.clienteSelected = (result as Cliente);
+        }
       })
     );
   }

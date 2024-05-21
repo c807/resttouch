@@ -20,6 +20,7 @@ import { ComandaGetResponse } from '@restaurante-interfaces/comanda';
 import { Impresion } from '@restaurante-classes/impresion';
 
 import { Observable, Subscription } from 'rxjs';
+import { NotasGeneralesPredefinidasComponent } from '@restaurante-components/notas-generales-predefinidas/notas-generales-predefinidas.component';
 
 @Component({
   selector: 'app-lista-productos-comanda-alt',
@@ -97,6 +98,38 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
     this.endSubs.unsubscribe();
   }
 
+  toggleShowNotasPre = (p: DetalleCuentaSimplified) => {
+    const ngenDialog = this.dialog.open(NotasGeneralesPredefinidasComponent, {
+      width: '50%',
+      data: {
+        titulo: p.descripcion,
+        notas_predefinidas: (p.notas_predefinidas || ''),
+        categoria_grupo: p.categoria_grupo
+      }
+    });
+
+    this.endSubs.add(
+      ngenDialog.afterClosed().subscribe((notas_predefinidas: string) => {
+        this.endSubs.add(
+          this.comandaSrvc.saveNotasPredefinidas({ detalle_comanda: p.detalle_comanda, notas_predefinidas: notas_predefinidas?.trim() || null }).subscribe(res => {
+            if (res.exito) {
+              p.notas_predefinidas = notas_predefinidas?.trim() || null;
+              this.snackBar.open(res.mensaje, 'Artículo', { duration: 3000 });
+            } else {
+              this.snackBar.open(res.mensaje, 'Artículo', { duration: 7000 });
+            }
+          })
+        );
+      })
+    );
+
+  }
+
+  formatNotasPredefinidas = (notas_predefinidas: string): string => {
+    if (!notas_predefinidas) return '';
+    return notas_predefinidas.replace(/\|/g, '<br>');
+  }
+
   toggleShowInputNotas = (p: DetalleCuentaSimplified) => {
     const ngenDialog = this.dialog.open(NotasGeneralesComandaComponent, {
       width: '50%',
@@ -135,14 +168,21 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
       precio: +p.precio,
       total: +p.cantidad > 1 ? ((+p.cantidad) - 1) * (+p.precio) : 0,
       notas: p.notas,
+      notas_predefinidas: p.notas_predefinidas,
       autorizado: estaAutorizado,
       gerente,
-      regresa_inventario
+      regresa_inventario,
+      factor_modificacion: 1
     };
 
     if (cantidad) {
       this.detalleComanda.cantidad = +p.cantidad - +cantidad;
-      this.detalleComanda.total = (this.detalleComanda.cantidad * this.detalleComanda.precio)
+      this.detalleComanda.total = (this.detalleComanda.cantidad * this.detalleComanda.precio);
+      if (+this.detalleComanda.cantidad === 0) {
+        delete this.detalleComanda.factor_modificacion;
+      } else {
+        this.detalleComanda.factor_modificacion = +cantidad;
+      }
     }
 
     const params = {
@@ -199,6 +239,7 @@ export class ListaProductosComandaAltComponent implements OnInit, OnDestroy {
 
   deleteProductoFromList = (p: DetalleCuentaSimplified, idx: number, estaAutorizado = false) => {
     p.notas = '';
+    p.notas_predefinidas = '';
     this.removeProducto(p, idx, estaAutorizado, +p.cantidad);
   }
 

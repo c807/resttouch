@@ -494,7 +494,7 @@ class Cuenta_model extends General_Model
 
 		$detalles = $this->db
 			->select(
-				'b.comanda, b.detalle_comanda, b.articulo, d.descuento, a.detalle_cuenta, a.cuenta_cuenta, b.cantidad, b.impreso, b.precio, b.total, b.notas, 
+				'b.comanda, b.detalle_comanda, b.articulo, d.descuento, a.detalle_cuenta, a.cuenta_cuenta, b.cantidad, b.impreso, b.precio, b.total, b.notas, b.notas_predefinidas, 
 				c.combo, c.categoria_grupo, c.descripcion, c.multiple, c.combo, c.esreceta, c.cantidad_gravable, c.precio_sugerido, c.cobro_mas_caro,
 				e.numero as numero_cuenta, b.detalle_comanda_id, f.impresora, f.sede, f.nombre AS nombre_impresora, f.direccion_ip, f.ubicacion, f.bluetooth, f.bluetooth_mac_address, f.modelo, 
 				f.pordefecto, c.esextra, b.presentacion'

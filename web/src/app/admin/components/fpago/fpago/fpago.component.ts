@@ -30,7 +30,8 @@ export class FpagoComponent implements OnInit {
       activo: 1,
       permitir_propina: 1,
       escobrohabitacion: 0,
-      porcentaje_maximo_descuento: 0.00
+      porcentaje_maximo_descuento: 0.00,
+      porcentaje_descuento_aplicado: 0
     };
   }
 

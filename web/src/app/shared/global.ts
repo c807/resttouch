@@ -8,7 +8,7 @@ import { Municipio } from '@admin-interfaces/municipio';
 import { Cliente } from '@admin-interfaces/cliente';
 
 export const GLOBAL = {
-  rtVersion: '2024.04.16.00.30.58',
+  rtVersion: '2024.05.19.06.34.11',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -83,7 +83,8 @@ export const GLOBAL = {
     RT_MAX_DIAS_ANTIGUEDAD_INVENTARIO_FISICO: 'RT_MAX_DIAS_ANTIGUEDAD_INVENTARIO_FISICO',
     RT_HORAS_VALIDEZ_TOKEN: 'RT_HORAS_VALIDEZ_TOKEN',
     RT_AUTO_FIRMA_DTE_COMANDA_LINEA: 'RT_AUTO_FIRMA_DTE_COMANDA_LINEA',
-    RT_INCLUYE_SALDO_INICIAL: 'RT_INCLUYE_SALDO_INICIAL'
+    RT_INCLUYE_SALDO_INICIAL: 'RT_INCLUYE_SALDO_INICIAL',
+    RT_BLOQUEO_MESA_POR_MESERO: 'RT_BLOQUEO_MESA_POR_MESERO',
   },
   grupos: [
     {

@@ -5,4 +5,5 @@ export interface Categoria {
     debaja?: number;
     fechabaja?: string;
     usuariobaja?: number;
+    grupos?: any[];
 }

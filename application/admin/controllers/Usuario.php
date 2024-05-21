@@ -7,7 +7,7 @@ class Usuario extends CI_Controller
     {
         parent::__construct();
         set_database_server();
-        $this->load->model(['Usuario_model', 'Catalogo_model']);
+        $this->load->model(['Usuario_model', 'Catalogo_model', 'Usuario_bodega_model']);
         $this->output->set_content_type('application/json', 'UTF-8');
     }
 
@@ -216,4 +216,31 @@ class Usuario extends CI_Controller
 
         return $menu;
     }
+
+    /* Sección de usuarios por bodega para ver quienes pueden confirmar ingresos/egresos de esa bodega */
+    public function get_usuario_bodega()
+    {
+        $data = $this->Usuario_bodega_model->buscar_bodegas_usuario($_GET);
+        $this->output->set_output(json_encode($data));
+    }
+
+    public function set_usuario_bodega($id = '')
+    {
+        $datos = ['exito' => false];
+        if ($this->input->method() == 'post') {
+            $req = json_decode(file_get_contents('php://input'), true);
+            $usuarioBodega = new Usuario_bodega_model($id);
+            $datos['exito'] = $usuarioBodega->guardar($req);
+            if ($datos['exito']) {
+                $datos['usuario_bodega'] = $usuarioBodega;
+                $datos['mensaje'] = 'Datos actualizados con éxito.';
+            } else {
+                $datos['mensaje'] = $usuarioBodega->getMensaje();
+            }
+        } else {
+            $datos['error'] = 'Parámetros inválidos';
+        }
+        $this->output->set_output(json_encode($datos));
+    }
+
 }

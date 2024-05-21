@@ -1206,13 +1206,13 @@ class Articulo_model extends General_model
 		return $datos;
 	}
 
-	public function actualiza_existencia_bodega_articulo_costo($idbodega)
+	public function actualiza_existencia_bodega_articulo_costo($idbodega, $dato_existencia = null)
 	{
 		$bac = $this->db->where('articulo', $this->getPK())->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
 		if ($bac) {
 			// $pres = $this->getPresentacionReporte();
 			// $existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
-			$existencias = round((float)$this->existencias, 2);
+			$existencias = is_null($dato_existencia) ? (float)$this->existencias : (float)$dato_existencia;
 			$this->db->where('bodega_articulo_costo', $bac->bodega_articulo_costo)->update('bodega_articulo_costo', ['existencia' => $existencias, 'fecha' => date('Y-m-d H:i:s')]);
 		} else {
 			// $this->db->insert('bodega_articulo_costo', [

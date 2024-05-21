@@ -1,0 +1,26 @@
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.grid-container button {
+  flex: 1 0 auto;
+  margin: 4px;
+  min-width: 100px;
+}
+.styledTextarea {
+  resize: none;
+  border: none;
+  margin-top: 20px;
+  outline: none;
+  background-color: #f8f9fa;
+  color: #495057;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+}
+
+.selected {
+  background-color: #D7DBDD;
+}

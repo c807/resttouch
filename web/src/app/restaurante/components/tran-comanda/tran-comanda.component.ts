@@ -213,6 +213,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           precio: +p.precio || 10.00,
           total: +p.total || (+p.cantidad * +p.precio),
           notas: p.notas || '',
+          notas_predefinidas: p.notas_predefinidas || '',
           showInputNotas: false,
           itemListHeight: '70px',
           detalle_comanda: +p.detalle_comanda,
@@ -246,6 +247,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         precio: +p.precio || 10.00,
         total: +p.total || (+p.cantidad * +p.precio),
         notas: p.notas || '',
+        notas_predefinidas: p.notas_predefinidas || '',
         showInputNotas: false,
         itemListHeight: '70px',
         detalle_comanda: +p.detalle_comanda,
@@ -273,6 +275,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         precio: +p.precio || 10.00,
         total: +p.total || (+p.cantidad * +p.precio),
         notas: p.notas || '',
+        notas_predefinidas: p.notas_predefinidas || '',
         showInputNotas: false,
         itemListHeight: '70px',
         detalle_comanda: +p.detalle_comanda,
@@ -503,18 +506,20 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   }
 
   addProductoSelected(producto: any, cantidadArticulos: number = 1) {
-    // console.log('PRODUCTO = ', producto); return;
     this.bloqueoBotones = true;
     if (+this.cuentaActiva.numero) {
       const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
-      const idx = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0);
 
-      if (idx < 0) {
+      const similarProductIndex = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0 && !p.notas_predefinidas);
+
+      if (similarProductIndex > -1) {
+        const tmp: ProductoSelected = prodsSel[similarProductIndex];
+        const nuevaCantidad = (+tmp.cantidad) + +cantidadArticulos;
         this.detalleComanda = {
-          articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: '', factor_modificacion: +cantidadArticulos
+          detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id, cantidad: nuevaCantidad,
+          precio: +tmp.precio, total: nuevaCantidad * (+tmp.precio), notas: tmp.notas, notas_predefinidas: tmp.notas_predefinidas, factor_modificacion: +cantidadArticulos
         };
         this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
-          // console.log('NUEVO DETALLE COMANDA = ', res);
           if (res.exito) {
             this.setSelectedCuenta(+this.cuentaActiva.numero, true);
           } else {
@@ -523,13 +528,10 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           this.bloqueoBotones = false;
         });
       } else {
-        const tmp: ProductoSelected = prodsSel[idx];
         this.detalleComanda = {
-          detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id, cantidad: (+tmp.cantidad) + +cantidadArticulos,
-          precio: +tmp.precio, total: ((+tmp.cantidad) + +cantidadArticulos) * (+tmp.precio), notas: tmp.notas, factor_modificacion: +cantidadArticulos
+          articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: '', notas_predefinidas: '', factor_modificacion: +cantidadArticulos
         };
         this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
-          // console.log('UPDATE DETALLE COMANDA = ', res);
           if (res.exito) {
             this.setSelectedCuenta(+this.cuentaActiva.numero, true);
           } else {
@@ -575,6 +577,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
         precio: prods[i].precio,
         total: prods[i].total,
         notas: prods[i].notas,
+        notas_predefinidas: prods[i].notas_predefinidas,
         impreso: 1,
         detalle_comanda: prods[i].detalle_comanda,
         detalle_cuenta: prods[i].detalle_cuenta,
@@ -635,6 +638,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
               cantidad: p.cantidad,
               total: p.total,
               notas: p.notas,
+              notas_predefinidas: p.notas_predefinidas,
               detalle: [],
               impresora: imp,
               impreso: p.impreso,
@@ -869,6 +873,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
           Cantidad: +det.cantidad,
           Total: 0,
           Notas: det.notas,
+          Notas_predefinidas: det.notas_predefinidas,
           Detalle: [],
           Impresora: {
             impresora: +det.impresora,
@@ -905,6 +910,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       cantidad: +p.cantidad,
       total: +p.total,
       notas: p.notas,
+      notas_predefinidas: p.notas_predefinidas,
       detalle: p.detalle.length === 0 ? [] : (this.getDetalle(p.detalle) as string[]),
       monto_extra: montExt,
       impresora: {

@@ -31,6 +31,8 @@ import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
 import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
 import { Medida } from '@admin-interfaces/medida';
 import { MedidaService } from '@admin-services/medida.service';
+import { UsuarioBodega } from '@admin-interfaces/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
 
 import { Subscription } from 'rxjs';
 
@@ -40,6 +42,17 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./form-ingreso.component.css']
 })
 export class FormIngresoComponent implements OnInit, OnDestroy {
+
+  get usuarioConfirmaIngresos(): boolean {
+    if ((+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_ingreso || 0) === 1) {
+      if (this.bodegasUsuario.length > 0 && this.ingreso && +this.ingreso.bodega > 0) {
+        const bodega = this.bodegasUsuario.findIndex(bu => +bu.bodega === +this.ingreso.bodega);
+        return bodega > -1;
+      }
+      return true;
+    }
+    return false;    
+  }
 
   @Input() ingreso: Ingreso;
   @Input() saveToDB = true;
@@ -70,10 +83,10 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public txtProveedorSelected: (Proveedor | string) = undefined;
   public documento: Documento;
   public documentosTipo: DocumentoTipo[] = [];
-  public tiposCompraVenta: TipoCompraVenta[] = [];
-  public usuarioConfirmaIngresos = false;
+  public tiposCompraVenta: TipoCompraVenta[] = [];  
   public presentacionArticuloDisabled = true;
   public medidas: Medida[] = [];
+  public bodegasUsuario: UsuarioBodega[] = [];
 
   private endSubs = new Subscription();
 
@@ -90,13 +103,12 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     private documentoTipoSrvc: DocumentoTipoService,
     private tipoCompraVentaSrvc: TipoCompraVentaService,
     private pdfServicio: ReportePdfService,
-    private medidaSrvc: MedidaService
+    private medidaSrvc: MedidaService,
+    private usuarioSrvc: UsuarioService,
   ) { }
 
   ngOnInit() {
-    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.usuarioConfirmaIngresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_ingreso || 0) === 1;
-    // console.log('CONF ING = ', this.usuarioConfirmaIngresos);
+    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;    
     this.resetIngreso();
     this.loadTiposMovimiento();
     this.loadProveedores();
@@ -106,6 +118,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     this.loadDocumentosTipo();
     this.loadTiposCompraVenta();
     this.loadMedidas();
+    this.loadBodegasUsuario();
     if (!this.bodega) {
       this.displayedColumns = ['cantidad_utilizada', 'articulo', 'presentacion', 'cantidad', 'deleteItem'];
     }
@@ -175,6 +188,14 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
         if (res) {
           this.medidas = res;
         }
+      })
+    );
+  }
+
+  loadBodegasUsuario = () => {    
+    this.endSubs.add(
+      this.usuarioSrvc.getBodegasUsuario({ usuario: this.ls.get(GLOBAL.usrTokenVar).idusr || 0, debaja: 0 }).subscribe(res => {
+        this.bodegasUsuario = res;
       })
     );
   }

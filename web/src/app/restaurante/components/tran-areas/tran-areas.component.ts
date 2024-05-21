@@ -31,6 +31,7 @@ import { TurnoAbierto } from '@restaurante-interfaces/turno';
 import { TurnoService } from '@restaurante-services/turno.service';
 import { DialogTurnoComponent } from '@restaurante-components/turno/dialog-turno/dialog-turno.component';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
+import { SolicitaPinInactividadComponent } from '@admin-components/solicita-pin-inactividad/solicita-pin-inactividad.component';
 
 import { Subscription } from 'rxjs';
 import { NotificacionesClienteComponent } from '@admin/components/notificaciones-cliente/notificaciones-cliente.component';
@@ -60,6 +61,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   public mesaSeleccionadaToOpen: any;
   public configTipoPantalla = 1;
   public clientePedido: (Cliente | ClienteMaster) = null;
+  public bloqueoMesaPorMesero = false;
 
   private endSubs = new Subscription();
 
@@ -91,6 +93,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
     this.configTipoPantalla = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PANTALLA_TOMA_COMANDA) as number;
+    this.bloqueoMesaPorMesero = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_BLOQUEO_MESA_POR_MESERO) as boolean;
   }
 
   ngAfterViewInit() {
@@ -417,11 +420,20 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.cargando = true;
     this.endSubs.add(
-      this.comandaSrvc.getComandaDeMesa(obj.mesa, false).subscribe((res: ComandaGetResponse) => {
+      this.comandaSrvc.getComandaDeMesa(obj.mesa, false).subscribe(async (res: ComandaGetResponse) => {
         // console.log('RESPUESTA DE GET COMANDA = ', res);
         // this.cargando = false;
         if (res.exito) {
-          if (!Array.isArray(res)) {
+
+          let esElUsuarioIgualAlMesero = await this.usuarioIgualAlMesero(res);
+
+          if (!esElUsuarioIgualAlMesero) {
+            this.snackBar.open('El usuario no es el mesero de la mesa seleccionada.', 'Mesero', { duration: 7000 });
+            this.cargando = false;
+            return;
+          }          
+
+          if (!Array.isArray(res)) {            
             this.mesaSeleccionada = res;
             this.snTrancomanda.loadRolesUsuario();
           } else {
@@ -554,5 +566,28 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       })
     );
+  }
+
+  usuarioIgualAlMesero = async(m: any): Promise<boolean> => {
+    let permitir = true;
+
+    if (this.bloqueoMesaPorMesero) {
+      if (+this.ls.get(GLOBAL.usrTokenVar).idusr === +m.mesero.usuario) {
+        return permitir;
+      } else {
+        const solicitaPinRef = this.dialog.open(SolicitaPinInactividadComponent, {
+          width: '25%',
+          hasBackdrop: true,
+          disableClose: true,
+          autoFocus: true,
+          data: { no_reemplazar_data: false, idusuario: +m.mesero.usuario }
+        });
+
+        permitir = await solicitaPinRef.afterClosed().toPromise();        
+        return permitir;
+      }
+    } else {
+      return true;
+    }    
   }
 }

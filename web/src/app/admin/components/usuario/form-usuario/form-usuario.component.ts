@@ -5,6 +5,7 @@ import { GLOBAL } from '@shared/global';
 import { LocalstorageService } from '@admin-services/localstorage.service';
 
 import { Usuario } from '@admin-models/usuario';
+import { UsuarioBodega } from '@admin-interfaces/usuario';
 import { UsuarioService } from '@admin-services/usuario.service';
 import { Sede } from '@admin-interfaces/sede';
 import { SedeService } from '@admin-services/sede.service';
@@ -12,6 +13,8 @@ import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from '@shared-components/confirm-dialog/confirm-dialog.component';
 import { Rol } from '@admin-interfaces/rol';
 import { RolService } from '@admin-services/rol.service';
+import { Bodega } from '@wms-interfaces/bodega';
+import { BodegaService } from '@wms-services/bodega.service';
 
 import { Subscription } from 'rxjs';
 
@@ -30,6 +33,12 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
     return this.usuario?.rol && (+this.ls.get(GLOBAL.usrTokenVar).idusr === +this.usuario.usuario);
   }
 
+  get bodegaYaEnListado() {
+    return (idBodegSeleccionada: string) => {
+      return this.bodegasUsuario.find(bu => +bu.bodega === +idBodegSeleccionada);
+    }
+  }
+
   @Input() usuario: Usuario;
   @Output() usrSavedEv = new EventEmitter();
   public sedes: Sede[] = [];
@@ -37,6 +46,9 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
   public keyboardLayout = GLOBAL.IDIOMA_TECLADO;
   public esMovil = false;
   public roles: Rol[] = [];
+  public bodegasUsuario: UsuarioBodega[] = [];
+  public bodegas: Bodega[] = [];
+  public bodegaSeleccionada: string = null;
 
   private endSubs = new Subscription();
 
@@ -46,6 +58,7 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
     private sedeSrvc: SedeService,
     private configSrvc: ConfiguracionService,
     private ls: LocalstorageService,
+    private bodegaSrvc: BodegaService,
     public dialog: MatDialog,
     private rolSrvc: RolService
   ) { }
@@ -74,8 +87,8 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
       this.rolSrvc.get().subscribe(res => {
         this.roles = res;
       })
-    );  
-  }  
+    );
+  }
 
   resetUsuario() {
     this.usuario = new Usuario(null, null, null, null, null, null, 0, 0, null, 0, 0, 0, null, 0);
@@ -111,4 +124,50 @@ export class FormUsuarioComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadBodegasUsuario = (idUsuario: number = null) => {
+    if (!idUsuario && this.usuario?.usuario) {
+      idUsuario = +this.usuario.usuario;
+    }
+
+    this.endSubs.add(
+      this.usuarioSrvc.getBodegasUsuario({ usuario: idUsuario }).subscribe(res => {
+        this.bodegasUsuario = res;
+      })
+    );
+  }
+
+  guardarBodegaUsuario = (ub: UsuarioBodega) => {
+    this.endSubs.add(
+      this.usuarioSrvc.saveBodegaUsuario(ub).subscribe(res => {
+        this.loadBodegasUsuario(+ub.usuario);
+        this.bodegaSeleccionada = null;
+        this.snackBar.open(res.mensaje, 'Usuario bodega', { duration: 5000 });
+      })
+    );
+  }
+
+  saveUsuarioBodega = (idBodega: string) => {    
+    if (+idBodega > 0 && +this.usuario.usuario > 0) {
+      const ub = {
+        usuario_bodega: null,
+        usuario: +this.usuario.usuario,
+        bodega: +idBodega,
+        debaja: 0        
+      };
+      this.guardarBodegaUsuario(ub);
+    }
+  }
+
+  toggleUsuarioBodegaDeBaja = (ub: UsuarioBodega) => {
+    ub.debaja = +ub.debaja === 0 ? 1 : 0;
+    this.guardarBodegaUsuario(ub);
+  }
+
+  loadBodegas = () => {
+    this.endSubs.add(
+      this.bodegaSrvc.get({ sede: (this.ls.get(GLOBAL.usrTokenVar).sede || 0) }).subscribe((res: Bodega[]) => {
+        this.bodegas = res;        
+      })
+    );
+  }
 }

@@ -1,61 +1,106 @@
-<mat-card class="mat-elevation-z4 fullWidth">
-    <mat-card-title>
-        <h4>Usuario</h4>
-    </mat-card-title>
-    <mat-card-content>
-        <form #frmUsuario="ngForm" (ngSubmit)="frmUsuario.form.valid && onSubmit()" autocomplete="off" novalidate>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-1">
-                <input matInput *ngIf="esMovil" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-2">
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-1">
-                <input matInput *ngIf="esMovil" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-2">
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-1">
-                <input matInput *ngIf="esMovil" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-2">
-            </mat-form-field>
-            <mat-form-field class="fullWidth separacionPorHint">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
-                <input matInput *ngIf="esMovil" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
-                <mat-hint align="start"><strong>La contraseña debe tener entre 4 y 10 caracteres. Se recomienda una contraseña segura pero fácil de recordar.</strong></mat-hint>
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-1">
-                <input matInput *ngIf="esMovil" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-2">
-            </mat-form-field>
-            <mat-form-field class="fullWidth">
-                <mat-label>Sede</mat-label>
-                <mat-select name="sede" [(ngModel)]="usuario.sede" [disabled]="disableSede" required>
-                    <mat-option *ngFor="let s of sedes" [value]="s.sede">
-                        {{s.nombre}} ({{s.alias}})
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-form-field class="fullWidth" style="margin-bottom: 20px;">
-                <mat-label>Rol del usuario</mat-label>
-                <mat-select name="rol" [(ngModel)]="usuario.rol" [disabled]="disableRol">
-                    <mat-option *ngFor="let r of roles" [value]="r.rol">
-                        {{r.descripcion}}
-                    </mat-option>
-                </mat-select>
-                <mat-hint align="start"><strong>NOTA: Cambiar el rol del usuario eliminará los permisos que tiene actualmente y asignará los que tenga configurado el rol.</strong></mat-hint>
-            </mat-form-field>
-            <mat-checkbox name="esmesero" [(ngModel)]="+usuario.esmesero" class="fontFamily btnAccion">Es mesero</mat-checkbox>
-            <mat-checkbox name="usatecladovirtual" [(ngModel)]="+usuario.usatecladovirtual" class="fontFamily btnAccion">Usa teclado virtual</mat-checkbox>
-            <mat-checkbox name="confirmar_ingreso" [(ngModel)]="+usuario.confirmar_ingreso" class="fontFamily btnAccion">Puede confirmar ingresos</mat-checkbox>
-            <mat-checkbox name="confirmar_egreso" [(ngModel)]="+usuario.confirmar_egreso" class="fontFamily btnAccion">Puede confirmar egresos</mat-checkbox>
-            <mat-checkbox name="ver_panorama" [(ngModel)]="+usuario.ver_panorama" class="fontFamily btnAccion">Puede ver datos del dashboard de inicio</mat-checkbox>
-            <mat-checkbox name="debaja" [(ngModel)]="+usuario.debaja" class="fontFamily btnAccion">De baja</mat-checkbox>
-            <div align="end">
-                <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmUsuario.form.valid">
-                    Guardar
-                </button>
-                <button mat-raised-button type="button" color="accent" (click)="resetUsuario()" *ngIf="usuario.usuario">
-                    Nuevo
-                </button>
-            </div>
-        </form>
-    </mat-card-content>
-</mat-card>
+<mat-tab-group>
+    <mat-tab label="Datos generales">        
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Usuario</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <form #frmUsuario="ngForm" (ngSubmit)="frmUsuario.form.valid && onSubmit()" autocomplete="off" novalidate>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-1">
+                        <input matInput *ngIf="esMovil" placeholder="Nombres" name="nombres" [(ngModel)]="usuario.nombres" maxlength="255" required autocomplete="nombres-new-2">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-1">
+                        <input matInput *ngIf="esMovil" placeholder="Apellidos" name="apellidos" [(ngModel)]="usuario.apellidos" maxlength="255" required autocomplete="apellidos-new-2">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-1">
+                        <input matInput *ngIf="esMovil" placeholder="Usuario" name="usrname" [(ngModel)]="usuario.usrname" maxlength="15" required autocomplete="usrname-new-2">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth separacionPorHint">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
+                        <input matInput *ngIf="esMovil" type="password" placeholder="Contraseña" name="contrasenia" minlength="4" maxlength="10" [(ngModel)]="usuario.contrasenia" [required]="!usuario.usuario" autocomplete="contrasenia-new-1">
+                        <mat-hint align="start"><strong>La contraseña debe tener entre 4 y 10 caracteres. Se recomienda una contraseña segura pero fácil de recordar.</strong></mat-hint>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <input matInput *ngIf="!esMovil" [matKeyboard]="keyboardLayout" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-1">
+                        <input matInput *ngIf="esMovil" type="password" placeholder="Pin desbloqueo" name="pindesbloqueo" [(ngModel)]="usuario.pindesbloqueo" minlength="4" maxlength="32" [required]="habilitaBloqueo" autocomplete="pindesbloq-new-2">
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth">
+                        <mat-label>Sede</mat-label>
+                        <mat-select name="sede" [(ngModel)]="usuario.sede" [disabled]="disableSede" required>
+                            <mat-option *ngFor="let s of sedes" [value]="s.sede">
+                                {{s.nombre}} ({{s.alias}})
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field class="fullWidth" style="margin-bottom: 20px;">
+                        <mat-label>Rol del usuario</mat-label>
+                        <mat-select name="rol" [(ngModel)]="usuario.rol" [disabled]="disableRol">
+                            <mat-option *ngFor="let r of roles" [value]="r.rol">
+                                {{r.descripcion}}
+                            </mat-option>
+                        </mat-select>
+                        <mat-hint align="start"><strong>NOTA: Cambiar el rol del usuario eliminará los permisos que tiene actualmente y asignará los que tenga configurado el rol.</strong></mat-hint>
+                    </mat-form-field>
+                    <mat-checkbox name="esmesero" [(ngModel)]="+usuario.esmesero" class="fontFamily btnAccion">Es mesero</mat-checkbox>
+                    <mat-checkbox name="usatecladovirtual" [(ngModel)]="+usuario.usatecladovirtual" class="fontFamily btnAccion">Usa teclado virtual</mat-checkbox>
+                    <mat-checkbox name="confirmar_ingreso" [(ngModel)]="+usuario.confirmar_ingreso" class="fontFamily btnAccion">Puede confirmar ingresos</mat-checkbox>
+                    <mat-checkbox name="confirmar_egreso" [(ngModel)]="+usuario.confirmar_egreso" class="fontFamily btnAccion">Puede confirmar egresos</mat-checkbox>
+                    <mat-checkbox name="ver_panorama" [(ngModel)]="+usuario.ver_panorama" class="fontFamily btnAccion">Puede ver datos del dashboard de inicio</mat-checkbox>
+                    <mat-checkbox name="debaja" [(ngModel)]="+usuario.debaja" class="fontFamily btnAccion">De baja</mat-checkbox>
+                    <div align="end">
+                        <button mat-raised-button type="submit" color="accent" class="btnAccion" [disabled]="!frmUsuario.form.valid">
+                            Guardar
+                        </button>
+                        <button mat-raised-button type="button" color="accent" (click)="resetUsuario()" *ngIf="usuario.usuario">
+                            Nuevo
+                        </button>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+    <mat-tab label="Bodegas que administra" *ngIf="usuario && +usuario.usuario > 0 && (+usuario.confirmar_ingreso === 1 || +usuario.confirmar_egreso === 1)">
+        <mat-card class="mat-elevation-z4 fullWidth">
+            <mat-card-title>
+                <h4>Bodegas que administra el usuario {{usuario.nombres}} {{usuario.apellidos}}</h4>
+            </mat-card-title>
+            <mat-card-content>
+                <table>
+                    <caption style="text-align: left;">
+                        <mat-form-field>
+                            <mat-label>Bodega:</mat-label>
+                            <mat-select name="bodega" [(ngModel)]="bodegaSeleccionada" [ngModelOptions]="{standalone: true}" required>
+                                <mat-option *ngFor="let bode of bodegas" [value]="bode.bodega" [disabled]="+bode.debaja === 1 || bodegaYaEnListado(bode.bodega)">
+                                    {{bode.descripcion}}
+                                </mat-option>
+                            </mat-select>                
+                        </mat-form-field>
+                        <button mat-raised-button type="button" style="margin-left: 15px;" color="accent" (click)="saveUsuarioBodega(bodegaSeleccionada)" [disabled]="!bodegaSeleccionada">
+                            Guardar
+                        </button>
+                    </caption>                    
+                    <thead>
+                        <tr>
+                            <th>Bodega</th>
+                            <th style="width: 7%;">&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ub of bodegasUsuario">
+                            <td>{{ub.bodega_descripcion}}</td>
+                            <td style="width: 7%;">
+                                <button mat-raised-button type="button" [color]="+ub.debaja === 0 ? 'warn' : 'accent'" (click)="toggleUsuarioBodegaDeBaja(ub)">
+                                    <span *ngIf="+ub.debaja === 0">Quitar</span>
+                                    <span *ngIf="+ub.debaja === 1">Agregar</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card-content>
+        </mat-card>
+    </mat-tab>
+</mat-tab-group>

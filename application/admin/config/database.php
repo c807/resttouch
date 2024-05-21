@@ -54,9 +54,9 @@ if (isset($_SERVER["GAE_APPLICATION"])) {
 	$db['default']['password'] = 'PoChoco2016';
 	$db['default']['database'] = 'administracion';
 
-	$db['vesuvio']['hostname'] = '127.0.0.1:6603';	
+	$db['vesuvio']['hostname'] = '127.0.0.1';	
 	$db['vesuvio']['username'] = 'root';
 	$db['vesuvio']['password'] = 'PoChoco2016';
 	$db['vesuvio']['database'] = 'administracion';	
-	$db['vesuvio']['port'] = '6603';	
+	$db['vesuvio']['port'] = '3306';
 }

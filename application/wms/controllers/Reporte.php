@@ -166,15 +166,16 @@ class Reporte extends CI_Controller
 						$art = new Articulo_model($row->articulo->articulo);
 						$rec = $art->getReceta();
 	
-						$existencia = round($row->existencia / $row->presentacion->cantidad, 2);
+						$existencia = round($row->existencia / $row->presentacion->cantidad, 5);
 	
 						$reg = [
 							(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
+							// "{$row->articulo->articulo} " . $row->articulo->descripcion,
 							$row->articulo->descripcion,
 							$row->presentacion->descripcion,
 							round((float)$row->articulo->stock_minimo, 2),
 							round((float)$row->articulo->stock_maximo, 2),
-							((float) $row->saldo_inicial != 0) ? round($row->saldo_inicial / $row->presentacion->cantidad, 2) : "0.00",
+							((float) $row->saldo_inicial != 0) ? round($row->saldo_inicial / $row->presentacion->cantidad, 5) : "0.00",
 							((float) $row->ingresos != 0) ? round($row->ingresos / $row->presentacion->cantidad, 2) : "0.00",
 							((float) $row->egresos != 0) ? round($row->egresos / $row->presentacion->cantidad, 2) : "0.00",
 							((float) $row->comandas != 0) ? round($row->comandas / $row->presentacion->cantidad, 2) : "0.00",
@@ -244,6 +245,8 @@ class Reporte extends CI_Controller
 		$datos = [];
 		$infoArticulo = new stdClass();
 
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
 		foreach ($_POST['sede'] as $s) {
 			$art = $this->Articulo_model->buscarArticulo(['sede' => $s, 'codigo' => $_POST['articulo']]);
 			if ($art) {
@@ -265,21 +268,32 @@ class Reporte extends CI_Controller
 						if ((int)$bodega->sede === (int)$s) {
 							$rpt->setTipo(2);
 							$paramsExist = ['sede' => $s, 'bodega' => $bodega->getPK(), 'articulo' => $articulo->getPK(), 'fdel' => $_POST['fdel'], 'fal' => $_POST['fal']];
-							$existencias = $rpt->getExistencias($paramsExist);
+							// $existencias = $rpt->getExistencias($paramsExist);
+							$paramsExistNvo = [
+								'sede' => [0 => $s], 'bodega' => [0 => $bodega->getPK()], 'fecha_del' => $_POST['fdel'], 'fecha_al' => $_POST['fal'],
+								'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => $articulo->categoria_grupo, 'fecha' => $_POST['fal'],
+								'_saldo_inicial' => 1
+							];
+							$existencias = $articulo->getExistencias($paramsExistNvo, $listaMedidas, $listaArticulos);
 							$existencia = new stdClass();
 							$existencia->existencia = 0;
+							$existencia->saldo_inicial = 0;
 
-							if (count($existencias) > 0) {
+							if (is_array($existencias) && count($existencias) > 0) {
 								$existencia = $existencias[0];
 								if ($existencia->existencia != 0) {
-									$existencia->existencia = (float)$presentacionReporte->cantidad !== 0 ? ((float)$existencia->existencia / (float)$presentacionReporte->cantidad) : 0;
+									// $existencia->existencia = (float)$presentacionReporte->cantidad !== 0 ? ((float)$existencia->existencia / (float)$presentacionReporte->cantidad) : 0;
+									$existencia->existencia = (float)$existencia->existencia;
 								} else {
 									$existencia->existencia = (float)$existencia->existencia;
 								}
+							} else {
+								$existencia->existencia = (float)$presentacionReporte->cantidad !== 0 ? ((float)$existencias->existencia / (float)$presentacionReporte->cantidad) : 0;
+								$existencia->saldo_inicial = (float)$presentacionReporte->cantidad !== 0 ? ((float)$existencias->saldo_inicial / (float)$presentacionReporte->cantidad) : 0;
 							}
 
 							$datos[$lastIdxSedes]->bodegas[] = (object)[
-								'bodega' => $bodega->getPK(), 'descripcion' => $bodega->descripcion, 'antiguedad' => $existencia->existencia,
+								'bodega' => $bodega->getPK(), 'descripcion' => $bodega->descripcion, 'antiguedad' => $existencia->saldo_inicial,
 								'ingresos' => 0, 'salidas' => 0, 'egresos' => 0, 'comandas' => 0, 'facturas' => 0, 'detalle' => []
 							];
 							$lastIdxBodegas = count($datos[$lastIdxSedes]->bodegas) - 1;
@@ -287,6 +301,7 @@ class Reporte extends CI_Controller
 							$existencias = $rpt->getExistencias($paramsExist);
 							foreach ($existencias as $row) {
 								$row->cantidad = (float)$presentacionReporte->cantidad !== 0 ? ((float)$row->cantidad / (float)$presentacionReporte->cantidad) : 0;
+								// $row->cantidad = (float)$row->cantidad;
 
 								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->ingresos += ((int)$row->tipo === 1) ? (float)$row->cantidad : 0;
 								$datos[$lastIdxSedes]->bodegas[$lastIdxBodegas]->salidas += ((int)$row->tipo === 2) ? (float)$row->cantidad : 0;
@@ -387,7 +402,9 @@ class Reporte extends CI_Controller
 					$hoja->setCellValue("E{$fila}", $bodega->facturas);
 					$hoja->setCellValue("F{$fila}", $bodega->salidas);
 					$hoja->setCellValue("G{$fila}", $saldo);
-					$hoja->getStyle("A{$fila}:G{$fila}")->getNumberFormat()->setFormatCode('0.00');
+					$hoja->getStyle("A{$fila}")->getNumberFormat()->setFormatCode('0.00000');
+					$hoja->getStyle("B{$fila}:F{$fila}")->getNumberFormat()->setFormatCode('0.00');
+					$hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00000');
 					$fila++;
 					if (count($bodega->detalle) > 0) {
 						$hoja->getStyle("C{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
@@ -502,6 +519,7 @@ class Reporte extends CI_Controller
 								$art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
+								// $art->existencias = (float)$art->existencias;
 
 								if (!isset($req['_sinconfirmar']) || (isset($req['_sinconfirmar']) && (int)$req['_sinconfirmar'] === 0)) {
 									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bode, $row->articulo);
@@ -540,7 +558,7 @@ class Reporte extends CI_Controller
 								$obj = (object)[
 									"articulo" => $art->getPK(),
 									"presentacion" => $pres->descripcion,
-									"cantidad" => $art->existencias,
+									"cantidad" => (float)$art->existencias,
 									"total" => (float)$art->existencias * $row->precio_unitario,
 									"descripcion" => $art->descripcion,
 									"precio_unitario" => $row->precio_unitario,
@@ -582,7 +600,7 @@ class Reporte extends CI_Controller
 
 			$hoja->getStyle('A4:K4')->getAlignment()->setHorizontal('center');
 			$hoja->getStyle('I')->getAlignment()->setHorizontal('center');
-			$hoja->getStyle('H')->getNumberFormat()->setFormatCode('0.00');
+			$hoja->getStyle('H')->getNumberFormat()->setFormatCode('0.00000');
 			$hoja->getStyle('J')->getNumberFormat()->setFormatCode('0.00000');
 			$hoja->getStyle('K')->getNumberFormat()->setFormatCode('0.00');
 			$hoja->setCellValue('A4', 'Empresa');
@@ -610,7 +628,7 @@ class Reporte extends CI_Controller
 						// $hoja->setCellValue("F{$fila}", "{$articulo->articulo}-{$articulo->descripcion}");
 						$hoja->setCellValue("F{$fila}", "{$articulo->descripcion}");
 						$hoja->setCellValue("G{$fila}", $articulo->presentacion);
-						$hoja->setCellValue("H{$fila}", $articulo->cantidad);
+						$hoja->setCellValue("H{$fila}", round($articulo->cantidad, 5));
 						$hoja->setCellValue("I{$fila}", $articulo->ultima_compra);
 						$hoja->setCellValue("J{$fila}", $articulo->precio_unitario);
 						$hoja->setCellValue("K{$fila}", $articulo->total);

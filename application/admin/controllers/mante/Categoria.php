@@ -8,7 +8,7 @@ class Categoria extends CI_Controller
 	{
 		parent::__construct();
 		set_database_server();
-		$this->load->model('Categoria_model');
+		$this->load->model(['Categoria_model', 'Articulo_model']);
 		$headers = $this->input->request_headers();
 		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 		$this->output->set_content_type('application/json', 'UTF-8');
@@ -52,6 +52,22 @@ class Categoria extends CI_Controller
 		}
 
 		$datos = $this->Categoria_model->buscar($_GET);
+
+		if (isset($_GET['_ver_pos'])) {
+			if ($datos) {
+				foreach ($datos as $key => $row) {
+					$tmp = $this->Articulo_model->buscarArticulo([
+						'categoria' => $row->categoria,
+						'mostrar_pos' => 1
+					]);
+
+					if (!$tmp) {
+						unset($datos[$key]);
+					}
+
+				}
+			}
+		}
 
 		$datos = ordenar_array_objetos($datos, 'descripcion');
 

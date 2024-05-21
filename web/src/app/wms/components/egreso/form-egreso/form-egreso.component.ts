@@ -17,7 +17,7 @@ import { Proveedor } from '@wms-interfaces/proveedor';
 import { ProveedorService } from '@wms-services/proveedor.service';
 import { Articulo } from '@wms-interfaces/articulo';
 import { ArticuloService } from '@wms-services/articulo.service';
-import { TransformacionService } from '@wms-services/transformacion.service';
+// import { TransformacionService } from '@wms-services/transformacion.service';
 import { Presentacion } from '@admin-interfaces/presentacion';
 import { PresentacionService } from '@admin-services/presentacion.service';
 import { ReportePdfService } from '@restaurante-services/reporte-pdf.service';
@@ -26,6 +26,8 @@ import { PideTipoMovimientoDestinoComponent } from '@wms-components/egreso/pide-
 import { DialogFormPresentacionComponent } from '@admin-components/presentacion/dialog-form-presentacion/dialog-form-presentacion.component';
 import { Medida } from '@admin-interfaces/medida';
 import { MedidaService } from '@admin-services/medida.service';
+import { UsuarioBodega } from '@admin-interfaces/usuario';
+import { UsuarioService } from '@admin-services/usuario.service';
 import { saveAs } from 'file-saver';
 
 import { Subscription } from 'rxjs';
@@ -36,6 +38,17 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./form-egreso.component.css']
 })
 export class FormEgresoComponent implements OnInit, OnDestroy {
+
+  get usuarioConfirmaEgresos(): boolean {
+    if ((+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1) {
+      if (this.bodegasUsuario.length > 0 && this.egreso && +this.egreso.bodega > 0) {
+        const bodega = this.bodegasUsuario.findIndex(bu => +bu.bodega === +this.egreso.bodega);
+        return bodega > -1;
+      }
+      return true;
+    }
+    return false;    
+  }
 
   @Input() egreso: Egreso;
   @Input() saveToDB = true;
@@ -71,14 +84,14 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
   public bloqueoBotones = false;
   public txtArticuloSelected: (Articulo | string) = undefined;
   public txtArticuloSelectedM: (Articulo | string) = undefined;
-  public txtProveedorSelected: (Proveedor | string) = undefined;
-  public usuarioConfirmaEgresos = false;
+  public txtProveedorSelected: (Proveedor | string) = undefined;  
   public presentacionArticuloDisabled = true;
   public esRequisicion = false;
   public medidas: Medida[] = [];
-
+  public bodegasUsuario: UsuarioBodega[] = [];
+  
   private endSubs = new Subscription();
-
+  
   constructor(
     private snackBar: MatSnackBar,
     private ls: LocalstorageService,
@@ -87,22 +100,24 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     private bodegaSrvc: BodegaService,
     private articuloSrvc: ArticuloService,
     private proveedorSrvc: ProveedorService,
-    private transformacionSrvc: TransformacionService,
+    // private transformacionSrvc: TransformacionService,
     private presentacionSrvc: PresentacionService,
     private pdfServicio: ReportePdfService,
     public dialog: MatDialog,
-    private medidaSrvc: MedidaService
+    private medidaSrvc: MedidaService,
+    private usuarioSrvc: UsuarioService
   ) { }
 
   ngOnInit() {
-    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;
-    this.usuarioConfirmaEgresos = (+this.ls.get(GLOBAL.usrTokenVar).wms?.confirmar_egreso || 0) === 1;
+    this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;    
     this.resetEgreso();
     this.loadTiposMovimiento(false);
     this.loadBodegas();
     this.loadProveedores();
     this.loadPresentaciones();
     this.loadMedidas();
+    this.loadBodegasUsuario();
+
     if (!this.saveToDB) {
       this.displayedColumns = ['articulo', 'presentacion', 'cantidad', 'editItem'];
     }
@@ -174,6 +189,15 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
         if (res) {
           this.medidas = res;
         }
+      })
+    );
+  }
+
+  loadBodegasUsuario = () => {    
+    console.log('USUARIO = ', this.ls.get(GLOBAL.usrTokenVar));
+    this.endSubs.add(
+      this.usuarioSrvc.getBodegasUsuario({ usuario: this.ls.get(GLOBAL.usrTokenVar).idusr || 0, debaja: 0 }).subscribe(res => {
+        this.bodegasUsuario = res;
       })
     );
   }

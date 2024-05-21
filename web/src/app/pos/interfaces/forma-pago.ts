@@ -14,6 +14,7 @@ export interface FormaPago {
     esabono?: number;
     montocc?: number;
     escobrohabitacion?: number;
+    porcentaje_descuento_aplicado?: number;
     porcentaje_maximo_descuento?: number;
     permitir_propina?: number;
 }
