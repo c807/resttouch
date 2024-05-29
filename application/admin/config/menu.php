@@ -528,6 +528,11 @@ $config['menu'] = [
 						'nombre' => 'Motoristas',
 						'link' => '/callcenter/rptmotoristas',
 						'dispositivo' => 1
+					],
+					4 => [
+						'nombre' => 'Clientes',
+						'link' => '/callcenter/rptclientes',
+						'dispositivo' => 1
 					]
 				]
 			]

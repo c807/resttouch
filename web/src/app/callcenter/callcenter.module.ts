@@ -74,6 +74,7 @@ import { DialogClienteMasterClienteComponent } from './components/cliente-master
 import { DialogAgregarDatoDeFacturacionComponent } from './components/cliente-master/dialog-agregar-dato-de-facturacion/dialog-agregar-dato-de-facturacion.component';
 import { VentaCallcenterComponent } from './components/reportes/venta-callcenter/venta-callcenter.component';
 import { MotoristasComponent } from './components/reportes/motoristas/motoristas.component';
+import { ClientesComponent } from './components/reportes/clientes/clientes.component';
 
 /**
  * New Components must be added in declarations,
@@ -86,7 +87,9 @@ import { MotoristasComponent } from './components/reportes/motoristas/motoristas
     ClienteMasterComponent, ClienteMasterDialogComponent, FormClienteMasterComponent, ClienteMasterTelefonoComponent, SeleccionaTelefonoComponent, ClienteMasterNotaComponent,
     ClienteMasterDireccionComponent, TiempoEntregaComponent, FormTiempoEntregaComponent, ListaTiempoEntregaComponent, EstatusCallcenterComponent, FormEstatusCallcenterComponent,
     ListaEstatusCallcenterComponent, SeguimientoCallcenterComponent, DialogSeguimientoCallcenterComponent, EncabezadoPedidoComponent, DetallePedidoComponent, RepartidorComponent,
-    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent, DialogAgregarDatoDeFacturacionComponent, VentaCallcenterComponent, MotoristasComponent
+    FormRepartidorComponent, ListaRepartidorComponent, TipoDomicilioComponent, FormTipoDomicilioComponent, ListaTipoDomicilioComponent, AgregarDatoDeFacturacionComponent, 
+    DialogAgregarClienteComponent, DetalleFormaPagoComponent, PideRepartidorDialogComponent, DialogClienteMasterDireccionComponent, DialogClienteMasterClienteComponent, 
+    DialogAgregarDatoDeFacturacionComponent, VentaCallcenterComponent, MotoristasComponent, ClientesComponent
   ],
   imports: [
     CommonModule,
