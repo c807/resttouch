@@ -343,7 +343,7 @@ class Api extends CI_Controller
 													}
 													if (count($req['discount_applications']) > 0) {
 														foreach ($req['discount_applications'] as $descDA) {
-															$targetType = isset($desc['target_type']) ? strtolower($desc['target_type']) : '';
+															$targetType = isset($descDA['target_type']) ? strtolower($descDA['target_type']) : '';
 															if (strtolower($descDA['value_type']) == 'percentage' && $targetType !== 'shipping_line') {
 																$descuento += ($totalProd * $descDA['value'] / 100);
 																$pdescuento += $descDA['value'];
