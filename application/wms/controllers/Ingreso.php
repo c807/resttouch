@@ -234,19 +234,42 @@ class Ingreso extends CI_Controller
 	public function eliminar_detalle($id)
 	{
 		$detalle = new IDetalle_Model($id);
+		$articulo = new Articulo_model($detalle->articulo);
 		$ingreso = new Ingreso_model($detalle->ingreso);
 		$datos = ['exito' => false];
+
+		$this->load->model(['Bitacora_model', 'Accion_model']);
+		$usuario = $this->Usuario_model->buscar(['usuario' => $this->data->idusuario, '_uno' => true]);
+		$nombreUsuario = trim("{$usuario->nombres} {$usuario->apellidos}");
+
+		$bit = new Bitacora_model();
+		$acc = $this->Accion_model->buscar(['descripcion' => 'Modificacion','_uno' => true]);
+
+		$comentario = "El usuario {$nombreUsuario} ";
 
 		if ((int)$ingreso->estatus_movimiento === 1) {
 			$datos['exito'] = $detalle->eliminar();
 			if ($datos['exito']) {
+				$comentario .= "eliminó ";
 				$datos['mensaje'] = 'Detalle eliminado con éxito.';
 			} else {
+				$comentario .= "intentó eliminar ";
 				$datos['mensaje'] = 'Error al eliminar el detalle.';
 			}
 		} else {
+			$comentario .= "intentó eliminar ";
 			$datos['mensaje'] = "El ingreso {$ingreso->ingreso} ya fue confirmado. No se puede modificar.";
 		}
+
+		$comentario .= "el artículo {$articulo->descripcion} con cantidad {$detalle->cantidad} del ingreso ".((int)$ingreso->estatus_movimiento === 2 ? 'ya confirmado' : '')." No. {$ingreso->getPK()}.";
+
+		$bit->guardar([
+			'accion' => $acc->accion,
+			'usuario' => $this->data->idusuario,
+			'tabla' => 'ingreso_detalle',
+			'registro' => $id,
+			'comentario' => $comentario
+		]);
 
 		$this->output->set_output(json_encode($datos));
 	}

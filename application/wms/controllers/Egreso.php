@@ -37,7 +37,7 @@ class Egreso extends CI_Controller
 					if ((int)$egr->traslado === 1) {
 						$bodegaOrigen = $this->Bodega_model->buscar(['bodega' => $egr->bodega, '_uno' => true]);
 						$bodegaDestino = $this->Bodega_model->buscar(['bodega' => $egr->bodega_destino, '_uno' => true]);
-						if((int)$bodegaOrigen->sede === (int)$bodegaDestino->sede) {
+						if ((int)$bodegaOrigen->sede === (int)$bodegaDestino->sede) {
 							$ing = $egr->trasladar($req);
 						} else {
 							$req['sede_origen'] = (int)$bodegaOrigen->sede;
@@ -186,19 +186,47 @@ class Egreso extends CI_Controller
 	public function eliminar_detalle($id)
 	{
 		$detalle = new EDetalle_Model($id);
+		$articulo = new Articulo_model($detalle->articulo);
 		$egreso = new Egreso_model($detalle->egreso);
 		$datos = ['exito' => false];
 
+		$this->load->helper(['jwt', 'authorization']);
+		$this->load->model(['Bitacora_model', 'Accion_model', 'Usuario_model']);
+		$headers = $this->input->request_headers();
+		$dataToken = AUTHORIZATION::validateToken($headers['Authorization']);
+
+		$usuario = $this->Usuario_model->buscar(['usuario' => $dataToken->idusuario, '_uno' => true]);
+		$nombreUsuario = trim("{$usuario->nombres} {$usuario->apellidos}");
+
+		$bit = new Bitacora_model();
+		$acc = $this->Accion_model->buscar(['descripcion' => 'Modificacion','_uno' => true]);
+
+		$comentario = "El usuario {$nombreUsuario} ";
+
 		if ((int)$egreso->estatus_movimiento === 1) {
+
 			$datos['exito'] = $detalle->eliminar();
 			if ($datos['exito']) {
+				$comentario .= "eliminó ";
 				$datos['mensaje'] = 'Detalle eliminado con éxito.';
 			} else {
+				$comentario .= "intentó eliminar ";
 				$datos['mensaje'] = 'Error al eliminar el detalle.';
 			}
 		} else {
-			$datos['mensaje'] = "La salida {$egreso->ingreso} ya fue confirmada. No se puede modificar.";
+			$comentario .= "intentó eliminar ";
+			$datos['mensaje'] = "La salida {$egreso->getPK()} ya fue confirmada. No se puede modificar.";
 		}
+
+		$comentario .= "el artículo {$articulo->descripcion} con cantidad {$detalle->cantidad} del egreso ".((int)$egreso->estatus_movimiento === 2 ? 'ya confirmado' : '')." No. {$egreso->getPK()}.";
+
+		$bit->guardar([
+			'accion' => $acc->accion,
+			'usuario' => $dataToken->idusuario,
+			'tabla' => 'egreso_detalle',
+			'registro' => $id,
+			'comentario' => $comentario
+		]);
 
 		$this->output->set_output(json_encode($datos));
 	}
