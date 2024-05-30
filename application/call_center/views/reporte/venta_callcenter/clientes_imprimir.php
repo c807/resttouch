@@ -31,7 +31,7 @@
 						<td><?php echo $cliente->nombre_cliente; ?></td>
 						<td><?php echo $cliente->telefono_cliente; ?></td>
 						<td><?php echo $cliente->direccion_cliente; ?></td>
-						<td><?php echo $cliente->numero_documento; ?></td>
+						<td><?php echo $cliente->nit_cliente; ?></td>
 					</tr>
 				<?php endforeach ?>
 			</tbody>

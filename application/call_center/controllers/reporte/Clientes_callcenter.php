@@ -84,7 +84,7 @@ class Clientes_callcenter extends CI_Controller
                 $hojaResumen->setCellValue("C{$pos}", $cliente->nombre_cliente);
                 $hojaResumen->setCellValue("D{$pos}", $cliente->telefono_cliente);
                 $hojaResumen->setCellValue("E{$pos}", $cliente->direccion_cliente);
-                $hojaResumen->setCellValue("F{$pos}", $cliente->numero_documento);
+                $hojaResumen->setCellValue("F{$pos}", $cliente->nit_cliente);
                 $hojaResumen->getStyle("B{$pos}:F{$pos}")->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
                 $pos++;
             }

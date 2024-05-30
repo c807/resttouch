@@ -8,7 +8,7 @@
         <form #frmEntidad="ngForm" novalidate>
           <mat-form-field class="fullWidth">
             <mat-label>Sede</mat-label>
-            <mat-select name="sede" [(ngModel)]="params.sede" (selectionChange)="onSedeSelected($event)" required>
+            <mat-select name="sede" [(ngModel)]="params.sede" (selectionChange)="onSedeSelected($event)" required multiple>
               <mat-option *ngFor="let sede of sedes" [value]="sede.sede.sede">
                 {{sede.sede.nombre}} ({{ sede.sede.alias }})
               </mat-option>
