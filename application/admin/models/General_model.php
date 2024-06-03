@@ -64,7 +64,7 @@ class General_model extends CI_Model
 
 	public function cargar($valor)
 	{
-		$this->db->where($this->_llave, $valor);
+		$this->db->where($this->_llave, (is_numeric($valor) ? (int)$valor : $valor));
 
 		$tmp = $this->db
 			->get($this->_tabla)
@@ -72,7 +72,7 @@ class General_model extends CI_Model
 
 		if ($tmp) {
 			$var = $this->_llave;
-			$this->_pk = $tmp->$var;
+			$this->_pk = is_numeric($tmp->$var) ? (int)$tmp->$var : $tmp->$var;
 			$this->setDatos($tmp);
 		}
 	}
