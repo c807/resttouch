@@ -34,7 +34,7 @@
 <service name="Api">
 <port name="ApiPort" binding="tns:ApiBinding">
 <!-- <soap:address location="https://resttouch.c807.com/api/wms.php/api"/> -->
-<soap:address location="https://resttouch.com/api/wms.php/api"/>
+<!-- <soap:address location="https://resttouch.com/api/wms.php/api"/> -->
 <!-- <soap:address location="http://localhost/resttouch/wms.php/api"/> -->
 </port>
 </service>
