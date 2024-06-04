@@ -168,7 +168,7 @@ class Conversor extends CI_Controller
 
 									$costoEgreso = $det['precio_unitario'];
 
-									$egr->setDetalle($det, $egr->egreso);
+									$egr->setDetalle($det);
 								}
 							}
 
