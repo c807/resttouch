@@ -87,8 +87,8 @@ class Conversor extends CI_Controller
 					$req['ingreso']['bodega'] = $req['egreso']['bodega'];
 				}
 
-				$req['egreso']['estatus_movimiento'] = 2;
-				$req['ingreso']['estatus_movimiento'] = 2;
+				// $req['egreso']['estatus_movimiento'] = 2;
+				$req['ingreso']['estatus_movimiento'] = 1;
 				$req['ingreso']['tipo_movimiento'] = $tipoMov;
 				$req['egreso']['tipo_movimiento'] = $tipoMov;
 
@@ -186,7 +186,7 @@ class Conversor extends CI_Controller
 
 									$costoEgreso = $det['precio_unitario'];
 
-									$egr->setDetalle($det, $egr->egreso);
+									$egr->setDetalle($det);
 
 									if ($datos_costo_egr) {
 										$nvaData = [
@@ -204,6 +204,7 @@ class Conversor extends CI_Controller
 										$nvoBac->guardar($nvaData);
 									}
 								}
+								$egr->guardar(['estatus_movimiento' => 2]);
 							}
 
 							$ing = new Ingreso_model();
@@ -290,6 +291,8 @@ class Conversor extends CI_Controller
 								}
 							}
 
+							$ing->guardar(['estatus_movimiento' => 2]);
+
 							if (count(verDato($req, 'merma', [])) > 0) {
 								$req['egreso']['bodega'] = $bodMerma->bodega;
 								$merma = new Ingreso_model();
@@ -367,6 +370,7 @@ class Conversor extends CI_Controller
 										$bac->guardar();
 									}
 								}
+								$merma->guardar(['estatus_movimiento' => 2]);
 							}
 							if ($datos['exito']) {
 								$datos['mensaje'] = 'Datos actualizados con éxito.';
