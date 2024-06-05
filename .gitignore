@@ -16,3 +16,4 @@ bitacora_*.txt
 web/src/assets/news
 .scannerwork/
 start_qa.bat
+.dccache
