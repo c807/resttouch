@@ -109,6 +109,12 @@ class Dcomanda_model extends General_Model
 		return $montoExtra;
 	}
 
+	private function fatherIsTopLevel($idFather)
+	{
+		$father = new Dcomanda_model($idFather);	
+		return $father->detalle_comanda_id === null;			
+	}
+
 	public function actualizarCantidadHijos($regresa_inventario = null, $esNuevo = false, $factor_modificacion = null)
 	{
 		$tmp = $this->db
@@ -138,7 +144,7 @@ class Dcomanda_model extends General_Model
 					$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
 					$cantidad_presentacion = round((float)$pres->cantidad, 5);
 
-					if ((int)$art->mostrar_pos === 1) {
+					if ((int)$art->mostrar_pos === 1 && $this->fatherIsTopLevel((int)$det->detalle_comanda_id)) {
 						$existencia_nueva_hijo = round((float)$datos_costo->existencia - (((float)$det->cantidad_inventario / ((float)$this->cantidad !== (float)0 ? (float)$this->cantidad : 1)) * $cantidad_presentacion), 5);
 					} else {
 						$existencia_nueva_hijo = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 5);
