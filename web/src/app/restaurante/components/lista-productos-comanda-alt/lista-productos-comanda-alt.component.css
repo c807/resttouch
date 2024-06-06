@@ -13,12 +13,12 @@
 }
 
 .first {
-  width: 48%;
+  width: 34%;
   float: left;
 }
 
 .second {
-  width: 52%;
+  width: 66%;
   overflow: hidden;
 }
 
