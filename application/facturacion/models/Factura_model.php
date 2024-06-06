@@ -2231,7 +2231,7 @@ class Factura_model extends General_model
 					'cp_ingresado' => 0,
 					'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
+					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 5),
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			} else {
@@ -2243,7 +2243,7 @@ class Factura_model extends General_model
 					'cp_ingresado' => 0,
 					'costo_promedio' => 0,
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)0 - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 2),
+					'existencia' => round((float)0 - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 5),
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			}

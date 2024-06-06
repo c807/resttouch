@@ -238,12 +238,12 @@ class Comanda_model extends General_Model
                 $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
                 if ($datos_costo) {
                     $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
-                    $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                    $cantidad_presentacion = round((float)$pres->cantidad, 5);
                     $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
-                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 2);
+                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 5);
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
                         $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : $cantResta;
-                        $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+                        $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 5);
                     }
                     $nvaData = [
                         'bodega' => (int)$args['bodega'],
@@ -311,7 +311,7 @@ class Comanda_model extends General_Model
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
-                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $cantidad_presentacion = round((float)$pres->cantidad, 5);
                             // Se comenta esta parte porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
                             // $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
                             // if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
@@ -461,12 +461,12 @@ class Comanda_model extends General_Model
                 $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($args['bodega'], (int)$art->articulo);
                 if ($datos_costo) {
                     $pres = $this->db->select('cantidad')->where('presentacion', $args['presentacion'])->get('presentacion')->row();
-                    $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                    $cantidad_presentacion = round((float)$pres->cantidad, 5);
                     // $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : (float)$args['cantidad_inventario'];
-                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 2);
+                    $existencia_nueva = round((float)$datos_costo->existencia - ($factor_modificacion * $cantidad_presentacion), 5);
                     if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
                         $factor_modificacion = isset($args['factor_modificacion']) ? (float)$args['factor_modificacion'] : $cantResta;
-                        $existencia_nueva = round((float)$datos_costo->existencia + ($factor_modificacion * $cantidad_presentacion), 2);
+                        $existencia_nueva = round((float)$datos_costo->existencia + ($factor_modificacion * $cantidad_presentacion), 5);
                     }
                     $nvaData = [
                         'bodega' => (int)$args['bodega'],
@@ -533,7 +533,7 @@ class Comanda_model extends General_Model
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bodegaR->bodega, $rec->articulo->articulo);
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $presR->presentacion)->get('presentacion')->row();
-                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
+                            $cantidad_presentacion = round((float)$pres->cantidad, 5);
                             // Se comenta esta parte porque no está guardando bien la existencia en la tabla bodega_articulo_costo. 15/04/2024.
                             // $existencia_nueva_receta = round((float)$datos_costo->existencia - ((float)$rec->cantidad * $cantidad_presentacion), 2);
                             // if (isset($args['regresa_inventario']) && $args['regresa_inventario']) {
@@ -1192,8 +1192,8 @@ class Comanda_model extends General_Model
                         $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$bodegaDestino->bodega, (int)$art->articulo);
                         if ($datos_costo) {
                             $pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-                            $cantidad_presentacion = round((float)$pres->cantidad, 2);
-                            $existencia_nueva = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 2);
+                            $cantidad_presentacion = round((float)$pres->cantidad, 5);
+                            $existencia_nueva = round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * $cantidad_presentacion), 5);
                             $nvaData = [
                                 'bodega' => (int)$bodegaDestino->bodega,
                                 'articulo' => (int)$art->articulo,

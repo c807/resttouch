@@ -228,9 +228,9 @@ class Conversor extends CI_Controller
 
 									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $det['articulo']);
 									if ($datos_costo) {
-										$cantidad_presentacion = round((float)$pres->cantidad, 2);
+										$cantidad_presentacion = round((float)$pres->cantidad, 5);
 										$precio_unitario = round((float)$det['precio_unitario'], 5);
-										$existencia_anterior = round((float)$datos_costo->existencia, 2);
+										$existencia_anterior = round((float)$datos_costo->existencia, 5);
 										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
@@ -570,9 +570,9 @@ class Conversor extends CI_Controller
 
 									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ingr->bodega, $art->getPK());
 									if ($datos_costo) {
-										$cantidad_presentacion = round((float)$pres->cantidad, 2);
+										$cantidad_presentacion = round((float)$pres->cantidad, 5);
 										$precio_unitario = round((float)$det['precio_unitario'], 5);
-										$existencia_anterior = round((float)$datos_costo->existencia, 2);
+										$existencia_anterior = round((float)$datos_costo->existencia, 5);
 										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
 										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
