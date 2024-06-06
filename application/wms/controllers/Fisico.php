@@ -553,8 +553,8 @@ class Fisico extends CI_Controller
 
 								$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $row->articulo);
 								if ($datos_costo) {
-									$cantidad_presentacion = round((float)$pres->cantidad, 2);									
-									$existencia_anterior = round((float)$datos_costo->existencia, 2);
+									$cantidad_presentacion = round((float)$pres->cantidad, 5);									
+									$existencia_anterior = round((float)$datos_costo->existencia, 5);
 									$existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);									
 
 									$nvaData = [

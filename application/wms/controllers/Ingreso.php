@@ -291,12 +291,12 @@ class Ingreso extends CI_Controller
 					$idArticulo = $det->articulo->articulo;
 					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $idArticulo);
 					#07/11/2023 08:47 Si no hay datos_costo se asumirá que es un ingreso nuevo en la bodega y lo agregará como nueva línea.
-					$cantidad_presentacion = round((float)$pres->cantidad, 2);
+					$cantidad_presentacion = round((float)$pres->cantidad, 5);
 					$precio_unitario = round((float)$det->precio_unitario, 5);
 					$existencia_anterior = (float)0;
 					$cp_unitario_anterior = (float)0;
 					if ($datos_costo) {						
-						$existencia_anterior = round((float)$datos_costo->existencia, 2);
+						$existencia_anterior = round((float)$datos_costo->existencia, 5);
 						$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
 					} 
 					$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);

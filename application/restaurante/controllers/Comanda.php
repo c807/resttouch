@@ -1034,8 +1034,8 @@ class Comanda extends CI_Controller
 							$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$det->bodega, (int)$det->articulo);
 							if ($datos_costo) {
 								$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-								$cantidad_presentacion = round((float)$pres->cantidad, 2);
-								$existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 2);
+								$cantidad_presentacion = round((float)$pres->cantidad, 5);
+								$existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 5);
 
 								$nvaData = [
 									'bodega' => (int)$det->bodega,
