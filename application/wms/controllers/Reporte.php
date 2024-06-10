@@ -186,7 +186,10 @@ class Reporte extends CI_Controller
 						];
 	
 						$hoja->fromArray($reg, null, "A{$fila}");
-						$hoja->getStyle("D{$fila}:L{$fila}")->getNumberFormat()->setFormatCode('0.00');
+						$hoja->getStyle("D{$fila}:E{$fila}")->getNumberFormat()->setFormatCode('0.00');
+						$hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00000');
+						$hoja->getStyle("G{$fila}:K{$fila}")->getNumberFormat()->setFormatCode('0.00');
+						$hoja->getStyle("L{$fila}")->getNumberFormat()->setFormatCode('0.00000');
 						$fila++;
 					}
 				}
