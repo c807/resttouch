@@ -105,12 +105,13 @@ import { FormNotaPredefinidaComponent } from './components/nota-predefinida/form
 import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lista-nota-predefinida/lista-nota-predefinida.component';
 import { ArticulosEliminadosComponent } from './components/reportes/articulos-eliminados/articulos-eliminados.component';
 import { DialogTurnoComponent } from './components/turno/dialog-turno/dialog-turno.component';
+import { PorArticuloComandadoComponent } from './components/reportes/rpt-ventas/por-articulo-comandado/por-articulo-comandado.component';
 
 @NgModule({
   declarations: [
     TranAreasComponent, MesaComponent, AbrirMesaComponent, TranComandaComponent, ListaProductosComandaComponent, UnirCuentaComponent,
     ListaAreaComponent, FormAreaComponent, AreaComponent, PideDatosCuentasComponent, TurnoComponent, ListaTurnoComponent,
-    FormTurnoComponent, AreaDesignerComponent, RptVentasComponent, PorCategoriaComponent, PorArticuloComponent, TurnosComponent,
+    FormTurnoComponent, AreaDesignerComponent, RptVentasComponent, PorArticuloComandadoComponent, PorCategoriaComponent, PorArticuloComponent, TurnosComponent,
     PropinasComponent, ComandaEnLineaComponent, CajaComponent, FacturaComponent, ListaTurnoTipoComponent, FormTurnoTipoComponent,
     TurnoTipoComponent, PropinaComponent, FormPropinaComponent, ListaPropinaComponent, AutoconsultaComponent,
     CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
