@@ -259,6 +259,11 @@ $config['menu'] = [
 						'nombre' => 'Artículos eliminados',
 						'link' => '/restaurante/rptartelim',
 						'dispositivo' => 1
+					],
+					10 => [
+						'nombre' => 'Ventas por artículos comandados',
+						'link' => '/restaurante/rptvtasartcoman',
+						'dispositivo' => 1
 					]
 				]
 			],
@@ -527,6 +532,11 @@ $config['menu'] = [
 					3 => [
 						'nombre' => 'Motoristas',
 						'link' => '/callcenter/rptmotoristas',
+						'dispositivo' => 1
+					],
+					4 => [
+						'nombre' => 'Clientes',
+						'link' => '/callcenter/rptclientes',
 						'dispositivo' => 1
 					]
 				]

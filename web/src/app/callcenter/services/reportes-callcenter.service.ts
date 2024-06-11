@@ -36,4 +36,22 @@ export class ReportesCallcenter {
 
 	}
 
+	generar_archivo_clientes(fltr: any = {}) {
+
+		const httpOptions = {
+			headers: new HttpHeaders({
+				Accept: 'application/pdf'
+			}),
+			responseType: 'blob' as 'json'
+		};
+
+		return this.http.post<string>(
+			`${GLOBAL.urlCallCenter}/reporte/clientes_callcenter/generar_archivo?${qs.stringify(fltr)}`,
+			fltr,
+			httpOptions
+			).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+
+
+	}
+
 }

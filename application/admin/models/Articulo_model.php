@@ -314,7 +314,7 @@ class Articulo_model extends General_model
 		}
 
 		if ($datos_existencia) {
-			return round((float)$datos_existencia->existencia, 2);
+			return round((float)$datos_existencia->existencia, 5);
 		} else {
 			$pres = $this->getPresentacionReporte();
 			if (isset($args['sede'])) {

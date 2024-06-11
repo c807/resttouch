@@ -21,12 +21,14 @@ import { ComandaComponent } from './components/reportes/comanda/comanda.componen
 import { VentasAdminComponent } from './components/reportes/ventas-admin/ventas-admin.component';
 import { NotaPredefinidaComponent } from './components/nota-predefinida/nota-predefinida/nota-predefinida.component';
 import { ArticulosEliminadosComponent } from './components/reportes/articulos-eliminados/articulos-eliminados.component';
+import { PorArticuloComandadoComponent } from './components/reportes/rpt-ventas/por-articulo-comandado/por-articulo-comandado.component';
 
 const routes: Routes = [
   { path: 'mantareas', component: AreaComponent, canActivate: [AuthGuard] },
   { path: 'tranareas', component: TranAreasComponent, canActivate: [AuthGuard] },
   { path: 'turno', component: TurnoComponent, canActivate: [AuthGuard] },
   { path: 'rptvtascat', component: RptVentasComponent, canActivate: [AuthGuard] },
+  { path: 'rptvtasartcoman', component: PorArticuloComandadoComponent, canActivate: [AuthGuard] },
   { path: 'rptturnos', component: TurnosComponent, canActivate: [AuthGuard] },
   { path: 'rptpropinas', component: PropinasComponent, canActivate: [AuthGuard] },
   { path: 'rptcaja', component: CajaComponent, canActivate: [AuthGuard]},

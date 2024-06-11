@@ -334,6 +334,8 @@ class Api extends CI_Controller
 											$descuento = 0;
 											$pdescuento = 0;
 
+											$pDescuentoEnvio = (float)0;
+
 											if (count($descuentoArticulo) == 0) {
 												if (isset($req['discount_applications']) && is_array($req['discount_applications'])) {
 													if($aplicaDescuentosAEnvio) {
@@ -343,10 +345,15 @@ class Api extends CI_Controller
 													}
 													if (count($req['discount_applications']) > 0) {
 														foreach ($req['discount_applications'] as $descDA) {
-															$targetType = isset($desc['target_type']) ? strtolower($desc['target_type']) : '';
+															$targetType = isset($descDA['target_type']) ? strtolower($descDA['target_type']) : '';
 															if (strtolower($descDA['value_type']) == 'percentage' && $targetType !== 'shipping_line') {
 																$descuento += ($totalProd * $descDA['value'] / 100);
 																$pdescuento += $descDA['value'];
+															} 
+															else if(strcasecmp($targetType, 'shipping_line') === (int)0) {
+																if(strcasecmp($descDA['value_type'], 'percentage') === (int)0) {
+																	$pDescuentoEnvio += (float)$descDA['value'];
+																}																
 															}
 														}
 
@@ -407,10 +414,15 @@ class Api extends CI_Controller
 														$artTmp = new Articulo_model($det->articulo);
 														$det->total_ext = $det->total;
 
-														if (strcasecmp(trim($artTmp->descripcion), 'Entrega') != 0 || (strcasecmp(trim($artTmp->descripcion), 'Entrega') == 0 && $aplicaDescuentosAEnvio)) {
+														$esArticuloEntrega = strcasecmp(trim($artTmp->descripcion), 'Entrega') == 0;
+														$valorPDescuentoEnvio = (float)$pDescuentoEnvio / (float)100;
+
+														if (!$esArticuloEntrega || ($esArticuloEntrega && $aplicaDescuentosAEnvio)) {
 															if (count($descuentoArticulo) == 0) {
-																$det->descuento = $det->total * $pdescuento;
-																$det->descuento_ext = $det->total_ext * $pdescuento;
+																// $det->descuento = $det->total * $pdescuento;
+																$det->descuento = $det->total * ((float)$pDescuentoEnvio !== (float)0 && $esArticuloEntrega ? $valorPDescuentoEnvio : $pdescuento);
+																// $det->descuento_ext = $det->total_ext * $pdescuento;
+																$det->descuento_ext = $det->total_ext * ((float)$pDescuentoEnvio !== (float)0 && $esArticuloEntrega ? $valorPDescuentoEnvio : $pdescuento);
 															} else {
 																$det->descuento = 0;
 																foreach ($descuentoArticulo as $desc) {

@@ -12,6 +12,7 @@ import { RepartidorComponent } from './components/repartidor/repartidor/repartid
 import { RtpPedidosComponent } from "./components/reportes/pedidos-sede/rpt_pedidos_sede.component";
 import { VentaCallcenterComponent } from './components/reportes/venta-callcenter/venta-callcenter.component';
 import { MotoristasComponent } from './components/reportes/motoristas/motoristas.component';
+import { ClientesComponent } from './components/reportes/clientes/clientes.component';
 
 const routes: Routes = [
   { path: 'tipo_direccion', component: TipoDireccionComponent, canActivate: [AuthGuard] },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'rpt_pedidos_sede', component: RtpPedidosComponent, canActivate: [AuthGuard] },
   { path: 'venta_callcenter', component: VentaCallcenterComponent, canActivate: [AuthGuard] },
   { path: 'rptmotoristas', component: MotoristasComponent, canActivate: [AuthGuard] },
+  { path: 'rptclientes', component: ClientesComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '/admin/dashboard', pathMatch: 'full' }
 ];
 
