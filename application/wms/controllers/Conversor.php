@@ -197,7 +197,7 @@ class Conversor extends CI_Controller
 											'cp_ingresado' => 0,
 											'costo_promedio' => round((float)$datos_costo_egr->costo_promedio, 5),
 											'existencia_ingresada' => 0,
-											'existencia' => round((float)$datos_costo_egr->existencia - ((float)$det['cantidad'] * (float)$pres->cantidad), 2),
+											'existencia' => round((float)$datos_costo_egr->existencia - ((float)$det['cantidad'] * (float)$pres->cantidad), 5),
 											'fecha' => date('Y-m-d H:i:s')
 										];
 										$nvoBac = new BodegaArticuloCosto_model();
@@ -548,7 +548,7 @@ class Conversor extends CI_Controller
 												'cp_ingresado' => 0,
 												'costo_promedio' => round((float)$datos_costo_egr->costo_promedio, 5),
 												'existencia_ingresada' => 0,
-												'existencia' => round((float)$datos_costo_egr->existencia - ((float)$row->cantidad * (float)$presR->cantidad), 2),
+												'existencia' => round((float)$datos_costo_egr->existencia - ((float)$row->cantidad * (float)$presR->cantidad), 5),
 												'fecha' => date('Y-m-d H:i:s')
 											];
 											$nvoBac = new BodegaArticuloCosto_model();
