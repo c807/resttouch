@@ -173,12 +173,18 @@ class Reporte_model extends CI_Model
 				}
 			}
 
+			if (isset($args['turno_tipo'])) {
+				$this->db->where("f.turno_tipo", $args['turno_tipo']);
+			}
+
 			$query = $this->db
 				->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total + IFNULL(b.valor_impuesto_especial, 0)) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				// ->select('a.factura, a.serie_factura, a.numero_factura, a.fecha_factura, SUM(b.total) AS monto, 0.00 AS propina, NULL AS documento, 2 AS estatus_comanda', FALSE)
 				->join('detalle_factura b', 'a.factura = b.factura')
 				->join('articulo c', 'c.articulo = b.articulo')
 				->join('detalle_factura_detalle_cuenta d', 'b.detalle_factura = d.detalle_factura', 'left')
+				->join('factura_fel e', 'e.factura = a.factura')
+				->join('turno f', 'e.fecha between f.inicio and f.fin and f.sede = a.sede', 'left', false)
 				->where('a.fel_uuid IS NOT NULL')
 				->where('a.fel_uuid_anulacion IS NULL')
 				->where('d.detalle_factura_detalle_cuenta IS NULL')

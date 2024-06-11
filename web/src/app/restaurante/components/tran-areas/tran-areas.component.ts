@@ -23,6 +23,7 @@ import { ComandaService } from '@restaurante-services/comanda.service';
 import { ConfiguracionService } from '@admin-services/configuracion.service';
 import { Cliente } from '@admin-interfaces/cliente';
 import { ClienteMaster } from '@callcenter-interfaces/cliente-master';
+import { UsuarioService } from '@admin-services/usuario.service';
 
 import { NotificacionClienteService } from '@admin-services/notificacion-cliente.service';
 import { NotificacionCliente } from '@admin-interfaces/notificacion-cliente';
@@ -47,6 +48,10 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.onlineSrvc.isOnline$.value;
   }
 
+  get esCajero() {
+    return this.rolesUsuario.indexOf('cajero') > -1;
+  }
+
   public divSize: any = { h: 0, w: 0 };
   public openedRightPanel: boolean;
   public cargando = false;
@@ -62,6 +67,7 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   public configTipoPantalla = 1;
   public clientePedido: (Cliente | ClienteMaster) = null;
   public bloqueoMesaPorMesero = false;
+  public rolesUsuario = '';
 
   private endSubs = new Subscription();
 
@@ -75,11 +81,13 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
     private socket: Socket,
     private onlineSrvc: OnlineService,
     private notificacionClienteSrvc: NotificacionClienteService,
-    private turnoSrvc: TurnoService
+    private turnoSrvc: TurnoService,
+    private usuarioSrvc: UsuarioService,
   ) { }
 
   ngOnInit() {
     this.checkTurnoAbierto();
+    this.loadRolesUsuario();
     this.loadAreas();
     this.resetMesaSeleccionada();
     if (!!this.ls.get(GLOBAL.usrTokenVar).sede_uuid) {
@@ -106,6 +114,8 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     // this.endSubs.unsubscribe();
   }
+
+  loadRolesUsuario = () => this.usuarioSrvc.getRolesTurno(this.ls.get(GLOBAL.usrTokenVar).idusr).subscribe(res => this.rolesUsuario = res.roles);
 
   actualizar = () => {
     // console.log('MESA SELECCIONADA = ', this.mesaSeleccionada);
@@ -570,6 +580,10 @@ export class TranAreasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   usuarioIgualAlMesero = async(m: any): Promise<boolean> => {
     let permitir = true;
+
+    if (this.esCajero) {
+      return true;
+    }
 
     if (this.bloqueoMesaPorMesero) {
       if (+this.ls.get(GLOBAL.usrTokenVar).idusr === +m.mesero.usuario) {

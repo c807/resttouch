@@ -22,7 +22,8 @@ class Venta extends CI_Controller
 			'Sede_model',
 			'Configuracion_model',
 			'Rpt_model',
-			'Sede_model'
+			'Sede_model',
+			'Rpt_articulo_comandado_model'
 		]);
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -1055,6 +1056,129 @@ class Venta extends CI_Controller
 			}
 		}
 	}
+
+	public function ventas_articulo_comandados()
+	{
+    if ($this->input->method() == 'post') {
+        $req = json_decode(file_get_contents('php://input'), true);
+
+        $args = [
+            'sede' => isset($req['sede']) ? $req['sede'] : null,
+            'turno_tipo' => isset($req['turno_tipo']) ? $req['turno_tipo'] : null,
+            'fdel' => isset($req['fdel']) ? $req['fdel'] : null,
+            'fal' => isset($req['fal']) ? $req['fal'] : null,
+        ];
+
+        $data = $this->Rpt_articulo_comandado_model->get_comandas_con_detalle($args);
+
+        if (isset($req['_excel']) && $req['_excel']) {
+            $excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $excel->getProperties()
+                ->setCreator('Restouch')
+                ->setTitle('Office 2007 xlsx Ventas por artículos Comandados')
+                ->setSubject('Office 2007 xlsx Ventas por artículos Comandados')
+                ->setKeywords('office 2007 openxml php');
+
+            $excel->setActiveSheetIndex(0);
+            $hoja = $excel->getActiveSheet();
+
+            $hoja->setCellValue('A1', 'Ventas por Artículos Comandados');
+            $hoja->mergeCells('A1:D1');
+            $hoja->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+            $hoja->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+						if (isset($args['turno_tipo']) && !is_null($args['turno_tipo']) && $args['turno_tipo'] > 0) {
+							$turno_descripcion = count($data) > 0 ? $data[0]->turno_tipo : $args['turno_tipo'];
+							$hoja->setCellValue('A2', 'Turno: ' . $turno_descripcion);
+						} else {
+							$hoja->setCellValue('A2', '');
+						}
+            $hoja->setCellValue('A3', 'Del: ' . date('d/m/Y', strtotime($args['fdel'])));
+            $hoja->setCellValue('A4', 'Al: ' . date('d/m/Y', strtotime($args['fal'])));
+            $hoja->mergeCells('A2:D2');
+            $hoja->mergeCells('A3:D3');
+            $hoja->mergeCells('A4:D4');
+
+            $hoja->setCellValue('A7', 'Sede');
+            $hoja->setCellValue('B7', 'Descripción');
+            $hoja->setCellValue('C7', 'Cantidad');
+            $columna = 'D';
+            $hoja->setCellValue("{$columna}7", 'Total (sin desct., sin propina)');
+
+            $hoja->getStyle('A7:B7')->getAlignment()->setHorizontal('center');
+            $hoja->getStyle("C7:{$columna}7")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("A7:{$columna}7")->getFont()->setBold(true);
+
+            $fila = 8;
+						$totalGeneral = 0;
+            foreach ($data as $comanda) {
+                foreach ($comanda->detalle as $detalle) {
+                    $hoja->setCellValue("A{$fila}", $comanda->sede);
+                    $hoja->setCellValue("B{$fila}", $detalle->articulo);
+                    $hoja->setCellValue("C{$fila}", (float)$detalle->cantidad);
+                    $hoja->setCellValue("{$columna}{$fila}", (float)$detalle->total);
+										$totalGeneral += (float)$detalle->total;
+                    $fila++;
+                }
+            }
+
+						$fila++;
+            $hoja->setCellValue("C{$fila}", 'Total General:');
+            $hoja->setCellValue("{$columna}{$fila}", $totalGeneral);
+						$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
+            $hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+            $hoja->getStyle("{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+
+            $hoja->getStyle("C8:{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+            $hoja->getStyle("A7:{$columna}{$fila}")->getBorders()->getAllBorders()
+                ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+                ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+
+            foreach (range('A', $columna) as $col) {
+                $hoja->getColumnDimension($col)->setAutoSize(true);
+            }
+
+            $fila += 3;
+            $hoja->setCellValue("A{$fila}", 'NOTA: Se incluyen todos los artículos en comanda, menos los eliminados');
+            $hoja->mergeCells("A{$fila}:{$columna}{$fila}");
+            $hoja->getStyle("A{$fila}")->getAlignment()->setWrapText(true);
+
+            $hoja->setTitle('Ventas por artículos Comandados');
+
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename=Ventas_por_Articulos_Comandados.xls');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
+
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+            $writer->save('php://output');
+        } else {
+
+					$turno_descripcion = isset($args['turno_tipo']) && !is_null($args['turno_tipo']) && $args['turno_tipo'] > 0 ? (count($data) > 0 ? $data[0]->turno_tipo : $args['turno_tipo']) : 'Todos los turnos';
+					$vista_data = [
+							'data' => $data,
+							'turno' => $turno_descripcion,
+							'fdel' => date('d/m/Y', strtotime($args['fdel'])),
+							'fal' => date('d/m/Y', strtotime($args['fal'])),
+							'totalGeneral' => $totalGeneral
+					];
+
+          $vista = $this->load->view('reporte/venta/articulo_comandado', $vista_data, true);
+
+        	$mpdf = new \Mpdf\Mpdf([
+            'tempDir' => sys_get_temp_dir(),
+            'format' => 'A4'
+          ]);
+
+          $mpdf->WriteHTML($vista);
+          $mpdf->Output('Ventas_articulo_comandado.pdf', 'D');
+      }
+    }
+	}
+
 
 	private function get_idx($datos, $campo, $id)
 	{

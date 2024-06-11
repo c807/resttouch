@@ -93,4 +93,20 @@ export class ReporteVentasService {
       httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
+
+  porArticuloComandado(params: Object) {
+    const httpOptions = {
+      headers: new HttpHeaders({        
+        Accept: 'application/pdf'
+      }),
+      responseType: 'blob' as 'json'
+    };
+
+    return this.http.post<string>(
+      `${GLOBAL.urlFacturacion}/${this.moduleUrl}/ventas_articulo_comandados`,
+      params,
+      httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+  
 }
