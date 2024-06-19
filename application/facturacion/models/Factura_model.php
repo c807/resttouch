@@ -1137,7 +1137,8 @@ class Factura_model extends General_model
 	public function enviarCofidi($args = [])
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		// $nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit; // Cambio para Cofidi 18/06/2024 18:17.
+		$nit = trim($this->empresa->nit);
 		$datos = array(
 			'Requestor' => $this->certificador->llave,
 			'Transaction' => $this->certificador->firma_codigo,
