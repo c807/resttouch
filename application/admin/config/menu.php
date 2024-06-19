@@ -264,6 +264,11 @@ $config['menu'] = [
 						'nombre' => 'Ventas por artículos comandados',
 						'link' => '/restaurante/rptvtasartcoman',
 						'dispositivo' => 1
+					],
+					11 => [
+						'nombre' => 'Ventas por habitación de hotel',
+						'link' => '/restaurante/rptvtasporhab',
+						'dispositivo' => 1
 					]
 				]
 			],
