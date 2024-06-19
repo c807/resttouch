@@ -150,7 +150,8 @@ class Cliente extends CI_Controller
 			} else if ($cer->metodo_factura === 'enviarCofidi') {
 				$tmp->sede = $sede->sede;
 				$tmp->cargarEmpresa();
-				$nitEmisor = str_repeat('0', 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				// $nitEmisor = str_repeat('0', 12 - strlen($tmp->empresa->nit)) . $tmp->empresa->nit;
+				$nitEmisor = trim($tmp->empresa->nit);
 
 				$url = "https://portal.cofidiguatemala.com/NITFEL/ConsultaNIT.asmx/getNIT?vNIT={$nit}&Entity={$nitEmisor}&Requestor={$cer->llave}";
 
