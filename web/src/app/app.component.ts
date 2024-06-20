@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { AccesoUsuario } from './admin/interfaces/acceso-usuario';
 import { OnlineService } from './shared/services/online.service';
 import { ConfirmDialogModel, ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
+import { MainSidenavService } from '@shared-services/mainsidenav.service';
 
 import { Subscription } from 'rxjs';
 
@@ -19,12 +20,12 @@ import { Subscription } from 'rxjs';
 export class AppComponent implements OnInit, OnDestroy {
 
   @HostListener('window:keydown.F5', ['$event'])
-  handleF5KeyDown(event: KeyboardEvent) {    
+  handleF5KeyDown(event: KeyboardEvent) {
     event.preventDefault();
   }
 
   @HostListener('window:keydown.Shift.Control.Alt.m', ['$event'])
-  navegarAlMonitorDeClientes(event: KeyboardEvent) {    
+  navegarAlMonitorDeClientes(event: KeyboardEvent) {
     this.router.navigate(['/admin/monitor_cliente']);
     event.preventDefault();
   }
@@ -44,8 +45,21 @@ export class AppComponent implements OnInit, OnDestroy {
     private usrSrvc: UsuarioService,
     private router: Router,
     private onlineSrvc: OnlineService,
+    private mainSidenavSrvc: MainSidenavService,
     public dialog: MatDialog
-  ) { }
+  ) {
+    this.endSubs.add(
+      this.mainSidenavSrvc.getState().subscribe((isOpen) => {
+        if (this.sidenav) {
+          if (isOpen) {
+            this.sidenav.open();
+          } else {
+            this.sidenav.close();
+          }
+        }
+      })
+    );
+  }
 
   async ngOnInit() {
     if (window.addEventListener) {
@@ -56,7 +70,7 @@ export class AppComponent implements OnInit, OnDestroy {
     await this.checkIfUserIsLogged();
   }
 
-  ngOnDestroy(): void {    
+  ngOnDestroy(): void {
     if (window.addEventListener) {
       window.removeEventListener('storage', this.storageListener, false);
     }
@@ -97,16 +111,16 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleSidenav() {    
+  toggleSidenav() {
     this.sidenav.toggle();
   }
 
-  storageListener = (e: StorageEvent) => {    
+  storageListener = (e: StorageEvent) => {
     if (e.key == 'rt_openpages') {
       // Listen if anybody else is opening the same page!
       this.ls.set('rt_page_available', Date.now(), false);
     }
-    if (e.key == 'rt_page_available') {      
+    if (e.key == 'rt_page_available') {
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
         maxWidth: '400px', disableClose: true,
         data: new ConfirmDialogModel(
@@ -115,10 +129,10 @@ export class AppComponent implements OnInit, OnDestroy {
           'Ok', null, null, true, true
         )
       });
-  
+
       this.endSubs.add(
         dialogRef.afterClosed().subscribe(() => {
-          window.location.href = 'https://posguatemala.com';          
+          window.location.href = 'https://posguatemala.com';
         })
       );
     }
