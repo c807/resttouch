@@ -25,10 +25,10 @@
                         </small>
                     </mat-card-subtitle>
                     <mat-card-content align="center">
-                        <h3>{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
-                            +dataPorSedeFecha.formas_pago.total_ingresos_propina +
-                            +dataPorSedeFecha.formas_pago.total_descuentos_monto +
-                            +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2'}}</h3>
+                        <h3>{{(+dataPorSedeFecha.formas_pago?.total_ingresos_monto +
+                            +dataPorSedeFecha.formas_pago?.total_ingresos_propina +
+                            +dataPorSedeFecha.formas_pago?.total_descuentos_monto +
+                            +dataPorSedeFecha.formas_pago?.total_descuentos_propina) | number:'1.2-2'}}</h3>
                     </mat-card-content>
                     <mat-card-footer align="center">
                         Incluye propina e I.V.A. sin restar los descuentos.
@@ -42,9 +42,9 @@
                         </small>
                     </mat-card-subtitle>
                     <mat-card-content align="center">
-                        <h3>{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
-                            +dataPorSedeFecha.formas_pago.total_ingresos_propina +
-                            +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2'}}
+                        <h3>{{(+dataPorSedeFecha.formas_pago?.total_ingresos_monto +
+                            +dataPorSedeFecha.formas_pago?.total_ingresos_propina +
+                            +dataPorSedeFecha.formas_pago?.total_descuentos_propina) | number:'1.2-2'}}
                         </h3>
                     </mat-card-content>
                     <mat-card-footer align="center">
@@ -106,36 +106,36 @@
                         <table>
                             <tr>
                                 <th class="rtxt">INGRESOS SIN I.V.A.</th>
-                                <td class="rtxt">{{((+dataPorSedeFecha.formas_pago.total_ingresos_monto +
-                                                    +dataPorSedeFecha.formas_pago.total_ingresos_propina +
-                                                    +dataPorSedeFecha.formas_pago.total_descuentos_propina)/1.12) | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{((+dataPorSedeFecha.formas_pago?.total_ingresos_monto +
+                                                    +dataPorSedeFecha.formas_pago?.total_ingresos_propina +
+                                                    +dataPorSedeFecha.formas_pago?.total_descuentos_propina)/1.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">I.V.A.</th>
-                                <td class="rtxt">{{(((+dataPorSedeFecha.formas_pago.total_ingresos_monto +
-                                                     +dataPorSedeFecha.formas_pago.total_ingresos_propina +
-                                                     +dataPorSedeFecha.formas_pago.total_descuentos_propina)/1.12)*0.12) | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{(((+dataPorSedeFecha.formas_pago?.total_ingresos_monto +
+                                                     +dataPorSedeFecha.formas_pago?.total_ingresos_propina +
+                                                     +dataPorSedeFecha.formas_pago?.total_descuentos_propina)/1.12)*0.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">PROPINA</th>
                                 <td class="rtxt">
                                     <ng-container *ngIf="dataPorSedeFecha.formas_pago">
-                                        {{(+dataPorSedeFecha.formas_pago.total_ingresos_propina +
-                                        +dataPorSedeFecha.formas_pago.total_descuentos_propina) | number:'1.2-2' }}
+                                        {{(+dataPorSedeFecha.formas_pago?.total_ingresos_propina +
+                                        +dataPorSedeFecha.formas_pago?.total_descuentos_propina) | number:'1.2-2' }}
                                     </ng-container>
                                 </td>
                             </tr>
                             <tr>
                                 <th class="rtxt">INGRESOS CON IVA</th>
-                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto) | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago?.total_ingresos_monto) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">INGRESOS NETOS (Sin propina y sin I.V.A.)</th>
-                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto / 1.12) | number:'1.2-2'}}</td>
+                                <td class="rtxt">{{(+dataPorSedeFecha.formas_pago?.total_ingresos_monto / 1.12) | number:'1.2-2'}}</td>
                             </tr>
                             <tr>
                                 <th class="rtxt">DESCUENTOS</th>
-                                <td class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_monto |
+                                <td class="rtxt">{{dataPorSedeFecha.formas_pago?.total_descuentos_monto |
                                     number:'1.2-2'}}</td>
                             </tr>
                         </table>
@@ -220,7 +220,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let fpi of dataPorSedeFecha.formas_pago.ingresos">
+                                        <tr *ngFor="let fpi of dataPorSedeFecha.formas_pago?.ingresos">
                                             <td>{{fpi.forma_pago}}</td>
                                             <td class="rtxt">{{fpi.monto | number:'1.2-2'}}</td>
                                             <td class="rtxt">{{fpi.propina | number:'1.2-2'}}</td>
@@ -229,15 +229,15 @@
                                     <tfoot>
                                         <tr>
                                             <th class="rtxt">SUBTOTAL INGRESOS</th>
-                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_ingresos_monto |
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago?.total_ingresos_monto |
                                                 number:'1.2-2'}}</th>
-                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_ingresos_propina |
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago?.total_ingresos_propina |
                                                 number:'1.2-2'}}</th>
                                         </tr>
                                         <tr>
                                             <th colspan="2" class="rtxt">TOTAL INGRESOS</th>
-                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_ingresos_monto +
-                                                +dataPorSedeFecha.formas_pago.total_ingresos_propina) | number:'1.2-2'}}
+                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago?.total_ingresos_monto +
+                                                +dataPorSedeFecha.formas_pago?.total_ingresos_propina) | number:'1.2-2'}}
                                             </th>
                                         </tr>
                                     </tfoot>
@@ -258,7 +258,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let fpd of dataPorSedeFecha.formas_pago.descuentos">
+                                        <tr *ngFor="let fpd of dataPorSedeFecha.formas_pago?.descuentos">
                                             <td>{{fpd.forma_pago}}</td>
                                             <td class="rtxt">{{fpd.monto | number:'1.2-2'}}</td>
                                             <td class="rtxt">{{fpd.propina | number:'1.2-2'}}</td>
@@ -267,15 +267,15 @@
                                     <tfoot>
                                         <tr>
                                             <th class="rtxt">SUBTOTAL DESCUENTOS</th>
-                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_monto |
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago?.total_descuentos_monto |
                                                 number:'1.2-2'}}</th>
-                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago.total_descuentos_propina |
+                                            <th class="rtxt">{{dataPorSedeFecha.formas_pago?.total_descuentos_propina |
                                                 number:'1.2-2'}}</th>
                                         </tr>
                                         <tr>
                                             <th colspan="2" class="rtxt">TOTAL DESCUENTOS</th>
-                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago.total_descuentos_monto +
-                                                +dataPorSedeFecha.formas_pago.total_descuentos_propina) |
+                                            <th class="rtxt">{{(+dataPorSedeFecha.formas_pago?.total_descuentos_monto +
+                                                +dataPorSedeFecha.formas_pago?.total_descuentos_propina) |
                                                 number:'1.2-2'}}</th>
                                         </tr>
                                 </table>
