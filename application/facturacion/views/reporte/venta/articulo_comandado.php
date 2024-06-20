@@ -29,12 +29,8 @@
 			<div class="table-responsive">
 				<table class="table table-bordered" style="padding: 5px">
 					<thead>
-						<?php if (count($data) > 0): ?>
 							<tr>
-								<th colspan="3" class="text-center bold" style="padding: 5px;"><?php echo $data[0]->sede; ?></th>
-							</tr>
-						<?php endif; ?>
-							<tr>
+								<th style="padding: 5px;" class="text-center">Sede</th>
 								<th style="padding: 5px;" class="text-center">Descripción</th>
 								<th style="padding: 5px;" class="text-center">Cantidad</th>
 								<th style="padding: 5px;" class="text-center">Total (sin desct., sin propina)</th>
@@ -42,15 +38,14 @@
 						</thead>
 						<tbody>
 							<?php $totalGeneral = 0; ?>
-								<?php foreach ($data as $comanda) : ?>
-									<?php foreach ($comanda->detalle as $detalle) : ?>
-										<tr>
-											<td style="padding: 5px;" class="text-left"><?php echo $detalle->articulo; ?></td>
-											<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->cantidad, 2); ?></td>
-											<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->total, 2); ?></td>
-										</tr>
-									<?php $totalGeneral += $detalle->total; ?>
-								<?php endforeach; ?>
+								<?php foreach ($data as $detalle) : ?>
+									<tr>
+										<td style="padding: 5px;" class="text-left"><?php echo $detalle->sede; ?></td>
+										<td style="padding: 5px;" class="text-left"><?php echo $detalle->articulo; ?></td>
+										<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->cantidad, 2); ?></td>
+										<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->total, 2); ?></td>
+									</tr>
+								<?php $totalGeneral += $detalle->total; ?>
 							<?php endforeach; ?>
 						</tbody>
 						<tfoot>
@@ -62,7 +57,7 @@
 					</table>
 				</div>
 			<div>
-					<span>NOTA: Se incluyen todos los artículos en comanda, menos los eliminados.</span>
+					<span>NOTA: Ventas con base a lo comandado y no a lo facturado</span>
 			</div>
 	</body>
 </html>
