@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, HostListener, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSidenav } from '@angular/material/sidenav';
 import { LocalstorageService } from './admin/services/localstorage.service';
 import { GLOBAL, isAllowedUrl } from './shared/global';
 import { UsuarioService } from './admin/services/usuario.service';
@@ -28,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
     event.preventDefault();
   }
 
-  @ViewChild('sidenav') sidenav: any;
+  @ViewChild('sidenav') sidenav: MatSidenav;
 
   title = 'Rest-Touch';
   isLogged: boolean = false;
@@ -96,7 +97,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleSidenav() {
+  toggleSidenav() {    
     this.sidenav.toggle();
   }
 
@@ -120,6 +121,12 @@ export class AppComponent implements OnInit, OnDestroy {
           window.location.href = 'https://posguatemala.com';          
         })
       );
+    }
+  }
+
+  openSideNavIfClosed() {
+    if (!this.sidenav.opened) {
+      this.sidenav.open();
     }
   }
 
