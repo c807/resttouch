@@ -476,6 +476,9 @@ class Reporte extends CI_Controller
 	public function valorizado()
 	{
 		$req = json_decode(file_get_contents('php://input'), true);
+		$hoy = date('Y-m-d');
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
 		$soloConfirmados = !isset($req['_sinconfirmar']) || (isset($req['_sinconfirmar']) && (int)$req['_sinconfirmar'] === 0);
 
 		$articulos = $this->Ingreso_model->get_articulos_con_ingresos($req);
@@ -518,8 +521,19 @@ class Reporte extends CI_Controller
 								// se llame el proceso obtenerExistencia, para que hale el valor de la existencia en base a la tabla boodega_articulo_costo
 								// este cambio probablemente afecte los artículos que son recetas o tienen detalle.
 								// $art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)]);
-								$args = ['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)];
-								$art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
+								
+								// Hasta el 22/06/2024 15:45 se usó lo siguiente:
+								// $args = ['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)];
+								// $art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
+
+								$paramsExist = [
+									'sede' => [0 => (int)$s], 'bodega' => [0 => (int)$bode], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
+									'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
+									'_saldo_inicial' => 1
+								];						
+								$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+								$art->existencias = $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5);
+
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
 								// $art->existencias = (float)$art->existencias;

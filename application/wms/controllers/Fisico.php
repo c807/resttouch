@@ -22,7 +22,8 @@ class Fisico extends CI_Controller
 			'Presentacion_model',
 			'BodegaArticuloCosto_model',
 			'Sede_model',
-			'Bodega_model'
+			'Bodega_model',
+			'Umedida_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -40,6 +41,9 @@ class Fisico extends CI_Controller
 		set_time_limit(0);
 		ini_set('memory_limit', '-1');
 		$req = json_decode(file_get_contents('php://input'), true);
+		$hoy = date('Y-m-d');
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
 		$datos = ['exito' => false];
 		$arts = [];
 		$fisico = new Fisico_model();
@@ -95,7 +99,15 @@ class Fisico extends CI_Controller
 				foreach ($arts as $row) {
 					$art = new Articulo_model($row->articulo);
 					//if ($art->mostrar_inventario == 1) {
-					$art->actualizarExistencia($req);
+					// $art->actualizarExistencia($req);
+					$paramsExist = [
+						'sede' => [0 => (int)$req['sede']], 'bodega' => [0 => (int)$req['bodega']], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
+						'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
+						'_saldo_inicial' => 1
+					];
+					$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+					$art->existencias = $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5);
+
 					$fisico->setDetalle([
 						'articulo' => $row->articulo,
 						'precio' => $row->precio,
@@ -213,7 +225,7 @@ class Fisico extends CI_Controller
 
 							// Implementación solicitó quitar esta validación. 15/05/2023 15:21
 							// $diferencia = ($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica;
-							// if (round($diferencia, 2) == 0) {
+							// if (round($diferencia, 5) == 0) {
 							// 	continue;
 							// }
 
@@ -221,21 +233,21 @@ class Fisico extends CI_Controller
 								$art->narticulo,
 								empty($art->codigo) ? $art->articulo : $art->codigo,
 								$pres->descripcion,
-								($existencias == 0) ? '0.00' : round($existencias, 2)
+								($existencias == 0) ? '0.00' : round($existencias, 5)
 							];
 
 							if (isset($args['existencia_fisica'])) {
 								if ($art->existencia_fisica == 0) {
 									array_push($reg, '0.00');
 								} else {
-									array_push($reg, round($art->existencia_fisica, 2));
+									array_push($reg, round($art->existencia_fisica, 5));
 								}
 							}
 
 							if ($args['inventario']->confirmado) {
 								array_push(
 									$reg,
-									round(($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica, 2)
+									round(($art->existencia_sistema / $pres->cantidad) - $art->existencia_fisica, 5)
 								);
 							}
 
@@ -315,7 +327,7 @@ class Fisico extends CI_Controller
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
 					if ($pres->cantidad != 0) {
-							$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 2);
+							$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 5);
 					} else {
 							$row->existencia_sistema = 0;
 					}
@@ -467,12 +479,12 @@ class Fisico extends CI_Controller
 				foreach ($inv->getDetalle() as $row) {
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
-					$row->diferencia = round(($row->existencia_sistema / $pres->cantidad), 2) - $row->existencia_fisica;
+					$row->diferencia = round(($row->existencia_sistema / $pres->cantidad), 5) - $row->existencia_fisica;
 
 					if ($esFisico) {
-						if (round($row->diferencia, 2) > 0) {
+						if (round($row->diferencia, 5) > 0) {
 							$egreso[] = $row;
-						} elseif (round($row->diferencia, 2) < 0) {
+						} elseif (round($row->diferencia, 5) < 0) {
 							$ingreso[] = $row;
 						}
 					}
