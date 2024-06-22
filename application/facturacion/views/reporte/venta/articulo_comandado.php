@@ -32,6 +32,7 @@
 							<tr>
 								<th style="padding: 5px;" class="text-center">Sede</th>
 								<th style="padding: 5px;" class="text-center">Descripción</th>
+								<th style="padding: 5px;" class="text-center">Comanda</th>
 								<th style="padding: 5px;" class="text-center">Cantidad</th>
 								<th style="padding: 5px;" class="text-center">Total (sin desct., sin propina)</th>
 							</tr>
@@ -42,6 +43,7 @@
 									<tr>
 										<td style="padding: 5px;" class="text-left"><?php echo $detalle->sede; ?></td>
 										<td style="padding: 5px;" class="text-left"><?php echo $detalle->articulo; ?></td>
+										<td style="padding: 5px;" class="text-right"><?php echo $detalle->comanda; ?></td>
 										<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->cantidad, 2); ?></td>
 										<td style="padding: 5px;" class="text-right"><?php echo number_format($detalle->total, 2); ?></td>
 									</tr>
@@ -50,7 +52,7 @@
 						</tbody>
 						<tfoot>
 							<tr>
-								<td style="padding: 5px;" colspan="3" class="text-right bold"><b>Total General:</b></td>
+								<td style="padding: 5px;" colspan="4" class="text-right bold"><b>Total General:</b></td>
 								<td style="padding: 5px;" class="text-right"><?php echo number_format($totalGeneral, 2); ?></td>
 							</tr>
 						</tfoot>

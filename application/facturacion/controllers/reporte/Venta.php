@@ -1085,7 +1085,7 @@ class Venta extends CI_Controller
             $hoja = $excel->getActiveSheet();
 
             $hoja->setCellValue('A1', 'Ventas por Artículos Comandados');
-            $hoja->mergeCells('A1:D1');
+            $hoja->mergeCells('A1:E1');
             $hoja->getStyle('A1')->getFont()->setBold(true)->setSize(16);
             $hoja->getStyle('A1')->getAlignment()->setHorizontal('center');
 
@@ -1103,8 +1103,9 @@ class Venta extends CI_Controller
 
             $hoja->setCellValue('A7', 'Sede');
             $hoja->setCellValue('B7', 'Descripción');
-            $hoja->setCellValue('C7', 'Cantidad');
-            $columna = 'D';
+						$hoja->setCellValue('C7', 'Comanda');
+            $hoja->setCellValue('D7', 'Cantidad');
+            $columna = 'E';
             $hoja->setCellValue("{$columna}7", 'Total (sin desct., sin propina)');
 
             $hoja->getStyle('A7:B7')->getAlignment()->setHorizontal('center');
@@ -1116,7 +1117,8 @@ class Venta extends CI_Controller
             foreach ($data as $detalle) {
             	$hoja->setCellValue("A{$fila}", $detalle->sede);
             	$hoja->setCellValue("B{$fila}", $detalle->articulo);
-            	$hoja->setCellValue("C{$fila}", (float)$detalle->cantidad);
+							$hoja->setCellValue("C{$fila}", $detalle->comanda);
+            	$hoja->setCellValue("D{$fila}", (float)$detalle->cantidad);
             	$hoja->setCellValue("{$columna}{$fila}", (float)$detalle->total);
 							$totalGeneral += (float)$detalle->total;
             	$fila++;
@@ -1124,13 +1126,13 @@ class Venta extends CI_Controller
             }
 
 						$fila++;
-            $hoja->setCellValue("C{$fila}", 'Total General:');
+            $hoja->setCellValue("D{$fila}", 'Total General:');
             $hoja->setCellValue("{$columna}{$fila}", $totalGeneral);
-						$hoja->getStyle("C{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
-            $hoja->getStyle("C{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
+						$hoja->getStyle("D{$fila}:{$columna}{$fila}")->getFont()->setBold(true);
+            $hoja->getStyle("D{$fila}:{$columna}{$fila}")->getAlignment()->setHorizontal('right');
             $hoja->getStyle("{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
 
-            $hoja->getStyle("C8:{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+            $hoja->getStyle("D8:{$columna}{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
             $hoja->getStyle("A7:{$columna}{$fila}")->getBorders()->getAllBorders()
                 ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
                 ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));

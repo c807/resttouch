@@ -4,8 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Resumen_traslados_model extends CI_Model {
 
     public function get_resumen_traslados($params) {
-        // Asegúrate de que los parámetros están definidos
-        $fecha_del = isset($params['fdel']) ? $params['fdel'] : '1970-01-01';
+        $fecha_del = isset($params['fdel']) ? $params['fdel'] : date('Y-m-d');
         $fecha_al = isset($params['fal']) ? $params['fal'] : date('Y-m-d');
         $bodega = isset($params['bodega']) ? $params['bodega'] : 0;
         $bodega_destino = isset($params['bodega_destino']) ? $params['bodega_destino'] : [];
