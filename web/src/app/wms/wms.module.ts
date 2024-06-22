@@ -80,6 +80,7 @@ import { DetalleRecetaWizardComponent } from './components/producto/wizards/rece
 import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
 import { FormAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/form-ajuste-costo-promedio/form-ajuste-costo-promedio.component';
 import { ListaAjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/lista-ajuste-costo-promedio/lista-ajuste-costo-promedio.component';
+import { ResumenTrasladosComponent } from './components/reporte/resumen-traslados/resumen-traslados.component';
 
 @NgModule({
   declarations: [
@@ -87,7 +88,7 @@ import { ListaAjusteCostoPromedioComponent } from './components/ajuste-costo-pro
     CategoriaProductoComponent, EgresoComponent, ListaEgresoComponent, FormEgresoComponent, TransformacionComponent, ExistenciasComponent,
     KardexComponent, ListaProductoAltComponent, ProduccionComponent, ReporteComponent, ValorizadoComponent, FisicoComponent,
     FormInventarioFisicoComponent, ReplicarASedesComponent, ReplicarASedesDialogComponent, SubCategoriaProductoComponent, QuickEditProductoComponent, RepIngresoComponent, 
-    ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
+    ListaPreciosTipoClienteComponent, ConsumosComponent, ResumenEgresoComponent, ResumenTrasladosComponent, ResumenIngresoComponent, UsoIngredienteComponent, MargenRecetaComponent, ConsumoArticuloComponent, 
     PideTipoMovimientoDestinoComponent, TipoMovimientoComponent, FormTipoMovimientoComponent, ListaTipoMovimientoComponent, DialogWizardComponent, ComboWizardComponent, DetalleComboWizardComponent, RecetaWizardComponent, DetalleRecetaWizardComponent, AjusteCostoPromedioComponent, FormAjusteCostoPromedioComponent, ListaAjusteCostoPromedioComponent
   ],
   imports: [

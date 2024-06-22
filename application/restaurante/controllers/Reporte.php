@@ -2088,8 +2088,9 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("G{$fila}", 'Notas');
                     $hoja->setCellValue("H{$fila}", 'Bodega');
                     $hoja->setCellValue("I{$fila}", 'Cantidad de inventario');
-                    $hoja->getStyle("B{$fila}:I{$fila}")->getFont()->setBold(true);
-                    $hoja->getStyle("B{$fila}:I{$fila}")->getAlignment()->setHorizontal('center');
+                    $hoja->setCellValue("J{$fila}", 'Fecha comandado');
+                    $hoja->getStyle("B{$fila}:J{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}:J{$fila}")->getAlignment()->setHorizontal('center');
                     $fila++;
                     foreach ($cmd->detalle as $det) {
                         $descArticulo = '';
@@ -2112,6 +2113,8 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("H{$fila}", $det->bodega);
                         $hoja->setCellValue("I{$fila}", $det->cantidad_inventario);
                         $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
+                        $hoja->setCellValue("J{$fila}", $det->fecha);
+                        $hoja->getStyle("J{$fila}")->getNumberFormat()->setFormatCode('dd-mm-yyyy hh:mm');
                         $fila++;
                     }
                 }
