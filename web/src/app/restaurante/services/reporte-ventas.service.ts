@@ -118,7 +118,7 @@ export class ReporteVentasService {
     };
 
     return this.http.post<string>(
-      `${GLOBAL.urlFacturacion}/${this.moduleUrl}/ventas_por_habitacion`,
+      `${GLOBAL.urlFacturacion}/${this.moduleUrl}/ventas_habitacion`,
       params,
       httpOptions
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));

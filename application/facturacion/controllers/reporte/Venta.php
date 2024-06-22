@@ -24,7 +24,8 @@ class Venta extends CI_Controller
 			'Rpt_model',
 			'Sede_model',
 			'Rpt_articulo_comandado_model',
-			'Ventas_por_habitacion_model'
+			'Ventas_por_habitacion_model',
+			'Ventas_habitacion_model'
 		]);
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -1179,6 +1180,7 @@ class Venta extends CI_Controller
     }
 	}
 
+	/*
 	public function ventas_por_habitacion()
 	{
 		if ($this->input->method() == 'post') {
@@ -1269,6 +1271,110 @@ class Venta extends CI_Controller
 				];
 
 				$vista = $this->load->view('reporte/venta/venta_habitacion', $vista_data, true);
+
+				$mpdf = new \Mpdf\Mpdf([
+					'tempDir' => sys_get_temp_dir(),
+					'format' => 'A4'
+				]);
+
+				$mpdf->WriteHTML($vista);
+				$mpdf->Output('Ventas_por_habitacion.pdf', 'D');
+			}
+		}
+	}*/
+
+	public function ventas_habitacion()
+	{
+		if ($this->input->method() == 'post') {
+			$req = json_decode(file_get_contents('php://input'), true);
+
+			$args = [
+				'sede' => isset($req['sede']) ? $req['sede'] : null,
+				'fdel' => isset($req['fdel']) ? $req['fdel'] : null,
+				'fal' => isset($req['fal']) ? $req['fal'] : null,
+			];
+
+			$data = $this->Ventas_habitacion_model->get_reserva_data($args['fdel'], $args['fal'], $args['sede']);
+
+			if (isset($req['_excel']) && $req['_excel']) {
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+				$excel->getProperties()
+					->setCreator('Restouch')
+					->setTitle('Ventas por habitación')
+					->setSubject('Ventas por habitación')
+					->setKeywords('ventas, habitación, reporte');
+
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+
+				$hoja->setCellValue('A1', 'Ventas por Habitación');
+				$hoja->mergeCells('A1:D1');
+				$hoja->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+				$hoja->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+				$hoja->setCellValue('A3', 'Del: ' . date('d/m/Y', strtotime($args['fdel'])));
+				$hoja->setCellValue('A4', 'Al: ' . date('d/m/Y', strtotime($args['fal'])));
+				$hoja->mergeCells('A2:D2');
+				$hoja->mergeCells('A3:D3');
+				$hoja->mergeCells('A4:D4');
+
+				$hoja->setCellValue('A6', 'Sede');
+				$hoja->setCellValue('B6', 'Descripción');
+				$hoja->setCellValue('C6', 'Precio');
+				$hoja->setCellValue('D6', 'Cantidad');
+				$hoja->setCellValue('E6', 'Total');
+
+				$hoja->getStyle('A6:E6')->getFont()->setBold(true);
+				$hoja->getStyle('A6:E6')->getAlignment()->setHorizontal('center');
+
+				$fila = 7;
+				$totalGeneral = 0;
+					foreach ($data as $reserva) {
+						$hoja->setCellValue("A{$fila}", $reserva->sede);
+						$hoja->setCellValue("B{$fila}", $reserva->articulo_descripcion);
+						$hoja->setCellValue("C{$fila}", $reserva->precio);
+						$hoja->setCellValue("D{$fila}", $reserva->cantidad);
+						$hoja->setCellValue("E{$fila}", $reserva->total);
+						$totalGeneral += $reserva->total;
+						$fila++;
+					}
+				
+				$hoja->setCellValue("D{$fila}", 'Sub-total:');
+				$hoja->setCellValue("E{$fila}", $totalGeneral);
+				$hoja->getStyle("D{$fila}:D{$fila}")->getFont()->setBold(true);
+				$hoja->getStyle("E{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+
+				$hoja->getStyle("C7:E{$fila}")->getNumberFormat()->setFormatCode(PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+				$hoja->getStyle("A6:E{$fila}")->getBorders()->getAllBorders()
+					->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+					->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+
+				foreach (range('A', 'C') as $col) {
+						$hoja->getColumnDimension($col)->setAutoSize(true);
+				}
+
+				$fila += 2;
+        $hoja->setCellValue("A{$fila}", 'NOTA: Reporte solo por habitaciones');
+
+				header('Content-Type: application/vnd.ms-excel');
+				header('Content-Disposition: attachment;filename="Ventas_por_habitacion.xls"');
+				header('Cache-Control: max-age=0');
+				header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+				header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+				header('Cache-Control: cache, must-revalidate');
+				header('Pragma: public');
+
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save('php://output');
+			} else {
+				$vista_data = [
+					'reservas' => $data,
+					'fdel' => date('d/m/Y', strtotime($args['fdel'])),
+					'fal' => date('d/m/Y', strtotime($args['fal'])),
+					'totalGeneral' => array_sum(array_column($data, 'precio'))
+				];
+
+				$vista = $this->load->view('reporte/venta/venta_por_habitacion', $vista_data, true);
 
 				$mpdf = new \Mpdf\Mpdf([
 					'tempDir' => sys_get_temp_dir(),

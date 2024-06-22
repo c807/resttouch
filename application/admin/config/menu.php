@@ -415,6 +415,11 @@ $config['menu'] = [
 						'nombre' => 'Consumo de articulo',
 						'link' => '/wms/consumo_articulo',
 						'dispositivo' => 1
+					],
+					11 => [
+						'nombre' => 'Resumen de traslados',
+						'link' => '/wms/resumen_traslados',
+						'dispositivo' => 1
 					]
 				]
 			],

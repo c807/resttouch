@@ -50,7 +50,7 @@
 						</tbody>
 						<tfoot>
 							<tr>
-								<td style="padding: 5px;" colspan="2" class="text-right bold"><b>Total General:</b></td>
+								<td style="padding: 5px;" colspan="3" class="text-right bold"><b>Total General:</b></td>
 								<td style="padding: 5px;" class="text-right"><?php echo number_format($totalGeneral, 2); ?></td>
 							</tr>
 						</tfoot>
