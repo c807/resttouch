@@ -16,7 +16,7 @@
 		<div class="row">
 			<div class="col-sm-12 text-center">
 				<h3>Ventas por Artículos Comandados</h3>
-				<h4>Turno: <?php echo $turno; ?></h4>
+				<!-- <h4>Turno: <?php echo $turno; ?></h4> -->
 			</div>
 		</div>
 

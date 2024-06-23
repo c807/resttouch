@@ -6,7 +6,7 @@
       </mat-card-title>
       <mat-card-content>
         <form #frmEntidad="ngForm" novalidate>
-          <mat-form-field class="fullWidth separacionPorHint">
+          <!-- <mat-form-field class="fullWidth separacionPorHint">
             <mat-label>Tipo de turno</mat-label>
             <mat-select name="turno_tipo" [(ngModel)]="params.turno_tipo">
                 <mat-option *ngFor="let tt of tiposTurno" [value]="tt.turno_tipo">
@@ -18,7 +18,7 @@
                     No incluirá facturas manuales porque las facturas manuales no pertenecen a ningún turno.
                 </strong>
             </mat-hint>
-          </mat-form-field>
+          </mat-form-field> -->
 
           <mat-form-field class="fullWidth">
               <input type="date" matInput placeholder="Del" name="fdel" [(ngModel)]="params.fdel" required>

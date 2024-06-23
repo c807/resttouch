@@ -23,9 +23,9 @@ class Rpt_articulo_comandado_model extends General_model
             }
         }
 
-        if (isset($args['turno_tipo']) && !is_null($args['turno_tipo']) && (int)$args['turno_tipo'] > 0) {
-            $this->db->where('c.turno_tipo', $args['turno_tipo']);
-        }
+        // if (isset($args['turno_tipo']) && !is_null($args['turno_tipo']) && (int)$args['turno_tipo'] > 0) {
+        //     $this->db->where('c.turno_tipo', $args['turno_tipo']);
+        // }
 
         if (isset($args['fdel'])) {
             $this->db->where('DATE(a.fecha) >=', $args['fdel']);
