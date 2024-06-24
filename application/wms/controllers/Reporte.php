@@ -527,12 +527,11 @@ class Reporte extends CI_Controller
 								// $art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
 
 								$paramsExist = [
-									'sede' => [0 => (int)$s], 'bodega' => [0 => (int)$bode], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
-									'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
-									'_saldo_inicial' => 1
+									'sede' => [0 => (int)$s], 'bodega' => [0 => (int)$bode], 'fecha_al' => $hoy,
+									'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,									
 								];						
 								$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
-								$art->existencias = $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5);
+								$art->existencias = $existencia && $existencia->saldo_calculado ? round($existencia->saldo_calculado, 5) : round(0, 5);
 
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;

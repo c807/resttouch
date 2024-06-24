@@ -565,19 +565,19 @@ class Fisico extends CI_Controller
 
 								$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $row->articulo);
 								if ($datos_costo) {
-									$cantidad_presentacion = round((float)$pres->cantidad, 5);									
-									$existencia_anterior = round((float)$datos_costo->existencia, 5);
-									$existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);									
+									// $cantidad_presentacion = round((float)$pres->cantidad, 5);									
+									// $existencia_anterior = round((float)$datos_costo->existencia, 5);
+									// $existencia_nueva = $existencia_anterior + ((float)$datos['cantidad'] * $cantidad_presentacion);									
 
 									$nvaData = [
 										'bodega' => (int)$ing->bodega,
 										'articulo' => (int)$row->articulo,
 										'cuc_ingresado' => 0,										
-										'costo_ultima_compra' => $datos_costo->costo_ultima_compra,
+										'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
 										'cp_ingresado' => 0,
-										'costo_promedio' => $datos_costo->costo_promedio,
+										'costo_promedio' => (float)$datos_costo->costo_promedio,
 										'existencia_ingresada' => 0,
-										'existencia' => $existencia_nueva,
+										'existencia' => (float)$datos_costo->existencia,
 										'fecha' => date('Y-m-d H:i:s'),
 										'notas' => "Ingreso No. {$ing->getPK()} por Inventario Físico No. {$id}."
 									];

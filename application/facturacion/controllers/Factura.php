@@ -729,13 +729,14 @@ class Factura extends CI_Controller
 				}
 				$df->guardar();
 				if ((int)$df->bodega > 0 && (int)$articulo->essellado === 1 && $noLoReverse) {
-					$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo);
+					// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+					$datos_costo_df = $this->BodegaArticuloCosto_model->get_datos_costo($df->bodega, $df->articulo, true);
 					if ($datos_costo_df) {
 						$pres = new Presentacion_model($df->presentacion);
-						$cantidad_presentacion = round((float)$pres->cantidad, 2);
-						$existencia_anterior = round((float)$datos_costo_df->existencia, 2);
-						$cp_unitario_anterior = round((float)$datos_costo_df->costo_promedio, 5);
-						$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+						$cantidad_presentacion = (float)$pres->cantidad;
+						$existencia_anterior = (float)$datos_costo_df->existencia;
+						$cp_unitario_anterior = (float)$datos_costo_df->costo_promedio;
+						$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
 						$existencia_nueva = $existencia_anterior + ((float)$df->cantidad_inventario_backup * $cantidad_presentacion);
 						$precio_total = ((float)$df->cantidad_inventario_backup * $cantidad_presentacion) * $cp_unitario_anterior;
 						$costo_total_nuevo = $costo_total_anterior + $precio_total;
@@ -746,7 +747,7 @@ class Factura extends CI_Controller
 							'cuc_ingresado' => 0,
 							'costo_ultima_compra' => (float)$datos_costo_df->costo_ultima_compra,
 							'cp_ingresado' => 0,
-							'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+							'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 							'existencia_ingresada' => 0,
 							'existencia' => $existencia_nueva,
 							'fecha' => date('Y-m-d H:i:s')
@@ -768,13 +769,14 @@ class Factura extends CI_Controller
 				}
 				$dc->guardar();
 				if ((int)$dc->bodega > 0 && (int)$articulo->essellado === 1 && $noLoReverse) {
-					$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo);
+					// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+					$datos_costo_dc = $this->BodegaArticuloCosto_model->get_datos_costo($dc->bodega, $dc->articulo, true);
 					if ($datos_costo_dc) {
 						$pres = new Presentacion_model($dc->presentacion);
-						$cantidad_presentacion = round((float)$pres->cantidad, 2);
-						$existencia_anterior = round((float)$datos_costo_dc->existencia, 2);
-						$cp_unitario_anterior = round((float)$datos_costo_dc->costo_promedio, 5);
-						$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+						$cantidad_presentacion = (float)$pres->cantidad;
+						$existencia_anterior = (float)$datos_costo_dc->existencia;
+						$cp_unitario_anterior = (float)$datos_costo_dc->costo_promedio;
+						$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
 						$existencia_nueva = $existencia_anterior + ((float)$dc->cantidad_inventario_backup * $cantidad_presentacion);
 						$precio_total = ((float)$dc->cantidad_inventario_backup * $cantidad_presentacion) * $cp_unitario_anterior;
 						$costo_total_nuevo = $costo_total_anterior + $precio_total;
@@ -785,7 +787,7 @@ class Factura extends CI_Controller
 							'cuc_ingresado' => 0,
 							'costo_ultima_compra' => (float)$datos_costo_dc->costo_ultima_compra,
 							'cp_ingresado' => 0,
-							'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+							'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 							'existencia_ingresada' => 0,
 							'existencia' => $existencia_nueva,
 							'fecha' => date('Y-m-d H:i:s')
@@ -833,7 +835,7 @@ class Factura extends CI_Controller
 							'cp_ingresado' => 0,
 							'costo_promedio' => (float)$datos_costo_df->costo_promedio,
 							'existencia_ingresada' => 0,
-							'existencia' => (float)$datos_costo_df->existencia - ((float)$df->cantidad_inventario * (float)$pres->cantidad),
+							'existencia' => (float)$datos_costo_df->existencia,
 							'fecha' => date('Y-m-d H:i:s')
 						];
 
@@ -862,7 +864,7 @@ class Factura extends CI_Controller
 							'cp_ingresado' => 0,
 							'costo_promedio' => (float)$datos_costo_dc->costo_promedio,
 							'existencia_ingresada' => 0,
-							'existencia' => (float)$datos_costo_dc->existencia - ((float)$dc->cantidad_inventario * (float)$pres->cantidad),
+							'existencia' => (float)$datos_costo_dc->existencia,
 							'fecha' => date('Y-m-d H:i:s')
 						];
 

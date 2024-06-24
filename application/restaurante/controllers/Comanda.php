@@ -1023,7 +1023,7 @@ class Comanda extends CI_Controller
 
 			if ($pasa) {
 				foreach ($detalle as $det) {
-					$cantResta = (float)$det->cantidad - (float)$req['cantidad'];
+					// $cantResta = (float)$det->cantidad - (float)$req['cantidad'];
 					$dc = new Dcomanda_model($det->detalle_comanda);
 					$dc->cantidad = (float)$req['cantidad'];
 					$dc->total = (float)$req['total'];
@@ -1033,19 +1033,19 @@ class Comanda extends CI_Controller
 						if ($req['regresa_inventario'] && (int)$det->mostrar_inventario === 1 && (int)$det->bodega > 0) {
 							$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$det->bodega, (int)$det->articulo);
 							if ($datos_costo) {
-								$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-								$cantidad_presentacion = round((float)$pres->cantidad, 5);
-								$existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 5);
+								// $pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
+								// $cantidad_presentacion = round((float)$pres->cantidad, 5);
+								// $existencia_nueva = round((float)$datos_costo->existencia + ($cantResta * $cantidad_presentacion), 5);
 
 								$nvaData = [
 									'bodega' => (int)$det->bodega,
 									'articulo' => (int)$det->articulo,
 									'cuc_ingresado' => 0,
-									'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+									'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
 									'cp_ingresado' => 0,
-									'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+									'costo_promedio' => (float)$datos_costo->costo_promedio,
 									'existencia_ingresada' => 0,
-									'existencia' => $existencia_nueva,
+									'existencia' => (float)$datos_costo->existencia,
 									'fecha' => date('Y-m-d H:i:s'),
 									'notas' => "Reversión de inventario por eliminación de detalle de comanda {$det->comanda}."
 								];

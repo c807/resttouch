@@ -191,13 +191,14 @@ class Ajuste_costo_promedio extends CI_Controller
 
                             $detIngreso = $ingreso->setDetalle($det);
 
-                            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($acp->bodega, $d->articulo);
+                            // 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+                            $datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($acp->bodega, $d->articulo, true);
                             if ($datos_costo) {
-                                $cantidad_presentacion = round((float)$pres->cantidad, 5);
+                                $cantidad_presentacion = (float)$pres->cantidad;
                                 $precio_unitario = $precioUnitarioSinIVA;
-                                $existencia_anterior = round((float)$datos_costo->existencia, 5);
-                                $cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
-                                $costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+                                $existencia_anterior = (float)$datos_costo->existencia;
+                                $cp_unitario_anterior = (float)$datos_costo->costo_promedio;
+                                $costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
                                 $existencia_nueva = $existencia_anterior + ((float)1 * $cantidad_presentacion);
                                 $costo_total_nuevo = $costo_total_anterior + $precioUnitarioSinIVA;
 
@@ -205,9 +206,9 @@ class Ajuste_costo_promedio extends CI_Controller
                                     'bodega' => (int)$acp->bodega,
                                     'articulo' => (int)$d->articulo,
                                     'cuc_ingresado' => 0,
-                                    'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+                                    'costo_ultima_compra' => $precio_unitario / $cantidad_presentacion,
                                     'cp_ingresado' => 0,
-                                    'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+                                    'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
                                     'existencia_ingresada' => 0,
                                     'existencia' => $existencia_nueva,
                                     'fecha' => date('Y-m-d H:i:s'),
@@ -281,11 +282,11 @@ class Ajuste_costo_promedio extends CI_Controller
                                         'bodega' => (int)$acp->bodega,
                                         'articulo' => (int)$d->articulo,
                                         'cuc_ingresado' => 0,
-                                        'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+                                        'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
                                         'cp_ingresado' => 0,
-                                        'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+                                        'costo_promedio' => (float)$datos_costo->costo_promedio,
                                         'existencia_ingresada' => 0,
-                                        'existencia' => round((float)$datos_costo->existencia - ((float)1 * (float)$pres->cantidad), 5),
+                                        'existencia' => (float)$datos_costo->existencia,
                                         'fecha' => date('Y-m-d H:i:s'),
                                         'notas' => "Egreso No. {$egreso->getPK()} por ajuste de costo promedio No. {$acp->ajuste_costo_promedio}."
                                     ];

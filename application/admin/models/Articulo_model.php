@@ -422,8 +422,13 @@ class Articulo_model extends General_model
 			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
-				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
-				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				}
+
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				}
 			}
 
 			$ingresos = $this->db
@@ -445,8 +450,13 @@ class Articulo_model extends General_model
 			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
-				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
-				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				}
+
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				}				
 			}
 
 			$egresos = $this->db
@@ -535,7 +545,7 @@ class Articulo_model extends General_model
 				->join('presentacion p', 'a.presentacion = p.presentacion', 'inner')
 				->where('a.articulo', $articulo)
 				->where('e.detalle_factura_detalle_cuenta is null')
-				->where('f.fel_uuid IS NOT NULL')				
+				->where('f.fel_uuid IS NOT NULL')
 				->get('detalle_factura a')
 				->row(); //total ventas factura manual
 
@@ -587,7 +597,8 @@ class Articulo_model extends General_model
 			'facturas' => $facturas,
 			'total_egresos' => $comandas + $facturas + $egresos,
 			'existencia' => $this->existencias,
-			'saldo_inicial' => verDato($args, '_saldo_inicial') ? ((float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos))  : 0
+			'saldo_inicial' => verDato($args, '_saldo_inicial') ? ((float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos))  : 0,
+			'saldo_calculado' => (float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos)
 		];
 	}
 

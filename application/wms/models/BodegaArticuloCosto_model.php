@@ -59,7 +59,7 @@ class BodegaArticuloCosto_model extends General_model
         return $bac->guardar();
     }
 
-    public function get_datos_costo($idBodega = null, $idArticulo = null)
+    public function get_datos_costo($idBodega = null, $idArticulo = null, $calcularExistencias = false)
     {
         if ($idBodega) {
             $this->db->where('a.bodega', (int)$idBodega);
@@ -69,7 +69,7 @@ class BodegaArticuloCosto_model extends General_model
             $this->db->where('a.articulo', (int)$idArticulo);
         }
 
-        return $this->db
+        $datos_de_costo = $this->db
             ->select('a.bodega_articulo_costo, f.metodo_costeo, a.costo_ultima_compra, a.costo_promedio, g.cantidad AS cantidad_presentacion, a.existencia')
             ->join('articulo b', 'b.articulo = a.articulo')
             ->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
@@ -82,6 +82,24 @@ class BodegaArticuloCosto_model extends General_model
             ->limit(1)
             ->get('bodega_articulo_costo a')
             ->row();
+
+        if($datos_de_costo && $idBodega && $idArticulo && $calcularExistencias) {
+            $this->load->model(['Umedida_model', 'Articulo_model']);
+            $sede = $this->db->select('sede')->where('bodega', $idBodega)->get('bodega')->row();
+            $hoy = date('Y-m-d');
+            $listaMedidas = $this->Umedida_model->get_lista_medidas();
+		    $listaArticulos = $this->Articulo_model->get_lista_articulos();
+            $art = new Articulo_model($idArticulo);
+            $paramsExist = [
+                'sede' => [0 => (int)$sede->sede], 'bodega' => [0 => (int)$idBodega], 
+                'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo,
+                'fecha_al' => $hoy, 'fecha' => $hoy
+            ];						
+            $existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+            $datos_de_costo->existencia = $existencia && $existencia->saldo_calculado ? $existencia->saldo_calculado : round(0, 5);
+        }
+
+        return $datos_de_costo;
     }
 
     public function get_costo($idBodega, $idArticulo, $idPresentacion = null)

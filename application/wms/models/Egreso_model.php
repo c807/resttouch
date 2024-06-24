@@ -278,7 +278,7 @@ class Egreso_model extends General_Model
 			'bodega_origen' => $this->bodega,
 			'comentario' => isset($args['comentario']) ? $args['comentario'] : '',
 			'proveedor' => $idProv,
-			'estatus_movimiento' => 2
+			'estatus_movimiento' => 1
 		];
 
 		if ($ing->guardar($datos)) {
@@ -304,7 +304,8 @@ class Egreso_model extends General_Model
 				$det = $ing->setDetalle((array) $row);
 				if ($det) {
 					$this->db->set('egreso_detalle', $row->egreso_detalle)->set('ingreso_detalle', $det->ingreso_detalle)->insert('traslado_detalle');
-					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, (int)$row->articulo);
+					// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+					$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, (int)$row->articulo, true);
 
 					/*
 					06/11/2023 18:14
@@ -312,26 +313,26 @@ class Egreso_model extends General_Model
 					*/
 
 					$pres = $this->db->select('cantidad')->where('presentacion', $det->presentacion)->get('presentacion')->row();
-					$cantidad_presentacion = round((float)$pres->cantidad, 5);
-					$precio_unitario = round((float)$det->precio_unitario, 5);
+					$cantidad_presentacion = (float)$pres->cantidad;
+					$precio_unitario = (float)$det->precio_unitario;
 					$existencia_anterior = (float)0;
 					$cp_unitario_anterior = (float)0;
 
 					if ($datos_costo) {
-						$existencia_anterior = round((float)$datos_costo->existencia, 5);
-						$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
+						$existencia_anterior = (float)$datos_costo->existencia;
+						$cp_unitario_anterior = (float)$datos_costo->costo_promedio;
 					}
 
-					$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
+					$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
 					$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);
 					$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
 					$nvaData = [
 						'bodega' => (int)$ing->bodega,
 						'articulo' => (int)$row->articulo,
 						'cuc_ingresado' => 0,
-						'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+						'costo_ultima_compra' => $precio_unitario / $cantidad_presentacion,
 						'cp_ingresado' => 0,
-						'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+						'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 						'existencia_ingresada' => 0,
 						'existencia' => $existencia_nueva,
 						'fecha' => date('Y-m-d H:i:s'),
@@ -348,7 +349,7 @@ class Egreso_model extends General_Model
 			// 		$this->Articulo_model->recalcular_costos((int)$sede->sede, $idArticulo, (int)$ing->bodega);
 			// 	}
 			// }
-
+			$ing->guardar(['estatus_movimiento' => 2]);
 			return $ing;
 		} else {
 			$this->mensaje = $ing->getMensaje();
@@ -454,11 +455,11 @@ class Egreso_model extends General_Model
 					'bodega' => (int)$this->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
-					'costo_ultima_compra' => !$deInventarioFisico ? round((float)$datos_costo->costo_ultima_compra, 5) : $datos_costo->costo_ultima_compra,
+					'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
 					'cp_ingresado' => 0,
-					'costo_promedio' => !$deInventarioFisico ? round((float)$datos_costo->costo_promedio, 5) : $datos_costo->costo_promedio,
+					'costo_promedio' => (float)$datos_costo->costo_promedio,
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad * (float)$det->cantidad_presentacion), 5),
+					'existencia' => (float)$datos_costo->existencia,
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			} else {
@@ -466,11 +467,11 @@ class Egreso_model extends General_Model
 					'bodega' => (int)$this->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
-					'costo_ultima_compra' => round((float)$det->precio_unitario / (float)$det->cantidad_presentacion, 5),
+					'costo_ultima_compra' => (float)$det->precio_unitario / (float)$det->cantidad_presentacion,
 					'cp_ingresado' => 0,
-					'costo_promedio' => round((float)$det->precio_unitario / (float)$det->cantidad_presentacion, 5),
+					'costo_promedio' => (float)$det->precio_unitario / (float)$det->cantidad_presentacion,
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)0 - ((float)$det->cantidad * (float)$det->cantidad_presentacion), 5),
+					'existencia' => (float)0,
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			}
