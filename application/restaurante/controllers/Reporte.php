@@ -2114,7 +2114,7 @@ class Reporte extends CI_Controller
                         $hoja->setCellValue("I{$fila}", $det->cantidad_inventario);
                         $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $hoja->setCellValue("J{$fila}", $det->fecha);
-                        $hoja->getStyle("J{$fila}")->getNumberFormat()->setFormatCode('dd-mm-yyyy hh:mm');
+                        $hoja->getStyle("J{$fila}")->getNumberFormat()->setFormatCode('yyyy-mm-dd hh:mm');
                         $fila++;
                     }
                 }
