@@ -102,7 +102,7 @@ export class PorArticuloComandadoComponent implements OnInit, OnDestroy {
           if (+esExcel === 0) {
             openInNewTab(URL.createObjectURL(blob));
           } else {
-            saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xls'}`);
+            saveAs(blob, `${this.tituloArticulo}_${moment().format(GLOBAL.dateTimeFormatRptName)}.${+esExcel === 0 ? 'pdf' : 'xlsx'}`);
           }
         } else {
           this.snackBar.open('No se pudo generar el reporte...', 'Ventas por artículos Comandados', { duration: 3000 });

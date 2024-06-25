@@ -3,7 +3,7 @@
         <button mat-icon-button>
             <mat-icon (click)="toggleSidenav()">menu</mat-icon>
         </button>
-        <app-header id="appHeader"></app-header>
+        <app-header id="appHeader" (moduleSelectedEv)="openSideNavIfClosed()"></app-header>
     </mat-toolbar-row>
 </mat-toolbar>
 <mat-sidenav-container class="matSideNavContainer">

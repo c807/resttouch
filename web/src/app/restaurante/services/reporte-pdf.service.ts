@@ -201,6 +201,14 @@ export class ReportePdfService {
     ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
   }
 
+  generar_resumen_traslados(params: Object) {
+    return this.http.post<string>(
+      `${GLOBAL.urlWms}/reporte/resumen_traslados`,
+      params,
+      this.httpOptions
+    ).pipe(retry(GLOBAL.reintentos), catchError(this.srvcErrHndl.errorHandler));
+  }
+
   generar_resumen_ingreso(params: Object) {
     return this.http.post<string>(
       `${GLOBAL.urlWms}/rep/ingreso/generar_resumen`,

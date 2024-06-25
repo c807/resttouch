@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,6 +28,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @Output() moduleSelectedEv = new EventEmitter();
 
   get moduloEnUso(): string {
     const usando: string = (this.ls.get(GLOBAL.usrLastModuleVar, false) as string || 'N/A').replace(/[^0-9A-Z/]+/gi, '');
@@ -161,6 +163,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       const submodulo: any = this.usrSrvc.transformSubModule(objModulo.submodulo);
       // console.log(submodulo);
       this.appMenuSrvc.updOpciones(submodulo);
+      this.moduleSelectedEv.emit();
       this.snackBar.open(`Cambio al módulo ${modulo}`, 'Módulo', { duration: 5000 });
     }
   }

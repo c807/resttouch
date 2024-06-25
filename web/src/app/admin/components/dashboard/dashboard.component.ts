@@ -13,6 +13,7 @@ import { DashboardParameters } from '@admin/interfaces/tablero';
 import { ReporteVentasService } from '@restaurante/services/reporte-ventas.service';
 import { ReportePdfService } from '@restaurante/services/reporte-pdf.service';
 import { DashboardParametersComponent } from './dashboard-parameters/dashboard-parameters.component';
+import { MainSidenavService } from '@shared-services/mainsidenav.service';
 
 import { Subscription } from 'rxjs';
 
@@ -49,7 +50,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private clienteSrvc: ClienteService,
     private tableroSrvc: TableroService,
     private rptVentasSrvc: ReporteVentasService,
-    private pdfServicio: ReportePdfService
+    private pdfServicio: ReportePdfService,
+    private mainSidenavSrvc: MainSidenavService
   ) { }
 
   ngOnInit() {
@@ -87,6 +89,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (objModulo) {
       const submodulo: any = this.usrSrvc.transformSubModule(objModulo.submodulo);
       this.appMenuSrvc.updOpciones(submodulo);
+      this.mainSidenavSrvc.setState(true);
       this.snackBar.open(`Cambio al módulo ${modulo}`, 'Módulo', { duration: 5000 });
     }
   }

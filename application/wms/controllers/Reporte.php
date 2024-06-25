@@ -23,7 +23,8 @@ class Reporte extends CI_Controller
 			'BodegaArticuloCosto_model',
 			'Bitacora_model',
 			'Impresora_model',
-			'Umedida_model'
+			'Umedida_model',
+			'Resumen_traslados_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -1648,6 +1649,123 @@ class Reporte extends CI_Controller
 		}
 	}
 
+	public function resumen_traslados() 
+	{
+    $params = json_decode(file_get_contents("php://input"), true);
+    $data = $this->Resumen_traslados_model->get_resumen_traslados($params);
+
+    $reportData = [];
+    $bodegaOrigen = '';
+    $bodegasDestino = [];
+    foreach ($data as $row) {
+      $articulo = $row['articulo'];
+      $bodega_destino = $row['bodega_destino'];
+      if (empty($bodegaOrigen)) {
+        $bodegaOrigen = "{$row['bodega_origen']} ({$row['sede_origen']} - {$row['alias_origen']})";
+      }
+
+      if (!isset($bodegasDestino[$bodega_destino])) {
+        $bodegasDestino[$bodega_destino] = "{$row['bodega_destino_desc']} ({$row['sede_destino']} - {$row['alias_destino']})";
+      }
+      if (!isset($reportData[$articulo])) {
+        $reportData[$articulo] = [
+          'articulo_descripcion' => $row['articulo_descripcion'],
+          'precio_unitario' => $row['precio_unitario'],
+          'cantidad_total' => 0,
+          'bodegas' => []
+        ];
+      }
+      $reportData[$articulo]['bodegas'][$bodega_destino] = $row['cantidad'];
+      $reportData[$articulo]['cantidad_total'] += $row['cantidad'];
+    }
+    $totalFinal = 0;
+    foreach ($reportData as $item) {
+      $totalFinal += $item['cantidad_total'] * $item['precio_unitario'];
+    }
+    if (isset($params['_excel']) && $params['_excel']) {
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
+			$hoja->setTitle("Resumen de Traslados");
+
+      $hoja->setCellValue('A1', 'Resumen de Traslados');
+      $hoja->mergeCells('A1:' . chr(70 + count($bodegasDestino)) . '1');
+      $hoja->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+      $hoja->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+      $hoja->setCellValue('A2', 'Del: ' . date('d/m/Y', strtotime($params['fdel'])) . ' al: ' . date('d/m/Y', strtotime($params['fal'])));
+      $hoja->mergeCells('A2:' . chr(70 + count($bodegasDestino)) . '2');
+      $hoja->getStyle('A2')->getAlignment()->setHorizontal('center');
+
+      $hoja->setCellValue('A4', $bodegaOrigen);
+      $columnIndex = 'B';
+      foreach ($bodegasDestino as $bodegaDestino) {
+        $hoja->setCellValue($columnIndex . '4', $bodegaDestino);
+        $columnIndex++;
+      }
+      $hoja->setCellValue($columnIndex . '4', 'Suma');
+      $hoja->setCellValue(++$columnIndex . '4', 'Precio Costo');
+      $hoja->setCellValue(++$columnIndex . '4', 'Total');
+      $hoja->getStyle('A4:' . $columnIndex . '4')->getFont()->setBold(true);
+      $hoja->getStyle('A4:' . $columnIndex . '4')->getAlignment()->setHorizontal('center');
+
+      $fila = 5;
+      foreach ($reportData as $articulo => $info) {
+				$hoja->setCellValue('A' . $fila, $info['articulo_descripcion']);
+				$columnIndex = 'B';
+          foreach ($bodegasDestino as $key => $bodegaDestino) {
+            $hoja->setCellValue($columnIndex . $fila, isset($info['bodegas'][$key]) ? $info['bodegas'][$key] : 0);
+            $hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+            $columnIndex++;
+          }
+        $hoja->setCellValue($columnIndex . $fila, $info['cantidad_total']);
+        $hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+        $hoja->setCellValue(++$columnIndex . $fila, 'Q.' . number_format($info['precio_unitario'], 2));
+        $hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+        $hoja->setCellValue(++$columnIndex . $fila, 'Q.' . number_format($info['cantidad_total'] * $info['precio_unitario'], 2));
+      	$hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+        $fila++;
+      }
+      $hoja->setCellValue('A' . $fila, 'TOTAL:');
+      $hoja->mergeCells('A' . $fila . ':' . chr(67 + count($bodegasDestino)) . $fila);
+      $hoja->getStyle('A' . $fila)->getFont()->setBold(true);
+      $hoja->getStyle('A' . $fila)->getAlignment()->setHorizontal('right');
+      $hoja->setCellValue(chr(68 + count($bodegasDestino)) . $fila, 'Q' . number_format($totalFinal, 2));
+      $hoja->getStyle(chr(68 + count($bodegasDestino)) . $fila)->getAlignment()->setHorizontal('right');
+
+      foreach (range('A', $columnIndex) as $col) {
+        $hoja->getColumnDimension($col)->setAutoSize(true);
+      }
+
+      $hoja->getStyle('A4:' . $columnIndex . ($fila))->getBorders()->getAllBorders()
+        ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+        ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+
+      header('Content-Type: application/vnd.ms-excel');
+      header('Content-Disposition: attachment;filename="resumen_traslados.xlsx"');
+      header('Cache-Control: max-age=1');
+      header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+      header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+      header('Cache-Control: cache, must-revalidate');
+      header('Pragma: public');
+
+      $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+      $writer->save('php://output');
+    } else {
+      $tmp = sys_get_temp_dir();
+      $pdf = new \Mpdf\Mpdf([
+        "tempDir" => $tmp,
+        "format"  => "A4",
+				"orientation" => "L"
+      ]);
+
+      $pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+      $pdf->WriteHTML($this->load->view("reporte/egreso/resumen_traslados", ["data" => $reportData, "totalFinal" => $totalFinal, "params" => $params, "bodegaOrigen" => $bodegaOrigen, "bodegasDestino" => $bodegasDestino], true));
+      $pdf->Output("{$nombreArchivo}.pdf", "D");
+    }
+	}
+	
 	public function generar_catalogo_articulo()
 	{
 		$datos = json_decode(file_get_contents("php://input"), true);
