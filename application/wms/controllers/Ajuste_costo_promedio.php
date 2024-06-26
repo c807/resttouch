@@ -196,10 +196,10 @@ class Ajuste_costo_promedio extends CI_Controller
                             if ($datos_costo) {
                                 $cantidad_presentacion = (float)$pres->cantidad;
                                 $precio_unitario = $precioUnitarioSinIVA;
-                                $existencia_anterior = (float)$datos_costo->existencia;
+                                $existencia_anterior = (float)$datos_costo->existencia - ((float)1 * $cantidad_presentacion);
                                 $cp_unitario_anterior = (float)$datos_costo->costo_promedio;
                                 $costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
-                                $existencia_nueva = $existencia_anterior + ((float)1 * $cantidad_presentacion);
+                                $existencia_nueva = (float)$datos_costo->existencia;
                                 $costo_total_nuevo = $costo_total_anterior + $precioUnitarioSinIVA;
 
                                 $nvaData = [

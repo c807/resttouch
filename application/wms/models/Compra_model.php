@@ -120,12 +120,13 @@ class Compra_model extends General_Model
 							$precio_unitario = (float)$det->precio_unitario;
 							$existencia_anterior = (float)0;
 							$cp_unitario_anterior = (float)0;
+							$existencia_nueva = ((float)$det->cantidad * $cantidad_presentacion);
 							if ($datos_costo) {						
-								$existencia_anterior = (float)$datos_costo->existencia;
+								$existencia_anterior = (float)$datos_costo->existencia - ((float)$det->cantidad * $cantidad_presentacion);
 								$cp_unitario_anterior = (float)$datos_costo->costo_promedio;
+								$existencia_nueva = (float)$datos_costo->existencia;
 							} 
-							$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
-							$existencia_nueva = $existencia_anterior + ((float)$det->cantidad * $cantidad_presentacion);						
+							$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;							
 							$costo_total_nuevo = $costo_total_anterior + (float)$det->precio_total;
 		
 							$nvaData = [

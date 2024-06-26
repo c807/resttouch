@@ -294,8 +294,8 @@ class Egreso_model extends General_Model
 				$porIVA = (float)$emp->porcentaje_iva ?? 0.12;
 			}
 
-			$sede = $this->db->select('sede')->where('bodega', $ing->bodega)->get('bodega')->row();
-			$idsArticulos = [];
+			// $sede = $this->db->select('sede')->where('bodega', $ing->bodega)->get('bodega')->row();
+			// $idsArticulos = [];
 
 			foreach ($this->getDetalle() as $row) {
 				$row->articulo = $row->articulo->articulo;
