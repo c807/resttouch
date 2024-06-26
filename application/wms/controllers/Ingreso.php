@@ -85,10 +85,7 @@ class Ingreso extends CI_Controller
 
 
 				if ($pres->medida == $presArt->medida) {
-					$art->actualizarExistencia([
-						'bodega' => $ing->bodega,
-						'sede' => $bod->sede
-					]);
+					// $art->actualizarExistencia(['bodega' => $ing->bodega,'sede' => $bod->sede]);
 					$det = $ing->setDetalle($req, $id);
 					if ($det) {
 						if ((int)$ing->ajuste === 0) {
