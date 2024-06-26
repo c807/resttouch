@@ -26,7 +26,8 @@ class Ajuste_costo_promedio extends CI_Controller
             'Usuario_model',
             'Bitacora_model',
             'Bodega_model',
-            'Accion_model'
+            'Accion_model',
+            'Umedida_model'
         ]);
 
         $this->load->helper(['jwt', 'authorization']);
@@ -168,13 +169,24 @@ class Ajuste_costo_promedio extends CI_Controller
                         'ajuste_costo_promedio' => $acp->ajuste_costo_promedio
                     ];
                     if ($ingreso->guardar($dataIng)) {
+                        $listaMedidas = $this->Umedida_model->get_lista_medidas();
+		                $listaArticulos = $this->Articulo_model->get_lista_articulos();
                         $sede = new Sede_model($acp->sede);
                         $empresa = $sede->getEmpresa();
                         $porIva = $empresa ? ((float)$empresa->porcentaje_iva ?? (float)0.12) : (float)0.12;
                         $idsArticulos = [];
                         foreach ($detalle as $d) {
                             $art = new Articulo_model($d->articulo);
-                            $art->actualizarExistencia_v2(['fecha' => $ingreso->fecha, 'sede' => $acp->sede, 'bodega' => $acp->bodega, '_sinconfirmar' => 0]);
+
+                            // $art->actualizarExistencia_v2(['fecha' => $ingreso->fecha, 'sede' => $acp->sede, 'bodega' => $acp->bodega, '_sinconfirmar' => 0]);
+                            $paramsExist = [
+                                'sede' => [0 => (int)$acp->sede], 'bodega' => [0 => (int)$acp->bodega], 
+                                'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo,
+                                'fecha_al' => $ingreso->fecha, 'fecha' => $ingreso->fecha
+                            ];						
+                            $existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+                            $art->existencias = $existencia && $existencia->saldo_calculado ? $existencia->saldo_calculado : round(0, 5);
+
                             $pres = $art->getPresentacionReporte();
                             $art->existencias = (float)$art->existencias / (float)$pres->cantidad;
                             $precioUnitarioConIVA = ((float)$d->costo_promedio_correcto * ($art->existencias + (float)1)) - ($art->existencias * (float)$d->costo_promedio_sistema);
