@@ -105,7 +105,7 @@ class Fisico extends CI_Controller
 						'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
 					];
 					$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
-					$art->existencias = $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5);
+					$art->existencias = $existencia && $existencia->saldo_calculado ? $existencia->saldo_calculado : round(0, 5);
 
 					$fisico->setDetalle([
 						'articulo' => $row->articulo,
