@@ -2229,11 +2229,11 @@ class Factura_model extends General_model
 					'bodega' => (int)$det->bodega,
 					'articulo' => (int)$det->articulo,
 					'cuc_ingresado' => 0,
-					'costo_ultima_compra' => round((float)$datos_costo->costo_ultima_compra, 5),
+					'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
 					'cp_ingresado' => 0,
-					'costo_promedio' => round((float)$datos_costo->costo_promedio, 5),
+					'costo_promedio' => (float)$datos_costo->costo_promedio,
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)$datos_costo->existencia - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 5),
+					'existencia' => (float)$datos_costo->existencia,
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			} else {
@@ -2245,7 +2245,7 @@ class Factura_model extends General_model
 					'cp_ingresado' => 0,
 					'costo_promedio' => 0,
 					'existencia_ingresada' => 0,
-					'existencia' => round((float)0 - ((float)$det->cantidad_inventario * (float)$det->cantidad_presentacion), 5),
+					'existencia' => 0,
 					'fecha' => date('Y-m-d H:i:s')
 				];
 			}

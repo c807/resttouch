@@ -1149,6 +1149,40 @@ class Articulo extends CI_Controller
 
 		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
 	}
+
+	public function test_calc_existencia_articulo()
+	{
+		$req = json_decode(file_get_contents('php://input'));
+		$art = new Articulo_model((int)$req->articulo);
+		$hoy = date('Y-m-d');
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
+		$paramsExist = [
+			'sede' => [0 => (int)$req->sede], 'bodega' => [0 => (int)$req->bodega], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
+			'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
+			'_saldo_inicial' => 1
+		];
+
+		$inicio = microtime(true);
+
+		$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+
+		$fin = microtime(true);
+		// Calcular la diferencia de tiempo en segundos
+		$duracion = $fin - $inicio;
+
+		// Convertir a horas, minutos, segundos y milisegundos
+		$horas = (int)($duracion / 3600);
+		$minutos = (int)($duracion / 60 % 60);
+		$segundos = (int)($duracion % 60);
+		$milisegundos = (int)(($duracion - (int)$duracion) * 1000);
+		$datos = [
+			'articulo' => $art->descripcion,
+			'existencia' => $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5),
+			'duracion_calculo_de_existencia' => "$horas:$minutos:$segundos.$milisegundos"
+		];
+		$this->output->set_content_type('application/json')->set_output(json_encode($datos));
+	}
 }
 
 /* End of file Articulo.php */

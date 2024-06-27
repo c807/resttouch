@@ -106,6 +106,7 @@ import { ListaNotaPredefinidaComponent } from './components/nota-predefinida/lis
 import { ArticulosEliminadosComponent } from './components/reportes/articulos-eliminados/articulos-eliminados.component';
 import { DialogTurnoComponent } from './components/turno/dialog-turno/dialog-turno.component';
 import { PorArticuloComandadoComponent } from './components/reportes/rpt-ventas/por-articulo-comandado/por-articulo-comandado.component';
+import { VentasPorHabitacionComponent } from './components/reportes/ventas-reservaciones/ventas-por-habitacion.component';
 
 @NgModule({
   declarations: [
@@ -114,7 +115,7 @@ import { PorArticuloComandadoComponent } from './components/reportes/rpt-ventas/
     FormTurnoComponent, AreaDesignerComponent, RptVentasComponent, PorArticuloComandadoComponent, PorCategoriaComponent, PorArticuloComponent, TurnosComponent,
     PropinasComponent, ComandaEnLineaComponent, CajaComponent, FacturaComponent, ListaTurnoTipoComponent, FormTurnoTipoComponent,
     TurnoTipoComponent, PropinaComponent, FormPropinaComponent, ListaPropinaComponent, AutoconsultaComponent,
-    CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,
+    CajacorteComponent, CajacorteListaComponent, CajacorteFormComponent, ValidaPwdGerenteTurnoComponent, TrasladoMesaComponent,VentasPorHabitacionComponent,
     ConfiguraMesaComponent, TranCocinaComponent, TranComandaAltComponent, NotasGeneralesPredefinidasComponent, NotasGeneralesComandaComponent, NuevaCuentaComponent,
     DistribuirProductosCuentasComponent, AccionesComandaComponent, SeleccionaTurnoPrevioComponent, TranAnulaComandaComponent, CantidadCombosDialogComponent,
     ListaProductosComandaAltComponent, ProductoComandaAltComponent, ComandaComponent, HistoricoPedidosComponent, AccionesComandaEnLineaComponent, CajaCortePreviewComponent, PedirCantidadArticuloComponent, ArmarComboComponent, MTranComandaComponent, MListaProductosComponent, MAccionesArticuloComandaComponent, VentasAdminComponent, NotaPredefinidaComponent, FormNotaPredefinidaComponent, ListaNotaPredefinidaComponent, ArticulosEliminadosComponent, DialogTurnoComponent

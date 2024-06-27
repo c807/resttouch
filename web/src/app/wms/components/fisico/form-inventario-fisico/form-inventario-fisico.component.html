@@ -66,16 +66,16 @@
                       {{ art.narticulo }}
                     </td>
                     <td class="rtxt bld" style="width: 15%; font-style: italic;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)">
-                      {{ art.existencia_sistema | number:'1.2-2' }}
+                      {{ art.existencia_sistema | number:'1.5-5' }}
                     </td>
                     <td style="width: 20%;" [ngClass]="{'rtxt': +inventario.confirmado === 1}">
                       <mat-form-field class="fullWidth" style="margin-left: 5px;" *ngIf="+inventario.confirmado === 0">
                         <input matInput type="number" step="0.01" placeholder="Cantidad" [(ngModel)]="art.existencia_fisica" [ngModelOptions]="{standalone: true}" required>
                       </mat-form-field>
-                      <strong *ngIf="+inventario.confirmado === 1">{{art.existencia_fisica | number:'1.2-2'}}</strong>
+                      <strong *ngIf="+inventario.confirmado === 1">{{art.existencia_fisica | number:'1.5-5'}}</strong>
                     </td>
                     <td class="rtxt bld" style="width: 15%;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)" [ngClass]="{'hay-diferencia': (+art.existencia_sistema - +art.existencia_fisica) > 0, 'hay-diferencia-ingreso': (+art.existencia_sistema - +art.existencia_fisica) < 0}">
-                      {{(+art.existencia_sistema - +art.existencia_fisica) | number:'1.2-2' }}
+                      {{(+art.existencia_sistema - +art.existencia_fisica) | number:'1.5-5' }}
                     </td>
                   </tr>
   

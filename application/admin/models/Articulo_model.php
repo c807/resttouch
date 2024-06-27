@@ -215,7 +215,7 @@ class Articulo_model extends General_model
 		}
 
 		$comandas = $this->db
-			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
+			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as total')
 			->join('articulo b', 'a.articulo = b.articulo')
 			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 			->join('categoria d', 'd.categoria = c.categoria')
@@ -247,7 +247,7 @@ class Articulo_model extends General_model
 		}
 
 		$facturas = $this->db
-			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
+			->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as total')
 			->join('articulo b', 'a.articulo = b.articulo')
 			->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 			->join('categoria d', 'd.categoria = c.categoria')
@@ -344,7 +344,7 @@ class Articulo_model extends General_model
 			}
 
 			$ingresos = $this->db
-				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5))/pr.cantidad, 5) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')
@@ -381,7 +381,7 @@ class Articulo_model extends General_model
 			}
 
 			$egresos = $this->db
-				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2))/pr.cantidad, 2) as total')
+				->select('round(sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5))/pr.cantidad, 5) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')
@@ -422,12 +422,17 @@ class Articulo_model extends General_model
 			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
-				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
-				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				}
+
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				}
 			}
 
 			$ingresos = $this->db
-				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5)) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')
@@ -445,12 +450,17 @@ class Articulo_model extends General_model
 			if (verDato($args, '_saldo_inicial') && verDato($args, 'fecha_del')) {
 				$this->db->where('date(e.fecha) < ', $args['fecha_del']);
 			} else {
-				$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
-				$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				if (verDato($args, 'fecha_del')) {
+					$this->db->where('date(e.fecha) >= ', $args['fecha_del']);
+				}
+
+				if (verDato($args, 'fecha')) {
+					$this->db->where('date(e.fecha) <= ', $args['fecha']);
+				}				
 			}
 
 			$egresos = $this->db
-				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 2)) as total')
+				->select('sum(round(ifnull(a.cantidad, 0) * p.cantidad, 5)) as total')
 				->join('articulo b', 'a.articulo = b.articulo')
 				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
 				->join('categoria d', 'd.categoria = c.categoria')
@@ -499,13 +509,13 @@ class Articulo_model extends General_model
 			}
 
 			$comandas = $this->db
-				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
-				->join('articulo b', 'a.articulo = b.articulo')
-				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
-				->join('categoria d', 'd.categoria = c.categoria')
-				->join('comanda e', 'e.comanda = a.comanda')
-				->join('turno f', 'e.turno = f.turno and f.sede = d.sede')
-				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as total')
+				->join('articulo b', 'a.articulo = b.articulo', 'inner')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo', 'inner')
+				->join('categoria d', 'd.categoria = c.categoria', 'inner')
+				->join('comanda e', 'e.comanda = a.comanda', 'inner')
+				->join('turno f', 'e.turno = f.turno and f.sede = d.sede', 'inner')
+				->join('presentacion p', 'a.presentacion = p.presentacion', 'inner')
 				->where('a.articulo', $articulo)
 				->get('detalle_comanda a')
 				->row(); //total ventas comanda	
@@ -526,16 +536,16 @@ class Articulo_model extends General_model
 			}
 
 			$facturas = $this->db
-				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 2)) as total')
-				->join('articulo b', 'a.articulo = b.articulo')
-				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo')
-				->join('categoria d', 'd.categoria = c.categoria')
+				->select('sum(round(ifnull(a.cantidad_inventario, ifnull(a.cantidad, 0)) * p.cantidad, 5)) as total')
+				->join('articulo b', 'a.articulo = b.articulo', 'inner')
+				->join('categoria_grupo c', 'c.categoria_grupo = b.categoria_grupo', 'inner')
+				->join('categoria d', 'd.categoria = c.categoria', 'inner')
 				->join('detalle_factura_detalle_cuenta e', 'a.detalle_factura = e.detalle_factura', 'left')
-				->join('factura f', 'a.factura = f.factura and f.sede = d.sede')
-				->join('presentacion p', 'a.presentacion = p.presentacion')
+				->join('factura f', 'a.factura = f.factura and f.sede = d.sede', 'inner')
+				->join('presentacion p', 'a.presentacion = p.presentacion', 'inner')
 				->where('a.articulo', $articulo)
 				->where('e.detalle_factura_detalle_cuenta is null')
-				->where('f.fel_uuid IS NOT NULL')				
+				->where('f.fel_uuid IS NOT NULL')
 				->get('detalle_factura a')
 				->row(); //total ventas factura manual
 
@@ -587,7 +597,8 @@ class Articulo_model extends General_model
 			'facturas' => $facturas,
 			'total_egresos' => $comandas + $facturas + $egresos,
 			'existencia' => $this->existencias,
-			'saldo_inicial' => verDato($args, '_saldo_inicial') ? ((float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos))  : 0
+			'saldo_inicial' => verDato($args, '_saldo_inicial') ? ((float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos))  : 0,
+			'saldo_calculado' => (float)$ingresos - ((float)$comandas + (float)$facturas + (float)$egresos)
 		];
 	}
 
@@ -1211,7 +1222,7 @@ class Articulo_model extends General_model
 		$bac = $this->db->where('articulo', $this->getPK())->where('bodega', $idbodega)->get('bodega_articulo_costo')->row();
 		if ($bac) {
 			// $pres = $this->getPresentacionReporte();
-			// $existencias = round((float)$this->existencias * (float)$pres->cantidad, 2);
+			// $existencias = round((float)$this->existencias * (float)$pres->cantidad, 5);
 			$existencias = is_null($dato_existencia) ? (float)$this->existencias : (float)$dato_existencia;
 			$this->db->where('bodega_articulo_costo', $bac->bodega_articulo_costo)->update('bodega_articulo_costo', ['existencia' => $existencias, 'fecha' => date('Y-m-d H:i:s')]);
 		} else {
@@ -1300,7 +1311,7 @@ class Articulo_model extends General_model
 			foreach ($this->getReceta() as $key => $row) {
 				$articulo = new Articulo_model($row->articulo->articulo);
 				$tmp      = $row->cantidad * $articulo->_getCosto();
-				$costo    += round($tmp, 2);
+				$costo    += round($tmp, 5);
 			}
 		} else {
 			$costo = $this->getCosto();
@@ -1324,7 +1335,7 @@ class Articulo_model extends General_model
 				}
 
 				$tmp      = $row->cantidad * $elCosto;
-				$costo    += round($tmp, 2);
+				$costo    += round($tmp, 5);
 			}
 		} else {
 			$bodega = $this->db

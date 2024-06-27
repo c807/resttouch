@@ -8,7 +8,7 @@ import { Municipio } from '@admin-interfaces/municipio';
 import { Cliente } from '@admin-interfaces/cliente';
 
 export const GLOBAL = {
-  rtVersion: '2024.06.12.06.32.11',
+  rtVersion: '2024.06.25.07.21.50',
   dbDateFormat: 'YYYY-MM-DD',
   dbDateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
   dbDateTimeFormatMilli: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -85,6 +85,7 @@ export const GLOBAL = {
     RT_AUTO_FIRMA_DTE_COMANDA_LINEA: 'RT_AUTO_FIRMA_DTE_COMANDA_LINEA',
     RT_INCLUYE_SALDO_INICIAL: 'RT_INCLUYE_SALDO_INICIAL',
     RT_BLOQUEO_MESA_POR_MESERO: 'RT_BLOQUEO_MESA_POR_MESERO',
+    RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL: 'RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL',
   },
   grupos: [
     {

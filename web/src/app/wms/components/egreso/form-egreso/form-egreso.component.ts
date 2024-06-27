@@ -193,8 +193,7 @@ export class FormEgresoComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadBodegasUsuario = () => {    
-    console.log('USUARIO = ', this.ls.get(GLOBAL.usrTokenVar));
+  loadBodegasUsuario = () => {        
     this.endSubs.add(
       this.usuarioSrvc.getBodegasUsuario({ usuario: this.ls.get(GLOBAL.usrTokenVar).idusr || 0, debaja: 0 }).subscribe(res => {
         this.bodegasUsuario = res;

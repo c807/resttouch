@@ -264,6 +264,11 @@ $config['menu'] = [
 						'nombre' => 'Ventas por artículos comandados',
 						'link' => '/restaurante/rptvtasartcoman',
 						'dispositivo' => 1
+					],
+					11 => [
+						'nombre' => 'Ventas por habitación de hotel',
+						'link' => '/restaurante/rptvtasporhab',
+						'dispositivo' => 1
 					]
 				]
 			],
@@ -409,6 +414,11 @@ $config['menu'] = [
 					10 => [
 						'nombre' => 'Consumo de articulo',
 						'link' => '/wms/consumo_articulo',
+						'dispositivo' => 1
+					],
+					11 => [
+						'nombre' => 'Resumen de traslados',
+						'link' => '/wms/resumen_traslados',
 						'dispositivo' => 1
 					]
 				]

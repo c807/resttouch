@@ -87,7 +87,7 @@ class Egreso extends CI_Controller
 						$det = $egr->setDetalle($req, $id);
 
 						if ($det) {
-							$art->actualizarExistencia();
+							// $art->actualizarExistencia();
 							$datos['exito'] = true;
 							$datos['mensaje'] = 'Datos actualizados con éxito.';
 							$datos['detalle'] = $det;

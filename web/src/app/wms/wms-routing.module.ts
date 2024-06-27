@@ -23,6 +23,7 @@ import { ConsumoArticuloComponent } from './components/reporte/consumo-articulo/
 import { TipoMovimientoComponent } from './components/tipo-movimiento/tipo-movimiento/tipo-movimiento.component';
 import { AjusteCostoPromedioComponent } from './components/ajuste-costo-promedio/ajuste-costo-promedio/ajuste-costo-promedio.component';
 import { AjusteCostoExistenciaComponent } from './components/ajuste-costo-existencia/ajuste-costo-existencia/ajuste-costo-existencia.component';
+import { ResumenTrasladosComponent } from './components/reporte/resumen-traslados/resumen-traslados.component';
 
 const routes: Routes = [
   { path: 'ingresos', component: IngresoComponent, canActivate: [AuthGuard] },
@@ -40,6 +41,7 @@ const routes: Routes = [
   { path: 'rptconsumos', component: ConsumosComponent, canActivate: [AuthGuard] },
   { path: 'cuadre_diario', component: FisicoComponent, canActivate: [AuthGuard] },
   { path: 'resumen_egreso', component: ResumenEgresoComponent, canActivate: [AuthGuard] },
+  { path: 'resumen_traslados', component: ResumenTrasladosComponent, canActivate: [AuthGuard] },
   { path: 'resumen_ingreso', component: ResumenIngresoComponent, canActivate: [AuthGuard] },
   { path: 'uso_ingrediente', component: UsoIngredienteComponent, canActivate: [AuthGuard] },
   { path: 'margen_receta', component: MargenRecetaComponent, canActivate: [AuthGuard] },

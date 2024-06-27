@@ -106,7 +106,8 @@ class Conversor extends CI_Controller
 						$pres = new Presentacion_model($det['presentacion']);
 						$art = new Articulo_model($det['articulo']);
 
-						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bod->getPK(), $art->getPK());
+						// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($bod->getPK(), $art->getPK(), true);
 						if ($datos_costo) {
 							if (((float)$datos_costo->existencia / (float)$pres->cantidad) < (float)$det['cantidad']) {
 								$continuar = false;
@@ -193,11 +194,11 @@ class Conversor extends CI_Controller
 											'bodega' => (int)$req['egreso']['bodega'],
 											'articulo' => (int)$det['articulo'],
 											'cuc_ingresado' => 0,
-											'costo_ultima_compra' => round((float)$datos_costo_egr->costo_ultima_compra, 5),
+											'costo_ultima_compra' => (float)$datos_costo_egr->costo_ultima_compra,
 											'cp_ingresado' => 0,
-											'costo_promedio' => round((float)$datos_costo_egr->costo_promedio, 5),
+											'costo_promedio' => (float)$datos_costo_egr->costo_promedio,
 											'existencia_ingresada' => 0,
-											'existencia' => round((float)$datos_costo_egr->existencia - ((float)$det['cantidad'] * (float)$pres->cantidad), 5),
+											'existencia' => (float)$datos_costo_egr->existencia,
 											'fecha' => date('Y-m-d H:i:s')
 										];
 										$nvoBac = new BodegaArticuloCosto_model();
@@ -226,24 +227,24 @@ class Conversor extends CI_Controller
 									]);
 									$ing->setDetalle($det);
 
-									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $det['articulo']);
+									// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ing->bodega, $det['articulo'], true);
 									if ($datos_costo) {
-										$cantidad_presentacion = round((float)$pres->cantidad, 5);
-										$precio_unitario = round((float)$det['precio_unitario'], 5);
-										$existencia_anterior = round((float)$datos_costo->existencia, 5);
-										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
-										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
-										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$cantidad_presentacion = (float)$pres->cantidad;
+										$precio_unitario = (float)$det['precio_unitario'];
+										$existencia_anterior = (float)$datos_costo->existencia;
+										$cp_unitario_anterior = (float)$datos_costo->costo_promedio;
+										$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
+										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);										
 										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$ing->bodega,
 											'articulo' => (int)$det['articulo'],
 											'cuc_ingresado' => 0,
-											'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+											'costo_ultima_compra' => $precio_unitario / $cantidad_presentacion,
 											'cp_ingresado' => 0,
-											'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+											'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 											'existencia_ingresada' => 0,
 											'existencia' => $existencia_nueva,
 											'fecha' => date('Y-m-d H:i:s'),
@@ -308,24 +309,24 @@ class Conversor extends CI_Controller
 
 									$merma->setDetalle($det);
 
-									$datos_costo_merma = $this->BodegaArticuloCosto_model->get_datos_costo($merma->bodega, $det['articulo']);
+									// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+									$datos_costo_merma = $this->BodegaArticuloCosto_model->get_datos_costo($merma->bodega, $det['articulo'], true);
 									if ($datos_costo_merma) {
-										$cantidad_presentacion = round((float)$pres->cantidad, 2);
-										$precio_unitario = round((float)$det['precio_unitario'], 5);
-										$existencia_anterior = round((float)$datos_costo_merma->existencia, 2);
-										$cp_unitario_anterior = round((float)$datos_costo_merma->costo_promedio, 5);
-										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
-										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$cantidad_presentacion = (float)$pres->cantidad;
+										$precio_unitario = (float)$det['precio_unitario'];
+										$existencia_anterior = (float)$datos_costo_merma->existencia;
+										$cp_unitario_anterior = (float)$datos_costo_merma->costo_promedio;
+										$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
+										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);										
 										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$merma->bodega,
 											'articulo' => (int)$det['articulo'],
 											'cuc_ingresado' => 0,
-											'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+											'costo_ultima_compra' => $precio_unitario / $cantidad_presentacion,
 											'cp_ingresado' => 0,
-											'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+											'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 											'existencia_ingresada' => 0,
 											'existencia' => $existencia_nueva,
 											'fecha' => date('Y-m-d H:i:s')
@@ -424,7 +425,8 @@ class Conversor extends CI_Controller
 
 					$ingredientes_insuficientes = [];
 					foreach ($receta as $row) {
-						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$req['bodega'], (int)$row->articulo->articulo);
+						// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+						$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo((int)$req['bodega'], (int)$row->articulo->articulo, true);
 						if ($datos_costo) {
 							// Está comparando la cantidad en presentación contra la cantidad de la receta en unidad de medida
 							// y por eso se comenta la siguiente linea.
@@ -544,11 +546,11 @@ class Conversor extends CI_Controller
 												'bodega' => (int)$egr->bodega,
 												'articulo' => (int)$rec->getPK(),
 												'cuc_ingresado' => 0,
-												'costo_ultima_compra' => round((float)$datos_costo_egr->costo_ultima_compra, 5),
+												'costo_ultima_compra' => (float)$datos_costo_egr->costo_ultima_compra,
 												'cp_ingresado' => 0,
-												'costo_promedio' => round((float)$datos_costo_egr->costo_promedio, 5),
+												'costo_promedio' => (float)$datos_costo_egr->costo_promedio,
 												'existencia_ingresada' => 0,
-												'existencia' => round((float)$datos_costo_egr->existencia - ((float)$row->cantidad * (float)$presR->cantidad), 5),
+												'existencia' => (float)$datos_costo_egr->existencia,
 												'fecha' => date('Y-m-d H:i:s')
 											];
 											$nvoBac = new BodegaArticuloCosto_model();
@@ -568,24 +570,24 @@ class Conversor extends CI_Controller
 									]);
 									$ingr->setDetalle($det);
 
-									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ingr->bodega, $art->getPK());
+									// 24/06/2024: Aquí hacer cambio de cálculo de existencias. JA.
+									$datos_costo = $this->BodegaArticuloCosto_model->get_datos_costo($ingr->bodega, $art->getPK(), true);
 									if ($datos_costo) {
-										$cantidad_presentacion = round((float)$pres->cantidad, 5);
-										$precio_unitario = round((float)$det['precio_unitario'], 5);
-										$existencia_anterior = round((float)$datos_costo->existencia, 5);
-										$cp_unitario_anterior = round((float)$datos_costo->costo_promedio, 5);
-										$costo_total_anterior = round($existencia_anterior * $cp_unitario_anterior, 5);
-										$existencia_nueva = $existencia_anterior + ((float)$det['cantidad'] * $cantidad_presentacion);
-										// $costo_total_nuevo = $costo_total_anterior + round((float)$det['precio_total'] / $cantidad_presentacion, 5);
+										$cantidad_presentacion = (float)$pres->cantidad;
+										$precio_unitario = (float)$det['precio_unitario'];
+										$existencia_anterior = (float)$datos_costo->existencia - ((float)$det['cantidad'] * $cantidad_presentacion);
+										$cp_unitario_anterior = (float)$datos_costo->costo_promedio;
+										$costo_total_anterior = $existencia_anterior * $cp_unitario_anterior;
+										$existencia_nueva = (float)$datos_costo->existencia;
 										$costo_total_nuevo = $costo_total_anterior + (float)$det['precio_total'];
 
 										$nvaData = [
 											'bodega' => (int)$ingr->bodega,
 											'articulo' => (int)$art->getPK(),
 											'cuc_ingresado' => 0,
-											'costo_ultima_compra' => round($precio_unitario / $cantidad_presentacion, 5),
+											'costo_ultima_compra' => $precio_unitario / $cantidad_presentacion,
 											'cp_ingresado' => 0,
-											'costo_promedio' => round($costo_total_nuevo / $existencia_nueva, 5),
+											'costo_promedio' => $costo_total_nuevo / $existencia_nueva,
 											'existencia_ingresada' => 0,
 											'existencia' => $existencia_nueva,
 											'fecha' => date('Y-m-d H:i:s'),

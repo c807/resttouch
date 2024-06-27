@@ -23,7 +23,8 @@ class Reporte extends CI_Controller
 			'BodegaArticuloCosto_model',
 			'Bitacora_model',
 			'Impresora_model',
-			'Umedida_model'
+			'Umedida_model',
+			'Resumen_traslados_model'
 		]);
 
 		$this->load->helper(['jwt', 'authorization']);
@@ -105,7 +106,7 @@ class Reporte extends CI_Controller
 				}
 			}
 			// Finaliza calculo de saldo inicial
-	
+
 			if (isset($_POST['solo_bajo_minimo']) && (int)$_POST['solo_bajo_minimo'] === 1) {
 				foreach ($args['reg'] as $key => $registro) {
 					foreach ($registro as $llave => $value) {
@@ -165,9 +166,9 @@ class Reporte extends CI_Controller
 					foreach ($args["reg"][$sede] as $row) {
 						$art = new Articulo_model($row->articulo->articulo);
 						$rec = $art->getReceta();
-	
+
 						$existencia = round($row->existencia / $row->presentacion->cantidad, 5);
-	
+
 						$reg = [
 							(!empty($row->articulo->codigo) ? $row->articulo->codigo : $row->articulo->articulo),
 							// "{$row->articulo->articulo} " . $row->articulo->descripcion,
@@ -184,7 +185,7 @@ class Reporte extends CI_Controller
 							// (count($rec) > 0 && $art->produccion == 0) ? "0.00" : (((float) $row->existencia != 0) ? round($row->existencia / $row->presentacion->cantidad, 2) : "0.00")
 							(float)$existencia === (float)0 ? "0.00" : $existencia
 						];
-	
+
 						$hoja->fromArray($reg, null, "A{$fila}");
 						$hoja->getStyle("D{$fila}:E{$fila}")->getNumberFormat()->setFormatCode('0.00');
 						$hoja->getStyle("F{$fila}")->getNumberFormat()->setFormatCode('0.00000');
@@ -476,6 +477,9 @@ class Reporte extends CI_Controller
 	public function valorizado()
 	{
 		$req = json_decode(file_get_contents('php://input'), true);
+		$hoy = date('Y-m-d');
+		$listaMedidas = $this->Umedida_model->get_lista_medidas();
+		$listaArticulos = $this->Articulo_model->get_lista_articulos();
 		$soloConfirmados = !isset($req['_sinconfirmar']) || (isset($req['_sinconfirmar']) && (int)$req['_sinconfirmar'] === 0);
 
 		$articulos = $this->Ingreso_model->get_articulos_con_ingresos($req);
@@ -518,8 +522,18 @@ class Reporte extends CI_Controller
 								// se llame el proceso obtenerExistencia, para que hale el valor de la existencia en base a la tabla boodega_articulo_costo
 								// este cambio probablemente afecte los artículos que son recetas o tienen detalle.
 								// $art->actualizarExistencia(['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)]);
-								$args = ['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)];
-								$art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
+
+								// Hasta el 22/06/2024 15:45 se usó lo siguiente:
+								// $args = ['fecha' => $req['fecha'], 'sede' => $s, 'bodega' => $bode, '_sinconfirmar' => ($soloConfirmados ? 0 : 1)];
+								// $art->existencias = $art->obtenerExistencia($args, $art->getPK(), (int)$art->esreceta === 1);
+
+								$paramsExist = [
+									'sede' => [0 => (int)$s], 'bodega' => [0 => (int)$bode], 'fecha_al' => $hoy,
+									'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
+								];
+								$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
+								$art->existencias = $existencia && $existencia->saldo_calculado ? round($existencia->saldo_calculado, 5) : round(0, 5);
+
 								$pres = $art->getPresentacionReporte();
 								$art->existencias = (float)$art->existencias / (float)$pres->cantidad;
 								// $art->existencias = (float)$art->existencias;
@@ -1319,129 +1333,129 @@ class Reporte extends CI_Controller
 			$lista = $this->Reporte_model->get_lista_compra($params);
 
 			// if ($lista) {
-				$data = [];
-				$nombreArchivo = "resumen_pedidos_proveedor_" . rand();
+			$data = [];
+			$nombreArchivo = "resumen_pedidos_proveedor_" . rand();
 
-				foreach ($lista as $key => $row) {
-					$tmp = new Reporte_model();
-					$data[] = $tmp->get_compra($row->orden_compra, $params['bodega']);
-				}
+			foreach ($lista as $key => $row) {
+				$tmp = new Reporte_model();
+				$data[] = $tmp->get_compra($row->orden_compra, $params['bodega']);
+			}
 
-				if (verDato($params, '_alfa') && $params['_alfa']) {
-					$data = ordenar_array_objetos($data, 'orden_alfa');
-				}
+			if (verDato($params, '_alfa') && $params['_alfa']) {
+				$data = ordenar_array_objetos($data, 'orden_alfa');
+			}
 
-				$params['datos_sede'] = $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]);
-				$params['datos_bodega'] = $this->Bodega_model->buscar(['bodega' => $params['bodega'], '_uno' => true]);
+			$params['datos_sede'] = $this->Sede_model->buscar(['sede' => $params['sede'], '_uno' => true]);
+			$params['datos_bodega'] = $this->Bodega_model->buscar(['bodega' => $params['bodega'], '_uno' => true]);
 
-				if (verDato($params, "_excel")) {
-					$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+			if (verDato($params, "_excel")) {
+				$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 
-					$excel->setActiveSheetIndex(0);
-					$hoja = $excel->getActiveSheet();
-					$hoja->setTitle("Reporte");
+				$excel->setActiveSheetIndex(0);
+				$hoja = $excel->getActiveSheet();
+				$hoja->setTitle("Reporte");
 
-					$hoja->setCellValue("A1", "Resumen de pedidos por proveedor")->mergeCells("A1:D1");
-					$hoja->setCellValue("A2", "Sede: ");
-					$hoja->setCellValue("A3", "Las existencias se calculan con base en la bodega: {$params['datos_bodega']->descripcion}")->mergeCells("A3:D3");
-					$hoja->setCellValue("A4", "Del: ");
-					$hoja->setCellValue("A5", "Al: ");
-					
-					$hoja->setCellValue("B2", "{$params['datos_sede']->nombre} ({$params['datos_sede']->alias})");
-					$hoja->setCellValue("B4", formatoFecha($params["fdel"], 2));
-					$hoja->setCellValue("B5", formatoFecha($params["fal"], 2));
-					$hoja->getStyle("A1:B5")->getFont()->setBold(true);
+				$hoja->setCellValue("A1", "Resumen de pedidos por proveedor")->mergeCells("A1:D1");
+				$hoja->setCellValue("A2", "Sede: ");
+				$hoja->setCellValue("A3", "Las existencias se calculan con base en la bodega: {$params['datos_bodega']->descripcion}")->mergeCells("A3:D3");
+				$hoja->setCellValue("A4", "Del: ");
+				$hoja->setCellValue("A5", "Al: ");
 
-					$pos   = 8;
-					$total = 0;
+				$hoja->setCellValue("B2", "{$params['datos_sede']->nombre} ({$params['datos_sede']->alias})");
+				$hoja->setCellValue("B4", formatoFecha($params["fdel"], 2));
+				$hoja->setCellValue("B5", formatoFecha($params["fal"], 2));
+				$hoja->getStyle("A1:B5")->getFont()->setBold(true);
 
-					foreach ($data as $key => $row) {
-						$hoja->setCellValue("A{$pos}", $row->orden_compra);
-						$hoja->setCellValue("B{$pos}", $row->fhcreacion);
-						$hoja->setCellValue("C{$pos}", $row->usuario);
-						$hoja->setCellValue("D{$pos}", $row->proveedor);
-						$hoja->setCellValue("E{$pos}", $row->estatus);
-						$hoja->setCellValue("F{$pos}", $row->ingreso);
+				$pos   = 8;
+				$total = 0;
 
+				foreach ($data as $key => $row) {
+					$hoja->setCellValue("A{$pos}", $row->orden_compra);
+					$hoja->setCellValue("B{$pos}", $row->fhcreacion);
+					$hoja->setCellValue("C{$pos}", $row->usuario);
+					$hoja->setCellValue("D{$pos}", $row->proveedor);
+					$hoja->setCellValue("E{$pos}", $row->estatus);
+					$hoja->setCellValue("F{$pos}", $row->ingreso);
+
+					$pos++;
+
+					$hoja->setCellValue("A{$pos}", $row->notas)->mergeCells("A{$pos}:F{$pos}");
+
+					$pos++;
+					$hoja->setCellValue("B{$pos}", "Código");
+					$hoja->setCellValue("C{$pos}", "Descripción");
+					$hoja->setCellValue("D{$pos}", "Presentación");
+					$hoja->setCellValue("E{$pos}", "Existencia");
+					$hoja->setCellValue("F{$pos}", "Cantidad");
+					$hoja->setCellValue("G{$pos}", "Costo U.");
+					$hoja->setCellValue("H{$pos}", "Total");
+					$hoja->getStyle("B{$pos}:H{$pos}")->getFont()->setBold(true);
+					$hoja->getStyle("E{$pos}:H{$pos}")->getAlignment()->setHorizontal("right");
+
+					$pos++;
+
+					$tmpTotal = 0;
+					foreach ($row->detalle as $llave => $fila) {
+						$hoja->setCellValue("B{$pos}", $fila->codigo);
+						$hoja->setCellValue("C{$pos}", $fila->articulo);
+						$hoja->setCellValue("D{$pos}", $fila->presentacion);
+						$hoja->setCellValue("E{$pos}", $fila->existencias);
+						$hoja->setCellValue("F{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
+						$hoja->setCellValue("G{$pos}", number_format((float)$fila->monto, 2, ".", ""));
+						$hoja->setCellValue("H{$pos}", number_format((float)$fila->total, 2, ".", ""));
+						$hoja->getStyle("E{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
+
+						$tmpTotal += $fila->total;
 						$pos++;
-
-						$hoja->setCellValue("A{$pos}", $row->notas)->mergeCells("A{$pos}:F{$pos}");
-
-						$pos++;
-						$hoja->setCellValue("B{$pos}", "Código");
-						$hoja->setCellValue("C{$pos}", "Descripción");
-						$hoja->setCellValue("D{$pos}", "Presentación");
-						$hoja->setCellValue("E{$pos}", "Existencia");
-						$hoja->setCellValue("F{$pos}", "Cantidad");
-						$hoja->setCellValue("G{$pos}", "Costo U.");
-						$hoja->setCellValue("H{$pos}", "Total");
-						$hoja->getStyle("B{$pos}:H{$pos}")->getFont()->setBold(true);
-						$hoja->getStyle("E{$pos}:H{$pos}")->getAlignment()->setHorizontal("right");
-
-						$pos++;
-
-						$tmpTotal = 0;
-						foreach ($row->detalle as $llave => $fila) {
-							$hoja->setCellValue("B{$pos}", $fila->codigo);
-							$hoja->setCellValue("C{$pos}", $fila->articulo);
-							$hoja->setCellValue("D{$pos}", $fila->presentacion);
-							$hoja->setCellValue("E{$pos}", $fila->existencias);
-							$hoja->setCellValue("F{$pos}", number_format((float)$fila->cantidad, 2, ".", ""));
-							$hoja->setCellValue("G{$pos}", number_format((float)$fila->monto, 2, ".", ""));
-							$hoja->setCellValue("H{$pos}", number_format((float)$fila->total, 2, ".", ""));
-							$hoja->getStyle("E{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
-
-							$tmpTotal += $fila->total;
-							$pos++;
-						}
-
-						$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:G{$pos}");
-						$hoja->setCellValue("H{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
-						$hoja->getStyle("A{$pos}:H{$pos}")->getFont()->setBold(true);
-						$hoja->getStyle("A{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
-
-						$pos += 2;
-						$total += $tmpTotal;
 					}
 
 					$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:G{$pos}");
-					$hoja->setCellValue("H{$pos}", number_format((float)$total, 2, ".", ""));
-
+					$hoja->setCellValue("H{$pos}", number_format((float)$tmpTotal, 2, ".", ""));
+					$hoja->getStyle("A{$pos}:H{$pos}")->getFont()->setBold(true);
 					$hoja->getStyle("A{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
 
-					$hoja->getStyle("A{$pos}:H{$pos}")->applyFromArray([
-						"font"    => ["bold" => true],
-						"borders" => [
-							"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
-							"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
-						]
-					]);
-
-					for ($i = 1; $i <= 6; $i++) {
-						$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
-					}
-
-					header("Content-Type: application/vnd.ms-excel");
-					header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
-					header("Cache-Control: max-age=1");
-					header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
-					header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
-					header("Cache-Control: cache, must-revalidate");
-					header("Pragma: public");
-
-					$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
-					$writer->save("php://output");
-				} else {
-					$pdf = new \Mpdf\Mpdf([
-						"tempDir" => sys_get_temp_dir(),
-						"format"  => "Letter"
-					]);
-
-					$pdf->WriteHTML($this->load->view("reporte/orden_compra/imprimir_pedidos_proveedor", ["data" => $data, "params" => $params], true));
-					$pdf->Output("{$nombreArchivo}.pdf", "D");
-
-					// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
+					$pos += 2;
+					$total += $tmpTotal;
 				}
+
+				$hoja->setCellValue("A{$pos}", "Total")->mergeCells("A{$pos}:G{$pos}");
+				$hoja->setCellValue("H{$pos}", number_format((float)$total, 2, ".", ""));
+
+				$hoja->getStyle("A{$pos}:H{$pos}")->getNumberFormat()->setFormatCode("0.00");
+
+				$hoja->getStyle("A{$pos}:H{$pos}")->applyFromArray([
+					"font"    => ["bold" => true],
+					"borders" => [
+						"top"    => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN],
+						"bottom" => ["borderStyle" => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN]
+					]
+				]);
+
+				for ($i = 1; $i <= 6; $i++) {
+					$hoja->getColumnDimensionByColumn($i)->setAutoSize(true);
+				}
+
+				header("Content-Type: application/vnd.ms-excel");
+				header("Content-Disposition: attachment;filename={$nombreArchivo}.xls");
+				header("Cache-Control: max-age=1");
+				header("Expires: Mon, 26 Jul 1997 05:00:00 GTM");
+				header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GTM");
+				header("Cache-Control: cache, must-revalidate");
+				header("Pragma: public");
+
+				$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+				$writer->save("php://output");
+			} else {
+				$pdf = new \Mpdf\Mpdf([
+					"tempDir" => sys_get_temp_dir(),
+					"format"  => "Letter"
+				]);
+
+				$pdf->WriteHTML($this->load->view("reporte/orden_compra/imprimir_pedidos_proveedor", ["data" => $data, "params" => $params], true));
+				$pdf->Output("{$nombreArchivo}.pdf", "D");
+
+				// $this->output->set_content_type("application/json", "UTF-8")->set_output(json_encode($data));
+			}
 			//} //If lista
 		}
 	}
@@ -1632,6 +1646,123 @@ class Reporte extends CI_Controller
 					$pdf->Output("{$nombreArchivo}.pdf", "D");
 				}
 			}
+		}
+	}
+
+	public function resumen_traslados()
+	{
+		$params = json_decode(file_get_contents("php://input"), true);
+		$data = $this->Resumen_traslados_model->get_resumen_traslados($params);
+
+		$reportData = [];
+		$bodegaOrigen = '';
+		$bodegasDestino = [];
+		foreach ($data as $row) {
+			$articulo = $row['articulo'];
+			$bodega_destino = $row['bodega_destino'];
+			if (empty($bodegaOrigen)) {
+				$bodegaOrigen = "{$row['bodega_origen']} ({$row['sede_origen']} - {$row['alias_origen']})";
+			}
+
+			if (!isset($bodegasDestino[$bodega_destino])) {
+				$bodegasDestino[$bodega_destino] = "{$row['bodega_destino_desc']} ({$row['sede_destino']} - {$row['alias_destino']})";
+			}
+			if (!isset($reportData[$articulo])) {
+				$reportData[$articulo] = [
+					'articulo_descripcion' => $row['articulo_descripcion'],
+					'precio_unitario' => $row['precio_unitario'],
+					'cantidad_total' => 0,
+					'bodegas' => []
+				];
+			}
+			$reportData[$articulo]['bodegas'][$bodega_destino] = $row['cantidad'];
+			$reportData[$articulo]['cantidad_total'] += $row['cantidad'];
+		}
+		$totalFinal = 0;
+		foreach ($reportData as $item) {
+			$totalFinal += $item['cantidad_total'] * $item['precio_unitario'];
+		}
+		if (isset($params['_excel']) && $params['_excel']) {
+			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+			$excel->setActiveSheetIndex(0);
+			$hoja = $excel->getActiveSheet();
+			$hoja->setTitle("Resumen de Traslados");
+
+			$hoja->setCellValue('A1', 'Resumen de Traslados');
+			$hoja->mergeCells('A1:' . chr(70 + count($bodegasDestino)) . '1');
+			$hoja->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+			$hoja->getStyle('A1')->getAlignment()->setHorizontal('center');
+
+			$hoja->setCellValue('A2', 'Del: ' . date('d/m/Y', strtotime($params['fdel'])) . ' al: ' . date('d/m/Y', strtotime($params['fal'])));
+			$hoja->mergeCells('A2:' . chr(70 + count($bodegasDestino)) . '2');
+			$hoja->getStyle('A2')->getAlignment()->setHorizontal('center');
+
+			$hoja->setCellValue('A4', $bodegaOrigen);
+			$columnIndex = 'B';
+			foreach ($bodegasDestino as $bodegaDestino) {
+				$hoja->setCellValue($columnIndex . '4', $bodegaDestino);
+				$columnIndex++;
+			}
+			$hoja->setCellValue($columnIndex . '4', 'Suma');
+			$hoja->setCellValue(++$columnIndex . '4', 'Precio Costo');
+			$hoja->setCellValue(++$columnIndex . '4', 'Total');
+			$hoja->getStyle('A4:' . $columnIndex . '4')->getFont()->setBold(true);
+			$hoja->getStyle('A4:' . $columnIndex . '4')->getAlignment()->setHorizontal('center');
+
+			$fila = 5;
+			foreach ($reportData as $articulo => $info) {
+				$hoja->setCellValue('A' . $fila, $info['articulo_descripcion']);
+				$columnIndex = 'B';
+				foreach ($bodegasDestino as $key => $bodegaDestino) {
+					$hoja->setCellValue($columnIndex . $fila, isset($info['bodegas'][$key]) ? $info['bodegas'][$key] : 0);
+					$hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+					$columnIndex++;
+				}
+				$hoja->setCellValue($columnIndex . $fila, $info['cantidad_total']);
+				$hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+				$hoja->setCellValue(++$columnIndex . $fila, 'Q.' . number_format($info['precio_unitario'], 2));
+				$hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+				$hoja->setCellValue(++$columnIndex . $fila, 'Q.' . number_format($info['cantidad_total'] * $info['precio_unitario'], 2));
+				$hoja->getStyle($columnIndex . $fila)->getAlignment()->setHorizontal('right');
+				$fila++;
+			}
+			$hoja->setCellValue('A' . $fila, 'TOTAL:');
+			$hoja->mergeCells('A' . $fila . ':' . chr(67 + count($bodegasDestino)) . $fila);
+			$hoja->getStyle('A' . $fila)->getFont()->setBold(true);
+			$hoja->getStyle('A' . $fila)->getAlignment()->setHorizontal('right');
+			$hoja->setCellValue(chr(68 + count($bodegasDestino)) . $fila, 'Q' . number_format($totalFinal, 2));
+			$hoja->getStyle(chr(68 + count($bodegasDestino)) . $fila)->getAlignment()->setHorizontal('right');
+
+			foreach (range('A', $columnIndex) as $col) {
+				$hoja->getColumnDimension($col)->setAutoSize(true);
+			}
+
+			$hoja->getStyle('A4:' . $columnIndex . ($fila))->getBorders()->getAllBorders()
+				->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN)
+				->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('Black'));
+
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename="resumen_traslados.xlsx"');
+			header('Cache-Control: max-age=1');
+			header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+			header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+			header('Cache-Control: cache, must-revalidate');
+			header('Pragma: public');
+
+			$writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($excel);
+			$writer->save('php://output');
+		} else {
+			$tmp = sys_get_temp_dir();
+			$pdf = new \Mpdf\Mpdf([
+				"tempDir" => $tmp,
+				"format"  => "A4",
+				"orientation" => "L"
+			]);
+
+			$pdf->setFooter("Página {PAGENO} de {nb}  {DATE j/m/Y H:i:s}");
+			$pdf->WriteHTML($this->load->view("reporte/egreso/resumen_traslados", ["data" => $reportData, "totalFinal" => $totalFinal, "params" => $params, "bodegaOrigen" => $bodegaOrigen, "bodegasDestino" => $bodegasDestino], true));
+			$pdf->Output("Resumen_traslados.pdf", "D");
 		}
 	}
 

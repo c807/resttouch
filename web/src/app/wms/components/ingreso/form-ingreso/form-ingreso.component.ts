@@ -33,6 +33,7 @@ import { Medida } from '@admin-interfaces/medida';
 import { MedidaService } from '@admin-services/medida.service';
 import { UsuarioBodega } from '@admin-interfaces/usuario';
 import { UsuarioService } from '@admin-services/usuario.service';
+import { ConfiguracionService } from '@admin-services/configuracion.service';
 
 import { Subscription } from 'rxjs';
 
@@ -52,6 +53,13 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
       return true;
     }
     return false;    
+  }
+
+  get calculaMinimoDeCostoTotal(): number {    
+    if (this.RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL) {
+      return -9999999.99;
+    }
+    return 0.01;
   }
 
   @Input() ingreso: Ingreso;
@@ -87,6 +95,7 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
   public presentacionArticuloDisabled = true;
   public medidas: Medida[] = [];
   public bodegasUsuario: UsuarioBodega[] = [];
+  public RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL = false;
 
   private endSubs = new Subscription();
 
@@ -105,10 +114,12 @@ export class FormIngresoComponent implements OnInit, OnDestroy {
     private pdfServicio: ReportePdfService,
     private medidaSrvc: MedidaService,
     private usuarioSrvc: UsuarioService,
+    private configSrvc: ConfiguracionService
   ) { }
 
   ngOnInit() {
     this.esMovil = this.ls.get(GLOBAL.usrTokenVar).enmovil || false;    
+    this.RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PERMITE_COSTO_NEGATIVO_INGRESO_MANUAL) as boolean;    
     this.resetIngreso();
     this.loadTiposMovimiento();
     this.loadProveedores();
