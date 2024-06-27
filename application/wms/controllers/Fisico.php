@@ -101,9 +101,8 @@ class Fisico extends CI_Controller
 					//if ($art->mostrar_inventario == 1) {
 					// $art->actualizarExistencia($req);
 					$paramsExist = [
-						'sede' => [0 => (int)$req['sede']], 'bodega' => [0 => (int)$req['bodega']], 'fecha_del' => $hoy, 'fecha_al' => $hoy,
+						'sede' => [0 => (int)$req['sede']], 'bodega' => [0 => (int)$req['bodega']], 'fecha_al' => $hoy,
 						'solo_bajo_minimo' => 0, '_excel' => 0, 'categoria_grupo' => (int)$art->categoria_grupo, 'fecha' => $hoy,
-						'_saldo_inicial' => 1
 					];
 					$existencia = $art->getExistencias($paramsExist, $listaMedidas, $listaArticulos);
 					$art->existencias = $existencia && $existencia->saldo_inicial ? round($existencia->saldo_inicial, 5) : round(0, 5);
@@ -220,7 +219,7 @@ class Fisico extends CI_Controller
 							if ($pres->cantidad != 0) {
 								$existencias = $art->existencia_sistema / $pres->cantidad;
 							} else {
-									$existencias = 0;
+								$existencias = 0;
 							}
 
 							// Implementación solicitó quitar esta validación. 15/05/2023 15:21
@@ -327,9 +326,9 @@ class Fisico extends CI_Controller
 					$art = new Articulo_model($row->articulo);
 					$pres = $art->getPresentacionReporte();
 					if ($pres->cantidad != 0) {
-							$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 5);
+						$row->existencia_sistema = round($row->existencia_sistema / $pres->cantidad, 5);
 					} else {
-							$row->existencia_sistema = 0;
+						$row->existencia_sistema = 0;
 					}
 					$row->existencia_fisica = (float)$row->existencia_fisica;
 					$row->diferencia = (float)$row->diferencia;
@@ -572,7 +571,7 @@ class Fisico extends CI_Controller
 									$nvaData = [
 										'bodega' => (int)$ing->bodega,
 										'articulo' => (int)$row->articulo,
-										'cuc_ingresado' => 0,										
+										'cuc_ingresado' => 0,
 										'costo_ultima_compra' => (float)$datos_costo->costo_ultima_compra,
 										'cp_ingresado' => 0,
 										'costo_promedio' => (float)$datos_costo->costo_promedio,
