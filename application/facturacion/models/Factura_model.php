@@ -1466,7 +1466,8 @@ class Factura_model extends General_model
 	public function pdfCofidi()
 	{
 		$link = $this->certificador->vinculo_factura;
-		$nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		// $nit = str_repeat('0', 12 - strlen($this->empresa->nit)) . $this->empresa->nit;
+		$nit = trim($this->empresa->nit);
 		$datos = array(
 			'Requestor' => $this->certificador->llave,
 			'Transaction' => $this->certificador->vinculo_grafo,
