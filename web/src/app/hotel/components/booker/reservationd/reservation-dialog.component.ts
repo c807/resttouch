@@ -149,8 +149,8 @@ export class ReservationDialogComponent implements OnInit, AfterViewInit, OnDest
   }
 
   loadTarifasReserva = async () => {
-    // this.tarifas = await this.tarifaReservaSrvc.get({ tipo_habitacion: this.data.roomIdType }).toPromise();
-    this.tarifas = await this.tarifaReservaSrvc.get().toPromise();
+    const todasLasTarifas = await this.tarifaReservaSrvc.get().toPromise();
+    this.tarifas = todasLasTarifas.filter(tarifa => tarifa.debaja != 1);
   }
 
   loadEstatusReserva = async () => {

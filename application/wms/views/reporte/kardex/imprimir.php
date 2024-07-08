@@ -23,7 +23,7 @@
 				<h2><?php echo "Artículo: {$articulo->descripcion}" ?></h2>
 				<h3><?php echo "Código: {$articulo->codigo}" ?></h3>
 			</td>
-			<td colspan="3" class="text-center">
+			<td colspan="4" class="text-center">
 				<b>Del:</b> <?php echo formatoFecha($fdel,2)?> 
 				<b>Al:</b> <?php echo formatoFecha($fal,2) ?> 
 			</td>
@@ -31,18 +31,18 @@
 		<?php $lastSede = end($sedes); ?>
 		<?php foreach ($sedes as $sede): ?>
 			<tr>
-				<td class="titulo" colspan="7">
+				<td class="titulo" colspan="8">
 					Sede: <?php echo "{$sede->sede->nombre} ({$sede->sede->alias})" ?>
 				</td>
 			</tr>
 			<tr>
-				<td class="titulo" colspan="7">
+				<td class="titulo" colspan="8">
 					Presentación: <?php echo $sede->presentacion ?>
 				</td>
 			</tr>
 			<?php foreach ($sede->bodegas as $bodega): ?>
 				<tr>
-					<td class="titulo" colspan="7">
+					<td class="titulo" colspan="8">
 						Bodega: <?php echo $bodega->descripcion ?>
 					</td>
 				</tr>
@@ -54,6 +54,7 @@
 					<td class="titulo num">Factura Directa</td>
 					<td class="titulo num">Total Egresos</td>
 					<td class="titulo num">Saldo Actual</td>
+					<td colspan="1"></td>
 				</tr>
 				<?php $saldo = $bodega->antiguedad + $bodega->ingresos - $bodega->salidas ?>
 				<tr>
@@ -73,8 +74,15 @@
 						<td class="titulo num">Tipo Movimiento</td>
 						<td class="titulo num">Ingreso</td>
 						<td class="titulo num">Salida</td>
+						<td class="titulo num">Saldo</td>
 					</tr>
-					<?php foreach ($bodega->detalle as $det): ?>
+					<?php $saldo2 = $bodega->antiguedad;
+          	foreach ($bodega->detalle as $det): 
+            if ($det->tipo == 1) {
+              $saldo2 += $det->cantidad;
+            } elseif ($det->tipo == 2) {
+              $saldo2 -= $det->cantidad;
+            }?>
 						<tr>
 							<td colspan="2"></td>						
 							<td class="text-center num"><?php echo formatoFecha($det->fecha, 2) ?></td>
@@ -82,11 +90,12 @@
 							<td class="text-center num"><?php echo $det->tipo_movimiento ?></td>
 							<td class="text-right num"><?php echo ($det->tipo == 1) ? number_format($det->cantidad, 2) : "0.00" ?></td>
 							<td class="text-right num"><?php echo ($det->tipo == 2) ? number_format($det->cantidad, 2) : "0.00" ?></td>
+							<td class="text-right num"><?php echo number_format($saldo2, 2)?></td>
 						</tr>					
 					<?php endforeach ?>
 				<?php else: ?>
 					<tr>
-						<td class="text-center" colspan="7">
+						<td class="text-center" colspan="8">
 							<h5>SIN MOVIMIENTOS EN LA BODEGA <?php echo strtoupper($bodega->descripcion) ?></h5>
 						</td>
 					</tr>
@@ -94,7 +103,7 @@
 			<?php endforeach ?>
 			<?php if($sede != $lastSede): ?>
 				<tr>
-					<td colspan="7" style="height: 15px; border-left: 1px solid white; border-right: 1px solid white;"></td>
+					<td colspan="8" style="height: 15px; border-left: 1px solid white; border-right: 1px solid white;"></td>
 				</tr>
 			<?php endif ?>
 		<?php endforeach ?>

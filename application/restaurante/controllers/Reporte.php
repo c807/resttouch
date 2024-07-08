@@ -2089,8 +2089,11 @@ class Reporte extends CI_Controller
                     $hoja->setCellValue("H{$fila}", 'Bodega');
                     $hoja->setCellValue("I{$fila}", 'Cantidad de inventario');
                     $hoja->setCellValue("J{$fila}", 'Fecha comandado');
-                    $hoja->getStyle("B{$fila}:J{$fila}")->getFont()->setBold(true);
-                    $hoja->getStyle("B{$fila}:J{$fila}")->getAlignment()->setHorizontal('center');
+                    $hoja->setCellValue("K{$fila}", 'Tiempo PENDIENTE');
+                    $hoja->setCellValue("L{$fila}", 'Tiempo EN PROCESO');
+                    $hoja->setCellValue("M{$fila}", 'Tiempo TOTAL');
+                    $hoja->getStyle("B{$fila}:M{$fila}")->getFont()->setBold(true);
+                    $hoja->getStyle("B{$fila}:M{$fila}")->getAlignment()->setHorizontal('center');
                     $fila++;
                     foreach ($cmd->detalle as $det) {
                         $descArticulo = '';
@@ -2115,6 +2118,12 @@ class Reporte extends CI_Controller
                         $hoja->getStyle("I{$fila}")->getNumberFormat()->setFormatCode('0.00');
                         $hoja->setCellValue("J{$fila}", $det->fecha);
                         $hoja->getStyle("J{$fila}")->getNumberFormat()->setFormatCode('yyyy-mm-dd hh:mm');
+                        $hoja->setCellValue("K{$fila}", $det->tiempo_pendiente);
+                        $hoja->getStyle("K{$fila}")->getNumberFormat()->setFormatCode('hh:mm:ss');
+                        $hoja->setCellValue("L{$fila}", $det->tiempo_preparacion);
+                        $hoja->getStyle("L{$fila}")->getNumberFormat()->setFormatCode('hh:mm:ss');
+                        $hoja->setCellValue("M{$fila}", $det->tiempo_total);
+                        $hoja->getStyle("M{$fila}")->getNumberFormat()->setFormatCode('hh:mm:ss');
                         $fila++;
                     }
                 }

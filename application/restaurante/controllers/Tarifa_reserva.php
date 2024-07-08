@@ -9,6 +9,9 @@ class Tarifa_reserva extends CI_Controller
 		set_database_server();
 		$this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model']);
 		$this->output->set_content_type('application/json', 'UTF-8');
+		$this->load->helper(['jwt', 'authorization']);
+		$headers = $this->input->request_headers();
+		$this->data = AUTHORIZATION::validateToken($headers['Authorization']);
 	}
 
 	public function guardar($id = '')
@@ -17,6 +20,11 @@ class Tarifa_reserva extends CI_Controller
 		$req = json_decode(file_get_contents('php://input'), true);
 		$datos = ['exito' => false];
 		if ($this->input->method() == 'post') {
+
+			if ((int)$req['debaja'] === 1) {
+				$req['fechabaja'] = date('Y-m-d H:i:s');
+				$req['usuariobaja'] = $this->data->idusuario;
+			}
 
 			$datos['exito'] = $tarifares->guardar($req);
 

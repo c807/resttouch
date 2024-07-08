@@ -42,6 +42,7 @@
             <thead>
               <tr>
                 <th>Artículo</th>
+                <th class="rtxt" style="width: 10%;">Presentación</th>
                 <th class="rtxt" style="width: 15%;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)">Existencia sistema</th>
                 <th style="width: 20%;" [ngClass]="{'rtxt': +inventario.confirmado === 1}">Existencia física</th>
                 <th class="rtxt" style="width: 15%;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)">Diferencia</th>
@@ -50,20 +51,23 @@
             <tbody>              
               <ng-container *ngFor="let cat of articulos">
                 <tr>
-                  <th colspan="3">
+                  <th colspan="5">
                     <mat-label>{{ cat.descripcion }}</mat-label>
                   </th>
                 </tr>
   
                 <ng-container *ngFor="let gcat of cat.datos">
                   <tr>
-                    <th colspan="3">{{ gcat.descripcion }}</th>
+                    <th colspan="5">{{ gcat.descripcion }}</th>
                   </tr>
   
   
                   <tr *ngFor="let art of gcat.datos;">
                     <td>
                       {{ art.narticulo }}
+                    </td>
+                    <td>
+                      {{ art.npresentacion }}
                     </td>
                     <td class="rtxt bld" style="width: 15%; font-style: italic;" *ngIf="!esCuadreDiario || (esCuadreDiario && +inventario.confirmado === 1)">
                       {{ art.existencia_sistema | number:'1.2-2' }}
