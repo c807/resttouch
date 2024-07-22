@@ -104,11 +104,22 @@ export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
         if (+idcomanda > 0) {
           this.lstComandasCocina = this.lstComandasCocina.filter(c => +c.comanda !== +idcomanda);
           this.lstComandasCocinaEnProceso = this.lstComandasCocinaEnProceso.filter(c => +c.comanda !== +idcomanda);
-          res.pendientes.forEach(p => this.lstComandasCocina.push(p));
+          res.pendientes.forEach(p => {
+            p.fecha_inicio = new Date();
+            localStorage.setItem(`comanda_${p.comanda}_${p.numero}_fecha_inicio`, p.fecha_inicio.toISOString());
+            this.lstComandasCocina.push(p);
+          });
           res.enproceso.forEach(p => this.lstComandasCocinaEnProceso.push(p));
           this.lstComandasCocinaEnProceso = OrdenarArrayObjetos(this.lstComandasCocinaEnProceso, 'fecha_proceso', 3);
         } else {
-          this.lstComandasCocina = res.pendientes;
+          this.lstComandasCocina = res.pendientes.map(p => {
+            const storedFechaInicio = localStorage.getItem(`comanda_${p.comanda}_${p.numero}_fecha_inicio`);
+            p.fecha_inicio = storedFechaInicio ? new Date(storedFechaInicio) : new Date();
+            if (!storedFechaInicio) {
+              localStorage.setItem(`comanda_${p.comanda}_${p.numero}_fecha_inicio`, p.fecha_inicio.toISOString());
+            }
+            return p;
+          });
           this.lstComandasCocinaEnProceso = res.enproceso;
         }
         this.setTiempo();
@@ -117,57 +128,63 @@ export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setTiempo = () => {
+    const calcularTiempo = (fechaInicio) => {
+    const msecPerMinute = 1000 * 60;
+    const msecPerHour = msecPerMinute * 60;
+    const msecPerDay = msecPerHour * 24;
+
+    let date = new Date(fechaInicio);
+    const dateMsec = date.getTime();
+
+    date = new Date();
+
+      let interval = date.getTime() - dateMsec;
+
+      const days = Math.floor(interval / msecPerDay);
+      interval = interval - (days * msecPerDay);
+
+      const hours = Math.floor(interval / msecPerHour);
+      interval = interval - (hours * msecPerHour);
+
+      const minutes = Math.floor(interval / msecPerMinute);
+      interval = interval - (minutes * msecPerMinute);
+
+      const seconds = Math.floor(interval / 1000);
+      const tiempo = new Date();
+
+      tiempo.setHours(hours);
+      tiempo.setMinutes(minutes);
+      tiempo.setSeconds(seconds);
+
+      return tiempo;
+    };
+
     if (this.lstComandasCocinaEnProceso) {
       for (let i = 0; i < this.lstComandasCocinaEnProceso.length; i++) {
         const comanda = this.lstComandasCocinaEnProceso[i];
-        const msecPerMinute = 1000 * 60;
-        const msecPerHour = msecPerMinute * 60;
-        const msecPerDay = msecPerHour * 24;
-
-        // asignar la fecha en milisegundos
-        let date = new Date(comanda.fecha_proceso);
-        this.lstComandasCocinaEnProceso[i].inicio_proceso = date;
-        comanda.inicio = date;
-        const dateMsec = date.getTime();
-
-        // asignar la fecha el 1 de enero del a la media noche
-        date = new Date();
-
-        // Obtener la diferencia en milisegundos
-        let interval = date.getTime() - dateMsec;
-
-        // Calcular cuentos días contiene el intervalo. Substraer cuantos días
-        // tiene el intervalo para determinar el sobrante
-        const days = Math.floor(interval / msecPerDay);
-        interval = interval - (days * msecPerDay);
-
-        // Calcular las horas , minutos y segundos
-        const hours = Math.floor(interval / msecPerHour);
-        interval = interval - (hours * msecPerHour);
-
-        const minutes = Math.floor(interval / msecPerMinute);
-        interval = interval - (minutes * msecPerMinute);
-
-        const seconds = Math.floor(interval / 1000);
-        const tiempo = new Date();
-
-        tiempo.setHours(hours);
-        tiempo.setMinutes(minutes);
-        tiempo.setSeconds(seconds);
-
-        this.lstComandasCocinaEnProceso[i].tiempo_transcurrido = tiempo;
-        if (comanda.tiempo_preparacion) {
-          // tslint:disable-next-line: variable-name
-          const tiempo_preparacion = comanda.tiempo_preparacion.split(':');
-          comanda.inicio.setHours(comanda.inicio.getHours() + (+tiempo_preparacion[0]));
-          comanda.inicio.setMinutes(comanda.inicio.getMinutes() + (+tiempo_preparacion[1]));
-          this.lstComandasCocinaEnProceso[i].fin_proceso = comanda.inicio;
-        } else {
-          this.lstComandasCocinaEnProceso[i].fin_proceso = date;
+        if (comanda.fecha_proceso) {
+          this.lstComandasCocinaEnProceso[i].tiempo_transcurrido = calcularTiempo(comanda.fecha_proceso);
+          if (comanda.tiempo_preparacion) {
+            const tiempo_preparacion = comanda.tiempo_preparacion.split(':');
+            comanda.inicio_proceso = new Date(comanda.fecha_proceso);
+            comanda.inicio_proceso.setHours(comanda.inicio_proceso.getHours() + (+tiempo_preparacion[0]));
+            comanda.inicio_proceso.setMinutes(comanda.inicio_proceso.getMinutes() + (+tiempo_preparacion[1]));
+            this.lstComandasCocinaEnProceso[i].fin_proceso = comanda.inicio_proceso;
+          } else {
+            this.lstComandasCocinaEnProceso[i].fin_proceso = new Date();
+          }
         }
       }
     }
 
+    if (this.lstComandasCocina) {
+      for (let i = 0; i < this.lstComandasCocina.length; i++) {
+        const comanda = this.lstComandasCocina[i];
+        if (comanda.fecha_inicio) {
+          this.lstComandasCocina[i].tiempo_transcurrido = calcularTiempo(comanda.fecha_inicio);
+        }
+      }
+    }
   }
 
   comparaFecha = (cmd: any) => {
@@ -186,10 +203,24 @@ export class TranCocinaComponent implements OnInit, AfterViewInit, OnDestroy {
       const ahora = moment().format(GLOBAL.dbDateTimeFormat);
       this.lstComandasCocina[idx].fecha_proceso = ahora;
       datos.fecha_proceso = ahora;
+      const fechaInicioPendiente = moment(localStorage.getItem(`comanda_${cmd.comanda}_${cmd.numero}_fecha_inicio`));
+      const duracionPendiente = moment.duration(moment().diff(fechaInicioPendiente));
+      const horasPendiente = Math.floor(duracionPendiente.asHours()).toString().padStart(2, '0');
+      const minutosPendiente = duracionPendiente.minutes().toString().padStart(2, '0');
+      const segundosPendiente = duracionPendiente.seconds().toString().padStart(2, '0');
+      datos.tiempo_pendiente = `${horasPendiente}:${minutosPendiente}:${segundosPendiente}`;
       this.lstComandasCocinaEnProceso.push(this.lstComandasCocina[idx]);
       this.lstComandasCocina.splice(idx, 1);
+      localStorage.removeItem(`comanda_${cmd.comanda}_${cmd.numero}_fecha_inicio`);
       this.setTiempo();
     } else if (estatus === 2) {
+      const inicioProceso = moment(cmd.fecha_proceso);
+      const finProceso = moment();
+      const duracion = moment.duration(finProceso.diff(inicioProceso));
+      const horas = Math.floor(duracion.asHours()).toString().padStart(2, '0');
+      const minutos = duracion.minutes().toString().padStart(2, '0');
+      const segundos = duracion.seconds().toString().padStart(2, '0');
+      datos.tiempo_preparacion = `${horas}:${minutos}:${segundos}`;
       this.lstComandasCocinaEnProceso.splice(idx, 1);
     }
 

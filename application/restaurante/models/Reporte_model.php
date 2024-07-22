@@ -402,7 +402,10 @@ class Reporte_model extends CI_Model
 		}
 
 		$select = 'a.detalle_comanda, a.comanda, TRIM(b.descripcion) AS articulo, a.cantidad, a.precio, a.total, TRIM(a.notas) AS notas, TRIM(a.notas_predefinidas) AS notas_predefinidas, TRIM(c.descripcion) AS presentacion, ';
-		$select .= 'TRIM(d.descripcion) AS bodega, IFNULL(a.cantidad_inventario, a.cantidad) AS cantidad_inventario, a.detalle_comanda_id, b.multiple, a.fecha';
+		$select .= 'TRIM(d.descripcion) AS bodega, IFNULL(a.cantidad_inventario, a.cantidad) AS cantidad_inventario, a.detalle_comanda_id, b.multiple, a.fecha, ';
+		$select .= 'IF(a.detalle_comanda_id IS NULL, IFNULL(a.tiempo_preparacion, "00:00:00"), NULL) AS tiempo_preparacion, ';
+    $select .= 'IF(a.detalle_comanda_id IS NULL, IFNULL(a.tiempo_pendiente, "00:00:00"), NULL) AS tiempo_pendiente, ';
+    $select .= 'IF(a.detalle_comanda_id IS NULL, SEC_TO_TIME(TIME_TO_SEC(IFNULL(a.tiempo_preparacion, "00:00:00")) + TIME_TO_SEC(IFNULL(a.tiempo_pendiente, "00:00:00"))), NULL) AS tiempo_total';
 
 		if (isset($args['suma'])) {
 			$select = 'SUM(a.total) AS total';

@@ -20,6 +20,7 @@ class Dcomanda_model extends General_Model
 	public $presentacion_bck = null;
 	public $numero;
 	public $fecha;
+	public $tiempo_pendiente;
 	public $tiempo_preparacion;
 	public $fecha_impresion;
 	public $fecha_proceso;
