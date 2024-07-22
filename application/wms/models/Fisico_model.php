@@ -39,11 +39,13 @@ class Fisico_model extends General_model {
 						c.descripcion as ncategoria_grupo,
 						d.descripcion as ncategoria,
 						c.categoria_grupo,
-						d.categoria
+						d.categoria,
+						e.descripcion as npresentacion
 						")
 					->join("articulo b", "a.articulo = b.articulo")
 					->join("categoria_grupo c", "b.categoria_grupo = c.categoria_grupo")
 					->join("categoria d", "c.categoria = d.categoria")
+					->join("presentacion e", "b.presentacion = e.presentacion")
 					->where("a.inventario_fisico", $this->getPK())
 					->order_by("d.descripcion, c.descripcion, b.descripcion")
 					->get("detalle_inventario_fisico a")

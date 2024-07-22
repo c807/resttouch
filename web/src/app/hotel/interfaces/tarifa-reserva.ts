@@ -3,6 +3,9 @@ export interface TarifaReserva {
     tipo_habitacion: number;
     cantidad_adultos: number;
     cantidad_menores: number;
+    debaja: number;
+    fechabaja: Date;
+    usuariobaja: number;
     monto: number;
     monto_adicional_adulto: number;
     monto_adicional_menor: number;

@@ -8,6 +8,9 @@ class Tarifa_reserva_model extends General_model {
 	public $cantidad_adultos = 0;	
     public $cantidad_menores = 0;
     public $monto = 0.0;
+		public $debaja = 0;
+		public $fechabaja = null;
+    public $usuariobaja = null;
     public $monto_adicional_adulto = 0.0;
     public $monto_adicional_menor = 0.0;    
 	public $articulo = null;
