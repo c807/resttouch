@@ -18,6 +18,9 @@
                             </mat-card-subtitle>
                         </mat-card-header>
                         <mat-card-content>
+                            <div align="center">
+                                <h6>{{cmd.tiempo_transcurrido | date: 'HH:mm:ss'}}</h6>
+                            </div>
                             <ng-container *ngFor="let cta of cmd.cuentas">
                                 <table *ngIf="cta.productos.length > 0">
                                     <tr *ngFor="let prod of cta.productos">

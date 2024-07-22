@@ -684,14 +684,11 @@ class Comanda extends CI_Controller
 					$args = ['cocinado' => $data['estatus']];
 
 					if ((int)$data['estatus'] === 1) {
-						// if ((int)$data['tiempo'] < 10) {
-						// 	$data['tiempo'] = "0" . $data['tiempo'];
-						// }
-						// if (isset($data['tiempo'])) {
-						// 	$args['tiempo_preparacion'] = "00:{$data['tiempo']}";
-						// }
 						$args['tiempo_preparacion'] = "00:00";
 						$args['fecha_proceso'] = isset($data['fecha_proceso']) ? $data['fecha_proceso'] : Hoy(3);
+						$args['tiempo_pendiente'] = $data['tiempo_pendiente'];
+					} elseif ((int)$data['estatus'] === 2 && isset($data['tiempo_preparacion'])) {
+							$args['tiempo_preparacion'] = $data['tiempo_preparacion'];
 					}
 
 					$exito = $ld->guardar($args);

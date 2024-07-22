@@ -46,8 +46,13 @@
                 </mat-form-field>                
             </td>
             <td class="ctxt">
-                <button mat-raised-button type="button" color="accent" (click)="guardarTarifa(tres)" [disabled]="cargando || tresFaltante(tres)">
+                <button mat-raised-button type="button" color="accent" (click)="guardarTarifa(tres)" [disabled]="cargando || tresFaltante(tres) || +tres.debaja === 1">
                     Guardar
+                </button>
+            </td>
+            <td class="ctxt">
+                <button mat-raised-button type="button" color="warn" (click)="darDeBaja(tres)" [disabled]="cargando || tresFaltante(tres) || +tres.debaja === 1">
+                    Dar de baja
                 </button>
             </td>
         </tr>

@@ -359,11 +359,11 @@ class Reporte extends CI_Controller
 			$excel->setActiveSheetIndex(0);
 			$hoja = $excel->getActiveSheet();
 
-			$hoja->getStyle('A1:G4')->getFont()->setBold(true);
-			$hoja->mergeCells('A1:G1');
-			$hoja->mergeCells('A2:G2');
-			$hoja->mergeCells('A3:G3');
-			$hoja->mergeCells('A4:G4');
+			$hoja->getStyle('A1:H4')->getFont()->setBold(true);
+			$hoja->mergeCells('A1:H1');
+			$hoja->mergeCells('A2:H2');
+			$hoja->mergeCells('A3:H3');
+			$hoja->mergeCells('A4:H4');
 
 			$hoja->setCellValue('A1', 'Kardex');
 			$hoja->setCellValue('A2', "Artículo: {$args->articulo->descripcion}");
@@ -372,24 +372,24 @@ class Reporte extends CI_Controller
 
 			$fila = 6;
 			foreach ($args->sedes as $sede) {
-				$hoja->mergeCells("A{$fila}:G{$fila}");
-				$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+				$hoja->mergeCells("A{$fila}:H{$fila}");
+				$hoja->getStyle("A{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+				$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 				$hoja->setCellValue("A{$fila}", "Sede: {$sede->sede->nombre} ({$sede->sede->alias})");
 				$fila++;
-				$hoja->mergeCells("A{$fila}:G{$fila}");
-				$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-				$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+				$hoja->mergeCells("A{$fila}:H{$fila}");
+				$hoja->getStyle("A{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+				$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 				$hoja->setCellValue("A{$fila}", "Presentación: {$sede->presentacion}");
 				$fila++;
 				foreach ($sede->bodegas as $bodega) {
-					$hoja->mergeCells("A{$fila}:G{$fila}");
-					$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-					$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+					$hoja->mergeCells("A{$fila}:H{$fila}");
+					$hoja->getStyle("A{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+					$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 					$hoja->setCellValue("A{$fila}", "Bodega: {$bodega->descripcion}");
 					$fila++;
-					$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-					$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+					$hoja->getStyle("A{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+					$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 					$hoja->setCellValue("A{$fila}", 'Saldo Anterior');
 					$hoja->setCellValue("B{$fila}", 'Ingresos');
 					$hoja->setCellValue("C{$fila}", 'Egresos');
@@ -411,28 +411,36 @@ class Reporte extends CI_Controller
 					$hoja->getStyle("G{$fila}")->getNumberFormat()->setFormatCode('0.00000');
 					$fila++;
 					if (count($bodega->detalle) > 0) {
-						$hoja->getStyle("C{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-						$hoja->getStyle("C{$fila}:G{$fila}")->getFont()->setBold(true);
+						$hoja->getStyle("C{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+						$hoja->getStyle("C{$fila}:H{$fila}")->getFont()->setBold(true);
 						$hoja->setCellValue("C{$fila}", 'Fecha');
 						$hoja->setCellValue("D{$fila}", 'No.');
 						$hoja->setCellValue("E{$fila}", 'Tipo Movimiento');
 						$hoja->setCellValue("F{$fila}", 'Ingreso');
 						$hoja->setCellValue("G{$fila}", 'Salida');
+						$hoja->setCellValue("H{$fila}", 'Saldo');
 						$fila++;
-						foreach ($bodega->detalle as $det) {
+						$saldo2 = $bodega->antiguedad;
+            foreach ($bodega->detalle as $det) {
+              if ($det->tipo == 1) {
+                $saldo2 += $det->cantidad;
+              } elseif ($det->tipo == 2) {
+                $saldo2 -= $det->cantidad;
+              }
 							$hoja->setCellValue("C{$fila}", formatoFecha($det->fecha, 2));
 							$hoja->setCellValue("D{$fila}", $det->id);
 							$hoja->setCellValue("E{$fila}", $det->tipo_movimiento);
 							$hoja->getStyle("C{$fila}:E{$fila}")->getAlignment()->setHorizontal('center');
 							$hoja->setCellValue("F{$fila}", ($det->tipo == 1) ? $det->cantidad : "0.00");
 							$hoja->setCellValue("G{$fila}", ($det->tipo == 2) ? $det->cantidad : "0.00");
-							$hoja->getStyle("F{$fila}:G{$fila}")->getNumberFormat()->setFormatCode('0.00');
+							$hoja->setCellValue("H{$fila}", $saldo2);
+							$hoja->getStyle("F{$fila}:H{$fila}")->getNumberFormat()->setFormatCode('0.00');
 							$fila++;
 						}
 					} else {
-						$hoja->mergeCells("A{$fila}:G{$fila}");
-						$hoja->getStyle("A{$fila}:G{$fila}")->getAlignment()->setHorizontal('center');
-						$hoja->getStyle("A{$fila}:G{$fila}")->getFont()->setBold(true);
+						$hoja->mergeCells("A{$fila}:H{$fila}");
+						$hoja->getStyle("A{$fila}:H{$fila}")->getAlignment()->setHorizontal('center');
+						$hoja->getStyle("A{$fila}:H{$fila}")->getFont()->setBold(true);
 						$hoja->setCellValue("A{$fila}", "SIN MOVIMIENTOS EN LA BODEGA " . strtoupper($bodega->descripcion));
 						$fila++;
 					}
@@ -440,7 +448,7 @@ class Reporte extends CI_Controller
 				}
 			}
 
-			foreach (range('A', 'G') as $col) {
+			foreach (range('A', 'H') as $col) {
 				$hoja->getColumnDimension($col)->setAutoSize(true);
 			}
 
@@ -1664,25 +1672,28 @@ class Reporte extends CI_Controller
 				$bodegaOrigen = "{$row['bodega_origen']} ({$row['sede_origen']} - {$row['alias_origen']})";
 			}
 
-			if (!isset($bodegasDestino[$bodega_destino])) {
-				$bodegasDestino[$bodega_destino] = "{$row['bodega_destino_desc']} ({$row['sede_destino']} - {$row['alias_destino']})";
-			}
-			if (!isset($reportData[$articulo])) {
-				$reportData[$articulo] = [
-					'articulo_descripcion' => $row['articulo_descripcion'],
-					'precio_unitario' => $row['precio_unitario'],
-					'cantidad_total' => 0,
-					'bodegas' => []
-				];
-			}
-			$reportData[$articulo]['bodegas'][$bodega_destino] = $row['cantidad'];
-			$reportData[$articulo]['cantidad_total'] += $row['cantidad'];
-		}
-		$totalFinal = 0;
-		foreach ($reportData as $item) {
-			$totalFinal += $item['cantidad_total'] * $item['precio_unitario'];
-		}
-		if (isset($params['_excel']) && $params['_excel']) {
+      if (!isset($bodegasDestino[$bodega_destino])) {
+        $bodegasDestino[$bodega_destino] = "{$row['bodega_destino_desc']} ({$row['sede_destino']} - {$row['alias_destino']})";
+      }
+      if (!isset($reportData[$articulo])) {
+        $reportData[$articulo] = [
+          'articulo_descripcion' => $row['articulo_descripcion'],
+          'precio_unitario' => $row['precio_unitario'],
+          'cantidad_total' => 0,
+          'bodegas' => []
+        ];
+      }
+			if (!isset($reportData[$articulo]['bodegas'][$bodega_destino])) {
+        $reportData[$articulo]['bodegas'][$bodega_destino] = 0;
+    	}
+      $reportData[$articulo]['bodegas'][$bodega_destino] += $row['cantidad'];
+      $reportData[$articulo]['cantidad_total'] += $row['cantidad'];
+    }
+    $totalFinal = 0;
+    foreach ($reportData as $item) {
+      $totalFinal += $item['cantidad_total'] * $item['precio_unitario'];
+    }
+    if (isset($params['_excel']) && $params['_excel']) {
 			$excel = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 
 			$excel->setActiveSheetIndex(0);

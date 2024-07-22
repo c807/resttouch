@@ -9,6 +9,8 @@ import { ArticuloService } from '@wms-services/articulo.service';
 import { Articulo } from '@wms-interfaces/articulo';
 
 import { Subscription } from 'rxjs';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '@shared/components/confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-tarifa-reserva',
@@ -44,6 +46,7 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
   constructor(
     private tarifaReservaSrvc: TarifaReservaService,
     private articuloSrvc: ArticuloService,
+    public dialog: MatDialog,
     private ls: LocalstorageService
   ) { }
 
@@ -62,6 +65,9 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
       tipo_habitacion: this.tipoHabitacion?.tipo_habitacion || null,
       cantidad_adultos: null,
       cantidad_menores: null,
+      debaja: 0,
+      fechabaja: null,
+      usuariobaja: null,
       monto: null,
       monto_adicional_adulto: 0,
       monto_adicional_menor: 0,
@@ -97,6 +103,27 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
       this.tarifaReservaSrvc.save(tr).subscribe(res => {
         this.resetTarifaReserva();
         this.loadTarifasReserva();
+      })
+    );
+  }
+  
+  darDeBaja = (tarifa: TarifaReserva) => {
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: '400px',
+      data: new ConfirmDialogModel(
+        `Tarifa para ${tarifa.cantidad_adultos} adultos y ${tarifa.cantidad_menores} menores`,
+        `Luego de dar de baja esta tarifa, no podrá utilizarla en ninguna transacción de RSV . ¿Desea continuar?`,
+        'Sí',
+        'No'
+      )
+    });
+
+    this.endSubs.add(
+      confirmRef.afterClosed().subscribe((conf: boolean) => {
+        if (conf) {
+          tarifa.debaja = 1;
+          this.guardarTarifa(tarifa);
+        }
       })
     );
   }
