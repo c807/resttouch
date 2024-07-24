@@ -157,6 +157,7 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
   public direccionesDeEntrega: ClienteMasterDireccionResponse[] = [];
   public tiemposEntrega: TiempoEntrega[] = [];
   public tiposDomicilio: TipoDomicilio[] = [];
+  public formasPagoAccesoRapido: FormaPago[] = [];
   public porcentajeAumento = 1;
   public bloqueaMonto = false;
   public esEfectivo = false;
@@ -336,9 +337,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
       this.formaPagoSrvc.get({ activo: 1 }).subscribe((res: FormaPago[]) => {
         if (!!res && res.length > 0) {
           this.lstFormasPago = res;
+          this.formasPagoAccesoRapido = res.filter(fp => +fp.acceso_rapido === 1).slice(0, 3);
         }
       })
     );
+  }
+
+  selectFormaPago(formaPago: number) {
+    this.formaPago.forma_pago = formaPago;
+    this.onSelectionChangeFP({ value: formaPago } as MatSelectChange);
   }
 
   addFormaPago = () => {
@@ -749,18 +756,16 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             TotalDescuento: redondear(totalDeDescuento)
           };
           msgToPrint.TotalSinDescuento = redondear(+msgToPrint.Total + totalDeDescuento);
-
-          // console.log('FACTURA = ', msgToPrint);
-
+          const msgToPrintJson = JSON.stringify(msgToPrint);
           if (!!this.data.impresora) {
             if (+this.data.impresora.bluetooth === 0) {
-              this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
+              this.socket.emit(`print:factura`, msgToPrintJson);
             } else {
               msgToPrint.Fecha = moment(res.factura.fecha_factura).format(GLOBAL.dateFormatBT);
-              this.printToBT(JSON.stringify(msgToPrint));
+              this.printToBT(msgToPrintJson);
             }
           } else {
-            this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
+            this.socket.emit(`print:factura`, msgToPrintJson);
           }
 
           this.snackBar.open(

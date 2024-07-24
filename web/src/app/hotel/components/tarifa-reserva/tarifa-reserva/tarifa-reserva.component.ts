@@ -86,6 +86,7 @@ export class TarifaReservaComponent implements OnInit, OnDestroy {
 
   loadTarifasReserva = (fltr: any = {}) => {
     this.cargando = true;
+    fltr.debaja = 0;
     if (this.tipoHabitacion && +this.tipoHabitacion.tipo_habitacion > 0) {
       fltr.tipo_habitacion = +this.tipoHabitacion.tipo_habitacion;
     }

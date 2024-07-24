@@ -244,7 +244,12 @@ export class CajacorteListaComponent implements OnInit, OnDestroy {
                 fr.readAsText(blob);
               } else {
                 const blob = new Blob([res], { type: (_excel === 0 ? 'application/pdf' : 'application/vnd.ms-excel') });
-                saveAs(blob, `Caja_${moment().format(GLOBAL.dateTimeFormatRptName)}.${_excel === 0 ? 'pdf' : 'xls'}`);
+                if (_excel === 0) {
+                  const url = URL.createObjectURL(blob);
+                  window.open(url, '_blank');
+                } else {
+                  saveAs(blob, `Caja_${moment().format(GLOBAL.dateTimeFormatRptName)}.${_excel === 0 ? 'pdf' : 'xls'}`);
+                }
               }
             } else {
               this.snackBar.open('No se pudo generar el reporte...', 'Caja', { duration: 7000 });

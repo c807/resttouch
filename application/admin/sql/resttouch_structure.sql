@@ -976,6 +976,7 @@ CREATE TABLE RT_DATABASE_NAME.forma_pago (
   adjuntararchivo tinyint(1) NOT NULL DEFAULT '0',
   pedirautorizacion tinyint(1) NOT NULL DEFAULT '0',
   sinfactura tinyint(1) NOT NULL DEFAULT '0',
+  acceso_rapido tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (forma_pago)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1704,6 +1705,7 @@ INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VAL
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_INCLUYE_SALDO_INICIAL', '3', '0', 'Habilita/Deshabilita tomar en cuenta el saldo inicial de caja en arqueos y saldos finales.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_SHOPIFY_APLICA_DESCUENTO_A_ENVIO', '3', '1', 'Habilita/Deshabilita si debe aplicar descuento al artículo Entrega cuando hayan descuentos en Shopify.');
 INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_BLOQUEO_MESA_POR_MESERO', '3', '0', 'Habilita/Deshabilita funcionalidad para que solo el mesero que abrió la comanda pueda trabajarla a menos que sea el cajero.');
+INSERT INTO RT_DATABASE_NAME.configuracion (campo, tipo, valor, descripcion) VALUES ('RT_VISUALIZACION_NO_APILADA_ARTICULOS', '3', '0', 'Habilita/Deshabilita si los articulos en la comanda se apilan normalmente o no.');
 
 INSERT INTO RT_DATABASE_NAME.cliente (nombre, direccion, nit) VALUES ('CONSUMIDOR FINAL', 'Ciudad', 'CF');
 

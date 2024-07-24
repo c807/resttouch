@@ -44,7 +44,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public notificaciones: NotificacionCliente[] = [];
   public conversacion: string = '';
   public mensaje: string = '';
-
+  public verPanorama: boolean = false;
   private endSubs = new Subscription();
 
   constructor(
@@ -66,6 +66,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.loadNotificacionesCliente();
+    this.verPanorama = (+this.ls.get(GLOBAL.usrTokenVar).pos?.ver_panorama || 0) === 1;
   }
 
   ngAfterViewInit(): void {
@@ -191,5 +192,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   goToDashboard = () => this.router.navigate(['/admin/dashboard']);
 
+  goToArea = () => this.router.navigate(['/restaurante/tranareas']);
+
+  goToTurno = () => this.router.navigate(['/restaurante/turno']);
 
 }

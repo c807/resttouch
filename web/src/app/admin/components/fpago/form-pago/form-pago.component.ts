@@ -33,6 +33,7 @@ export class FormPagoComponent implements OnInit, OnDestroy {
 
   private endSubs = new Subscription();
 
+  private countAccesoRapido: number = 0;
   public mostrarUsoPropina = false;
 
   constructor(
@@ -48,6 +49,12 @@ export class FormPagoComponent implements OnInit, OnDestroy {
     this.noComandaSinFactura = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_COMANDA_SIN_FACTURA) === false;
     this.loadSedes();
     this.resetFormaPago();
+    this.loadFormasPago();
+    this.endSubs.add(
+      this.fpagoSrvc.get().subscribe(formasPago => {
+        this.countAccesoRapido = formasPago.filter(fp => Number(fp.acceso_rapido) === 1).length;
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -66,12 +73,25 @@ export class FormPagoComponent implements OnInit, OnDestroy {
     this.fpago = {
       forma_pago: null, descripcion: null, activo: 1, permitir_propina: 1, descuento: 0, aumento_porcentaje: 0.00, comision_porcentaje: 0.00,
       retencion_porcentaje: 0.00, pedirdocumento: 0, adjuntararchivo: 0, pedirautorizacion: 0,
-      sinfactura: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00, porcentaje_descuento_aplicado: 0.00
+      sinfactura: 0, acceso_rapido: 0, escobrohabitacion: 0, porcentaje_maximo_descuento: 0.00, porcentaje_descuento_aplicado: 0.00
     };
     this.resetFpscc();
   }
 
+  loadFormasPago = () => {
+    this.endSubs.add(
+      this.fpagoSrvc.get().subscribe(formasPago => {
+        this.countAccesoRapido = formasPago.filter(fp => Number(fp.acceso_rapido) === 1).length;
+      })
+    );
+  }
+  
   onSubmit = () => {
+    const accesoRapido = Number(this.fpago.acceso_rapido);
+    if (accesoRapido === 1 && this.countAccesoRapido >= 3) {
+      this.snackBar.open('No se pueden tener más de 3 formas de pago con acceso rápido.', 'Error', { duration: 7000 });
+      return;
+    }
 
     if (this.fpago.porcentaje_descuento_aplicado > this.fpago.porcentaje_maximo_descuento) {
       this.snackBar.open('El porcentaje de descuento a aplicar no puede ser mayor que el porcentaje máximo de descuento.', 'Error', { duration: 7000 });
@@ -81,6 +101,7 @@ export class FormPagoComponent implements OnInit, OnDestroy {
     this.endSubs.add(
       this.fpagoSrvc.save(this.fpago).subscribe(res => {
         if (res.exito) {
+          this.loadFormasPago();
           this.fpagoSavedEv.emit();
           this.resetFormaPago();
           this.snackBar.open('Forma de pago agregada...', 'Forma de pago', { duration: 3000 });

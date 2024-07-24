@@ -54,3 +54,18 @@
 .excede-monto {
     margin-bottom: 15px;
 }
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+  
+.button-container button {
+    flex: 1 1 auto;
+    min-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

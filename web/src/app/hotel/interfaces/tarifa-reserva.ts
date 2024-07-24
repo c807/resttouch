@@ -12,4 +12,5 @@ export interface TarifaReserva {
     descripcion_tipo_habitacion?: string;
     icono_tipo_habitacion?: string;
     articulo?: string;
+    descripcion_articulo?: string;
 }

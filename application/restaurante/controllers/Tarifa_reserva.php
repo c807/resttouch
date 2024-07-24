@@ -7,7 +7,7 @@ class Tarifa_reserva extends CI_Controller
 	{
 		parent::__construct();
 		set_database_server();
-		$this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model']);
+		$this->load->model(['Tarifa_reserva_model', 'Tipo_habitacion_model', 'Articulo_model']);
 		$this->output->set_content_type('application/json', 'UTF-8');
 		$this->load->helper(['jwt', 'authorization']);
 		$headers = $this->input->request_headers();
@@ -45,6 +45,8 @@ class Tarifa_reserva extends CI_Controller
 	{
 		$datos = $this->Tarifa_reserva_model->buscar($_GET);
 		foreach ($datos as $tr) {
+			$articulo = $this->Articulo_model->buscarArticulo(['articulo' => $tr->articulo]);
+      $tr->descripcion_articulo = $articulo ? $articulo->descripcion : '';
 			$th = $this->Tipo_habitacion_model->buscar(['tipo_habitacion' => $tr->tipo_habitacion, '_uno' => true]);
 			$tr->descripcion_tipo_habitacion = $th ? $th->descripcion : '';
 			$tr->icono_tipo_habitacion = $th ? $th->icono : '';

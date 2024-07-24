@@ -46,7 +46,7 @@
     <mat-select name="tarifa_reserva" [(ngModel)]="reserva.tarifa_reserva" required>
       <mat-option *ngFor="let tarRes of tarifas" [value]="tarRes.tarifa_reserva">
         Monto: {{ tarRes.monto | number: '1.2-2'}} - {{ tarRes.cantidad_adultos }} adulto{{ +tarRes.cantidad_adultos !==
-        1 ? 's' : '' }} - {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }}
+        1 ? 's' : '' }} - {{ tarRes.cantidad_menores }} menor{{ +tarRes.cantidad_menores !== 1 ? 'es': '' }} - {{ tarRes.descripcion_articulo }}
       </mat-option>
     </mat-select>
   </mat-form-field>

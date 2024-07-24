@@ -15,6 +15,7 @@ class Fpago_model extends General_model {
 	public $adjuntararchivo = 0;
 	public $pedirautorizacion = 0;
 	public $sinfactura = 0;
+	public $acceso_rapido = 0;
 	public $esefectivo = 0;
 	public $escobrohabitacion = 0;
 	public $esabono = 0;
@@ -69,6 +70,10 @@ class Fpago_model extends General_model {
 
 		if (isset($args['sinfactura']) && in_array((int)$args['sinfactura'], [0, 1])) {
 			$this->db->where('sinfactura', $args['sinfactura']);
+		}
+
+		if (isset($args['acceso_rapido']) && in_array((int)$args['acceso_rapido'], [0, 1])) {
+			$this->db->where('acceso_rapido', $args['acceso_rapido']);
 		}
 
 		if (isset($args['esefectivo']) && in_array((int)$args['esefectivo'], [0, 1])) {

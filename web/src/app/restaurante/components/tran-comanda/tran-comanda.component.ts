@@ -75,6 +75,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
   public lstProductosAImprimir: ProductoSelected[];
   public showPortalComanda = false;
   public showPortalCuenta = false;
+  public RT_VISUALIZACION_NO_APILADA_ARTICULOS = false;
   public windowConfig: WindowConfiguration;
   public noComanda = 0;
   public sumCuenta = 0;
@@ -120,6 +121,7 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     }
     this.usaCodigoBarras = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_USA_CODIGO_BARRAS) as boolean;
     this.imprimeRecetaEnComanda = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_IMPRIME_RECETA_EN_COMANDA) as boolean;
+    this.RT_VISUALIZACION_NO_APILADA_ARTICULOS = this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_VISUALIZACION_NO_APILADA_ARTICULOS) as boolean;
     this.pideCantidadArticulo = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PEDIR_CANTIDAD_ARTICULO) as boolean) || false;
     this.pantallaTomaCombo = (this.configSrvc.getConfig(GLOBAL.CONSTANTES.RT_PANTALLA_TOMA_COMBO) as number) || 1;
     // console.log('MESA EN USO = ', this.mesaEnUso);
@@ -510,35 +512,68 @@ export class TranComandaComponent implements OnInit, OnDestroy {
     if (+this.cuentaActiva.numero) {
       const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
 
-      const similarProductIndex = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0 && !p.notas_predefinidas);
+      if (this.RT_VISUALIZACION_NO_APILADA_ARTICULOS) {
+        const lastProduct = prodsSel[prodsSel.length - 1];
 
-      if (similarProductIndex > -1) {
-        const tmp: ProductoSelected = prodsSel[similarProductIndex];
-        const nuevaCantidad = (+tmp.cantidad) + +cantidadArticulos;
-        this.detalleComanda = {
-          detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id, cantidad: nuevaCantidad,
-          precio: +tmp.precio, total: nuevaCantidad * (+tmp.precio), notas: tmp.notas, notas_predefinidas: tmp.notas_predefinidas,
-        };
-        this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
-          if (res.exito) {
-            this.setSelectedCuenta(+this.cuentaActiva.numero, true);
-          } else {
-            this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
-          }
+        if (lastProduct && +lastProduct.id === +producto.id && +lastProduct.cuenta === +this.cuentaActiva.numero && +lastProduct.impreso === 0 && !lastProduct.notas_predefinidas) {
+          const nuevaCantidad = (+lastProduct.cantidad) + +cantidadArticulos;
+          this.detalleComanda = {
+            detalle_cuenta: lastProduct.detalle_cuenta, detalle_comanda: lastProduct.detalle_comanda, articulo: lastProduct.id, cantidad: nuevaCantidad,
+            precio: +lastProduct.precio, total: nuevaCantidad * (+lastProduct.precio), notas: lastProduct.notas, notas_predefinidas: lastProduct.notas_predefinidas,
+          };
+          this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
+            if (res.exito) {
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
+            } else {
+              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
+            }
           this.bloqueoBotones = false;
-        });
+          });
+        } else {
+            this.detalleComanda = {
+              articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio,
+              total: +cantidadArticulos * +producto.precio, notas: '', notas_predefinidas: '',
+            };
+            this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
+              if (res.exito) {
+                this.setSelectedCuenta(+this.cuentaActiva.numero, true);
+              } else {
+                this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
+              }
+            this.bloqueoBotones = false;
+          });
+        }
       } else {
-        this.detalleComanda = {
-          articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: '', notas_predefinidas: '',
-        };
-        this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
-          if (res.exito) {
-            this.setSelectedCuenta(+this.cuentaActiva.numero, true);
-          } else {
-            this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
-          }
-          this.bloqueoBotones = false;
-        });
+        const similarProductIndex = prodsSel.findIndex(p => +p.id === +producto.id && +p.cuenta === +this.cuentaActiva.numero && +p.impreso === 0 && !p.notas_predefinidas);
+
+        if (similarProductIndex > -1) {
+          const tmp: ProductoSelected = prodsSel[similarProductIndex];
+          const nuevaCantidad = (+tmp.cantidad) + +cantidadArticulos;
+          this.detalleComanda = {
+            detalle_cuenta: tmp.detalle_cuenta, detalle_comanda: tmp.detalle_comanda, articulo: tmp.id, cantidad: nuevaCantidad,
+            precio: +tmp.precio, total: nuevaCantidad * (+tmp.precio), notas: tmp.notas, notas_predefinidas: tmp.notas_predefinidas,
+          };
+          this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
+            if (res.exito) {
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
+            } else {
+              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
+            }
+            this.bloqueoBotones = false;
+          });
+        } else {
+          this.detalleComanda = {
+            articulo: producto.id, cantidad: +cantidadArticulos, precio: +producto.precio, total: +cantidadArticulos * +producto.precio, notas: '', notas_predefinidas: '',
+          };
+          this.comandaSrvc.saveDetalle(this.mesaEnUso.comanda, this.cuentaActiva.cuenta, this.detalleComanda).subscribe(res => {
+            if (res.exito) {
+              this.setSelectedCuenta(+this.cuentaActiva.numero, true);
+            } else {
+              this.snackBar.open(`ERROR:${res.mensaje}`, 'Comanda', { duration: 3000 });
+            }
+            this.bloqueoBotones = false;
+          });
+        }
       }
       this.setLstProductosDeCuenta();
     }

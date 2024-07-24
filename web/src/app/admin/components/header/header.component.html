@@ -4,12 +4,18 @@
         <span class="spacer"></span>
         <app-clock [idleStatus]="idleState"></app-clock>
         <span class="spacer"></span>
-        <button mat-raised-button color="accent" class="btnAccion" (click)="goToDashboard()">
+        <button mat-raised-button color="warn" class="btnAccion" (click)="goToArea()">
+            <span>Área</span>
+        </button>
+        <button mat-raised-button color="warn" class="btnAccion" (click)="goToTurno()">
+            <span>Turno</span>
+        </button>
+        <button mat-raised-button color="accent" class="btnAccion" (click)="goToDashboard()" *ngIf="verPanorama">
             <mat-icon>dashboard</mat-icon>            
         </button>
-        <button mat-raised-button color="accent" class="btnAccion" (click)="openChat()">
+        <!--<button mat-raised-button color="accent" class="btnAccion" (click)="openChat()">
             <mat-icon>question_answer</mat-icon>            
-        </button>
+        </button>-->
         <button mat-raised-button color="primary" [matMenuTriggerFor]="menu">
             {{usrInfo.usuario}} - {{moduloEnUso}}&nbsp;<mat-icon>apps</mat-icon>
         </button>

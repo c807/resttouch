@@ -34,8 +34,8 @@ class Tablero_model extends General_model
 			->join('cuenta_forma_pago b', 'a.cuenta = b.cuenta')
 			->join('forma_pago c', 'c.forma_pago = b.forma_pago')
 			->join('detalle_cuenta d', 'a.cuenta = d.cuenta_cuenta')
-			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda')
-			->join('comanda f', 'f.comanda = e.comanda')
+			->join('detalle_comanda e', 'e.detalle_comanda = d.detalle_comanda', 'left')
+			->join('comanda f', 'f.comanda = e.comanda', 'left')
 			->join('articulo g', 'g.articulo = e.articulo')
 			->join('categoria_grupo h', 'h.categoria_grupo = g.categoria_grupo')
 			->join('sede i', 'i.sede = f.sede')
@@ -44,7 +44,6 @@ class Tablero_model extends General_model
 			->join('categoria l', 'l.categoria = h.categoria')
 			/* Mesero */
 			->join('usuario mr', 'mr.usuario = f.mesero', 'left')
-			->where('e.detalle_comanda_id IS NULL')
 			->where('c.sinfactura', 1)
 			->not_like('g.descripcion', 'propi', 'after')
 			->get()
