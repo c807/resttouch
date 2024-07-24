@@ -756,16 +756,15 @@ export class CobrarPedidoComponent implements OnInit, OnDestroy, AfterViewInit {
             TotalDescuento: redondear(totalDeDescuento)
           };
           msgToPrint.TotalSinDescuento = redondear(+msgToPrint.Total + totalDeDescuento);
-          const msgToPrintJson = JSON.stringify(msgToPrint);
           if (!!this.data.impresora) {
             if (+this.data.impresora.bluetooth === 0) {
-              this.socket.emit(`print:factura`, msgToPrintJson);
+              this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
             } else {
               msgToPrint.Fecha = moment(res.factura.fecha_factura).format(GLOBAL.dateFormatBT);
-              this.printToBT(msgToPrintJson);
+              this.printToBT(JSON.stringify(msgToPrint));
             }
           } else {
-            this.socket.emit(`print:factura`, msgToPrintJson);
+            this.socket.emit(`print:factura`, `${JSON.stringify(msgToPrint)}`);
           }
 
           this.snackBar.open(
