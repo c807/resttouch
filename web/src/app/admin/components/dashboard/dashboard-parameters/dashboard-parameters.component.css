@@ -13,3 +13,7 @@ mat-form-field {
 .btnRefresh {
     font-size: 25px;
 }
+
+input[type="date"]:after {
+    white-space: normal;
+}

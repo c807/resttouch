@@ -4,10 +4,10 @@
         <span class="spacer"></span>
         <app-clock [idleStatus]="idleState"></app-clock>
         <span class="spacer"></span>
-        <button mat-raised-button color="warn" class="btnAccion" (click)="goToArea()">
+        <button mat-raised-button color="warn" class="btnAccion" (click)="goToArea()" *ngIf="tieneAccesoAArea">
             <span>Área</span>
         </button>
-        <button mat-raised-button color="warn" class="btnAccion" (click)="goToTurno()">
+        <button mat-raised-button color="warn" class="btnAccion" (click)="goToTurno()" *ngIf="tieneAccesoATurno">
             <span>Turno</span>
         </button>
         <button mat-raised-button color="accent" class="btnAccion" (click)="goToDashboard()" *ngIf="verPanorama">

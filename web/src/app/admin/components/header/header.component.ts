@@ -6,7 +6,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 import { LocalstorageService } from '@admin-services/localstorage.service';
-import { GLOBAL } from '@shared/global';
+import { checkForAcceso, GLOBAL } from '@shared/global';
 
 import { UsuarioService } from '@admin-services/usuario.service';
 import { AppMenuService } from '@admin-services/app-menu.service';
@@ -45,6 +45,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   public conversacion: string = '';
   public mensaje: string = '';
   public verPanorama: boolean = false;
+  public tieneAccesoATurno: boolean = false;
+  public tieneAccesoAArea: boolean = false;
   private endSubs = new Subscription();
 
   constructor(
@@ -67,6 +69,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.loadNotificacionesCliente();
     this.verPanorama = (+this.ls.get(GLOBAL.usrTokenVar).pos?.ver_panorama || 0) === 1;
+    this.tieneAccesoATurno = checkForAcceso('pos', 'transacción', 'turno');
+    this.tieneAccesoAArea = checkForAcceso('pos', 'transacción', 'área');
   }
 
   ngAfterViewInit(): void {
@@ -190,10 +194,28 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mbs.open(ChatComponent);
   }
 
-  goToDashboard = () => this.router.navigate(['/admin/dashboard']);
+  goToDashboard = () => {
+    this.actualizarModulo('ADMIN');
+    this.router.navigate(['/admin/dashboard']);
+  };
 
-  goToArea = () => this.router.navigate(['/restaurante/tranareas']);
+  goToArea = () => {
+    this.actualizarModulo('POS');
+    this.router.navigate(['/restaurante/tranareas']);
+  };
 
-  goToTurno = () => this.router.navigate(['/restaurante/turno']);
+  goToTurno = () => {
+    this.actualizarModulo('POS');
+    this.router.navigate(['/restaurante/turno']);
+  };
+
+  private actualizarModulo(modulo: string) {
+    this.ls.set(GLOBAL.usrLastModuleVar, modulo);
+    const objModulo: any = this.appMenu.find(m => m.nombre === modulo);
+    if (objModulo) {
+      const submodulo: any = this.usrSrvc.transformSubModule(objModulo.submodulo);
+      this.appMenuSrvc.updOpciones(submodulo);
+    }
+  }
 
 }

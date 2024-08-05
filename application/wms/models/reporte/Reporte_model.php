@@ -876,6 +876,7 @@ EOT;
 			b.descripcion as SubCategoria,
 			a.articulo as IdArticulo,
 			a.descripcion as Articulo,
+			a.precio as Precio,
 			d.presentacion as IdPresentacion,
 			d.descripcion as presentacion,
 			e.presentacion as IdPresentacionReporte,

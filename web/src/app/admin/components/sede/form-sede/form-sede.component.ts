@@ -93,6 +93,9 @@ export class FormSedeComponent implements OnInit, OnDestroy {
 
   guardarSede = () => {
     this.sede.empresa = this.empresa.empresa;  
+    if (this.sede.enviar_factura_pagada == null) {
+      this.sede.enviar_factura_pagada = 0;
+    }
     this.endSubs.add(      
       this.sedeSrvc.saveSede(this.sede).subscribe(res => {
         if (res.exito) {

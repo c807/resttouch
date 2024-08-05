@@ -328,6 +328,7 @@ class Dcomanda_model extends General_Model
 				->join('cuenta_forma_pago c', 'c.cuenta = b.cuenta_cuenta')
 				->join('forma_pago d', 'd.forma_pago = c.forma_pago')
 				->where('d.sinfactura', 1)
+				->where('a.cantidad >', 0) 
 				->group_by('a.detalle_comanda')
 				->get("{$this->_tabla} a")
 				->result();

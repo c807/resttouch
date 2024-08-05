@@ -1734,6 +1734,7 @@ class Reporte extends CI_Controller
 				"Sub Categoria",
 				"Id Articulo",
 				"Articulo",
+				"Precio",
 				"Id Presentacion",
 				"Presentacion",
 				"Id Presentacion Reporte",
@@ -1766,8 +1767,12 @@ class Reporte extends CI_Controller
 			foreach ($lista as $key => $row) {
 				$hoja->fromArray((array) $row, null, "A{$pos}");
 
+				$hoja->getStyle("I{$pos}")
+          ->getNumberFormat()
+          ->setFormatCode('0.00');
+
 				if (isset($row->ultimo_costo)) {
-					$hoja->getStyle("AB{$pos}")
+					$hoja->getStyle("AC{$pos}")
 						->getNumberFormat()
 						->setFormatCode("0.00");
 				}

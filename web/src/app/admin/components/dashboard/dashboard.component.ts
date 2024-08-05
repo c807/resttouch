@@ -76,10 +76,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       const usrAppMenu = this.usrSrvc.getAppMenu()
       this.appMenuSrvc.updData(usrAppMenu);
       this.appMenu = usrAppMenu;
-      const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
-      if (lastModule) {
-        this.handleClick(lastModule);
-      }
+      //const lastModule: string = this.ls.get(GLOBAL.usrLastModuleVar);
+      //if (lastModule) {
+      //  this.handleClick(lastModule);
+      //}
     });
   }
 

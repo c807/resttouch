@@ -513,7 +513,8 @@ export class TranComandaComponent implements OnInit, OnDestroy {
       const prodsSel: ProductoSelected[] = this.lstProductosCuentaAlt.map(p => this.convertToProductoSelected(p));
 
       if (this.RT_VISUALIZACION_NO_APILADA_ARTICULOS) {
-        const lastProduct = prodsSel[prodsSel.length - 1];
+        const prodsNoImpresos = prodsSel.filter(p => +p.impreso === 0);
+        const lastProduct = prodsNoImpresos[prodsNoImpresos.length - 1];
 
         if (lastProduct && +lastProduct.id === +producto.id && +lastProduct.cuenta === +this.cuentaActiva.numero && +lastProduct.impreso === 0 && !lastProduct.notas_predefinidas) {
           const nuevaCantidad = (+lastProduct.cantidad) + +cantidadArticulos;
